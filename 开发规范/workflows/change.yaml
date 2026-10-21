@@ -1,0 +1,155 @@
+workflow:
+  id: change
+  name: 常规代码变更
+  version: 6
+
+entry_points:
+  常规变更: clarify
+  澄清: clarify
+  出方案: design
+  方案评审: design
+  代码评审: review
+  提测: deliver
+  提测单: deliver
+  发布说明: deliver
+  回滚预案: deliver
+
+trigger:
+  - 常规变更
+  - 澄清
+  - 出方案 / 需求澄清 / 方案评审
+  - 代码评审
+  - 提测 / 提测单 / 发布说明 / 回滚预案
+  # 未命中 defect-fix / iterate / onboard / release / retro 的实施类，由 AGENTS §3 兜底至此
+
+steps:
+  - name: 对齐与澄清
+    id: clarify
+    agent: implementer
+    output: 需求卡（目标/范围/AC/假设）
+    notes: >
+      三要素不明一次一问；已唯一则 1～2 句复述后直跑。
+      技能：`技能/requirements-and-spec/SKILL.md`（先读再澄清）。
+      需求/验收点不明且本机可用 spec-clarify（能力注册表）时按需澄清（一次一问至 ≥95%）；不可用按现行纪律。
+      变更分级见 AGENTS §0.1；L0 微改可轻量，L2+ 进入 requirements。
+      L2+ 先读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
+
+  - name: 需求基线
+    id: requirements
+    when: new_feature_or_scope_change_or_requested
+    agent: implementer
+    hitl: confirm_requirements
+    hitl_when: requirements_need_confirm
+    output: 需求基线（{文档事实源目录}/01-需求基线/）
+    notes: >
+      条件步：新功能/范围变更/验收不明才走；小改用轻量需求卡（背景/目标/AC/非目标）。
+      可选输入（不强制）：项目已有 PRD/需求文档（任意路径/来源）→ 先读并引用，只补技术验收/差距/非功能；没有 → 一句话说明缺口，由用户提供/选择只用已有资料/按模板 `规则/模板/需求基线模板.md` 补一份。
+      技能：`技能/requirements-and-spec/SKILL.md`。
+      必过：用户故事、AC、NFR（性能/安全/隐私/兼容/可观测）、明确不做、假设/依赖、签收。
+      新功能/范围变更/AC 实质变化 → 视为 requirements_need_confirm=true；未确认不得进设计/排期。
+      confirm_requirements：出示范围/AC/NFR/非目标与未决项，确认后冻结；未签收不得进设计/排期（用户豁免须记录；已有 PRD 且已签收 → 只确认技术差距）。
+
+  - name: 方案与设计
+    id: design
+    when: new_feature_or_architecture_or_breaking_change_or_requested
+    agent: implementer
+    hitl: confirm_spec
+    output: 方案/ADR（{文档事实源目录}/02-设计基线/）
+    notes: >
+      条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案/方案评审」才走；L0 单文件小改可跳过。
+      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A 技术选型/02B 数据库/02C API/02D 前端/02E 安全/02F 性能容量）；模板 `规则/模板/方案模板.md`，架构决策另落 `ADR模板.md`。
+      必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；装配 design-diagram 时按需产图。
+      confirm_spec：出示方案要点，批准后才进 implement（点名「方案评审」且有既有方案 → 直接出示要点评审，不重产）；「只出方案」→ 本步后收尾。
+
+  - name: 任务清单
+    id: plan
+    when: multi_file_or_new_feature_or_requested
+    agent: iterate-lead
+    hitl: confirm_backlog
+    output: 任务清单（{文档事实源目录}/03-计划与状态/）
+    notes: >
+      条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/任务清单模板.md`。
+      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/依赖无环/并行安全/L 已拆/检查点），再 confirm_backlog（清单+节奏三选）。
+      更新开发计划：S3 任务与排期=进行中/完成，任务清单链接、里程碑、依赖、风险；清单未完成时禁止覆盖；不同工作先问用户。
+
+  - name: 实施
+    id: implement
+    agent: implementer
+    output: 代码/配置改动
+    notes: >
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）。
+      可测逻辑同步补测；装配 docs-mcp 时按其核对最新文档（防幻觉 API）；
+      本机可用 unit-test-gen 时按覆盖缺口驱动单测（禁无断言凑覆盖率）；不可用=手写+门禁。
+      改动面超出清单/预期先停下说明；高风险变更用开关/可回滚路径。
+
+  - name: 代码评审
+    id: review
+    when: multi_file_or_new_feature_or_requested
+    agent: implementer
+    tools:
+      - code-review
+      - security-scan
+    output: 评审结论/缺口
+    notes: >
+      条件步：L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」才走；L0 单文件可跳过；核验者≠实施者。
+      技能：`技能/code-review/SKILL.md`（五轴 + 全量覆盖 + 安全/供应链，先读再审）。
+      本机可用 code-review 时按其评审全量 diff；不可用 → 派独立核验（`agents/reviewer-agent.yaml`）。
+      security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
+      只报正确性/需求覆盖/安全/性能/范围缺口；需修回 implement，同回合重验≤1；核验不替代门禁。
+
+  - name: 自验
+    id: verify
+    agent: implementer
+    gate: project-gates
+    notes: >
+      有代码/配置改动才跑；按 项目档案.md「质量门禁命令」取最小充分集（细则 规则/工作流.md §3.3）；
+      纯澄清无改动可跳过本步。失败不声称完成；存量失败只对账新增。
+
+  - name: 提测与发布文档
+    id: deliver
+    when: has_qa_or_deploy_or_requested
+    agent: implementer
+    output: 提测单/发布说明/回滚预案（{文档事实源目录}/05-发布与交付/）
+    notes: >
+      条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
+      技能：`技能/qa-handoff-and-release/SKILL.md`；模板 `规则/模板/提测单模板.md`、`模板/发布说明模板.md`。
+      提测单：版本/构建、改动点/影响面、自测证据、已知问题、回归指引、QA 接收；发布说明：审批/窗口/灰度/监控/回滚。
+      落 05-发布与交付/（或档案映射）；提测单单点滚动，发布说明一版一档；文档纳入随后 commit。
+      QA 交接：若同项目有测试流程/测试包，提测单可作为其计划的可选输入；无 QA 也要留自测证据。
+
+  - name: 拟提交
+    id: commit
+    agent: implementer
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    output: 拟提交清单
+    notes: >
+      本任务无文件变更 → 跳过本步与 hitl，直接六段收尾；
+      提交前确认：代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + 文档索引/activeContext 同批或紧随文档提交；
+      提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）；
+      发版类任务可装配 release-automation（能力注册表）联动版本/CHANGELOG。
+      提交信息与粒度见 规则/工作流.md §2；密钥零入库。
+
+  - name: 发布交接
+    id: release_handoff
+    when: has_deploy
+    agent: delivery-lead
+    output: 发布就绪包
+    notes: >
+      条件步：含部署/发版才走；本步不直接部署。
+      就绪包=提测单+发布说明+上线检查单+回滚预案+测试报告/UAT（如有）；缺项先补。
+      转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证；交接时说明版本/窗口/风险/回滚决策人。
+      更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
+
+  - name: 收尾
+    id: wrap
+    agent: implementer
+    output: 【任务收尾】（六段 + 可复制汇报）
+    notes: >
+      更新 activeContext（焦点/最近变化/下一步/仍生效决策）、文档索引、任务清单状态；
+      更新开发计划：§0 当前阶段/健康度/下一动作、§1 阶段状态/产出/证据/下一步 3 件事、§12 执行日志（L2+）。
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报（业务语言、量化、结论先行），第 2～6 点齐；未验证项明示。
+      若发布已转 release，收尾注明发布状态与后续入口。

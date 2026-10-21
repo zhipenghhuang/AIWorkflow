@@ -1,0 +1,128 @@
+workflow:
+  id: iterate
+  name: 迭代交付
+  version: 6
+
+entry_points:
+  按方案实施: plan
+  落地迭代方案: plan
+  继续迭代: plan
+  只出任务清单: plan
+
+trigger:
+  - 按方案实施
+  - 落地迭代方案
+  - 继续迭代
+  - 只出任务清单
+
+steps:
+  - name: 读方案与拆清单
+    id: plan
+    agent: iterate-lead
+    output: 任务清单（{文档事实源目录}/03-计划与状态/任务清单-{版本或主题}.md）
+    notes: >
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/任务清单模板.md`。
+      L2+ 先读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
+      本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
+      拆完先自检：RP 覆盖、AC、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐；再进 confirm。
+      若口令含「只出任务清单」：完成本步后收尾即可（跳过 confirm / implement / review / gates / deliver / wrap / release_handoff / retro）。
+      口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
+      未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
+
+  - name: 确认清单与节奏
+    id: confirm
+    agent: iterate-lead
+    hitl: confirm_backlog
+    hitl_when: backlog_or_pace_changed
+    output: 已确认清单/节奏
+    notes: >
+      「继续迭代」且清单与节奏相对上次确认未变 → 跳过本 hitl，直入 implement。
+      清单新建、范围变更或用户要求改节奏 → 必须 confirm_backlog（出示任务数/RP 覆盖/依赖/风险 + 节奏三选，见 规则/迭代交付.md §3）。
+      plan 步新建/更新清单 → 视为 backlog_or_pace_changed=true；未确认不得实施。
+      确认后冻结基线；实施中新增/删除/拆分/调序 → 记清单 §6 变更记录。
+      更新开发计划：S3 任务与排期=完成，任务清单/里程碑/依赖/风险链接。
+
+  - name: 实施与定向自验
+    id: implement
+    agent: iterate-lead
+    output: 代码/配置改动 + 任务状态回写
+    notes: >
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）。
+      RP/AC 可核对且全覆盖才开工；完成当场回写清单（状态/验证摘要/提交号）。
+      任务多/可独立/文件集可切分时按组派子代理：一组一子代理（同文件/同函数集归一组；默认串行）；
+      分批逐批推进：批末定向门禁 → 批末核验 → 下一批；高风险/大改/破坏性变更核验者≠实施者（规则/迭代交付.md §3）；
+      评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
+      改动面超出清单先停下说明；未验证不得标完成。
+
+  - name: 代码评审
+    id: review
+    when: multi_file_or_new_feature_or_requested
+    agent: implementer
+    tools:
+      - code-review
+      - security-scan
+    output: 评审结论/缺口
+    notes: >
+      条件步：多文件/新功能、高风险/大改/破坏性变更或点名「代码评审」才走；L0 单文件可跳过；核验者≠实施者。
+      技能：`技能/code-review/SKILL.md`；本机可用 code-review 时评审全量 diff，不可用派 reviewer-agent 独立核验。
+      security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
+      需修回 implement，同回合重验≤1；核验不替代门禁。
+
+  - name: 全量门禁与文档同步
+    id: gates
+    agent: iterate-lead
+    gate: project-gates
+    output: 门禁摘要/文档同步
+    notes: >
+      按 项目档案.md「质量门禁命令」取最小充分集；失败不声称完成；存量失败只对账新增。
+      同步任务清单状态、activeContext、文档索引；文档与实现同变更。
+
+  - name: 提测与发布文档
+    id: deliver
+    when: has_qa_or_deploy_or_requested
+    agent: iterate-lead
+    output: 提测单/发布说明/回滚预案（{文档事实源目录}/05-发布与交付/）
+    notes: >
+      条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
+      技能：`技能/qa-handoff-and-release/SKILL.md`（先读再产）；模板 `规则/模板/提测单模板.md`、`模板/发布说明模板.md`。
+      提测单/发布说明落 05-发布与交付/（或档案映射）；先产文档再提交，文档纳入 wrap 的拟提交。
+      无 QA 也要留自测证据；已知问题不瞒报。
+
+  - name: 总结与拟提交
+    id: wrap
+    agent: iterate-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    output: 【任务收尾】（迭代交付汇报置第 1 点）
+    notes: >
+      无文件变更则跳过 confirm_commit；提交前确认任务清单/文档索引/activeContext 已更新。
+      更新开发计划：§0 当前阶段/下一动作、§1 本阶段产出与证据/下一步 3 件事、§12 执行日志。
+      按 AGENTS §2 输出【任务收尾】：迭代交付总结/汇报作第 1 点内容（含可复制汇报），第 2～6 点齐。
+      提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）。
+      本步之后若含部署 → release_handoff；迭代完成/事故 → retro。
+      提交信息与粒度见 规则/工作流.md §2。
+
+  - name: 发布交接
+    id: release_handoff
+    when: has_deploy
+    agent: delivery-lead
+    output: 发布就绪包
+    notes: >
+      条件步：含部署/发版才走；本步不直接部署。
+      就绪包=提测单+发布说明+上线检查单+回滚预案+测试报告/UAT（如有）；缺项先补。
+      转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证。
+      本步为链末（无 retro）时，按 AGENTS §2 输出全链【任务收尾】（含可直接复制汇报）；有 retro 则由 retro 收尾。
+      更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
+
+  - name: 迭代复盘
+    id: retro
+    when: iteration_done_or_incident
+    agent: delivery-lead
+    output: 复盘（{文档事实源目录}/06-复盘与改进/）
+    notes: >
+      条件步：迭代完成/发布回滚/事故/重复缺陷才走；小迭代可 3～5 条轻量复盘。
+      技能：`技能/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `规则/模板/复盘模板.md`。
+      若 release 工作流已做复盘 → 本步只补迭代视角/链接，不重复同一分析。
+      更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；项目关闭或继续下一迭代。
+      行动项必须有负责人/截止/验收；进任务清单或 `06-复盘与改进/改进项.md`；下次复盘先对账。
+      本步为链末时，按 AGENTS §2 输出全链【任务收尾】（迭代/发布明细置第 1 点，含可直接复制汇报）。

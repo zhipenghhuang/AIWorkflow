@@ -1,0 +1,53 @@
+workflow:
+  id: retro
+  name: 复盘与改进
+  version: 1
+
+entry_points:
+  复盘: gather
+  事故复盘: gather
+  迭代复盘: gather
+  版本复盘: gather
+
+trigger:
+  - 复盘 / 事故复盘 / 迭代复盘 / 版本复盘
+  - 发布回滚后复盘
+
+steps:
+  - name: 收集事实
+    id: gather
+    agent: delivery-lead
+    output: 时间线/影响/证据/指标
+    notes: >
+      技能：`技能/retrospective-and-improvement/SKILL.md`（先读再做）。
+      输入：发布记录/上线检查单、缺陷单、测试报告、日志/监控/告警、沟通记录、activeContext。
+      只收事实：时间线（发现→响应→止损→恢复→关闭）、影响（用户/业务/数据/资损/合规/时长）、指标（lead time/cycle time/CFR/escaped defects/MTTR）。
+      无法确认写「未知」，不猜。
+
+  - name: 根因分析
+    id: analyze
+    agent: delivery-lead
+    output: 直接原因/根本原因/贡献因素
+    notes: >
+      5 Whys/因果链追到可改变的系统性原因；不要停在“人为疏忽”。
+      贡献因素：流程/工具/测试/评审/监控/文档/排期/沟通；做得好/做不好各列。
+      只对事不对人；结论附证据。
+
+  - name: 行动项
+    id: actions
+    agent: delivery-lead
+    hitl: confirm_actions
+    output: 行动项（负责人/截止/验收）
+    notes: >
+      每条行动项：具体动作 + 负责人 + 截止 + 验收标准 + 跟踪位置；优先系统性缺口。
+      能落到规则/技能/模板/门禁的直接改；不能落地的建跟踪项。
+      confirm_actions：出示行动项清单与优先级，确认后落盘；未确认不宣称改进完成。
+
+  - name: 落盘与索引
+    id: record
+    agent: delivery-lead
+    output: 复盘文档（06-复盘与改进/）
+    notes: >
+      按 `规则/模板/复盘模板.md` 落 `06-复盘与改进/复盘-{版本或事件}-{yyyyMMdd}.md`。
+      更新 `{文档事实源目录}/文档索引.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `06-复盘与改进/改进项.md`。
+      下次复盘先对账上次行动项；未完成项说明原因与新截止。

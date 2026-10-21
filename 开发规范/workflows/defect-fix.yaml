@@ -1,0 +1,103 @@
+workflow:
+  id: defect-fix
+  name: 缺陷修复协作
+  version: 6
+
+entry_points:
+  指派给我: pull
+  我的待修: pull
+  修复#: pull
+  "#数字": pull
+  落地优化方案: pull
+
+trigger:
+  - 指派给我
+  - 我的待修
+  - 修复#
+  - "#数字"           # 仅 #123 形态 → 点名（与 AGENTS 对齐）
+  - 落地…#编号…优化方案
+
+steps:
+  - name: 平台可用性
+    id: preflight
+    agent: defect-fixer
+    notes: >
+      读项目档案 provider。若为「无」或未配置：
+      route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；
+      禁止向用户索要编号、禁止空转拉平台。
+
+  - name: 拉取与归组
+    id: pull
+    agent: defect-fixer
+    tools:
+      - defect-platform
+    output: 清单摘要/分组
+    notes: >
+      拉取后读全单：提交信息（标题/steps/数据/环境/附件）＋历史备注/讨论；同号重复修复预检；归组后进入 fix。
+      历史预检跳过项：产品缺陷分类记录未回派 → 跳过标注「待产品经理确认」；已修复未再激活 → 跳过标注「已处理」；无法判定被激活 → 重新分类处置。
+
+  - name: 红证与修复
+    id: fix
+    agent: defect-fixer
+    output: 修复/方案/无法判定
+    notes: >
+      修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（协作 §6；红绿与换路径细则见 AGENTS §0.3-7）。
+      含分类处置：实现缺陷→修；产品缺陷→出方案、上传附件并指派产品经理（未评审确认不实施）；无法判定→备注要信息（规则/缺陷修复协作.md §5/§7）。
+      安全相关缺陷按 规则/工作流.md §3.4 检查输入/鉴权/越权/敏感信息；需要时跑 security-scan 最小集。
+      高风险/大改/破坏性缺陷：核验者≠实施者（派 reviewer-agent 独立核验；核验不替代门禁）。
+      可派子代理但禁 commit/push/改平台；返回须为可直填备注的事实素材（规则/缺陷修复协作.md §4）。
+
+  - name: 门禁
+    id: gates
+    agent: defect-fixer
+    gate: project-gates
+    notes: >
+      本批无代码/配置改动项 → 跳过（纯回写/无法判定）；门禁粒度见 规则/工作流.md §3.3。
+      失败不声称完成；存量失败只对账新增。
+
+  - name: 总结菜单
+    id: menu
+    agent: defect-fixer
+    hitl: select_menu
+    output: 【缺陷修复处理总结】+【用户选择菜单】
+    notes: >
+      预授权（一次性/直接跑完）：先一问范围（见 AGENTS §0.8）；默认只到本步输出（修复＋门禁＋总结菜单）待选择，
+      禁静默连跑提交/推送/部署/回写；含后续由范围确认覆盖。总结与菜单必须同轮输出。
+
+  - name: 提交推送部署回写
+    id: close
+    agent: defect-fixer
+    tools:
+      - git
+      - defect-platform
+    hitl:
+      - name: confirm_commit
+        when: menu_includes_commit
+      - name: confirm_remark
+        when: menu_includes_writeback
+    output: 提交/部署/回写结果
+    notes: >
+      按菜单精确执行（组合=并集、重复步骤只执行一次）；确认门以本步 hitl 列表为准（专规不另造门）：
+      含提交/推送 → confirm_commit（【拟提交】块）；含部署 → 按档案部署方式执行，失败则停、不回写；
+      含回写 → confirm_remark（§6 备注全文）。可与菜单同轮展示拟提交清单+备注全文，用户一次确认后连续执行（预授权已含本步时，展示照常、免重复等待，见 AGENTS §0.8）。
+      含部署 → 先按 `技能/acceptance-and-launch/SKILL.md` 过就绪检查，产出/更新 发布说明+回滚预案+上线检查单（`模板/发布说明模板.md`、`模板/上线检查单模板.md`），落 `05-发布与交付/`；发布说明纳入拟提交。
+      部署后先冒烟再回写；未验证不得写成“已修复”。
+
+  - name: 发布后验证
+    id: postrelease
+    when: has_deployed
+    agent: defect-fixer
+    output: 发布后验证/发布记录
+    notes: >
+      条件步：本轮含部署才走。按发布说明跑主链路冒烟与关键回归；观察日志/指标/告警。
+      触发回滚条件 → 按发布说明回滚，不恋战；更新 `05-发布与交付/发布记录-{版本}.md`、发布说明、文档索引、activeContext。
+      失败/回滚不重复回写已回写项；需要时转 retro。
+
+  - name: 复盘
+    id: retro
+    when: recurring_defect_or_incident
+    agent: defect-fixer
+    output: 复盘（{文档事实源目录}/06-复盘与改进/）
+    notes: >
+      条件步：重复缺陷/事故/回滚才走；技能 `技能/retrospective-and-improvement/SKILL.md`，模板 `规则/模板/复盘模板.md`。
+      行动项必须有负责人/截止/验收；进任务清单或 `06-复盘与改进/改进项.md`。

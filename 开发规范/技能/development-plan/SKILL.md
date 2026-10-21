@@ -1,0 +1,117 @@
+---
+name: development-plan
+description: Use when a development project or feature starts or needs a status check. Maintain the development control document from PRD and prototype through analysis, design, task breakdown, implementation, verification, QA handoff, release, and closure.
+---
+
+# 开发计划（技能 · 随包生效）
+
+> 用于：新项目/新产品开发、L2+ 功能/迭代、阶段检查、进度/下一步同步。  
+> 产出：`{文档事实源目录}/开发计划.md`（新项目建议 `开发/开发计划.md`；旧项目可保留 `docs/00-项目治理/开发计划.md`；模板 `规则/模板/开发计划模板.md`）。  
+> 定位：**开发工作自己的控制面**，类似《测试计划》之于测试；只管阶段、门、状态、产物索引、风险、下一步，不复制正文。  
+> **命名约定**：本文档叫《开发计划》（总览全文，类似《测试计划》）；流程里的 S3 叫**任务与排期**（任务清单/依赖/估算/DoR/DoD/检查点）。二者分开命名：**开发计划是总览，S3 是其中一个阶段**。  
+> 参考方法（改写适配，非逐字复制）：GitHub Spec Kit（plan/tasks/converge）、Addy Osmani `planning-and-task-breakdown` 与 Definition of Done、Superpowers `writing-plans`/`executing-plans`、BMAD 的按规模裁剪与 durable context、Google Engineering Practices 的 code review、GitHub flow 的 PR/CI 节奏。
+
+## 1. 何时启用
+
+| 场景 | 是否启用 |
+| --- | --- |
+| 新项目/新产品、L3 高风险 | 必须 |
+| L2 功能/迭代、多文件/跨模块 | 建议/默认 |
+| L1 常规 | 可选，轻量开发卡 |
+| L0 微改 | 不启用，【任务收尾】六段 |
+
+没有输入文档（PRD/原型/AC）时：一句话说明缺口 → 由用户提供/选择只用已有资料/本包模板补；**不强制引用其它包**。
+
+## 2. 输入（能拿到多少写多少）
+
+- PRD/需求文档、页面原型/设计稿、交互/状态说明。
+- 验收标准（AC）、非功能要求（性能/安全/兼容/可观测）。
+- 接口/数据字典、现有代码/分支、环境/依赖。
+- 明确不做、假设、待确认问题。
+
+输入不必一次齐；缺口写进计划 §2，随阶段补齐。**没有 AC 不得进入技术方案**（可写「假设 + 待确认」并标风险）。
+
+## 3. 阶段与门（状态机）
+
+```text
+S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测
+→ S5 评审/CI → S6 提测 → S7 测试/缺陷 → S8 发布 → S9 收尾/复盘 → CLOSED
+```
+
+| 门 | 通过条件 |
+| --- | --- |
+| G0 输入就绪 | PRD/原型/AC/环境版本明确；缺口有负责人/时间 |
+| G1 需求分析 | 功能点/页面状态/权限/数据/异常/影响面/待确认清 |
+| G2 方案批准 | 方案/ADR、接口/数据、安全、观测、回滚、测试策略 |
+| G3 排期确认 | 任务/依赖/估算/DoR/DoD/检查点；RP/AC 覆盖 |
+| G4 开发完成 | 代码/单测/自测/文档；未验证项明示 |
+| G5 评审/CI | 独立评审/静态/安全/CI；门禁通过 |
+| G6 提测就绪 | 提测单/环境/数据/证据/回归指引 |
+| G7 测试通过 | 阻塞缺陷清零；遗留接受；测试报告 |
+| G8 发布就绪 | 上线检查单/审批/回滚/监控/通知 |
+| G9 交付完成 | 发布验证/文档/复盘/归档 |
+
+上一阶段未过门不进入下一阶段；回退写明原因与影响。
+
+## 4. 执行步骤
+
+1. **初始化**：复制模板到 `{文档事实源目录}/开发计划.md`（新项目建议 `开发/开发计划.md`）；填一页状态、输入、阶段表；当前阶段=S0；首次计划过 `confirm_plan`。  
+2. **每阶段开始**：读开发计划 → 确认当前阶段/输入 → 加载对应技能/规则 → 执行。  
+3. **每阶段结束**：产出文档/代码/证据 → 更新阶段表（状态/产出/证据/下一步）→ 过门 → 进入下一阶段。  
+4. **门检查**：缺证据/缺文档/未验证 → 不得标完成；写阻塞与下一步。  
+5. **发布/复盘**：更新发布记录/复盘链接；关闭或归档。  
+
+**AI 行为**：先读开发计划，报备“当前阶段 + 下一步”；不按聊天记忆猜进度；每步结束更新开发计划；不复制 PRD/方案/任务正文，只放链接。
+
+## 5. 门检查清单
+
+- [ ] 当前阶段与阶段表一致；状态/健康度已更新。  
+- [ ] 本阶段输入齐；缺口有负责人/时间。  
+- [ ] 本阶段产出已落盘；证据链接可打开。  
+- [ ] 下一阶段输入已具备；未具备写阻塞。  
+- [ ] 风险/依赖/决策/变更记录已更新。  
+- [ ] 没有用“应该/大概/之前跑过”代替证据。  
+
+## 6. 防过期
+
+- 只在阶段转换、过门、发布、复盘时更新，不做日报长文。  
+- 一页状态 + 阶段表 + 索引是主视图；细节进链接。  
+- 每次更新写日期；旧版本不覆盖，必要时归档。  
+- 发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。  
+- 没有更新开发计划，不得声称阶段完成/发布完成。
+
+## 7. 与其它文档的边界
+
+| 文档 | 负责 |
+| --- | --- |
+| PRD/原型 | 做什么、为什么、验收标准 |
+| 技术方案/ADR | 怎么实现、取舍、风险 |
+| 任务清单 | 谁在何时做什么、依赖、状态 |
+| 测试计划/报告 | 怎么测、几轮、准入准出 |
+| 提测单/发布说明 | 怎么交接、怎么发、怎么回滚 |
+| **开发计划** | **开发到哪、下一步、门、证据、缺什么** |
+
+## 8. 常见坑
+
+- 把开发计划写成 PRD/方案合集：巨大、过期、没人读。  
+- 只建一次不更新：下一阶段/接手人无法判断状态。  
+- 阶段表没有证据链接：门形同虚设。  
+- 任务清单与开发计划脱节：开发计划说完成，清单还有未完成项。  
+- 输入缺失硬做：假设不标、风险不记，后期返工。  
+- 用“测试通过”代替发布就绪：回滚/监控/审批仍可能缺。
+
+## 9. 输出
+
+- 开发计划（一页状态 + 阶段门表 + 输入/分析/方案/计划/执行/提测/发布/风险/变更/链接 + 执行日志/归档索引）。  
+- 阶段检查摘要：当前阶段、门、缺口、下一步 3 件事。  
+- 需要用户决策的缺口清单（放最前）。  
+- 关闭时：当前计划生成快照到 `{文档事实源目录}/_归档/{yyyyMMdd}-{版本}/开发计划.md`，当前路径不移动，下一迭代重置/新建。
+
+## 10. 参考来源（方法参考，非逐字复制）
+
+- GitHub Spec Kit：<https://github.com/github/spec-kit>（specify → plan → tasks → analyze → implement → converge；plan.md/tasks.md）
+- Addy Osmani agent-skills：<https://github.com/addyosmani/agent-skills>（planning-and-task-breakdown、definition-of-done、code-review）
+- Superpowers：<https://github.com/obra/superpowers>（writing-plans、executing-plans、TDD、requesting-code-review）
+- BMAD-METHOD：<https://github.com/bmad-code-org/BMAD-METHOD>（按规模裁剪、durable context、端到端交付）
+- Google Engineering Practices：<https://google.github.io/eng-practices/review/>（code review 标准）
+- GitHub flow：<https://docs.github.com/en/get-started/using-github/github-flow>（branch → PR → review → merge → delete）
