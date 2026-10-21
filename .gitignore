@@ -1,0 +1,15 @@
+# 编辑器与本机环境
+.cursor/
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+
+# 本机本地工具与维护记录（不参与提交与推送）
+/Update-Assets.ps1
+/更新项目资产.bat
+/Push-Changes.ps1
+/一键推送.bat
+/activeContext.md
