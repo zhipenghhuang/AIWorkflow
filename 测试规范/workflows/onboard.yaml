@@ -1,0 +1,67 @@
+# 接入：点名，或无 landing=ok 且业务口令触发时前置一次；完成后必须打标
+workflow:
+  id: onboard
+  name: 测试规范接入
+  version: 4
+
+entry_points:
+  接入: baseline
+  重新接入: migrate
+  生成环境基线: baseline
+  装配能力: capabilities
+
+trigger:
+  - 接入
+  - 重新接入
+  - 生成环境基线
+  - 装配能力
+  - preflight-once   # 仅当无 landing=ok
+
+steps:
+  - name: 旧结构迁移
+    id: migrate
+    agent: onboard-agent
+    output: 迁移清单/更新后的路径
+    notes: >
+      「重新接入」= 预授权按最新布局迁移；先扫描旧结构，列出迁移清单，再执行，不静默丢文件。
+      迁移映射：根 `项目资料/` → `测试/资料/项目文档/`；`测试/测试用例/` + `测试/执行台账/` → `测试/功能测试/`（用例/台账/评审/证据同级；证据按模块）；
+      `测试/测试脚本/` → `测试/脚本/`；`测试/变更记录/` → `测试/变更/`；`测试/发布前测试/{专项}/` 保持，性能/安全/兼容各自独立；
+      `测试/计划执行看板.md` → 合并进 `测试/测试计划.md` §0/§16 后删除。
+      更新 `环境基线.md` §2.1、测试计划/报告、索引、activeContext；旧路径不改则注明兼容，不强迁。
+      文件冲突/无法判断归属/三项混在一个方案 → 停下问一次，不擅自覆盖。
+      迁移后核对链接与引用，再进入 baseline/context。
+
+  - name: 挂载与基线
+    id: baseline
+    agent: onboard-agent
+    output: 环境基线.md（§1/§2.1/§2.2/§8）
+    notes: >
+      建固定资料区：`测试/资料/项目文档/`、`测试/资料/测试数据/`、`测试/资料/资料索引.md`；
+      `环境基线.md` §2.1 设计输入目录填 `测试/资料/项目文档/`（已有设计目录则按实际填）。
+      不建 `测试/计划执行看板.md`；状态写测试计划 §0/§16。
+
+  - name: activeContext
+    id: context
+    agent: onboard-agent
+    output: activeContext.md
+
+  - name: 入库策略
+    id: gitignore
+    agent: onboard-agent
+    hitl: confirm_gitignore
+
+  - name: 环境与工具检查
+    id: capabilities
+    agent: onboard-agent
+    notes: >
+      默认静默：不输出工具清单、不冒烟（可用性由首次使用时的对应流程自行探测与降级）。
+      仅当用户点名「装配能力」时，按 `能力/00-能力注册表.md` 盘点并给装配建议（安装指引指向 README「宿主适配」节）。
+      例外：已配置且明显不可用、会影响预期的事项，一句话说明。
+      记录（如需要）写 环境基线.md §17——自动记录，不是待办；禁强推、禁清单式输出。
+
+  - name: 核验与打标
+    id: verify
+    agent: onboard-agent
+    notes: >
+      按 onboard-agent 接入清单核验（①～⑦，含写 landing=ok）；
+      有挂起原口令则 resume；此后业务任务见标记直跑。

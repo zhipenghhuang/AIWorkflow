@@ -1,0 +1,48 @@
+# 无 landing=ok 时才按 onboard-agent 清单核验一次；打标后免检（AGENTS 开工第3点）；§13 按需补
+workflow:
+  id: defect
+  name: 测试缺陷协作
+  version: 2
+
+trigger:
+  - 缺陷协作
+  - 查重
+  - 提交到平台
+  - 回归（指派给我 / 已解决 / 平台）
+  - 指派给我 + 回归|验证|复测
+
+preflight:
+  skip_if: activeContext landing=ok
+  once: 按 agents/onboard-agent.yaml 接入清单核验
+  on_fail: onboard → write landing=ok → resume
+
+steps:
+  - name: 识别子类
+    id: classify
+    agent: bug-agent
+    notes: 回归/提交/修改/查重/列表；回归默认 LIST=指派给我·未关闭（含 active），读备注分拣见 缺陷协作§7；未点子类先 LIST 再问；本轨专规读够（见 bug-agent reads）
+
+  - name: 查重或拉取
+    id: search
+    agent: bug-agent
+    tools:
+      - defect-platform
+
+  - name: 提交或回写
+    id: submit
+    agent: bug-agent
+    hitl: confirm_remark
+    hitl_when: remark_writeback
+    notes: >
+      remark_writeback＝拟关/激/解决/标重复或回归写回备注；先出 id+备注全文再执行。
+      列表/仅查重展示/仅建单（无状态回写）→ 跳过本门；列表子类可跳过本步直 wrap。
+    output: 平台单号 · 备注与状态同轮 · 提交后输出可复制汇总块（规则/缺陷协作.md §5.2）
+
+  - name: 收尾
+    id: wrap
+    agent: report-agent
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    notes: >
+      门3 有拟入库时 STOP；确认或跳过提交后，按 AGENTS §5 输出【任务收尾】（提交/回归结果块置第 1 点，可复制）。
+      本轮若用过浏览器 MCP → 按多Agent §2.2 全链终局退程（本套 Chrome）。
