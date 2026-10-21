@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>原型脚手架 · 工单列表</title>
+<!--
+  原型脚手架（离线单文件 · 无依赖）
+  用法：复制本文件 → 改 :root tokens → 换页面内容。
+  纪律：这是原型，不是生产代码；覆盖空/加载/失败/成功/禁用/无权限状态。
+-->
+<style>
+  /* ===== Design tokens：先改这里 ===== */
+  :root {
+    --color-primary: #1d4ed8;
+    --color-primary-hover: #1e40af;
+    --color-primary-soft: #eff6ff;
+    --color-text: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94a3b8;
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+    --color-border: #e2e8f0;
+    --color-success: #15803d;
+    --color-warning: #b45309;
+    --color-danger: #b91c1c;
+    --color-danger-soft: #fef2f2;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+    --shadow-md: 0 8px 24px rgba(15, 23, 42, .10);
+    --space-1: 4px; --space-2: 8px; --space-3: 12px;
+    --space-4: 16px; --space-5: 24px; --space-6: 32px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Microsoft YaHei", Roboto, Arial, sans-serif;
+  }
+
+  /* ===== Reset ===== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: var(--color-primary); text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+  /* ===== 布局 ===== */
+  .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+  .sidebar {
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-5) var(--space-4);
+  }
+  .brand { font-weight: 700; font-size: 16px; margin-bottom: var(--space-5); }
+  .nav { display: grid; gap: var(--space-1); }
+  .nav a {
+    display: block; padding: 9px 12px; border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+  }
+  .nav a:hover { background: var(--color-bg); color: var(--color-text); }
+  .nav a[aria-current="page"] {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+  .main { min-width: 0; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .page-title { margin: 0; font-size: 18px; }
+  .page-sub { margin: 2px 0 0; color: var(--color-text-muted); font-size: 12px; }
+  .content { padding: var(--space-6); display: grid; gap: var(--space-5); }
+
+  /* ===== 组件：按钮 ===== */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 36px; padding: 0 14px;
+    border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+    background: var(--color-surface); color: var(--color-text);
+  }
+  .btn:hover { border-color: var(--color-text-muted); }
+  .btn-primary {
+    background: var(--color-primary); border-color: var(--color-primary); color: #fff;
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+  .btn-danger { color: var(--color-danger); border-color: #fecaca; background: var(--color-danger-soft); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-loading::before {
+    content: ""; width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid currentColor; border-right-color: transparent;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== 组件：表单 ===== */
+  .field { display: grid; gap: 6px; }
+  .field label { color: var(--color-text-secondary); font-size: 12px; }
+  .input, .select {
+    height: 36px; padding: 0 10px;
+    border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+    background: var(--color-surface);
+  }
+  .input:focus, .select:focus { border-color: var(--color-primary); outline: none; box-shadow: 0 0 0 3px var(--color-primary-soft); }
+  .input[aria-invalid="true"] { border-color: var(--color-danger); }
+  .hint { color: var(--color-text-muted); font-size: 12px; }
+  .hint-error { color: var(--color-danger); }
+
+  /* ===== 组件：卡片 / 指标 ===== */
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+  .card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: var(--space-4); box-shadow: var(--shadow-sm);
+  }
+  .stat-label { color: var(--color-text-muted); font-size: 12px; }
+  .stat-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .stat-delta { font-size: 12px; color: var(--color-success); }
+
+  /* ===== 组件：工具栏 / 标签 ===== */
+  .toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: end; }
+  .toolbar .field { min-width: 160px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px; font-size: 12px;
+    background: var(--color-bg); color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+  }
+  .badge-success { background: #f0fdf4; color: var(--color-success); border-color: #bbf7d0; }
+  .badge-warning { background: #fffbeb; color: var(--color-warning); border-color: #fde68a; }
+  .badge-danger { background: var(--color-danger-soft); color: var(--color-danger); border-color: #fecaca; }
+
+  /* ===== 组件：Tabs ===== */
+  .tabs { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--color-border); }
+  .tab {
+    padding: 10px 14px; border: 0; background: transparent;
+    color: var(--color-text-secondary); border-bottom: 2px solid transparent;
+  }
+  .tab[aria-selected="true"] { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: 600; }
+  .tabpanel[hidden] { display: none; }
+
+  /* ===== 组件：表格 ===== */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-border); }
+  th { font-size: 12px; color: var(--color-text-muted); font-weight: 600; background: var(--color-bg); }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover { background: #fafcff; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ===== 组件：空态 / 加载 / 错误 ===== */
+  .state {
+    display: grid; place-items: center; gap: var(--space-2);
+    padding: var(--space-6); text-align: center; color: var(--color-text-secondary);
+  }
+  .state-title { font-weight: 600; color: var(--color-text); }
+  .skeleton { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #eef2f7, #f8fafc, #eef2f7); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* ===== 组件：弹窗 / Toast ===== */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .42);
+    display: grid; place-items: center; padding: var(--space-4); z-index: 50;
+  }
+  .modal-backdrop[hidden] { display: none; }
+  .modal {
+    width: min(480px, 100%); background: var(--color-surface);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: var(--space-5);
+  }
+  .modal h2 { margin: 0 0 var(--space-2); font-size: 16px; }
+  .modal p { margin: 0 0 var(--space-4); color: var(--color-text-secondary); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: var(--space-2); }
+  .toast {
+    position: fixed; right: 24px; bottom: 24px; z-index: 60;
+    background: var(--color-text); color: #fff; padding: 10px 14px;
+    border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+  }
+  .toast[hidden] { display: none; }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { border-right: 0; border-bottom: 1px solid var(--color-border); padding: var(--space-4); }
+    .nav { grid-auto-flow: column; overflow-x: auto; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .content { padding: var(--space-4); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- 侧边导航 -->
+  <aside class="sidebar">
+    <div class="brand">Acme 工单</div>
+    <nav class="nav" aria-label="主导航">
+      <a href="#" aria-current="page">工单列表</a>
+      <a href="#">我的待办</a>
+      <a href="#">知识库</a>
+      <a href="#">设置</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">工单列表</h1>
+        <p class="page-sub">原型示例：筛选、表格、状态、弹窗、Toast</p>
+      </div>
+      <button class="btn btn-primary" id="createBtn">新建工单</button>
+    </header>
+
+    <main class="content">
+      <!-- 指标卡 -->
+      <section class="stats" aria-label="概览">
+        <div class="card"><div class="stat-label">待处理</div><div class="stat-value">24</div><div class="stat-delta">较昨日 +3</div></div>
+        <div class="card"><div class="stat-label">处理中</div><div class="stat-value">12</div><div class="stat-delta">较昨日 -1</div></div>
+        <div class="card"><div class="stat-label">今日完成</div><div class="stat-value">8</div><div class="stat-delta">目标 10</div></div>
+        <div class="card"><div class="stat-label">超时</div><div class="stat-value">2</div><div class="stat-delta" style="color:var(--color-danger)">需关注</div></div>
+      </section>
+
+      <!-- Tabs + 工具栏 -->
+      <section class="card" aria-label="工单">
+        <div class="tabs" role="tablist" aria-label="工单视图">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="panel-all" id="tab-all">全部</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="panel-mine" id="tab-mine">我的</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="panel-empty" id="tab-empty">空态示例</button>
+        </div>
+
+        <div id="panel-all" class="tabpanel" role="tabpanel" aria-labelledby="tab-all" style="padding-top:16px">
+          <div class="toolbar" style="margin-bottom:16px">
+            <div class="field">
+              <label for="q">搜索</label>
+              <input class="input" id="q" placeholder="工单号 / 标题" />
+            </div>
+            <div class="field">
+              <label for="status">状态</label>
+              <select class="select" id="status">
+                <option>全部</option><option>待处理</option><option>处理中</option><option>已完成</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="priority">优先级</label>
+              <select class="select" id="priority">
+                <option>全部</option><option>P0</option><option>P1</option><option>P2</option>
+              </select>
+            </div>
+            <button class="btn">重置</button>
+            <button class="btn btn-primary">查询</button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>工单号</th><th>标题</th><th>状态</th><th>优先级</th><th>负责人</th><th class="num">更新时间</th><th>操作</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>T-1024</td><td>导出报表超时</td>
+                  <td><span class="badge badge-warning">处理中</span></td>
+                  <td><span class="badge badge-danger">P0</span></td>
+                  <td>李雷</td><td class="num">10:24</td>
+                  <td><button class="btn" data-detail="T-1024">查看</button></td>
+                </tr>
+                <tr>
+                  <td>T-1023</td><td>登录页验证码不显示</td>
+                  <td><span class="badge">待处理</span></td>
+                  <td><span class="badge badge-warning">P1</span></td>
+                  <td>韩梅梅</td><td class="num">09:58</td>
+                  <td><button class="btn" data-detail="T-1023">查看</button></td>
+                </tr>
+                <tr>
+                  <td>T-1022</td><td>权限申请流程卡住</td>
+                  <td><span class="badge badge-success">已完成</span></td>
+                  <td><span class="badge">P2</span></td>
+                  <td>王强</td><td class="num">昨天</td>
+                  <td><button class="btn" data-detail="T-1022">查看</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="panel-mine" class="tabpanel" role="tabpanel" aria-labelledby="tab-mine" hidden style="padding-top:16px">
+          <div class="state">
+            <div class="state-title">暂无我的待办</div>
+            <div>分配给您的工单会出现在这里。</div>
+            <button class="btn">刷新</button>
+          </div>
+        </div>
+
+        <div id="panel-empty" class="tabpanel" role="tabpanel" aria-labelledby="tab-empty" hidden style="padding-top:16px">
+          <div class="state">
+            <div class="state-title">还没有工单</div>
+            <div>创建第一条工单，开始跟踪问题。</div>
+            <button class="btn btn-primary">新建工单</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 加载态示例 -->
+      <section class="card" aria-label="加载态示例">
+        <div class="stat-label" style="margin-bottom:12px">加载态（骨架）</div>
+        <div class="skeleton" style="width:60%;margin-bottom:8px"></div>
+        <div class="skeleton" style="width:90%;margin-bottom:8px"></div>
+        <div class="skeleton" style="width:75%"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle">工单详情</h2>
+    <p id="modalBody">这里是详情内容；真实原型请替换为字段、时间线、操作。</p>
+    <div class="modal-actions">
+      <button class="btn" id="closeModal">关闭</button>
+      <button class="btn btn-primary" id="toastBtn">保存并提示</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>已保存</div>
+
+<script>
+  // Tabs
+  const tabs = [...document.querySelectorAll(".tab")];
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.forEach(t => {
+        t.setAttribute("aria-selected", String(t === tab));
+        document.getElementById(t.getAttribute("aria-controls")).hidden = t !== tab;
+      });
+    });
+  });
+
+  // 弹窗
+  const modal = document.getElementById("modal");
+  const openModal = (text) => {
+    document.getElementById("modalBody").textContent = text || "这里是详情内容。";
+    modal.hidden = false;
+    document.getElementById("closeModal").focus();
+  };
+  document.getElementById("createBtn").addEventListener("click", () => openModal("新建工单表单放在这里。"));
+  document.querySelectorAll("[data-detail]").forEach(btn =>
+    btn.addEventListener("click", () => openModal("工单 " + btn.dataset.detail + " 的详情。"))
+  );
+  document.getElementById("closeModal").addEventListener("click", () => { modal.hidden = true; });
+  modal.addEventListener("click", (e) => { if (e.target === modal) modal.hidden = true; });
+
+  // Toast
+  const toast = document.getElementById("toast");
+  document.getElementById("toastBtn").addEventListener("click", () => {
+    modal.hidden = true;
+    toast.hidden = false;
+    setTimeout(() => { toast.hidden = true; }, 1800);
+  });
+</script>
+</body>
+</html>

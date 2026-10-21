@@ -1,0 +1,65 @@
+# 接入：点名，或无标记时前置一次；完成后必须打标
+workflow:
+  id: onboard
+  name: 产品规范接入
+  version: 2
+
+entry_points:
+  接入产品规范: mount
+  重新接入: migrate
+  生成产品档案: profile
+  装配能力: capabilities
+
+trigger:
+  - 接入产品规范
+  - 重新接入
+  - 生成产品档案
+  - 装配能力
+
+steps:
+  - name: 旧结构迁移
+    id: migrate
+    agent: onboard-agent
+    output: 迁移清单/更新后的路径
+    notes: >
+      「重新接入」= 预授权按最新布局迁移；先扫描旧结构，列清单再执行，不静默丢文件。
+      映射：`产品/输入/` → `产品/资料/`（反馈/调研/竞品/数据按名称归类，其余进 `项目文档/`）；
+      建立 `产品/资料/资料索引.md`；更新 `产品/产品计划.md` §7、README/PRD 中的路径引用、activeContext。
+      冲突/无法判断先问一次，不覆盖；迁移后核对链接，再进入 mount/profile。
+
+  - name: 复制与挂载确认
+    id: mount
+    agent: onboard-agent
+    notes: >
+      验收：项目根 AGENTS.md 已补入指向本包 AGENTS.md 的引导语句
+      （样例见 `规则/模板/根AGENTS薄指针.md`；已有则追加、没有则新建）；
+      未补入则按样例写入后再继续。写明本会话只启用产品规范。
+
+  - name: 产品档案与上下文
+    id: profile
+    agent: onboard-agent
+    output: 产品档案.md · activeContext.md（模板 规则/模板/）
+    notes: >
+      产品档案 §1/§2/§3/§4 必填；§7 缺陷平台可选：问是否启用禅道/Jira/ONES，启用填 provider/baseUrl/凭据来源/提交方式/适配定义，
+      未启用写「无」；同项目已有开发/测试包配置可复用，不重复存凭据。缺陷平台未配置不阻塞接入。
+      建固定资料区：`产品/资料/项目文档/`、`反馈/`、`调研/`、`竞品/`、`数据/`、`产品/资料/资料索引.md`；与工作文档分开。
+
+  - name: 入库策略
+    id: gitignore
+    agent: onboard-agent
+    hitl: confirm_gitignore
+
+  - name: 环境与工具检查（可选）
+    id: capabilities
+    agent: onboard-agent
+    notes: >
+      默认静默：不输出工具清单、不冒烟（可用性由首次使用流程自行探测与降级）。
+      仅当用户点名「装配能力」时，按 `能力/00-能力注册表.md` 盘点并给装配建议（安装指引指向 README「宿主适配」节）。
+      记录（如需要）写 `产品档案.md` §6——自动记录，不是待办；禁强推、禁清单式输出。
+
+  - name: 核验与打标
+    id: verify
+    agent: onboard-agent
+    notes: >
+      按 onboard-agent 接入清单核验（①～⑥，含写接入标记）；
+      此后按 AGENTS §0-3 跳过落地检查。

@@ -1,0 +1,64 @@
+# 交付与验收（排期 → 跟进/变更 → UAT → 发布 → 复盘）
+workflow:
+  id: deliver
+  name: 交付与验收
+  version: 1
+
+trigger:
+  - 排期 / 迭代规划 / 交付计划
+  - 交付跟进 / 风险升级
+  - UAT / 验收
+  - 发布 / 上线检查 / 复盘
+
+steps:
+  - name: 排期与交接
+    id: schedule
+    agent: pm-lead
+    output: 产品/{版本或主题}/交付计划-{版本}.md（模板 规则/模板/交付计划模板.md）
+    notes: >
+      技能：`技能/change-management/SKILL.md`（先读；排期与变更纪律同源）。
+      拆解（Epic→Story→Task）/估时/依赖/风险 → 交付计划（范围/里程碑/发布窗口）；
+      前置：PRD 已定稿（未定稿先回 `workflows/prd.yaml` review 步）。
+
+  - name: 交付跟进
+    id: followup
+    agent: pm-lead
+    notes: >
+      交付进度/风险/依赖跟进；答疑书面留痕（评论/文档批注），禁口头改需求。
+      发现新需求、需求变更、产品缺陷、开发不确定项 → 转 `workflows/change.yaml` intake，按受理/分诊/处置/联动流程执行；
+      本步不另造变更单、不直接改 PRD/排期。
+
+  - name: UAT 验收
+    id: uat
+    agent: pm-lead
+    output: 产品/{版本或主题}/UAT-{版本}-{yyyyMMdd}.md（模板 规则/模板/UAT验收模板.md）
+    notes: >
+      技能：`技能/uat-and-retrospective/SKILL.md`；按 PRD 验收标准**逐条对照**（结果+证据）。
+      可选输入：若项目已有测试报告/提测单/其它验收资料（任意路径/来源）则读；无则用现有资料/用户输入，不阻塞。测试报告是证据，不替代 UAT 结论。
+      判定产品缺陷 vs 实现缺陷（依据：PRD 原文/设计对照）；结论：通过/不通过/带条件（带条件须列遗留、责任人与接受人）。
+
+  - name: 发布与复盘
+    id: release
+    agent: pm-lead
+    hitl: confirm_release
+    notes: >
+      前置：UAT 通过（带条件须已接受）；发布就绪：回滚预案/公告/客服话术/监控指标（并入 UAT 记录「发布前置」节）。
+      confirm_release：出示发布要点（版本/时间窗/回滚/通知范围）请确认；**未过 UAT 不发布**。本门是业务发布决策；**如启用开发轨**，工程部署由其 `release` 执行（`confirm_deploy`），不重复审批；未启用则由用户安排，本包不执行部署。
+      发布后：数据监控（指标/埋点）→ 复盘（模板 `规则/模板/复盘模板.md`，落 `产品/{版本或主题}/复盘-{版本}.md`：目标 vs 实际/根因/改进项→回需求池）；如启用开发轨，研发复盘可由其补充，产品复盘合并引用；未启用则本包独立复盘。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。
+
+  - name: 收尾
+    id: wrap
+    agent: pm-lead
+    output: 【任务收尾】（交付/验收/复盘置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐。
+      更新产品计划 §0/§10、activeContext、文档索引；未验证/遗留项明示。

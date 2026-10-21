@@ -1,0 +1,119 @@
+# 产品缺陷平台协作（拉取 → 分析 → 处置 → 联动 → 回写 → 关闭）
+workflow:
+  id: defect
+  name: 产品缺陷平台协作
+  version: 1
+
+entry_points:
+  拉取产品缺陷: pull
+  我的产品缺陷: pull
+  禅道产品缺陷: pull
+  产品缺陷: pull
+  产品缺陷评审: pull
+  回写产品缺陷: writeback
+
+trigger:
+  - 拉取/查看指派给产品的缺陷（禅道/Jira/ONES）
+  - 测试发现产品缺陷，指派给产品
+  - 开发出方案/附件，待产品确认
+  - 产品缺陷分析/评审/平台回写
+
+steps:
+  - name: 平台配置与可用性
+    id: preflight
+    agent: pm-lead
+    output: 平台可用性/降级说明
+    notes: >
+      读 `规则/缺陷平台协作.md` §1 与 `产品档案.md` §7；若同项目已有开发/测试包配置，优先复用其 provider/端点/凭据来源。
+      provider=无/未填 → 问一次是否现在配置 §7；不配置则降级（用户粘贴/导出文件或转 change），禁反复索要编号、禁猜接口。
+      平台不可用/权限不足 → 输出阻塞与已尝试；恢复后回 pull。
+
+  - name: 拉取与读取
+    id: pull
+    agent: pm-lead
+    tools:
+      - defect-platform
+    output: 缺陷清单摘要 + 每条受理单/读取记录
+    notes: >
+      按 `规则/缺陷平台协作.md` §2 拉取：默认当前产品账号被指派、未关闭；点名「产品缺陷/待产品确认」再分拣；点名单号只拉这些单。
+      每条读全：标题、steps、severity/pri、status/resolution、提交人/指派、版本/环境、附件、近期备注/讨论、开发方案/附件。
+      solutionChannel=manual 或备注读不全 → 请用户补关键备注/附件；禁只凭标题分析。
+      每条落受理单；批末输出清单摘要（空清单也输出）。
+
+  - name: 分析
+    id: analyze
+    agent: pm-lead
+    output: 逐条分析结论（受理单 §3/§4）
+    notes: >
+      按 `技能/change-management/SKILL.md` §2/§3 与 `规则/缺陷平台协作.md` §3：
+      对照 PRD/设计判产品缺陷 vs 实现缺陷；产品缺陷须有相符证明；开发方案/附件读全文，评产品影响（AC/范围/数据/合规/回归/回滚），不评技术架构。
+      给出处置建议：立即修/下版/不修/退回开发/补充信息。
+
+  - name: 处置确认
+    id: decide
+    agent: pm-lead
+    output: 处置决策（受理单 §5 / 变更单 §4）
+    hitl:
+      - name: confirm_change
+        when: change_requested
+      - name: confirm_plan
+        when: plan_level_change
+    notes: >
+      出示每条：分诊依据/相符证明、开发方案要点、影响、处置选项与建议；产品缺陷必须给依据；实现缺陷退回也确认但不产生变更单。
+      计划级影响叠加 confirm_plan；纯查看/拉取不触发本门。
+
+  - name: 联动与评审
+    id: apply
+    when: needs_linked_update
+    agent: pm-lead
+    output: 受理单 §6 + 变更单/最新 PRD/AC/计划/UAT + 附件清单（评审记录由 review 步产出）
+    notes: >
+      按 `workflows/change.yaml` 的 apply 规则更新 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查；
+      已有受理单（pull 建档）就地更新，不重复建档；同一缺陷多轮处理只留一份现行受理单。
+      实质变更 → 走 review 步（产品视角：是否解决原问题/AC 影响/范围/风险；不评价技术实现细节）。
+      生成回写附件：受理单/变更单/评审意见/PRD 变更摘要（按需）；不修改代码或技术方案。
+
+  - name: 重审（条件）
+    id: review
+    when: substantive_change
+    agent: reviewer-agent
+    hitl: confirm_prd
+    output: 评审记录（产品/{版本或主题}/评审-{主题}-{yyyyMMdd}.md）
+    notes: >
+      条件步：实质变更/方案影响 AC/范围/权限/数据规则/NFR/版本目标才走；纯文字澄清跳过。
+      产品视角评审：是否解决原问题、AC/范围/风险/合规；技术架构与实现细节不替开发评审。
+      通过后才回写平台；需修回 apply（同回合≤1）；未重审不得标「已定稿/已确认」。
+
+  - name: 平台回写
+    id: writeback
+    when: remark_writeback
+    agent: pm-lead
+    tools:
+      - defect-platform
+    hitl: confirm_remark
+    output: 平台回写结果（备注/附件/状态/指派）
+    notes: >
+      按 `规则/缺陷平台协作.md` §5/§6：回写前出示 id、结论、备注全文、附件名、状态/指派变更、目标版本；确认后执行。
+      未配置平台/无权限 → 先回 preflight；无既有分析/结论 → 回 pull/analyze，不凭空回写；只改字段未分析 → 先补分析。
+      备注与状态同轮；备注写分诊依据/处置结论/影响 AC/目标版本/下一步/需要谁做什么；禁密钥/绝对路径/用例路径。
+      附件上传后回查挂载；失败重试≤1，禁删缺陷。平台不支持/无权限 → 出 export 包，标「待回写」。
+      立即修/待开发 → 状态置「待开发/处理中」，不关闭；验证通过后由后续「回写产品缺陷」关闭。
+      回写后更新受理单 §6/§7。
+
+  - name: 验证与关闭
+    id: verify
+    when: needs_linked_update
+    agent: pm-lead
+    output: 验证结果 + 批末总结
+    notes: >
+      立即修 → 受影响 AC/UAT 重验；下版 → 回池/路线图；不修 → 理由/接受人；退回开发 → 回执，缺陷状态由开发/测试跟踪。
+      未验证不关单；验证通过后需再次回写平台（入口 writeback）更新状态/关闭；批末输出【产品缺陷协作总结】。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。

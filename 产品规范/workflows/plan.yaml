@@ -1,0 +1,78 @@
+# 产品计划（目标 → 路线图 → 本期范围 → 计划确认 → 落盘）
+workflow:
+  id: plan
+  name: 产品计划
+  version: 2
+
+entry_points:
+  产品计划: goals
+  产品规划: goals
+  按产品计划执行: next
+  下一步: next
+  当前状态: next
+
+trigger:
+  - 产品计划 / 产品规划 / 路线图 / Roadmap
+  - 版本规划 / 下季度做什么 / 下个月做什么
+  - 排优先级（版本级）
+  - 按产品计划执行 / 下一步 / 当前状态
+
+steps:
+  - name: 目标与指标
+    id: goals
+    agent: pm-analyst
+    notes: >
+      读 `产品档案.md` §1/§2/§3 + `产品/需求池.md` + 上期复盘（若有）；
+      产出本周期目标（O）与成功指标（KR）：基线 / 目标值 / 观测窗口；指标口径写清。
+      技能：0→1 读 `技能/zero-to-one-product-definition/SKILL.md`；迭代读 `技能/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
+      能力（可选）：analytics 核对口径；未装 = 用户提供数据摘要。
+
+  - name: 路线图与优先级
+    id: roadmap
+    agent: pm-analyst
+    notes: >
+      路线图 Now / Next / Later + 版本映射；每项标用户价值、证据、依赖、时间窗。
+      方法按需：RICE / Kano / MoSCoW；拿不准向上一档并说明。
+      不写需求细节（细节归 PRD）；需求池只留候选与状态。
+
+  - name: 本期范围与里程碑
+    id: scope
+    agent: pm-lead
+    hitl: confirm_plan
+    hitl_when: plan_needs_confirm
+    notes: >
+      本期做 / 不做（MVP）、产能约束、里程碑（设计 / 开发 / 提测 / UAT / 发布）、依赖与风险。
+      confirm_plan：出示目标 / 路线图 / 本期范围 / 里程碑 / 风险请确认；首次计划或范围·指标·版本实质变更必停；
+      同周期同版本只确认一次（「继续」沿用）。
+      **计划未确认不进入 PRD / 排期**（`规则/工作流.md` §1）。
+
+  - name: 落盘与索引
+    id: publish
+    agent: pm-lead
+    output: 产品/产品计划.md（模板 规则/模板/产品计划模板.md）
+    notes: >
+      总控表状态回写（阶段 / 产物 / 门 / 状态 / 下一动作）；版本索引挂 PRD / 评审 / 受理/变更 / 交付计划 / UAT / GTM / 原型 / 复盘。
+      **主档不移动**：`产品/产品计划.md` 常青；季度结束复制当期执行到 `产品/_归档/{yyyy-Qn}/产品计划-{yyyy-Qn}.md`，主档保留历史索引并重置当前季度；
+      版本/结项把当期目录整体移入 `产品/_归档/{yyyyMMdd}-{版本}/`（点名执行）。
+      稳定真值（愿景/用户/北极星/指标口径）留在主档与 `产品档案.md`，不随季度归档。
+
+  - name: 计划续跑
+    id: next
+    agent: pm-lead
+    output: 当前阶段/门/下一动作
+    notes: >
+      只读 `产品/产品计划.md` §0/§7/§8/§10：报备当前阶段、当前门、下一动作、需人工项；
+      「按产品计划执行」= 按 §0 路由到 plan / prd / deliver / change 对应 step，执行到下一个 `hitl` 停止；
+      「下一步」只报动作与入口，不执行；「当前状态」只读，不重写计划。
+      有未吸收的新文档/变化 → 先走 `workflows/change.yaml` intake，不直接改 PRD/计划。
+      产品包独立运行；开发/测试包为可选输入/输出，缺则不阻塞。
+      执行后回写 §0 状态/下一动作、§10 执行日志；门结论/变更写 §8。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。

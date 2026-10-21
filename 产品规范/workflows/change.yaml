@@ -1,0 +1,139 @@
+# 需求/问题受理与变更（统一入口：新需求 / 变更 / 答疑 / 产品缺陷 / 开发不确定）
+workflow:
+  id: change
+  name: 需求/问题受理与变更
+  version: 1
+
+entry_points:
+  需求受理: intake
+  问题受理: intake
+  产品缺陷: intake
+  需求变更: intake
+  需求答疑: intake
+  开发不确定: intake
+  测试发现产品缺陷: intake
+
+trigger:
+  - 需求 / 问题 / 缺陷（未分类；对话或文档）
+  - 需求变更 / 变更单
+  - 需求答疑 / 跟进
+  - 开发 / 测试发现产品缺陷，交产品确认
+  - 开发不确定项 / 待产品确认
+
+steps:
+  - name: 受理与建档
+    id: intake
+    agent: pm-lead
+    output: 产品/{版本或主题}/受理-{主题}-{yyyyMMdd}.md（模板 规则/模板/受理与处置模板.md）
+    notes: >
+      统一入口：对话、文档（md/txt/docx/pdf/链接/截图）、缺陷单、测试报告、提测单均可；
+      文档能读则读，不能读则请用户给关键段/截图，禁假装已读。
+      抽取：提出人/来源/日期、原始描述、期望、关联需求/PRD/AC、版本/环境/构建、证据、时间要求。
+      信息不足一次一问至可判定；未知标「待确认」，禁臆造。
+      生成受理编号（RQ/CR/BUG-…），落受理单；同一问题去重合并，重复项指向主条目。
+      技能：`技能/change-management/SKILL.md`（先读）。
+
+  - name: 分诊与定性
+    id: triage
+    agent: pm-lead
+    output: 分诊结论（写入受理单 §3）
+    notes: >
+      按技能 §2 判定树分类：新需求 / 需求变更 / 答疑 / 产品缺陷 / 实现缺陷 / 技术不确定 / 重复 / 无效。
+      产品缺陷必须给依据：PRD/设计原文 + 现网或测试证据 + 相符证明（实现符合 PRD 但口径不合理/有风险）；
+      无依据按实现缺陷或「待确认」处理，禁把实现缺陷甩成产品缺陷。
+      判定处置路径：立即修 / 下版 / 不修 / 退回开发 / 补充信息 / 进需求池 / 进 PRD。
+      结论写入受理单，不在此实施。
+
+  - name: 新需求与优先级（条件）
+    id: new_requirement
+    when: new_requirement_or_scope_change
+    agent: pm-analyst
+    hitl: confirm_scope
+    output: 产品/需求池.md 更新 + 范围结论
+    notes: >
+      条件步：分诊为新需求/范围变化才走；纯变更/缺陷/答疑跳过。
+      技能：`技能/requirement-discovery-and-prioritization/SKILL.md`（先读）。
+      入需求池（R-xx，价值/成本/风险/优先级/版本/状态）；决定本期/下期/不做。
+      confirm_scope：出示范围（MVP）/排除/粗排期/依赖风险；批准后进入 assess 或路线图。
+      下期需求 → 更新产品计划 §2 路线图与需求池状态，不产生本期变更单。
+
+  - name: 影响评估
+    id: assess
+    when: needs_impact_assessment
+    agent: pm-lead
+    output: 影响评估（受理单 §4 / 变更单 §3）
+    notes: >
+      评估：需求/范围、AC/验收、成本/排期、技术/测试风险、数据/合规/权限、回滚、依赖。
+      列出受影响产物：PRD 正文/AC、原型、交付计划、产品计划 §0/§8、需求池、UAT、发布检查/GTM、通知对象。
+      结论：接受/拒绝/延后/下版/退回开发/补充信息 + 建议方案。
+      可选输入（不强制）：缺陷单、测试报告、提测单、开发方案/附件（任意路径/来源）；缺则不阻塞，一句话说明。
+
+  - name: 处置确认
+    id: decide
+    agent: pm-lead
+    hitl:
+      - name: confirm_change
+        when: change_requested
+      - name: confirm_plan
+        when: plan_level_change
+    notes: >
+      confirm_change：出示分诊结论/依据/影响/处置选项（立即修/下版/不修/退回开发/补充信息）与变更单要点；
+      产品缺陷必须给 PRD/设计对照与相符证明；实现缺陷退回也要出示依据与回执，但不产生变更单；批准后才实施。
+      confirm_plan：影响版本范围/里程碑/KPI 时叠加计划门；只改需求细节不触发。
+      纯答疑 → 受理单即答复记录，可跳过本门。
+
+  - name: 联动落地
+    id: apply
+    when: needs_linked_update
+    agent: pm-lead
+    output: 更新后的 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查 + 受理单 §6 联动清单
+    notes: >
+      按受理单 §6 逐项更新，只写现行有效；每项标「已更新/不适用/待补」，待补写责任人与截止，不得静默漏项：
+      PRD 正文/§7 AC/§10 变更记录；原型/交互；交付计划范围/里程碑；产品计划 §0/§2/§7/§8/§10/§11；
+      需求池状态；UAT 验收范围；发布检查/GTM；开发/测试/运营/客服通知包。
+      若缺陷在平台且未走 defect 工作流，按 `规则/缺陷平台协作.md` 回写处置结论/附件；平台不可用则由用户转贴（禁猜接口）。
+      变更单与受理单互相链接；旧版归档，不堆「最终版」。
+      输出「联动变更清单」+「最新产物路径」。
+
+  - name: 重审（条件）
+    id: review
+    when: substantive_change
+    agent: reviewer-agent
+    hitl: confirm_prd
+    output: 评审记录（产品/{版本或主题}/评审-{主题}-{yyyyMMdd}.md）
+    notes: >
+      条件步：实质变更（范围/AC/状态机/权限/数据规则/NFR/版本目标）才走；纯文字澄清跳过。
+      技能：`技能/review-and-finalize/SKILL.md`；独立复核修订后的 PRD；只报缺口。
+      confirm_prd：通过才恢复「已定稿」；需修回 apply（同回合≤1）。
+      未重审不得把实质变更标为已定稿。
+
+  - name: 验证与关闭
+    id: verify
+    when: needs_linked_update
+    agent: pm-lead
+    output: 验证结果（受理单 §7 / UAT 更新 / 变更单 §5）
+    notes: >
+      影响 AC/UAT/发布 → 受影响项重验（结果+证据），更新 UAT 记录与发布检查；
+      未 UAT/未发布 → 以测试报告/回归/冒烟证据关闭；确实不适用写原因。
+      开发/测试回执：处置结论、需要做什么、影响 AC、目标版本、负责人/截止。
+      退回开发 → 产品侧回执后关闭受理单，缺陷状态由开发/测试流程跟踪，禁写「已修复」；
+      下版 → 回池/路线图后关闭本期受理单；不修 → 留理由与接受人后关闭。
+      处置=补充信息/仍有待补项 → 保持打开，不关闭；未验证不得关闭。
+      关闭后更新产品计划 §0/§7/§10、activeContext；资料变更同步 `产品/资料/资料索引.md`。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。
+
+  - name: 收尾
+    id: wrap
+    agent: pm-lead
+    output: 【任务收尾】（受理/处置/缺陷等置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐。
+      更新产品计划 §0/§10、activeContext、文档索引；未验证/待回写项明示。

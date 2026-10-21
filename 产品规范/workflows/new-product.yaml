@@ -1,0 +1,69 @@
+# 新产品 0→1（发现 → 立项 → 定义 → 需求 → 交付 → 上市 → 复盘）
+workflow:
+  id: new-product
+  name: 新产品 0→1
+  version: 1
+
+trigger:
+  - 启动新产品 / 新项目 / 从0到1 / 产品立项
+  - 新产品计划 / 新产品路线图
+
+steps:
+  - name: 发现与机会评估
+    id: discover
+    agent: pm-analyst
+    notes: >
+      市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md`（先读再做）。
+      产出立项书：`产品/{主题}/立项书-{yyyyMMdd}.md`（模板 `规则/模板/立项书模板.md`）；
+      引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。
+      能力（可选）：browser-mcp 竞品、analytics 数据、docs-mcp 资料；未装 = 降级。
+
+  - name: 立项评审
+    id: go
+    agent: pm-analyst
+    hitl: confirm_go
+    notes: >
+      出示问题 / 用户 / 市场 / 竞品 / 方案与 MVP 假设 / 成本收益 / 风险 / 结论（Go / Hold / Kill）请确认。
+      批准（Go）才进入产品定义；Hold 列待验证项与责任人；Kill 记录原因并归档。
+      **未过立项不写全量 PRD**（`规则/工作流.md` §1）。
+
+  - name: 产品定义与计划
+    id: define
+    agent: pm-analyst
+    notes: >
+      按 `workflows/plan.yaml` 执行：目标与指标 → 路线图 → 本期范围与里程碑 → `confirm_plan` → 落盘 `产品/产品计划.md`。
+      只写总领（做什么 / 为什么 / 何时 / 怎么算成功），需求细节归 PRD。
+
+  - name: 需求定义（PRD）
+    id: prd
+    agent: prd-writer
+    notes: >
+      按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 执行；PRD 落 `产品/{版本或主题}/PRD-{主题}.md`；
+      评审门 `confirm_prd`；未定稿不排期。
+      技能：`技能/prd-writing/SKILL.md` / `技能/review-and-finalize/SKILL.md`；界面原型见 `技能/06`/`技能/07`。
+
+  - name: 交付与验收
+    id: deliver
+    agent: pm-lead
+    notes: >
+      按 `workflows/deliver.yaml` 的 schedule / followup / uat 执行；需求/问题/产品缺陷 → `workflows/change.yaml` 受理与处置；
+      UAT 按 PRD 验收标准逐条对照（结果 + 证据）；产品缺陷 vs 实现缺陷要有依据。
+      技能：`技能/change-management/SKILL.md` / `技能/uat-and-retrospective/SKILL.md`。
+
+  - name: 上市与复盘
+    id: launch
+    agent: pm-lead
+    hitl: confirm_release
+    notes: >
+      前置：UAT 通过（带条件须已接受）+ GTM 就绪（模板 `规则/模板/GTM模板.md`：定价 / 渠道 / 物料 / 销售客服）+ 发布检查（回滚 / 公告 / 客服 / 监控）。
+      confirm_release：出示上市要点请确认；**未过 UAT 不发布**。
+      发布后：指标监控 → 复盘（模板 `规则/模板/复盘模板.md`）→ 改进项回需求池；更新 `产品/产品计划.md` §9。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。

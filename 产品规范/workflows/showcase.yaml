@@ -1,0 +1,85 @@
+# 产品展示与介绍（受众 → 故事线/流程图 → 演示脚本 → 环境 → 材料/文档 → 彩排）
+workflow:
+  id: showcase
+  name: 产品展示与介绍
+  version: 1
+
+trigger:
+  - 准备演示 / 客户演示 / 产品介绍 / 产品汇报
+  - 用户手册 / 快速开始 / FAQ / 发布说明 / 培训材料
+  - 演示彩排
+
+steps:
+  - name: 受众与目标
+    id: audience
+    agent: pm-lead
+    hitl: confirm_narrative
+    output: 产品/{版本或主题}/展示/展示需求-{受众}-{yyyyMMdd}.md（模板 规则/模板/演示脚本模板.md §1）
+    notes: >
+      读 `产品档案.md` / `产品/产品计划.md` / PRD / UAT / GTM / 原型；
+      明确受众（老板/客户/用户/技术）、目标、时长、成功标准、保密边界与不演示项。
+      confirm_narrative：出示受众/目标/故事线/演示范围请确认；确认后才写脚本与对外材料。
+      技能：`技能/demo-storytelling/SKILL.md`（先读再做）。
+
+  - name: 故事线与流程图
+    id: story
+    agent: pm-lead
+    output: 产品/{版本或主题}/展示/故事线-{受众}.md
+    notes: >
+      用 Mermaid 流程图表达：背景 → 问题 → 方案 → 价值 → 证据 → 下一步；
+      每个节点必须对齐当前项目（PRD/原型/当前构建），不写未实现能力、不夸大。
+      技能 demo-storytelling §2；模板 §2。
+
+  - name: 演示脚本
+    id: demo
+    agent: pm-lead
+    output: 产品/{版本或主题}/展示/演示脚本-{受众}-{yyyyMMdd}.md
+    notes: >
+      场景化脚本：每场景写目标/入口/逐步点击路径/数据/预期/兜底/时长；
+      路径详细到菜单 → 页面 → Tab → 控件/行；优先演真实构建或原型；未实现能力不演。
+      准备 Q&A 与异议处理；技能 demo-storytelling §3/§4。
+
+  - name: Demo 环境与数据
+    id: environment
+    agent: pm-lead
+    output: 产品/{版本或主题}/展示/演示检查单-{yyyyMMdd}.md
+    notes: >
+      构建/原型版本、账号角色、seed/重置、网络、设备、录屏兜底、权限与隐私；
+      `规则/模板/演示检查单模板.md` 逐项过；能力（可选）browser-mcp 走查，未装=手工检查。
+
+  - name: 展示材料
+    id: materials
+    agent: ux-designer
+    hitl: confirm_materials
+    output: 产品/{版本或主题}/展示/一页纸-{产品}.md · 产品/{版本或主题}/展示/Deck大纲-{受众}.md
+    notes: >
+      一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图；
+      Mermaid 流程图/业务架构图（不写技术架构）。
+      技能：`技能/presentation-design/SKILL.md`；能力 doc-suite / presentation 可选。
+      **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外前 confirm_materials。
+
+  - name: 用户文档
+    id: docs
+    agent: prd-writer
+    output: 产品/资料/用户文档/快速开始-{版本}.md · 产品/资料/用户文档/用户手册-{版本}.md · 产品/资料/用户文档/FAQ-{版本}.md · 产品/资料/用户文档/发布说明-{版本}.md
+    notes: >
+      技能：`技能/product-docs/SKILL.md`。
+      按任务组织：5 分钟快速开始 → 常用任务 → FAQ/故障 → 版本说明；截图/步骤与当前构建一致；
+      不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径。
+
+  - name: 彩排与反馈
+    id: dryrun
+    agent: pm-lead
+    output: 产品/{版本或主题}/展示/反馈记录-{yyyyMMdd}.md
+    notes: >
+      计时演练；检查故事/路径/数据/兜底/Q&A；记录异议、问题、需求 → 按 `workflows/change.yaml` 回受理/需求池；
+      修正材料后再对外。
+
+  - name: 拟提交
+    id: commit
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。
