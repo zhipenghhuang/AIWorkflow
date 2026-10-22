@@ -1,13 +1,14 @@
+# 只出任务清单：precheck → plan → wrap，不进入 confirm/implement/review/gates/deliver。
 workflow:
   id: iterate
   name: 迭代交付
-  version: 6
+  version: 7
 
 entry_points:
-  按方案实施: plan
-  落地迭代方案: plan
-  继续迭代: plan
-  只出任务清单: plan
+  按方案实施: precheck
+  落地迭代方案: precheck
+  继续迭代: precheck
+  只出任务清单: precheck
 
 trigger:
   - 按方案实施
@@ -16,6 +17,14 @@ trigger:
   - 只出任务清单
 
 steps:
+  - name: 前置检查
+    id: precheck
+    agent: iterate-lead
+    notes: >
+      读需求基线/方案/开发计划/任务清单现状；确认需求已签收、方案已批准（L2+）。
+      缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 requirements/design 补确认（`confirm_requirements`/`confirm_spec`）；不凭聊天记忆直接拆单/实施。
+      「只出任务清单」可只要求需求/方案要点，缺则一次一问；确认后进入 plan，不跳过计划依据。
+
   - name: 读方案与拆清单
     id: plan
     agent: iterate-lead
@@ -25,12 +34,13 @@ steps:
       L2+ 先读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
       拆完先自检：RP 覆盖、AC、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐；再进 confirm。
-      若口令含「只出任务清单」：完成本步后收尾即可（跳过 confirm / implement / review / gates / deliver / wrap / release_handoff / retro）。
+      若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】（跳过 confirm / implement / review / gates / deliver / release_handoff / retro；清单文件有变更时仍按 wrap 的 `confirm_commit` 确认）。
       口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
       未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
 
   - name: 确认清单与节奏
     id: confirm
+    when: implementation_required
     agent: iterate-lead
     hitl: confirm_backlog
     hitl_when: backlog_or_pace_changed
@@ -44,6 +54,7 @@ steps:
 
   - name: 实施与定向自验
     id: implement
+    when: implementation_required
     agent: iterate-lead
     output: 代码/配置改动 + 任务状态回写
     notes: >
@@ -56,20 +67,22 @@ steps:
 
   - name: 代码评审
     id: review
-    when: multi_file_or_new_feature_or_requested
-    agent: implementer
+    when: implementation_required
+    agent: reviewer-agent
     tools:
       - code-review
       - security-scan
     output: 评审结论/缺口
     notes: >
-      条件步：多文件/新功能、高风险/大改/破坏性变更或点名「代码评审」才走；L0 单文件可跳过；核验者≠实施者。
-      技能：`技能/code-review/SKILL.md`；本机可用 code-review 时评审全量 diff，不可用派 reviewer-agent 独立核验。
+      实际评审条件：多文件/新功能、单文件高风险/大改/破坏性变更或点名「代码评审」；L0 单文件可跳过（本步写一行跳过即可，不产评审结论）。
+      本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
+      技能：`技能/code-review/SKILL.md`；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       需修回 implement，同回合重验≤1；核验不替代门禁。
 
   - name: 全量门禁与文档同步
     id: gates
+    when: implementation_required
     agent: iterate-lead
     gate: project-gates
     output: 门禁摘要/文档同步
@@ -109,7 +122,7 @@ steps:
     output: 发布就绪包
     notes: >
       条件步：含部署/发版才走；本步不直接部署。
-      就绪包=提测单+发布说明+上线检查单+回滚预案+测试报告/UAT（如有）；缺项先补。
+      就绪包=提测单+发布说明+回滚预案+测试报告/UAT（如有）；上线检查单由 `release.readiness` 产出，本步不重复造。
       转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证。
       本步为链末（无 retro）时，按 AGENTS §2 输出全链【任务收尾】（含可直接复制汇报）；有 retro 则由 retro 收尾。
       更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。

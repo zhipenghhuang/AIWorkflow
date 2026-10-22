@@ -17,7 +17,7 @@
 | `workflows/` | 流程定义：`intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `onboard` / `release` / `retro` / `control`（开发计划） |
 | `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / onboard-agent / delivery-lead |
 | `能力/` | 可选能力注册表（技能/工具装配建议；`能力/00-能力注册表.md`） |
-| `技能/` | 内置专业技能 00～08（开发计划/需求/设计+技术选型/数据库/API/前端/安全/性能子技能/实现+前后端子技能/评审/提测/拆单/验收上线/复盘）；结构 `技能/<name>/SKILL.md`，随包、无需安装；`技能/README.md` |
+| `技能/` | 内置专业技能 00～08（开发计划/需求/设计+技术选型/数据库/API/前端/安全/性能子技能/实现+前后端子技能/评审/提测/拆单/验收上线/复盘）；结构 `技能/<name>/SKILL.md`，随包、无需安装；编号→路径映射见 `技能/README.md` |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
 | `规则/工作流.md` | 护栏、阶段衔接、提交门、文档落位/归档/根目录白名单 |
 | `规则/迭代交付.md` | 迭代、任务清单、DoR/DoD、输出骨架 |

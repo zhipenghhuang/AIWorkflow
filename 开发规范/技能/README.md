@@ -8,6 +8,30 @@
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：github/spec-kit（MIT；spec/plan/tasks/converge）、addyosmani/agent-skills（MIT；planning-and-task-breakdown、definition-of-done、code-review）、obra/superpowers（MIT；writing-plans/executing-plans/TDD）、bmad-code-org/BMAD-METHOD（MIT；按规模裁剪/durable context）、wshobson/agents（MIT）、alibaba/open-code-review（Apache-2.0）、Google Engineering Practices（code review）、GitHub flow（PR/CI 节奏）等。  
 
+## 编号别名 → 实际路径（旧引用兼容）
+
+| 别名 | 实际路径 |
+| --- | --- |
+| 00 | `技能/development-plan/SKILL.md` |
+| 01 | `技能/requirements-and-spec/SKILL.md` |
+| 02 | `技能/solution-design/SKILL.md` |
+| 02A | `技能/technology-selection/SKILL.md` |
+| 02B | `技能/database-design/SKILL.md` |
+| 02C | `技能/api-design/SKILL.md` |
+| 02D | `技能/frontend-design/SKILL.md` |
+| 02E | `技能/threat-modeling/SKILL.md` |
+| 02F | `技能/performance-and-capacity/SKILL.md` |
+| 03 | `技能/implementation-and-selftest/SKILL.md` |
+| 03A | `技能/frontend-implementation/SKILL.md` |
+| 03B | `技能/backend-implementation/SKILL.md` |
+| 04 | `技能/code-review/SKILL.md` |
+| 05 | `技能/qa-handoff-and-release/SKILL.md` |
+| 06 | `技能/task-breakdown/SKILL.md` |
+| 07 | `技能/acceptance-and-launch/SKILL.md` |
+| 08 | `技能/retrospective-and-improvement/SKILL.md` |
+
+> 新引用一律用实际路径；编号别名只用于兼容旧文本。
+
 ## 步骤 → 技能映射
 
 | 步骤 | 技能 |

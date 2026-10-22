@@ -2,7 +2,7 @@
 
 > **用途**：开发协作 AI 入口。先读本文 → 命中口令打开对应 `workflows/*.yaml` → 当前步只加载 `agents/*.yaml` 与 `技能/`。  
 > **位置**：`开发规范/`。与项目根 `AGENTS.md` 冲突时，以项目根为准。  
-> **template_version**：`2026.10.21.3`（单点：包内版本以本文为准）。  
+> **template_version**：`2026.10.21.4`（单点：包内版本以本文为准）。  
 > **架构**：Workflow 定义（YAML）+ Agent 契约 + 规则红线（`规则/`）+ 内置专业技能（`技能/`：随包生效、命中步必用）+ 可选能力层（`能力/` 注册表：本机可用即自动使用、不可用降级）+ 文档治理（`规则/工作流.md` §5：落位/命名/归档/根目录白名单）+ **开发计划**（`{文档事实源目录}/开发计划.md`：开发阶段/门/状态/下一步的控制面，L2+ 默认启用）；执行宿主（任意支持 AGENTS 入口与所需能力的 AI 编码工具；要求见 README「宿主适配」节）为执行器。步骤**怎么做**交 AI，不另开规划回合。
 
 ## 0. 开工（每任务）
@@ -51,7 +51,8 @@
 | 澄清 | 目标/范围/验收不明或多解 → **一次只问一个**，按回答继续追问至 **≥95%** 再实施；判据＝能复述「谁 / 什么场景 / 做什么 / 系统怎么响应 / 怎么算对」；已唯一 → 1～2 句复述；确认门是授权，不是澄清 |
 | 可跳过连续追问 | 三要素已唯一 → 动手前 1～2 句复述即可 |
 | 直跑 | 口令命中 workflow → 立即 `route=workflow:<id> | step=… | level=… | next_action=…`；步内条件 hitl 仍执行 |
-| 预授权 | 「一次性 / 直接跑完 / 中途不停」＝预授权：默认**只到任务本身完成**，**不含**提交/推送/部署/回写；收到先**一问范围**确认；仅免**等待**、不免**输出**（§0.8） |
+| 预授权 | 「一次性 / 直接跑完 / 中途不停」＝预授权：默认**只到任务本身完成**，**不含**提交/推送/部署/回写；收到后**声明默认界并直接执行**，仅当口令同时提到后续动作且范围不明时一问；只免**等待**、不免**输出**（§0.8） |
+| 少问 | 只问会改变范围/验收/风险的问题；可由档案/代码/计划推断的先按现行值推进并记「假设」，不把确认门当澄清 |
 
 > **实质确认 vs 输出门**：开发计划/版本范围 = `confirm_plan`（首次或范围·版本·里程碑实质变更）；架构级「先方案后实施」的批准 = `change` 设计步 `confirm_spec`；需求基线 = `confirm_requirements`；清单/节奏 = `confirm_backlog`；工程部署 = `confirm_deploy`（若项目另有业务发布决策流程/产品包 `confirm_release`，按其执行，不强制）；验收 = `confirm_acceptance`；回滚 = `confirm_rollback`。其余输出型门（提交/回写/菜单/入库等）一律以步上 `hitl` 为准。  
 
@@ -94,7 +95,8 @@
 ### 0.6 框架固定 · 局部自主
 
 - **不可让**：口令→workflow 映射、步上 `hitl`/`hitl_when`、专规输出骨架、预授权界（§0.8）、证据/红绿、密钥、子代理边界、接入标记语义、能力注册表取用与降级（**已安装即启用**；未安装=降级路径，禁阻塞或硬编）、文档落位/根目录白名单、文档现行有效（§0.9）。  
-- **应交 AI**：步内实现路径、探查顺序、是否派子代理、验证命令、文档措辞、任务拆分粒度（按 `技能/06` 方法）——**禁止**把默认可完成动作写成逐步检查表；**禁止**另造确认门或预防性通读。  
+- **应交 AI**：步内实现路径、探查顺序、是否派子代理、验证命令、文档措辞、任务拆分粒度（按 `技能/task-breakdown/SKILL.md` 方法）——**禁止**把默认可完成动作写成逐步检查表；**禁止**另造确认门或预防性通读。  
+- **规则未覆盖或冲突**：以用户目标、代码事实与既有门禁为先，选最小成本可验证路径；在收尾「假设与未决项」记录取舍，不新增门、不跳红线。  
 - **成本**：择优在推理中完成，不另开规划回合、不输出分析长文、不因此增加默读；计划/评审/发布等条件步只在触发时执行。
 
 ### 0.7 `hitl` / `gate` / `when` 枚举（YAML 用）
@@ -103,6 +105,7 @@
 | --- | --- | --- |
 | `hitl:` | 确认门声明 | 标量（单门）或列表（多门；各项 `name` + 可选 `when`）；**未写 `when` 视为无条件** |
 | `hitl_when:` | 标量门的条件 | 条件不满足 → **跳过**该门，不算违例 |
+| `gate_when:` | 门禁条件 | 条件不满足 → **跳过该 gate**（步骤不跳过）；用于同一 step 跨场景复用 |
 | `confirm_change` | 变更吸收/影响 | 出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决，确认后冻结；未签收不进设计/排期 |
 | `confirm_spec` | 方案评审 | 出示方案要点（范围/接口/兼容与回滚/验收），批准后才实施 |
@@ -121,13 +124,13 @@
 | `gate: dev-plan` | 开发计划检查 | L2+ 开发计划存在，阶段表/门/证据/下一步完整；缺项不过 |
 | `gate: release-readiness` | 发布就绪 | 按上线检查单逐项核；硬项不过 → NO-GO |
 
-**步骤条件 `when` 词汇**：`new_feature_or_scope_change_or_requested`｜`new_feature_or_architecture_or_breaking_change_or_requested`｜`architecture_or_breaking_change_or_requested`｜`multi_file_or_new_feature_or_requested`｜`high_risk_or_requested`｜`has_qa_or_deploy_or_requested`｜`has_deploy`｜`has_uat`｜`release_verification_failed`｜`has_deployed`｜`iteration_done_or_incident`｜`recurring_defect_or_incident`｜`incident_or_major_release`｜`docs_migration_needed`｜`requirements_need_confirm`｜`change_is_substantive`｜`backlog_or_pace_changed`｜`plan_needs_confirm`｜`has_pending_commit`｜`menu_includes_commit`｜`menu_includes_writeback`。条件不满足 → 跳过该步（及其 hitl）；不确定按触发处理。
+**步骤条件 `when` 词汇**：`new_feature_or_scope_change_or_requested`｜`new_feature_or_architecture_or_breaking_change_or_requested`｜`new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested`｜`architecture_or_breaking_change_or_requested`｜`multi_file_or_new_feature_or_requested`｜`multi_file_or_new_feature_or_high_risk_or_requested`｜`high_risk_or_requested`｜`has_qa_or_deploy_or_requested`｜`has_deploy`｜`has_uat`｜`release_verification_failed`｜`release_failed`｜`release_ready`｜`release_ready_and_acceptance_passed`｜`release_approved`｜`has_deployed`｜`iteration_done_or_incident`｜`recurring_defect_or_incident`｜`incident_or_major_release`｜`docs_migration_needed`｜`requirements_need_confirm`｜`change_is_substantive`｜`backlog_or_pace_changed`｜`plan_needs_confirm`｜`has_pending_commit`｜`code_changed_or_requested`｜`implementation_required`｜`menu_includes_commit`｜`menu_includes_writeback`｜`menu_includes_deploy`。条件不满足 → 跳过该步（及其 hitl）；不确定按触发处理。`release_failed` = 部署失败或发布验证失败/触发回滚条件；`release_ready` = 上线检查单结论 GO；`release_ready_and_acceptance_passed` = 上线检查单 GO 且 UAT/验收通过或不需要；`release_approved` = `confirm_deploy` 已批准；`implementation_required` = 非「只出任务清单」且清单已确认。
 
 ### 0.8 预授权与「一次性」界
 
 - **界**：「一次性 / 直接跑完 / 中途不停」等说法为**预授权**，默认只到**任务本身完成**——需求/方案/实现/门禁＋固定输出骨架（如总结/菜单）；**不含**提交、推送、部署、回写、发布审批等后续流程。
-- **先一问**：收到该类口令，回执后**一次一问**确认范围：「只到做完任务」（默认）或「含后续：提交/推送/部署/回写/发布（列明项）」；按确认后的界执行，不再逐门重复询问。
-- **只免等待、不免输出**：固定骨架（清单/总结/菜单/拟提交/回写备注全文/汇报）照常输出；范围确认已覆盖的确认门，在对应位置附一行【已预授权执行：<组合>】代替等待；未覆盖的门仍按步上 `hitl` 执行。
+- **默认界声明**：收到该类口令，回执中声明「按默认界：只到任务完成，不含提交/推送/部署/回写」并直接执行；**仅当口令同时提到后续动作（提交/部署/回写/发布）且范围不明**时一次一问。按确认后的界执行，不再逐门重复询问。
+- **只免等待、不免输出**：固定骨架（清单/总结/菜单/拟提交/回写备注全文/汇报）照常输出；已覆盖的确认门在对应位置附一行【已预授权执行：<组合>】代替等待；未覆盖的门仍按步上 `hitl` 执行。
 - **未确认前**：按默认界执行到「做完任务」并输出菜单/总结（`AWAIT_CONFIRM`），**禁**静默连跑提交/推送/部署/发布/回写。
 
 ### 0.9 文档现行有效（正式产物 · 不可让）
@@ -137,6 +140,7 @@
 3. 不记录历史修改过程、变更原因、取消内容与废弃概念。  
 4. 不引入不存在的概念；不确定的写「待确认」，不猜造。  
 5. 结论性输出不复述用户原话、修改过程或方案草稿；不把修改方案写入正式产物，正式产物按各自模板写业务内容。  
+6. **例外**：变更记录/CR/待决项/DEC/执行日志/复盘等治理留痕可记录变更前后与原因；但不得把“已废弃/旧方案”等历史说明回写到需求基线、方案、任务清单、发布说明等正式产物。  
 
 ## 1. 接入
 
@@ -168,7 +172,8 @@ L2+ 新项目/新产品同时建 `{文档事实源目录}/开发计划.md`（新
 - **第 3 点**：验证＝可复跑的命令 / 门禁＋结果，或「评审通过 / 单测 N 条通过」；未验证不得写完成。  
 - **第 4 / 5 点**：假设与风险分开；无则写「无」，不留空。  
 - **第 6 点**：给可执行下一步（提测 / 发布 / 回归 / 补文档），不写空泛建议。  
-- 门3（提交 / 部署 / 回写）在骨架后按步上 `hitl` 单独确认，不并入 6 点。
+- 门3（提交 / 部署 / 回写）按 YAML 步上 `hitl` 独立确认，不并入 6 点；骨架第 2 点如实写「拟提交 / 已提交 hash / 未提交」。  
+- **收尾自检（输出前逐项过）**：① 标题【任务收尾】；② 1～6 字段标签齐；③ 第 1 点含可复制汇报且数字与任务清单/门禁一致；④ 未验证项明示；⑤ 拟提交/部署/回写门按 YAML 独立确认，不并入 6 点。
 
 ## 3. 口令 → Workflow（命中即停）
 
@@ -176,24 +181,24 @@ L2+ 新项目/新产品同时建 `{文档事实源目录}/开发计划.md`（新
 | ---: | --- | --- | --- | --- |
 | 1 | 指派给我 / 我的待修 / 修复…#… / 仅 `#数字` / 落地…**#{编号}**…优化方案 | `workflows/defect-fix.yaml` | preflight | defect-fixer（provider=无 → `change`） |
 | 2 | 新文档 / 收件箱 / 新变化 / 变更 / 确认项 / 变更吸收 | `workflows/intake.yaml` | scan | iterate-lead |
-| 3 | 按方案实施 / 落地迭代方案 / 继续迭代 / 只出任务清单 | `workflows/iterate.yaml` | plan | iterate-lead |
+| 3 | 按方案实施 / 落地迭代方案 / 继续迭代 / 只出任务清单 | `workflows/iterate.yaml` | precheck | iterate-lead |
 | 4 | 接入开发规范 / 重新接入 / 生成项目档案 / 装配能力 / 文档整理 | `workflows/onboard.yaml` | mount / migrate / profile / capabilities / docs | onboard-agent |
 | 5 | 提交 / 推送（单独口令） | 当前 workflow 末步，或 `change` | commit | implementer |
 | 6 | 常规变更 / 澄清（及未命中 1～5 的实施类） | `workflows/change.yaml` | clarify | implementer |
 | 7 | 出方案 / 需求澄清 / 方案评审（「只出方案」＝设计后收尾） | `workflows/change.yaml` | design | implementer |
-| 8 | 代码评审 | `workflows/change.yaml` | review | implementer / reviewer-agent |
+| 8 | 代码评审 | `workflows/change.yaml` | review | reviewer-agent |
 | 9 | 提测 / 提测单 / 发布说明 / 回滚预案 | `workflows/change.yaml` | deliver | implementer |
-| 10 | 发布 / 上线 / 部署 / 发版 | `workflows/release.yaml` | readiness / deploy | delivery-lead |
+| 10 | 发布 / 上线 / 部署 / 发版 | `workflows/release.yaml` | readiness（全链：就绪→验收→审批→部署→验证） | delivery-lead |
 | 11 | 回滚 | `workflows/release.yaml` | rollback | delivery-lead |
 | 12 | 复盘 / 事故复盘 / 迭代复盘 / 版本复盘 | `workflows/retro.yaml` | gather | delivery-lead |
-| 13 | 开发计划 / 项目计划 / 排期 / 进度 / 下一步 / 阶段检查 / **按开发计划执行** / 继续开发计划 | `workflows/control.yaml` | init / run / sync / check | iterate-lead / reviewer-agent |
+| 13 | 开发计划 / 项目计划 / 排期 / 进度 / 当前状态 / 下一步 / 阶段检查 / **按开发计划执行** / 继续开发计划 | `workflows/control.yaml` | init / sync / next / check / run | iterate-lead / reviewer-agent |
 | 14 | 维护 / 查询 | 本文 + 点名 | — | — |
 
 `change` 的条件 `plan` 步由 `iterate-lead` 执行（其余默认 implementer）；`release`/`retro` 默认 delivery-lead。  
-**入口直达**（如「代码评审」「提测」「发布」）：只从入口 step 开始，不整链重跑；若前置输入（diff/版本/PRD/清单）缺失，只补必要前置（一次一问/只读文件），补不齐再停。  
+**入口直达（防整链重跑）**：单步口令（代码评审/提测/下一步/回滚）只执行该 step 到产出完成即停；`change`/`iterate`/`release` 按各自链路继续到下一个门或收尾；「只出任务清单」到 `wrap` 即止。**单步入口结束时仍按 §2 输出【任务收尾】六段（该步产物置第 1 点），不得只报一句结论。** 若前置输入（diff/版本/PRD/清单）缺失，只补必要前置（一次一问/只读文件），补不齐再停。  
 互斥：「落地…**#编号**…优化方案」=缺陷；「落地**迭代**方案」=迭代；无 `#` 又无「迭代」→ 一问。  
 未命中 1～5 的改代码/改配置实施类 → 行 6（`change`），勿因单字「改/修/优化」误判专规；「出方案/代码评审/提测/发布说明」均由 `change` 承接（行 7/8/9 为专列口令）；发布/回滚/复盘各自独立 workflow。  
-首条：`route=workflow:<id> | step=<id> | level=<L0-L3> | next_action=…`（待确认用 `AWAIT_CONFIRM`）。
+首条：`route=workflow:<id> | step=<id> | level=<L0-L3> | next_action=…`（待确认用 `AWAIT_CONFIRM`；有输入时加 `input=<diff/路径>`）。
 
 ## 4. 维护本包
 

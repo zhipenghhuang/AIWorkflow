@@ -1,7 +1,7 @@
 workflow:
   id: onboard
   name: 开发规范接入
-  version: 5
+  version: 6
 
 entry_points:
   接入开发规范: mount
@@ -39,9 +39,11 @@ steps:
   - name: 旧项目迁移
     id: migrate
     agent: onboard-agent
+    hitl: confirm_docs_migration
+    hitl_when: docs_migration_needed
     output: 迁移清单/更新后的路径
     notes: >
-      「重新接入」= 预授权按最新布局迁移；先扫描旧结构，列出清单，再执行，不静默丢文件。
+      「重新接入」先扫描旧结构，列出迁移清单与目标，经 `confirm_docs_migration` 确认后执行，不静默丢文件；docs 步不再重复确认。
       映射：旧 `docs/` → `开发/`（整树迁，不单移计划）；`docs/06-原始素材/` → `开发/资料/原始素材/`；
       `docs/07-复盘与改进/` → `开发/06-复盘与改进/`；`docs/历史/` → `开发/_归档/`；
       `docs/00-项目治理/开发计划.md` → `开发/开发计划.md`。
@@ -63,7 +65,7 @@ steps:
       新文件先进 `_收件箱/`，由 `workflows/intake.yaml` 吸收；不直接覆盖正式文档。
       一次性整理：根目录/文档根平铺 → 按分类归位；旧版/迭代快照移 `_归档/{yyyyMMdd}-{版本}/`（旧项目可用 `历史/`）；
       无法判断归属 → 先问用户，不擅自删；既有分类 → 按映射落位，不强行搬迁。
-      confirm_docs_migration 仅在需要搬迁/删除/改结构时触发：出示拟搬迁清单与目标，确认后执行。
+      confirm_docs_migration 仅在需要搬迁/删除/改结构时触发：出示拟搬迁清单与目标，确认后执行；migrate 步已确认过的同一迁移不重复问。
       根目录白名单：代码/构建文件、README、项目档案、activeContext、工作流包、文档根、测试根。
 
   - name: 开发计划
@@ -100,3 +102,10 @@ steps:
       按 onboard-agent 接入清单核验（①～⑨，含文档树/索引/§8/§9/开发计划/写接入标记）；
       核验通过后写「开发规范接入：已完成」；此后按 AGENTS §0-3 跳过落地检查。
       文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理；L2+ 缺开发计划 → 回 control 步补。
+
+  - name: 收尾
+    id: wrap
+    agent: onboard-agent
+    output: 【任务收尾】（接入明细置第 1 点，六段压缩）
+    notes: >
+      按 AGENTS §2 输出六段压缩（每段一行）；仅有例外/待处理项时逐条展开；禁逐项罗列工具。

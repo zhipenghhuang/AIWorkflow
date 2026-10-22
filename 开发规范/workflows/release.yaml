@@ -1,13 +1,14 @@
+# 发布/上线/部署均从 readiness 起全链（就绪→验收→审批→部署→验证/回滚）；回滚为独立入口。
 workflow:
   id: release
   name: 发布与上线
-  version: 1
+  version: 2
 
 entry_points:
   发布: readiness
   上线: readiness
   发版: readiness
-  部署: deploy
+  部署: readiness
   回滚: rollback
 
 trigger:
@@ -25,9 +26,10 @@ steps:
     notes: >
       技能：`技能/qa-handoff-and-release/SKILL.md`、`技能/acceptance-and-launch/SKILL.md`（先读再核）。
       读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`；L2+；无则提示缺口，不阻塞单包发布）。
-      按 `规则/模板/上线检查单模板.md` 逐项核：需求/AC、评审、测试报告/准出、UAT（如适用）、安全/依赖/密钥、
-      配置/迁移、回滚预案、监控/告警/值班、通知、变更/发布审批。
+      按 `规则/模板/上线检查单模板.md` 逐项核：需求/AC、提测单/构建交接（无 QA 项目用自测报告/构建记录替代）、评审、
+      测试报告/准出、UAT（如适用）、安全/依赖/密钥、配置/迁移、回滚预案、监控/告警/值班、通知、变更审批。
       任一硬项不过 → NO-GO；例外写风险/补偿/批准人。上线检查单一版一档，落 `05-发布与交付/`。
+      输出 `release_ready=GO/NO-GO` 供后续步骤判断；审批记录由 approval 步回填，不在 readiness 阶段伪填“已审批”。
 
   - name: 业务验收
     id: acceptance
@@ -44,16 +46,18 @@ steps:
 
   - name: 工程部署审批
     id: approval
+    when: release_ready_and_acceptance_passed
     agent: delivery-lead
     hitl: confirm_deploy
     output: 工程部署审批记录
     notes: >
       工程 go/no-go：基于上线检查单 + UAT/验收 + 测试报告 + 风险/回滚；出示版本/窗口/影响面/回滚决策人。
       若项目已有业务发布决策（其它流程/产品包/用户确认）且 UAT 已过 → 本步只确认工程就绪，不重复业务决策；没有 → 本门覆盖业务+工程范围。
-      未批准不得部署；有条件批准须列明条件与监控措施；发布内容/窗口/回滚变更 → 重新确认。
+      未批准不得部署；有条件批准须列明条件与监控措施；发布内容/窗口/回滚变更 → 重新确认。输出 `release_approved=true/false` 供 deploy 判断。
 
   - name: 部署
     id: deploy
+    when: release_approved
     agent: delivery-lead
     tools:
       - git
@@ -69,6 +73,7 @@ steps:
 
   - name: 发布验证
     id: verify
+    when: has_deployed
     agent: delivery-lead
     tools:
       - browser-mcp
@@ -81,7 +86,7 @@ steps:
 
   - name: 回滚
     id: rollback
-    when: release_verification_failed
+    when: release_failed
     agent: delivery-lead
     hitl: confirm_rollback
     tools:
@@ -125,3 +130,11 @@ steps:
       条件步：事故/回滚/重大发布才走；技能 `技能/retrospective-and-improvement/SKILL.md`，模板 `规则/模板/复盘模板.md`。
       更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；项目关闭或继续下一迭代。
       行动项必须有负责人/截止/验收；进任务清单或 `06-复盘与改进/改进项.md`。
+
+  - name: 收尾
+    id: wrap
+    agent: delivery-lead
+    output: 【任务收尾】（发布/验证/回滚/复盘明细置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐；
+      更新发布记录/发布说明/文档索引/activeContext/开发计划；未验证/未观察/遗留项明示。

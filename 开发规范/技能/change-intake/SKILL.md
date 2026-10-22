@@ -11,7 +11,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 
 ## 1. 收件
 
-- 文件 → `{文档事实源目录}/资料/项目文档/` 或 `{文档事实源目录}/资料/原始素材/_收件箱/`；AI 保存/登记，处理后再移 `资料/原始素材/{yyyyMMdd}-{来源}/`。
+- 文件 → 外部 PRD/方案/设计稿放 `{文档事实源目录}/资料/项目文档/`；原件/截图/附件先进 `{文档事实源目录}/资料/原始素材/_收件箱/`，处理后移 `资料/原始素材/{yyyyMMdd}-{来源}/`；两处都更新 `资料/资料索引.md`。
 - 聊天 → 在 `00-项目治理/变更记录.md` 或 `00-项目治理/待决项.md` 建 `CR/OPEN`，保留来源/日期/原文要点。
 - 每个输入给 `DOC-xx`（原始资料）或 `CR-xx`（变更）编号。
 
@@ -33,7 +33,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 
 - 找已有 `R-xx` / `AC-xx` / `OPEN-xx` / `CR-xx` / `T-xx`。
 - 新增需求：分配 `R-xx`，写来源/日期/状态。
-- 修改需求：`CR-xx` 记录旧→新，旧结论标“已替代”。
+- 修改需求：`CR-xx` 记录旧→新；正式产物直接替换旧结论，不在 PRD/台账里保留“已替代”说明。
 - 确认项：关闭 `OPEN-xx`，写结论/决策日期/关联 CR。
 - 找不到关联 → 标 `GAP`，不要硬套。
 
@@ -50,7 +50,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 ## 5. 局部更新
 
 - 只改受影响章节；不重写全文。
-- 保留稳定 ID；追加修订记录；旧结论标“已作废/被 CR-xx 替代”。
+- 保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明）；变更前后与原因记 CR/变更记录。
 - 更新 `需求台账`、迭代计划、任务清单、测试/发布文档（按影响）。
 - 更新 `开发计划` §9/§10、`文档索引`、`activeContext`。
 - 不新建重复文档；同一主题就地更新；不同工作先问用户。

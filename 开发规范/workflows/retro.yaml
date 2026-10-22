@@ -1,7 +1,7 @@
 workflow:
   id: retro
   name: 复盘与改进
-  version: 1
+  version: 2
 
 entry_points:
   复盘: gather
@@ -51,3 +51,11 @@ steps:
       按 `规则/模板/复盘模板.md` 落 `06-复盘与改进/复盘-{版本或事件}-{yyyyMMdd}.md`。
       更新 `{文档事实源目录}/文档索引.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `06-复盘与改进/改进项.md`。
       下次复盘先对账上次行动项；未完成项说明原因与新截止。
+
+  - name: 收尾
+    id: wrap
+    agent: delivery-lead
+    output: 【任务收尾】（复盘结论/行动项置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含复盘结论/行动项与可直接复制汇报，第 2～6 点齐；
+      未确认/未闭环行动项明示。

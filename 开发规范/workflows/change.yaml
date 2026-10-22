@@ -1,7 +1,8 @@
+# 入口即止：clarify/design/review/deliver/commit 为单步入口；未标全链时只到该步 + 收尾。
 workflow:
   id: change
   name: 常规代码变更
-  version: 6
+  version: 7
 
 entry_points:
   常规变更: clarify
@@ -51,7 +52,7 @@ steps:
 
   - name: 方案与设计
     id: design
-    when: new_feature_or_architecture_or_breaking_change_or_requested
+    when: new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested
     agent: implementer
     hitl: confirm_spec
     output: 方案/ADR（{文档事实源目录}/02-设计基线/）
@@ -66,11 +67,13 @@ steps:
     when: multi_file_or_new_feature_or_requested
     agent: iterate-lead
     hitl: confirm_backlog
+    hitl_when: backlog_or_pace_changed
     output: 任务清单（{文档事实源目录}/03-计划与状态/）
     notes: >
       条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
       技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/任务清单模板.md`。
       本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/依赖无环/并行安全/L 已拆/检查点），再 confirm_backlog（清单+节奏三选）。
+      新建/更新清单 → `backlog_or_pace_changed=true`；未确认不得实施。
       更新开发计划：S3 任务与排期=进行中/完成，任务清单链接、里程碑、依赖、风险；清单未完成时禁止覆盖；不同工作先问用户。
 
   - name: 实施
@@ -85,16 +88,17 @@ steps:
 
   - name: 代码评审
     id: review
-    when: multi_file_or_new_feature_or_requested
-    agent: implementer
+    when: multi_file_or_new_feature_or_high_risk_or_requested
+    agent: reviewer-agent
     tools:
       - code-review
       - security-scan
     output: 评审结论/缺口
     notes: >
-      条件步：L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」才走；L0 单文件可跳过；核验者≠实施者。
+      条件步：L2+ 多文件/新功能、单文件高风险/大改/破坏性变更或点名「代码评审」才走；L0 单文件可跳过。
+      本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
       技能：`技能/code-review/SKILL.md`（五轴 + 全量覆盖 + 安全/供应链，先读再审）。
-      本机可用 code-review 时按其评审全量 diff；不可用 → 派独立核验（`agents/reviewer-agent.yaml`）。
+      本机可用 code-review 时按其评审全量 diff；不可用按 `agents/reviewer-agent.yaml` 人工清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       只报正确性/需求覆盖/安全/性能/范围缺口；需修回 implement，同回合重验≤1；核验不替代门禁。
 
@@ -102,6 +106,7 @@ steps:
     id: verify
     agent: implementer
     gate: project-gates
+    gate_when: code_changed_or_requested
     notes: >
       有代码/配置改动才跑；按 项目档案.md「质量门禁命令」取最小充分集（细则 规则/工作流.md §3.3）；
       纯澄清无改动可跳过本步。失败不声称完成；存量失败只对账新增。
@@ -140,7 +145,7 @@ steps:
     output: 发布就绪包
     notes: >
       条件步：含部署/发版才走；本步不直接部署。
-      就绪包=提测单+发布说明+上线检查单+回滚预案+测试报告/UAT（如有）；缺项先补。
+      就绪包=提测单+发布说明+回滚预案+测试报告/UAT（如有）；上线检查单由 `release.readiness` 产出，本步不重复造。
       转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证；交接时说明版本/窗口/风险/回滚决策人。
       更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
 

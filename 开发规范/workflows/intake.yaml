@@ -1,7 +1,7 @@
 workflow:
   id: intake
   name: 变更吸收
-  version: 1
+  version: 2
 
 entry_points:
   新文档: scan
@@ -27,7 +27,7 @@ steps:
       扫描：`资料/项目文档/`、`资料/原始素材/_收件箱/`、`资料/原始素材/` 未登记文件、`文档索引.md`、`git status`。
       对照文档索引/需求台账/待决项/开发计划，列出“未登记/未关联”的候选；不读全量历史，不直接改基线。
       多个候选 → 列清单让用户选；无新输入 → 报告“无新增”，不空转。
-      文件先留在 `_收件箱`；处理后再移 `资料/原始素材/{yyyyMMdd}-{来源}/`。
+      文件先留在 `_收件箱`；处理后按性质归位：外部 PRD/方案/设计稿 → `资料/项目文档/`，原件/截图/附件 → `资料/原始素材/{yyyyMMdd}-{来源}/`；两处都更新 `资料/资料索引.md`。
 
   - name: 分类与登记
     id: classify
@@ -43,13 +43,17 @@ steps:
   - name: 影响分析
     id: impact
     agent: iterate-lead
-    hitl: confirm_change
-    hitl_when: change_is_substantive
+    hitl:
+      - name: confirm_change
+        when: change_is_substantive
+      - name: confirm_requirements
+        when: requirements_need_confirm
     output: 影响矩阵/待确认项
     notes: >
       逐项分析：需求/AC、原型、架构/ADR、DB、API、前端、测试、任务/排期、发布/回滚、文档索引。
       每项写“受影响/不受影响 + 依据/动作”；禁止沉默。
       实质变更（范围/AC/优先级/架构/排期/发布）→ confirm_change：出示变更类型/影响矩阵/待更新文档/待确认项。
+      需求基线/AC 被替换或新增 → confirm_requirements：出示差异/范围/AC/非目标，确认后冻结；未签收不得改基线。
       小澄清（C0/C1 无实质影响）可跳过门，更新后报告。
 
   - name: 局部更新
@@ -57,7 +61,7 @@ steps:
     agent: iterate-lead
     output: 已更新文档/台账/任务
     notes: >
-      只改受影响章节；保留稳定 ID；追加修订记录；旧结论标“已作废/被 CR-xxx 替代”。
+      只改受影响章节；保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明），变更前后与原因只记 CR/变更记录。
       更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、测试/发布文档（按影响）。
       更新：`开发计划` §0（计划状态/当前门/下一动作）、§1（受影响阶段/范围）、§9/§10、§12 执行日志；`文档索引`、`activeContext`。
       不新建重复文档；同一主题就地更新；不同工作先问用户。
@@ -71,3 +75,11 @@ steps:
       按 `规则/模板/变更吸收报告模板.md` 输出：输入/分类、关联、影响矩阵、已更新、待确认、下一步。
       需要开发 → 建议 `workflows/change.yaml`（局部）或 `iterate.yaml`（迭代）；只在文档层 → 关闭 CR/OPEN。
       未确认项列最前；不擅自实施、不提交/推送。
+
+  - name: 收尾
+    id: wrap
+    agent: iterate-lead
+    output: 【任务收尾】（变更吸收报告置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含【变更吸收报告】与可直接复制汇报，第 2～6 点齐；
+      更新文档索引/activeContext/开发计划；未确认/待实施项明示。
