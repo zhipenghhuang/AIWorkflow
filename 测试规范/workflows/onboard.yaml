@@ -21,9 +21,11 @@ steps:
   - name: 旧结构迁移
     id: migrate
     agent: onboard-agent
+    hitl: confirm_docs_migration
+    hitl_when: docs_migration_needed
     output: 迁移清单/更新后的路径
     notes: >
-      「重新接入」= 预授权按最新布局迁移；先扫描旧结构，列出迁移清单，再执行，不静默丢文件。
+      「重新接入」先扫描旧结构，列出迁移清单与目标，经 `confirm_docs_migration` 确认后执行，不静默丢文件；不重复问同一迁移。
       迁移映射：根 `项目资料/` → `测试/资料/项目文档/`；`测试/测试用例/` + `测试/执行台账/` → `测试/功能测试/`（用例/台账/评审/证据同级；证据按模块）；
       `测试/测试脚本/` → `测试/脚本/`；`测试/变更记录/` → `测试/变更/`；`测试/发布前测试/{专项}/` 保持，性能/安全/兼容各自独立；
       `测试/计划执行看板.md` → 合并进 `测试/测试计划.md` §0/§16 后删除。
@@ -65,3 +67,10 @@ steps:
     notes: >
       按 onboard-agent 接入清单核验（①～⑦，含写 landing=ok）；
       有挂起原口令则 resume；此后业务任务见标记直跑。
+
+  - name: 收尾
+    id: wrap
+    agent: onboard-agent
+    output: 【任务收尾】（接入明细置第 1 点，六段压缩）
+    notes: >
+      按 AGENTS §5 输出六段压缩（每段一行）；仅有例外/待处理项时逐条展开；禁逐项罗列工具。

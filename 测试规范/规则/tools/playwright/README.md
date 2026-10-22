@@ -53,7 +53,7 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 | 失败截图 | `测试/功能测试/证据/{模块}/{CASE-ID}-fail-{runStamp}.png` | 自动全屏 |
 | 失败现场 | `测试/功能测试/证据/{模块}/{CASE-ID}-net-{runStamp}.json` | HTTP≥400 + console 摘要（如有） |
 
-`result`：`pass` / `fail` / `blocked`（`ctx.blocked()`，纪律见 `脚本执行.md` §3.7）；异常= `fail`。执行器只产这三态（`--case` 未匹配 = 配置错误，退出码 2）；`na`/`pending` 为台账六态的合并容错映射（供拆分档 Worker jsonl 混用）。
+`result`：`pass` / `fail` / `blocked`（`ctx.blocked()`，纪律见 `脚本执行.md` §3 第7条）；异常= `fail`。执行器只产这三态（`--case` 未匹配 = 配置错误，退出码 2）；`na`/`pending` 为台账六态的合并容错映射（供拆分档 Worker jsonl 混用）。
 
 **合并提速**：`node 测试规范/规则/tools/merge-ledger.mjs --ledger=测试/功能测试/xx.md --jsonl=…` 机械合并 §1 计数与 §2 行（结论说明仍由 AI 写）。
 
@@ -71,7 +71,7 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 
 用例：`id`｜`title`｜`steps[]`｜`run(ctx)`（复杂复算逃逸口，可选）｜`summary`（通过摘要，可选）。
 
-`ctx`（run 内）：`page` `context` `baseUrl` `bus`（`bus.set(k,v)` 写占位符上下文）`config` `blocked(msg)`（仅外部不可用；禁缺样直调，见 `脚本执行.md` §3.7）`expect(cond,msg)` `evidence(name)`。
+`ctx`（run 内）：`page` `context` `baseUrl` `bus`（`bus.set(k,v)` 写占位符上下文）`config` `blocked(msg)`（仅外部不可用；禁缺样直调，见 `脚本执行.md` §3 第7条）`expect(cond,msg)` `evidence(name)`。
 
 步骤字段：`action`｜`target`｜`value`｜（api 专属）`method` `path` `body` `headers` `expectStatus` `expectMessage` `expectFields` `save`｜（screenshot）`name`。
 

@@ -25,7 +25,7 @@ import sys
 from pathlib import Path
 
 CASE_ID = re.compile(r"\b([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\b")
-CASE_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s+(.+)$")
+CASE_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s+(.+)$", re.M)
 REQUIRED_SECTIONS = [
     "## 0. 模块信息",
     "## 1. 模块用例总览",

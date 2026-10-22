@@ -2,7 +2,16 @@
 workflow:
   id: defect
   name: 测试缺陷协作
-  version: 2
+  version: 3
+
+entry_points:
+  缺陷协作: classify
+  查重: classify
+  提交到平台: classify
+  回归: classify
+  指派给我: classify
+  已解决: classify
+  复测: classify
 
 trigger:
   - 缺陷协作

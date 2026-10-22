@@ -329,6 +329,10 @@ if (Test-Path -LiteralPath $wfDir) {
                 $v = $Matches[1]
                 if (-not $declaredGates.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate '$v' 未在 AGENTS.md 声明") }
             }
+            if ($line -match '^\s*gate_when:\s*(\S+)') {
+                $v = $Matches[1]
+                if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate_when '$v' 未在 AGENTS.md 声明") }
+            }
         }
     }
 }

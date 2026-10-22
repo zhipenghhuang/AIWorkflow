@@ -3,18 +3,42 @@
 # - 无 landing=ok 时才按 onboard-agent 清单核验一次，打标后免检（AGENTS 开工第3点）
 # - 正式轨：功能全量/专项 · 探索式 · 接口 · 发布前（工作流 §1.2 + 规则/轨契约/）
 # - 确认门只认步上 hitl（标量或列表，可带 when）；条件不满足则该门跳过，不算违例
+# - 入口即止：单步口令只执行该步 + 收尾；「按计划执行」才走 analyze→plan→generate→execute→report
 workflow:
   id: testing
   name: AI测试流程
-  version: 12
+  version: 13
 
 entry_points:
   测试计划: plan
   生成测试计划: plan
   按测试计划执行: execute
+  按计划执行: execute
+  执行测试计划: execute
   继续测试计划: execute
   当前状态: status
+  计划状态: status
   下一步: status
+  生成测试资产: generate
+  生成用例: generate
+  生成接口测试资产: generate
+  生成探索式用例: generate
+  生成性能测试资产: generate
+  生成安全测试资产: generate
+  生成兼容测试资产: generate
+  用例评审: generate
+  执行测试: execute
+  执行专项: execute
+  执行接口测试: execute
+  执行探索式测试: execute
+  执行性能测试: execute
+  执行安全测试: execute
+  执行兼容性测试: execute
+  测试报告: report
+  出报告: report
+  准出评估: report
+  用例脚本: generate
+  更新脚本: generate
 
 trigger:
   - 生成测试资产
@@ -44,6 +68,7 @@ steps:
       「下一步」只报动作与入口，不执行；「当前状态」只读，不重写计划。
       有未吸收新文档/变化 → 先走 `本期变更`（plan 步的期中变更逻辑），不直接改用例/脚本。
       测试包独立运行；PRD/提测单/UAT 为可选输入，缺则按主读/基线执行，不阻塞。
+      结束按 AGENTS §5 输出六段压缩（只读可 2～3 行，6 个字段标签保留）。
       输出首条：route=workflow:testing | step=status | phase=… | gate=… | next_action=…
 
   - name: 分析需求
@@ -80,29 +105,36 @@ steps:
     agent: testcase-agent
     hitl:
       - name: select_mainread
-        when: mainread_unspecified
+        when: mainread_unspecified_for_generate
       - name: confirm_commit
         when: standalone_generate_with_pending
     gate: coverage-map
+    gate_when: functional_coverage_required
     notes: >
-      门1：仅主读未点名时 STOP（analyze 已问过则跳过，不重问）。
-      生成前须已有轻量分析短表（可与本步同轮由 analyze 逻辑产出）与现行测试计划（缺/超范围 → 先按 plan 步轻量补）；**探索式独立口令可不要求计划；计划驱动模式必须按计划 §3.2/§12**。
-      **计划驱动生成**：按 §3.2 资产清单逐项生成/登记——功能全量/专项→testcase-agent；接口→接口轨；发布前→发布前轨；探索式→计划 §12 章程 + `规则/模板/探索式用例模板.md`；脚本按 `规则/脚本执行.md` §1。缺资产先补，计划项不静默跳过；超范围先更新计划/计划门。
+      门1：仅**新生成**且主读未点名时 STOP（analyze 已问过则跳过，不重问；用例评审不触发）。
+      生成前须已有轻量分析短表（可与本步同轮由 analyze 逻辑产出）与现行测试计划（缺/超范围 → 先按 plan 步轻量补）；**探索式/接口/发布前独立口令可不要求完整计划**，只在计划 §3.2 登记一行或按轨契约生成，不触发计划门；计划驱动模式必须按计划 §3.2/§12。
+      **计划驱动生成**：按 §3.2 资产清单逐项生成/登记——功能全量/专项→testcase-agent；接口→接口轨；发布前→发布前轨；探索式→计划 §12 章程 + `规则/模板/探索式用例模板.md`；脚本按 `规则/脚本执行.md` §1+§2。缺资产先补，计划项不静默跳过；超范围先更新计划/计划门。
       能测尽测；参照影响面/变更点；探索式轨按章程而不是臆造业务步骤。
-      独立生成（不续 execute）且有拟入库 → confirm_commit；同会话续 execute → 门3 只在 report。
-      覆盖三闸见 testcase-agent（功能全量/专项）与 工作流 §2.1.0；**`gate: coverage-map` 仅功能全量/专项**；探索式/接口/发布前按各自轨契约（软覆盖），不套三闸。
+      独立生成（不续 execute）且有拟入库 → 生成后出示拟提交清单再 confirm_commit；同会话续 execute → 门3 只在 report。
+      覆盖三闸见 testcase-agent（功能全量/专项）与 工作流 §2.1.0；**`gate: coverage-map` 仅功能全量/专项的新生成/补生成**；用例评审、探索式/接口/发布前按各自轨契约（软覆盖），不套三闸。
       「用例评审」口令：本步做独立复核（细则 规则/工作流.md §2.5）——按完稿自检同源清单逐项核；只报缺口与放行建议，不改写口径；默认留痕（`规则/模板/评审记录模板.md` → `测试/功能测试/评审-{范围}-{时间戳}.md`；「只审不录」可跳过）。
-      技能：`技能/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）。
-    output: 测试/功能测试/ · 测试/接口测试/ · 测试/探索式测试/ · 测试/发布前测试/{性能|安全|兼容}/ · 测试/脚本/（按计划 §3.2 资产；功能用例/台账/评审/证据同级）
+      脚本编写/更新：按 `规则/脚本执行.md` §2 + `规则/tools/playwright/README.md` 的脚本结构；接口确定性用例**同轮产出脚本**，不得标“待脚本化”。
+      技能：`技能/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）；接口轨读 `技能/test-interface/SKILL.md`。
+    output: 测试/功能测试/ · 测试/接口测试/ · 测试/探索式测试/ · 测试/发布前测试/{性能|安全|兼容|迁移}/ · 测试/脚本/（按计划 §3.2 资产；功能用例/台账/评审/证据同级）
 
   - name: 执行测试
     id: execute
     agent: test-orchestrator
-    hitl: confirm_scope
-    hitl_when: scope_needs_confirm
+    hitl:
+      - name: select_mainread
+        when: exploratory_mainread_missing
+      - name: confirm_scope
+        when: scope_needs_confirm
+    output: 执行结果/≤3 行简报（直接以 execute 为末步时按 AGENTS §5 六段，执行明细置第 1 点）
     notes: >
       门2（when `scope_needs_confirm`）：开跑前展示一行「主读《…》；计划《…》范围/轮次/准出；环境=…」→ 等确认；同一载体同会话只确认一次（「继续」沿用）。
-      **计划驱动（口令「按计划执行 / 执行测试计划」）**：读计划 §9.2 逐阶段执行（P0 准备→P1 冒烟→P2 功能→P3 接口→P4 探索式→P5 非功能→P6 回归→P7 UAT→P8 发布前/灰度→P9 报告）；每阶段入口检查→按对应轨契约执行→出口检查→更新计划 §0（当前阶段/门/下一动作/健康度）+ §16.1 执行日志；并行仅按 §3.4/§9.2 且账号/数据/浏览器 profile/写域隔离；同条用例禁并行。**计划 §0「计划状态=已确认」 → `confirm_scope` 条件（`scope_needs_confirm`）不满足 → 跳过并附【已预授权执行：按计划】直接开跑；计划外/未确认提交仍门3。**
+      探索式执行且未点名主读/无同戳用例 → 先按 `generate` 生成探索式用例/台账（门1 一问），再执行；不即兴臆造业务步骤。
+      **计划驱动（口令「按计划执行 / 执行测试计划」）**：读计划 §9.2 逐阶段执行（P0 准备→P1 冒烟→P2 功能→P3 接口→P4 探索式→P5 非功能→P6 回归→P7 UAT→P8 发布前/灰度→P9 报告）；每阶段入口检查→按对应轨契约执行→出口检查→更新计划 §0（当前阶段/门/下一动作/健康度）+ §16.1 执行日志；并行仅按 §3.4/§9.2 且账号/数据/浏览器 profile/写域隔离；同条用例禁并行。**计划 §0「计划状态=已确认/执行中/待关闭」 → `confirm_scope` 条件（`scope_needs_confirm`）不满足 → 跳过并附【已预授权执行：按计划】直接开跑；计划外/未确认提交仍门3。**
       **回归并行**：每次缺陷修复后立即跑 原单+冒烟子集+影响面组（计划 §10），不等批末；高风险/连环缺陷提示升级；结果就地覆盖。
       **缺陷**：按计划 §11 提交策略；计划门已授权「发现即提交」→ 查重后直接提交（十段齐+证据+回写），不再逐条问；未授权→按门3。
       **探索式**：按计划 §12 章程穿插；session 记录→debrief→triage→缺陷/补用例/回归；不替代功能全量。
@@ -119,20 +151,29 @@ steps:
       可选能力（`能力/00-能力注册表.md`）：vision-ui（语义/视觉判定复核）、mobile-automation（移动端点名时）；不可用=降级（维持现行口径）。
       技能：`技能/test-execution-and-exploration/SKILL.md`（计划驱动/回归/探索式；接口轨另读 `技能/test-interface/SKILL.md`；发布前轨另读 `技能/test-performance-security-compatibility/SKILL.md`）。
       MCP 细则：稳态含全链终局退程（多Agent §2.2）；异常细节仅红点/无工具/端口/并行冲突时点读。
-      同方案无效 2 次换手段，禁同命令空重跑。
+      同方案无效 2 次换手段，禁同命令空重跑。**判 blocked 前四问**：能否造数/换样？能否换入口/角色？是否被测缺陷（→fail）？互异手段≥2 且总尝试≤3？任一未过不写 blocked。
       探索式/接口/发布前方法与场景自备（见轨契约）。
 
   - name: 输出报告
     id: report
     agent: report-agent
-    hitl: confirm_commit
-    hitl_when: has_pending_commit_or_platform_ask
     notes: >
-      门3：有拟入库或须问是否交平台时 STOP；纯口头结论无入库且无失败可不挂；计划 §11 已授权「发现即提交」的缺陷不重复问。
+      先产出报告与六段【任务收尾】，**门3 移至 handoff 步**，在骨架后单独问；不得先阻塞报告输出。
       全部阶段（P0～P9）结束或本步收尾时，按 AGENTS §5 输出最终【任务收尾】（执行明细置第 1 点，含可直接复制汇报）；阶段中途只出 ≤3 行简报。
-      失败/待实现汇总与交平台建议并入第 1 点；是否交平台只在此问一次（禁用例级刷屏）。
+      失败/待实现汇总与交平台建议并入第 1 点；是否交平台在下一步（handoff）只问一次（禁用例级刷屏）。
       版本级/全量/计划驱动：对照计划 §9.2 计划 vs 实际、§10 回归、§11 缺陷、§12 探索、§5 准出 → 出「准出评估」并更新 `测试/测试报告.md`（模板 `规则/模板/测试报告模板.md`；报告 §2 计划对照、§3 类型覆盖、§4 统计、§5 缺陷/回归/探索式、§6 覆盖缺口、§7 准出；滚动就地更新只留最新口径）。
       同步回写计划 §0（计划状态=待关闭/已关闭、当前门=准出、下一动作）、§16.1 执行日志、§16.2 归档索引；关闭时按 §16.2 生成快照，不移动当前计划。
       专项/小批追加一节或仅收尾。可选：装配 report-render（`能力/00-能力注册表.md`）时渲染执行明细；准出评估仍以 `测试/测试报告.md` 为准。
       独立生成已在 generate 过门3 → 本步不重复确认。
-    output: 【执行收尾】或【生成收尾】
+    output: 测试/测试报告.md + 【任务收尾】（执行/生成明细置第 1 点）
+
+  - name: 收尾与提交确认
+    id: handoff
+    agent: report-agent
+    hitl: confirm_commit
+    hitl_when: has_pending_commit_or_platform_ask
+    output: 提交/交平台确认结果
+    notes: >
+      报告与六段骨架已输出；此处只在骨架后问一次「是否提交入库/交平台」。
+      计划 §11 已授权「发现即提交」的缺陷不重复问；用户确认后执行，未确认则结束。
+      本轮用过浏览器 MCP → 按 `多Agent与输出.md` §2.2 全链终局退程（本套 Chrome）。
