@@ -132,6 +132,8 @@ def main() -> int:
                 whens.append(str(step["hitl_when"]))
             if step.get("when"):
                 whens.append(str(step["when"]))
+            if step.get("gate_when"):
+                whens.append(str(step["gate_when"]))
             if isinstance(hitl, list):
                 whens += [str(x.get("when")) for x in hitl if isinstance(x, dict) and x.get("when")]
             for w in whens:

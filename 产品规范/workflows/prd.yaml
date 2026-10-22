@@ -1,8 +1,25 @@
 # 需求与 PRD（洞察 → 立项 → PRD → 评审定稿）
+# 入口即止：写PRD/立项/PRD评审为单步入口；「收集需求」只到需求池。
 workflow:
   id: prd
   name: 需求与 PRD
-  version: 1
+  version: 2
+
+entry_points:
+  收集需求: discover
+  需求洞察: discover
+  竞品分析: discover
+  需求池: discover
+  立项: prioritize
+  单需求立项: prioritize
+  排优先级: prioritize
+  写PRD: prd
+  写 PRD: prd
+  出PRD: prd
+  补PRD: prd
+  PRD评审: review
+  PRD 评审: review
+  定稿: review
 
 trigger:
   - 收集需求 / 需求洞察 / 竞品分析 / 需求池
@@ -21,41 +38,61 @@ steps:
 
   - name: 优先级与立项
     id: prioritize
+    when: new_requirement_or_scope_change
     agent: pm-analyst
     hitl: confirm_scope
+    hitl_when: scope_decision_required
     notes: >
       条件步：跨版本/高价值需求或点名「立项」才走；小需求直接进 PRD（不设门）。
       方法按需：RICE / Kano / MoSCoW；产出：优先级 + 版本范围（MVP）+ 排除项 + 粗排期 + 依赖风险。
-      confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD。
+      技能：`技能/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
+      confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD；仅跨版本/高价值/点名立项链时停。
 
   - name: PRD 撰写
     id: prd
     agent: prd-writer
+    hitl: confirm_scope
+    hitl_when: scope_unconfirmed
     output: 产品/{版本或主题}/PRD-{主题}.md（模板 规则/模板/PRD模板.md）
     notes: >
-      技能：`技能/prd-writing/SKILL.md`（先读再写）。
+      前置：产品计划已确认，或单需求范围已经 `confirm_scope` 批准；两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。
+      已在需求池/立项书/计划范围内 → 直接写；未定性新输入 → 先走 `workflows/change.yaml` intake，不跳过受理。
+      技能：`技能/prd-writing/SKILL.md`（先读再写）；自检清单与 `技能/review-and-finalize/SKILL.md` 同源。
       要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段规则/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
       写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。
-      完稿按评审清单自检（技能03 同源），带缺口禁落盘。
+      完稿按评审清单自检，带缺口禁落盘；同路径已有 PRD → 先读并增量更新，禁静默覆盖。
 
   - name: 页面原型（条件）
     id: prototype
+    when: has_ui_requirement
     agent: ux-designer
     notes: >
       条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。
-      按 `workflows/prototype.yaml` 执行（IA → 线框 → 视觉 → 高保真 → 设计评审 → 交接）；
-      原型完成后回 PRD 评审；PRD §1 原型链接回填。
+      按 `workflows/prototype.yaml` 执行（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）；
+      原型完成后回 PRD 评审；PRD §14 追溯矩阵「原型/页面」列回填。
       技能：`技能/prototype-and-interaction/SKILL.md`、`技能/ui-visual-design-system/SKILL.md`。
 
   - name: PRD 评审与定稿
     id: review
     agent: reviewer-agent
     hitl: confirm_prd
+    hitl_when: finalize_requested
     notes: >
+      入口=「PRD评审」→ `finalize_requested=false`（只评审）；入口=「定稿」或用户明确要进入排期 → true。
       技能：`技能/review-and-finalize/SKILL.md`；独立复核（完整/可测/无歧义/范围/依赖/风险/验收标准/埋点）。
       产出评审记录 `产品/{版本或主题}/评审-{主题}-{yyyyMMdd}.md` 与【评审结论】。
-      confirm_prd：出示结论与定稿要点，批准才定稿；缺口回 prd 修订（同回合≤1 次）。
+      结论=需修 → 只列缺口并回 prd 修订（同回合≤1 次），不弹定稿门；结论=通过且用户要定稿/进入排期 → 才 `confirm_prd` 出示定稿要点；仅「评审」→ 输出结论并收尾，不弹门。
+      批准后由编排回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`（不改正文），再更新产品计划 §7。
       **未定稿不排期**（`规则/工作流.md` §1）。
+
+  - name: 收尾
+    id: wrap
+    agent: prd-writer
+    output: 【任务收尾】（PRD/评审明细置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐；
+      更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
+      本步先出骨架与拟提交清单，提交门在下一步。
 
   - name: 拟提交
     id: commit
@@ -64,4 +101,4 @@ steps:
     hitl_when: has_pending_commit
     tools:
       - git
-    notes: 无文件变更跳过本步与 hitl；拟提交清单按 `规则/工作流.md` §3。
+    notes: 无文件变更跳过本步与 hitl；拟提交清单按 `规则/工作流.md` §3；提交后补一行结果，不重复六段。

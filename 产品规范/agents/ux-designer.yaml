@@ -8,7 +8,8 @@ reads:
   - 产品/{版本或主题}/PRD-{主题}.md
   - 技能/prototype-and-interaction/SKILL.md
   - 技能/ui-visual-design-system/SKILL.md
-  - 规则/模板/原型说明模板.md、规则/模板/设计评审模板.md、规则/模板/原型脚手架.html
+  - 展示材料步：技能/presentation-design/SKILL.md；演示步：技能/demo-storytelling/SKILL.md
+  - 规则/模板/原型说明模板.md、规则/模板/设计评审模板.md、规则/模板/原型脚手架.html（展示材料另读一页纸/Deck模板）
 
 must:
   - 先 IA 后线框再视觉；不跳步；不先做高保真

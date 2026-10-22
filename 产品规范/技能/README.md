@@ -8,6 +8,24 @@
 > **与「规则」的区别**：技能给方法；红线/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版）：deanpeters/Product-Manager-Skills（77 技能方法论：prd-development / user-story / prioritization-advisor / roadmap-planning / discovery-interview-prep）、addyosmani/agent-skills（interview-me）、chituai/prd-writer 等；0→1 部分参考 Stage-Gate / Lean Startup / Working Backwards 实践；展示/文档参考 GTM、产品演示、用户文档与演示稿实践。  
 
+## 编号别名 → 实际路径（旧引用兼容）
+
+| 别名 | 实际路径 |
+| --- | --- |
+| 00 | `技能/zero-to-one-product-definition/SKILL.md` |
+| 01 | `技能/requirement-discovery-and-prioritization/SKILL.md` |
+| 02 | `技能/prd-writing/SKILL.md` |
+| 03 | `技能/review-and-finalize/SKILL.md` |
+| 04 | `技能/change-management/SKILL.md` |
+| 05 | `技能/uat-and-retrospective/SKILL.md` |
+| 06 | `技能/prototype-and-interaction/SKILL.md` |
+| 07 | `技能/ui-visual-design-system/SKILL.md` |
+| 08 | `技能/demo-storytelling/SKILL.md` |
+| 09 | `技能/presentation-design/SKILL.md` |
+| 10 | `技能/product-docs/SKILL.md` |
+
+> 新引用一律用实际路径；编号别名只用于兼容旧文本。
+
 ## 步骤 → 技能映射
 
 | 步骤 | 技能 |

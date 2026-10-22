@@ -1,8 +1,23 @@
-# 产品展示与介绍（受众 → 故事线/流程图 → 演示脚本 → 环境 → 材料/文档 → 彩排）
+# 产品展示与介绍（受众 → 故事线/流程图 → 演示脚本 → 环境 → 材料/文档 → 彩排 → 对外确认）
+# 入口即止：用户手册/发布说明只到 docs→publish（对外时）→wrap；准备演示才走全链。
 workflow:
   id: showcase
   name: 产品展示与介绍
-  version: 1
+  version: 2
+
+entry_points:
+  准备演示: audience
+  客户演示: audience
+  产品介绍: audience
+  产品汇报: audience
+  演示彩排: dryrun
+  一页纸: materials
+  Deck: materials
+  用户手册: docs
+  快速开始: docs
+  FAQ: docs
+  发布说明: docs
+  培训材料: docs
 
 trigger:
   - 准备演示 / 客户演示 / 产品介绍 / 产品汇报
@@ -13,21 +28,22 @@ steps:
   - name: 受众与目标
     id: audience
     agent: pm-lead
-    hitl: confirm_narrative
     output: 产品/{版本或主题}/展示/展示需求-{受众}-{yyyyMMdd}.md（模板 规则/模板/演示脚本模板.md §1）
     notes: >
       读 `产品档案.md` / `产品/产品计划.md` / PRD / UAT / GTM / 原型；
       明确受众（老板/客户/用户/技术）、目标、时长、成功标准、保密边界与不演示项。
-      confirm_narrative：出示受众/目标/故事线/演示范围请确认；确认后才写脚本与对外材料。
-      技能：`技能/demo-storytelling/SKILL.md`（先读再做）。
+      技能：`技能/demo-storytelling/SKILL.md`（先读再做）；受众/目标已明确则直接续跑，不停。
 
   - name: 故事线与流程图
     id: story
     agent: pm-lead
+    hitl: confirm_narrative
+    hitl_when: narrative_needs_confirm
     output: 产品/{版本或主题}/展示/故事线-{受众}.md
     notes: >
       用 Mermaid 流程图表达：背景 → 问题 → 方案 → 价值 → 证据 → 下一步；
       每个节点必须对齐当前项目（PRD/原型/当前构建），不写未实现能力、不夸大。
+      confirm_narrative：故事线成形后出示受众/目标/故事线/演示范围请确认；条件门，仅在叙事不明或首次对外演示时停。
       技能 demo-storytelling §2；模板 §2。
 
   - name: 演示脚本
@@ -50,30 +66,51 @@ steps:
   - name: 展示材料
     id: materials
     agent: ux-designer
-    hitl: confirm_materials
-    output: 产品/{版本或主题}/展示/一页纸-{产品}.md · 产品/{版本或主题}/展示/Deck大纲-{受众}.md
+    output: 产品/{版本或主题}/展示/一页纸-{产品}.md · 产品/{版本或主题}/展示/Deck大纲-{受众}.md（按点名类型产出）
     notes: >
       一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图；
       Mermaid 流程图/业务架构图（不写技术架构）。
       技能：`技能/presentation-design/SKILL.md`；能力 doc-suite / presentation 可选。
-      **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外前 confirm_materials。
+      **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外发送/承诺前由 `publish` 步 `confirm_materials` 确认，内部草稿不停。
 
   - name: 用户文档
     id: docs
+    when: docs_requested
     agent: prd-writer
-    output: 产品/资料/用户文档/快速开始-{版本}.md · 产品/资料/用户文档/用户手册-{版本}.md · 产品/资料/用户文档/FAQ-{版本}.md · 产品/资料/用户文档/发布说明-{版本}.md
+    output: 产品/用户文档/{按点名类型}-{版本}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）
     notes: >
-      技能：`技能/product-docs/SKILL.md`。
-      按任务组织：5 分钟快速开始 → 常用任务 → FAQ/故障 → 版本说明；截图/步骤与当前构建一致；
-      不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径。
+      点名用户手册/快速开始/FAQ/发布说明/培训材料 → `docs_requested=true`。
+      技能：`技能/product-docs/SKILL.md`；模板 `规则/模板/用户手册与快速开始模板.md`、`规则/模板/发布说明与Changelog模板.md`。
+      只产被点名的文档类型，不一次生成四类；按任务组织：5 分钟快速开始 → 常用任务 → FAQ/故障 → 版本说明；截图/步骤与当前构建一致；
+      不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径；对外前由 `publish` 步确认。
 
   - name: 彩排与反馈
     id: dryrun
+    when: demo_needs_dryrun
     agent: pm-lead
     output: 产品/{版本或主题}/展示/反馈记录-{yyyyMMdd}.md
     notes: >
+      准备演示/客户介绍/彩排 → `demo_needs_dryrun=true`。
       计时演练；检查故事/路径/数据/兜底/Q&A；记录异议、问题、需求 → 按 `workflows/change.yaml` 回受理/需求池；
       修正材料后再对外。
+
+  - name: 对外确认
+    id: publish
+    agent: pm-lead
+    hitl: confirm_materials
+    hitl_when: materials_for_external
+    notes: >
+      材料/文档/演示已就绪；出示对外清单（一页纸/Deck/用户文档/发布说明）、数字与截图来源、未实现/未发布边界，
+      确认后才对外发送、承诺或发布；内部汇报/草稿不触发。
+
+  - name: 收尾
+    id: wrap
+    agent: pm-lead
+    output: 【任务收尾】（展示/文档明细置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐；
+      更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
+      本步先出骨架与拟提交清单，提交门在下一步。
 
   - name: 拟提交
     id: commit
@@ -82,4 +119,4 @@ steps:
     hitl_when: has_pending_commit
     tools:
       - git
-    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3；提交后补一行结果，不重复六段。

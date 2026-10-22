@@ -9,7 +9,7 @@ description: Use when preparing UAT, release readiness, or a product retrospecti
 
 ## 1. 验收准备
 
-- 环境/构建/账号角色/数据就绪；验收范围 = PRD §7 验收标准；
+- 环境/构建/账号角色/数据就绪；验收范围 = PRD §13 验收场景与 AC；
 - 逐条对照：`验收编号 → 结果（通过/不通过/带条件）→ 证据`；
 - 证据钉观测点（截图/接口字段），不写「已验证」空话。
 

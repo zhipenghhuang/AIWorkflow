@@ -77,7 +77,7 @@ description: Use when designing page prototypes, wireframes, information archite
 
 - 组件清单 + 状态 + 交互 + tokens + 响应式 + 无障碍证据 + 验收对照；标注「原型≠生产代码」。
 - 版本元数据：原型版本、PRD 版本、日期、变更记录。
-- 回链 PRD §7；未过设计评审/可用性走查（`confirm_prototype`）不交开发。
+- 回链 PRD §14 追溯矩阵「原型/页面」列；未过设计评审/可用性走查（`confirm_prototype`）不交开发。
 
 ## 9. 可用性走查
 

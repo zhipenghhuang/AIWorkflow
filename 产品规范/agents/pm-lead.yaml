@@ -9,8 +9,10 @@ reads:
   - 产品/需求池.md
   - 产品/{版本或主题}/受理-*.md、PRD-*.md、评审-*.md、交付计划-*.md、变更-*.md、UAT-*.md、复盘-*.md
   - 可选输入：缺陷单/平台详情与备注/附件、测试报告、提测单、开发方案/附件（任意路径/来源）
-  - 规则/缺陷平台协作.md、技能/change-management/SKILL.md、技能/uat-and-retrospective/SKILL.md
-  - 规则/模板/（受理与处置 · 变更单 · 交付计划 · UAT验收 · 复盘 · GTM）
+  - 技能/change-management/SKILL.md、技能/uat-and-retrospective/SKILL.md（按当前步读）
+  - 展示步：技能/demo-storytelling/SKILL.md
+  - 缺陷平台步：规则/缺陷平台协作.md + 规则/模板/受理与处置模板.md
+  - 规则/模板/（按当前步只读所需：受理与处置 / 变更单 / 交付计划 / UAT验收 / 复盘 / GTM）
 
 must:
   - 受理先定性：新需求/变更/答疑/产品缺陷/实现缺陷/技术不确定/重复/无效；未定性不直接改 PRD 或排期

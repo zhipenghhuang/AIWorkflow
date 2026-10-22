@@ -1,8 +1,21 @@
-# 页面原型设计（IA → 线框 → 视觉 → 高保真 → 评审 → 交接）
+# 页面原型设计（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）
+# 入口即止：设计评审只到 review；画原型才走全链。
 workflow:
   id: prototype
   name: 页面原型设计
-  version: 1
+  version: 2
+
+entry_points:
+  画原型: context
+  页面原型: context
+  原型设计: context
+  线框图: wireframe
+  UI设计: visual
+  高保真原型: hi-fi
+  设计评审: review
+  UI走查: usability
+  设计走查: usability
+  开发交接: handoff
 
 trigger:
   - 画原型 / 页面原型 / 原型设计 / 线框图
@@ -16,6 +29,7 @@ steps:
     output: 产品/{版本或主题}/原型/设计情境-{主题}.md
     notes: >
       读 PRD/产品计划/UAT/现有系统截图/品牌/约束；写清用户/任务/环境/设备/数据量/权限/术语/合规。
+      PRD 缺失 → 一句话说明缺口，按用户输入/产品档案继续，不阻塞；禁把猜测写成 PRD 结论。
       2～3 个竞品/同类系统/设计规范参考（链接+日期），写借什么/不借什么；设计原则 3～5 条。
       覆盖目标：PRD F/A/AC → 页面/路由/状态；未读项目资料不得开画。
       技能：`技能/prototype-and-interaction/SKILL.md` §0；能力 design-intelligence/browser-mcp 可选。
@@ -96,9 +110,18 @@ steps:
     output: 产品/{版本或主题}/原型/开发交接-{主题}.md
     notes: >
       组件/状态/交互/动效/tokens/响应式/无障碍证据/验收对照；覆盖矩阵与版本元数据；
-      回链 PRD §7；标注“原型≠生产代码”。
+      回链 PRD §14 追溯矩阵「原型/页面」列；标注“原型≠生产代码”。
       confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。
-      PRD §1 原型链接回填；拟提交按 `规则/工作流.md` §3。
+      PRD §14 追溯矩阵「原型/页面」列回填；拟提交按 `规则/工作流.md` §3。
+
+  - name: 收尾
+    id: wrap
+    agent: ux-designer
+    output: 【任务收尾】（原型/评审/交接明细置第 1 点）
+    notes: >
+      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐；
+      更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
+      本步先出骨架与拟提交清单，提交门在下一步。
 
   - name: 拟提交
     id: commit
@@ -107,4 +130,4 @@ steps:
     hitl_when: has_pending_commit
     tools:
       - git
-    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3。
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §3；提交后补一行结果，不重复六段。

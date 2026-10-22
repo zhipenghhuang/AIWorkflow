@@ -3,7 +3,7 @@
 > **用途**：产品协作 AI 入口。先读本文 → 命中口令打开对应 `workflows/*.yaml` → 当前步只加载 `agents/*.yaml`。  
 > **位置**：`产品规范/`。与项目根 `AGENTS.md` 冲突时，以项目根为准。  
 > **质量门**：`规则/质量门.md`（7 门 + 评分卡 + 追溯/证据/决策台账 + 审计）；关键产物按评分卡阻断。
-> **template_version**：`2026.10.21.3`（单点：包内版本以本文为准）。  
+> **template_version**：`2026.10.21.4`（单点：包内版本以本文为准）。  
 > **架构**：Workflow 定义（YAML）+ Agent 契约 + 规则红线（`规则/`）+ 内置专业技能（`技能/`：随包生效、命中步必用）+ 可选能力层（`能力/` 注册表：本机可用即自动使用、不可用降级；外部工具安装见 README「宿主适配」节）；执行宿主（任意支持 AGENTS 入口与所需能力的 AI 编码工具）为执行器。步骤**怎么做**交 AI，不另开规划回合。主链：**新产品 0→1**（发现 → 立项 → 产品定义 → PRD → 交付 → 上市 → 复盘）与**迭代**（需求洞察 → 优先级/立项 → PRD → 评审定稿 → 排期 → 跟进/变更 → UAT → 发布 → 复盘）；**产品计划**（`产品/产品计划.md`）为总领单点；**统一受理**（`change.yaml`）：新需求/变更/答疑/产品缺陷/开发不确定 → 分诊 → 处置 → 联动更新；**缺陷平台协作**（`defect.yaml`）：拉取指派给产品的缺陷 → 读详情/备注/附件 → 分析 → 处置 → 联动 → 回写平台；**页面原型**（`prototype.yaml`）：IA → 线框 → 视觉 → 高保真 → 设计评审 → 交接；**展示与介绍**（`showcase.yaml`）：受众 → 故事线/流程图 → 演示脚本 → Demo 环境 → 材料/用户文档 → 彩排。
 
 ## 0. 开工（每任务）
@@ -23,7 +23,7 @@
 | --- | --- |
 | 任意已路由 | 本文 → 命中 `workflows/*.yaml` → **当前步** `agents/*.yaml`；按步注加载 `技能/` 对应专业技能（随包生效、必用） |
 | 缺陷平台 | 本文 → `workflows/defect.yaml` → `pm-lead` → `规则/缺陷平台协作.md` + `技能/change-management/SKILL.md` + `规则/模板/受理与处置模板.md` |
-| 原型 / 设计 | 本文 → `workflows/prototype.yaml` → `ux-designer` → `技能/06`/`07` + `规则/模板/原型说明模板.md` / `设计评审模板.md` / `原型脚手架.html` |
+| 原型 / 设计 | 本文 → `workflows/prototype.yaml` → `ux-designer` → `技能/prototype-and-interaction/SKILL.md`、`技能/ui-visual-design-system/SKILL.md` + `规则/模板/原型说明模板.md` / `设计评审模板.md` / `原型脚手架.html` |
 | 展示 / 文档 | 本文 → `workflows/showcase.yaml` → `pm-lead`/`ux-designer`/`prd-writer` → `技能/demo-storytelling`/`product-docs`/`presentation-design` + 展示模板 |
 | 细节 | 需要时 `规则/工作流.md` 与 `规则/模板/`；**不预防性通读** |
 | 维护 / 查询 | 本文 + 点名 |
@@ -36,19 +36,19 @@
 | `confirm_plan` | 产品计划 | 首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/里程碑/风险 一行摘要；**未确认不进 PRD/排期** |
 | `confirm_design` | 设计方向 | IA/线框/2～3 个视觉方向/tokens；确认后才做高保真 |
 | `confirm_prototype` | 原型交接 | 原型路径/设计评审结论/交接要点；确认后才交开发 |
-| `confirm_narrative` | 展示叙事 | 受众/目标/故事线/演示范围；确认后才写脚本与对外材料 |
-| `confirm_materials` | 对外材料 | 一页纸/Deck/用户文档/发布说明；数字/截图/流程与当前项目一致；确认后才对外 |
-| `confirm_scope` | 单需求立项范围 | 范围（MVP）/排除项/粗排期/风险 一行摘要，批准后进 PRD 或影响评估 |
-| `confirm_prd` | PRD 定稿 / 实质变更重审 | 出示评审结论与定稿要点；**定稿前不排期**；实质变更未重审不得恢复「已定稿」 |
-| `confirm_change` | 需求变更 / 产品缺陷处置 / 实现缺陷退回 | 出示分诊依据、影响（需求/范围/AC/成本/排期/风险/回滚）与变更单/处置要点；产品缺陷须有相符证明；实现缺陷退回也需确认但不产生变更单；**无单不实施** |
+| `confirm_narrative` | 展示叙事 | 受众/目标/故事线/演示范围已成形后确认；条件门：仅叙事不明或首次对外演示时停；确认后才写脚本与对外材料 |
+| `confirm_materials` | 对外材料 | 一页纸/Deck/用户文档/发布说明；数字/截图/流程与当前项目一致；**仅对外发送、承诺或发布前触发**，内部草稿不停 |
+| `confirm_scope` | 单需求立项范围 | 范围（MVP）/排除项/粗排期/风险 一行摘要，批准后进 PRD 或影响评估；条件门：仅跨版本/高价值/未确认范围时停 |
+| `confirm_prd` | PRD 定稿 / 实质变更重审 | 评审结论为「通过（可定稿）」且用户要点名定稿/进入排期时出示定稿要点；**定稿前不排期**；仅评审不弹门；需修时只列缺口；实质变更未重审不得恢复「已定稿」 |
+| `confirm_change` | 需求变更 / 产品缺陷处置 / 实现缺陷退回 | 出示分诊依据、影响（需求/范围/AC/成本/排期/风险/回滚）与变更单/处置要点；产品缺陷须有相符证明；实现缺陷退回也需确认但不产生变更单；**无单不实施**；纯新需求入池不走本门 |
 | `confirm_remark` | 缺陷平台回写 | 出示缺陷 id + 结论 + 备注全文 + 附件名 + 状态/指派变更；确认后回写；备注与状态同轮；平台不支持则出 export 包 |
-| `confirm_release` | 发布 | 出示 UAT 结论、回滚预案、公告/客服/监控就绪；**未过不发布** |
+| `confirm_release` | 发布 | 出示 UAT 结论、回滚预案、公告/客服/监控就绪；**未过不发布**；条件门：未发布或发布内容/窗口变更才停，已发布仅复盘不重复确认 |
 | `confirm_commit` | 拟提交 | 【拟提交】块（文件清单+`.gitignore`），确认后提交 |
 | `confirm_gitignore` | 入库策略 | 四选一确认并写 `.gitignore` |
 
-`when` 词汇：`has_pending_commit` 有文件变更待提交｜`change_requested` 本轮含需求变更或产品缺陷/问题处置需确认｜`plan_needs_confirm` 首次计划或范围·指标·版本实质变更｜`new_requirement_or_scope_change` 新需求/范围变化｜`needs_impact_assessment` 变更/缺陷/新需求需影响评估｜`needs_linked_update` 需联动回写与回执（除纯答疑外均为真）｜`substantive_change` 实质变更需重审｜`plan_level_change` 影响版本范围/里程碑/KPI｜`remark_writeback` 有拟回写缺陷平台的备注/附件/状态/指派。条件不满足则跳过该门。同一确认点只问一次；固定骨架不得省略。  
-**预授权**：「一次性/直接跑完」默认**只到任务完成**（产出文档+自检），**不含**提交/发布/外部通知；收到先一问范围；只免等待、不免输出。  
-**澄清追问**：目标/范围/验收不明或多解 → **一次只问一个问题**，按回答继续追问至 **≥95%** 再给方案；判据＝能复述「谁 / 什么场景 / 做什么 / 系统怎么响应 / 怎么算对」。已唯一 → 1～2 句复述；确认门是执行授权，不是澄清，不重复问。
+`when` 词汇：`has_pending_commit` 有文件变更待提交｜`change_requested` 改动已定稿基线或产品缺陷/问题处置需确认（不含纯新需求入池）｜`plan_needs_confirm` 首次计划或范围·指标·版本实质变更｜`new_requirement_or_scope_change` 新需求/范围变化｜`new_requirement` 分诊为新需求（不含已定稿基线的需求变更）｜`scope_decision_required` 跨版本/高价值/点名立项，需单需求范围确认｜`scope_unconfirmed` 无已确认产品计划且无已批准的单需求范围｜`finalize_requested` 评审通过且用户点名定稿/进入排期（仅评审不触发）｜`has_ui_requirement` 有页面/界面需求或点名画原型｜`narrative_needs_confirm` 受众/目标/演示范围不明或首次对外演示｜`materials_for_external` 材料/文档将对外发送、承诺或发布｜`demo_needs_dryrun` 准备演示/客户介绍/彩排｜`docs_requested` 点名用户手册/快速开始/FAQ/发布说明/培训材料｜`needs_impact_assessment` 变更/缺陷/新需求需影响评估｜`needs_linked_update` 需联动回写与回执（除纯答疑外均为真）｜`substantive_change` 实质变更需重审｜`plan_level_change` 影响版本范围/里程碑/KPI｜`release_decision_needed` 未发布或发布内容/窗口变更｜`remark_writeback` 有拟回写缺陷平台的备注/附件/状态/指派。条件不满足则跳过该门。同一确认点只问一次；固定骨架不得省略。  
+**预授权**：「一次性/直接跑完」默认**只到任务完成**（产出文档+自检），**不含**提交/发布/外部通知；收到后在回执声明该默认界并直接执行，**仅当口令同时提到提交/发布/对外且范围不明时一问**；只免等待、不免输出。  
+**澄清追问**：目标/范围/验收不明或多解 → **一次只问一个问题**，按回答继续追问至 **≥95%** 再给方案；判据＝能复述「谁 / 什么场景 / 做什么 / 系统怎么响应 / 怎么算对」。已唯一 → 1～2 句复述；确认门是执行授权，不是澄清，不重复问。**少问原则**：只问会改变范围/验收/风险的问题；可由档案/PRD/计划推断的先按现行值推进并记「假设」，不把确认门当澄清。
 
 ### 0.2 硬红线（防扯皮）
 
@@ -64,7 +64,7 @@
    计划状态：草稿/已确认/执行中/变更中/待关闭/已关闭；主档不移动，季度结束复制快照到 `产品/_归档/{yyyy-Qn}/`，版本/结项整目录归档；稳定真值留主档与 `产品档案.md`。
 10. **原型纪律**：无设计师时由 PM 出原型；未过设计评审（`confirm_prototype`）不交开发；原型≠生产代码。
 11. **技术边界**：产品不设计技术架构/技术栈/数据库/API/部署；只写业务规则、NFR 目标与约束；需要可行性时列问题交开发/用户。  
-12. **受理先定性**：需求/问题/缺陷先入受理单并分诊；未定性不直接改 PRD、排期或实施。  
+12. **受理先定性**：新需求/变更/缺陷/开发不确定先入受理单并分诊；已在需求池/立项书/产品计划范围内，或点名补 PRD 的，可直接写/改 PRD，不重复受理。  
 13. **产品缺陷有依据**：产品缺陷必须有 PRD/设计原文 + 现网/测试证据 + 相符证明；实现缺陷退回开发/测试，不改 PRD；无依据不得判产品缺陷。  
 14. **联动不留旧版**：变更/缺陷处置后按受理单 §6 更新所有受影响产物并标「已更新/不适用/待补」；未回写、未验证不得关闭。  
 15. **平台回写有确认**：拉取/只读不设门；备注/附件/状态/指派回写必须 `confirm_remark`；备注与状态同轮；附件回查挂载；禁删缺陷；无权限/未适配走 `export`，不得声称已回写。
@@ -73,12 +73,13 @@
 ### 0.3 框架固定 · 局部自主
 
 - **不可让**：口令→workflow、步上 `hitl`、专规输出骨架、预授权界、引用可回查、变更留痕、优先级与验收标准、发布门、**立项门/计划门/原型链路/设计评审/计划总控状态回写/受理分诊/产品缺陷相符证明/联动清单闭合/平台回写确认与附件回查**、文档现行有效（§0.4）。  
-- **应交 AI**：访谈怎么问、PRD 怎么写、拆解粒度、是否派子代理——推理中择优；禁另造确认门或预防性通读。
+- **应交 AI**：访谈怎么问、PRD 怎么写、拆解粒度、是否派子代理——推理中择优；禁另造确认门或预防性通读。  
+- **规则未覆盖或冲突**：以用户目标、证据与既有门禁为先，选最小成本可验证路径；在收尾「假设与未决项」记录取舍，不新增门、不跳红线。  
 
 ### 0.4 执行与文档纪律
 
 - **执行中**：给方案先说权衡再给建议；跑命令前确认环境与依赖，失败先析因，同一方案无效 2 次换路径；动手前说明拟改文件；文件修改优先直接编辑，仅批量/重复性操作才生成脚本；系统操作优先简单稳定方案；保持最小改动。  
-- **文档现行有效**：只描述当前存在的功能、流程、规则与约束；以当前最终状态为唯一事实源，保持简洁准确；删除即移除，不加「禁止 / 不要 / 已废弃 / 旧方案」；不记录历史修改过程、变更原因与取消内容；不引入不存在的概念；结论性输出不复述用户原话、修改过程或方案草稿；不把修改方案写入正式产物，正式产物按各自模板写业务内容。  
+- **文档现行有效**：只描述当前存在的功能、流程、规则与约束；以当前最终状态为唯一事实源，保持简洁准确；删除即移除，不加「禁止 / 不要 / 已废弃 / 旧方案」；不记录历史修改过程、变更原因与取消内容；不引入不存在的概念；结论性输出不复述用户原话、修改过程或方案草稿；不把修改方案写入正式产物，正式产物按各自模板写业务内容。**例外**：受理单/变更单/评审记录/复盘/执行日志等治理留痕可记录变更前后与原因，但不得回流到 PRD/计划/原型等正式产物。  
 
 ## 1. 接入
 
@@ -90,7 +91,7 @@
 
 ## 2. 收尾
 
-**触发**：工作流末步（含 `commit` / `apply` / `verify`）、产品计划全部阶段结束、或用户点名「收尾 / 总结」时，必须输出本骨架。阶段中途只出 ≤3 行简报，不替代最终收尾；极短只读任务可压缩为 2～3 行，但 6 个字段标签保留。收尾前更新 `产品/产品计划.md` §0/§10、activeContext、文档索引（有实质进展时）。
+**触发**：工作流末步（含 `commit` / `apply` / `verify`）、产品计划全部阶段结束、或用户点名「收尾 / 总结」时，必须输出本骨架。阶段中途只出 ≤3 行简报，不替代最终收尾；极短只读任务可压缩为 2～3 行，但 6 个字段标签保留。收尾前更新 `产品/产品计划.md` §0/§10、activeContext、产品计划 §7 版本索引（及 `产品/资料/资料索引.md`，有实质进展时）。
 
 **唯一骨架**：PRD / 计划 / 原型 / 评审 / 受理 / 缺陷 / 交付 / 复盘等专规收尾只填第 1 点，不得另起编号或省略第 2～6 点。第 1 点的「可直接复制汇报」给业务 / 上级看：业务语言、量化、结论先行，禁过程词与内部路径。
 
@@ -111,37 +112,40 @@
 - **第 3 点**：验证＝评审结论 / 引用抽验 / UAT 结果 / 联动清单闭合情况；未验证不得写完成。  
 - **第 4 / 5 点**：假设与风险分开；无则写「无」，不留空。  
 - **第 6 点**：给可执行下一步（排期 / 评审 / 交付 / 回写），不写空泛建议。  
-- 门3（提交 / 回写）在骨架后按步上 `hitl` 单独确认，不并入 6 点。
+- 门3（提交 / 回写）在骨架后按步上 `hitl` 单独确认，不并入 6 点。  
+- **收尾自检（输出前逐项过）**：① 标题为【任务收尾】；② 1～6 字段标签齐；③ 第 1 点含可复制汇报且数字与需求池/计划/UAT 一致；④ 未验证项明示；⑤ 拟提交/回写门在骨架后单独确认。  
 
 ## 3. 口令 → Workflow（命中即停）
 
 | 优先 | 命中 | workflow | 默认 agent 链 |
 | ---: | --- | --- | --- |
 | 0 | 需求/问题/缺陷（未分类；对话/文档/链接/截图） | `workflows/change.yaml` | pm-lead（intake→triage→assess→apply） |
-| 1 | 启动新产品 / 新项目 / 从0到1 / 产品立项 | `workflows/new-product.yaml` | pm-analyst（discover→go→define） |
-| 2 | 产品计划 / 产品规划 / 路线图 / 版本规划 | `workflows/plan.yaml` | pm-analyst→pm-lead（goals→roadmap→scope） |
-| 3 | 收集需求 / 需求洞察 / 竞品分析 / 需求池 | `workflows/prd.yaml` | pm-analyst（discover） |
-| 4 | 单需求立项 / 排优先级（需求池） | `workflows/prd.yaml` | pm-analyst（prioritize） |
-| 5 | 写 PRD / 出 PRD / 补 PRD | `workflows/prd.yaml` | prd-writer |
-| 6 | PRD 评审 / 定稿 | `workflows/prd.yaml` | reviewer-agent（review） |
-| 7 | 排期 / 交付计划 / 任务拆解 | `workflows/deliver.yaml` | pm-lead（schedule） |
-| 8 | 需求答疑 / 跟进 / 开发不确定（对话/文档） | `workflows/change.yaml` | pm-lead（intake→triage） |
-| 9 | 需求变更 / 产品缺陷（对话/文档） | `workflows/change.yaml` | pm-lead（intake→triage→assess→decide→apply） |
-| 10 | 拉取/查看平台产品缺陷 / 我的产品缺陷 / 平台待产品确认 | `workflows/defect.yaml` | pm-lead（preflight→pull→analyze） |
-| 11 | 平台回写 / 备注 / 附件 / 状态 / 指派 | `workflows/defect.yaml` | pm-lead（writeback） |
-| 12 | UAT / 验收 | `workflows/deliver.yaml` | pm-lead（uat） |
-| 13 | 发布 / 上线检查 / 复盘 | `workflows/deliver.yaml` | pm-lead（release） |
+| 1 | 启动新产品 / 新项目 / 从0到1 / 产品立项 | `workflows/new-product.yaml` | pm-analyst（discover→go→define，全链） |
+| 2 | 产品计划 / 产品规划 / 路线图 / 版本规划 | `workflows/plan.yaml` | pm-analyst→pm-lead（goals→roadmap→scope→publish，全链） |
+| 3 | 收集需求 / 需求洞察 / 竞品分析 / 需求池 | `workflows/prd.yaml` | pm-analyst（仅 discover） |
+| 4 | 单需求立项 / 排优先级（需求池） | `workflows/prd.yaml` | pm-analyst（仅 prioritize） |
+| 5 | 写 PRD / 出 PRD / 补 PRD | `workflows/prd.yaml` | prd-writer（仅 prd；需先有已确认范围） |
+| 6 | PRD 评审 / 定稿 | `workflows/prd.yaml` | reviewer-agent（仅 review；通过且点名定稿/排期才弹定稿门） |
+| 7 | 排期 / 交付计划 / 任务拆解 | `workflows/deliver.yaml` | pm-lead（仅 schedule） |
+| 8 | 需求答疑 / 跟进 / 开发不确定（对话/文档） | `workflows/change.yaml` | pm-lead（intake→triage，仅到答复） |
+| 9 | 需求变更 / 产品缺陷（对话/文档） | `workflows/change.yaml` | pm-lead（intake→triage→assess→decide→apply→verify，全链） |
+| 10 | 拉取/查看平台产品缺陷 / 我的产品缺陷 / 平台待产品确认 | `workflows/defect.yaml` | pm-lead（preflight→pull→analyze，到分析止） |
+| 11 | 平台回写 / 备注 / 附件 / 状态 / 指派 | `workflows/defect.yaml` | pm-lead（仅 writeback） |
+| 12 | UAT / 验收 | `workflows/deliver.yaml` | pm-lead（仅 uat） |
+| 13 | 发布 / 上线检查 / 复盘 | `workflows/deliver.yaml` | pm-lead（仅 release） |
 | 14 | 继续 / 按产品计划执行 / 下一步 / 当前状态 | 按 `产品/产品计划.md` §0 状态路由；下一步只报动作，按计划执行到下一个门 | 对应阶段 |
 | 15 | 接入产品规范 / 重新接入 / 生成产品档案 / 装配能力 / 配置缺陷平台 | `workflows/onboard.yaml` | onboard-agent |
 | 16 | 提交 / 推送（单独口令） | 当前 workflow 末步 | 对应角色 |
 | 17 | 维护 / 查询 | 本文 + 点名 | — |
-| 18 | 画原型 / 页面原型 / 线框图 / UI设计 / 高保真原型 | `workflows/prototype.yaml` | ux-designer（ia→wireframe→visual→hi-fi） |
-| 19 | 设计评审 / UI 走查 / 设计走查 | `workflows/prototype.yaml` | ux-designer（review） |
-| 20 | 准备演示 / 客户介绍 / 产品汇报 / 演示彩排 | `workflows/showcase.yaml` | pm-lead（audience→story→demo→environment→dryrun） |
-| 21 | 用户手册 / 快速开始 / FAQ / 发布说明 / 培训材料 | `workflows/showcase.yaml` | prd-writer（docs） |
+| 18 | 画原型 / 页面原型 / 线框图 / UI设计 / 高保真原型 | `workflows/prototype.yaml` | ux-designer（context→ia→wireframe→visual→hi-fi→engineering→review→usability→handoff，全链） |
+| 19 | 设计评审 / UI 走查 / 设计走查 | `workflows/prototype.yaml` | ux-designer（仅 review；可用性走查按需） |
+| 20 | 准备演示 / 客户介绍 / 产品汇报 / 演示彩排 | `workflows/showcase.yaml` | pm-lead（audience→story→demo→environment→materials→docs(按需)→dryrun→publish，全链） |
+| 21 | 用户手册 / 快速开始 / FAQ / 发布说明 / 培训材料 | `workflows/showcase.yaml` | prd-writer（docs→publish（对外时）→wrap；按点名类型产出） |
+| 22 | 一页纸 / Deck / 对外演示材料 | `workflows/showcase.yaml` | ux-designer（materials→publish（对外时）→wrap） |
 
+**入口即止（防整链重跑）**：除上表标「全链」、明确列出的多步链（如 docs→publish→wrap）或明确要「继续/按计划执行」外，从入口 step 执行到该 step 的产出完成即停；不自动进入后续 step 或确认门。例：「写 PRD」只到 PRD 落盘，「PRD 评审」只到评审结论，「排期」只到交付计划，「UAT」只到 UAT 记录，「平台回写」只到回写结果。**单步入口结束时仍按 §2 输出【任务收尾】六段（该步产物置第 1 点），不得只报一句结论。**  
 **单条 vs 批量**：单条需求/问题/缺陷（含文档、截图、缺陷单）→ `change` 受理；平台缺陷（拉取/回写）→ `defect`；主动批量洞察/竞品/需求池盘点 → `prd` discover；0→1 新产品/新业务 → `new-product`。分不清时先 `change` 受理再分诊，不要求用户选流程。  
-首条：`route=workflow:<id> | step=<id> | role=<agent> | next_action=…`（待确认 `AWAIT_CONFIRM`）；`change` 首条加 `type=<初判>` 与 `next_action=受理/补充信息/处置确认`；`defect` 首条加 `scope=<拉取范围>` 与 `next_action=LIST/PULL/ANALYZE/WRITEBACK`。
+首条：`route=workflow:<id> | step=<id> | role=<agent> | next_action=…`（待确认 `AWAIT_CONFIRM`）；有输入文件时加 `input=<路径>`；`change` 首条加 `type=<初判>` 与 `next_action=受理/补充信息/处置确认`；`defect` 首条加 `scope=<拉取范围>` 与 `next_action=LIST/PULL/ANALYZE/WRITEBACK`。
 
 ## 4. 维护本包
 
