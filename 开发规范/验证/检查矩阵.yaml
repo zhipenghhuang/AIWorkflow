@@ -1,0 +1,103 @@
+# 检查矩阵（开发轨 · 人读策略）
+# 机器执行以 tools/gate.py 为准；本文件用于评审与调整，不要求 gate 解析。
+# 原则：高价值低成本默认做；高价值中成本按风险做；低价值高成本不做。
+
+version: 1
+levels:
+  L0:
+    description: 单文件/文案/配置；无行为、契约、权限、数据变化
+    required: [build, targeted-test, smoke]
+    optional: [screenshot]
+  L1:
+    description: 多文件、普通功能、前端行为变化
+    required: [build, lint, targeted-test, smoke, affected-e2e]
+    frontend_required: [screenshots, states, console, network]
+    optional: [a11y-basic, visual-diff]
+  L2:
+    description: 跨模块、接口/数据变更、新功能
+    required: [build, lint, unit, integration, affected-e2e]
+    manual: [review]
+    optional: [contract-test, security-scan]
+  L3:
+    description: 权限/资金/迁移/公共 API/安全合规/破坏性
+    required: [L2, security-scan]
+    manual: [rollback-drill, release-readiness, postrelease]
+    optional: [migration-rehearsal, load-test]
+
+post_gate:
+  - report-lint   # 报告生成后由 验证/Test-Report.ps1 执行；不属于 implementation gate
+
+change_types:
+  frontend:
+    globs:
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.vue"
+      - "**/*.svelte"
+      - "**/*.css"
+      - "**/*.scss"
+      - "**/*.html"
+      - "**/*.htm"
+      - "**/pages/**"
+      - "**/components/**"
+      - "**/views/**"
+      - "**/templates/**"
+      - "**/layouts/**"
+    min_level: L1
+    notes: 纯文案/配置可 L0-light，但仍需受影响页面截图 + console 无 error。
+  api:
+    globs:
+      - "**/api/**"
+      - "**/*controller*"
+      - "**/*.proto"
+      - "**/openapi*"
+      - "**/swagger*"
+    min_level: L2
+  db:
+    globs:
+      - "**/migrations/**"
+      - "**/*.sql"
+    min_level: L3
+  auth_payment:
+    globs:
+      - "**/auth/**"
+      - "**/login/**"
+      - "**/payment/**"
+      - "**/pay/**"
+      - "**/security/**"
+      - "**/permission/**"
+      - "**/role/**"
+    min_level: L3
+  docs:
+    globs:
+      - "**/*.md"
+      - "**/*.txt"
+    min_level: L0
+    required: [links, anchors, placeholders]
+
+# 高价值低成本（默认）
+always:
+  - acceptance-checklist
+  - build
+  - targeted-test
+  - smoke
+
+# 高价值中成本（按风险）
+risk_based:
+  - lint
+  - affected-e2e
+  - frontend-screenshots
+  - frontend-states
+  - frontend-console
+  - frontend-network
+  - a11y-basic
+  - independent-review
+
+# 低价值高成本（不做/少做）
+avoid:
+  - full-regression-every-change
+  - pixel-diff-every-page
+  - exhaustive-a11y-every-change
+  - multiple-approval-layers
+  - new-docs-for-L0-L1
+  - read-all-rules-every-task

@@ -1,0 +1,19 @@
+# 验收清单模板（L2+；复制到 验证/.state/acceptance.yaml 或任务目录）
+# 确认后冻结；实施中新增/变更 AC 走变更记录。
+task_id: DEV-{yyyyMMdd}-{NNN}
+title: "{主题}"
+level: L1            # L0/L1/L2/L3
+change_types: [frontend]  # frontend/api/db/docs/code
+acceptance:
+  - id: AC-01
+    statement: "{条件 + 动作 + 可观测结果}"
+    check: "build + login.spec"       # 可复跑命令/脚本/人工检查
+    evidence: "验证/.state/frontend/smoke-desktop.png"  # 路径或命令输出
+  - id: AC-02
+    statement: "{空态/错误态/权限态}"
+    check: "states.spec"
+    evidence: "验证/.state/frontend/state-empty-desktop.png"
+non_goals:
+  - "{明确不做}"
+assumptions:
+  - "{假设 + 影响 + 验证方式}"

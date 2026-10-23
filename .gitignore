@@ -14,3 +14,7 @@ __pycache__/
 /一键推送.bat
 /activeContext.md
 /_归档/context/
+
+# 验证运行态（不提交）
+/.gate/
+**/验证/.state/

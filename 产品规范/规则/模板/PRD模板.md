@@ -2,11 +2,14 @@
 doc_id: PRD-{产品/主题}-{序号}
 title: {主题} 产品需求文档（PRD）
 status: DRAFT
+review_status: PENDING
+gate_id: ""
 version: V0.1
 product_version: {版本}
 owner: {产品负责人}
 source_of_truth: false
 based_on: {需求池/立项书/调研}
+prd_level: full
 updated: {yyyy-MM-dd}
 ---
 

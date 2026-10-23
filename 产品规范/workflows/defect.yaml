@@ -128,6 +128,7 @@ steps:
     id: writeback
     when: remark_writeback
     agent: pm-lead
+    gate: writeback-receipt
     tools:
       - defect-platform
     hitl: confirm_remark
@@ -135,6 +136,7 @@ steps:
     notes: >
       按 `规则/缺陷文案模板.md` §5/§6：回写前出示 id、来源、结论、备注全文、附件名、
       状态/指派变更、目标版本；确认后执行。
+      运行 `验证/Invoke-Gate.ps1 -Mode writeback`；无回执/备注状态不同轮/附件未回查 → 不得声称已回写。
       未配置平台/无权限 → 先回 preflight；无既有分析/结论 → 回 pull/analyze，不凭空回写；
       只改字段未分析 → 先补分析。
       备注与状态同轮；备注写分诊依据/处置结论/影响 AC/目标版本/下一步/需要谁做什么；

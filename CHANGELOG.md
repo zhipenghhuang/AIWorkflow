@@ -7,16 +7,55 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.23.5` | 更新 | 项目级 CHANGELOG 模板/接入/更新时点 |
-| 开发规范 | `2026.10.23.5` | 更新 | CHANGELOG 模板统一；项目级记录 |
-| 测试规范 | `2026.10.23.5` | 更新 | 项目级 CHANGELOG 模板/接入/报告更新 |
-| 母版仓 | `2026.10.23.5` | 更新 | 取三包最高版本，仅用于记录 |
+| 产品规范 | `2026.10.23.7` | 更新 | 轻量 PRD 门 + 定稿顺序 + 迁移门 |
+| 开发规范 | `2026.10.23.7` | 更新 | 验收聚合 + 前端 QA + 评审顺序 |
+| 测试规范 | `2026.10.23.7` | 更新 | 报告准出硬校验 + 归档隔离 + 覆盖闸 |
+| 母版仓 | `2026.10.23.7` | 更新 | 门语义与流程一致性审计修复 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
 
 ## [Unreleased]
 
 （无）
+
+## [2026.10.23.7] - 2026-10-23
+
+### Fixed
+
+- 产品门：P0/P1 轻量 PRD 不再被全量 PRD 结构校验误判；新增 `prd_level: light` 最小结构校验与 `SELF_CHECKED` 免独立评审。P2+ 定稿改为“结构门→评审门→回填 `gate_id`→复跑结构门”，`gate_id` 由门回执生成，不再手编。
+- 产品门：占位符检测覆盖 `{主题}` 等模板占位（排除代码块/Mermaid），避免 APPROVED 文档带占位符；迁移步补 `confirm_docs_migration`。
+- 开发门：聚合任务清单内多张验收表；发现验收清单为空/不可解析时 L1+ 非纯文档变更直接 BLOCKED；前端 `design-qa.md` 必须填满 15 项结果/证据且结论非“不通过”；占位符检测排除代码示例，避免误伤 API 文档。
+- 开发流程：`review` 不再提前读取尚未生成的完成门回执；`iterate.review` 用 `review_required` 精确触发；`defect-fix` 等待产品回复时不再误走 `wrap`。
+- 测试门：排除 `_归档`/`.draft`/`资料` 台账；报告 `准出评估` 必须唯一且与 P0/未执行/计数一致；未执行>0 不得 PASS；功能测试资产必须有设计点覆盖映射；证据路径按多级祖先解析；`writeback` 只核回执，不强制计划/台账。
+- 开发门不再提供无实现的 `report`/`writeback` 模式（报告对账仍由 `Test-Report.ps1` 负责）；三包门回执新增 `gate_id`，读回执前核对 `package`/`mode`，避免多包互相覆盖。
+
+### Verification
+
+- 三包 `Test-Template.ps1` / `Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`、`Test-DocHygiene.ps1` 全部通过。
+- 临时夹具验证：轻量 PRD → READY；多任务验收表 → 2/2；空验收清单 → BLOCKED；前端 QA 15 项未填 → BLOCKED；测试未执行 + 报告写通过 → FAIL；归档台账不参与计数；证据全路径可解析；`writeback` 无计划/台账可 PASS；产品/开发门回执被跨包误读 → 报告 lint 失败。
+
+## [2026.10.23.6] - 2026-10-23
+
+### Added
+
+- 三包新增 `验证/` 轻量验证层：`README.md`、`检查矩阵.yaml`、`Invoke-Gate.ps1`、机器门脚本；每包独立、无共享运行时依赖。
+- 开发包：完成门 `completion-gate`（`verify`/`gates`），读验收清单/diff/证据，写 `.gate/completion.json`；前端检查矩阵、15 项验收清单、Playwright/axe 模板、报告 `Test-Report.ps1`。
+- 测试包：报告门 `report-consistency`，读计划/台账/报告，检查计数一致、P0、证据、覆盖缺口、回写回执。
+- 产品包：PRD/评审/UAT/变更/回写门，检查结构/追溯/TBD/独立评审/联动闭合/平台回执。
+- 三包新增 `规则/20-验证.md`、`规则/30-规则治理.md`；收尾/报告模板增加【验证回执】；PRD/评审/UAT 模板增加 `review_status`/`verdict`/`gate_id`。
+
+### Changed
+
+- 澄清停止条件从“≥95% 置信度”改为“需求理解包 + 缺口清单无实质缺口（或剩余缺口被接受为假设）+ 用户确认”；95% 仅作参考，不作为停止条件。
+- 澄清流程改为“先分析后提问”：技术/方案细节由 AI 查规则、技能、代码、文档后给建议；只问影响意图/范围/验收/风险的问题；首轮 0～1 问、总≤3；确认后执行。
+- 开发 `change.verify` / `iterate.gates` 改为 `verifier-agent` 独立验证；`project-gates` 保留，新增 `completion-gate`。
+- 开发 `AGENTS.md`、产品/测试 `AGENTS.md` 增加验证/汇报硬约束；读取索引增加验证行。
+- 文档/模板引用同步；`.gitignore` 忽略 `.gate/` 与 `验证/.state/`。
+
+### Verification
+
+- 三包 `Test-Template.ps1` / `Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`、`Test-DocHygiene.ps1`、`validate_workflow.py` 全部通过。
+- 新增门已用临时夹具验证：开发 docs-only → COMPLETE；无命令代码 → BLOCKED；测试台账/报告一致 → PASS；P0 失败 → FAIL；产品独立评审 → READY；自评 → BLOCKED；PRD 模板占位符 → BLOCKED；报告假完成措辞 → REPORT_LINT_FAIL。
 
 ## [2026.10.23.5] - 2026-10-23
 

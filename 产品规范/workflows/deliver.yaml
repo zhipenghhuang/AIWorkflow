@@ -45,9 +45,11 @@ steps:
   - name: UAT 验收
     id: uat
     agent: pm-lead
+    gate: uat-evidence
     output: 产品/{版本或主题}/UAT-{版本}-{yyyyMMdd}.md（模板 规则/模板/UAT验收模板.md）
     notes: >
       技能：`技能/uat-and-retrospective/SKILL.md`；按 PRD 验收标准**逐条对照**（结果+证据）。
+      运行 `验证/Invoke-Gate.ps1 -Mode uat`；未 READY 不得写“UAT 通过/可发布”。
       **分模块核验**（子代理编排 §2）：≥3 模块 → 按模块只读扇出（AC 结果+证据+缺口 ≤30 行）；UAT 结论集中；单模块直做。
       可选输入：若项目已有测试报告/提测单/其它验收资料（任意路径/来源）则读；无则用现有资料/用户输入，不阻塞。测试报告是证据，不替代 UAT 结论。
       判定产品缺陷 vs 实现缺陷（依据：PRD 原文/设计对照）；结论：通过/不通过/带条件（带条件须列遗留、责任人与接受人）。

@@ -16,7 +16,7 @@
 | align | §5.3 + 文档治理 | 受影响文档清单 |
 | fix | §6.1/§6.3 + 技能 `implementation-and-selftest` | 方案模板（复杂） |
 | clarify | §6.4/§6.5 + 门表 `confirm_remark` | 原单口径 |
-| gates | 项目档案「质量门禁命令」 | 日志摘要 |
+| gates | `验证/Invoke-Gate.ps1` + `验证/检查矩阵.yaml` | `.gate/completion.json`、日志摘要 |
 | menu | §4.3 + 门表 `select_menu` | 总结模板 |
 | close | §6.3/§6.6 + 门表 `confirm_commit/deploy/remark` | 发布说明/回滚/上线检查单 |
 | postrelease | 发布说明 + 发布记录模板 | 监控/日志 |

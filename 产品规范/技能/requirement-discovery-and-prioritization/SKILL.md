@@ -7,7 +7,7 @@ description: Use when collecting requirements, analyzing users or competitors, p
 
 > 用于：discover / prioritize 步。  
 > **前置**：先按 `技能/customer-needs-discovery/SKILL.md` 还原“谁/场景/问题/现有替代/代价/目标结果/成功标准/非目标”，再谈需求池与优先级；客户说的“想要 X”不等于需求。  
-> **纪律**：按 `规则/澄清.md` 一次一问至 ≥95%，用户明确确认后才入池/排期；未确认的推断标「假设」，不得写成客户结论。
+> **纪律**：按 `规则/澄清.md` 先分析、只问 0～1 个高影响问题（总≤3），方案/细节给建议，用户明确确认后才入池/排期；未确认的推断标「假设」，不得写成客户结论。
 
 ## 0. 先还原需求（强制）
 

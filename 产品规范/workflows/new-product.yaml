@@ -1,4 +1,5 @@
 # 新产品 0→1（发现 → 立项 → 定义 → 需求 → 交付 → 上市 → 复盘）
+# 子流程只执行各步所列步骤；其 wrap/commit 不在本链重复，统一由本文件末 wrap/commit 收尾。
 workflow:
   id: new-product
   name: 新产品 0→1
@@ -21,7 +22,7 @@ steps:
     agent: pm-analyst
     notes: >
       市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md`（先读再做）。
-      **先问题后方案**：按 `规则/澄清.md` 先给理解回执，再一次一问至 ≥95%；写清谁/场景/问题/现有替代/代价/目标结果/成功标准/非目标；单个客户/竞品/领导说法标样本与证据等级，不直接当市场结论。
+      **先问题后方案**：按 `规则/澄清.md` 先给理解回执，再一次一问至无实质缺口（95% 仅参考）；写清谁/场景/问题/现有替代/代价/目标结果/成功标准/非目标；单个客户/竞品/领导说法标样本与证据等级，不直接当市场结论。
       **来源扇出**（子代理编排 §2）：≥4 独立来源 → 按来源只读扇出（市场/用户/竞品/问题），各返回证据表/去重键 ≤30 行；立项书与 Go/Hold/Kill 集中；单来源直做。
       产出立项书：`产品/{主题}/立项书-{yyyyMMdd}.md`（模板 `规则/模板/立项书模板.md`）；
       引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。
@@ -47,7 +48,7 @@ steps:
     id: prd
     agent: prd-writer
     notes: >
-      按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 执行；PRD 落 `产品/{版本或主题}/PRD-{主题}.md`；
+      按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 执行；只执行所列步骤，不执行其 wrap/commit；PRD 落 `产品/{版本或主题}/PRD-{主题}.md`；
       评审门 `confirm_prd`；未定稿不排期。
       技能：`技能/prd-writing/SKILL.md` / `技能/review-and-finalize/SKILL.md`；界面原型见 `技能/prototype-and-interaction/SKILL.md` / `技能/ui-visual-design-system/SKILL.md`。
 

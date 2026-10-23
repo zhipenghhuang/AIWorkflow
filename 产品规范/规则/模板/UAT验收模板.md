@@ -1,6 +1,13 @@
+---
+doc_id: UAT-{版本}-{yyyyMMdd}
+verdict: PENDING
+gate_id: ""
+updated: {yyyy-MM-dd}
+---
+
 # {版本} UAT 验收记录
 
-> 按 PRD 验收标准**逐条对照**（结果+证据）；产品缺陷 vs 实现缺陷要有依据。落 `产品/{版本或主题}/UAT-{版本}-{yyyyMMdd}.md`。  
+> 按 PRD 验收标准**逐条对照**（结果+证据）；产品缺陷 vs 实现缺陷要有依据。落 `产品/{版本或主题}/UAT-{版本}-{yyyyMMdd}.md`。`gate_id` 可选，以 `-Mode uat` 回执为准。
 > 变更/产品缺陷处置后，受影响 AC 必须重验并更新本表；未重验不得作为发布依据。
 
 ## 1. 验收信息

@@ -1,0 +1,40 @@
+# 检查矩阵（产品轨 · 人读策略）
+# 机器执行以 tools/product_gate.py 为准；本文件用于评审与调整。
+
+version: 1
+modes:
+  prd:
+    required: [artifact-exists, frontmatter, sections-0-16, traceability, tbd-owner, approved-gate]
+    manual: [ac-testable, prototype-link, metrics]
+  review:
+    required: [artifact-exists, reviewer-not-author, checklist, verdict, gate-id]
+    manual: [score, blocking-items]
+  uat:
+    required: [artifact-exists, ac-coverage, evidence, verdict, gate-id]
+    manual: [residual-owner, release-readiness]
+  change:
+    required: [artifact-exists, linkage-table, status-closed, pending-owner]
+    manual: [affected-artifacts]
+  writeback:
+    required: [artifact-exists, ticket-id, note, status, attachment-check, receipt]
+    manual: [platform-id]
+
+always:
+  - artifact-exists
+  - structure
+  - traceability
+  - verdict-consistency
+
+risk_based:
+  - independent-review
+  - uat-evidence
+  - change-closure
+  - writeback-receipt
+  - prototype-consistency
+
+avoid:
+  - full-prd-for-P0-P1
+  - score-every-artifact
+  - multiple-approval-layers
+  - new-docs-for-small-changes
+  - read-all-templates-every-task

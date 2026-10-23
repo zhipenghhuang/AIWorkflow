@@ -12,7 +12,7 @@
 | confirm | 门表 `confirm_backlog`（仅需 approve 时） | 清单 §6 |
 | implement | `技能/implementation-and-selftest/SKILL.md` + `技能/engineering-quality/SKILL.md` | 子代理编排 §2、`前端设计说明模板.md` |
 | review | `技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` §5 + reviewer-agent | security-scan |
-| gates | 项目档案「质量门禁命令」 | 日志摘要 |
+| gates | `验证/Invoke-Gate.ps1` + `验证/检查矩阵.yaml` | `.gate/completion.json`、日志摘要 |
 | deliver | `技能/qa-handoff-and-release/SKILL.md` + 提测/发布模板 | 回滚预案 |
 | wrap | `规则/模板/收尾骨架.md` | 文档治理、根 `CHANGELOG.md` |
 | release_handoff | 发布就绪包 + `release.yaml` | 上线检查单 |

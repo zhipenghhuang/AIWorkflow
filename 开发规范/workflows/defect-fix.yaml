@@ -165,12 +165,12 @@ steps:
   - name: 门禁
     id: gates
     when: implementation_required
-    agent: defect-fixer
-    gate: project-gates
+    agent: verifier-agent
+    gate: completion-gate
     notes: >
-      本批无代码/配置改动项 → 跳过（纯文档/纯评估）；门禁粒度见 规则/工作流.md §3.3。
+      本批无代码/配置改动项 → 跳过（纯文档/纯评估）；有改动运行 `验证/Invoke-Gate.ps1`，门写 `.gate/completion.json`。
       日志分诊（子代理编排 §2）：原始日志落盘，先脚本过滤；仅多文件语义归因才派子代理，返回摘要 ≤30 行。
-      失败不声称完成；存量失败只对账新增。
+      失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
 
   - name: 总结菜单
     id: menu
@@ -230,6 +230,7 @@ steps:
 
   - name: 收尾
     id: wrap
+    when: not_awaiting_product
     agent: defect-fixer
     output: 【任务收尾】（缺陷修复总结置第 1 点）
     notes: >

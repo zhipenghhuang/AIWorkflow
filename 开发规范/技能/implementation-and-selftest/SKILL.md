@@ -25,7 +25,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 ## 2. 最小改动 · 手术式修改
 
 - 只动与目标相关的行；不顺手重排/重命名/升级无关依赖。
-- 动手前说明拟改文件（`AGENTS.md` §0.4-3）；改动面超出预期先停下说明。
+- 动手前说明拟改文件（`AGENTS.md` §0.5）；改动面超出预期先停下说明。
 
 ## 3. 调试方法论（先析因后动手）
 

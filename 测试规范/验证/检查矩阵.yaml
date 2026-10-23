@@ -1,0 +1,38 @@
+# 检查矩阵（测试轨 · 人读策略）
+# 机器执行以 tools/test_gate.py 为准；本文件用于评审与调整。
+
+version: 1
+modes:
+  execute:
+    required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons]
+    optional: [coverage-map, p0-status]
+  report:
+    required: [plan-exists, ledger-counts, report-counts, p0-status, report-verdict, evidence-exists, coverage-map]
+    manual: [writeback-receipt]
+  writeback:
+    required: [writeback-receipt]
+    manual: [note-status-same-round, attachment-check, platform-id]
+
+# 高价值低成本（默认）
+always:
+  - plan-exists
+  - ledger-counts
+  - evidence-exists
+  - p0-status
+  - report-verdict
+
+# 高价值中成本（按范围）
+risk_based:
+  - coverage-map
+  - blocked-reasons
+  - script-run-stamp
+  - writeback-receipt
+  - independent-sampling
+
+# 低价值高成本（不做/少做）
+avoid:
+  - full-regression-every-patch
+  - re-read-all-cases-every-report
+  - screenshot-every-pass-case
+  - new-docs-for-T0-T1
+  - multiple-approval-layers

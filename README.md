@@ -8,7 +8,7 @@
 
 流程不再散落在聊天记录里，而是版本化在仓库里。
 
-**3 套独立包 · 20 条工作流 · 24 份角色契约 · 38 个内置技能 · 75 份模板/脚手架**
+**3 套独立包 · 20 条工作流 · 25 份角色契约 · 38 个内置技能 · 75 份模板/脚手架**
 
 **关键词**：`YAML` · `Multi-Agent` · `Human-in-the-Loop` · `MCP` · `Agent Skills` · `Playwright` · `PowerShell` · `Python` · 文档治理
 
@@ -25,7 +25,7 @@
 | 亮点 | 说明 |
 | --- | --- |
 | 声明式工作流 | `trigger → steps → agent`；条件步、确认门、质量闸都可审查 |
-| 多 Agent 协作 | 24 份角色契约，按当前步读取；重阶段再加载 playbook，避免一次性塞满上下文 |
+| 多 Agent 协作 | 25 份角色契约，按当前步读取；重阶段再加载 playbook，避免一次性塞满上下文 |
 | 人工确认门 | 需求、PRD、方案、清单、提交、发布、回滚、验收、回写 |
 | 能力可插拔 | 外部工具已安装即启用，未安装走降级路径 |
 | 文档治理 | 标准目录、索引、归档、根目录白名单、根版本记录 |
@@ -56,24 +56,26 @@ flowchart TB
     O --> I["文档索引 / 归档"]
 ```
 
-六层结构：
+八层结构：
 
 | 层 | 作用 | 落点 |
 | --- | --- | --- |
 | Workflow 定义 | trigger → steps → agent；条件步与确认门 | `workflows/*.yaml` |
-| Agent 契约 | 角色目标、边界、产出；不写步骤细节 | `agents/*.yaml` |
+| Agent 契约 | 角色目标、边界、产出；实施/验证/汇报分离 | `agents/*.yaml` |
 | 规则/门/读取索引 | 不变量、门语义、步骤级读取预算 | `规则/门.md`、`规则/读取索引.md` |
 | Stage playbook | 重阶段步骤卡（缺陷/变更/原型/执行/发布） | `规则/playbooks/*.md` |
 | 专业技能 | 每步的专业方法，随包生效，命中步必用 | `技能/<name>/SKILL.md` |
 | 能力层 | 外部技能/工具建议，已装即用，未装降级 | `能力/00-能力注册表.md` |
+| 验证层 | 验收清单、检查矩阵、完成门、报告对账 | `验证/` + `规则/20-验证.md` |
 | 文档治理 | 产物落位、索引、归档、根目录白名单 | `规则/文档治理.md` + `规则/模板/` |
 
-四步执行模型：
+五步执行模型：
 
 1. **路由**：读包内 `AGENTS.md`，口令命中 workflow，首条输出 `route=workflow:... | step=... | reads=...`。
 2. **加载**：读 `规则/读取索引.md` 当前 step 行 → 当前 agent → 当前 playbook/技能；只读当前步，不预防性通读；同一会话内文件未变不重读。
 3. **执行**：步内方法由 AI 自主选择；条件步按 `when` 跳过；步上 `hitl` 必须停下确认。
-4. **落盘**：按模板写入标准目录，更新索引/计划/`activeContext.md`；收尾按 `规则/模板/收尾骨架.md`（「汇报」=结论说明体一段；口令「今日工作总结」另出列表）。
+4. **验证**：运行当前包 `验证/Invoke-Gate.ps1`；门读验收清单/diff/证据，写 `.gate/completion.json`；只有门能授予 `COMPLETE/PASS/READY`。
+5. **落盘**：按模板写入标准目录，更新索引/计划/`activeContext.md`；收尾按 `规则/模板/收尾骨架.md`，先写【验证回执】再写结论。
 
 执行宿主是任意支持 `AGENTS.md` 入口自动装载的 AI 编码工具，不自研编排引擎。包内文本与 YAML 不写死宿主名，换宿主只改实例档案。
 
@@ -91,7 +93,7 @@ flowchart TB
 
 - **工作流**：`new-product`（发现 → 立项 Go/Hold/Kill → 产品定义 → 交付 → 上市 → 复盘）· `plan`（目标/指标 → 路线图 → 本期范围/里程碑）· `prd`（需求池 → 优先级/立项 → PRD → 评审定稿）· `prototype`（设计策略/项目适配 → IA → 线框 → 视觉/tokens → 高保真 → 设计评审 → 可用性 → 开发交接）· `showcase`（受众 → 故事线 → 演示脚本 → Demo → 材料/用户文档 → 彩排）· `change`（受理 → 分诊 → 影响评估 → 处置 → 联动 → 重审/关闭）· `defect`（拉取 → 读详情/附件 → 分析 → 处置 → 回写）· `deliver`（排期 → 跟进 → UAT → 发布 → 复盘）· `onboard`
 - **质量门**：G0～G6，配套 PRD/原型/计划/UAT/复盘评分卡与追溯矩阵
-- **需求理解**：`customer-needs-discovery` 先还原“谁/场景/问题/现有替代/代价/成功标准/非目标”，按 `规则/澄清.md` 一次一问至 ≥95%，用户确认后才进需求池/PRD/计划；未确认推断标「假设」
+- **需求理解**：`customer-needs-discovery` 先还原“谁/场景/问题/现有替代/代价/成功标准/非目标”，并读规则/技能/档案做分析；只问影响意图/范围/验收/风险的问题，技术细节给建议；首轮 0～1 问、总≤3；用户确认后才进需求池/PRD/计划；未确认推断标「假设」
 - **主要产物**：`产品/` 下的产品计划、需求池、立项书、PRD、评审记录、设计情境/IA/线框/高保真、设计评审、开发交接、受理/变更单、交付计划、UAT、GTM、复盘
 
 ### 开发规范
@@ -237,7 +239,7 @@ AI 会按 `workflows/onboard.yaml` 建档、建文档树/索引、确认入库�
 
 ## 确认门与质量闸
 
-确认门只认 workflow 步骤上的 `hitl`，条件不满足会自动跳过。同一确认点只问一次；确认门是执行授权，不是澄清。任何任务开跑前先按各包 `规则/澄清.md` 给「理解回执」，**一次只问一个问题**并附建议，直到 ≥95% 且用户明确确认；禁把假设当结论、禁一次多问。
+确认门只认 workflow 步骤上的 `hitl`，条件不满足会自动跳过。同一确认点只问一次；确认门是执行授权，不是澄清。任何任务开跑前先按各包 `规则/澄清.md`：先读规则/技能/代码/文档做分析，再给「我的理解 + 已分析建议 + 需要你拍板（0～1 个）」；技术细节不逐条问用户；总提问不超过 3 个；用户确认后执行。禁把假设当结论、禁把技术细节当需求盘问。
 
 | 包 | 关键确认门 |
 | --- | --- |
@@ -274,7 +276,7 @@ AIWorkflow/
 │  ├─ AGENTS.md
 │  ├─ workflows/         # 8 条流程：开发计划 / 吸收 / 变更 / 迭代 / 缺陷 / 发布 / 复盘 / 接入
 │  ├─ playbooks/         # 重阶段步骤卡：迭代/缺陷/发布
-│  ├─ agents/            # 7 个角色契约
+│  ├─ agents/            # 8 个角色契约
 │  ├─ 技能/              # 20 个技能（含 02A～02F、03A/03B 子技能 + engineering-quality）
 │  ├─ 能力/
 │  ├─ 规则/              # 不变量 · 门 · 读取索引 · 文档治理 · 模板 · 校验工具
@@ -303,6 +305,7 @@ AIWorkflow/
 ├─ 技能/<name>/SKILL.md  # 随包生效，命中步必用，无需安装
 ├─ 能力/00-能力注册表.md  # 外部工具建议：已装即用，未装降级
 ├─ 规则/                 # 不变量、门、读取索引、文档治理、模板、校验工具
+├─ 验证/                 # 验收清单、检查矩阵、完成门、报告对账（独立、可复制）
 └─ README.md             # 给人看的上手说明
 ```
 
@@ -329,6 +332,7 @@ AIWorkflow/
 ## 设计原则
 
 - **框架固定，局部自主**：口令到 workflow 的映射、步上 `hitl`、输出骨架、证据与红线不可让；步内怎么探查、怎么改、怎么验，由 AI 自主选择。
+- **完成只认门**：代码/文档改动由 `验证/` 完成门读验收清单、diff、证据；Agent 只能提出候选完成，不能自证 `COMPLETE/PASS/READY`。
 - **按风险分级**：产品 P0～P3、开发 L0～L3、测试 T0～T3；低风险只通知，高风险才审批；重阶段用 playbook，轻步骤留 YAML。
 - **规则与实例分离**：`workflows/`、`agents/`、`规则/` 通用；项目档案、基线、`activeContext.md` 和业务产物留在实例侧。
 - **技能随包，能力可选**：技能给方法，随包复制、命中步必用；能力给工具，已安装即启用，未安装降级，不阻塞。
@@ -349,6 +353,14 @@ powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Invoke-TestW
 powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-DocHygiene.ps1"
 powershell -ExecutionPolicy Bypass -File "开发规范/规则/tools/Test-DocHygiene.ps1"
 powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Test-DocHygiene.ps1"
+```
+
+完成门（业务任务收尾前；不是包自检，读当前项目产物）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
 ```
 
 自检覆盖：引用可解析、章节锚点、workflows → agents、步标记词表、能力名声明、版本单点、YAML 语法与基本 schema（需 Python + PyYAML；未装时该项跳过并提示）；文档卫生检查 AGENTS 行数、规则超长、孤立模板、读取索引/工作流挂载。多包由各包 `AGENTS.md` 自动探测，不再有独立协作层自检。
