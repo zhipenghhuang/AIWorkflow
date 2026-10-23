@@ -76,8 +76,12 @@ def main() -> int:
             if key in data and not isinstance(data[key], list):
                 errors.append(f"AGENT_SCHEMA: {path.relative_to(root)}: {key} must be a list")
 
-    agents_text = read_text(root / "AGENTS.md") if (root / "AGENTS.md").exists() else ""
-    hitl_decl, when_decl, gate_decl = declared_tokens(agents_text)
+    decl_text: list[str] = []
+    for rel in ("AGENTS.md", "规则/门.md", "规则/读取索引.md", "规则/维护.md"):
+        p = root / rel
+        if p.exists():
+            decl_text.append(read_text(p))
+    hitl_decl, when_decl, gate_decl = declared_tokens("\n".join(decl_text))
 
     for path in sorted(workflows_dir.glob("*.yaml")):
         try:
@@ -118,6 +122,11 @@ def main() -> int:
             agent = str(step.get("agent") or "")
             if agent and agent_ids and agent not in agent_ids:
                 errors.append(f"STEP_AGENT: {path.relative_to(root)}: {sid or idx} agent={agent} not found")
+            read_ref = step.get("read_ref")
+            if read_ref:
+                ref_path = str(read_ref).split("#", 1)[0].strip()
+                if ref_path and not (root / ref_path).exists():
+                    errors.append(f"READ_REF: {path.relative_to(root)}: {sid or idx} -> {read_ref} (file not found)")
             hitl = step.get("hitl")
             names: list[str] = []
             if isinstance(hitl, str):

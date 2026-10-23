@@ -1,6 +1,6 @@
 ---
 name: ui-visual-design-system
-description: Use when choosing a visual direction, defining design tokens, or reviewing UI consistency, accessibility, and responsiveness. Provides a self-contained design system, project-fit criteria, and review scorecard that works without external design skills.
+description: Use when choosing a visual direction, defining design tokens, selecting/reusing a design system, differentiating the product UI, or reviewing UI consistency, accessibility, and responsiveness. Provides a self-contained design system, project-fit criteria, and review scorecard that works without external design skills.
 ---
 
 # UI 视觉与设计系统（技能 · 随包生效）
@@ -14,6 +14,19 @@ description: Use when choosing a visual direction, defining design tokens, or re
 - 品牌/现有系统：主色、字体、圆角、密度、术语；能复用则复用，不另造一套。
 - 2～3 个视觉方向，按“适配度/实用性/美观/实现成本”选 1 个，说明理由。
 - 避免「AI 味」：紫蓝渐变、无意义玻璃拟态、过多圆角/阴影、图标堆砌、每页大标题。
+
+### 1.1 设计系统策略
+
+- 已有品牌/系统 → 复用并补缺口；平台有强制组件库 → 扩展，不混搭第二套。
+- 无系统 → 选一套主系统（Ant Design / Carbon / Polaris / Primer / Material 3 / GOV.UK / USWDS / Fluent 2 / shadcn/ui），只选一套；许可与版本以官方仓库为准。
+- 例外（自定义组件/第二套系统）登记范围、原因、维护人；tokens 单一来源，页面禁硬编码。
+
+### 1.2 设计方向与适配
+
+- 视觉方向必须来自产品定位/用户/场景，写清“为什么适合这个产品”，不是通用 SaaS 模板。
+- 参考竞品/同类系统时写“借什么/不借什么”；只花一次大胆（一个记忆点），其余克制。
+- 差异化不是必选项：只在品牌/竞争/体验需要时做；B 端效率工具优先一致、可预测、低学习成本。
+- 品牌级高定不做时，明确“清晰、一致、可用”边界，不冒充品牌升级。
 
 ## 2. Design tokens（先定后画）
 
@@ -59,6 +72,7 @@ description: Use when choosing a visual direction, defining design tokens, or re
 ## 6. 交付
 
 - tokens 文件 + 组件说明 + 页面路径/截图 + 无障碍证据；问题分级（阻断/重要/建议）。
+- 交接按 `规则/模板/开发交接模板.md`，写清设计意图、必须保留、可优化、未提供、需开发决策。
 - 原型 ≠ 生产代码；开发按项目框架实现，不直接上线原型。
 
 ## 7. 参考（可选，不随包）

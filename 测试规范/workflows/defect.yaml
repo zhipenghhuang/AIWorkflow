@@ -2,7 +2,8 @@
 workflow:
   id: defect
   name: 测试缺陷协作
-  version: 3
+  version: 6
+  read_index: 规则/读取索引.md
 
 entry_points:
   缺陷协作: classify
@@ -12,6 +13,9 @@ entry_points:
   指派给我: classify
   已解决: classify
   复测: classify
+  缺陷变化巡检: classify
+  补充澄清: classify
+  产品判定回流: classify
 
 trigger:
   - 缺陷协作
@@ -19,6 +23,9 @@ trigger:
   - 提交到平台
   - 回归（指派给我 / 已解决 / 平台）
   - 指派给我 + 回归|验证|复测
+  - 缺陷变化巡检 / 我提交的缺陷有没有新回复 / 看产品确认
+  - 补充澄清 / 开发无法复现 / 请补充说明
+  - 产品判定回流 / 产品退回测试 / 产品说非问题
 
 preflight:
   skip_if: activeContext landing=ok
@@ -29,22 +36,39 @@ steps:
   - name: 识别子类
     id: classify
     agent: bug-agent
-    notes: 回归/提交/修改/查重/列表；回归默认 LIST=指派给我·未关闭（含 active），读备注分拣见 缺陷协作§7；未点子类先 LIST 再问；本轨专规读够（见 bug-agent reads）
+    notes: >
+      回归/提交/修改/查重/列表/巡检/补充澄清/产品判定回流；回归默认 LIST=指派给我·未关闭（含打开/已解决），巡检=我提交的/我关注的未关闭，只读变化不默认回归；
+      读单/快照/分流见 缺陷协作 §7.3；开发无法复现/请补充 → §8.4；产品确认/新文档 → testing plan §2.6，不在本轨直接改用例；
+      产品判定非问题/重复/信息不足 → §7.4/§8.8；产品缺陷直提 → 指派产品，不经开发；
+      未点子类先 LIST 再问；本轨专规读够（见 bug-agent reads）。
+      **批量侦察**（多Agent §1.5）：≥5 单且读单成本高（多备注/附件/评估单）或合计 ≥20k token → 逐单只读扇出（一单/小批一子代理），返回子类候选/证据缺口/查重键；子类结论与处置集中，不采信子代理终态。
 
   - name: 查重或拉取
     id: search
     agent: bug-agent
     tools:
       - defect-platform
+    notes: >
+      提交前查重；回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 §7.3 做快照 diff；
+      api 读不全 → browser；仍不全 → 请用户补关键备注/附件，禁只看标题分析。
+      批量查重/快照 diff 可按单只读扇出；主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定集中。
 
   - name: 提交或回写
     id: submit
     agent: bug-agent
-    hitl: confirm_remark
-    hitl_when: remark_writeback
+    hitl:
+      - name: confirm_remark
+        when: remark_writeback
+      - name: confirm_commit
+        when: platform_submit
     notes: >
-      remark_writeback＝拟关/激/解决/标重复或回归写回备注；先出 id+备注全文再执行。
-      列表/仅查重展示/仅建单（无状态回写）→ 跳过本门；列表子类可跳过本步直 wrap。
+      remark_writeback＝拟关/激/解决/标重复/补充澄清/回归写回备注；先出 id+备注全文再执行。
+      platform_submit＝计划未授权「发现即提交」且本轮拟新建缺陷单；先出拟提交清单（标题/类型/severity/指派/证据）再执行；计划 §11 已授权或用户点名提交时不重复问。
+      补充澄清用 §8.4；回归未通过用 §8.1；新问题用 §8.5；非修复处置用 §8.6；产品判定回流用 §8.8；写后按 §8.7 回查。
+      产品缺陷：提交后直接指派产品负责人，不经开发；产品判定非问题/重复/信息不足 → 指派回测试，按 §7.4/§8.8 处理。
+      建单标题：`[V版本?][测试类型]`+正文（已确认迭代版本才加 `[V…]`；类型必加；§5.0）。
+      列表/仅查重展示/仅建单（无状态回写）→ 跳过 remark 门；拟新建单仍按 platform_submit 门；列表子类可跳过本步直 wrap。
+      回写内容由编排集中生成；子代理只提供事实素材，不写平台、不改状态。
     output: 平台单号 · 备注与状态同轮 · 提交后输出可复制汇总块（规则/缺陷协作.md §5.2）
 
   - name: 收尾

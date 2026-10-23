@@ -6,7 +6,9 @@ description: Use when a change needs architecture, interface, data, migration, s
 # 方案与设计（技能 · 随包生效）
 
 > 用于：design 步。产出按 `规则/模板/方案模板.md` 落盘；本技能=把方案写**扎实**的手艺。  
-> 本技能是 S2 的“主技能/路由器”；涉及技术选型、数据库、API、前端、安全时，按下表加载子技能，不要求全读。
+> 本技能是 S2 的“主技能/路由器”；涉及技术选型、数据库、API、前端、安全时，按下表加载子技能，不要求全读。  
+> **工程质量条**：所有 design 步同时加载 `技能/engineering-quality/SKILL.md` §1/§4/§5；本技能只写方案结构与取舍，不重复质量条。  
+> **前端变更**：需要补前端设计/调整 UI 时，按需读 `技能/frontend-design/SKILL.md` + `规则/模板/前端设计说明模板.md`；产品设计完整且无冲突时，方案只写实现要点并引用产品设计，不重做 UI。
 
 ## 0. 子技能路由（按变更面加载）
 
@@ -15,7 +17,7 @@ description: Use when a change needs architecture, interface, data, migration, s
 | 技术栈/框架/数据库/中间件/云服务/关键依赖选型 | `技能/technology-selection/SKILL.md` | 选型矩阵 + POC + ADR |
 | 表结构/索引/事务/并发/迁移/分库分表 | `技能/database-design/SKILL.md` | ER/表结构/索引/事务/迁移/回滚 |
 | 新增/修改 API、前后端契约 | `技能/api-design/SKILL.md` | OpenAPI/契约/错误码/幂等/兼容 |
-| 页面/路由/组件/状态/表单/交互 | `技能/frontend-design/SKILL.md` | 页面/组件树/状态/异常/权限/性能 |
+| 页面/路由/组件/状态/表单/交互 | `技能/frontend-design/SKILL.md` | 前端设计说明（页面/组件树/状态/异常/权限/性能/a11y） |
 | 认证/授权/敏感数据/上传/外部集成/公共 API | `技能/threat-modeling/SKILL.md` | 信任边界/威胁表/缓解/安全测试 |
 
 不涉及的子技能不加载；主技能仍要覆盖架构、质量属性、取舍与 ADR。

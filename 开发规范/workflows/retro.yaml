@@ -2,6 +2,7 @@ workflow:
   id: retro
   name: 复盘与改进
   version: 2
+  read_index: 规则/读取索引.md
 
 entry_points:
   复盘: gather
@@ -57,5 +58,5 @@ steps:
     agent: delivery-lead
     output: 【任务收尾】（复盘结论/行动项置第 1 点）
     notes: >
-      按 AGENTS §2 输出【任务收尾】：第 1 点含复盘结论/行动项与可直接复制汇报，第 2～6 点齐；
+      按 AGENTS §2 输出【任务收尾】：第 1 点含复盘结论/行动项与汇报（可整段复制），第 2～6 点齐；
       未确认/未闭环行动项明示。

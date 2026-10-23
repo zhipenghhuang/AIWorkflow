@@ -7,6 +7,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 
 > 用于：implement / verify 步；本技能=通用工程方法与自测标准。  
 > **按端加载子技能**：页面/路由/组件/表单/交互 → `技能/frontend-implementation/SKILL.md`；API/服务/数据/任务/集成 → `技能/backend-implementation/SKILL.md`；全栈两端都读。  
+> **工程质量条**：所有 implement 步同时加载 `技能/engineering-quality/SKILL.md` §1/§2/§3/§4；本技能只写实现方法，不重复质量条。  
 > 子技能不替代本技能：小步、最小改动、调试、自测、证据仍按本技能执行。
 
 ## 0. 实现前确认

@@ -2,7 +2,8 @@
 workflow:
   id: new-product
   name: 新产品 0→1
-  version: 1
+  version: 3
+  read_index: 规则/读取索引.md
 
 entry_points:
   启动新产品: discover
@@ -19,7 +20,9 @@ steps:
     id: discover
     agent: pm-analyst
     notes: >
-      市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md`（先读再做）。
+      市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md`（先读再做）。
+      **先问题后方案**：按 `规则/澄清.md` 先给理解回执，再一次一问至 ≥95%；写清谁/场景/问题/现有替代/代价/目标结果/成功标准/非目标；单个客户/竞品/领导说法标样本与证据等级，不直接当市场结论。
+      **来源扇出**（子代理编排 §2）：≥4 独立来源 → 按来源只读扇出（市场/用户/竞品/问题），各返回证据表/去重键 ≤30 行；立项书与 Go/Hold/Kill 集中；单来源直做。
       产出立项书：`产品/{主题}/立项书-{yyyyMMdd}.md`（模板 `规则/模板/立项书模板.md`）；
       引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。
       能力（可选）：browser-mcp 竞品、analytics 数据、docs-mcp 资料；未装 = 降级。
@@ -70,7 +73,7 @@ steps:
     agent: pm-lead
     output: 【任务收尾】（0→1/上市明细置第 1 点）
     notes: >
-      按 AGENTS §2 输出【任务收尾】：第 1 点含可直接复制汇报，第 2～6 点齐；
+      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），第 2～6 点齐；
       更新产品计划 §0/§7/§10、activeContext、资料索引；未验证/待决策项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

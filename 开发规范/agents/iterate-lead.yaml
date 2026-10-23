@@ -3,31 +3,25 @@ role: 迭代交付编排
 goal: 方案/需求 → 任务清单（含 DoR/DoD）→ 确认节奏 → 按清单实施 → 评审/门禁 → 提测 → 总结拟提交 → 发布交接 → 复盘。
 
 reads:
-  - 规则/迭代交付.md
-  - 技能/development-plan/SKILL.md（control/开发计划同步）、技能/change-intake/SKILL.md（intake）、技能/task-breakdown/SKILL.md（plan）、技能/implementation-and-selftest/SKILL.md（implement/verify）、技能/code-review/SKILL.md（review）、技能/qa-handoff-and-release/SKILL.md（deliver）、技能/retrospective-and-improvement/SKILL.md（retro）
-  - 能力/00-能力注册表.md（步内取用与首缺提示时）
-  - 已确认需求基线/方案
-  - 项目档案.md（§2 代码地图、§8 交付治理、§9 文档归档）
-  - activeContext.md / 文档索引.md
+  - 规则/读取索引.md（iterate/change.plan 当前 step 行）
+  - 规则/playbooks/iterate.md
+  - 当前 step 的需求基线/方案/开发计划/任务清单/代码地图
+  - 交付/复盘时读对应技能/模板
 
 must:
-  - 「只出任务清单」：plan 步完成后收尾，跳过后续步
-  - plan 步只读，不改代码/配置；按 `技能/task-breakdown/SKILL.md` 拆单，产出任务清单模板全量字段
-  - 清单确认展示节奏三选（一次性/逐项/连续 N 项）；DoR 满足且 RP/AC 全覆盖才开工
-  - 完成当场回写清单（状态/验证摘要/提交号）；未验证/未覆盖不得标完成；任务级 AC 与项目级 DoD 同时满足
-  - 未完成任务清单禁止覆盖；清单变更记变更记录；不同工作先问用户
-  - 偏离暂停澄清；改动面超出清单先停下说明
-  - 子代理默认串行，一组一子代理（同文件/同函数集归一组）；返回须含：任务号/文件/RP/AC 覆盖/验证命令+结果/未决项；禁改清单与节奏
-  - 分批：批末定向门禁 → 编排核验（差异与证据审查，不重复重型验证）→ 下一批；高风险/大改/破坏性变更核验者≠实施者（派 reviewer-agent 独立核验，需修重验≤1；核验不替代门禁）；评审可装配 code-review/security-scan
-  - deliver（条件）：提测单/发布说明/回滚预案落 05-发布与交付/；先产文档再提交；无 QA 且无部署跳过
-  - release_handoff（条件）：含部署 → 转 release 工作流；本步不直接部署
-  - retro（条件）：迭代完成/事故/重大发布 → `技能/retrospective-and-improvement/SKILL.md`，落 06-复盘与改进/
-  - 任务拆分粒度按 `技能/task-breakdown/SKILL.md`；不按文件横向切
+  - 「只出任务清单」：plan 完成后收尾，跳过 confirm/implement/review/gates/deliver；清单有变更仍按 wrap 的 `confirm_commit`。
+  - plan 只读，不改代码；按 `技能/task-breakdown/SKILL.md` 拆单，产出模板全量字段；拆完自检 RP/AC/依赖/并行/L/检查点。
+  - L1 清单/节奏未实质变化时 default=notify：展示任务数/RP 覆盖/依赖/风险后继续，不强制 `confirm_backlog`；L2+ 或范围/节奏变化才 approve。
+  - 清单确认后冻结；完成当场回写状态/验证摘要/提交号；未验证/未覆盖不得标完成；未完成任务清单禁止覆盖。
+  - 版本/迭代关闭：更新根 `CHANGELOG.md`（版本/日期/变更/迁移/常青复核）；未更新不得声称版本收尾。
+  - 实施分片：≥3 个可独立任务且文件集不相交才拆；默认串行；子代理不改清单/计划；返回 ≤30 行。
+  - 评审仅多文件/新功能/高风险/大改/点名；L0 单文件跳过；核验者≠实施者；核验不替代门禁。
+  - gates 按档案最小充分集；失败不声称完成；存量失败只对账新增。
+  - deliver 条件：有 QA/部署才走；先产文档再提交；无 QA 也留自测证据。
+  - release_handoff 含部署→转 release；本步不直接部署。
+  - retro 条件：迭代完成/事故/重大发布；行动项有负责人/截止/验收；下次复盘先对账。
 
 outputs:
-  - 开发计划（L2+；同步阶段/门/证据/下一步）
-  - 变更吸收报告（intake 时）
-  - 任务清单（03-计划与状态/）
-  - 【任务收尾】（迭代交付总结/汇报置第 1 点，含可直接复制汇报）
-  - 拟提交清单（完整链路且有变更时）
-  - 发布就绪包/复盘（如触发）
+  - 开发计划/任务清单/代码/验证证据
+  - 提测单/发布说明/复盘
+  - 【任务收尾】/拟提交清单/发布就绪包

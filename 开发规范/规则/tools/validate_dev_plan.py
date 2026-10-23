@@ -4,7 +4,7 @@
 Usage: python validate_dev_plan.py <dev-plan.md> [--lenient]
 
 Checks sections, stage table, status values, current stage, gate tokens,
-and basic next-action/link presence.
+multi-wave (W{n} / G{n}-W{k}) hints, and basic next-action/link presence.
 """
 from __future__ import annotations
 
@@ -27,9 +27,12 @@ SECTIONS = [
     "## 11. 关联文档",
 ]
 COLUMNS = ["阶段", "技能", "状态", "负责人", "输入", "动作", "产出", "门", "证据", "下一步"]
-STATUSES = {"未开始", "进行中", "阻塞", "待评审", "完成", "不适用"}
+STATUSES = {"未开始", "进行中", "部分完成", "阻塞", "待评审", "完成", "不适用"}
 STAGE_RE = re.compile(r"S\d{1,2}\s")
 GATE_RE = re.compile(r"G\d{1,2}\b")
+WAVE_RE = re.compile(r"\bW\d+\b|波次")
+GATE_WAVE_RE = re.compile(r"G\d{1,2}\s*[-–]?\s*W\d+", re.I)
+STAGE_NUM_RE = re.compile(r"S\d{1,2}")
 
 
 def split_row(line: str) -> list[str]:
@@ -108,20 +111,45 @@ def main() -> int:
             stage_names.append(stage)
             if not skill:
                 errors.append(f"NO_SKILL: {stage}")
-            if status and status not in STATUSES and not status.startswith("{"):
+            # Allow "进行中（W3）" style: primary token must be a known status
+            status_token = status.split("（")[0].split("(")[0].strip() if status else ""
+            if status and status not in STATUSES and status_token not in STATUSES and not status.startswith("{"):
                 errors.append(f"BAD_STATUS: {stage}: {status!r}")
             if gate and not GATE_RE.search(gate) and not gate.startswith("{"):
                 warnings.append(f"GATE_FORMAT: {stage}: {gate!r}")
             if not evidence or evidence in {"{链接}", "{…}", ""}:
                 warnings.append(f"NO_EVIDENCE: {stage}: {evidence!r}")
+            # Multi-wave: S2～S5 marked 完成 must carry wave labels in the row
+            stage_num = STAGE_NUM_RE.search(stage or "")
+            if (
+                stage_num
+                and stage_num.group(0) in {"S2", "S3", "S4", "S5"}
+                and status_token == "完成"
+                and WAVE_RE.search(text)
+                and not WAVE_RE.search("|".join(row))
+            ):
+                warnings.append(
+                    f"MULTI_WAVE_BARE_DONE: {stage}: 启用波次时 S2～S5 标完成须在行内标注 Wn"
+                )
         if not rows:
             errors.append("EMPTY_STAGE_TABLE")
-        # Current stage consistency (lenient: allow placeholder)
+        # Current stage consistency (lenient: allow placeholder; allow S2-W3 / S2（W3）)
         m = re.search(r"当前阶段[：:]\s*([^\n]+)", text)
         if m and stage_names and not lenient:
             cur = m.group(1).strip()
-            if not any(s and (s in cur or cur in s) for s in stage_names):
+            cur_num = STAGE_NUM_RE.search(cur)
+            matched = any(s and (s in cur or cur in s) for s in stage_names)
+            if not matched and cur_num:
+                sn = cur_num.group(0)
+                matched = any(sn in (s or "") for s in stage_names)
+            if not matched:
                 errors.append(f"CURRENT_STAGE_NOT_IN_TABLE: {cur!r}")
+
+    # Multi-wave control plane
+    if WAVE_RE.search(text) and not GATE_WAVE_RE.search(text):
+        warnings.append(
+            "MULTI_WAVE_GATES: 启用波次时建议门结论写 G{n}-W{k}（见 development-plan §3.1）"
+        )
 
     # Gate coverage
     for i in range(10):

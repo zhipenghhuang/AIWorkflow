@@ -5,12 +5,13 @@
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容），描述中的触发条件用于 AI 选择技能。  
 > **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 走 `能力/00-能力注册表.md`（可选）。  
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
-> **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：社区 QA 技能库、ISTQB 系实践、wshobson/agents（MIT）测试/安全技能、schemathesis 等工具社区经验。  
+> **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：fishzjp/qa-skills（MIT；requirement-analysis / clarify-pattern / test-strategy 的需求模型、九类歧义、证据分级）、JohnWayneeee/casely-qa-skill（MIT；规格洞/TestRail-ready）、gneder/qa-test-plan-skill（MIT；需求→计划/Gherkin）、GitHub Spec Kit（MIT；clarify/analyze 歧义与一致性）、addyosmani/agent-skills（MIT；interview-me）、社区 QA 技能库、ISTQB 系实践、wshobson/agents（MIT）测试/安全技能、schemathesis 等工具社区经验。
 
 ## 步骤 → 技能映射
 
 | 步骤 / 轨 | 技能 |
 | --- | --- |
+| analyze（需求/测试依据建模） | `技能/test-basis-analysis/SKILL.md`（需求模型/冲突/九类歧义/oracle/TP 追溯） |
 | analyze / plan | `技能/test-analysis-and-plan/SKILL.md`（企业级计划/类型选择/执行编排） |
 | generate（功能/专项） | `技能/testcase-design/SKILL.md` |
 | execute（功能/探索式/计划驱动） | `技能/test-execution-and-exploration/SKILL.md`（计划编排/回归/探索） |

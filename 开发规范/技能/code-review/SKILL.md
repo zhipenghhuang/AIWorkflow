@@ -5,7 +5,8 @@ description: Use before merge or when the user asks for code review. Review corr
 
 # 代码评审（技能 · 随包生效）
 
-> 用于：review 步（大改/高风险/点名）。范围纪律以 `规则/工作流.md` §4.4 为准；本技能=怎么审到位。
+> 用于：review 步（大改/高风险/点名）。范围纪律以 `规则/工作流.md` §4.4 为准；本技能=怎么审到位。  
+> **工程质量 rubric**：评审时同时使用 `技能/engineering-quality/SKILL.md` §5（12 项评分卡）；本技能只写评审方法与范围纪律。
 
 ## 1. 五轴顺序（先致命后打磨）
 

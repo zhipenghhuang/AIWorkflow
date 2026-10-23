@@ -1,6 +1,6 @@
 ---
 name: prototype-and-interaction
-description: Use when designing page prototypes, wireframes, information architecture, interaction states, or handing UI off to development. Grounds the design in the real project and produces coverage, data, state, routing, accessibility, print, usability, and handoff evidence without requiring external design tools.
+description: Use when designing page prototypes, wireframes, information architecture, interaction states, design strategy/differentiation, or handing UI off to development. Grounds the design in the real project and produces coverage, data, state, routing, accessibility, print, usability, and a design-intent handoff without requiring external design tools.
 ---
 
 # 原型与交互（技能 · 随包生效）
@@ -13,8 +13,10 @@ description: Use when designing page prototypes, wireframes, information archite
 - 读：PRD（F/A/AC）、产品计划、UAT/验收、现有系统截图、品牌/术语、约束（PC/手机/打印/离线/权限/数据量）。
 - 写进 `设计情境-{主题}.md`：
   - 用户/角色、核心任务、频率、环境/设备、数据量、权限、合规；
+  - 设计策略与项目适配：产品定位、与现有系统的关系、要借什么/不借什么、明确不做什么；差异化只在产品定位需要时写；
   - 设计原则 3～5 条（如“高密度后台 / 手机采集 / 打印优先”）；
   - 2～3 个竞品/同类系统/设计规范参考（链接+日期），写“借什么/不借什么”；
+  - 交付等级：概念 / 线框 / 高保真 / 可交接；交接必须到“可交接”级，并说明开发可优化边界；
   - 覆盖目标：PRD F/A/AC → 页面/路由/状态。
 - 可选能力：design-intelligence / browser-mcp / ui-generation；未装=按本技能。
 
@@ -75,9 +77,10 @@ description: Use when designing page prototypes, wireframes, information archite
 
 ## 8. 开发交接与版本
 
-- 组件清单 + 状态 + 交互 + tokens + 响应式 + 无障碍证据 + 验收对照；标注「原型≠生产代码」。
+- 用 `规则/模板/开发交接模板.md` 落 `开发交接-{主题}.md`：组件/状态/交互/tokens/响应式/无障碍证据/验收对照，另写**设计意图、必须保留、可优化、未提供、需开发决策**；标注「原型≠生产代码」。
 - 版本元数据：原型版本、PRD 版本、日期、变更记录。
 - 回链 PRD §14 追溯矩阵「原型/页面」列；未过设计评审/可用性走查（`confirm_prototype`）不交开发。
+- 开发如需补充设计：先保留设计意图；开发只能改“可优化”项，重大偏离回产品确认并更新交接版本。
 
 ## 9. 可用性走查
 
