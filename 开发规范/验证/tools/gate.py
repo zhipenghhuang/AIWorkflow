@@ -139,7 +139,9 @@ def find_acceptance(project_root: Path, package_root: Path, explicit: str | None
     if explicit:
         p = Path(explicit)
         return p if p.is_file() else None
+    # 运行态只认实例侧 .gate/；包内 .state 仅作遗留只读回退，勿再写入规范包。
     candidates: list[Path] = [
+        project_root / ".gate" / "acceptance.yaml",
         package_root / "验证" / ".state" / "acceptance.yaml",
         project_root / "验证" / ".state" / "acceptance.yaml",
     ]
@@ -304,14 +306,20 @@ def package_json_scripts(project_root: Path) -> dict[str, str]:
         return {}
 
 
-def load_profile(package_root: Path) -> dict[str, Any]:
-    p = package_root / "验证" / "project-profile.json"
-    if not p.is_file():
-        return {}
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def load_profile(project_root: Path, package_root: Path) -> dict[str, Any]:
+    # 实例配置落项目根 .gate/；包内路径仅遗留只读回退（规范包零改动）。
+    candidates = [
+        project_root / ".gate" / "project-profile.json",
+        package_root / "验证" / "project-profile.json",
+    ]
+    for p in candidates:
+        if not p.is_file():
+            continue
+        try:
+            return json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return {}
 
 
 def resolve_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str) -> str | None:
@@ -338,9 +346,14 @@ def run_cmd_check(check_id: str, cmd: str | None, project_root: Path, timeout: i
     return {"id": check_id, "status": status, "command": cmd, **r}
 
 
-def frontend_evidence(package_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
+def resolve_project_path(project_root: Path, raw: str) -> Path:
+    p = Path(raw)
+    return p if p.is_absolute() else (project_root / p)
+
+
+def frontend_evidence(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
-    evidence_dir = package_root / str(fe.get("evidenceDir", "验证/.state/frontend"))
+    evidence_dir = resolve_project_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
         return {"id": "frontend-evidence", "status": "blocked", "detail": f"missing {evidence_dir}"}
     images = [p for p in evidence_dir.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp")]
@@ -422,7 +435,7 @@ def main() -> int:
         elif acc.get("duplicates"):
             acc["missing"].append(f"验收清单 AC 重复：{', '.join(acc['duplicates'][:5])}")
 
-    profile = load_profile(package_root)
+    profile = load_profile(project_root, package_root)
     scripts = package_json_scripts(project_root)
     timeouts = profile.get("timeouts", {}) if isinstance(profile.get("timeouts"), dict) else {}
     checks: list[dict[str, Any]] = []
@@ -443,7 +456,7 @@ def main() -> int:
                 checks.append({"id": "affected-e2e", "status": "dry-run", "command": e2e})
             else:
                 checks.append(run_cmd_check("affected-e2e", e2e, project_root, int(timeouts.get("e2e", 900))))
-                checks.append(frontend_evidence(package_root, profile))
+                checks.append(frontend_evidence(project_root, profile))
 
     applicable = [c for c in checks if c.get("status") not in ("skip", "dry-run")]
     failed = [c for c in checks if c.get("status") == "fail"]
@@ -459,7 +472,7 @@ def main() -> int:
         reasons.append(f"{len(skipped)} check(s) skipped")
     if level in ("L1", "L2", "L3") and "docs" not in types and not any(c.get("status") == "pass" for c in checks):
         verdict = "BLOCKED"
-        reasons.append("没有可执行检查；填写 验证/project-profile.json 或项目命令")
+        reasons.append("没有可执行检查；填写 .gate/project-profile.json 或项目命令")
     if acc["missing"]:
         reasons += acc["missing"][:5]
     if failed:

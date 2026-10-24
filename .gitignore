@@ -15,6 +15,6 @@ __pycache__/
 /activeContext.md
 /_归档/context/
 
-# 验证运行态（不提交）
+# 验证运行态（不提交；规范包只读，运行态写 /.gate/）
 /.gate/
 **/验证/.state/

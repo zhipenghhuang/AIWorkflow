@@ -2,7 +2,8 @@ import { Page, TestInfo } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 
-export const evidenceDir = path.resolve(process.cwd(), "开发规范/验证/.state/frontend");
+// 运行态证据落项目根 .gate/，规范包 验证/ 只读。
+export const evidenceDir = path.resolve(process.cwd(), ".gate/frontend");
 
 export function ensureEvidenceDir(): void {
   fs.mkdirSync(evidenceDir, { recursive: true });

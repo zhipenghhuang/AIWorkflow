@@ -16,8 +16,8 @@
 
 ## 2. 一次任务怎么跑
 
-1. `clarify`/`plan` 产出并确认验收清单（AC + 检查 + 证据）；L1+ 落在任务卡/开发卡或 `验证/.state/acceptance.yaml`（gate 会聚合多任务表；L1+ 无可解析 AC 会 BLOCKED）。项目档案的「质量门禁命令」同步到 `验证/project-profile.json`（gate 不解析 Markdown 档案）。
-2. 实施时按验收清单做；前端改动按 `frontend/验收清单.md` 填满 15 项结果/证据并写结论（gate 会核行数、空值、结论），留截图与 console/network 证据。
+1. `clarify`/`plan` 产出并确认验收清单（AC + 检查 + 证据）；L1+ 落在任务卡/开发卡或 `.gate/acceptance.yaml`（gate 会聚合多任务表；L1+ 无可解析 AC 会 BLOCKED）。项目档案的「质量门禁命令」同步到 `.gate/project-profile.json`（gate 不解析 Markdown 档案）。
+2. 实施时按验收清单做；前端改动把 `frontend/design-qa.md` 复制到 `.gate/frontend/design-qa.md` 后填满 15 项结果/证据并写结论（gate 会核行数、空值、结论），截图与 console/network 证据落 `.gate/frontend/`。
 3. 收尾前运行：
 
 ```powershell
@@ -27,17 +27,20 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 4. 门输出 `.gate/completion.json` 与 ≤30 行摘要；`wrap` 只引用该回执。
 5. 报告先写 `【验证回执】`，再写完成内容；`验证/Test-Report.ps1` 会检查 verdict 与措辞。
 
+**落盘纪律**：本目录（`开发规范/验证/`）是规范工具与模板，**只读**；运行态一律写项目根 `.gate/`（`completion.json`、`acceptance.yaml`、`project-profile.json`、`frontend/`、`logs/`）。
+
 ## 3. 文件
 
 | 文件 | 作用 |
 | --- | --- |
 | `检查矩阵.yaml` | 人读的策略：变更类型 → 最低检查集 |
-| `project-profile.example.json` | 项目命令/前端 URL/视口的可选配置；复制为 `project-profile.json` |
+| `project-profile.example.json` | 项目命令/前端 URL/视口的可选配置；复制为 `.gate/project-profile.json` |
 | `Invoke-Gate.ps1` | 唯一入口；调用 `tools/gate.py` |
 | `tools/gate.py` | 变更分级、验收清单解析、检查执行、`completion.json` |
 | `验证/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
-| `frontend/验收清单.md` | 15 项前端验收；截图与设计 QA |
-| `frontend/playwright.config.template.ts` | Playwright 模板；截图/trace 落 `.state/frontend/` |
+| `frontend/验收清单.md` | 15 项前端验收清单（只读模板） |
+| `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填 |
+| `frontend/playwright.config.template.ts` | Playwright 模板；截图/trace 落 `.gate/frontend/` |
 | `frontend/specs/*.spec.ts` | 主链路/状态/响应式/a11y 模板 |
 
 ## 4. 完成状态
