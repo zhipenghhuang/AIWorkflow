@@ -20,7 +20,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 
 ## 2. 计划：企业级测试计划 17 节（§0～§16）
 
-按 `规则/模板/测试计划模板.md` 填，不跳节：
+按 `规则/模板/10-计划/测试计划模板.md` 填，不跳节：
 
 0. 一页状态（计划状态/当前阶段/当前门/下一动作/需人工/健康度/阻塞）
 1. 测试对象与构建（版本/主读/环境/计划版本/负责人）

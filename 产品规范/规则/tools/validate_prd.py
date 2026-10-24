@@ -6,7 +6,7 @@ Usage: python validate_prd.py <PRD.md>
 Checks:
 - frontmatter keys: doc_id/title/status/version/owner/updated
 - sections 0-16
-- at least one Mermaid flowchart and one stateDiagram
+- at least one Mermaid flowchart; stateDiagram only when the PRD declares state/flow content
 - F-/R-/A-/AC- IDs present
 - traceability matrix columns F/R/A/AC
 - decision table Q/C with 责任人/期限
@@ -48,7 +48,7 @@ def main() -> int:
     if not path.exists():
         print(f"FILE_NOT_FOUND: {path}")
         return 2
-    text = path.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8-sig")
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -65,12 +65,16 @@ def main() -> int:
         if s not in text:
             errors.append(f"MISSING_SECTION: {s}")
 
-    if len(re.findall(r"```mermaid", text)) < 2:
-        errors.append("MERMAID: 至少 2 个 Mermaid 块（主流程 + 状态机）")
     if not re.search(r"```mermaid\s*\n\s*(flowchart|graph)", text):
         errors.append("MERMAID: 缺少 flowchart 主流程")
-    if not re.search(r"```mermaid\s*\n\s*stateDiagram", text):
-        errors.append("MERMAID: 缺少 stateDiagram 状态机")
+    # State machine is only required for stateful products; a report/filter/export
+    # feature should not have to fabricate a state diagram.
+    stateful = re.search(r"(状态机|状态流转|生命周期|审批流|订单状态|工单状态|状态迁移|status\s*flow)", text, re.I)
+    has_state = bool(re.search(r"```mermaid\s*\n\s*stateDiagram", text))
+    if stateful and not has_state:
+        errors.append("MERMAID: 有状态/流转内容，但缺少 stateDiagram 状态机")
+    elif not stateful and not has_state:
+        warnings.append("MERMAID: 未检测到状态流转，已跳过 stateDiagram（如确有状态请补）")
 
     for prefix in ["F-", "R-", "A-", "AC-"]:
         if not re.search(rf"\b{prefix}\d+", text):
@@ -78,6 +82,25 @@ def main() -> int:
 
     if not has_cols(text, ["需求 F", "规则 R", "验收场景 A", "AC"]):
         errors.append("TRACEABILITY: 追溯矩阵需含 需求F/规则R/验收场景A/AC 列")
+    else:
+        # Header-only matrix is not traceability. Require at least one data row
+        # with F/R/A/AC values.
+        lines = text.splitlines()
+        for i, line in enumerate(lines[:-1]):
+            if not line.strip().startswith("|") or not re.match(r"^\|[\s:|-]+\|$", lines[i + 1].strip()):
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if all(any(c in cell for cell in cells) for c in ["需求 F", "规则 R", "验收场景 A", "AC"]):
+                j = i + 2
+                good = 0
+                while j < len(lines) and lines[j].strip().startswith("|"):
+                    vals = [c.strip() for c in lines[j].strip().strip("|").split("|")]
+                    if len(vals) >= 4 and all(vals[k] for k in range(4)):
+                        good += 1
+                    j += 1
+                if good == 0:
+                    errors.append("TRACEABILITY: 追溯矩阵无有效数据行（F/R/A/AC 不能为空）")
+                break
     if not has_cols(text, ["类型", "问题/决策", "责任人", "期限"]):
         warnings.append("DECISIONS: 待确认/决策表建议含 类型/问题/责任人/期限")
 

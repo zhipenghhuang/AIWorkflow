@@ -39,8 +39,8 @@ $toolFindings = New-Object System.Collections.Generic.List[string]
 $refCount = 0
 $anchorCount = 0
 
-$instanceLeafs = @('产品档案.md', '项目档案.md', 'activeContext.md', '文档索引.md')
-$instancePrefixes = @('产品/', '产品/资料/', 'docs/', '测试/', '开发/', '项目资料/', '04-测试与验收/', '05-发布与交付/', '06-复盘与改进/')
+$instanceLeafs = @('产品档案.md', '项目档案.md', 'activeContext.md', '文档索引.md', '交接台账.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md')
+$instancePrefixes = @('产品/', '产品/资料/', 'docs/', '测试/', '开发/', '项目资料/', '.gate/', '04-测试与验收/', '04-回执/', '05-发布与交付/', '06-复盘与改进/')
 
 function Test-InstanceRef {
     param([string]$Token)
@@ -178,7 +178,6 @@ foreach ($sub in @('workflows', 'agents')) {
 
 $shorthandMap = @{
     '工作流'  = '规则/工作流.md'
-    '多Agent' = '规则/多Agent与输出.md'
     'AGENTS'  = 'AGENTS.md'
     '基线'    = '环境基线.md'
 }
@@ -278,7 +277,7 @@ else { $wfFindings.Add('WF_MISSING: workflows/') }
 $agentsPath = Join-Path $Root 'AGENTS.md'
 $agentsText = ''
 if (Test-Path -LiteralPath $agentsPath) { $agentsText = [System.IO.File]::ReadAllText($agentsPath, [System.Text.Encoding]::UTF8) }
-foreach ($declRel in @('规则/门.md', '规则/读取索引.md', '规则/维护.md')) {
+foreach ($declRel in @('规则/门.md', '规则/读取索引.md', '规则/核心/维护.md')) {
     $declPath = Join-Path $Root $declRel
     if (Test-Path -LiteralPath $declPath) { $agentsText += "`n" + [System.IO.File]::ReadAllText($declPath, [System.Text.Encoding]::UTF8) }
 }
@@ -395,7 +394,7 @@ $pyCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pyCmd) { $pyCmd = Get-Command py -ErrorAction SilentlyContinue }
 $validator = Join-Path $rulesDir 'tools/validate_workflow.py'
 if ($pyCmd -and (Test-Path -LiteralPath $validator)) {
-    $yamlOut = & $pyCmd.Source -X utf8 $validator $Root 2>&1
+    $yamlOut = & $pyCmd.Source -B -X utf8 $validator $Root 2>&1
     if ($LASTEXITCODE -eq 0) { $yamlStatus = 'OK' }
     else {
         $yamlStatus = '失败'

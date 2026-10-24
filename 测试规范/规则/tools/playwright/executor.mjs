@@ -5,7 +5,7 @@
  * 定位：把「可脚本化用例」按确定性脚本回放，产出台账可直接合并的结果与失败证据。
  * 纪律：本文件为通用引擎——复制到项目 `测试/脚本/` 后【勿改逻辑】；
  *       项目差异全部收敛到 `测试/脚本/case-executor.config.mjs`（登录钩子等）。
- *       规则见 `测试规范/规则/脚本执行.md`；落地说明见 `测试规范/规则/tools/playwright/README.md`。
+ *       规则见 `测试规范/规则/专项/脚本执行.md`；落地说明见 `测试规范/规则/tools/playwright/README.md`。
  *
  * 用法（在项目根执行）：
  *   node 测试/脚本/executor.mjs --plan=测试/脚本/01-xxx.script.mjs [选项]          # 默认 ui（浏览器）
@@ -81,7 +81,7 @@ function printUsage() {
   console.log([
     '用例脚本执行器（脚本档 · ui=浏览器 / api=接口轨无浏览器）',
     '用法: node 测试/脚本/executor.mjs --plan=测试/脚本/xx.script.mjs [--mode=api] [--case=ID] [--tag=smoke|regression] [--suite=名] [--runStamp=戳] [--headless=false] [--check] [--draftDir=…] [--evidenceDir=…]',
-    '规则: 测试规范/规则/脚本执行.md',
+    '规则: 测试规范/规则/专项/脚本执行.md',
   ].join('\n'))
 }
 function fail(msg) { console.error(`[executor] ${msg}`); process.exit(2) }
@@ -114,11 +114,11 @@ if (CHECK_ONLY) {
   const docPath = resolve(ROOT, plan.doc)
   if (!existsSync(docPath)) fail(`用例文档不存在：${docPath}`)
   const docText = readFileSync(docPath, 'utf8')
+  const docIds = new Set([...docText.matchAll(/^#{2,4}\s+([A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+)\s/gm)].map((m) => m[1]))
   let stale = 0
   for (const c of plan.cases) {
-    if (!docText.includes(c.id)) { stale++; console.error(`STALE: 脚本用例 ${c.id} 未在用例文档找到`) }
+    if (!docIds.has(c.id)) { stale++; console.error(`STALE: 脚本用例 ${c.id} 未在用例文档标题找到`) }
   }
-  const docIds = new Set([...docText.matchAll(/^#{2,4}\s+([A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+)\s/gm)].map((m) => m[1]))
   const scriptIds = new Set(plan.cases.map((c) => c.id))
   const notScripted = [...docIds].filter((id) => !scriptIds.has(id))
   console.log(`[check] 脚本 ${scriptIds.size} 条；文档标题 ${docIds.size} 条；STALE ${stale} 条`)

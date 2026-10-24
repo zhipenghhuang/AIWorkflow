@@ -30,9 +30,9 @@ export function trackDiagnostics(page: Page): Diagnostics {
 
 export async function shot(page: Page, name: string, testInfo?: TestInfo): Promise<void> {
   ensureEvidenceDir();
-  const file = path.join(evidenceDir, `${name}.png`);
-  await page.screenshot({ path: file, fullPage: true });
-  if (testInfo) await testInfo.attach(name, { path: file, contentType: "image/png" });
+  const file = path.join(evidenceDir, `${name}.jpg`);
+  await page.screenshot({ path: file, type: "jpeg", quality: 70, fullPage: true });
+  // 不再 attach 到 HTML report（会复制一份图片，放大验证数据）；文件本身就是证据。
 }
 
 export function assertNoDiagnostics(diag: Diagnostics): void {

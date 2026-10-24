@@ -49,7 +49,7 @@ description: Use when reviewing or finalizing a PRD. Apply four hard gates (meta
 ## 4. 流程纪律
 
 - 需修 → 回 prd 步修订；同回合重审 ≤1 次；不过如实上报。
-- 评审记录落 `产品/{版本或主题}/评审-{主题}-{yyyyMMdd}.md`；结论与记录同源。
+- 评审记录落 `产品/{版本或主题}/01-需求与定义/评审-{主题}-{yyyyMMdd}.md`；结论与记录同源。
 - 定稿后才允许排期；实质变更须重审后才能恢复「已定稿」。
 
 ## 5. 质量评分卡（12 项，0～2 分）

@@ -27,8 +27,10 @@ steps:
     notes: >
       技能：`技能/qa-handoff-and-release/SKILL.md`、`技能/acceptance-and-launch/SKILL.md`（先读再核）。
       读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`；L2+；无则提示缺口，不阻塞单包发布）。
-      按 `规则/模板/上线检查单模板.md` 逐项核：需求/AC、提测单/构建交接（无 QA 项目用自测报告/构建记录替代）、评审、
+      收到产品发布决策/UAT 交接包 → 先按 `workflows/handoff.yaml` receive 签收并回执；未签收不得把业务验收当已通过。
+      按 `规则/模板/40-交付与发布/上线检查单模板.md` 逐项核：需求/AC、提测单/构建交接（无 QA 项目用自测报告/构建记录替代）、评审、
       测试报告/准出、UAT（如适用）、安全/依赖/密钥、配置/迁移、回滚预案、监控/告警/值班、通知、变更审批。
+      **硬项**：有代码/配置改动的发布，必须读本轮 `.gate/开发规范/completion.json` 且 `verdict=COMPLETE`、`diff_hash`/提交与当前构建一致；BLOCKED/旧回执 → NO-GO。纯文档发布写「不适用+依据」。
       任一硬项不过 → NO-GO；例外写风险/补偿/批准人。上线检查单一版一档，落 `05-发布与交付/`。
       **证据分域**（子代理编排 §2）：L3/多系统 → 按检查域只读扇出（需求测试/安全依赖/配置迁移/回滚监控），各返回 pass/fail＋证据链接 ≤30 行；GO/NO-GO 由本步集中判定；小发布直做。
       输出 `release_ready=GO/NO-GO` 供后续步骤判断；审批记录由 approval 步回填，不在 readiness 阶段伪填“已审批”。
@@ -41,7 +43,7 @@ steps:
     output: UAT/验收记录（{文档事实源目录}/04-测试与验收/）
     notes: >
       条件步：有业务验收/产品签收要求才走。
-      技能：`技能/acceptance-and-launch/SKILL.md`；模板 `规则/模板/UAT验收模板.md`。
+      技能：`技能/acceptance-and-launch/SKILL.md`；模板 `规则/模板/40-交付与发布/UAT验收模板.md`。
       可选输入：项目已有 UAT/验收资料（任意路径/来源，含产品包/测试报告/用户提供）→ 直接引用/对照，不重复验收；没有 → 本步产 UAT（不要求安装其它包）。
       对照需求基线/PRD AC + 测试报告 + 提测单；结论=通过/有条件/不通过；失败/遗留不瞒报。
       confirm_acceptance：出示 AC 覆盖/失败项/遗留风险/发布建议，确认后进入审批；未签收不得审批（用户豁免须记录）。
@@ -89,7 +91,7 @@ steps:
 
   - name: 回滚
     id: rollback
-    when: release_failed
+    when: release_failed_or_direct_rollback
     agent: delivery-lead
     hitl: confirm_rollback
     tools:
@@ -121,6 +123,7 @@ steps:
       技能：`技能/acceptance-and-launch/SKILL.md`（收尾/记录）。
       汇总：版本/构建、发布内容、实际步骤、验证结果、观察结论、遗留项、回滚（如有）；readiness=NO-GO 时记录 NO-GO 原因与下一步，不得写“已发布”。
       更新 `05-发布与交付/发布说明-{版本}.md`、`发布记录-{版本}.md`、根 `CHANGELOG.md`（版本/日期/变更/迁移/验证）、`{文档事实源目录}/文档索引.md`、`activeContext.md`。
+      按 `规则/协作/协作与交接.md` §4 生成 `REL` 结果交接包（发布记录/验证/观察/遗留/回滚）给产品/测试/运维；更新 `交接台账.md`；未回执不得写“产品/测试/运维已接收”。
       更新开发计划：S8 发布=完成/回滚，发布记录/证据/下一步链接。
       输出发布汇报；未验证/未观察项明示。
 
@@ -130,7 +133,7 @@ steps:
     agent: delivery-lead
     output: 复盘（{文档事实源目录}/06-复盘与改进/）
     notes: >
-      条件步：事故/回滚/重大发布才走；技能 `技能/retrospective-and-improvement/SKILL.md`，模板 `规则/模板/复盘模板.md`。
+      条件步：事故/回滚/重大发布才走；技能 `技能/retrospective-and-improvement/SKILL.md`，模板 `规则/模板/60-复盘与改进/复盘模板.md`。
       更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；项目关闭或继续下一迭代。
       行动项必须有负责人/截止/验收；进任务清单或 `06-复盘与改进/改进项.md`。
 

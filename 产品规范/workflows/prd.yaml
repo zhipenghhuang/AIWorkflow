@@ -35,10 +35,12 @@ steps:
   - name: 需求洞察与需求池
     id: discover
     agent: pm-analyst
+    hitl: confirm_understanding
+    hitl_when: understanding_needs_confirm
     notes: >
       来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `产品/需求池.md`（价值/成本/风险初判 + 状态）；
       **先还原需求**：技能 `技能/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案，写清谁/场景/问题/现有替代/代价/目标结果/成功标准；单个客户/领导/竞品的说法标样本与证据等级，不直接当市场结论。
-      按 `规则/澄清.md` 先给理解回执，再一次一问至无实质缺口（95% 仅参考）；用户确认后才入池/排优先级；未确认的推断标「假设」并写验证方式。
+      按 `规则/核心/澄清.md` 先给理解回执，再一次一问至无实质缺口（95% 仅参考）；用户确认后才入池/排优先级；未确认的推断标「假设」并写验证方式。
       **来源扇出**（子代理编排 §2）：批量洞察/竞品 ≥4 独立来源 → 按来源只读扇出（返回证据表/去重键 ≤30 行）；主 agent 去重入池；单条反馈直做。
       引用须可回查（来源+日期），无依据写「待验证」。
       能力（可选）：docs-mcp 查资料、browser-mcp 查竞品/后台；未装=按主读与用户输入。
@@ -66,16 +68,17 @@ steps:
         when: understanding_needs_confirm
       - name: confirm_scope
         when: scope_unconfirmed
-    output: 产品/{版本或主题}/PRD-{主题}.md（模板 规则/模板/PRD模板.md）
+    output: 产品/{版本或主题}/01-需求与定义/PRD-{主题}.md（模板 规则/模板/10-规划与需求/PRD模板.md）
     notes: >
       前置：产品计划已确认，或单需求范围已经 `confirm_scope` 批准；两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。
       已在需求池/立项书/计划范围内 → 直接写；未定性新输入 → 先走 `workflows/change.yaml` intake，不跳过受理。
       **写前先读**：确认的客户需求理解/受理单/需求池/证据；每条 F/R/AC 必须能追溯到来源（访谈/工单/数据/文档/裁决），无来源列 `Q-xx` 待确认，不臆造；未确认的推断标「假设」。
       理解门先行：`confirm_understanding` 触发时先确认客户/场景/问题/目标/范围/非目标/证据；未确认不得落正式 PRD（可出草稿并标待确认）。
+      P2+ 且开发/测试角色可得时，按 `规则/协作/协作与交接.md` §2 做需求澄清（Three Amigos）：产品讲问题/AC，开发讲可行性/影响，测试讲可测性/oracle；产出澄清记录（问题/示例/AC/待决，可并入 PRD 的变更记录节或评审记录）并回写 PRD；角色不可得则跳过，不阻塞。
       技能：`技能/prd-writing/SKILL.md`（先读再写）；自检清单与 `技能/review-and-finalize/SKILL.md` 同源。
       要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段规则/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
       写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。
-      落盘后运行 `验证/Invoke-Gate.ps1 -Mode prd`；结构/追溯/TBD 未过不得进入评审；P0/P1 用 `PRD-轻量模板.md`（`prd_level: light`，免独立评审），P2+ `status=APPROVED` 由评审门回写。
+      落盘后运行 `验证/Invoke-Gate.ps1 -Mode prd`；`BLOCKED` 才不得进入评审，`DRAFT`=结构过、可进入评审；P0/P1 用 `PRD-轻量模板.md`（`prd_level: light`，免独立评审），P2+ `status=APPROVED` 由评审门回写。
       **证据侦察分片**（子代理编排 §2）：大 PRD（≥3 来源文档）→ 只读侦察 AC/状态机/权限/NFR/异常边界；PRD 正文单写手分节推进，禁并行写。
       完稿按评审清单自检，带缺口禁落盘；同路径已有 PRD → 先读并增量更新，禁静默覆盖。
 
@@ -98,12 +101,25 @@ steps:
     notes: >
       入口=「PRD评审」→ `finalize_requested=false`（只评审）；入口=「定稿」或用户明确要进入排期 → true。
       技能：`技能/review-and-finalize/SKILL.md`；独立复核（完整/可测/无歧义/范围/依赖/风险/验收标准/埋点/来源可追溯/无臆造）；对照确认的客户需求理解，检查 PRD 是否偷换问题、扩大范围或把假设写成事实。
-      运行 `验证/Invoke-Gate.ps1 -Mode prd` 核 PRD 结构/追溯/TBD（DRAFT=结构过、未定稿）；再运行 `-Mode review` 核独立评审；评审人≠作者、有清单/评分/阻断项。READY 后把回执 `gate_id` 回填 PRD/评审记录并置 `status/review_status=APPROVED`，再复跑 `-Mode prd` 得 READY；未 READY 不得写“评审通过/定稿”。
+      **先写评审记录，再跑评审门**：按模板落 `评审-{主题}-{yyyyMMdd}.md`（评审人≠作者、清单/评分/阻断项、verdict），运行 `验证/Invoke-Gate.ps1 -Mode review`（写 `.gate/产品规范/review.json`）；READY 后把回执 `gate_id` 回填 PRD 与评审记录并置 `status/review_status=APPROVED`；再运行 `-Mode prd` 核结构/追溯/TBD/gate_id 一致性，得 READY。未 READY 不得写“评审通过/定稿”。
       **评审分片**（子代理编排 §2）：大 PRD/跨模块 → 按维度只读扇出（完整性/可测/追溯/范围/权限），主 reviewer 去重；评分卡只算一次；小 PRD 单 reviewer。
-      产出评审记录 `产品/{版本或主题}/评审-{主题}-{yyyyMMdd}.md` 与【评审结论】。
+      产出评审记录 `产品/{版本或主题}/01-需求与定义/评审-{主题}-{yyyyMMdd}.md` 与【评审结论】。
       结论=需修 → 只列缺口并回 prd 修订（同回合≤1 次），不弹定稿门；结论=通过且用户要定稿/进入排期 → 才 `confirm_prd` 出示定稿要点；仅「评审」→ 输出结论并收尾，不弹门。
       批准后由编排回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`（不改正文），再更新产品计划 §7。
       **未定稿不排期**（`规则/工作流.md` §1）。
+
+  - name: 需求交接包
+    id: handoff
+    when: prd_ready_for_handoff
+    agent: pm-lead
+    output: 产品/交接/{HO-ID}/（REQ → 开发/测试）+ 交接台账
+    notes: >
+      PRD 已 APPROVED 且 PRD 门 READY 后执行；按 `规则/协作/协作与交接.md` §3/§4 与 `workflows/handoff.yaml` 的 send 逻辑生成，不另造模板。
+      默认生成两个包：REQ→开发、REQ→测试；同项目无开发/测试角色时接收方写“开发负责人/测试负责人”，由用户整包转交，不阻塞。
+      最小必带：PRD、AC、原型/开发交接、范围/非目标、优先级、风险、UAT 标准、待决/假设；版本/日期与 PRD 一致。
+      生成后更新 `产品/交接/交接台账.md`（已发送）、产品计划 §0/§7/§12、文档索引、activeContext；输出【交接包已生成】+ 复制方法 + 回执截止。
+      `confirm_prd` 已确认定稿/进入排期时不再重复弹门；仅评审未定稿 → 条件不满足，跳过本步。
+      未回执不得写“开发/测试已接收”；回执由 `handoff.receive` 或对方回传后登记。
 
   - name: 收尾
     id: wrap

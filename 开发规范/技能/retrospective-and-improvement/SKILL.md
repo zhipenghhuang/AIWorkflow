@@ -6,7 +6,7 @@ description: Use after a release, iteration, incident, or repeated defect patter
 # 复盘与改进（技能 · 随包生效）
 
 > 用于：`retro` 工作流、`release` 的事故后复盘、迭代收尾。  
-> 产出：`06-复盘与改进/复盘-{版本或事件}-{yyyyMMdd}.md`，模板见 `规则/模板/复盘模板.md`。  
+> 产出：`06-复盘与改进/复盘-{版本或事件}-{yyyyMMdd}.md`，模板见 `规则/模板/60-复盘与改进/复盘模板.md`。  
 > 原则：**对事不对人；事实先于判断；改进项必须有着落。**
 
 ## 1. 何时做

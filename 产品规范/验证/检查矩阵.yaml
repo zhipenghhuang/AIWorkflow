@@ -7,11 +7,11 @@ modes:
     required: [artifact-exists, frontmatter, sections-0-16, traceability, tbd-owner, approved-gate]
     manual: [ac-testable, prototype-link, metrics]
   review:
-    required: [artifact-exists, reviewer-not-author, checklist, verdict, gate-id]
-    manual: [score, blocking-items]
+    required: [artifact-exists, reviewer-not-author, checklist, verdict]
+    manual: [score, blocking-items, gate-id-after-fill]
   uat:
-    required: [artifact-exists, ac-coverage, evidence, verdict, gate-id]
-    manual: [residual-owner, release-readiness]
+    required: [artifact-exists, ac-coverage, evidence, verdict]
+    manual: [residual-owner, release-readiness, gate-id]
   change:
     required: [artifact-exists, linkage-table, status-closed, pending-owner]
     manual: [affected-artifacts]

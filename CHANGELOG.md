@@ -7,18 +7,62 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.23.7` | 更新 | 轻量 PRD 门 + 定稿顺序 + 迁移门 |
-| 开发规范 | `2026.10.23.7` | 更新 | 验收聚合 + 前端 QA + 评审顺序 |
-| 测试规范 | `2026.10.23.7` | 更新 | 报告准出硬校验 + 归档隔离 + 覆盖闸 |
-| 母版仓 | `2026.10.23.7` | 更新 | 门语义与流程一致性审计修复 |
+| 产品规范 | `2026.10.24.3` | 更新 | 协作交接包 + 回执 + 变更自适应 + 计划补全 |
+| 开发规范 | `2026.10.24.3` | 更新 | 交接/提测/发布回执 + 计划自适应 + 变更通知 |
+| 测试规范 | `2026.10.24.3` | 更新 | 提测接收/报告交接/缺陷包 + 计划自适应 |
+| 母版仓 | `2026.10.24.3` | 更新 | 三包交接层与角色协作闭环 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
 
 ## [Unreleased]
 
+### Changed
+
+- 文档分层与读取预算：常驻规则 ≤3k、AGENTS ≤5.5k、参考手册 ≤10k、技能 ≤4.5k、单步读取 ≤8k；参考手册统一标 `读取级别：参考`，只读当前 step 节。
+- 去重与排布：开发 `工作流.md` 删除标准目录树（指向 `文档治理.md`）；测试 `工作流.md` 删除速查表（指向 workflow/多Agent/脚本执行）；删除 `资料治理.md`/`文档生命周期.md` 兼容指针；`缺陷文案模板.md` 移入 `规则/模板/{组}/`。
+- 测试 `AGENTS.md` 压缩常驻集：T0～T3 移到 `工作流.md` §1.2，交接硬约束改为指针；README 增加“文档分层（按需读）”。
+- `Test-DocHygiene` 区分常驻/参考/模板/技能预算；三包当前 0 warning。
+- 去重：`验证/README.md` 状态表改为指向 `规则/核心/验证规则.md`；读取索引写入固定读序与单步 8k 硬上限；`缺陷文案模板.md` 进模板索引。
+- 目录结构（2026-10-24）：三包 `规则/` 收敛为四个常驻入口（`读取索引/门/工作流/文档治理`）+ `核心/协作/缺陷/专项` + `playbooks/模板/tools`；模板按 `00～90` 生命周期分组（产品 36 / 开发 31 / 测试 23），索引迁至 `规则/模板/模板索引.md`；产品版本目录改为 `01-需求与定义`～`06-复盘`；开发缺陷评估移至 `00-项目治理/缺陷评估/`；测试新增功能测试模块规模阈值。
+- 自检同步：`Test-DocHygiene` / `Test-Template` / `Invoke-TestWorkflow` 改为递归扫描与新路径；三包自检全绿（产品 677/185，开发 1027/238，测试 749/260）。
+
+## [2026.10.24.3] - 2026-10-24
+
+### Added
+
+- 三包新增 `规则/协作与交接.md`：角色/RACI、协作节奏（Three Amigos/提测/准出/发布/复盘）、发出/接收交接矩阵、交接包规范、回执/退回/超时、C0～C3 变更分级、重规划触发、文档同步矩阵、计划回写。
+- 三包新增 `workflows/handoff.yaml`：`status`（待回执/超时/阻断）、`send`（生成交接包）、`receive`（核对+回执+更新计划）、`change_send`（变更通知）、`change_receive`（影响分析+适配）、`replan`（重基线+通知）、`wrap/commit`。
+- 三包新增交接模板：`交接包说明模板.md`、`交接清单模板.md`、`接收回执模板.md`、`交接台账模板.md`；新增 `validate_handoff.py`（必带文件/元数据/清单路径/包 ID 校验）。
+- 计划模板补全：产品计划新增 §3.2 协作接口、§12 交接台账摘要、§13 计划自适应；开发计划新增 §2.3 协作接口、§9.1 变更分级/重规划、§15 追溯扩展；测试计划新增 §17 协作交接、§18 计划自适应；测试报告新增 §12 交接与回执。
+- 交接包目录：`产品/交接/{HO-ID}/`、`{文档事实源目录}/交接/{HO-ID}/`、`测试/交接/{HO-ID}/`；收到的包落各自 `资料/交接/{HO-ID}/`（只读）；台账 `交接台账.md` 为唯一登记。
+
+### Changed
+
+- 产品 `prd` 增加 `prd.handoff`（PRD 定稿→REQ 包），`prototype.handoff`（→DES 包），`deliver`/`change`/`defect` 增加 PLAN/UAT/REL/CHG/BUG 包；开发 `control`/`change`/`iterate`/`intake`/`defect-fix`/`release`/`retro` 增加接收/发送/回执/变更适配；测试 `testing`/`defect` 增加提测签收、报告包、缺陷包、变更包。
+- 三包 `AGENTS.md` 新增协作与交接硬约束（包/回执/三选一/C0～C3/计划同轮回写）；`规则/门.md` 新增 `confirm_handoff` 与 `handoff_send_required`/`handoff_change_substantive` 条件；`规则/读取索引.md`、`模板索引.md`、`文档治理.md`、`工作流.md`、README 同步。
+- `已发送 ≠ 已交接`：未收回执只能报“待回执/已发送”，不得写“已交接/已接收”，不得把提测、UAT、发布、变更实施标为完成。
+- 单包仍独立：接收方未装包时按普通文档阅读并按回执模板回复；不要求额外协作目录或合同文件。
+
+### Verification
+
+- 三包 `Test-Template.ps1` / `Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs` 全部通过（产品 664 引用/186 锚点；开发 1006/238；测试 737/257）。
+- `Test-DocHygiene.ps1`：0 error；仅保留既有规则/AGENTS token 预算与孤立模板警告。
+- `validate_handoff.py` 用临时夹具验证：完整包 `HANDOFF_VALIDATION_OK`。
+
+## [2026.10.24.2] - 2026-10-24
+
 ### Fixed
 
-- 开发轨验证运行态迁出规范包：验收清单 / `project-profile.json` / 前端证据改落项目根 `.gate/`；`开发规范/验证/` 仅保留工具与模板（只读）。`gate.py` 对包内旧路径仅作遗留只读回退。
+- 开发门：运行态改为 `.gate/开发规范/`；删除包内 `.state`/`project-profile.json` 回退；任务开始 `-StartTask` 校验 `task_id`；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`；验收证据必须存在；L2+ 核 `process.review`，L3 核 `security`/`rollback`；Git 中文路径与 BOM 修复；`report_lint` 允许“未完成/未通过/未修复”。
+- 产品门：UAT 解析 §2 表并对照 PRD AC；评审必须有唯一清单结果/结论；`release` 与 `new-product.deliver` 增加 UAT 门；`onboard` 标 `chain: full` 并去掉 activeContext 预填标记；P0/P1 补 `decide`；PRD 状态机改为有状态才要求；`source_of_truth`/追溯行/gate_id 一致性校验；BOM 修复。
+- 测试门：台账增加 `用例优先级`/`缺陷优先级` 列，P0 判定不再失效；报告门对账计划/稳定冒烟清单的 P0 缺失；新增 `-Mode coverage`；`writeback` 只写 `writeback.json`，不覆盖 report；覆盖解析只读用例文档、排除证据目录；报告回执与 verdict 校验；配置模板去掉项目硬编码。
+- 自检：实例路径（`.gate/`、交接实例文件等）不参与包内引用检查；`Test-DocHygiene` 增加规则/AGENTS/技能 token 预算警告；Python 自检统一 `-B`；复制说明排除 `.state/.gate/__pycache__`。
+- 保留并兼容工作区 handoff 功能；本次只修其自检引用/能力声明，不改其流程语义。
+
+### Verification
+
+- 三包 `Test-Template.ps1` / `Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs` 全部通过。
+- 临时夹具：开发空 diff→NOT_VERIFIED、dry-run→DRY_RUN、旧 `.state` 不读取、缺证据→BLOCKED、L2 缺评审→BLOCKED；产品 UAT 缺 AC→BLOCKED、完整 AC→READY；测试计划有 P0/台账缺失→FAIL、P0 失败→FAIL、writeback 不覆盖 report。
 
 ## [2026.10.23.7] - 2026-10-23
 

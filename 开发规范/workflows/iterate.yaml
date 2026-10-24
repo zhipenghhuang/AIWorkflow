@@ -24,6 +24,7 @@ steps:
     notes: >
       读需求基线/方案/开发计划/任务清单现状；确认需求已签收、方案已批准（L2+）。
       输入含 PRD/迭代方案/原型/需求文档但无需求理解包 → 先回 `workflows/change.yaml` 的 analyze_input；不得凭聊天记忆或文档标题拆单。
+      输入是交接包 → 先走 `workflows/handoff.yaml` receive 核对+回执；未签收不得拆单/实施。
       缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 requirements/design 补确认（`confirm_requirements`/`confirm_spec`）；不凭聊天记忆直接拆单/实施。
       「只出任务清单」可只要求需求/方案要点，缺则一次一问；确认后进入 plan，不跳过计划依据。
 
@@ -32,10 +33,11 @@ steps:
     agent: iterate-lead
     output: 任务清单 + 冻结的验收清单（{文档事实源目录}/03-计划与状态/任务清单-{版本或主题}.md）
     notes: >
-      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/任务清单模板.md`。
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
       L2+ 先读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
-      **验收清单**：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 acceptance 文件（见 `验证/README.md`）并确认后冻结；实施中新增/变更 AC 走变更记录。
+      **验收清单**：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process）并确认后冻结；实施中新增/变更 AC 走变更记录。
+      任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`）。
       **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
       拆完先自检：RP 覆盖、AC、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐；再进 confirm。
       若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】（跳过 confirm / implement / review / gates / deliver / release_handoff / retro；清单文件有变更时仍按 wrap 的 `confirm_commit` 确认）。
@@ -52,7 +54,7 @@ steps:
     notes: >
       「继续迭代」且清单与节奏相对上次确认未变 → 跳过本 hitl，直入 implement。
       L1 小批（≤2 任务/≤4 文件、无范围变化）默认只通知：展示任务数/RP 覆盖/依赖/风险后继续；L2+ 或清单/范围/节奏实质变化才 `confirm_backlog`。
-      清单新建、范围变更或用户要求改节奏（L2+）→ 必须 confirm_backlog（出示任务数/RP 覆盖/依赖/风险 + 节奏三选，见 规则/迭代交付.md §3）。
+      清单新建、范围变更或用户要求改节奏（L2+）→ 必须 confirm_backlog（出示任务数/RP 覆盖/依赖/风险 + 节奏三选，见 规则/专项/迭代交付.md §3）。
       plan 步新建/更新清单 → L2+ 或实质变化才视为 backlog_approval_required=true；L1 只通知。
       确认后冻结基线；实施中新增/删除/拆分/调序 → 记清单 §6 变更记录。
       更新开发计划：S3 任务与排期=完成，任务清单/里程碑/依赖/风险链接。
@@ -63,10 +65,10 @@ steps:
     agent: iterate-lead
     output: 代码/配置改动 + 任务状态回写
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/前端设计说明模板.md`，否则按产品设计实现。
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
       RP/AC 可核对且全覆盖才开工；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交** → 一组一子代理（worker-agent；同文件/同函数集归一组；默认串行）；批末定向门禁 → 核验 → 下一批；不达阈值直做。
-      高风险/大改/破坏性变更核验者≠实施者（规则/迭代交付.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
+      高风险/大改/破坏性变更核验者≠实施者（规则/专项/迭代交付.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
       改动面超出清单先停下说明；未验证不得标完成。
 
   - name: 代码评审
@@ -77,9 +79,10 @@ steps:
       - code-review
       - security-scan
       - design-review
-    output: 评审结论/缺口
+    output: 评审结论/缺口 + `.gate/review.md`
     notes: >
       触发条件由步上 `when` 控制（多文件/新功能/高风险或点名）；L0 单文件不触发。
+      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
       技能：`技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` §5；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
@@ -93,9 +96,9 @@ steps:
     when: implementation_required
     agent: verifier-agent
     gate: completion-gate
-    output: .gate/completion.json + 门禁摘要/文档同步
+    output: .gate/开发规范/completion.json + 门禁摘要/文档同步
     notes: >
-      按 `验证/检查矩阵.yaml` 取最小充分集；运行 `验证/Invoke-Gate.ps1`；门自己跑关键检查并写 `.gate/completion.json`。
+      按 `验证/检查矩阵.yaml` 取最小充分集；运行 `验证/Invoke-Gate.ps1 -Acceptance <任务清单>`；门自己跑关键检查并写 `.gate/开发规范/completion.json`。
       失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
       日志分诊（子代理编排 §2）：原始日志落盘，先脚本过滤；仅多文件语义归因才派子代理，返回摘要 ≤30 行。
       同步任务清单状态、activeContext、文档索引；文档与实现同变更。
@@ -107,9 +110,10 @@ steps:
     output: 提测单/发布说明/回滚预案（{文档事实源目录}/05-发布与交付/）
     notes: >
       条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
-      技能：`技能/qa-handoff-and-release/SKILL.md`（先读再产）；模板 `规则/模板/提测单模板.md`、`模板/发布说明模板.md`。
+      技能：`技能/qa-handoff-and-release/SKILL.md`（先读再产）；模板 `规则/模板/40-交付与发布/提测单模板.md`、`规则/模板/40-交付与发布/发布说明模板.md`。
       提测单/发布说明落 05-发布与交付/（或档案映射）；先产文档再提交，文档纳入 wrap 的拟提交。
-      读 `.gate/completion.json`；未 `COMPLETE` 不得把提测单标为“可提测/已自测通过”。
+      有代码改动时读本轮 `.gate/开发规范/completion.json`；未 `COMPLETE` 不得把提测单标为“可提测/已自测通过”；纯文档/无代码写「不适用+自检依据」。
+      有 QA/部署时按 `规则/协作/协作与交接.md` §3/§4 生成 `QA` 或 `REL` 交接包；更新 `交接台账.md`、开发计划 §0/§7/§8/§12；未回执不得写“测试/产品/运维已接收”。
       无 QA 也要留自测证据；已知问题不瞒报。
 
   - name: 总结与拟提交
@@ -122,10 +126,11 @@ steps:
       无文件变更则跳过 confirm_commit；提交前确认任务清单/文档索引/activeContext/`CHANGELOG.md` 已更新。
       【拟提交】含分支/推送目标/PR·合并意图（规则/工作流.md §2）；对照档案 §1；禁擅自切主干/直推受保护分支/开合并 PR/force push。
       更新开发计划：§0 当前阶段/下一动作、§1 本阶段产出与证据/下一步 3 件事、§12 执行日志。
+      更新 `交接台账.md`；未回执/退回/有条件接收列入收尾与 §0 当前阻塞；有未回执的必需交接不得把迭代标完成。
       迭代关闭：按 `规则/文档治理.md` §3～§5 扫描 `资料/`，输出【资料收取与归档候选】；只归档用户确认的 `失效` 项（全量替代/全量覆盖/重复）到 `_归档/{yyyyMMdd}-{版本}/资料/` + `归档清单`；部分覆盖/增量/参考不动；未确认不移动。
       同步按 `规则/文档治理.md` 扫描工作文档与过程文件：长期基线就地更新、版本绑定方案/任务清单/UAT/提测单归档、临时/失败/重复文件列清理候选；确认后执行。
-      读 `.gate/completion.json`；按 AGENTS §2 输出【任务收尾】：先写 `【验证回执】verdict=...`，迭代交付总结置第 1 点（含汇报，可整段复制），第 2～6 点齐。
-      运行 `验证/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
+      有代码改动时读本轮 `.gate/开发规范/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`，不得读旧回执。按 AGENTS §2 输出【任务收尾】：先写 `【验证回执】verdict=...`，迭代交付总结置第 1 点（含汇报，可整段复制），第 2～6 点齐。
+      有门回执时运行 `验证/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
       提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）。
       本步之后若含部署 → release_handoff；迭代完成/事故 → retro。
       提交信息与粒度见 规则/工作流.md §2。
@@ -138,6 +143,7 @@ steps:
     notes: >
       条件步：含部署/发版才走；本步不直接部署。
       就绪包=提测单+发布说明+回滚预案+测试报告/UAT（如有）；上线检查单由 `release.readiness` 产出，本步不重复造。
+      按 `规则/协作/协作与交接.md` §4 生成 `REL` 交接包给产品/测试/运维；更新 `交接台账.md`、开发计划 §0/§8/§12；未回执不得写“已交接”。
       转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证。
       本步只补发布交接摘要（版本/窗口/风险/回滚决策人），不重复六段；最终收尾已由 wrap 输出，release 工作流另按自身收尾。
       更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
@@ -149,7 +155,7 @@ steps:
     output: 复盘（{文档事实源目录}/06-复盘与改进/）
     notes: >
       条件步：迭代完成/发布回滚/事故/重复缺陷才走；小迭代可 3～5 条轻量复盘。
-      技能：`技能/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `规则/模板/复盘模板.md`。
+      技能：`技能/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `规则/模板/60-复盘与改进/复盘模板.md`。
       若 release 工作流已做复盘 → 本步只补迭代视角/链接，不重复同一分析。
       更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；项目关闭或继续下一迭代。
       行动项必须有负责人/截止/验收；进任务清单或 `06-复盘与改进/改进项.md`；下次复盘先对账。

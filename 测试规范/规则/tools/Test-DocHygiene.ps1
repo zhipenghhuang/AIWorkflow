@@ -14,6 +14,18 @@ function Get-Lines([string]$path) {
     return (Get-Content -LiteralPath $path -Encoding UTF8 | Measure-Object -Line).Lines
 }
 
+function Get-ApproxTokens([string]$text) {
+    if (-not $text) { return 0 }
+    $cjk = ([regex]::Matches($text, '[\u4e00-\u9fff]')).Count
+    $ascii = [Math]::Max(0, $text.Length - $cjk)
+    return [int][Math]::Round($cjk + ($ascii / 4))
+}
+
+function Test-ReferenceDoc([string]$path) {
+    $head = (Get-Content -LiteralPath $path -Encoding UTF8 -TotalCount 10) -join "`n"
+    return ($head -match '读取级别[：:]\s*参考' -or $head -match '参考手册')
+}
+
 if (-not (Test-Path -LiteralPath (Join-Path $Root 'AGENTS.md'))) { $errors.Add("MISSING_CORE: AGENTS.md") }
 foreach ($rel in @('规则/门.md', '规则/读取索引.md', '规则/文档治理.md')) {
     if (-not (Test-Path -LiteralPath (Join-Path $Root $rel))) { $errors.Add("MISSING_CORE: $rel") }
@@ -44,12 +56,30 @@ if (Test-Path -LiteralPath $ctx) {
 
 $rulesDir = Join-Path $Root '规则'
 $rules = @()
-if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -File -Filter *.md -ErrorAction SilentlyContinue) }
+if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -Filter *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/](模板|playbooks|tools)[\\/]' }) }
 foreach ($f in $rules) {
     $n = Get-Lines $f.FullName
-    if ($n -gt 240) {
+    $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($f.FullName, [System.Text.Encoding]::UTF8))
+    $isTemplate = $f.Name -match '模板'
+    $isReference = Test-ReferenceDoc $f.FullName
+    if (-not $isTemplate -and -not $isReference -and $tok -gt 3000) {
+        $warnings.Add("RULE_TOKEN_BUDGET: $($f.Name) ~$tok tokens (>3000; split or move detail to playbook)")
+    }
+    if ($isReference -and $tok -gt 10000) {
+        $warnings.Add("REFERENCE_TOO_LONG: $($f.Name) ~$tok tokens (>10000; split reference)")
+    }
+    if ($n -gt 240 -and -not $isReference) {
         $head = (Get-Content -LiteralPath $f.FullName -Encoding UTF8 -TotalCount 5) -join "`n"
         if ($head -notmatch 'longform') { $warnings.Add("RULE_LONG: $($f.Name) $n lines (>240; add longform or split)") }
+    }
+}
+$agentsTok = Get-ApproxTokens ([System.IO.File]::ReadAllText($agents, [System.Text.Encoding]::UTF8))
+if ($agentsTok -gt 5500) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>5500; trim resident set)") }
+$skillsDir = Join-Path $Root '技能'
+if (Test-Path -LiteralPath $skillsDir) {
+    foreach ($sf in Get-ChildItem -LiteralPath $skillsDir -Recurse -File -Filter SKILL.md) {
+        $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($sf.FullName, [System.Text.Encoding]::UTF8))
+        if ($tok -gt 4500) { $warnings.Add("SKILL_TOKEN_BUDGET: $($sf.Directory.Name) ~$tok tokens (>4500; split references)") }
     }
 }
 
@@ -70,15 +100,23 @@ if (Test-Path -LiteralPath $readIndexPath) {
 }
 
 $tplDir = Join-Path $Root '规则/模板'
-if (Test-Path -LiteralPath $tplDir) {
-    $corpus = @()
-    foreach ($f in Get-ChildItem -LiteralPath $Root -Recurse -File -Include *.md,*.yaml) {
-        if ($f.FullName.StartsWith($tplDir + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
-        $corpus += (Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8)
+$tplIndex = Join-Path $Root '规则/模板/模板索引.md'
+if ((Test-Path -LiteralPath $tplDir) -and (Test-Path -LiteralPath $tplIndex)) {
+    $indexText = Get-Content -LiteralPath $tplIndex -Raw -Encoding UTF8
+    foreach ($tpl in Get-ChildItem -LiteralPath $tplDir -Recurse -File) {
+        if ($tpl.Name -eq '模板索引.md') { continue }
+        if ($indexText -notmatch [regex]::Escape($tpl.Name)) {
+            $warnings.Add("TEMPLATE_NOT_INDEXED: $($tpl.Name)（模板索引未登记）")
+        }
     }
-    $text = $corpus -join "`n"
-    foreach ($tpl in Get-ChildItem -LiteralPath $tplDir -File) {
-        if ($text -notmatch [regex]::Escape($tpl.Name)) { $warnings.Add("ORPHAN_TEMPLATE: $($tpl.Name)") }
+    # 只检查表格第一列的模板名；目标路径（项目档案.md、{文档事实源目录}/…）不是模板文件。
+    foreach ($line in $indexText -split "`r?`n") {
+        $m = [regex]::Match($line, '^\|\s*`([^`]+\.(?:md|html|ya?ml|json|ts|mjs))`\s*\|')
+        if (-not $m.Success) { continue }
+        $name = $m.Groups[1].Value
+        if (-not (Test-Path -LiteralPath (Join-Path $tplDir $name))) {
+            $warnings.Add("TEMPLATE_INDEX_BROKEN: $name（索引指向不存在的模板）")
+        }
     }
 }
 

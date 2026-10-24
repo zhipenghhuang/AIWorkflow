@@ -80,11 +80,12 @@ const rowCells = (s) => { const t = s.trim(); if (!t.startsWith('|')) return nul
 
 // 格式识别：表头首列 用例 ID（功能） / caseId（接口）
 let ifaceMode = false
+let funcHeaders = []
 for (const ln of lines) {
   const c = rowCells(ln)
   if (!c) continue
   const first = cell(c[0])
-  if (first === '用例 ID') { ifaceMode = false; break }
+  if (first === '用例 ID') { ifaceMode = false; funcHeaders = c.map(cell); break }
   if (first === 'caseId') { ifaceMode = true; break }
 }
 
@@ -94,29 +95,37 @@ const counts = { 总数: 0, 通过: 0, 失败: 0, 阻塞: 0, 未执行: 0, 待�
 const ifaceCounts = { PASS: 0, FAIL: 0, BLOCKED: 0 }
 
 if (!ifaceMode) {
-  // ── ① 功能台账：更新 结果/摘要/证据路径 ────────────────────────────────
+  // ── ① 功能台账：更新 结果/摘要/证据路径（按表头定位，兼容旧台账） ──────
+  const idx = (name, fallback) => {
+    const i = funcHeaders.indexOf(name)
+    return i >= 0 ? i : fallback
+  }
+  const iResult = idx('结果', 2)
+  const iSummary = idx('摘要', 3)
+  const iEvidence = idx('证据路径', 4)
   for (let i = 0; i < lines.length; i++) {
     const cells = rowCells(lines[i])
-    if (!cells || isSep(lines[i]) || cells.length < 5) continue
+    if (!cells || isSep(lines[i]) || cells.length <= Math.max(iResult, iSummary, iEvidence)) continue
     const id = cell(cells[0])
     const u = updates.get(id)
     if (!u) continue
-    if (!STATES.includes(cell(cells[2]))) continue
-    const before = cell(cells[2])
-    cells[2] = ` ${FUNC_MAP[u.key]} `
-    cells[3] = ` ${u.summary} `
-    cells[4] = ` ${u.evidence} `
+    if (!STATES.includes(cell(cells[iResult]))) continue
+    const before = cell(cells[iResult])
+    cells[iResult] = ` ${FUNC_MAP[u.key]} `
+    cells[iSummary] = ` ${u.summary} `
+    cells[iEvidence] = ` ${u.evidence} `
     lines[i] = '|' + cells.join('|') + '|'
     merged++
     touched.add(id)
     if (DRY) console.log(`  [dry] ${id}: ${before} → ${FUNC_MAP[u.key]}｜${u.summary.slice(0, 60)}`)
   }
 
-  // §1 统计表全表重算
+  // §1 统计表全表重算（按表头定位“结果”列）
+  const iResultForStats = idx('结果', 2)
   for (const ln of lines) {
     const cells = rowCells(ln)
-    if (!cells || isSep(ln) || cells.length < 3) continue
-    const st = cell(cells[2])
+    if (!cells || isSep(ln) || cells.length <= iResultForStats) continue
+    const st = cell(cells[iResultForStats])
     if (!STATES.includes(st)) continue
     if (!/^[A-Za-z]/.test(cell(cells[0]))) continue
     counts.总数++

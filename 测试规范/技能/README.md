@@ -17,9 +17,9 @@
 | execute（功能/探索式/计划驱动） | `技能/test-execution-and-exploration/SKILL.md`（计划编排/回归/探索） |
 | 接口轨 | `技能/test-interface/SKILL.md`（脚本优先 + 契约/复用；+ `规则/轨契约/接口.md`） |
 | 发布前轨 | `技能/test-performance-security-compatibility/SKILL.md`（基础/标准/高风险级 + 工具矩阵；+ `规则/轨契约/发布前.md`） |
-| report | `规则/模板/测试报告模板.md` + `规则/工作流.md` §4（即技能） |
-| defect | `规则/缺陷协作.md`（即技能） |
-| 脚本档 | `规则/脚本执行.md`（即技能） |
+| report | `规则/模板/40-报告与评审/测试报告模板.md` + `规则/工作流.md` §4（即技能） |
+| defect | `规则/缺陷/缺陷协作.md`（即技能） |
+| 脚本档 | `规则/专项/脚本执行.md`（即技能） |
 | onboard | `agents/onboard-agent.yaml`（核验清单即技能） |
 
 **维护**：改技能 → 改本目录（母版改，随包分发）；技能只写方法，**禁**另立红线/门（SSOT 在 `AGENTS.md`/`规则/`）。

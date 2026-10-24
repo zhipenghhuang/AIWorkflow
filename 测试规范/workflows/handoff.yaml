@@ -1,0 +1,146 @@
+# 测试协作交接（接收 / 发送 / 回执 / 变更通知 / 状态）
+# 入口即止：send/receive/status/change_* 各自独立，不自动串跑。
+workflow:
+  id: handoff
+  name: 协作交接
+  version: 1
+  read_index: 规则/读取索引.md
+
+entry_points:
+  生成交接包: send
+  交接给开发: send
+  交接给产品: send
+  缺陷交接包: send
+  测试报告交接: send
+  接收交接包: receive
+  接收提测包: receive
+  签收交接包: receive
+  导入交接包: receive
+  交接回执: receive
+  交接状态: status
+  待回执: status
+  发变更通知: change_send
+  变更通知: change_send
+  同步变更: change_receive
+  收到变更: change_receive
+  变更影响分析: change_receive
+  重规划: replan
+  计划调整: replan
+  重新基线: replan
+  计划偏离: replan
+
+trigger:
+  - 生成交接包 / 交接给开发 / 交接给产品 / 缺陷交接包 / 测试报告交接
+  - 接收交接包 / 接收提测包 / 签收交接包 / 导入交接包 / 交接回执
+  - 交接状态 / 待回执
+  - 发变更通知 / 变更通知 / 同步变更 / 收到变更 / 变更影响分析
+  - 重规划 / 计划调整 / 重新基线 / 计划偏离
+
+steps:
+  - name: 交接状态
+    id: status
+    agent: test-planner
+    output: 交接台账摘要（待回执/超时/退回/阻断）
+    notes: >
+      只读 `测试/交接/交接台账.md` 与 `测试/测试计划.md` §0/§16.1；不重写计划、不发包。
+      报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断执行的 HO-ID、下一步入口。
+      有未登记新包（`测试/资料/交接/` 有目录但台账无记录）→ 建议先 `receive`，不直接开跑。
+      台账缺失 → 按 `规则/模板/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
+      输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
+
+  - name: 生成交接包
+    id: send
+    agent: test-planner
+    hitl: confirm_handoff
+    hitl_when: handoff_send_required
+    output: 测试/交接/{HO-ID}/ + 【交接包已生成】
+    notes: >
+      先读 `规则/协作/协作与交接.md` §4 与 `规则/模板/90-交接与收尾/交接包说明模板.md`、`规则/模板/90-交接与收尾/交接清单模板.md`。
+      选类型与接收方（§3）：CLAR（依据澄清→产品/开发）、PLAN（计划→产品/开发）、DEC（状态/决策→产品/开发）、
+      BUG（缺陷→开发；产品缺陷→产品）、FIX（回归结果→开发）、TEST（报告/准出→产品/开发）、REL（发布后验证）、RETRO（复盘）。
+      **前置硬条件**：TEST=报告门 PASS/CONDITIONAL 且报告/台账一致；BUG=门3/计划授权且证据齐；REL=发布完成；CHG=变更确认。
+      未过门不得生成“可准出/可发布”包；未执行/未验证不得写成通过。
+      冻结版本/构建/runStamp → 按最小必带复制到 `02-文档/`、证据到 `03-证据/` → 写 `00/01` → 复制回执模板到 `04-回执/`。
+      运行 `python 测试规范/规则/tools/validate_handoff.py <包路径>`（可用时）；缺件/占位符/版本不符先修。
+      更新 `交接台账.md`（状态=已发送）、测试计划 §0/§16.1、文档索引、activeContext；**不得写已接收/已交接**。
+      输出【交接包已生成】：HO-ID/类型/接收方/包路径/必带清单/阻断项/回执截止；明确“整包复制给{角色}，从 00 开始读，回执写 04”。
+      confirm_handoff：出示接收方/类型/必带/缺口/回执截止请确认；已由上一门确认同一发送时跳过。
+
+  - name: 接收与签收
+    id: receive
+    agent: test-planner
+    hitl:
+      - name: confirm_understanding
+        when: understanding_needs_confirm
+      - name: confirm_plan
+        when: plan_needs_confirm
+    output: 接收回执 + 测试计划/文档更新 + 台账状态
+    notes: >
+      读包顺序：`00-交接说明.md` → `01-交接清单.md` → `02-文档/` → `03-证据/`。
+      包先复制到 `测试/资料/交接/{HO-ID}/`（外部输入，只读）；不直接改包内文件。
+      核对五件事：清单齐/版本构建对/阻断缺口/互相矛盾/需测试拍板项；结论=接受/有条件接受/退回。
+      填写 `04-回执/接收回执.md`（模板 `规则/模板/90-交接与收尾/接收回执模板.md`）并回传；未写回执=未接收。
+      按包类型更新：QA → 准入检查（构建/环境/数据/自测证据/已知问题），更新计划 §1/§4/§7；REQ/DES → 需求模型/分析短表/TP；
+      PLAN → 计划 §0/§2/§9；CHG → 影响分析/用例/脚本/计划门；FIX → 回归台账；UAT/REL → 准出/发布验证。
+      有阻断缺口 → 回执=退回，不开跑；有条件 → 条件写进计划风险与责任人/截止。
+      更新 `交接台账.md`、测试计划 §0/§16.1、文档索引、activeContext；发送方状态从 `已发送` 改为 `已接收/有条件接收/退回`。
+
+  - name: 发送变更通知
+    id: change_send
+    agent: test-planner
+    hitl: confirm_plan
+    hitl_when: plan_needs_confirm
+    output: 测试/交接/{CHG-HO-ID}/ + 更新后的测试计划/用例/脚本
+    notes: >
+      先按 `workflows/testing.yaml` 的 plan 期中变更完成 CR/影响分析；本步只负责“通知包”。
+      按 `规则/协作/协作与交接.md` §6 判 C0/C1/C2/C3；C2/C3 必须先过计划门。
+      必带：CR、影响矩阵、更新后的计划/用例/脚本/报告、接收方必须做的事/截止、回归范围、生效版本。
+      受影响角色逐个发（产品/开发）；同一变更一个包可多接收方，但回执逐个登记。
+      更新 `交接台账.md`、测试计划 §0/§15/§16.1、文档索引、activeContext；输出【变更通知已生成】+ 回执截止。
+      未确认不得发；不得用口头/聊天替代变更包。
+
+  - name: 接收变更并适配
+    id: change_receive
+    agent: test-planner
+    hitl:
+      - name: confirm_understanding
+        when: understanding_needs_confirm
+      - name: confirm_plan
+        when: plan_needs_confirm
+    output: 变更影响分析 + 测试计划/用例调整 + 回执
+    notes: >
+      读变更包 00/01/02；按 §6 判级别；核对 CR、影响矩阵、生效版本、回归范围。
+      先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。
+      更新 `测试/变更/CR-*.md`、测试计划 §0/§2/§3/§9/§15/§16.1、受影响用例/脚本；C2/C3 回计划门。
+      更新 `交接台账.md`、文档索引、activeContext；填写回执。
+      与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
+
+  - name: 重规划
+    id: replan
+    agent: test-planner
+    hitl: confirm_plan
+    hitl_when: plan_needs_confirm
+    output: 更新后的测试计划 + 重规划记录
+    notes: >
+      按 `规则/协作/协作与交接.md` §6.2 触发（需求/提测退回/P0/环境数据/S1-S2/产能/发布窗口）执行；先冻结当前基线快照，再做影响矩阵。
+      选一个动作并写理由：保持+加缓冲｜重排轮次｜降范围/抽样｜拆轮次｜暂停升级｜重新基线；C2/C3 必须过计划门。
+      同轮更新测试计划 §0/§1.1/§2/§3/§5/§9/§10/§11/§14.3/§15/§16.1、`交接台账.md`、文档索引、activeContext；受影响的 `TEST/REL` 包标 `已取代` 并重发。
+      重规划后重过受影响门（计划门/覆盖闸/报告门）；未过门不得准出；向产品/开发发 `CHG` 包并收回执。
+
+  - name: 收尾
+    id: wrap
+    agent: report-agent
+    output: 【任务收尾】（交接/回执/变更置第 1 点）
+    notes: >
+      按 AGENTS §5 输出【任务收尾】：第 1 点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项与汇报（可整段复制），第 2～6 点齐。
+      更新测试计划 §0/§16.1、activeContext、文档索引；未回执/退回/待补项明示。
+      本步只出骨架与拟提交清单；提交门在下一步。
+
+  - name: 拟提交
+    id: commit
+    agent: report-agent
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 AGENTS §4；提交后补一行结果，不重复六段。

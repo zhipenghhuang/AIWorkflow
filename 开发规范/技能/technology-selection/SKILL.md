@@ -6,7 +6,7 @@ description: Use when choosing a language, framework, database, middleware, clou
 # 技术选型（技能 · 随包生效）
 
 > 用于：S2 技术方案中涉及技术栈/框架/数据库/中间件/云服务/关键依赖选型时。  
-> 产出：选型矩阵 + POC/验证证据 + ADR（模板 `规则/模板/ADR模板.md`）。  
+> 产出：选型矩阵 + POC/验证证据 + ADR（模板 `规则/模板/20-设计与技术/ADR模板.md`）。  
 > 原则：**先约束，再候选，再证据，最后决策**；禁止“最新/最火/我会”式拍脑袋。
 
 ## 1. 先写约束

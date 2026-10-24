@@ -1,0 +1,29 @@
+{
+  "_comment": "复制为项目根 .gate/project-profile.json，按项目实际填写；勿写入开发规范/验证/（规范包只读）。缺项时 gate 会尝试 package.json 默认命令，仍缺则标记 SKIPPED/BLOCKED，不会假通过。",
+  "build": "npm run build",
+  "lint": "npm run lint",
+  "test": "npm test",
+  "e2e": "npx playwright test",
+  "smoke": "npm run test:smoke",
+  "integration": "npm run test:integration",
+  "security": "",
+  "frontend": {
+    "baseUrl": "http://localhost:3000",
+    "viewports": ["360x800", "768x1024", "1280x800"],
+    "pages": ["/"],
+    "evidenceDir": ".gate/frontend",
+    "requireScreenshots": true,
+    "requireStates": ["loading", "empty", "error", "permission"],
+    "requireConsoleClean": true,
+    "requireNetworkCheck": true,
+    "requireA11y": false
+  },
+  "timeouts": {
+    "build": 600,
+    "lint": 300,
+    "test": 600,
+    "e2e": 900,
+    "integration": 900,
+    "security": 900
+  }
+}

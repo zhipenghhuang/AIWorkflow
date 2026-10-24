@@ -36,7 +36,7 @@
 | prd：prd（撰写） | `技能/prd-writing/SKILL.md`（自检清单与 `03` 同源） |
 | prd：review（评审定稿） | `技能/review-and-finalize/SKILL.md` |
 | change：intake / triage / assess / apply / verify（需求/问题/产品缺陷/变更） | `技能/customer-needs-discovery/SKILL.md`（intake）+ `技能/change-management/SKILL.md` |
-| defect：pull / analyze / apply / writeback（平台缺陷协作） | `技能/change-management/SKILL.md` + `规则/缺陷平台协作.md` |
+| defect：pull / analyze / apply / writeback（平台缺陷协作） | `技能/change-management/SKILL.md` + `规则/缺陷/缺陷平台协作.md` |
 | prototype：context / ia / wireframe / engineering / review / usability / handoff | `技能/prototype-and-interaction/SKILL.md`（设计策略/项目适配/交接边界） |
 | prototype：visual / hi-fi | `技能/ui-visual-design-system/SKILL.md`（设计系统策略/设计方向/tokens） |
 | deliver：schedule / followup（变更转 change） | `技能/change-management/SKILL.md` |

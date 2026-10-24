@@ -6,7 +6,7 @@ description: Use when a development project or feature starts or needs a status 
 # 开发计划（技能 · 随包生效）
 
 > 用于：新项目/新产品开发、L2+ 功能/迭代、阶段检查、进度/下一步同步。  
-> 产出：`{文档事实源目录}/开发计划.md`（新项目建议 `开发/开发计划.md`；旧项目可保留 `docs/00-项目治理/开发计划.md`；模板 `规则/模板/开发计划模板.md`）。  
+> 产出：`{文档事实源目录}/开发计划.md`（新项目建议 `开发/开发计划.md`；旧项目可保留 `docs/00-项目治理/开发计划.md`；模板 `规则/模板/10-规划与需求/开发计划模板.md`）。  
 > 定位：**开发工作自己的控制面**，类似《测试计划》之于测试；只管阶段、门、状态、产物索引、风险、下一步，不复制正文。  
 > **命名约定**：本文档叫《开发计划》（总览全文，类似《测试计划》）；流程里的 S3 叫**任务与排期**（任务清单/依赖/估算/DoR/DoD/检查点）。二者分开命名：**开发计划是总览，S3 是其中一个阶段**。  
 > 参考方法（改写适配，非逐字复制）：GitHub Spec Kit（plan/tasks/converge）、Addy Osmani `planning-and-task-breakdown` 与 Definition of Done、Superpowers `writing-plans`/`executing-plans`、BMAD 的按规模裁剪与 durable context、Google Engineering Practices 的 code review、GitHub flow 的 PR/CI 节奏。
@@ -91,6 +91,7 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 - [ ] 本阶段产出已落盘；证据链接可打开。  
 - [ ] 下一阶段输入已具备；未具备写阻塞。  
 - [ ] 风险/依赖/决策/变更记录已更新。  
+- [ ] **交接**：本阶段应发/应收的 HO 有回执；台账与 §0/§12 一致；未回执不判阶段完成。  
 - [ ] 没有用“应该/大概/之前跑过”代替证据。  
 - [ ] **多波次**：§0 波次与门结论 `G{n}-W{k}` 一致；S2～S5 未把未完成波次伪装成整行「完成」；输入/证据波次未陈旧。
 

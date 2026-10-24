@@ -1,14 +1,16 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  测试轨完成门。调用 验证/tools/test_gate.py，输出 .gate/completion.json。
+  测试轨完成门。调用 验证/tools/test_gate.py，输出项目根 .gate/测试规范/。
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
     [string]$ProjectRoot = (Get-Location).Path,
-    [ValidateSet('execute', 'report', 'writeback')]
+    [ValidateSet('execute', 'report', 'writeback', 'coverage')]
     [string]$Mode = 'report',
     [switch]$Json
 )
@@ -29,8 +31,9 @@ if (-not $python) {
     exit 1
 }
 
-$gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', (Resolve-Path -LiteralPath $ProjectRoot).Path, '--mode', $Mode)
+$root = (Resolve-Path -LiteralPath $ProjectRoot).Path
+$gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Json) { $gateArgs += '--json' }
 
-& $python.Source @gateArgs
+& $python.Source -B @gateArgs
 exit $LASTEXITCODE

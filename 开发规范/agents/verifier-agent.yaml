@@ -4,8 +4,8 @@ goal: 只读核验验收清单、diff、证据与完成门结果；返回通过/
 
 reads:
   - 规则/读取索引.md（verify 当前 step 行）
-  - 规则/20-验证.md
-  - 验收清单/任务卡/任务清单、diff、证据目录、`.gate/completion.json`
+  - 规则/核心/验证规则.md
+  - 验收清单/任务卡/任务清单、diff、证据目录、`.gate/开发规范/completion.json`
   - 本文件 must（随派工附带）
 
 must:

@@ -3,11 +3,13 @@
 
 version: 1
 modes:
+  coverage:
+    required: [coverage-map]
   execute:
-    required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons]
-    optional: [coverage-map, p0-status]
+    required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons, p0-status]
+    optional: [coverage-map, p0-missing]
   report:
-    required: [plan-exists, ledger-counts, report-counts, p0-status, report-verdict, evidence-exists, coverage-map]
+    required: [plan-exists, ledger-counts, report-counts, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
     manual: [writeback-receipt]
   writeback:
     required: [writeback-receipt]
@@ -25,9 +27,9 @@ always:
 risk_based:
   - coverage-map
   - blocked-reasons
-  - script-run-stamp
   - writeback-receipt
-  - independent-sampling
+  # script-run-stamp / independent-sampling 为人工复核项，当前没有机器实现；
+  # 不写成 required，避免“声明了但没执行”。
 
 # 低价值高成本（不做/少做）
 avoid:

@@ -1,11 +1,13 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  开发轨完成门（唯一入口）。调用 验证/tools/gate.py，输出 .gate/completion.json。
+  开发轨完成门（唯一入口）。调用 验证/tools/gate.py，输出项目根 .gate/开发规范/。
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "."
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -Mode frontend -Acceptance "开发/03-计划与状态/任务清单.md"
+  powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -StartTask -TaskId "DEV-20261024-01" -ProjectRoot "."
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -Mode frontend -Acceptance "开发/03-计划与状态/任务清单.md" -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
@@ -13,6 +15,8 @@ param(
     [ValidateSet('auto', 'frontend')]
     [string]$Mode = 'auto',
     [string]$Acceptance = '',
+    [string]$TaskId = '',
+    [switch]$StartTask,
     [switch]$Json,
     [switch]$DryRun,
     [switch]$AllowMissingAcceptance
@@ -34,11 +38,14 @@ if (-not $python) {
     exit 1
 }
 
-$gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', (Resolve-Path -LiteralPath $ProjectRoot).Path, '--mode', $Mode)
+$root = (Resolve-Path -LiteralPath $ProjectRoot).Path
+$gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Acceptance) { $gateArgs += @('--acceptance', $Acceptance) }
+if ($TaskId) { $gateArgs += @('--task-id', $TaskId) }
+if ($StartTask) { $gateArgs += @('--start-task', $TaskId) }
 if ($Json) { $gateArgs += '--json' }
 if ($DryRun) { $gateArgs += '--dry-run' }
 if ($AllowMissingAcceptance) { $gateArgs += '--allow-missing-acceptance' }
 
-& $python.Source @gateArgs
+& $python.Source -B @gateArgs
 exit $LASTEXITCODE

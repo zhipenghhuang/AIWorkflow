@@ -6,7 +6,7 @@ reads:
   - 规则/读取索引.md（testing.generate 当前轨行）
   - 规则/playbooks/generate.md
   - 当前 step 的计划/主读/分析短表/模板/轨契约
-  - 编写脚本时读 `脚本执行.md` §1/§2 + `规则/tools/playwright/README.md`
+  - 编写脚本时读 `规则/专项/脚本执行.md` §1/§2 + `规则/tools/playwright/README.md`
 
 must:
   - 先读需求模型/分析短表与计划 §3.2；每条用例必须追溯 RQ/AC/F/R/TP 或页面/接口来源；预期（oracle）来自需求/AC/契约/用户裁决，不来自现网实现；无来源先问或标“文档未声明”，不得臆造。

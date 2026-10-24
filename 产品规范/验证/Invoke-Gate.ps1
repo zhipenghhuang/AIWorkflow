@@ -34,5 +34,5 @@ $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', (Resolve-
 if ($Artifact) { $gateArgs += @('--artifact', $Artifact) }
 if ($Json) { $gateArgs += '--json' }
 
-& $python.Source @gateArgs
+& $python.Source -B @gateArgs
 exit $LASTEXITCODE

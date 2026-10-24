@@ -29,7 +29,7 @@ steps:
   - name: 受众与目标
     id: audience
     agent: pm-lead
-    output: 产品/{版本或主题}/展示/展示需求-{受众}-{yyyyMMdd}.md（模板 规则/模板/演示脚本模板.md §1）
+    output: 产品/{版本或主题}/05-展示与材料/展示需求-{受众}-{yyyyMMdd}.md（模板 规则/模板/50-展示与文档/演示脚本模板.md §1）
     notes: >
       读 `产品档案.md` / `产品/产品计划.md` / PRD / UAT / GTM / 原型；
       明确受众（老板/客户/用户/技术）、目标、时长、成功标准、保密边界与不演示项。
@@ -40,7 +40,7 @@ steps:
     agent: pm-lead
     hitl: confirm_narrative
     hitl_when: narrative_needs_confirm
-    output: 产品/{版本或主题}/展示/故事线-{受众}.md
+    output: 产品/{版本或主题}/05-展示与材料/故事线-{受众}.md
     notes: >
       用 Mermaid 流程图表达：背景 → 问题 → 方案 → 价值 → 证据 → 下一步；
       每个节点必须对齐当前项目（PRD/原型/当前构建），不写未实现能力、不夸大。
@@ -50,7 +50,7 @@ steps:
   - name: 演示脚本
     id: demo
     agent: pm-lead
-    output: 产品/{版本或主题}/展示/演示脚本-{受众}-{yyyyMMdd}.md
+    output: 产品/{版本或主题}/05-展示与材料/演示脚本-{受众}-{yyyyMMdd}.md
     notes: >
       场景化脚本：每场景写目标/入口/逐步点击路径/数据/预期/兜底/时长；
       路径详细到菜单 → 页面 → Tab → 控件/行；优先演真实构建或原型；未实现能力不演。
@@ -59,15 +59,15 @@ steps:
   - name: Demo 环境与数据
     id: environment
     agent: pm-lead
-    output: 产品/{版本或主题}/展示/演示检查单-{yyyyMMdd}.md
+    output: 产品/{版本或主题}/05-展示与材料/演示检查单-{yyyyMMdd}.md
     notes: >
       构建/原型版本、账号角色、seed/重置、网络、设备、录屏兜底、权限与隐私；
-      `规则/模板/演示检查单模板.md` 逐项过；能力（可选）browser-mcp 走查，未装=手工检查。
+      `规则/模板/50-展示与文档/演示检查单模板.md` 逐项过；能力（可选）browser-mcp 走查，未装=手工检查。
 
   - name: 展示材料
     id: materials
     agent: ux-designer
-    output: 产品/{版本或主题}/展示/一页纸-{产品}.md · 产品/{版本或主题}/展示/Deck大纲-{受众}.md（按点名类型产出）
+    output: 产品/{版本或主题}/05-展示与材料/一页纸-{产品}.md · 产品/{版本或主题}/05-展示与材料/Deck大纲-{受众}.md（按点名类型产出）
     notes: >
       一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图；
       Mermaid 流程图/业务架构图（不写技术架构）。
@@ -82,7 +82,7 @@ steps:
     output: 产品/用户文档/{按点名类型}-{版本}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）
     notes: >
       点名用户手册/快速开始/FAQ/发布说明/培训材料 → `docs_requested=true`。
-      技能：`技能/product-docs/SKILL.md`；模板 `规则/模板/用户手册与快速开始模板.md`、`规则/模板/发布说明与Changelog模板.md`。
+      技能：`技能/product-docs/SKILL.md`；模板 `规则/模板/50-展示与文档/用户手册与快速开始模板.md`、`规则/模板/50-展示与文档/发布说明模板.md`。
       只产被点名的文档类型，不一次生成四类；按任务组织：5 分钟快速开始 → 常用任务 → FAQ/故障 → 版本说明；截图/步骤与当前构建一致；
       同时产 ≥3 类文档 → 共享事实表 + 按类型分片（不同文件，单写手/类）；verifier-agent 核对数字/版本/截图/边界；不并行写同一文档。
       不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径；对外前由 `publish` 步确认。
@@ -91,7 +91,7 @@ steps:
     id: dryrun
     when: demo_needs_dryrun
     agent: pm-lead
-    output: 产品/{版本或主题}/展示/反馈记录-{yyyyMMdd}.md
+    output: 产品/{版本或主题}/05-展示与材料/反馈记录-{yyyyMMdd}.md
     notes: >
       准备演示/客户介绍/彩排 → `demo_needs_dryrun=true`。
       计时演练；检查故事/路径/数据/兜底/Q&A；记录异议、问题、需求 → 按 `workflows/change.yaml` 回受理/需求池；

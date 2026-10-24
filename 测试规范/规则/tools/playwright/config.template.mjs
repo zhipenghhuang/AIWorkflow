@@ -4,11 +4,14 @@
  * 落地：复制为项目根 `测试/脚本/case-executor.config.mjs`，替换 {占位}。
  * 约束：凭据只走环境变量；本文件是「登录契约」在脚本侧的唯一承接点——
  *       登录接口/字段/存储键变更时，只改这里。
- * 规则：测试规范/规则/脚本执行.md。
+ * 规则：测试规范/规则/专项/脚本执行.md。
  */
 
 // ── SVG 验证码解析（P1 路径：base64 SVG 内 <text> 即明文；requester=page.request 或 APIRequestContext）──
 let lastToken = null   // 会话守护与 apiLogin 共用（登录后记住）
+// 单一存储键：写入与读取共用，避免“写入键与读取键不一致”这类漂移。
+// 复制模板时把 {app} 替换为项目实际前缀，或用 APP_STORAGE_KEY 环境变量覆盖。
+const storageKey = process.env.APP_STORAGE_KEY || '{app}_auth'
 async function svgCaptchaText(requester, captchaApi) {
   const res = await requester.get(captchaApi, { failOnStatusCode: false })
   const body = await res.json().catch(() => null)
@@ -37,11 +40,10 @@ export default {
     tokenPath: 'data.token',
     // 前端真实读取的存储键（对照 src 中 httpClient / 状态持久化代码；变更即改此）
     localStorage: {
-      'ibips-auth': (t) => JSON.stringify({ state: { token: t }, version: 0 }),
-      // '{app}_auth_token': (t) => t,
+      [storageKey]: (t) => JSON.stringify({ state: { token: t }, version: 0 }),
     },
     // api 动作的鉴权头：多数后端要求「Authorization: Bearer <token>」请求头（Cookie 常不够，见实测）
-    tokenStorageKey: '{ibips_auth_token}',           // 供 apiHeaders 从页面读取 token
+    tokenStorageKey: storageKey,           // 与写入键同源；不再单独硬编码
     apiAuthHeader: (t) => ({ Authorization: `Bearer ${t}` }),
     cookie: { name: 'Authorization', value: (t) => t },   // 无 Cookie 形态则删本行
   },

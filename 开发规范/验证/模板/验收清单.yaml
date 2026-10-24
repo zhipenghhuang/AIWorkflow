@@ -1,19 +1,26 @@
-# 验收清单模板（L2+；复制到 .gate/acceptance.yaml 或任务目录）
+# 验收清单模板（L2+；复制到项目根 .gate/acceptance.yaml）
 # 确认后冻结；实施中新增/变更 AC 走变更记录。
 # 规范包只读：勿写入 开发规范/验证/。
 task_id: DEV-{yyyyMMdd}-{NNN}
 title: "{主题}"
-level: L1            # L0/L1/L2/L3
+level: L2            # L0/L1/L2/L3；L2+ 必须有 process.review
 change_types: [frontend]  # frontend/api/db/docs/code
 acceptance:
   - id: AC-01
     statement: "{条件 + 动作 + 可观测结果}"
     check: "build + login.spec"       # 可复跑命令/脚本/人工检查
-    evidence: ".gate/frontend/smoke-desktop.png"  # 路径或命令输出
+    evidence: ".gate/frontend/smoke-desktop.jpg"  # 路径或命令输出；路径必须存在
   - id: AC-02
     statement: "{空态/错误态/权限态}"
     check: "states.spec"
-    evidence: ".gate/frontend/state-empty-desktop.png"
+    evidence: ".gate/frontend/state-empty-desktop.jpg"
+process:
+  understanding: "开发/01-需求基线/理解-{主题}-{yyyyMMdd}.md"
+  design: "开发/02-设计基线/方案-{主题}-{yyyyMMdd}.md"
+  review: ".gate/review.md"          # L2+ 必填；reviewer/implementer/verdict
+  security: ""                       # L3 必填：安全扫描/评审证据
+  rollback: ""                       # L3 必填：回滚演练/预案证据
+scope_files: []                      # L2+ 建议填：允许改动的代码路径/文件
 non_goals:
   - "{明确不做}"
 assumptions:

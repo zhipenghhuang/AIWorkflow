@@ -1,6 +1,6 @@
 # playwright/（脚本档工具 · 默认不读）
 
-> 规则与纪律见 `../../脚本执行.md`（**必读**）；本文件只讲落地与字段细节。首次落地或变更时才读。
+> 规则与纪律见 `规则/专项/脚本执行.md`（**必读**）；本文件只讲落地与字段细节。首次落地或变更时才读。
 
 ## 1. 落地（一次性 · 每项目）
 
@@ -53,13 +53,13 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 | 失败截图 | `测试/功能测试/证据/{模块}/{CASE-ID}-fail-{runStamp}.png` | 自动全屏 |
 | 失败现场 | `测试/功能测试/证据/{模块}/{CASE-ID}-net-{runStamp}.json` | HTTP≥400 + console 摘要（如有） |
 
-`result`：`pass` / `fail` / `blocked`（`ctx.blocked()`，纪律见 `脚本执行.md` §3 第7条）；异常= `fail`。执行器只产这三态（`--case` 未匹配 = 配置错误，退出码 2）；`na`/`pending` 为台账六态的合并容错映射（供拆分档 Worker jsonl 混用）。
+`result`：`pass` / `fail` / `blocked`（`ctx.blocked()`，纪律见 `规则/专项/脚本执行.md` §3 第7条）；异常= `fail`。执行器只产这三态（`--case` 未匹配 = 配置错误，退出码 2）；`na`/`pending` 为台账六态的合并容错映射（供拆分档 Worker jsonl 混用）。
 
 **合并提速**：`node 测试规范/规则/tools/merge-ledger.mjs --ledger=测试/功能测试/xx.md --jsonl=…` 机械合并 §1 计数与 §2 行（结论说明仍由 AI 写）。
 
 ## 3.1 API 模式（接口轨 · 无浏览器）
 
-- 适用：接口用例（契约明确、断言可写死）；判定口径见 `../../脚本执行.md` §1。
+- 适用：接口用例（契约明确、断言可写死）；判定口径见 `规则/专项/脚本执行.md` §1。
 - 脚本位置：`测试/接口测试/脚本/{NN}-{模块}.script.mjs`；登录钩子 `config.apiLogin(api, baseUrl, ctx)` 返回鉴权头对象（并入每步请求；可选，无则匿名）。
 - 步骤动作：仅 `api` 与 `note`；字段：`method`｜`path`｜`body`｜`headers`（覆盖鉴权头）｜`expectStatus`（默认 200）｜`expectMessage`（响应 message 含）｜`expectFields`（JSON 路径非空）｜`save`（`{bus 键: JSON 路径}`，供下游 `:key` 占位）。
 - 产出：jsonl 同上（`source=script-api`；通过行摘要默认带 `METHOD path -> 状态码;code=` 供落账）；失败自动落 `测试/功能测试/证据/{模块}/{CASE-ID}-api-{runStamp}.json`（请求+响应摘录）。
@@ -71,7 +71,7 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 
 用例：`id`｜`title`｜`steps[]`｜`run(ctx)`（复杂复算逃逸口，可选）｜`summary`（通过摘要，可选）。
 
-`ctx`（run 内）：`page` `context` `baseUrl` `bus`（`bus.set(k,v)` 写占位符上下文）`config` `blocked(msg)`（仅外部不可用；禁缺样直调，见 `脚本执行.md` §3 第7条）`expect(cond,msg)` `evidence(name)`。
+`ctx`（run 内）：`page` `context` `baseUrl` `bus`（`bus.set(k,v)` 写占位符上下文）`config` `blocked(msg)`（仅外部不可用；禁缺样直调，见 `规则/专项/脚本执行.md` §3 第7条）`expect(cond,msg)` `evidence(name)`。
 
 步骤字段：`action`｜`target`｜`value`｜（api 专属）`method` `path` `body` `headers` `expectStatus` `expectMessage` `expectFields` `save`｜（screenshot）`name`。
 
@@ -83,7 +83,7 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 
 ## 5. 与 AI 通道的边界（复核用）
 
-脚本失败 → **AI 用浏览器 MCP 复核一次**再定性（`../../脚本执行.md` §3）；
+脚本失败 → **AI 用浏览器 MCP 复核一次**再定性（`规则/专项/脚本执行.md` §3）；
 `--check` 报 STALE → 用例文档变了，**先同步脚本**再跑，不得带病回归。
 
 ## 6. 实测要点（已对真实系统验证，落地时照抄要点即可）
@@ -107,7 +107,7 @@ node 测试/脚本/executor.mjs --plan=测试/脚本/{NN}-{模块}.script.mjs [-
 
 - 退出码：**0=全过／1=有非通过／2=配置或环境硬错**——按退出码判红绿，不解析日志。
 - 制品留存：jsonl（默认 `测试/功能测试/.draft/`）＋ 证据目录；**CI 不写台账/基线/平台**（结论由本包流程补）。
-- 凭据：CI secrets 注入环境变量（同 `../../脚本执行.md` §5），禁明文入库。
-- 范围与失败处置：只跑已脚本化冒烟/稳定回归；红先通知人、再按 `../../脚本执行.md` §3 有界复核分流（CI 范围与边界见该文 §7）。
+- 凭据：CI secrets 注入环境变量（同 `规则/专项/脚本执行.md` §5），禁明文入库。
+- 范围与失败处置：只跑已脚本化冒烟/稳定回归；红先通知人、再按 `规则/专项/脚本执行.md` §3 有界复核分流（CI 范围与边界见该文 §7）。
 - 扩展（项目按需）：视觉回归（Playwright `toHaveScreenshot` 等）、报告看板（消费 jsonl/台账）——母版不内置、不绑定平台。
 

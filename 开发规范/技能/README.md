@@ -48,8 +48,8 @@
 | change / iterate：deliver | `技能/qa-handoff-and-release/SKILL.md` |
 | release：acceptance / readiness / deploy / verify / rollback / postrelease | `技能/acceptance-and-launch/SKILL.md` |
 | retro：gather / analyze / actions | `技能/retrospective-and-improvement/SKILL.md` |
-| defect-fix 全流程 | `规则/缺陷修复协作.md`（本轨专规即技能） |
-| iterate 节奏/核验 | `规则/迭代交付.md`（规则，不替代拆单技能） |
+| defect-fix 全流程 | `规则/缺陷/缺陷修复协作.md`（本轨专规即技能） |
+| iterate 节奏/核验 | `规则/专项/迭代交付.md`（规则，不替代拆单技能） |
 | onboard 核验/装配/文档整理 | `agents/onboard-agent.yaml`（核验清单即技能） |
 
 ## 开发计划阶段 → 技能（每阶段至少一个）
@@ -63,7 +63,7 @@
 | S4 编码自测 | `技能/implementation-and-selftest/SKILL.md` + `技能/engineering-quality/SKILL.md` + `技能/frontend-implementation/SKILL.md` / `技能/backend-implementation/SKILL.md` | 前端/后端实现、质量条、单测/自测/文档 |
 | S5 评审/CI | `技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` | 代码评审/质量 rubric/安全/CI |
 | S6 提测 | `技能/qa-handoff-and-release/SKILL.md` | 提测单/回归指引/QA 接收 |
-| S7 测试/缺陷 | `技能/qa-handoff-and-release/SKILL.md` + `规则/缺陷修复协作.md` | 缺陷修复/回归/回写 |
+| S7 测试/缺陷 | `技能/qa-handoff-and-release/SKILL.md` + `规则/缺陷/缺陷修复协作.md` | 缺陷修复/回归/回写 |
 | S8 发布 | `技能/acceptance-and-launch/SKILL.md` | 就绪检查/部署/冒烟/回滚/观察 |
 | S9 收尾/复盘 | `技能/retrospective-and-improvement/SKILL.md` | 总结/复盘/归档 |
 

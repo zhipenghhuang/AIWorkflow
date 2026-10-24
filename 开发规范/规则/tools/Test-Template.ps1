@@ -39,8 +39,8 @@ $toolFindings = New-Object System.Collections.Generic.List[string]
 $refCount = 0
 $anchorCount = 0
 
-$instanceLeafs = @('项目档案.md', '产品档案.md', 'activeContext.md', 'CHANGELOG.md', '环境基线.md', '提测单.md', '发布说明.md', '文档索引.md', '开发计划.md')
-$instancePrefixes = @('项目规范/', '项目资料/', '资料/', '资料/项目文档/', '资料/原始素材/', '测试/', '功能测试/', '探索式测试/', '接口测试/', '发布前/', 'docs/', '开发/', '开发计划.md', '00-项目治理/', '01-需求基线/', '02-设计基线/', '03-计划与状态/', '04-测试与验收/', '05-发布与交付/', '06-复盘与改进/', '_归档/', '历史/')
+$instanceLeafs = @('项目档案.md', '产品档案.md', 'activeContext.md', 'CHANGELOG.md', '环境基线.md', '提测单.md', '发布说明.md', '文档索引.md', '开发计划.md', '交接台账.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md')
+$instancePrefixes = @('项目规范/', '项目资料/', '资料/', '资料/项目文档/', '资料/原始素材/', '测试/', '功能测试/', '探索式测试/', '接口测试/', '发布前/', 'docs/', '开发/', '开发计划.md', '.gate/', '00-项目治理/', '01-需求基线/', '02-设计基线/', '03-计划与状态/', '04-测试与验收/', '04-回执/', '05-发布与交付/', '06-复盘与改进/', '_归档/', '历史/')
 
 function Test-InstanceRef {
     param([string]$Token)
@@ -178,7 +178,6 @@ foreach ($sub in @('workflows', 'agents')) {
 
 $shorthandMap = @{
     '工作流'  = '规则/工作流.md'
-    '多Agent' = '规则/多Agent与输出.md'
     'AGENTS'  = 'AGENTS.md'
     '基线'    = '环境基线.md'
 }
@@ -278,7 +277,7 @@ else { $wfFindings.Add('WF_MISSING: workflows/') }
 $agentsPath = Join-Path $Root 'AGENTS.md'
 $agentsText = ''
 if (Test-Path -LiteralPath $agentsPath) { $agentsText = [System.IO.File]::ReadAllText($agentsPath, [System.Text.Encoding]::UTF8) }
-foreach ($declRel in @('规则/门.md', '规则/读取索引.md', '规则/维护.md')) {
+foreach ($declRel in @('规则/门.md', '规则/读取索引.md', '规则/核心/维护.md')) {
     $declPath = Join-Path $Root $declRel
     if (Test-Path -LiteralPath $declPath) { $agentsText += "`n" + [System.IO.File]::ReadAllText($declPath, [System.Text.Encoding]::UTF8) }
 }
@@ -395,7 +394,7 @@ $pyCmd = Get-Command python -ErrorAction SilentlyContinue
 if (-not $pyCmd) { $pyCmd = Get-Command py -ErrorAction SilentlyContinue }
 $validator = Join-Path $rulesDir 'tools/validate_workflow.py'
 if ($pyCmd -and (Test-Path -LiteralPath $validator)) {
-    $yamlOut = & $pyCmd.Source -X utf8 $validator $Root 2>&1
+    $yamlOut = & $pyCmd.Source -B -X utf8 $validator $Root 2>&1
     if ($LASTEXITCODE -eq 0) {
         $yamlStatus = 'OK'
     }
@@ -413,10 +412,10 @@ elseif (-not $pyCmd) {
 
 # ---------- [0/5] 开发计划模板 schema（需 python） ----------
 $docSchemaStatus = '跳过'
-$devPlanTemplate = Join-Path $rulesDir '模板/开发计划模板.md'
+$devPlanTemplate = Join-Path $rulesDir '模板/10-规划与需求/开发计划模板.md'
 $devPlanValidator = Join-Path $rulesDir 'tools/validate_dev_plan.py'
 if ($pyCmd -and (Test-Path -LiteralPath $devPlanTemplate) -and (Test-Path -LiteralPath $devPlanValidator)) {
-    $planOut = & $pyCmd.Source -X utf8 $devPlanValidator $devPlanTemplate --lenient 2>&1
+    $planOut = & $pyCmd.Source -B -X utf8 $devPlanValidator $devPlanTemplate --lenient 2>&1
     if ($LASTEXITCODE -eq 0) { $docSchemaStatus = 'OK' }
     else {
         $docSchemaStatus = '失败'
