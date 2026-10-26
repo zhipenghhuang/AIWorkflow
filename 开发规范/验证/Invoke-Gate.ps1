@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   开发轨完成门（唯一入口）。调用 验证/tools/gate.py，输出项目根 .gate/开发规范/。
@@ -7,7 +7,7 @@
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -StartTask -TaskId "DEV-20261024-01" -ProjectRoot "."
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -Mode frontend -Acceptance "开发/03-计划与状态/任务清单.md" -ProjectRoot "."
+  powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -Mode frontend -Acceptance "开发/04-计划与任务/任务清单.md" -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(

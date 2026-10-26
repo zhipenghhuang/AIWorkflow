@@ -41,8 +41,8 @@ steps:
       需求/验收点不明且本机可用 spec-clarify（能力注册表）时按需澄清；不可用按 `规则/核心/澄清.md`。
       变更分级见 AGENTS §0.1；L0 微改可轻量但不得跳过理解回执，L2+ 进入 requirements。
       任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`）；后续门用它拒绝旧验收/旧截图。
-      L2+ 先读 `{文档事实源目录}/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
-      输入含外部 PRD/方案/原型/专项文档 → 先按 `规则/文档治理.md` §3 收取/分类/覆盖对照，输出候选；确认后落 `资料/` 扁平并更新索引；本步不改名/不移动/不标记旧资料失效。
+      L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
+      输入含外部 PRD/方案/原型/专项/未决确认 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后同批：落 `资料/{版本或主题}/`（多包→`项目资料/`）→ 同步工作区 → S1/S2/S3 进 `资料/_归档/`；本包方案/基线正文改工作区不进资料。完整吸收链优先 `intake`。
       输入是交接包（含 `00-交接说明.md` + `01-交接清单.md`）→ 先走 `workflows/handoff.yaml` receive 核对+回执，再按包内文档做需求理解；未签收不得进入分析。
       输入含 PRD/迭代方案/原型/需求文档 → 下一步 `analyze_input` 必须执行；不得只凭标题/摘要写需求卡。
 
@@ -52,7 +52,7 @@ steps:
     agent: implementer
     hitl: confirm_understanding
     hitl_when: understanding_needs_confirm
-    output: 需求理解包（{文档事实源目录}/01-需求基线/理解-{主题}-{yyyyMMdd}.md）
+    output: 需求理解包（开发/01-需求基线/理解-{主题}-{yyyyMMdd}.md）
     notes: >
       技能：`技能/product-doc-analysis/SKILL.md`（先读再做）；只读输入，不改代码/基线。
       输入含 PRD、迭代方案、需求文档、页面原型、截图、接口/技术文档时必走；单文档/小改用轻量节，L2+ 或多文档用完整包。
@@ -70,7 +70,7 @@ steps:
     agent: implementer
     hitl: confirm_requirements
     hitl_when: requirements_need_confirm
-    output: 需求基线（{文档事实源目录}/01-需求基线/）
+    output: 需求基线（开发/01-需求基线/）
     notes: >
       条件步：新功能/范围变更/验收不明才走；小改用轻量需求卡（背景/目标/AC/非目标）。
       输入：已有 `analyze_input` 需求理解包 → 直接引用，不重读全文；无理解包但含外部 PRD/原型 → 先回 analyze_input 补；没有 PRD → 一句话说明缺口，由用户提供/选择只用已有资料/按模板 `规则/模板/10-规划与需求/需求基线模板.md` 补一份。
@@ -85,7 +85,7 @@ steps:
     when: new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested
     agent: implementer
     hitl: confirm_spec
-    output: 方案/ADR（{文档事实源目录}/02-设计基线/）
+    output: 方案/ADR（开发/02-方案设计/）
     notes: >
       条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案/方案评审」才走；L0 单文件小改可跳过。
       技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A 技术选型/02B 数据库/02C API/02D 前端/02E 安全/02F 性能容量）+ `技能/engineering-quality/SKILL.md`（质量条）；前端变更需要补设计/调整 UI 时，再按需读 `技能/frontend-design/SKILL.md` + 模板 `规则/模板/20-设计与技术/前端设计说明模板.md`。
@@ -101,7 +101,7 @@ steps:
     agent: iterate-lead
     hitl: confirm_backlog
     hitl_when: backlog_approval_required
-    output: 任务清单 + 冻结的验收清单（{文档事实源目录}/03-计划与状态/）
+    output: 任务清单 + 冻结的验收清单（开发/04-计划与任务/）
     notes: >
       条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
       技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
@@ -163,7 +163,7 @@ steps:
     id: deliver
     when: has_qa_or_deploy_or_requested
     agent: implementer
-    output: 提测单/发布说明/回滚预案（{文档事实源目录}/05-发布与交付/）
+    output: 提测单/发布说明/回滚预案（开发/06-发布与交付/）
     notes: >
       条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
       技能：`技能/qa-handoff-and-release/SKILL.md`；模板 `规则/模板/40-交付与发布/提测单模板.md`、`规则/模板/40-交付与发布/发布说明模板.md`。
@@ -171,7 +171,7 @@ steps:
       有代码改动时读本轮 `.gate/开发规范/completion.json`；未 `COMPLETE` 不得把提测单标为“可提测/已自测通过”；纯文档/无代码改动写「不适用+自检依据」，不得读旧回执。证据不足不交 QA；已知问题不瞒报。
       按 `规则/协作/协作与交接.md` §3/§4 生成 `QA` 交接包（提测单/构建/改动/影响/自测证据/门禁/已知问题/回归指引/环境数据），更新 `交接台账.md`、开发计划 §0/§7/§12；未回执不得写“测试已接收”。
       ≥3 份独立交付文档 → 可只读分片起草（每份返回要点/证据 ≤30 行）；同一文档单写手，编排统一版本号/日期/影响面。
-      落 05-发布与交付/（或档案映射）；提测单单点滚动，发布说明一版一档；文档纳入随后 commit。
+      落 06-发布与交付/（或档案映射）；提测单单点滚动，发布说明一版一档；文档纳入随后 commit。
       QA 交接：若同项目有测试流程/测试包，提测单可作为其计划的可选输入；无 QA 也要留自测证据。
 
   - name: 拟提交
@@ -184,11 +184,11 @@ steps:
     output: 拟提交清单
     notes: >
       本任务无文件变更 → 跳过本步与 hitl，直接六段收尾；
-      提交前确认：代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + 文档索引/activeContext 同批或紧随文档提交；版本/里程碑变更同步根 `CHANGELOG.md`；
+      提交前确认：代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + 文档索引/activeContext 同批或紧随文档提交；里程碑变更追加 `开发/工作日志.md`；**仅**用户可见版本关闭/发版同步根 `CHANGELOG.md`；
       【拟提交】须含当前分支/推送目标/PR·合并意图（规则/工作流.md §2）；对照项目档案 §1 分支策略，不符先问；
       禁擅自切主干、直推受保护分支、开/合并 PR、force push（除非用户点名或档案合并要求且已在拟提交确认）；
       提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）；
-      发版类任务可装配 release-automation（能力注册表）联动版本/CHANGELOG。
+      发版类任务可装配 release-automation（能力注册表）联动版本/根 CHANGELOG（仍须另写工作日志发版条）。
       提交信息与粒度见 规则/工作流.md §2；密钥零入库。
 
   - name: 发布交接

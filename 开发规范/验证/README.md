@@ -22,7 +22,7 @@
 3. 收尾前运行：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "开发/03-计划与状态/任务清单-xxx.md"
+powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "开发/04-计划与任务/任务清单-xxx.md"
 ```
 
 4. 门输出 `.gate/开发规范/completion.json`（同时写 `auto.json`/`frontend.json`）与 ≤30 行摘要；`wrap` 只引用本轮回执。空 diff → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`，都不是完成。

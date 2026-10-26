@@ -109,13 +109,45 @@ if ((Test-Path -LiteralPath $tplDir) -and (Test-Path -LiteralPath $tplIndex)) {
             $warnings.Add("TEMPLATE_NOT_INDEXED: $($tpl.Name)（模板索引未登记）")
         }
     }
-    # 只检查表格第一列的模板名；目标路径（项目档案.md、{文档事实源目录}/…）不是模板文件。
+    # 只检查表格第一列的模板名；目标路径（项目档案.md、开发/…）不是模板文件。
     foreach ($line in $indexText -split "`r?`n") {
         $m = [regex]::Match($line, '^\|\s*`([^`]+\.(?:md|html|ya?ml|json|ts|mjs))`\s*\|')
         if (-not $m.Success) { continue }
         $name = $m.Groups[1].Value
         if (-not (Test-Path -LiteralPath (Join-Path $tplDir $name))) {
             $warnings.Add("TEMPLATE_INDEX_BROKEN: $name（索引指向不存在的模板）")
+        }
+    }
+}
+
+# Materials layout echoes (warn only): deprecate 项目文档/ as default
+$gov = Join-Path $Root '规则/文档治理.md'
+if (Test-Path -LiteralPath $gov) {
+    $govText = Get-Content -LiteralPath $gov -Raw -Encoding UTF8
+    if ($govText -match '默认结构[：:].*项目文档' -or ($govText -match '资料/项目文档/\{' -and $govText -notmatch '旧.*项目文档')) {
+        $warnings.Add('GOV_LEGACY_MATERIALS_LAYOUT: 文档治理仍把 项目文档/ 当默认（应为 资料/{版本或主题}/）')
+    }
+}
+$scanRoots = @()
+foreach ($rel in @('workflows', 'AGENTS.md', 'README.md', '规则/工作流.md')) {
+    $p = Join-Path $Root $rel
+    if (Test-Path -LiteralPath $p) { $scanRoots += $p }
+}
+foreach ($p in $scanRoots) {
+    $files = if ((Get-Item -LiteralPath $p).PSIsContainer) {
+        Get-ChildItem -LiteralPath $p -Recurse -File -Include *.md,*.yaml -ErrorAction SilentlyContinue
+    } else { @(Get-Item -LiteralPath $p) }
+    foreach ($f in $files) {
+        $t = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8 -ErrorAction SilentlyContinue
+        if (-not $t) { continue }
+        if ($t -match '本步不改名/不移动/不标记旧' -or $t -match '本步不标记旧资料失效') {
+            $warnings.Add("STALE_NO_ARCHIVE_PHRASE: $($f.Name)（确认采纳后应对 S1/S2/S3 同批归档）")
+        }
+        if ($t -match '新项目强制扁平' -or $t -match '资料/`（\*\*扁平\*\*') {
+            $warnings.Add("STALE_FLAT_MATERIALS: $($f.Name)")
+        }
+        if ($t -match '默认.*资料/项目文档/' -and $t -notmatch '旧.*项目文档' -and $t -notmatch '迁' -and $t -notmatch '禁') {
+            $warnings.Add("STALE_PROJECT_DOC_PATH: $($f.Name)")
         }
     }
 }

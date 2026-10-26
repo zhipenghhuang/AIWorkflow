@@ -39,7 +39,7 @@ $toolFindings = New-Object System.Collections.Generic.List[string]
 $refCount = 0
 $anchorCount = 0
 
-$instanceLeafs = @('产品档案.md', '项目档案.md', 'activeContext.md', 'CHANGELOG.md', '文档索引.md', '交接台账.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md')
+$instanceLeafs = @('产品档案.md', '项目档案.md', 'activeContext.md', 'CHANGELOG.md', '工作日志.md', '文档索引.md', '交接台账.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md', '资料索引.md')
 $instancePrefixes = @('产品/', '产品/资料/', 'docs/', '测试/', '开发/', '项目资料/', '.gate/', '04-测试与验收/', '04-回执/', '05-发布与交付/', '06-复盘与改进/')
 
 function Test-InstanceRef {

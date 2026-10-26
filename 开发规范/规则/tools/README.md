@@ -7,7 +7,7 @@
 | `validate_workflow.py` | YAML 语法 + workflow/agent 基本 schema + step/agent/entry_points/hitl/when/gate 引用 | `python 规则/tools/validate_workflow.py .` |
 | `validate_tasklist.py` | 任务清单模板/实例校验：章节/列/ID/状态/依赖/任务卡字段/RP 覆盖 | `python 规则/tools/validate_tasklist.py <清单路径>` |
 | `validate_dev_plan.py` | 开发计划校验：阶段/门/状态/下一步/关键节/链接 | `python 规则/tools/validate_dev_plan.py <开发计划路径>` |
-| `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；搬迁仍需确认） | `powershell -File 规则/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -DocsRoot docs` |
+| `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；默认 `开发/`；`-DocsRoot` 兼容旧仓如 `docs/`，非第三套概念；搬迁仍需确认） | `powershell -File 规则/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -DocsRoot 开发` |
 
 - `Test-Template.ps1` 会调用 `validate_workflow.py`（需要 Python + PyYAML）；找不到 Python 时显示“跳过”，不假装通过。  
 - 改包后跑自检；任务清单写完先跑 `validate_tasklist.py`，开发计划写完先跑 `validate_dev_plan.py` 再确认。  

@@ -7,7 +7,7 @@
 不靠聊天记忆，不靠口口相传——流程版本化在仓库里，口令即路由，确认门等人拍板，产物落在约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.10.24.3-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.10.26.5-brightgreen.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflows](https://img.shields.io/badge/workflows-23-purple.svg)](#三套独立包)
 [![Agents](https://img.shields.io/badge/agents-25-orange.svg)](#架构)
@@ -123,7 +123,7 @@ flowchart LR
 - **分级**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批与观察。
 - **主链**：`control` · `intake` · `change` · `iterate` · `defect-fix` · `handoff` · `release` · `retro` · `onboard`
 - **质量**：`engineering-quality` 统一工程质量条；完成门读 `.gate/开发规范/`
-- **产物**：落在 `{文档事实源目录}/`（建议 `开发/`）；根 `CHANGELOG.md` 长期版本记录
+- **产物**：落在 `开发/`；根 `CHANGELOG.md`＝发版史；`开发/工作日志.md`＝岗位里程碑；`发布说明`＝按版本叙事
 
 </details>
 
@@ -138,17 +138,17 @@ flowchart LR
 </details>
 
 <details>
-<summary><strong>单包 / 多包 / 交接 / 中途接入</strong></summary>
+<summary><strong>单包 / 多包 / 交接</strong></summary>
 
-**单包**：三包互不依赖，落地通常只装一个。其它包产物可作为可选输入（PRD → 开发基线；提测单 / 报告 → 产品 UAT 等）。输入缺失时一句话说明缺口，不阻塞。
+**工作根**：实例产物固定落 `产品/` · `开发/` · `测试/`；已有 `docs/` 等用 keep / mix / replace 兼容，映射记档案。
 
-**多包**：把对应包目录都放到项目根即可。两个及以上时自动进入多包模式：共享 `项目资料/` 与根 `activeContext.md`（分轨更新）；一次会话只执行一个包的 workflow。
+**版本记录三分法**：根 `CHANGELOG.md`＝仅开发维护（给人看的项目发版史，Keep a Changelog）；`产品/工作日志.md` · `开发/工作日志.md` · `测试/工作日志.md`＝各岗位里程碑侧记，**互不写入根**；年归档各自 `{包}/_归档/工作日志/工作日志-{year}.md`。计划执行日志＝细粒度过程；工作日志＝里程碑摘要；发布说明＝按版本叙事。
 
-**交接包（推荐所有角色间使用）**：每个包都有 `规则/协作/协作与交接.md` + `workflows/handoff.yaml`。产物是 `{HO-ID}/`：`00-交接说明` · `01-交接清单` · `02-文档/` · `03-证据/` · `04-回执/`；台账记录发送 / 接收 / 有条件 / 退回 / 超时。**未收回执不得称「已交接」**。
+**项目资料**：多包（≥2）时按需创建的**共享收件箱**——只放外部主副本；当前包扫描 → 确认 → 登记索引 → **只吸收进本包**；其它包日后引用，不自动跑。单包仍用本包 `资料/`。
 
-**中途接入**：已有 `docs/`、`项目资料/` 等时，默认 `mix`：原目录保留为只读资料源，按 引用 > 摘要 > 复制 > 迁移；也可选 `keep` 或 `replace`。
+**交接**：跨角色始终生成 `{HO-ID}/` 包。同仓多包可就地读、不转发；跨仓用文件夹 / ZIP。回执可选但**未收回执不得称「已交接」**。
 
-**发布门分开**：产品 `confirm_release` = 业务发布决策；开发 `confirm_deploy` = 工程部署审批。
+**发布门**：产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
 
 </details>
 
@@ -326,7 +326,7 @@ AIWorkflow/
 <details>
 <summary><strong>文档落点（实例侧）</strong></summary>
 
-开发轨默认文档根为 `开发/`（旧项目可用 `docs/`）；产品 → `产品/`；测试 → `测试/`。项目根只保留白名单。
+工作文档根默认 `产品/` · `开发/` · `测试/`；已有 docs/ 等用 keep/mix/replace 兼容，映射记档案。项目根只保留白名单。
 
 | 类别 | 落点 |
 | --- | --- |
@@ -334,7 +334,7 @@ AIWorkflow/
 | 需求 / 设计基线 | `01-需求基线/` · `02-设计基线/` |
 | 计划 / 测试 / 发布 / 复盘 | `03`～`06` 标准组 |
 | 产品版本目录 | `产品/{版本或主题}/`：`01-需求与定义`～`06-复盘`（按需建） |
-| 多包共享资料 | `项目资料/` + `资料索引.md`（单包不建） |
+| 多包共享收件箱 | `项目资料/` + `资料索引.md`（≥2 包按需建；单包不建；确认后只吸收进当前包） |
 | 交接包 | `产品/交接/` · `开发/交接/` · `测试/交接/`（`{HO-ID}/`） |
 | 索引入口 | `文档索引.md` · `开发计划.md` · `activeContext.md` |
 | 长期版本记录 | `CHANGELOG.md` |
@@ -413,8 +413,8 @@ python 产品规范/规则/tools/validate_handoff.py <交接包目录>
 **需要安装编排引擎吗？**  
 不需要。执行器就是支持 `AGENTS.md` 的 AI 编码工具；YAML 是给 AI 读的流程定义，不是运行时依赖。
 
-**三个包必须一起装吗？**  
-不必。可单包，也可多包。多包时把目录放到项目根，三包自动探测并共享 `项目资料/` 与 `activeContext.md`，工作仍各自独立。
+**三个包必须一起装吗？单包 / 多包 / 交接怎么理解？**  
+不必一起装。工作根硬编码 `产品/` · `开发/` · `测试/`；旧资产 keep/mix/replace。版本记录：根 `CHANGELOG` 仅开发；产品/开发/测试各维护 `工作日志.md`、不改根；发布说明按版本；年归档各自 `_归档/工作日志/`。`项目资料/`＝多包共享收件箱，当前包确认后才吸收进本包。交接始终生成包：同仓直读不转发；仓外文件夹/ZIP；回执可选。
 
 **没有 Python / Node.js 能跑吗？**  
 能。工作流本身只依赖宿主；Python / Node / Playwright 缺失时走降级路径并提示一次。

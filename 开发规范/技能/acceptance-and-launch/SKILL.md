@@ -6,7 +6,7 @@ description: Use when UAT, acceptance, go-no-go, deployment, smoke verification,
 # 验收与上线（技能 · 随包生效）
 
 > 用于：`release` 工作流、`change`/`iterate` 的发布交接、`defect-fix` 含部署的收尾。  
-> 产出：`04-测试与验收/` 的 UAT/验收记录，`05-发布与交付/` 的上线检查单、发布记录、回滚记录。  
+> 产出：`05-测试与验收/` 的 UAT/验收记录，`06-发布与交付/` 的上线检查单、发布记录、回滚记录。  
 > 原则：**没有证据不发布；验证失败先止损，不恋战。**
 
 ## 1. UAT / 业务验收
@@ -41,7 +41,7 @@ description: Use when UAT, acceptance, go-no-go, deployment, smoke verification,
 - 按发布说明“线上验证要点”逐条核；每条有结果与证据。  
 - 对照发布前基线看错误率、延迟、吞吐、关键业务指标。  
 - 异常分级：可观察/需修复/需回滚；回滚触发条件成立就回滚。  
-- 观察期结束出具发布结论：成功 / 带风险成功 / 回滚；遗留项进 `06-复盘与改进/`。  
+- 观察期结束出具发布结论：成功 / 带风险成功 / 回滚；遗留项进 `08-复盘与改进/`。  
 - 更新发布记录、文档索引、`activeContext.md`。
 
 ## 5. 回滚

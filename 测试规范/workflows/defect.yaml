@@ -1,4 +1,4 @@
-# 无 landing=ok 时才按 onboard-agent 清单核验一次；打标后免检（AGENTS 开工第3点）；§13 按需补
+# 无「测试规范接入：已完成」（兼容旧 landing=ok）时才按 onboard-agent 清单核验一次；打标后免检（AGENTS 开工第3点）；§13 按需补
 workflow:
   id: defect
   name: 测试缺陷协作
@@ -28,9 +28,9 @@ trigger:
   - 产品判定回流 / 产品退回测试 / 产品说非问题
 
 preflight:
-  skip_if: activeContext landing=ok
+  skip_if: activeContext 测试规范接入：已完成
   once: 按 agents/onboard-agent.yaml 接入清单核验
-  on_fail: onboard → write landing=ok → resume
+  on_fail: onboard → write 测试规范接入：已完成 → resume
 
 steps:
   - name: 识别子类

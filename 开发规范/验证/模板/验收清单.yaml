@@ -16,7 +16,7 @@ acceptance:
     evidence: ".gate/frontend/state-empty-desktop.jpg"
 process:
   understanding: "开发/01-需求基线/理解-{主题}-{yyyyMMdd}.md"
-  design: "开发/02-设计基线/方案-{主题}-{yyyyMMdd}.md"
+  design: "开发/02-方案设计/方案-{主题}-{yyyyMMdd}.md"
   review: ".gate/review.md"          # L2+ 必填；reviewer/implementer/verdict
   security: ""                       # L3 必填：安全扫描/评审证据
   rollback: ""                       # L3 必填：回滚演练/预案证据
