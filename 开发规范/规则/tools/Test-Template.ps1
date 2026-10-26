@@ -53,28 +53,49 @@ function Test-InstanceRef {
     return $false
 }
 
+function Test-UnderPackageRoot {
+    param([string]$FullPath)
+    if ([string]::IsNullOrWhiteSpace($FullPath)) { return $false }
+    $rootFull = [System.IO.Path]::GetFullPath($Root).TrimEnd('\', '/')
+    $pathFull = [System.IO.Path]::GetFullPath($FullPath)
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    return $pathFull.Equals($rootFull, [StringComparison]::OrdinalIgnoreCase) -or
+        $pathFull.StartsWith(($rootFull + $sep), [StringComparison]::OrdinalIgnoreCase)
+}
+
 function Get-RefTargetPath {
     param([string]$Token, [string]$SrcDir)
     $t = $Token.Replace('\', '/')
     $leaf = Split-Path $t -Leaf
     $hasPath = [bool]($t -match '[\\/]')
-    $candidates = @(
-        (Join-Path $SrcDir $t),
-        (Join-Path $Root $t),
-        (Join-Path $rulesDir $t),
-        (Join-Path $repoRoot $t)
-    )
-    if ($t.StartsWith('规则/')) { $candidates += (Join-Path $rulesDir $t.Substring(3)) }
-    if (-not $hasPath) {
-        $candidates += @(
-            (Join-Path $SrcDir $leaf),
-            (Join-Path $Root $leaf),
-            (Join-Path $rulesDir $leaf),
-            (Join-Path $repoRoot $leaf)
-        )
+    $isDotRelative = [bool]($t -match '^\.\.?/')
+    $candidates = New-Object System.Collections.Generic.List[string]
+    if ($isDotRelative) {
+        # `../AGENTS.md` 等：只认解析后仍落在规范包内的路径；禁落到项目根同名文件
+        foreach ($base in @($SrcDir, $rulesDir, $Root)) {
+            try {
+                $full = [System.IO.Path]::GetFullPath((Join-Path $base ($t.Replace('/', [System.IO.Path]::DirectorySeparatorChar))))
+                if (Test-UnderPackageRoot -FullPath $full) { [void]$candidates.Add($full) }
+            } catch { }
+        }
+        [void]$candidates.Add((Join-Path $Root $leaf))
+    }
+    else {
+        [void]$candidates.Add((Join-Path $SrcDir $t))
+        [void]$candidates.Add((Join-Path $Root $t))
+        [void]$candidates.Add((Join-Path $rulesDir $t))
+        if ($t.StartsWith('规则/')) { [void]$candidates.Add((Join-Path $rulesDir $t.Substring(3))) }
+        if (-not $hasPath) {
+            [void]$candidates.Add((Join-Path $SrcDir $leaf))
+            [void]$candidates.Add((Join-Path $Root $leaf))
+            [void]$candidates.Add((Join-Path $rulesDir $leaf))
+        }
+        # 非点相对路径才允许回退项目根（实例文件应走白名单跳过）
+        [void]$candidates.Add((Join-Path $repoRoot $t))
+        if (-not $hasPath) { [void]$candidates.Add((Join-Path $repoRoot $leaf)) }
     }
     foreach ($c in $candidates) {
-        if (Test-Path -LiteralPath $c -PathType Leaf) { return (Resolve-Path -LiteralPath $c).Path }
+        if ($c -and (Test-Path -LiteralPath $c -PathType Leaf)) { return (Resolve-Path -LiteralPath $c).Path }
     }
     if (-not $hasPath) {
         $hits = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq $leaf })
