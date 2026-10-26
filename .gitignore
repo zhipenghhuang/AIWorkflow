@@ -1,5 +1,4 @@
-# 编辑器与本机环境
-.cursor/
+# 本机环境
 .DS_Store
 Thumbs.db
 
@@ -13,8 +12,3 @@ __pycache__/
 /Push-Changes.ps1
 /一键推送.bat
 /activeContext.md
-/_归档/context/
-
-# 验证运行态（不提交；规范包只读，运行态写 /.gate/）
-/.gate/
-**/验证/.state/
