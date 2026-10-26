@@ -44,5 +44,5 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 ## 7. 资产复用
 
-- 按模块/契约版本维护脚本；新版本只更新受影响 endpoint，旧脚本不整包归档。
+- 按模块/契约版本维护脚本；新版本只更新受影响 endpoint；旧轮留档仅用户确认/版本关闭 → `测试/接口测试/_归档/{yyyyMMdd}-{版本或批次}/`，**禁**整包装进根 `测试/_归档/`。
 - 失败先区分：产品缺陷 / 契约漂移 / 脚本漂移 / 环境数据；脚本漂移修脚本，契约漂移更新用例与脚本。
