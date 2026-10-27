@@ -31,6 +31,7 @@ description: Use when reviewing or finalizing a PRD. Apply four hard gates (meta
 | 18 | 评审误区 | 本项目误区已列 |
 | 19 | 引用抽验 | 随机 2～3 条打开核对 |
 | 20 | 技术边界 | 未写架构/技术栈/DB/API/部署 |
+| 21 | 三维体验 | 用户任务/开发可实施/AI 可解析；无冗余说明；任一净退化需修 |
 
 ## 2. 四个硬门（任一不过 → 不可定稿）
 
@@ -43,7 +44,7 @@ description: Use when reviewing or finalizing a PRD. Apply four hard gates (meta
 
 - **阻断**：无法开发/验收（无 AC、无状态机、追溯断链、技术架构越界）。
 - **重要**：会返工/歧义（权限/边界/字段来源缺失）。
-- **建议**：文案/体验细节。
+- **建议**：文案/体验细节；但三维体验净退化不得只列建议，须列重要/阻断并给修法。
 - 结论只有：`通过（可定稿）` ｜ `需修后定稿`；不写「基本通过」。
 
 ## 4. 流程纪律
@@ -56,7 +57,8 @@ description: Use when reviewing or finalizing a PRD. Apply four hard gates (meta
 
 完整 / 图 / 可测 / 追溯 / 字段来源 / 规则 / 权限 / 异常边界 / NFR / 指标 / 决策台账 / 技术边界。
 
-> 阻断项必须 2 分；总分 ≥20/24 且无阻断才可定稿。
+> 阻断项必须 2 分；总分 ≥20/24 且无阻断才可定稿。  
+> 三维体验为横向门，不计分：UX/DX/AX 任一净退化 → 需修。
 
 ## 6. 评审边界
 

@@ -25,6 +25,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 ## 2. 最小改动 · 手术式修改
 
 - 只动与目标相关的行；不顺手重排/重命名/升级无关依赖。
+- 开发阶段优先删旧结构/旧数据/死代码，不保留兼容层；上线/真实数据/外部契约除外（`技能/engineering-quality/SKILL.md` §1.2）。
 - 动手前说明拟改文件（`AGENTS.md` §0.5）；改动面超出预期先停下说明。
 
 ## 3. 调试方法论（先析因后动手）
@@ -41,6 +42,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 - 每条验收点有对应验证动作与结果（命令+输出）。
 - 边界与错误路径至少各试 1 条（空值/非法/重复/越权其一）。
 - 未验证路径显式写「未验证」（`规则/工作流.md` §3.1）。
+- 收尾写三维影响：UX/DX/AX 各一句；无证据的维度标「未验证」（`技能/engineering-quality/SKILL.md` §1.1）。
 - 可测逻辑同步补测；装配 unit-test-gen 时按覆盖缺口驱动（`能力/00-能力注册表.md`）。
 
 ## 5. 测试层次与工程动作
@@ -48,7 +50,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 - **单测**：纯逻辑/边界/异常；红→绿→重构；禁无断言凑覆盖率。  
 - **集成/契约**：跨服务/接口字段/错误码；契约先行，改约先确认。  
 - **E2E/冒烟**：主链路 + 关键分支；发布前跑最小充分集。  
-- **迁移/配置**：幂等、可回滚/前滚；先小环境验证；大表看锁与时长。  
+- **迁移/配置**：幂等、可回滚/前滚；先小环境验证；大表看锁与时长；开发阶段允许重建 schema/数据/夹具，不写旧字段/旧记录兼容。  
 - **开关/降级**：高风险变更用特性开关；默认值安全；回滚路径可执行。  
 - **文档**：行为/接口/配置变化与实现同变更；只写现行有效。
 

@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use before merge or when the user asks for code review. Review correctness, requirement coverage, security, performance, maintainability, and change scope with evidence.
+description: Use before merge or when the user asks for code review. Review correctness, requirement coverage, security, performance, maintainability, change scope, and UX/DX/AX impact with evidence.
 ---
 
 # 代码评审（技能 · 随包生效）
@@ -8,13 +8,14 @@ description: Use before merge or when the user asks for code review. Review corr
 > 用于：review 步（大改/高风险/点名）。范围纪律以 `规则/工作流.md` §4.4 为准；本技能=怎么审到位。  
 > **工程质量 rubric**：评审时同时使用 `技能/engineering-quality/SKILL.md` §5（12 项评分卡）；本技能只写评审方法与范围纪律。
 
-## 1. 五轴顺序（先致命后打磨）
+## 1. 六轴顺序（先致命后打磨）
 
 1. **正确性**：逻辑与需求一致？边界、空值、类型、精度、时区、并发、事务正确？
 2. **需求覆盖**：验收点都有对应实现？有无范围外改动（防夹带）？
 3. **安全**：输入校验、鉴权/越权、注入、敏感信息（日志/回显）、密钥硬编码。
 4. **性能与资源**：N+1、循环内 IO、无界集合、连接/句柄泄漏、大事务。
 5. **可读与一致性**：命名、与既有模式一致、注释只写「为什么」；风格类只报项目规则内的，不挑偏好。
+6. **体验三维**：UX（任务/文案减法/状态）、DX（边界/可测/可调试/命令）、AX（入口/单一出处/可验证）是否至少不退化？无法同向是否有取舍与确认？开发阶段是否残留旧数据兼容分支？
 
 ## 2. 全量覆盖法（防挑着看）
 
@@ -24,7 +25,7 @@ description: Use before merge or when the user asks for code review. Review corr
 
 ## 3. 高风险信号清单（重点盯）
 
-边界与空值｜金额与精度｜时间与时区｜分页与排序｜权限与数据域｜并发与幂等｜事务边界与回滚｜异常吞噬（空 catch）｜日志泄露与噪音｜配置默认值｜迁移脚本幂等性。
+边界与空值｜金额与精度｜时间与时区｜分页与排序｜权限与数据域｜并发与幂等｜事务边界与回滚｜异常吞噬（空 catch）｜日志泄露与噪音｜配置默认值｜迁移脚本幂等性｜开发阶段旧数据兼容分支/双写。
 
 ## 4. 输出格式
 
@@ -38,7 +39,7 @@ description: Use before merge or when the user asks for code review. Review corr
 - **安全**：认证/授权/越权、注入、SSRF、文件上传、反序列化、敏感信息、密钥硬编码、依赖漏洞/许可证。  
 - **供应链**：新增依赖看版本/许可证/维护状态；有 SBOM/锁文件则核对。  
 - **可观测**：关键路径日志/指标/告警是否齐；错误是否被吞。  
-- **迁移**：脚本幂等、回滚/前滚、锁与时长；老数据兼容。  
+- **迁移**：脚本幂等、回滚/前滚、锁与时长；生产阶段才做老数据兼容，开发阶段按 `技能/engineering-quality/SKILL.md` §1.2 直接重建。  
 - **证据**：每条需修项给文件:行、问题、证据、严重度、修法；不采信“已修好”。
 
 ## 6. 与流程衔接

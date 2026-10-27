@@ -26,6 +26,7 @@ description: Use when designing or changing HTTP-RPC APIs or service contracts. 
 
 ## 3. 版本与兼容
 
+> 开发阶段（`项目档案` §1 `项目阶段=开发`）且非外部公开契约：可直接改字段/枚举/路径，不写旧客户端兼容分支；上线/外部契约按本节。
 - 版本策略（URL/Header/媒体类型）；弃用周期与通知。
 - 加字段不破坏老客户端；删改走版本/宽限期。
 - 契约测试；消费者驱动契约（如适用）。

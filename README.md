@@ -7,7 +7,7 @@
 不靠聊天记忆，不靠口口相传——流程版本化在仓库里，口令即路由，确认门等人拍板，产物落在约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.10.26.5-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.10.27.2-brightgreen.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflows](https://img.shields.io/badge/workflows-23-purple.svg)](#三套独立包)
 [![Agents](https://img.shields.io/badge/agents-25-orange.svg)](#架构)
@@ -232,7 +232,7 @@ robocopy "AIWorkflow\开发规范" "E:\path\to\your-project\开发规范" /E /XD
 | 产品 | `产品计划` / `写 PRD` / `画原型` | 计划门 · PRD 链路 · 原型与设计交接 |
 | 产品 | `需求变更` / `UAT` / `发布` / `复盘` | 变更处置 · 验收 · 发布决策 · 复盘 |
 | 开发 | `开发计划` / `下一步` / `当前状态` | 建 / 续跑开发计划，执行到下一个门 |
-| 开发 | `按方案实施` / `代码评审` / `提测` | 落地实施 · 五轴评审 · 提测单与发布说明 |
+| 开发 | `按方案实施` / `代码评审` / `提测` | 落地实施 · 六轴评审 · 提测单与发布说明 |
 | 开发 | `发布` / `回滚` / `复盘` | 上线检查与审批 · 按预案回滚 · 事实→根因→行动项 |
 | 测试 | `生成测试计划` / `按测试计划执行` | 计划门确认 → 分轨执行 → 报告 |
 | 测试 | `测试报告` / `提交缺陷` / `回归验证` | 准出评估 · 查重提交 · 回归与回写 |
@@ -347,6 +347,8 @@ AIWorkflow/
 ## 设计原则
 
 - **框架固定，局部自主** — 口令映射、步上 `hitl`、输出骨架、证据与红线不可让；步内怎么探查 / 改 / 验由 AI 自主。
+- **做减法** — 界面先删无决策价值的标语 / 说明 / 副标题 / 次要标签；删后不清楚改布局，不加回说明。
+- **三维同向** — 每次改动兼顾用户体验、开发体验与 AI Agent 体验；任一不得净退化。
 - **完成只认门** — Agent 不能自证 `COMPLETE` / `PASS` / `READY`。
 - **按风险分级** — 低风险只通知，高风险才审批；重阶段用 playbook，轻步骤留 YAML。
 - **规则与实例分离** — 通用规范在包内；项目档案、基线、业务产物在实例侧。
