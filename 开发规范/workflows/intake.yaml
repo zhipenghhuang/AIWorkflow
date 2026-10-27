@@ -81,7 +81,12 @@ steps:
   - name: 局部更新
     id: absorb
     agent: iterate-lead
-    output: 已更新文档/台账/任务
+    hitl:
+      - name: confirm_iteration_close
+        when: iteration_close_needed
+      - name: confirm_docs_migration
+        when: docs_migration_needed
+    output: 已更新文档/台账/任务 · 【迭代关账/归档候选】（如有）
     notes: >
       只改受影响章节；保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明），变更前后与原因只记 CR/变更记录。
       更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、测试/发布文档（按影响）。
@@ -89,6 +94,7 @@ steps:
       更新 `交接台账.md`：受影响交接包标 `已取代/需重发`；C1+ 发 `CHG` 包并收回执；未回执不得把吸收标完成。
       不新建重复文档；同一主题就地更新；不同工作先问用户。
       本步只准备，不实施代码；实施走 change/iterate。
+      **换迭代/关版本（强制）**：新迭代文档已采纳或换主题/换代 → 按 `规则/文档治理.md` §7；不确定当前是否结束 → STOP `confirm_iteration_close`；确认后按 §7.1 完整关账（分析分类/归档/清理/修链；跳过仅发版项）。用户说并行不关 → 只落新资料。
 
   - name: 吸收报告
     id: report
@@ -98,6 +104,7 @@ steps:
       按 `规则/模板/10-规划与需求/变更吸收报告模板.md` 输出：输入/分类、关联、影响矩阵、已更新、待确认、下一步。
       需要开发 → 建议 `workflows/change.yaml`（局部）或 `iterate.yaml`（迭代）；只在文档层 → 关闭 CR/OPEN。
       未确认项列最前；不擅自实施、不提交/推送。
+      第1点或附录须含关账/归档结果（已确认执行 / 并行不关 / 无候选 / 待确认清单）。
 
   - name: 收尾
     id: wrap
@@ -106,3 +113,13 @@ steps:
     notes: >
       按 AGENTS §2 输出【任务收尾】：第 1 点含【变更吸收报告】与汇报（可整段复制），第 2～6 点齐；
       更新文档索引/activeContext/开发计划；未确认/待实施项明示。
+      本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
+
+  - name: 拟提交
+    id: commit
+    agent: iterate-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §2；吸收后的文档/索引/计划同批提交；提交后补一行结果，不重复六段。

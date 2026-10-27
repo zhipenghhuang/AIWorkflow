@@ -78,7 +78,7 @@ steps:
     notes: >
       技能：`技能/uat-and-retrospective/SKILL.md`（先读再核）。
       前置：UAT 通过（带条件须已接受）；发布就绪：回滚预案/公告/客服话术/监控指标（并入 UAT 记录「发布前置」节）。
-      直接入口「发布」也必须先运行 `验证/Invoke-Gate.ps1 -Mode uat`（读 `.gate/产品规范/uat.json`），未 READY 不得进入 confirm_release；没有 UAT 要求的内部变更写「不适用+依据」，不得伪造回执。
+      直接入口「发布」时：`has_uat=true` → 必须先运行 `验证/Invoke-Gate.ps1 -Mode uat`（读 `.gate/产品规范/uat.json`），未 READY 不得进入 confirm_release；无 UAT 要求 → 写「不适用+依据」，门条件不满足则跳过，不得伪造回执。
       发布前可派 verifier-agent 只读核对发布就绪证据（UAT/回滚/公告/监控），返回缺口 ≤30 行；发布决策仍由本步做。
       confirm_release：出示发布要点（版本/时间窗/回滚/通知范围）请确认；**未过 UAT 不发布**；已发布且仅做复盘 → 条件不满足，跳过本门。本门是业务发布决策；**如启用开发轨**，工程部署由其 `release` 执行（`confirm_deploy`），不重复审批；未启用则由用户安排，本包不执行部署。
       发布决策后生成 `REL` 交接包（决策/窗口/公告/客服/监控/回滚责任）给开发/测试/运维；收到开发发布结果包 → receive 签收并更新 UAT/发布记录；更新 `交接台账.md`、产品计划 §0/§7/§12。

@@ -11,16 +11,16 @@
 **完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（前端需要补设计时才另出前端设计说明；产品方案完整则直接实现）→ 任务清单 → 实现/自测 → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/验证/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
 **独立落地**：本包可单独使用；不要求安装产品/测试包。若同项目已有 PRD/测试报告/UAT 等资料，可按需复用；缺输入时一句话说明，由用户提供或选择只用已有资料。多包同项目时自动探测并共享 `项目资料/` 与 `activeContext.md`；不需要额外协作目录或合同文件，本包仍独立执行自己的 workflow。  
 **产品缺陷流转**：开发判定产品缺陷 → 出评估单（`00-项目治理/缺陷评估/`）→ 平台附件/备注 + 指派产品 → 产品确认后回流开发；产品给新文档后先对齐开发资料/计划再实施。三包独立，交接只认平台。  
-**全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`AGENTS.md` §0.3-10～12；细则 `技能/engineering-quality` §1.1～1.2、`技能/frontend-design` §5.1）。
+**全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`AGENTS.md` §0.3-10；细则 `技能/engineering-quality` §1.1～1.2、`技能/frontend-design` §5.1）。
 
 ## 2. 目录
 
 | 路径 | 作用 |
 | --- | --- |
 | `workflows/` | 流程定义：`intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划） |
-| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **verifier-agent** / onboard-agent / delivery-lead / worker-agent |
+| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / onboard-agent / delivery-lead / worker-agent |
 | `能力/` | 可选能力注册表（技能/工具装配建议；`能力/00-能力注册表.md`） |
-| `技能/` | 内置专业技能 20 个（00～08 + `engineering-quality` + `product-doc-analysis`；结构 `技能/<name>/SKILL.md`；编号→路径映射见 `技能/README.md`） |
+| `技能/` | 内置专业技能（结构 `技能/<name>/SKILL.md`；编号→路径映射见 `技能/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
 | `规则/读取索引.md` | 唯一读取入口：step → 必读文件/节 → 预算 |
 | `规则/门.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
@@ -49,7 +49,7 @@
 | 模板 | `规则/模板/模板索引.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `验证/` | 收尾/过门时读；运行态写 `.gate/开发规范/` |
 
-> 单步读取 ≤5 个来源/≤8k tokens；先读当前 step、当前 agent、当前技能节、当前产物，再按需补规则节。规则不是越多越稳，读全本会稀释当前 step 约束。
+> 读取预算（目标，非硬上限）：常规单步 ≤5 个来源/≤8k tokens；先读当前 step、当前 agent、当前技能节、当前产物，再按需补规则节。规则不是越多越稳，读全本会稀释当前 step 约束。
 
 ## 3. 上手（快速开始）
 
@@ -92,6 +92,7 @@ python 开发规范/规则/tools/validate_dev_plan.py <开发计划路径>
 - **入口挂载**：AGENTS.md 系宿主按 `规则/模板/00-接入与治理/根AGENTS薄指针.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。  
 - **MCP 配置落点**：只写宿主本地/用户级配置（如 Cursor：`%USERPROFILE%\.cursor\mcp.json`；路径以宿主官方文档为准）；禁项目内配置作规范入口。  
 - **能力（可选）**：外部技能/工具按 `能力/00-能力注册表.md` 选装（技能类走宿主技能目录/插件市场——通用 skills CLI 可跨宿主；MCP 类写宿主本地/用户级配置）；**已安装即启用**、未安装=降级不阻塞；可用性自动记录于 `项目档案.md` §6（无需人工填写）；增强能力**首次缺失提示一次**（记档后静默）；点名「装配能力」可展开完整清单与安装建议。  
+- **体检能力**：口令「体检能力」等 → `workflows/skill-audit.yaml`：对照项目（或「通用优化技能」按通用最优）检查外部能力 + 随包技能；确认后可**就地改本包** `技能/`·`能力/`（单包/开源落地无需母版仓）。  
 - **技能格式**：`技能/*.md` 含 `name/description` frontmatter，兼容 Agent Skills 发现机制；随包加载不依赖安装。
 
 ## 6. 文档与归档

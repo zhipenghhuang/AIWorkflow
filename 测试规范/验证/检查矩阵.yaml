@@ -4,7 +4,7 @@
 version: 1
 modes:
   coverage:
-    required: [coverage-map]
+    required: [coverage-map]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性
   review:
     required: [review-record, review-structure, review-verdict]
     optional: [coverage-receipt]

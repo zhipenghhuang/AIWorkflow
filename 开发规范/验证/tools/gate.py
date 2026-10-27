@@ -349,11 +349,26 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
         missing.append(f"评审记录不存在：{review}")
     else:
         text = resolve_path(project_root, review).read_text(encoding="utf-8-sig", errors="replace")
-        if not re.search(r"verdict\s*[:：=]\s*(通过|PASS|APPROVED)", text, re.I) and "通过" not in text:
-            missing.append("评审记录未给出通过结论")
-        rv = re.search(r"reviewer\s*[:：]\s*(\S+)", text, re.I)
-        im = re.search(r"implementer\s*[:：]\s*(\S+)", text, re.I)
-        if rv and im and rv.group(1) == im.group(1):
+        verdict_match = re.search(r"verdict\s*[:：=]\s*([^\n|]+)", text, re.I)
+        if verdict_match:
+            verdict = verdict_match.group(1).strip().strip("`*_ ")
+            positive = re.match(r"^(通过|PASS|APPROVED)(?:\s|$|[（(])", verdict, re.I)
+            negative = re.search(r"(需修|不通过|未通过|部分通过)", verdict, re.I)
+            if not positive or negative:
+                missing.append(f"评审 verdict 非通过：{verdict[:40]}")
+        else:
+            # No explicit verdict: accept a clear pass conclusion, but never a negation/partial.
+            if re.search(r"(未通过|不通过|部分通过|需修|驳回|CHANGES_REQUESTED|REJECT)", text, re.I):
+                missing.append("评审记录含未通过/需修结论，不能视为通过")
+            elif not re.search(r"(评审通过|结论\s*[:：]\s*通过|\bPASS\b|\bAPPROVED\b)", text, re.I):
+                missing.append("评审记录未给出通过结论（需 verdict=通过/PASS/APPROVED）")
+        rv = re.search(r"(?:reviewer|评审人)\s*[:：]\s*(\S+)", text, re.I)
+        im = re.search(r"(?:implementer|实施人|作者)\s*[:：]\s*(\S+)", text, re.I)
+        if not rv:
+            missing.append("评审记录缺少 reviewer/评审人")
+        if not im:
+            missing.append("评审记录缺少 implementer/实施人")
+        if rv and im and rv.group(1).strip() == im.group(1).strip():
             missing.append("评审人不能等于实施者")
 
     for key, label in (("understanding", "需求理解包"), ("design", "方案/设计")):

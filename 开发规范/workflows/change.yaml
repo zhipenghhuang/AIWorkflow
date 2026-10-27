@@ -1,3 +1,4 @@
+# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
 # 入口即止：clarify/design/review-docs/review/deliver/commit 为单步入口；未标全链时只到该步 + 收尾。
 workflow:
   id: change
@@ -8,6 +9,9 @@ workflow:
 entry_points:
   常规变更: clarify
   澄清: clarify
+  需求澄清: clarify
+  提交: commit
+  推送: commit
   分析PRD: analyze_input
   分析 PRD: analyze_input
   理解需求: analyze_input
@@ -35,6 +39,11 @@ steps:
   - name: 对齐与澄清
     id: clarify
     agent: implementer
+    hitl:
+      - name: confirm_iteration_close
+        when: iteration_close_needed
+      - name: confirm_docs_migration
+        when: docs_migration_needed
     output: 需求理解包 + 验收清单草案（目标/范围/AC/非目标/假设/检查/证据）
     notes: >
       先按 `规则/核心/澄清.md`：给「需求理解包」（目标/用户与场景/范围/规则/权限/异常/AC/约束/假设/来源），列「缺口清单」并写影响；**一次只问一个问题**并附建议，直到没有实质性缺口或剩余缺口被明确接受为假设。有实质缺口时在 `analyze_input`/`requirements` 的 `confirm_understanding`/`confirm_requirements` 停；无缺口直接进后续步骤，不另造门。不重复问已确认项。
@@ -45,6 +54,7 @@ steps:
       任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`）；后续门用它拒绝旧验收/旧截图。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
       输入含外部 PRD/方案/原型/专项/未决确认 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后同批：落 `资料/{版本或主题}/`（多包→`项目资料/`）→ 同步工作区 → S1/S2/S3 进 `资料/_归档/`；本包方案/基线正文改工作区不进资料。完整吸收链优先 `intake`。
+      确认采纳或换代/换主题后按 `规则/文档治理.md` §7（不确定则 `confirm_iteration_close`；确认后 §7.1 完整关账，跳过仅发版项）。
       输入是交接包（含 `00-交接说明.md` + `01-交接清单.md`）→ 先走 `workflows/handoff.yaml` receive 核对+回执，再按包内文档做需求理解；未签收不得进入分析。
       输入含 PRD/迭代方案/原型/需求文档 → 下一步 `analyze_input` 必须执行；不得只凭标题/摘要写需求卡。
 
@@ -173,6 +183,7 @@ steps:
       有代码/配置改动才跑；按 `验证/检查矩阵.yaml` 取最小充分集（细则 `规则/核心/验证规则.md`）；
       运行 `验证/Invoke-Gate.ps1 -Acceptance <任务清单/开发卡>`；门读验收清单/diff/证据/process，自己跑关键检查并写 `.gate/开发规范/completion.json`。
       纯澄清无改动跳过本步；失败不声称完成；存量失败只对账新增。
+      非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。
       工具/环境缺失 → BLOCKED，不得以“人工清单已过”替代；前端变更必须有状态/视口/console/network/截图证据。
       **日志分诊**（子代理编排 §2）：原始日志落盘，先脚本过滤失败摘要；仅多文件语义归因才派子代理，返回「通过数/新增失败/堆栈摘要」≤30 行。
       收尾报告先写 `【验证回执】verdict=...`，再写完成内容；`验证/Test-Report.ps1` 对账。
@@ -192,23 +203,6 @@ steps:
       落 06-发布与交付/（或档案映射）；提测单单点滚动，发布说明一版一档；文档纳入随后 commit。
       QA 交接：若同项目有测试流程/测试包，提测单可作为其计划的可选输入；无 QA 也要留自测证据。
 
-  - name: 拟提交
-    id: commit
-    agent: implementer
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    tools:
-      - git
-    output: 拟提交清单
-    notes: >
-      本任务无文件变更 → 跳过本步与 hitl，直接六段收尾；
-      提交前确认：代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + 文档索引/activeContext 同批或紧随文档提交；里程碑变更追加 `开发/工作日志.md`；**仅**用户可见版本关闭/发版同步根 `CHANGELOG.md`；
-      【拟提交】须含当前分支/推送目标/PR·合并意图（规则/工作流.md §2）；对照项目档案 §1 分支策略，不符先问；
-      禁擅自切主干、直推受保护分支、开/合并 PR、force push（除非用户点名或档案合并要求且已在拟提交确认）；
-      提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）；
-      发版类任务可装配 release-automation（能力注册表）联动版本/根 CHANGELOG（仍须另写工作日志发版条）。
-      提交信息与粒度见 规则/工作流.md §2；密钥零入库。
-
   - name: 发布交接
     id: release_handoff
     when: has_deploy
@@ -218,7 +212,7 @@ steps:
       条件步：含部署/发版才走；本步不直接部署。
       就绪包=提测单+发布说明+回滚预案+测试报告/UAT（如有）；上线检查单由 `release.readiness` 产出，本步不重复造。
       按 `规则/协作/协作与交接.md` §4 生成 `REL` 交接包（发布说明/上线检查单/回滚/监控/公告）给产品/测试/运维；更新 `交接台账.md`、开发计划 §0/§8/§12；未回执不得写“已交接运维/产品”。
-      转 `workflows/release.yaml` 执行验收/审批/部署/发布后验证；交接时说明版本/窗口/风险/回滚决策人。
+      发布交接包生成后，由用户口令「发布」进入 `workflows/release.yaml`；本链不自动部署、不越过 `confirm_deploy`。
       更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
 
   - name: 收尾
@@ -231,3 +225,21 @@ steps:
       有代码改动时读本轮 `.gate/开发规范/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`，不得读旧回执。按 AGENTS §2 输出【任务收尾】：先写 `【验证回执】verdict=...`，再写第 1 点汇报（可整段复制），第 2～6 点齐；未验证/阻塞项明示。
       有门回执时运行 `验证/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
       若发布已转 release，收尾注明发布状态与后续入口。
+      本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
+
+  - name: 拟提交
+    id: commit
+    agent: implementer
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    output: 拟提交清单
+    notes: >
+      本任务无文件变更 → 跳过本步与 hitl，直接六段收尾；
+      提交前确认：代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + 文档索引/activeContext + 本轮 wrap 更新同批或紧随文档提交；里程碑变更追加 `开发/工作日志.md`；**仅**用户可见版本关闭/发版同步根 `CHANGELOG.md`；
+      【拟提交】须含当前分支/推送目标/PR·合并意图（规则/工作流.md §2）；对照项目档案 §1 分支策略，不符先问；
+      禁擅自切主干、直推受保护分支、开/合并 PR、force push（除非用户点名或档案合并要求且已在拟提交确认）；
+      提交后回填提测单/发布说明的提交 hash（deliver 先产文档时写“待提交”）；
+      发版类任务可装配 release-automation（能力注册表）联动版本/根 CHANGELOG（仍须另写工作日志发版条）。
+      提交信息与粒度见 规则/工作流.md §2；密钥零入库。

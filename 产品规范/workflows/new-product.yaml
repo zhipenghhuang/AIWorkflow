@@ -14,7 +14,6 @@ entry_points:
 
 trigger:
   - 启动新产品 / 新项目 / 从0到1 / 产品立项
-  - 新产品计划 / 新产品路线图
 
 steps:
   - name: 发现与机会评估
@@ -42,29 +41,25 @@ steps:
   - name: 产品定义与计划
     id: define
     agent: pm-analyst
-    hitl: confirm_plan
-    hitl_when: plan_needs_confirm
     notes: >
       按 `workflows/plan.yaml` 执行：目标与指标 → 路线图 → 本期范围与里程碑 → `confirm_plan` → 落盘 `产品/产品计划.md`。
+      计划门由 plan.scope 执行，本步不重复弹门。
       只写总领（做什么 / 为什么 / 何时 / 怎么算成功），需求细节归 PRD。
 
   - name: 需求定义（PRD）
     id: prd
     agent: prd-writer
-    hitl: confirm_prd
-    hitl_when: finalize_requested
     notes: >
       按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 执行；只执行所列步骤，不执行其 wrap/commit；PRD 落 `产品/{版本或主题}/01-需求与定义/PRD-{主题}.md`；
-      评审门 `confirm_prd`；未定稿不排期。
+      评审/定稿门由 prd.review 执行，本步不重复弹门；未定稿不排期。
       技能：`技能/prd-writing/SKILL.md` / `技能/review-and-finalize/SKILL.md`；界面原型见 `技能/prototype-and-interaction/SKILL.md` / `技能/ui-visual-design-system/SKILL.md`。
 
   - name: 交付与验收
     id: deliver
     agent: pm-lead
-    gate: uat-evidence
-    gate_when: has_uat
     notes: >
       按 `workflows/deliver.yaml` 的 schedule / followup / uat 执行；需求/问题/产品缺陷 → `workflows/change.yaml` 受理与处置；
+      UAT 门由 deliver.uat 执行，本步不重复跑门。
       UAT 按 PRD 验收标准逐条对照（结果 + 证据）；产品缺陷 vs 实现缺陷要有依据。
       技能：`技能/change-management/SKILL.md` / `技能/uat-and-retrospective/SKILL.md`。
 

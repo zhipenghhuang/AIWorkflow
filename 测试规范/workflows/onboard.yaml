@@ -17,8 +17,14 @@ entry_points:
   资料巡检: materials
   文档整理: lifecycle
   文档巡检: lifecycle
+  文档清理: lifecycle
   清理临时文件: lifecycle
   清理过程文件: lifecycle
+  清理无效文件: lifecycle
+  清理失效文件: lifecycle
+  清理垃圾文件: lifecycle
+  清理临时: lifecycle
+  归档失效文档: lifecycle
 
 trigger:
   - 接入
@@ -26,7 +32,7 @@ trigger:
   - 生成环境基线
   - 装配能力
   - 资料收取 / 资料整理 / 资料归档 / 资料巡检
-  - 文档整理 / 文档巡检 / 清理临时文件 / 清理过程文件
+  - 文档整理 / 文档巡检 / 文档清理 / 清理临时文件 / 清理过程文件 / 清理无效文件 / 清理失效文件 / 清理垃圾文件 / 清理临时 / 归档失效文档
   - preflight-once   # 仅当无「测试规范接入：已完成」（兼容旧 landing=ok）
 
 steps:
@@ -68,8 +74,11 @@ steps:
   - name: 资料收取与归档
     id: materials
     agent: onboard-agent
-    hitl: confirm_docs_migration
-    hitl_when: docs_migration_needed
+    hitl:
+      - name: confirm_iteration_close
+        when: iteration_close_needed
+      - name: confirm_docs_migration
+        when: docs_migration_needed
     output: 【资料收取与归档候选】（确认后执行落位/归档）
     notes: >
       按 `规则/文档治理.md` §3～§5 执行：扫描本包资料根 + 既有资料目录（环境基线 §2.1；keep/mix）+ 项目根（replace/用户投放）的未登记/变化文件 → 按版本/主题归属分类 → 与同主题旧文件做覆盖对照
@@ -78,6 +87,7 @@ steps:
       按 `规则/文档治理.md` §3～§4【入站分析】；确认前不改文件。确认采纳后同批：落位 `资料/{版本或主题}/` → 同步计划/用例指针 → S1/S2/S3 失效 → `测试/资料/_归档/{yyyyMMdd}-{版本或批次}/` + 清单 → 更新索引/计划/报告/activeContext。
       部分覆盖/增量补充/参考/待确认 → 保留原文件，不归档；冲突/无法判断 → 停下问一次。
       无候选 → 报「无未登记/失效候选」，不改文件。
+      **换迭代/关版本（强制）**：确认采纳新迭代/换主题后按 `规则/文档治理.md` §7；不确定则 `confirm_iteration_close`；确认后 §7.1 完整关账（跳过仅发版项）。不依赖关报告。
 
   - name: 文档治理检查
     id: lifecycle

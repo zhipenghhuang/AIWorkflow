@@ -1,0 +1,74 @@
+# 能力与技能体检：入口即止（非 onboard 全链）；确认后可就地改本包技能/能力
+workflow:
+  id: skill-audit
+  name: 能力与技能体检
+  version: 1
+  read_index: 规则/读取索引.md
+
+entry_points:
+  体检能力: scope
+  能力技能体检: scope
+  检查技能能力: scope
+  能力优化: scope
+  技能优化: scope
+  优化能力: scope
+  优化技能: scope
+  优化技能能力: scope
+  更新能力建议: scope
+  更新技能: scope
+  维护技能能力: scope
+  通用优化技能: scope
+  母版技能更新: scope
+  母版能力优化: scope
+
+trigger:
+  - 体检能力 / 能力技能体检 / 检查技能能力 / 能力优化 / 技能优化 / 优化能力 / 优化技能 / 优化技能能力
+  - 更新能力建议 / 更新技能 / 维护技能能力
+  - 通用优化技能 / 母版技能更新 / 母版能力优化 / 通用最优技能
+
+steps:
+  - name: 定范围与模式
+    id: scope
+    agent: onboard-agent
+    notes: >
+      读 `规则/playbooks/skill-audit.md` §1 模式判定：口令含「通用」「母版」「不按项目」→ generic；
+      否则无填实 `项目档案.md`（占位未换=无）→ **强制 generic** 并记「无项目对照自动」；有填实档案 → project。
+      确认范围：全量｜仅外部能力｜仅随包技能｜按域。无偏好时：generic 默认全量；project 按档案栈推荐。
+
+  - name: 盘点
+    id: inventory
+    agent: onboard-agent
+    notes: >
+      按 playbook §2：能力注册表 + `项目档案.md` §6；`技能/README.md` 步骤映射；抽查本范围 SKILL frontmatter。
+      禁通读全部技能正文。输出【库存摘要】：已装/未装/已提示能力数 + 映射覆盖行数。
+
+  - name: 适配分析
+    id: fit
+    agent: onboard-agent
+    notes: >
+      project：对照档案 §1/§2/§7/§8、activeContext、近期完成门/降级。generic：对照能力表主选备选与技能完整性/冗余，不写项目特例。
+      分类：够用｜缺口｜过重｜冲突｜重复｜映射断裂。
+
+  - name: 出具建议
+    id: propose
+    agent: onboard-agent
+    output: 开发/00-项目治理/能力技能体检报告.md（无治理目录则 开发/资料/_通用/ 或用户指定）
+    notes: >
+      按 `规则/模板/00-接入与治理/能力技能体检报告模板.md` 与 playbook §3 写报告；P0 置顶。
+      明确：本包可就地改技能；未确认不改。需要安装向导可列「下一步：装配能力」。
+
+  - name: 确认并应用
+    id: apply
+    agent: onboard-agent
+    hitl: confirm_skill_changes
+    hitl_when: skill_changes_pending
+    notes: >
+      有拟改技能/能力表/装配步骤 → skill_changes_pending=true，出示【拟变更清单】（文件路径或安装项）等确认。
+      确认后按 playbook §4 执行；拒绝/无候选 → 跳过，零改动。改包后可选跑 Test-Template.ps1。
+
+  - name: 收尾
+    id: wrap
+    agent: onboard-agent
+    output: 【任务收尾】
+    notes: >
+      按 AGENTS §2 收尾骨架；第1点含模式/范围/建议数/已应用数；第4点未执行项；第6点可提示「装配能力」或下次体检时机。

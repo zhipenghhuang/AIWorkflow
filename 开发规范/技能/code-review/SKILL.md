@@ -32,6 +32,7 @@ description: Use before merge or when the user asks for code review. Review corr
 - 需修项：`位置（文件:行）｜问题｜证据｜严重度（阻断/重要/建议）｜修法建议`。
 - 通过/需修结论 + 缺口清单；不重写代码（建议级，修复由实施完成）。
 - 只报影响正确性/需求覆盖/安全/性能的问题；不为假想场景要求防御（防过度设计）。
+- **评审记录**（同时写 `.gate/review.md`）：`reviewer` / `implementer` / `verdict=通过|需修` / 评审范围（diff/提交）/ AC 覆盖（已覆盖/未覆盖/不适用+依据）/ 缺口清单 / 证据路径。L2+ 缺记录或 reviewer=implementer → 完成门 BLOCKED。
 
 ## 5. 变更规模与安全补充
 

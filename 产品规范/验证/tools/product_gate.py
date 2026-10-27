@@ -313,8 +313,12 @@ def check_review(path: Path) -> dict[str, Any]:
         if not table or not any(sum(1 for c in r if c.strip()) >= 3 for r in table[1]):
             issues.append("评审清单未填写（需 全部通过 或 逐条例外表）")
     conclusion = next((v for k, v in sec.items() if "结论" in k), "")
-    if not conclusion or not re.search(r"(通过|需修)", conclusion):
-        issues.append("评审结论节缺少 通过/需修")
+    if not conclusion:
+        issues.append("评审结论节缺失")
+    elif re.search(r"(需修|不通过|未通过|部分通过)", conclusion):
+        issues.append("评审结论为需修/未通过，不能视为通过")
+    elif "通过" not in conclusion:
+        issues.append("评审结论节缺少 通过")
     return {"path": str(path), "issues": issues, "verdict": verdict}
 
 
@@ -325,6 +329,13 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
         issues.append("UAT 记录仍有模板占位符")
     fm = frontmatter(text)
     verdict = fm.get("verdict") or ""
+    if verdict in ("不适用", "N/A", "NOT_APPLICABLE"):
+        if not re.search(r"(依据|原因|理由)\s*[:：]?\s*\S+", text):
+            issues.append("UAT 不适用需写依据/原因")
+        if not re.search(r"(批准人|接受人|责任人)", text):
+            issues.append("UAT 不适用需写批准人/接受人")
+        return {"path": str(path), "issues": issues, "verdict": verdict,
+                "warnings": ["UAT 标记不适用；请确认本期确无真实用户验收要求"]}
     if not verdict:
         issues.append("缺少 verdict（通过/有条件/不通过）")
     elif verdict not in ("通过", "PASS", "APPROVED", "有条件通过", "CONDITIONAL"):
@@ -480,7 +491,7 @@ def main() -> int:
         verdict = "DRAFT"
     elif args.mode == "review" and result.get("verdict") not in ("通过", "PASS", "APPROVED"):
         verdict = "DRAFT"
-    elif args.mode == "uat" and result.get("verdict") not in ("通过", "PASS", "APPROVED", "有条件通过", "CONDITIONAL"):
+    elif args.mode == "uat" and result.get("verdict") not in ("通过", "PASS", "APPROVED", "有条件通过", "CONDITIONAL", "不适用", "N/A", "NOT_APPLICABLE"):
         verdict = "DRAFT"
 
     content = read(path) if path and path.is_file() else ""

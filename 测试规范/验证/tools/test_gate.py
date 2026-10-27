@@ -113,7 +113,7 @@ def parse_report_verdict(text: str) -> tuple[str, str]:
         return "", "准出评估未选择唯一结论"
     if "有条件" in raw or "CONDITIONAL" in raw.upper():
         return "CONDITIONAL", ""
-    if re.search(r"不通过(?!项)", raw) or re.search(r"\bFAIL\b", raw, re.I):
+    if re.search(r"不通过(?!项)|未通过|部分通过|\bFAIL\b", raw, re.I):
         return "FAIL", ""
     if "阻塞" in raw or "未验证" in raw or "BLOCKED" in raw.upper():
         return "BLOCKED", ""
@@ -301,6 +301,13 @@ def parse_coverage(root: Path) -> dict[str, Any]:
             mapped_ids = set(CASE_ID_RE.findall(mapping))
             if case_ids and mapped_ids and not (mapped_ids & case_ids):
                 issues.append(f"{p.relative_to(root)}: 设计点「{point}」映射到不存在的用例")
+        # §4 深度档/视觉摘要存在性（语义达标由评审量规；机器只拦「没写」）
+        summary = next((v for k, v in sec.items() if "覆盖摘要" in k or "缺口" in k), "")
+        summary_src = summary or text
+        if not re.search(r"深度档", summary_src):
+            issues.append(f"{p.relative_to(root)}: §4 缺少「深度档自检」（映射无空≠深度够）")
+        if not re.search(r"视觉基础|视觉/UI|无\s*UI", summary_src):
+            issues.append(f"{p.relative_to(root)}: §4 缺少「视觉基础」行（或明示无 UI）")
     return {"issues": issues, "missing": missing, "seen": seen, "files": files}
 
 
@@ -388,7 +395,7 @@ def parse_review(path: Path) -> dict[str, Any]:
     if conclusion == "需修后放行":
         # allow PASS only if §处理/复核 all 通过 — else FAIL (not yet released)
         fix_sec = next((b for k, b in secs.items() if "处理" in k or "复核" in k), "")
-        if fix_sec and re.search(r"通过", fix_sec) and not re.search(r"未过", fix_sec):
+        if fix_sec and re.search(r"通过", fix_sec) and not re.search(r"(未通过|不通过|部分通过|未过|未复核)", fix_sec):
             conclusion = "放行执行"  # recheck closed
         else:
             issues.append("结论=需修后放行（阻断未清，不得声称评审通过）")

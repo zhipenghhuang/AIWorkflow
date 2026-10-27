@@ -28,6 +28,8 @@ entry_points:
   计划调整: replan
   重新基线: replan
   计划偏离: replan
+  提交: commit
+  推送: commit
 
 trigger:
   - 生成交接包 / 交接给开发 / 交接给产品 / 缺陷交接包 / 测试报告交接

@@ -1,3 +1,4 @@
+# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
 workflow:
   id: defect-fix
   name: 缺陷修复协作

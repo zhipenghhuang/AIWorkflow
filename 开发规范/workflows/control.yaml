@@ -13,6 +13,7 @@ entry_points:
   继续开发计划: run
   进度: sync
   当前阶段: sync
+  当前状态: sync
   下一步: next
   阶段检查: check
 
@@ -28,8 +29,11 @@ steps:
   - name: 初始化开发计划
     id: init
     agent: iterate-lead
-    hitl: confirm_plan
-    hitl_when: plan_needs_confirm
+    hitl:
+      - name: confirm_plan
+        when: plan_needs_confirm
+      - name: confirm_iteration_close
+        when: iteration_close_needed
     output: 开发计划（开发/开发计划.md；新项目建议 开发/开发计划.md）
     notes: >
       本步只建/更新开发计划，不自动执行后续阶段；要推进说「按开发计划执行」。
@@ -45,6 +49,7 @@ steps:
       已存在：不覆盖；读现状后转 sync，避免丢失进度。
       L0 微改可写「不适用」；L2+ 新项目/新产品默认启用；不强制引用其它包。
       confirm_plan：首次创建/范围·版本·里程碑实质变更时，出示阶段/范围/门/下一步请确认；确认后计划状态=已确认。
+      范围·版本实质变更或换主题（即使不发版）→ 按 `规则/文档治理.md` §7；不确定则 `confirm_iteration_close`；确认后 §7.1 完整关账。
       输出首条：route=workflow:control | step=init | stage=S0 | gate=G0 | next_action=补输入/需求分析。
 
   - name: 按计划执行
@@ -114,3 +119,13 @@ steps:
       版本/迭代关闭：追加 `开发/工作日志.md` 里程碑（索引+条目；结论/产出/遗留）；**仅**用户可见版本关闭时更新根 `CHANGELOG.md`（版本/日期/变更/迁移）——工作日志≠根 CHANGELOG≠开发计划执行日志。
       按 `规则/文档治理.md` §3～§5 扫描 `资料/`，输出【资料收取与归档候选】；只归档用户确认的 `失效` 项，部分覆盖/增量/参考不动；未确认不移动。
       同步按 `规则/文档治理.md` 扫描工作文档与过程文件：长期基线就地更新、版本绑定方案/任务清单/UAT/提测单归档、临时/失败/重复文件列清理候选；确认后执行。
+      本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
+
+  - name: 拟提交
+    id: commit
+    agent: iterate-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §2；计划/索引/activeContext 与本轮更新同批提交；提交后补一行结果，不重复六段。
