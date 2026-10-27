@@ -7,7 +7,7 @@
 不靠聊天记忆，不靠口口相传——流程版本化在仓库里，口令即路由，确认门等人拍板，产物落在约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.10.27.2-brightgreen.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.10.27.3-brightgreen.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflows](https://img.shields.io/badge/workflows-23-purple.svg)](#三套独立包)
 [![Agents](https://img.shields.io/badge/agents-25-orange.svg)](#架构)

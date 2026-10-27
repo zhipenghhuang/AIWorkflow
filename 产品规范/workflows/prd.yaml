@@ -3,7 +3,7 @@
 workflow:
   id: prd
   name: 需求与 PRD
-  version: 4
+  version: 5
   read_index: 规则/读取索引.md
 
 entry_points:
@@ -63,6 +63,8 @@ steps:
   - name: PRD 撰写
     id: prd
     agent: prd-writer
+    gate: product-prd
+    gate_when: prd_structure_required
     hitl:
       - name: confirm_understanding
         when: understanding_needs_confirm
@@ -78,7 +80,9 @@ steps:
       技能：`技能/prd-writing/SKILL.md`（先读再写）；自检清单与 `技能/review-and-finalize/SKILL.md` 同源。
       要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段规则/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
       写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。
-      落盘后运行 `验证/Invoke-Gate.ps1 -Mode prd`；`BLOCKED` 才不得进入评审，`DRAFT`=结构过、可进入评审；P0/P1 用 `PRD-轻量模板.md`（`prd_level: light`，免独立评审），P2+ `status=APPROVED` 由评审门回写。
+      **级别**：P0/普通 P1 → 轻量模板；**P1↑**（权限/资金/隐私/不可逆数据/主数据规则）→ 作者自检按 P2，可用轻量壳但须补权限/规则/异常/AC；P2+ → 全量模板。
+      **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing §9.1）；`gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。BLOCKED → 不得进评审/定稿；DRAFT → 可审不可定稿；进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。
+      P0 纯文案且无结构门要求时可跳过 gate；普通 P1 进交开发前仍须非 BLOCKED。
       **证据侦察分片**（子代理编排 §2）：大 PRD（≥3 来源文档）→ 只读侦察 AC/状态机/权限/NFR/异常边界；PRD 正文单写手分节推进，禁并行写。
       完稿按评审清单自检，带缺口禁落盘；同路径已有 PRD → 先读并增量更新，禁静默覆盖。
 
@@ -96,17 +100,23 @@ steps:
     id: review
     agent: reviewer-agent
     gate: product-review
-    hitl: confirm_prd
-    hitl_when: finalize_requested
+    gate_when: ai_review_chosen
+    hitl:
+      - name: select_review_mode
+        when: landing_doc_review_needed
+      - name: confirm_prd
+        when: finalize_requested
     notes: >
       入口=「PRD评审」→ `finalize_requested=false`（只评审）；入口=「定稿」或用户明确要进入排期 → true。
-      技能：`技能/review-and-finalize/SKILL.md`；独立复核（完整/可测/无歧义/范围/依赖/风险/验收标准/埋点/来源可追溯/无臆造）；对照确认的客户需求理解，检查 PRD 是否偷换问题、扩大范围或把假设写成事实。
-      **先写评审记录，再跑评审门**：按模板落 `评审-{主题}-{yyyyMMdd}.md`（评审人≠作者、清单/评分/阻断项、verdict），运行 `验证/Invoke-Gate.ps1 -Mode review`（写 `.gate/产品规范/review.json`）；READY 后把回执 `gate_id` 回填 PRD 与评审记录并置 `status/review_status=APPROVED`；再运行 `-Mode prd` 核结构/追溯/TBD/gate_id 一致性，得 READY。未 READY 不得写“评审通过/定稿”。
-      **评审分片**（子代理编排 §2）：大 PRD/跨模块 → 按维度只读扇出（完整性/可测/追溯/范围/权限），主 reviewer 去重；评分卡只算一次；小 PRD 单 reviewer。
-      产出评审记录 `产品/{版本或主题}/01-需求与定义/评审-{主题}-{yyyyMMdd}.md` 与【评审结论】。
-      结论=需修 → 只列缺口并回 prd 修订（同回合≤1 次），不弹定稿门；结论=通过且用户要定稿/进入排期 → 才 `confirm_prd` 出示定稿要点；仅「评审」→ 输出结论并收尾，不弹门。
-      批准后由编排回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`（不改正文），再更新产品计划 §7。
-      **未定稿不排期**（`规则/工作流.md` §1）。
+      **先选评审方式**（`技能/artifact-review`）：STOP 出示【评审方式】A 自行评审通过｜B AI 独立评审；未选不得宣称通过/定稿。P0/P1 light 可提示默认 A；P2+ 必问。
+      **选 A**：出示【完稿自检摘要】+ 四硬门要点 → 用户确认 → `HUMAN_APPROVED`；**跳过**独立 reviewer 与 `-Mode review`；**仍必须** `-Mode prd` 非 BLOCKED（P2+/P1↑/拟定稿）；用户对放行负责。
+      **选 B**：技能 `技能/review-and-finalize/SKILL.md` + `技能/artifact-review`；独立复核（完整/可测/无歧义/范围/依赖/风险/验收/埋点/追溯/无臆造）；对照客户需求理解防偷换问题/扩大范围/假设当事实。
+      **B 路径门禁**：先写评审记录再跑 `-Mode review`（`gate_when: ai_review_chosen`）；READY 后回填 `gate_id`、`review_status=AI_REVIEWED`/`APPROVED`；再复跑 `-Mode prd`。未 READY 不得写“评审通过/定稿”。
+      **定稿前结构门（A/B 均适用）**：`confirm_prd` 前 `-Mode prd` 不得为 BLOCKED；无【完稿自检摘要】不得定稿。
+      **评审分片**（子代理编排 §2）：大 PRD → 维度扇出；评分卡只算一次。
+      产出：`评审-{主题}-{yyyyMMdd}.md`（B）或 HUMAN_APPROVED 声明（A）+【评审结论】+【完稿自检摘要】。
+      结论=需修 → 回 prd 修订（同回合≤1），不弹定稿门；通过且要定稿/排期 → `confirm_prd`；仅评审 → 收尾不弹定稿门。
+      批准后回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`；更新产品计划 §7。**未定稿不排期**。
 
   - name: 需求交接包
     id: handoff
@@ -126,7 +136,7 @@ steps:
     agent: prd-writer
     output: 【任务收尾】（PRD/评审明细置第 1 点）
     notes: >
-      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），第 2～6 点齐；
+      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），按收尾骨架六点输出：第 1 点纯执行汇报（代号带中文描述，不写待确认指针），第 4 点含待你确认表，第 6 点含当前/下一步/建议理由/完成标志；
       更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

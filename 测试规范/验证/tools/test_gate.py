@@ -8,7 +8,7 @@ Design goals:
 - Coverage parsing only reads case documents, never evidence notes.
 
 Usage:
-  python test_gate.py --package-root <测试规范> --project-root <project> [--mode execute|report|writeback|coverage]
+  python test_gate.py --package-root <测试规范> --project-root <project> [--mode execute|report|writeback|coverage|review]
 
 Exit: 0 = PASS, 1 = CONDITIONAL/FAIL/BLOCKED, 2 = usage.
 """
@@ -315,6 +315,92 @@ def extract_p0_ids(*texts: str) -> set[str]:
     return ids
 
 
+def find_review_records(root: Path) -> list[Path]:
+    if not root.is_dir():
+        return []
+    out: list[Path] = []
+    for p in root.rglob("*.md"):
+        if not is_current(p):
+            continue
+        name = p.name
+        if name.startswith("评审-") or name.startswith("评审_") or "用例评审" in name:
+            out.append(p)
+    return sorted(out, key=lambda p: p.stat().st_mtime, reverse=True)
+
+
+def parse_review(path: Path) -> dict[str, Any]:
+    text = read(path)
+    issues: list[str] = []
+    secs = sections(text)
+
+    required_heads = ("评审对象", "依据", "结论")
+    for head in required_heads:
+        if not any(head in k for k in secs):
+            issues.append(f"缺少章节含「{head}」")
+
+    conclusion = ""
+    for key, block in secs.items():
+        if "结论" in key and "处理" not in key:
+            if re.search(r"放行执行", block):
+                conclusion = "放行执行"
+            elif re.search(r"有条件放行", block):
+                conclusion = "有条件放行"
+            elif re.search(r"需修后放行", block):
+                conclusion = "需修后放行"
+            break
+    if not conclusion:
+        # fallback whole doc
+        if re.search(r"\*\*结论\*\*[：:].{0,8}放行执行", text):
+            conclusion = "放行执行"
+        elif re.search(r"\*\*结论\*\*[：:].{0,8}有条件放行", text):
+            conclusion = "有条件放行"
+        elif re.search(r"\*\*结论\*\*[：:].{0,8}需修后放行", text):
+            conclusion = "需修后放行"
+        else:
+            issues.append("结论不可解析（须为 放行执行/需修后放行/有条件放行）")
+
+    if not re.search(r"独立性|评审者\s*\|\s*|≠\s*生成|已隔离", text):
+        issues.append("缺少独立性声明（评审者≠生成写手/已隔离）")
+
+    if not re.search(r"严重度|阻断|A1|量规|评分卡", text):
+        issues.append("缺少量规/严重度/评分卡痕迹")
+
+    blocker_open = False
+    if conclusion in ("放行执行", "有条件放行"):
+        # 缺口表若仍有未处理「阻断」行且结论放行 → fail
+        for _headers, rows in tables(text):
+            if not rows:
+                continue
+            for row in rows:
+                joined = "|".join(row)
+                if "阻断" in joined and not re.search(r"无|—|-|已关闭|通过", joined):
+                    # heuristic: severity column contains 阻断
+                    if row and row[0].strip() == "阻断":
+                        blocker_open = True
+                        break
+            if blocker_open:
+                break
+        if blocker_open and conclusion == "放行执行":
+            issues.append("结论=放行执行但缺口表仍有未消化阻断项")
+        if conclusion == "有条件放行" and not re.search(r"接受人", text):
+            issues.append("有条件放行缺少接受人")
+
+    if conclusion == "需修后放行":
+        # allow PASS only if §处理/复核 all 通过 — else FAIL (not yet released)
+        fix_sec = next((b for k, b in secs.items() if "处理" in k or "复核" in k), "")
+        if fix_sec and re.search(r"通过", fix_sec) and not re.search(r"未过", fix_sec):
+            conclusion = "放行执行"  # recheck closed
+        else:
+            issues.append("结论=需修后放行（阻断未清，不得声称评审通过）")
+
+    return {
+        "path": str(path),
+        "conclusion": conclusion,
+        "issues": issues,
+        "blocker_open": blocker_open,
+    }
+
+
 def write_receipt(project_root: Path, mode: str, data: dict[str, Any], primary: bool = True) -> Path:
     out_dir = project_root / RECEIPT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -329,7 +415,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
     ap.add_argument("--project-root", default=str(Path(__file__).resolve().parents[3]))
-    ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage"], default="report")
+    ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage", "review"], default="report")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
@@ -350,8 +436,46 @@ def main() -> int:
     p0_missing: list[str] = []
     reported_verdict = ""
     receipt_verdict = ""
+    review_conclusion = ""
 
-    if args.mode in ("execute", "report", "coverage"):
+    if args.mode == "review":
+        records = find_review_records(test_root)
+        if not records:
+            blocked.append("未找到用例评审记录（测试/**/评审-*.md）")
+            checks.append({"id": "review-record", "status": "blocked", "detail": "missing"})
+        else:
+            latest = records[0]
+            parsed = parse_review(latest)
+            review_conclusion = parsed["conclusion"]
+            checks.append({"id": "review-record", "status": "pass", "detail": parsed["path"]})
+            checks.append({
+                "id": "review-structure",
+                "status": "fail" if parsed["issues"] else "pass",
+                "detail": parsed["issues"][:10] or "ok",
+            })
+            released = review_conclusion in ("放行执行", "有条件放行") and not parsed["issues"]
+            checks.append({
+                "id": "review-verdict",
+                "status": "pass" if released else "fail",
+                "detail": review_conclusion or "missing",
+            })
+            # soft: coverage receipt if present
+            cov_receipt = project_root / RECEIPT_DIR / "coverage.json"
+            if cov_receipt.is_file():
+                try:
+                    cov = json.loads(read(cov_receipt))
+                    cov_v = str(cov.get("verdict", ""))
+                    checks.append({
+                        "id": "coverage-receipt",
+                        "status": "pass" if cov_v == "PASS" else "fail",
+                        "detail": f"coverage.json verdict={cov_v}",
+                    })
+                except Exception:
+                    checks.append({"id": "coverage-receipt", "status": "skip", "detail": "unreadable"})
+            else:
+                checks.append({"id": "coverage-receipt", "status": "skip", "detail": "no coverage.json yet"})
+
+    elif args.mode in ("execute", "report", "coverage"):
         plan = test_root / "测试计划.md"
         if args.mode in ("execute", "report"):
             if not plan.is_file():
@@ -443,6 +567,15 @@ def main() -> int:
     blocked_checks = [c for c in checks if c.get("status") == "blocked"]
     if args.mode == "coverage":
         verdict = "FAIL" if failed else "PASS"
+    elif args.mode == "review":
+        if blocked or blocked_checks:
+            verdict = "BLOCKED"
+        elif failed:
+            verdict = "FAIL"
+        elif review_conclusion == "有条件放行":
+            verdict = "CONDITIONAL"
+        else:
+            verdict = "PASS"
     elif args.mode == "writeback":
         verdict = "BLOCKED" if blocked or blocked_checks else ("FAIL" if failed else "PASS")
     else:
@@ -485,6 +618,7 @@ def main() -> int:
         "p0_missing": p0_missing,
         "reported_verdict": reported_verdict,
         "receipt_verdict": receipt_verdict,
+        "review_conclusion": review_conclusion,
         "checks": checks,
         "blocked": blocked,
         "timestamp": now,

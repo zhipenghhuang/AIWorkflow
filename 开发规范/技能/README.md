@@ -6,7 +6,7 @@
 > **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 仍走 `能力/00-能力注册表.md`（可选）。  
 > **与「能力」的区别**：技能=怎么做（方法/清单/手感，随包生效、必用）；`能力/00-能力注册表.md` 的能力=用哪些外部工具（选装；本机可用即自动使用、不可用走降级）。  
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
-> **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：github/spec-kit（MIT；spec/plan/tasks/converge、clarify/analyze 歧义与一致性）、addyosmani/agent-skills（MIT；interview-me、planning-and-task-breakdown、definition-of-done、code-review）、obra/superpowers（MIT；writing-plans/executing-plans/TDD）、bmad-code-org/BMAD-METHOD（MIT；按规模裁剪/durable context）、fishzjp/qa-skills（MIT；requirement-analysis 需求模型）、wshobson/agents（MIT）、alibaba/open-code-review（Apache-2.0）、Google Engineering Practices（code review / small CLs）、Google AIP、Microsoft REST API Guidelines、OWASP ASVS 5.0、12-Factor App、DORA 五项指标、C4/arc42/ADR、Diátaxis、Keep a Changelog/SemVer/Conventional Commits、WCAG 2.2、Vercel Web Interface Guidelines、anthropics/skills `frontend-design`、nextlevelbuilder/ui-ux-pro-max-skill、Ant Design/Carbon/Polaris/Primer/Atlassian/GOV.UK/Material 3/Fluent 2 等企业设计系统（许可与版本以官方仓库为准）。  
+> **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：IEEE 1028 / ISO 20246（技术评审）、LLM design-doc review 实践、NIST AI RMF、github/spec-kit、addyosmani/agent-skills、obra/superpowers、bmad-code-org/BMAD-METHOD、fishzjp/qa-skills、wshobson/agents、alibaba/open-code-review、Google Engineering Practices、Google AIP、Microsoft REST API Guidelines、OWASP ASVS 5.0、12-Factor、DORA、C4/arc42/ADR、Diátaxis、Keep a Changelog/SemVer、WCAG 2.2、Vercel Web Interface Guidelines、主流企业设计系统（许可以官方为准）。  
 
 ## 别名 → 实际路径（旧引用兼容）
 
@@ -25,6 +25,7 @@
 | 03 | `技能/implementation-and-selftest/SKILL.md` |
 | 03A | `技能/frontend-implementation/SKILL.md` |
 | 03B | `技能/backend-implementation/SKILL.md` |
+| 03C | `技能/design-doc-review/SKILL.md` |
 | 04 | `技能/code-review/SKILL.md` |
 | 05 | `技能/qa-handoff-and-release/SKILL.md` |
 | 06 | `技能/task-breakdown/SKILL.md` |
@@ -38,6 +39,7 @@
 | 步骤 | 技能 |
 | --- | --- |
 | 开发计划 / 进度 / 阶段检查 | `技能/development-plan/SKILL.md` |
+| change：review-docs（落地文档评审） | `技能/design-doc-review/SKILL.md`（先选 A/B）+ `engineering-quality` §5 |
 | 新文档 / 新变化 / 确认项 / 收件箱 / 变更吸收 | `技能/change-intake/SKILL.md` + `技能/product-doc-analysis/SKILL.md`（PRD/原型/文档） |
 | change：clarify / requirements | `技能/requirements-and-spec/SKILL.md` |
 | change：analyze_input / intake.parse（PRD/迭代方案/原型/文档解析） | `技能/product-doc-analysis/SKILL.md`（主）+ `技能/requirements-and-spec/SKILL.md`（澄清） |

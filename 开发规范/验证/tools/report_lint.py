@@ -2,10 +2,13 @@
 """Lint a dev task report against .gate/开发规范/completion.json.
 
 Checks:
-- report contains 【验证回执】 with verdict=... gate=...
-- verdict matches completion.json; gate matches gate_id; task (if present) matches
-- verdict != COMPLETE: positive completion words are rejected, but 未完成/未通过/未修复/不正常 are allowed
-- verdict == COMPLETE: receipt includes checks= and unverified=; numbers match completion when available
+- report contains 【验证回执】 with a Chinese conclusion (通过/部分通过/阻塞/未验证)
+  or legacy verdict=...
+- report contains a 待你确认 section (无待确认写「待你确认：无」)
+- conclusion maps to completion.json verdict; gate matches gate_id; task (if present) matches
+- verdict != COMPLETE: positive completion words are rejected, but scoped phrases
+  (部分完成/阶段完成/文档阶段完成/部分验证/有条件通过) and negatives are allowed
+- verdict == COMPLETE: receipt includes checks= and unverified=
 - scans the whole report, not only the 汇报 line
 Exit: 0 pass, 1 fail, 2 usage.
 """
@@ -22,11 +25,19 @@ try:
 except Exception:
     pass
 
-POSITIVE = re.compile(r"(完成|通过|已修复|正常|全部通过|已解决)")
+POSITIVE = re.compile(r"(已完成|全部完成|整体完成|已通过|全部通过|已修复|已解决|正常(?=[。；，!?]|$)|完成(?=[。；，!?]|$)|通过(?=[。；，!?]|$))")
 NEG_PREFIX = "未不无非"
+SCOPED_OK = re.compile(r"(部分完成|阶段完成|文档阶段完成|部分验证|有条件通过)")
+VERDICT_MAP = {
+    "通过": "COMPLETE",
+    "部分通过": "PARTIAL",
+    "阻塞": "BLOCKED",
+    "未验证": "NOT_VERIFIED",
+}
 
 
 def positive_words(line: str) -> list[str]:
+    line = SCOPED_OK.sub("", line)
     out = []
     for m in POSITIVE.finditer(line):
         i = m.start()
@@ -34,6 +45,14 @@ def positive_words(line: str) -> list[str]:
             continue
         out.append(m.group(0))
     return out
+
+
+def receipt_value(receipt: str, cn_key: str, en_key: str) -> str:
+    m = re.search(rf"{cn_key}=([^|]+)", receipt)
+    if m:
+        return m.group(1).strip()
+    m = re.search(rf"{en_key}=([^|]+)", receipt)
+    return m.group(1).strip() if m else ""
 
 
 def main() -> int:
@@ -71,45 +90,54 @@ def main() -> int:
         receipt = ""
     else:
         receipt = m.group(1)
-        if f"verdict={verdict}" not in receipt:
-            errors.append(f"回执 verdict 与 completion.json 不一致（report={receipt[:80]}...）")
-        if "gate=" not in receipt:
-            errors.append("回执缺少 gate= 标识")
+        conclusion = receipt_value(receipt, "结论", "verdict")
+        mapped = VERDICT_MAP.get(conclusion, conclusion)
+        if not mapped:
+            errors.append("回执缺少结论=通过/部分通过/阻塞/未验证")
+        elif mapped != verdict:
+            errors.append(f"回执结论={conclusion} 与 completion.json verdict={verdict} 不一致")
+        if not (("校验=" in receipt) or ("gate=" in receipt)):
+            errors.append("回执缺少 校验= 或 gate= 标识")
         elif gate_id != "unknown" and gate_id not in receipt:
-            errors.append(f"回执 gate= 与 completion.json 不一致（应为 {gate_id}）")
+            errors.append(f"回执校验= 与 completion.json 不一致（应为 {gate_id}）")
         if task_id and "task=" in receipt and task_id not in receipt:
             errors.append(f"回执 task= 与 completion.json 不一致（应为 {task_id}）")
         if verdict == "COMPLETE":
-            if "checks=" not in receipt:
-                errors.append("COMPLETE 回执缺少 checks=")
-            if "unverified=" not in receipt:
-                errors.append("COMPLETE 回执缺少 unverified=")
+            if not (("检查=" in receipt) or ("checks=" in receipt)):
+                errors.append("通过回执缺少 检查= 或 checks=")
+            if not (("未验证=" in receipt) or ("unverified=" in receipt)):
+                errors.append("通过回执缺少 未验证= 或 unverified=")
         else:
-            if "unverified=" not in receipt and "blocked=" not in receipt:
-                errors.append("非 COMPLETE 回执缺少 unverified=/blocked=")
+            if not (("未验证=" in receipt) or ("unverified=" in receipt) or ("blocked=" in receipt)):
+                errors.append("非通过回执缺少 未验证=/unverified=/blocked=")
+
+    if "【任务收尾】" in text and not re.search(r"待你确认（需拍板|：无", text):
+        errors.append("缺少第 4 点待你确认表；无待确认写「待你确认：无」")
 
     if verdict != "COMPLETE":
         for line in text.splitlines():
             if line.strip().startswith("【验证回执】"):
                 continue
+            if "完成标志" in line:
+                continue
             # 固定骨架标签本身含“完成”，不是结论措辞。
-            scan_line = line.replace("完成了什么", "").replace("完成情况", "")
+            scan_line = line.replace("完成了什么", "").replace("完成情况", "").replace("完成标志", "")
             words = positive_words(scan_line)
             if words:
                 errors.append(f"verdict={verdict} 但正文出现完成类措辞：{line.strip()[:120]}")
                 break
 
-    # 数值对账：只做可解析的 checks=通过/总数、unverified=数量
-    if "checks=" in receipt:
-        mm = re.search(r"checks=(\d+)\s*/\s*(\d+)", receipt)
-        if mm:
-            passed, total = int(mm.group(1)), int(mm.group(2))
-            checks = data.get("checks") or []
-            if total != len(checks):
-                errors.append(f"回执 checks 总数={total} 与 completion.checks={len(checks)} 不一致")
-            actual_pass = sum(1 for c in checks if isinstance(c, dict) and c.get("status") == "pass")
-            if passed != actual_pass:
-                errors.append(f"回执 checks 通过={passed} 与 completion 通过={actual_pass} 不一致")
+    # 数值对账：只做可解析的 检查=/checks=通过/总数
+    checks_text = receipt_value(receipt, "检查", "checks") if receipt else ""
+    mm = re.search(r"(\d+)\s*/\s*(\d+)", checks_text)
+    if mm:
+        passed, total = int(mm.group(1)), int(mm.group(2))
+        checks = data.get("checks") or []
+        if total != len(checks):
+            errors.append(f"回执检查总数={total} 与 completion.checks={len(checks)} 不一致")
+        actual_pass = sum(1 for c in checks if isinstance(c, dict) and c.get("status") == "pass")
+        if passed != actual_pass:
+            errors.append(f"回执检查通过={passed} 与 completion 通过={actual_pass} 不一致")
 
     if errors:
         for e in errors:

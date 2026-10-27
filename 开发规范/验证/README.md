@@ -26,7 +26,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 ```
 
 4. 门输出 `.gate/开发规范/completion.json`（同时写 `auto.json`/`frontend.json`）与 ≤30 行摘要；`wrap` 只引用本轮回执。空 diff → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`，都不是完成。
-5. 报告先写 `【验证回执】`，再写完成内容；`验证/Test-Report.ps1` 会检查 verdict、gate、checks 与措辞。
+5. 报告先写中文 `【验证回执】`（通过/部分通过/阻塞/未验证），再写完成内容；`验证/Test-Report.ps1` 会检查中文结论对应的英文 verdict、gate、checks 与措辞。
 
 **落盘纪律**：本目录（`开发规范/验证/`）是规范工具与模板，**只读**；运行态一律写项目根 `.gate/开发规范/` 与 `.gate/frontend/`；禁止写包内 `.state`/`project-profile.json`。
 

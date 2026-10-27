@@ -2,7 +2,7 @@
 workflow:
   id: plan
   name: 产品计划
-  version: 5
+  version: 6
   read_index: 规则/读取索引.md
 
 entry_points:
@@ -52,12 +52,23 @@ steps:
       同周期同版本只确认一次（「继续」沿用）。
       **计划未确认不进入 PRD / 排期**（`规则/工作流.md` §1）。
 
+  - name: 计划文档评审
+    id: review-plan
+    agent: reviewer-agent
+    hitl: select_review_mode
+    hitl_when: landing_doc_review_needed
+    notes: >
+      首版或范围·指标·版本实质变更后、宣称「计划已可驱动 PRD/排期」前：按 `技能/artifact-review` STOP 选 A 自行通过｜B AI 独立审。
+      选 A：出示目标/反范围/里程碑/风险自检摘要 → 用户确认 → HUMAN_APPROVED。
+      选 B：按计划量规（目标可证伪/反范围/依据/里程碑/风险）只报缺口；留痕 `产品/{版本}/01-需求与定义/评审-计划-{yyyyMMdd}.md` 或计划旁评审笺；需修回 scope/publish 修订。
+      小周期微调且已 confirm_plan → `landing_doc_review_needed` 可假。
+
   - name: 落盘与索引
     id: publish
     agent: pm-lead
     output: 产品/产品计划.md（模板 规则/模板/10-规划与需求/产品计划模板.md）
     notes: >
-      总控表状态回写（阶段 / 产物 / 门 / 状态 / 下一动作）；版本索引挂 PRD / 评审 / 受理/变更 / 交付计划 / UAT / GTM / 原型 / 复盘。
+      须已完成 review-plan 选模式（或本轮跳过条件满足）。总控表状态回写（阶段 / 产物 / 门 / 状态 / 下一动作）；版本索引挂 PRD / 评审 / 受理/变更 / 交付计划 / UAT / GTM / 原型 / 复盘。
       更新 `产品/工作日志.md`（仅本文件）：索引表新增一行 + 一条里程碑条目，事件类型=`计划确认`（结论/产出/遗留；关联产品计划路径）；无文件则先按工作日志模板创建再写。
       **不是**根 `CHANGELOG.md`、也不是产品计划 §10 执行日志（细粒度过程仍只写 §10）。
       **禁止**创建或修改项目根 `CHANGELOG.md`。
@@ -86,7 +97,7 @@ steps:
     agent: pm-lead
     output: 【任务收尾】（计划/里程碑明细置第 1 点）
     notes: >
-      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），第 2～6 点齐；
+      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），按收尾骨架六点输出：第 1 点纯执行汇报（代号带中文描述，不写待确认指针），第 4 点含待你确认表，第 6 点含当前/下一步/建议理由/完成标志；
       更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

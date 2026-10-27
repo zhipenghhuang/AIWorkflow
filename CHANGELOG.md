@@ -7,10 +7,10 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.27.2` | 更新 | 收尾【待你确认】块；澄清分流 |
-| 开发规范 | `2026.10.27.2` | 更新 | 收尾【待你确认】块；报告 lint 检查 |
-| 测试规范 | `2026.10.27.2` | 更新 | 收尾【待你确认】块；澄清分流 |
-| 母版仓 | `2026.10.27.2` | 更新 | 三包统一待确认收口 |
+| 产品规范 | `2026.10.27.7` | 更新 | 作者侧自检闭环 + P1↑ + 结构门绑死 |
+| 开发规范 | `2026.10.27.5` | 更新 | 落地文档 review-docs + A/B 门 |
+| 测试规范 | `2026.10.27.6` | 更新 | 计划/分析/多轨评审 + AI 自主深析 |
+| 母版仓 | `2026.10.27.7` | 更新 | 产品作者侧质量补强 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
 
@@ -30,6 +30,93 @@
 ### Removed
 
 - 无。
+
+## [2026.10.27.7] - 2026-10-27
+
+### Added
+
+- 产品作者侧闭环：【完稿自检摘要】必落盘；`gate: product-prd`（`prd_structure_required`）；PRODUCT-VER-09/10。
+- **P1↑（elevated）**：权限/资金/隐私/不可逆数据/主数据 → 自检与结构门按 P2，可免独立审。
+
+### Changed
+
+- P2+/P1↑/拟定稿：A/B 均须 `-Mode prd` 非 BLOCKED 才可定稿/交开发（不再“建议跑”）。
+- `prd-writing` §9、`prd.yaml`、门/验证规则/收尾骨架/AGENTS §0.4 同步。
+
+### Removed
+
+- 无。
+
+## [2026.10.27.6] - 2026-10-27
+
+### Added
+
+- 测试：`技能/test-artifact-review`——计划/分析短表/功能/接口/探索/发布前统一 A/B；选 B 强制【自主分析】+ 自定义焦点。
+- 计划步接入 `select_review_mode`；`review-cases` 扩为多轨资产评审。
+
+### Changed
+
+- 纠正「测试只硬闸功能用例」过窄；机检仍仅功能轨选 B。
+- `testcase-reviewer` / `工作流.md` §2.5 / 门词表 / AGENTS 路由同步。
+
+### Removed
+
+- 无。
+
+## [2026.10.27.5] - 2026-10-27
+
+### Added
+
+- **三包统一**落地文档门 `select_review_mode`：产出后 STOP 二选一——A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审；未选不得宣称通过/定稿/实施/进 P2。
+- 产品：`技能/artifact-review`；PRD/产品计划/设计评审/**交付计划**/实质变更重审接入选择门；选 B 才跑 `-Mode review`。
+- 开发：`技能/design-doc-review` + `agents/doc-reviewer.yaml` + 步 `review-docs`（方案/基线/ADR/前端设计说明）；与代码 `review` 分轨。
+- 测试：用例评审步先问 A/B；选 B 才 `case-review` 机检。
+
+### Changed
+
+- 产品/开发/测试 `规则/门.md`、AGENTS、相关 workflows 同步；方案评审口令改挂 `review-docs`；change/defect 重审与 deliver 排期同步 A/B。
+- 整合 shinpr/prd-reviewer、headout l1-reviewer、NIST/ETIS、IEEE 1028/ISO 20246、既有 QA skills 方法。
+
+### Removed
+
+- 无。
+
+## [2026.10.27.4] - 2026-10-27
+
+### Added
+
+- 测试规范主链新增独立步 `review-cases`（用例评审）；角色 `agents/testcase-reviewer.yaml`；技能 `技能/testcase-review`（A1–A6/S1–S6 企业量规，整合 ISTQB CTFL 静态测试、ISO 29119-3、fishzjp/qa-skills、casely、saleem-daqa、petrkindlmann/qa-skills、fugazi ISTQB static-testing 等方法）。
+- 机器门 `Invoke-Gate.ps1 -Mode review` / `gate: case-review`；`confirm_review` HITL；评审记录模板升级为量规+严重度表；验证规则 TEST-VER-09。
+
+### Changed
+
+- 测试主链：analyze→plan→generate→**review-cases**→execute→report；口令「用例评审」改挂 `review-cases`（不再挂 generate）；T1+ 功能进 P2 前须评审放行；生成写手不得自审自放行。
+- 测试 `testcase-agent`、playbooks/generate、门词表、读取索引、计划模板 P2 入口、能力注册表 `qa-skills` 同步。
+
+### Removed
+
+- 无（旧「口令横切挂 generate」语义由独立步取代，口令仍可用）。
+
+## [2026.10.27.3] - 2026-10-27
+
+### Added
+
+- 三包收尾骨架新增“表达与编号”规则：汇报层可保留技术/编号代号，但首次出现必须带中文描述；明细层禁止裸编号。
+- 第 4 点改为“假设与未决项（待你确认）”唯一入口：需拍板表 + 默认项 + 回复格式；第 1 点不再写待确认指针。
+- 三包验证回执改为中文结论（通过/部分通过/阻塞/未验证；产品：可定稿/草稿/阻塞；测试：可准出/有条件准出/不准出/阻塞），机器代号放括号。
+- 第 6 点扩展为“当前 / 下一步 / 建议与理由 / 完成标志”。
+
+### Changed
+
+- 三包 AGENTS：收尾改为“中文回执 → 第1点纯执行汇报 → 第4点待确认表 → 第6点进度与下一步”；修正产品/测试待确认落盘路径。
+- 产品/测试 workflows：wrap/report 步统一指向第 4 点；修正“待确认放六点后”的顺序矛盾；测试 `execute` 的 `when` 词表统一为已声明的 `exploratory_mainread_missing`。
+- 开发 `report_lint.py`：支持中文回执解析；检查第 4 点待确认表；允许“部分完成/阶段完成/文档阶段完成/部分验证/有条件通过”等限定措辞。
+- 开发/产品/测试 `规则/核心/验证规则.md`、`验证/README.md`：补中文回执与机器状态映射。
+- 版本单点：产品/开发 `2026.10.27.3`；测试 `2026.10.27.4`（并行“主链强制用例评审 + 企业量规门”）；母版取最高 `2026.10.27.4`。
+
+### Removed
+
+- 收尾骨架第 1 点前的独立 `【待你确认】` 块（改为第 4 点内）。
 
 ## [2026.10.27.2] - 2026-10-27
 

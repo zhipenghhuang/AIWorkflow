@@ -6,11 +6,13 @@
   powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode review -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
     [string]$ProjectRoot = (Get-Location).Path,
-    [ValidateSet('execute', 'report', 'writeback', 'coverage')]
+    [ValidateSet('execute', 'report', 'writeback', 'coverage', 'review')]
     [string]$Mode = 'report',
     [switch]$Json
 )

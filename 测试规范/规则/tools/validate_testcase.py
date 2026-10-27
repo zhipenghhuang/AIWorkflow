@@ -16,6 +16,9 @@ Warnings:
 - no F-/A-/AC- traceability IDs in overview
 - fewer than 3 steps / more than 10 steps
 
+Errors (filler / non-executable phrasing):
+- banned step/location boilerplate that blocks follow-along execution
+
 Exit 0 = pass (warnings allowed); 1 = errors; 2 = usage.
 """
 from __future__ import annotations
@@ -33,6 +36,12 @@ REQUIRED_SECTIONS = [
     "## 3. 设计点覆盖映射",
     "## 4. 覆盖摘要",
     "## 5. 评审与变更",
+]
+# High-signal empty steps that previously led to freelanced execute paths.
+BANNED_FILLERS = [
+    "以模块文档头部入口为准",
+    "本步结果可在页面核对",
+    "禁臆造未验证路由",
 ]
 
 
@@ -127,6 +136,14 @@ def main() -> int:
             warnings.append(f"{cid}: 步骤少于 3 步（确认是否过粗）")
         if len(step_rows) > 10:
             warnings.append(f"{cid}: 步骤超过 10 步（考虑拆条）")
+        for phrase in BANNED_FILLERS:
+            if phrase in block:
+                errors.append(f"{cid}: FILLER_STEP: 含空话「{phrase}」——须写清场景载体入口/动作")
+        # Soft: whole-cell “执行批量” without a named business action nearby
+        if re.search(r"\|\s*执行批量\s*\|", block) and not re.search(
+            r"(分配|审批|关闭|提交|确认|导入|导出|催办|移交)", block
+        ):
+            errors.append(f"{cid}: FILLER_STEP: 「执行批量」未点名业务动作（分配/审批等）")
 
     if not re.search(r"## 5\. 评审与变更", text):
         errors.append("MISSING_SECTION: ## 5. 评审与变更")

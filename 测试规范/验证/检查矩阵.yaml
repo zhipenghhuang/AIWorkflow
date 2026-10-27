@@ -5,6 +5,10 @@ version: 1
 modes:
   coverage:
     required: [coverage-map]
+  review:
+    required: [review-record, review-structure, review-verdict]
+    optional: [coverage-receipt]
+    manual: [a1-a6-sampling, s1-s6-suite, scorecard-rerun, independent-context]
   execute:
     required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons, p0-status]
     optional: [coverage-map, p0-missing]
@@ -26,10 +30,11 @@ always:
 # 高价值中成本（按范围）
 risk_based:
   - coverage-map
+  - review-record
   - blocked-reasons
   - writeback-receipt
-  # script-run-stamp / independent-sampling 为人工复核项，当前没有机器实现；
-  # 不写成 required，避免“声明了但没执行”。
+  # script-run-stamp / independent-sampling / a1-a6 语义审为人工+AI 量规项；
+  # 机器只核评审记录结构与放行结论，不写成虚假 required。
 
 # 低价值高成本（不做/少做）
 avoid:

@@ -1,8 +1,8 @@
-# 入口即止：clarify/design/review/deliver/commit 为单步入口；未标全链时只到该步 + 收尾。
+# 入口即止：clarify/design/review-docs/review/deliver/commit 为单步入口；未标全链时只到该步 + 收尾。
 workflow:
   id: change
   name: 常规代码变更
-  version: 9
+  version: 10
   read_index: 规则/读取索引.md
 
 entry_points:
@@ -13,7 +13,9 @@ entry_points:
   理解需求: analyze_input
   解析原型: analyze_input
   出方案: design
-  方案评审: design
+  方案评审: review-docs
+  文档评审: review-docs
+  设计文档评审: review-docs
   代码评审: review
   提测: deliver
   提测单: deliver
@@ -24,7 +26,7 @@ trigger:
   - 常规变更
   - 澄清
   - 分析 PRD / 迭代方案 / 需求文档 / 页面原型 / 理解需求 / 解析原型
-  - 出方案 / 需求澄清 / 方案评审
+  - 出方案 / 需求澄清 / 方案评审 / 文档评审
   - 代码评审
   - 提测 / 提测单 / 发布说明 / 回滚预案
   # 未命中 defect-fix / iterate / onboard / release / retro 的实施类，由 AGENTS §3 兜底至此
@@ -79,21 +81,37 @@ steps:
       必过：用户故事、AC（条件+动作+可观测结果，逐条可追溯到理解包/原文）、NFR（性能/安全/隐私/兼容/可观测）、明确不做、假设/依赖、签收；理解包的冲突/GAP 未裁决项必须继承，不得静默消失。
       新功能/范围变更/AC 实质变化 → 视为 requirements_need_confirm=true；未确认不得进设计/排期。
       confirm_requirements：出示范围/AC/NFR/非目标与未决项，确认后冻结；若 confirm_understanding 已确认范围/AC，只确认新增/变化与正式签收，不重复同一问题；未签收不得进设计/排期（用户豁免须记录；已有 PRD 且已签收 → 只确认技术差距）。
+      L2+ 基线落盘后：若本轮跳过 design，仍须经 `review-docs` 选 A/B（基线亦属落地文档）；有 design 则与方案一并在 review-docs 审。
 
   - name: 方案与设计
     id: design
     when: new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested
     agent: implementer
-    hitl: confirm_spec
     output: 方案/ADR（开发/02-方案设计/）
     notes: >
-      条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案/方案评审」才走；L0 单文件小改可跳过。
-      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A 技术选型/02B 数据库/02C API/02D 前端/02E 安全/02F 性能容量）+ `技能/engineering-quality/SKILL.md`（质量条）；前端变更需要补设计/调整 UI 时，再按需读 `技能/frontend-design/SKILL.md` + 模板 `规则/模板/20-设计与技术/前端设计说明模板.md`。
-      模板 `规则/模板/20-设计与技术/方案模板.md`，架构决策另落 `ADR模板.md`。
-      必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；**逐条响应需求理解包/基线的 RP/F/R/AC/NFR**，新增需求先回澄清，不擅自扩展范围；理解包的冲突/GAP 未裁决 → 不进入实施。
-      装配 design-diagram 时按需产图。
-      **领域侦察分片**（子代理编排 §2）：L3/架构级且 ≥3 领域 → 只读 scout（API/DB/安全/性能）各返回约束与风险 ≤30 行；方案正文单写手；L2 及以下直做。
-      confirm_spec：出示方案要点，批准后才进 implement（点名「方案评审」且有既有方案 → 直接出示要点评审，不重产）；「只出方案」→ 本步后收尾。
+      条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案」才走；L0 单文件小改可跳过。
+      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A～02F）+ `技能/engineering-quality/SKILL.md`；前端补设计时再读 `技能/frontend-design` + 前端设计说明模板。
+      模板 `规则/模板/20-设计与技术/方案模板.md`，架构决策另落 ADR。
+      必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；逐条响应 RP/F/R/AC/NFR；冲突/GAP 未裁决 → 不实施。
+      **领域侦察分片**（L3/≥3 领域）：只读 scout；正文单写手。
+      落盘后进入 `review-docs`（选 A/B + 授权）；本步不弹 confirm_spec。「只出方案」→ design 后仍进 review-docs 再收尾。
+
+  - name: 落地文档评审
+    id: review-docs
+    when: landing_doc_review_needed
+    agent: doc-reviewer
+    hitl:
+      - name: select_review_mode
+        when: landing_doc_review_needed
+      - name: confirm_spec
+    output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
+    notes: >
+      **实施前必经**（L2+ 有新基线/方案/ADR/前端设计说明，或口令方案评审/文档评审）。技能：`技能/design-doc-review/SKILL.md`。
+      **STOP【评审方式】**：A 自行评审通过｜B AI 独立评审；未选不得进 implement。
+      **选 A**：出示 D1–D8/评分卡自检摘要 → 用户确认 → HUMAN_APPROVED → 再 `confirm_spec`（有方案时）或确认基线可实施。
+      **选 B**：`doc-reviewer` 异上下文按 D1–D8 审；留痕 `开发/02-方案设计/评审-文档-{主题}-{时间}.md`（仅基线则可落 `01-需求基线/`）；需修回 design/requirements（≤1）；通过后再授权。
+      评审对象=本轮新增/变更的基线+方案+ADR+前端设计说明（有则全列）。点名「方案评审」且已有方案 → 本步选模式+审，不重产。
+      **与代码评审分轨**：本步不审 diff；代码仍走 `review`。
 
   - name: 任务清单
     id: plan

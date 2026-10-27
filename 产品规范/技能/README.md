@@ -6,7 +6,7 @@
 > **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 走 `能力/00-能力注册表.md`（可选）。  
 > **与「能力」的区别**：技能=怎么做（方法/清单/手感，随包生效、必用）；`能力/00-能力注册表.md` 的能力=用哪些外部工具（选装；本机可用即自动使用、不可用走降级）。  
 > **与「规则」的区别**：技能给方法；红线/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
-> **整合来源**（方法参考，已改写适配为中文随包版）：deanpeters/Product-Manager-Skills（77 技能方法论：prd-development / user-story / prioritization-advisor / roadmap-planning / discovery-interview-prep）、addyosmani/agent-skills（interview-me：一次一问/置信度/复述确认）、fishzjp/qa-skills（requirement-analysis 需求模型）、chituai/prd-writer 等；0→1 部分参考 Stage-Gate / Lean Startup / Working Backwards 实践；客户需求发现参考 The Mom Test、Jobs-to-be-Done、Continuous Discovery Habits、IIBA BABOK；展示/文档参考 GTM、产品演示、用户文档与演示稿实践；视觉/原型参考 WCAG 2.2、Vercel Web Interface Guidelines、Ant Design/Carbon/Polaris/Primer/GOV.UK 等企业设计系统。  
+> **整合来源**（方法参考，已改写适配为中文随包版）：deanpeters/Product-Manager-Skills、shinpr/prd-reviewer（异上下文 PRD 审）、headout pm-os l1-reviewer（问题/反范围/场景/可测 AC）、NIST AI RMF / ETIS 评审（AI 产物人责）、addyosmani/agent-skills、fishzjp/qa-skills、chituai/prd-writer；0→1 参考 Stage-Gate / Lean Startup / Working Backwards；客户发现参考 The Mom Test / JTBD / Continuous Discovery / BABOK；视觉参考 WCAG 2.2 与主流设计系统。  
 
 ## 编号别名 → 实际路径（旧引用兼容）
 
@@ -33,8 +33,12 @@
 | plan：goals / roadmap | `技能/zero-to-one-product-definition/SKILL.md`（0→1）+ `技能/requirement-discovery-and-prioritization/SKILL.md`（迭代）+ `技能/customer-needs-discovery/SKILL.md`（目标依据） |
 | new-product：discover / go / define | `技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md` |
 | prd：discover / prioritize | `技能/customer-needs-discovery/SKILL.md` + `技能/requirement-discovery-and-prioritization/SKILL.md` |
-| prd：prd（撰写） | `技能/prd-writing/SKILL.md`（自检清单与 `03` 同源） |
-| prd：review（评审定稿） | `技能/review-and-finalize/SKILL.md` |
+| prd：prd（撰写） | `技能/prd-writing/SKILL.md`（§9 完稿自检摘要 + P1↑；与 `03` 同源） |
+| prd：review（评审定稿） | `技能/artifact-review/SKILL.md`（先选 A/B）+ `技能/review-and-finalize/SKILL.md`（选 B 量规） |
+| plan：review-plan | `技能/artifact-review/SKILL.md` |
+| prototype：review | `技能/artifact-review/SKILL.md` + `技能/ui-visual-design-system/SKILL.md` |
+| deliver：review-plan-deliver | `技能/artifact-review/SKILL.md` |
+| change/defect：review（实质变更重审） | `技能/artifact-review/SKILL.md`（先选 A/B）+ `技能/review-and-finalize/SKILL.md`（选 B） |
 | change：intake / triage / assess / apply / verify（需求/问题/产品缺陷/变更） | `技能/customer-needs-discovery/SKILL.md`（intake）+ `技能/change-management/SKILL.md` |
 | defect：pull / analyze / apply / writeback（平台缺陷协作） | `技能/change-management/SKILL.md` + `规则/缺陷/缺陷平台协作.md` |
 | prototype：context / ia / wireframe / engineering / review / usability / handoff | `技能/prototype-and-interaction/SKILL.md`（设计策略/项目适配/交接边界） |

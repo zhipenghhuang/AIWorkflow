@@ -17,7 +17,7 @@
 powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
 ```
 
-P2+ 定稿顺序：先写评审记录 → `-Mode review`（READY 后取回执 `gate_id`）→ 回填 PRD/评审记录并置 `APPROVED` → 复跑 `-Mode prd` 核结构/追溯/gate_id 一致性。轻量 PRD 免独立评审。回执落 `.gate/产品规范/{mode}.json`，不再共用 `.gate/completion.json`。
+作者侧：落盘 →【完稿自检摘要】→ `-Mode prd`（P2+/P1↑/拟定稿必跑；BLOCKED 不得定稿）。选 B：评审记录 → `-Mode review` → 回填 `gate_id`/APPROVED → 复跑 `-Mode prd`。选 A：HUMAN_APPROVED + 结构非 BLOCKED。P1↑ 自检按 P2、可免独立审。回执 `.gate/产品规范/{mode}.json`。
 
 ## 2. 检查什么
 
@@ -31,7 +31,7 @@ P2+ 定稿顺序：先写评审记录 → `-Mode review`（READY 后取回执 `g
 
 ## 3. 完成状态
 
-> `READY/DRAFT/BLOCKED` 条件与报告措辞见 `规则/核心/验证规则.md` §2；本文件不重复状态表。
+> `READY/DRAFT/BLOCKED` 条件与报告措辞见 `规则/核心/验证规则.md` §2；本文件不重复状态表。回执中文：可定稿/草稿/阻塞；机器仍读 READY/DRAFT/BLOCKED。
 
 ## 4. 成本纪律
 

@@ -3,7 +3,7 @@
 workflow:
   id: prototype
   name: 页面原型设计
-  version: 4
+  version: 5
   read_index: 规则/读取索引.md
 
 entry_points:
@@ -94,13 +94,14 @@ steps:
   - name: 设计评审
     id: review
     agent: ux-designer
+    hitl: select_review_mode
+    hitl_when: landing_doc_review_needed
     output: 产品/{版本或主题}/02-原型与设计/设计评审-{主题}.md
     notes: >
-      按 `技能/ui-visual-design-system/SKILL.md` 评审清单 + `规则/模板/20-原型与设计/设计评审模板.md`：
-      信息架构/一致性/状态/交互/文案/响应式/无障碍/视觉层级；12 项评分卡 0～2 分，阻断项必须 2 分。
-      问题分级（阻断/重要/建议）；需修回 hi-fi（同回合≤1 次）；证据=截图/路径。
-      **评审分片**（子代理编排 §2）：≥8 页 → 按页/维度只读扇出，主 reviewer 去重；12 项评分卡只算一次；小项目单 reviewer。
-      能力（可选）：design-review（web-design-guidelines）；未装 = 按清单人工核。
+      **先选评审方式**（`技能/artifact-review`）：A 自行通过｜B AI 独立审（派 `reviewer-agent` 或异上下文，禁作者自卖自夸）。交开发前必问。
+      选 A：ux-designer 出示 12 项评分卡自检 → 用户确认 HUMAN_APPROVED。
+      选 B：按 `技能/ui-visual-design-system` 清单 + `规则/模板/20-原型与设计/设计评审模板.md` 独立审：IA/一致性/状态/交互/文案/响应式/无障碍/视觉；12 项评分卡；阻断/重要/建议；需修回 hi-fi（≤1）。
+      **评审分片**（≥8 页）：维度扇出；评分卡只算一次。能力 design-review 可选；未装按清单。
 
   - name: 可用性走查
     id: usability
@@ -129,7 +130,7 @@ steps:
     agent: ux-designer
     output: 【任务收尾】（原型/评审/交接明细置第 1 点）
     notes: >
-      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），第 2～6 点齐；
+      按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），按收尾骨架六点输出：第 1 点纯执行汇报（代号带中文描述，不写待确认指针），第 4 点含待你确认表，第 6 点含当前/下一步/建议理由/完成标志；
       更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

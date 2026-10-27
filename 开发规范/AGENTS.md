@@ -2,8 +2,8 @@
 
 > **用途**：开发协作 AI 入口。常驻最小集；命中口令 → `workflows/*.yaml` 当前 step → `规则/读取索引.md` 当前行 → 当前 `agents/*.yaml`。
 > **位置**：`开发规范/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；红线不被覆盖。
-> **template_version**：`2026.10.27.2`（单点：包内版本以本文为准）。
-> **架构**：Workflow + Agent + 规则/门/读取索引 + 技能/能力 + 验证层 + 开发计划控制面。
+> **template_version**：`2026.10.27.5`（单点：包内版本以本文为准）。
+> **架构**：Workflow + Agent + 规则/门/读取索引 + 技能/能力 + 验证层 + 开发计划控制面；落地文档 `review-docs` + `select_review_mode`（自行｜AI），代码审仍走 `review`。
 
 ## 0. 开工（每任务）
 
@@ -29,10 +29,10 @@
 
 | 级别 | 典型 | 必走 | 可跳过 |
 | --- | --- | --- | --- |
-| L0 微改 | 单文件/文案/配置；无行为/契约/权限/数据变化 | clarify → implement → verify → commit | requirements/design/plan/review/deliver/release |
-| L1 常规 | 多文件、范围收敛、无跨系统契约 | clarify →（轻量卡）→ implement →（review 按风险）→ verify →（有 QA）deliver → commit | 全量 PRD/ADR/单独计划 |
-| L2 功能/迭代 | 新功能、跨模块、接口/数据变更、多任务 | requirements → design（条件）→ plan → implement → review → verify → deliver → commit → release_handoff | 无 |
-| L3 高风险 | 权限/资金/迁移/公共 API/安全/破坏性 | L2 + 独立评审 + 安全/隐私 + 回滚演练 + 发布审批 + 观察 + 复盘 | 无 |
+| L0 微改 | 单文件/文案/配置；无行为/契约/权限/数据变化 | clarify → implement → verify → commit | requirements/design/review-docs/plan/review/deliver/release |
+| L1 常规 | 多文件、范围收敛、无跨系统契约 | clarify →（轻量卡）→ implement →（代码 review 按风险）→ verify →（有 QA）deliver → commit | 全量 PRD/ADR；有新方案则问 A/B |
+| L2 功能/迭代 | 新功能、跨模块、接口/数据变更、多任务 | requirements → design（条件）→ **review-docs（A/B）** → plan → implement → review → verify → deliver → commit → release_handoff | 无 |
+| L3 高风险 | 权限/资金/迁移/公共 API/安全/破坏性 | L2 + 文档/代码独立审 + 安全/隐私 + 回滚演练 + 发布审批 + 观察 + 复盘 | 无 |
 | 缺陷 | 平台缺陷/指派/修复#/产品评估/产品回复 | defect-fix：preflight → pull → triage →（fix/assess→handoff→await→decision→align/clarify）→ gates → menu → close → postrelease | 无平台→change |
 
 分级在 clarify 判断并写入首条路由；不确定按高一档。L0 不强制文档，但证据/提交确认/密钥红线不可省；L0 也不得跳过理解回执（纯机械操作除外）。L2+ 默认启用《开发计划》；路径 `开发/开发计划.md`。
@@ -41,8 +41,7 @@
 
 - **只认 YAML 步上 `hitl`/`hitl_when`/`gate_when`**；语义见 `规则/门.md`。条件不满足则跳过；专规不另造门。
 - **门档位**：autonomous（L0/只读/可逆，直接做）｜notify（L1、清单/节奏未实质变化，展示后继续）｜approve（L2+ 范围/方案/清单实质变化、L3、部署/回滚/回写/提交）。
-- **澄清**：按 `规则/核心/澄清.md`；先读规则/技能/代码/文档做分析，再给「我的理解 + 已分析建议 + 需要你拍板（0～1 个）」；只问影响意图/范围/验收/风险的问题，技术细节自行分析；总提问不超过 3 个；确认后冻结验收清单并执行。禁把技术细节逐条问用户、禁自问自答、禁把假设当结论/把确认门当澄清。
-- **待确认集中**：非阻塞项不散问；登记本包待决项/计划 §9，收尾【待你确认】一次输出（选项/建议/影响/默认）；仅阻塞项即时问。
+- **澄清**：按 `规则/核心/澄清.md`；先读规则/技能/代码/文档做分析，再给「我的理解 + 已分析建议 + 需要你拍板（0～1 个）」；只问影响意图/范围/验收/风险的问题；不确定项按澄清§2.1分流。
 - **产品资料先解析**：输入含 PRD/迭代方案/需求文档/页面原型/截图/接口或技术文档 → 先按 `技能/product-doc-analysis/SKILL.md` 产出带引用的理解包；原型只作 UI/交互依据，冲突列出来问，不反推后端规则。
 - **直跑/预授权**：口令命中 → 首条 `route=...`；「一次性/直接跑完」默认只到任务完成，不含提交/推送/部署/回写。只免等待，不免输出。
 - **可选输入不阻塞**：缺 PRD/方案/提测单/测试报告/UAT/缺陷单 → 一句话说明缺口，由用户提供/选择已有资料/本包模板补；禁因缺其它包阻塞。
@@ -64,12 +63,13 @@
 
 ### 0.4 验证与汇报（硬约束）
 
-1. **完成只认门**：任务开始 `Invoke-Gate.ps1 -StartTask -TaskId ...`；代码/配置改动运行 `验证/Invoke-Gate.ps1`，读 `.gate/开发规范/completion.json`。没有本轮 `COMPLETE`（task_id/diff_hash 匹配），只能报“未验证/部分完成/阻塞”；空 diff = `NOT_VERIFIED`，dry-run = `DRY_RUN`，都不是完成。
-2. **证据先于结论**：结论引用本轮检查、退出码、证据路径；路径必须存在；聊天文本/子代理自述不算证据；失败/环境缺失 → `BLOCKED`。
-3. **前端必须浏览器验证**：状态/视口/console/network/截图/设计 QA；L1 至少七项+桌面/移动截图，L2+ 十五项；纯文案可 L0-light，但仍要受影响页面截图 + console 无 error。
-4. **报告先写回执**：`【验证回执】verdict=...` 在完成内容之前；非 `COMPLETE` 禁用“完成/通过/已修复/正常”（“未完成/未通过/未修复”允许）；`验证/Test-Report.ps1` 对账。
-5. **门不替代授权**：提交/部署/回写仍按 YAML `hitl` 单独确认；门只证明“做到没有”，不证明“可以发”。
-6. **成本纪律**：只跑受影响范围；全量回归只留给发布/L3；L0/L1 不新增文档；截图桌面+移动各 1 张/页，JPEG/WebP 优先；不默认 HTML report/trace/video；不每个任务通读规则/技能。详细规则：`验证/README.md`、`规则/核心/验证规则.md`、`验证/检查矩阵.yaml`；维护读 `规则/核心/规则治理.md`。
+1. **落地文档先选评审方式**：需求基线/方案/ADR/前端设计说明等实施前 STOP `select_review_mode`——A 自行通过｜B AI（`doc-reviewer`）；未选不得实施。方法：`技能/design-doc-review`。与代码 `review` 分轨。
+2. **完成只认门**：任务开始 `Invoke-Gate.ps1 -StartTask -TaskId ...`；代码/配置改动运行 `验证/Invoke-Gate.ps1`，读 `.gate/开发规范/completion.json`。没有本轮 `COMPLETE`（task_id/diff_hash 匹配），只能报“未验证/部分完成/阻塞”；空 diff = `NOT_VERIFIED`，dry-run = `DRY_RUN`，都不是完成。
+3. **证据先于结论**：结论引用本轮检查、退出码、证据路径；路径必须存在；聊天文本/子代理自述不算证据；失败/环境缺失 → `BLOCKED`。
+4. **前端必须浏览器验证**：状态/视口/console/network/截图/设计 QA；L1 至少七项+桌面/移动截图，L2+ 十五项；纯文案可 L0-light，但仍要受影响页面截图 + console 无 error。
+5. **报告先写回执**：`【验证回执】verdict=...` 在完成内容之前；非 `COMPLETE` 禁用“完成/通过/已修复/正常”（“未完成/未通过/未修复”允许）；`验证/Test-Report.ps1` 对账。
+6. **门不替代授权**：提交/部署/回写仍按 YAML `hitl` 单独确认；门只证明“做到没有”，不证明“可以发”。
+7. **成本纪律**：只跑受影响范围；全量回归只留给发布/L3；L0/L1 不新增文档；截图桌面+移动各 1 张/页，JPEG/WebP 优先；不默认 HTML report/trace/video；不每个任务通读规则/技能。详细规则：`验证/README.md`、`规则/核心/验证规则.md`、`验证/检查矩阵.yaml`；维护读 `规则/核心/规则治理.md`。
 
 ### 0.5 工程与执行（摘要）
 
@@ -92,7 +92,7 @@
 
 ## 2. 收尾
 
-触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。按 `规则/模板/90-交接与收尾/收尾骨架.md`；先写 `【验证回执】`，再写 `【待你确认】`（无则「无」），再写完成内容；第 4 点只引用该块。提交/部署/回写门按 YAML `hitl` 独立确认；`wrap` 只写「有 N 个文件待提交」，完整【拟提交】在 commit 步只展示一次。收尾列「已发送待正式签收/退回/阻断」的 HO-ID；日常以 `已发送` 可继续本侧，不得因缺回执把阶段标未完成；仅用户点名正式签收或发布/C2/C3 未收回执时才标阻塞。
+触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。按 `规则/模板/90-交接与收尾/收尾骨架.md`；按收尾骨架：中文回执 → 第1点纯汇报 → 第4点待确认表（无则「待你确认：无」）→ 第6点进度与下一步。提交/部署/回写门按 YAML `hitl` 独立确认；`wrap` 只写「有 N 个文件待提交」，完整【拟提交】在 commit 步只展示一次。交接回执按协作规则；未回执不得称已接收。
 
 ## 3. 口令 → Workflow（命中即停）
 
@@ -108,7 +108,8 @@
 | 5 | 提交/推送（单独口令） | 当前 workflow 末步，或 `change` | commit；implementer |
 | 6 | 常规变更/澄清（及未命中 1～5 的实施类） | `change` | clarify；implementer（**澄清=单步；常规变更=按链**） |
 | 6.1 | 分析 PRD/迭代方案/需求文档/页面原型/理解需求/解析原型 | `change` | analyze_input；implementer |
-| 7 | 出方案/需求澄清/方案评审（「只出方案」=设计后收尾） | `change` | design；implementer |
+| 7 | 出方案/需求澄清（「只出方案」=design→review-docs 后收尾） | `change` | design；implementer |
+| 7.1 | 方案评审/文档评审/设计文档评审 | `change` | review-docs；doc-reviewer（先 select_review_mode） |
 | 8 | 代码评审 | `change` | review；reviewer-agent |
 | 9 | 提测/提测单/发布说明/回滚预案（不含“提测交接包/发布交接包”→handoff.send） | `change` | deliver；implementer |
 | 10 | 发布/上线/部署/发版（不含“发布交接包”→handoff.send） | `release` | readiness（全链）；delivery-lead |

@@ -25,7 +25,7 @@ steps:
       读需求基线/方案/开发计划/任务清单现状；确认需求已签收、方案已批准（L2+）。
       输入含 PRD/迭代方案/原型/需求文档但无需求理解包 → 先回 `workflows/change.yaml` 的 analyze_input；不得凭聊天记忆或文档标题拆单。
       输入是交接包 → 先走 `workflows/handoff.yaml` receive 核对+回执；未签收不得拆单/实施。
-      缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 requirements/design 补确认（`confirm_requirements`/`confirm_spec`）；不凭聊天记忆直接拆单/实施。
+      缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 requirements/design/`review-docs`（先 `select_review_mode` 再 `confirm_spec`）补确认；不凭聊天记忆直接拆单/实施。
       「只出任务清单」可只要求需求/方案要点，缺则一次一问；确认后进入 plan，不跳过计划依据。
 
   - name: 读方案与拆清单
