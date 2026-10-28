@@ -65,6 +65,7 @@ steps:
     id: prd
     agent: prd-writer
     gate: product-prd
+    gate_type: machine
     gate_when: prd_structure_required
     hitl:
       - name: confirm_understanding
@@ -91,6 +92,7 @@ steps:
     id: prototype
     when: has_ui_requirement
     agent: ux-designer
+    output: 产品/{版本或主题}/02-原型与设计/原型-{主题}.html + 原型说明/交接要点（条件）
     notes: >
       条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。
       按 `workflows/prototype.yaml` 执行（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）；只执行所列步骤，不执行 prototype.wrap/commit（由本链统一收尾）。
@@ -101,6 +103,7 @@ steps:
     id: review
     agent: reviewer-agent
     gate: product-review
+    gate_type: machine
     gate_when: ai_review_chosen
     hitl:
       - name: select_review_mode
@@ -125,9 +128,9 @@ steps:
     agent: pm-lead
     output: 产品/交接/{HO-ID}/（REQ → 开发/测试）+ 交接台账
     notes: >
-      PRD 已 APPROVED 且 PRD 门 READY 后执行；按 `规则/协作/协作与交接.md` §3/§4 与 `workflows/handoff.yaml` 的 send 逻辑生成，不另造模板。
+      PRD 已 APPROVED 且 PRD 门 READY 后执行；本步只决定「交自洽 PRD 还是打 REQ 包」，**不得在本步直接写 `{HO-ID}/`**。
       **最优默认**：定稿后交付**自洽 PRD**（实施可读：全量 AC/范围/非目标/边界/NFR/待决写进 PRD）；**不**默认打 REQ 包。
-      **REQ 包按需**：多文件（原型源等）/正式签收/仓外 ZIP/点名 → 停问建议；确认后 `handoff.send`。未命中不机械每问。
+      **REQ 包按需**：多文件（原型源等）/正式签收/仓外 ZIP/点名 → 停问建议；确认后走 `workflows/handoff.yaml` 的 `send`（含 `confirm_handoff`），不另造模板。未命中不机械每问。
       仅评审未定稿 → 跳过。未回执不得写“开发/测试已接收”。
 
   - name: 收尾

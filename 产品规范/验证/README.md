@@ -18,7 +18,7 @@
 powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -Artifact "产品/V1/PRD-….md" -ProjectRoot "."
 ```
 
-作者侧：落盘 →【完稿自检摘要】→ `-Mode prd`（P2+/P1↑/拟定稿必跑；BLOCKED 不得定稿）。选 B：评审记录 → `-Mode review` → 回填 `gate_id`/APPROVED → 复跑 `-Mode prd`。选 A：HUMAN_APPROVED + 结构非 BLOCKED。P1↑ 自检按 P2、可免独立审。回执 `.gate/产品规范/{mode}.json`。
+作者侧：落盘 →【完稿自检摘要】→ `-Mode prd`（P2+/P1↑/拟定稿必跑；BLOCKED 不得定稿）。选 B：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。选 A：`review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY。P1↑ 自检按 P2、可免独立审。回执 `.gate/产品规范/{mode}.json`。
 
 ## 2. 检查什么
 

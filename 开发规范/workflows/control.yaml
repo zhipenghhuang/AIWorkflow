@@ -90,6 +90,8 @@ steps:
     id: check
     agent: reviewer-agent
     gate: dev-plan
+    gate_type: checklist
+    gate_when: dev_plan_required
     output: 阶段门检查结论/缺口
     notes: >
       技能：`技能/development-plan/SKILL.md` §5；只读检查，不改代码。

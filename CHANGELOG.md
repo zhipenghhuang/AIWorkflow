@@ -7,12 +7,40 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.28.11` | 更新 | 技能标准/指标实验/AI 产品补强 |
-| 开发规范 | `2026.10.28.11` | 更新 | 技能标准/调试/可观测/AI 应用补强 |
-| 测试规范 | `2026.10.28.11` | 更新 | 技能标准/数据环境/AI 测试补强 |
-| 母版仓 | `2026.10.28.11` | 更新 | 三包通用能力体检与补强 |
+| 产品规范 | `2026.10.28.12` | 更新 | 执行契约/角色契约/门与计划闭环 |
+| 开发规范 | `2026.10.28.12` | 更新 | 执行契约/角色契约/门与计划闭环 |
+| 测试规范 | `2026.10.28.12` | 更新 | 执行契约/角色契约/门与计划闭环 |
+| 母版仓 | `2026.10.28.12` | 更新 | 契约化、CI、正确性与 token 治理 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
+
+## [2026.10.28.12] - 2026-10-28
+
+### Added
+
+- 三包新增 `规则/核心/执行契约.md`：判断模式（execute/analyze/stop）、自主边界、步骤契约（output/verify/on_fail/escalate_to）、计划同步矩阵、时间/Token 纪律、收尾【遵守自检】。
+- 三包新增 `规则/协作/角色契约.md`：角色主责/决策权/停止与升级/不做什么；补足 agent YAML 之外的职责边界。
+- 步骤新增 `gate_type`（machine/checklist）、`precondition`、`on_fail`、`next` 等契约字段；`validate_workflow.py` 增加空转步、gate_type、next 引用、chain:full 终点警告。
+- 根新增 `.github/workflows/validate.yml`、PR 模板、CODEOWNERS、`THIRD_PARTY.md`；三包自检可在 push/PR 自动跑。
+- 测试 `writeback-receipt` 门、开发 `confirm_replan`（C2/C3）、`dev_plan_required`/`has_code_change` 条件。
+
+### Changed
+
+- 三包 AGENTS 压缩到 token 预算内（≤5500）；单步读取预算改为 ≤3 个来源；细节下沉到规则/执行契约/角色契约。
+- 产品 A 路径与 B 路径统一为可过门：A = `review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED`，复跑 prd 至 READY；不再把 A 当 DRAFT。
+- UAT verdict 统一为“有条件通过”，兼容“带条件通过”；UAT 与 PRD 的 A-xx/AC-xx 做归一化比较。
+- 产品计划/交付/0→1 补 output；onboard.verify、skill-audit、release 补产物/提交步；测试 report→handoff 改为显式短链。
+- 测试 `gate_id` 只哈希输入（计划/冒烟/台账），不哈希报告本身；回填回执后复跑保持稳定。
+- 开发 release 增加 commit 步；handoff.send 增加 `validate_handoff.py` 校验；defect-fix 门条件改为 `has_code_change`。
+- 技能接线：solution-design 补 02F/可观测/AI；测试与产品新技能在步骤中显式加载。
+- 计划模板补最小规划集：产品 RICE/WSJF + 缓冲；开发关键路径/外部依赖/里程碑退出/缓冲；测试 9.0 估算与风险 P×I 评分。
+
+### Fixed
+
+- 修复 `validate_workflow.py` 的 next 两遍解析、数字 token、`gate_type` 警告；三包 YAML 校验 0 warning。
+- 修复 `Test-Template.ps1` token 正则不支持数字的问题（`c2_or_c3`）。
+- 修复产品 Test-Template 被误覆盖的问题（恢复产品版并保留正则修复）。
+- 读取索引补执行契约入口；文档治理/工作流不再重复计划同步矩阵。
 
 ## [2026.10.28.11] - 2026-10-28
 

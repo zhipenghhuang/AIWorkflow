@@ -1,5 +1,5 @@
 # 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
-# 入口即止：clarify/design/review-docs/review/deliver/commit 为单步入口；未标全链时只到该步 + 收尾。
+# 入口即止：clarify/design/review-docs/review/deliver/commit 为单步入口；未标 chain: full 时只到该步 + 收尾。
 workflow:
   id: change
   name: 常规代码变更
@@ -118,7 +118,7 @@ steps:
     notes: >
       **实施前必经**（L2+ 有新基线/方案/ADR/前端设计说明，或口令方案评审/文档评审）。技能：`技能/design-doc-review/SKILL.md`。
       **STOP【评审方式】**：A 自行评审通过｜B AI 独立评审；未选不得进 implement。
-      **选 A**：出示 D1–D8/评分卡自检摘要 → 用户确认 → HUMAN_APPROVED → 再 `confirm_spec`（有方案时）或确认基线可实施。
+      **选 A**：出示 D1–D8/评分卡自检摘要 → 用户确认 → HUMAN_APPROVED → `confirm_spec` 确认基线/方案可实施；仅基线时确认基线，不重复 `confirm_requirements`。
       **选 B**：`doc-reviewer` 异上下文按 D1–D8 审；留痕 `开发/02-方案设计/评审-文档-{主题}-{时间}.md`（仅基线则可落 `01-需求基线/`）；需修回 design/requirements（≤1）；通过后再授权。
       评审对象=本轮新增/变更的基线+方案+ADR+前端设计说明（有则全列）。点名「方案评审」且已有方案 → 本步选模式+审，不重产。
       **与代码评审分轨**：本步不审 diff；代码仍走 `review`。
@@ -141,6 +141,8 @@ steps:
   - name: 实施
     id: implement
     agent: implementer
+    precondition: clarify 已完成；按级别适用的 requirements/design/review-docs/plan 已完成并确认；缺一停，不跳过门直接写代码
+    on_fail: 回 design/review-docs 或 requirements；不得以「先写再补」绕过
     output: 代码/配置改动
     notes: >
       技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md` + `技能/debugging-and-error-recovery/SKILL.md`（失败/异常时）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
@@ -150,6 +152,7 @@ steps:
       本机可用 unit-test-gen 时按覆盖缺口驱动单测（禁无断言凑覆盖率）；不可用=手写+门禁。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交** → 一组一子代理（worker-agent），默认串行；批末定向门禁→核验→下一批；单文件/L0 直做；子代理不改清单/计划。
       改动面超出清单/预期先停下说明；高风险变更用开关/可回滚路径。
+      **前置自检**：本步开始前逐项核 `precondition`；L2+ 若 review-docs/plan 被跳过，回对应步补齐，不得直接实施。
 
   - name: 代码评审
     id: review
@@ -180,6 +183,7 @@ steps:
     when: code_changed_or_requested
     agent: verifier-agent
     gate: completion-gate
+    gate_type: machine
     output: .gate/开发规范/completion.json + 验证回执
     notes: >
       有代码/配置改动才跑；按 `验证/检查矩阵.yaml` 取最小充分集（细则 `规则/核心/验证规则.md`）；

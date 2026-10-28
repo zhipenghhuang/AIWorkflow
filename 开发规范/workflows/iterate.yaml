@@ -22,6 +22,7 @@ steps:
   - name: 前置检查
     id: precheck
     agent: iterate-lead
+    output: 前置检查结果（需求签收/方案批准/清单/交接/缺口）
     notes: >
       读需求基线/方案/开发计划/任务清单现状；确认需求已签收、方案已批准（L2+）。
       输入含 PRD/迭代方案/原型/需求文档但无需求理解包 → 先回 `workflows/change.yaml` 的 analyze_input；不得凭聊天记忆或文档标题拆单。
@@ -101,6 +102,7 @@ steps:
     when: implementation_required
     agent: verifier-agent
     gate: completion-gate
+    gate_type: machine
     output: .gate/开发规范/completion.json + 门禁摘要/文档同步
     notes: >
       按 `验证/检查矩阵.yaml` 取最小充分集；运行 `验证/Invoke-Gate.ps1 -Acceptance <任务清单>`；门自己跑关键检查并写 `.gate/开发规范/completion.json`。
@@ -116,11 +118,8 @@ steps:
     output: 提测单/发布说明/回滚预案（开发/06-发布与交付/）
     notes: >
       条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
-      技能：`技能/qa-handoff-and-release/SKILL.md`；提测单模板（**自洽：禁默认引用开发内部档**）。
-      提测单/发布说明落 06-发布与交付/；先产文档再提交。
-      未 `COMPLETE` 不得标“可提测”。gate 结论写入提测单正文，不把内部路径当交接依据。
-      **最优默认仅提测单**；QA 包仅多文件证据/正式签收/仓外/同发发版/点名时停问建议；确认才 `handoff.send`。有部署按触发建议 `REL`。未回执不得写“已接收”。
-      已知问题不瞒报。
+      **单一出处**：按 `workflows/change.yaml` 的 `deliver` 步执行（模板/自洽提测单/门结论/QA 包规则均以该步为准）；本步只保留 iterate 的触发条件与 agent。
+      未 `COMPLETE` 不得标“可提测”；已知问题不瞒报；未回执不得写“已接收”。
 
   - name: 发布交接
     id: release_handoff
@@ -129,10 +128,8 @@ steps:
     output: 发布就绪包
     notes: >
       条件步：含部署/发版才走；本步不直接部署。
-      就绪包=提测单+发布说明+回滚预案+测试报告/UAT（如有）；上线检查单由 `release.readiness` 产出，本步不重复造。
-      **建议**是否发 `REL` 包；确认后才生成。口令「发布」进 `release.yaml`；不自动部署、不越过 `confirm_deploy`。
-      本步只补发布交接摘要（版本/窗口/风险/回滚决策人），不重复六段；最终收尾由 wrap 输出。
-      更新开发计划：S8 发布=进行中，发布说明/上线检查单/回滚链接。
+      **单一出处**：按 `workflows/change.yaml` 的 `release_handoff` 步执行（就绪包/REL 包/上线检查单归属均以该步为准）；本步只保留 iterate 的触发条件与 agent。
+      口令「发布」进 `release.yaml`；不自动部署、不越过 `confirm_deploy`；更新开发计划 S8。
 
   - name: 迭代复盘
     id: retro

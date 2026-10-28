@@ -1,5 +1,5 @@
 # 产品展示与介绍（受众 → 故事线/流程图 → 演示脚本 → 环境 → 材料/文档 → 彩排 → 对外确认）
-# 入口即止：用户手册/发布说明只到 docs→publish（对外时）→wrap；准备演示才走全链。
+# 入口即止：文档/材料只到 docs/materials→publish（对外时）；准备演示才按链执行到 publish/wrap。
 workflow:
   id: showcase
   name: 产品展示与介绍
@@ -67,6 +67,7 @@ steps:
   - name: 展示材料
     id: materials
     agent: ux-designer
+    next: publish
     output: 产品/{版本或主题}/05-展示与材料/一页纸-{产品}.md · 产品/{版本或主题}/05-展示与材料/Deck大纲-{受众}.md（按点名类型产出）
     notes: >
       一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图；
@@ -79,6 +80,7 @@ steps:
     id: docs
     when: docs_requested
     agent: prd-writer
+    next: publish
     output: 产品/用户文档/{按点名类型}-{版本}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）
     notes: >
       点名用户手册/快速开始/FAQ/发布说明/培训材料 → `docs_requested=true`。
@@ -102,6 +104,7 @@ steps:
     agent: pm-lead
     hitl: confirm_materials
     hitl_when: materials_for_external
+    output: 对外确认记录（清单 + 数字/截图来源 + 未实现边界 + 批准人）
     notes: >
       材料/文档/演示已就绪；出示对外清单（一页纸/Deck/用户文档/发布说明）、数字与截图来源、未实现/未发布边界，
       对外前可派 verifier-agent 只读核对（数字/版本/截图/边界）；确认后才对外发送、承诺或发布；内部汇报/草稿不触发。

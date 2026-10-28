@@ -312,8 +312,8 @@ $declaredWhen = New-Object System.Collections.Generic.HashSet[string]
 $declaredGates = New-Object System.Collections.Generic.HashSet[string]
 foreach ($m in [regex]::Matches($agentsText, '`([^`\r\n]+)`')) {
     $tok = $m.Groups[1].Value.Trim()
-    if ($tok -match '^(select|confirm)_[a-z_]+$') { [void]$declaredNames.Add($tok) }
-    elseif ($tok -match '^[a-z]+(_[a-z]+)+$') { [void]$declaredWhen.Add($tok) }
+    if ($tok -match '^(select|confirm)_[a-z0-9_]+$') { [void]$declaredNames.Add($tok) }
+    elseif ($tok -match '^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$') { [void]$declaredWhen.Add($tok) }
     if ($tok -match '^gate:\s*([a-z][a-z0-9-]*)$') { [void]$declaredGates.Add($Matches[1]) }
 }
 if (Test-Path -LiteralPath $wfDir) {

@@ -55,12 +55,14 @@ steps:
     hitl: confirm_handoff
     hitl_when: handoff_send_required
     output: "开发/交接/{HO-ID}/ + 【交接包已生成】"
+    verify: python 开发规范/规则/tools/validate_handoff.py "开发/交接/{HO-ID}"
+    on_fail: 缺 00/01/快照/占位符/链接断 → 不发送；补后重跑校验
     notes: >
       先读 `规则/协作/协作与交接.md` §3.1/§4 与交接包说明/清单模板。
       **先问后发（不可跳过）**：`confirm_handoff` 必停——出示【拟发包】；用户确认后才写盘；未确认零发包。禁止静默发包。
       选类型：CLAR/DES/PLAN/QA/BUG（仅无平台或点名）/FIX（同上）/REL/RETRO；CHG 走 change_send。
       **前置**：业务门过 ≠ 发包已授权；QA/FIX/BUG 自包含详实；有平台已交则拒绝重复 BUG/FIX 整包（§3.1.1）。
-      确认后：完整包 `00/01/02/03/04`（大文件可同仓联动）→ 校验 → 台账已发送。
+      确认后：完整包 `00/01/02/03/04`（大文件可同仓联动）→ 跑 `validate_handoff.py` → 台账已发送；校验失败不得称「已发送」。
       传递：多包同仓直读（禁拷到对方资料/交接）；仓外文件夹或 ZIP。
       输出【交接包已生成】摘要。
 
@@ -141,6 +143,7 @@ steps:
     agent: implementer
     hitl: confirm_commit
     hitl_when: has_pending_commit
+    output: 拟提交确认结果
     tools:
       - git
     notes: 无文件变更跳过；拟提交清单按 `规则/工作流.md` §2；提交后补一行结果，不重复六段。

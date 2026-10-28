@@ -28,9 +28,9 @@ def declared_tokens(agents_text: str) -> tuple[set[str], set[str], set[str]]:
     gates: set[str] = set()
     for m in re.finditer(r"`([^`\r\n]+)`", agents_text):
         tok = m.group(1).strip()
-        if re.fullmatch(r"(confirm|select)_[a-z_]+", tok):
+        if re.fullmatch(r"(confirm|select)_[a-z0-9_]+", tok):
             hitl.add(tok)
-        elif re.fullmatch(r"[a-z]+(_[a-z]+)+", tok):
+        elif re.fullmatch(r"[a-z][a-z0-9]*(?:_[a-z0-9]+)+", tok):
             when.add(tok)
         gate = re.fullmatch(r"gate:\s*([a-z][a-z0-9-]*)", tok)
         if gate:
@@ -46,6 +46,7 @@ def main() -> int:
     agents_dir = root / "agents"
     workflows_dir = root / "workflows"
     errors: list[str] = []
+    warnings: list[str] = []
 
     if not agents_dir.is_dir():
         errors.append("MISSING_DIR: agents/")
@@ -106,7 +107,8 @@ def main() -> int:
             errors.append(f"WORKFLOW_SCHEMA: {path.relative_to(root)}: steps must be a non-empty list")
             continue
 
-        step_ids: set[str] = set()
+        step_ids: set[str] = {str(s.get("id")) for s in steps if isinstance(s, dict) and s.get("id")}
+        seen_ids: set[str] = set()
         for idx, step in enumerate(steps, 1):
             if not isinstance(step, dict):
                 errors.append(f"STEP_SCHEMA: {path.relative_to(root)}: step {idx} must be a mapping")
@@ -116,9 +118,9 @@ def main() -> int:
                     errors.append(f"STEP_SCHEMA: {path.relative_to(root)}: step {idx} missing {key}")
             sid = str(step.get("id") or "")
             if sid:
-                if sid in step_ids:
+                if sid in seen_ids:
                     errors.append(f"STEP_DUPLICATE: {path.relative_to(root)}: id={sid}")
-                step_ids.add(sid)
+                seen_ids.add(sid)
             agent = str(step.get("agent") or "")
             if agent and agent_ids and agent not in agent_ids:
                 errors.append(f"STEP_AGENT: {path.relative_to(root)}: {sid or idx} agent={agent} not found")
@@ -151,6 +153,20 @@ def main() -> int:
             gate = step.get("gate")
             if gate and gate_decl and str(gate) not in gate_decl:
                 errors.append(f"GATE_UNDECLARED: {path.relative_to(root)}: {sid}: {gate}")
+            gate_type = step.get("gate_type")
+            if gate_type and str(gate_type) not in ("machine", "checklist"):
+                errors.append(f"GATE_TYPE: {path.relative_to(root)}: {sid}: {gate_type} (machine|checklist)")
+            if gate and not gate_type:
+                warnings.append(f"WARN_GATE_TYPE: {path.relative_to(root)}: {sid}: gate={gate} 缺 gate_type")
+            nxt = step.get("next")
+            if nxt and str(nxt) not in step_ids:
+                errors.append(f"NEXT_REF: {path.relative_to(root)}: {sid}: next={nxt} (step not found)")
+            if not step.get("output") and not step.get("internal"):
+                has_checkpoint = bool(
+                    step.get("hitl") or step.get("hitl_when") or step.get("gate") or step.get("gate_when")
+                )
+                if not has_checkpoint:
+                    warnings.append(f"WARN_BARE_STEP: {path.relative_to(root)}: {sid} 无产物/门/停点")
 
         eps = data.get("entry_points")
         if isinstance(eps, dict):
@@ -158,12 +174,20 @@ def main() -> int:
                 if str(sid) not in step_ids:
                     errors.append(f"ENTRY_POINT: {path.relative_to(root)}: {name} -> {sid} (step not found)")
 
+        if str(wf.get("chain") or "") == "full":
+            last = steps[-1] if isinstance(steps[-1], dict) else {}
+            if not last.get("output") and not last.get("gate"):
+                warnings.append(f"WARN_CHAIN_FULL: {path.relative_to(root)}: chain=full 末步 {last.get('id')} 无 output/gate")
+
+    if warnings:
+        for w in warnings:
+            print(w)
     if errors:
         for e in errors:
             print(e)
         print(f"YAML_VALIDATION_FAILED: {len(errors)} issue(s)")
         return 1
-    print("YAML_VALIDATION_OK")
+    print(f"YAML_VALIDATION_OK ({len(warnings)} warning(s))")
     return 0
 
 

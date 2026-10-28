@@ -4,7 +4,7 @@
 # - 无「测试规范接入：已完成」（兼容旧 landing=ok）时才按 onboard-agent 清单核验一次，打标后免检（AGENTS 开工第3点）
 # - 正式轨：功能全量/专项 · 探索式 · 随机业务流程（计划外） · 接口 · 发布前（工作流 §1.2 + 规则/轨契约/）
 # - 确认门只认步上 hitl（标量或列表，可带 when）；条件不满足则该门跳过，不算违例
-# - 入口即止：单步口令只执行该步 + 收尾；「按计划执行」才走 analyze→plan→generate→review-cases→execute→report
+# - 入口即止：单步口令只执行该步 + 收尾；「按计划执行」才按链走 analyze→plan→generate→review-cases→execute→report
 workflow:
   id: testing
   name: AI测试流程
@@ -167,6 +167,7 @@ steps:
       - name: confirm_commit
         when: standalone_generate_with_pending
     gate: coverage-map
+    gate_type: machine
     gate_when: functional_coverage_required
     notes: >
       门1：仅**新生成**且主读未点名时 STOP（analyze 已问过则跳过，不重问；用例评审不触发）。
@@ -192,6 +193,7 @@ steps:
       - name: confirm_review
         when: review_needs_confirm
     gate: case-review
+    gate_type: machine
     gate_when: case_review_required
     output: 测试/{轨}/评审-{范围}-{yyyyMMdd-HHmm}.md + 【任务收尾】（评审结论置第 1 点）
     notes: >
@@ -207,6 +209,7 @@ steps:
     id: execute
     agent: test-orchestrator
     gate: execute-batch
+    gate_type: machine
     gate_when: module_batch_complete
     hitl:
       - name: confirm_understanding
@@ -250,10 +253,13 @@ steps:
   - name: 输出报告
     id: report
     agent: report-agent
+    next: handoff   # 报告门通过后只追加一次提交/交平台确认，不重跑执行
     gate: report-consistency
+    gate_type: machine
     notes: >
-      先产出报告正文与六段【任务收尾】，**门3 移至 handoff 步**，在骨架后单独问；不得先阻塞报告输出。
-      报告正文写完后运行 `验证/Invoke-Gate.ps1 -Mode report`；门读计划/台账/报告，检查计数一致、P0、P0 计划覆盖、证据、覆盖缺口；未 PASS/CONDITIONAL 不得写“整体通过/可准出”，且**本步结束，不得进入 handoff/提交/交平台**——先修数据/证据或报阻塞。
+      先产出报告正文与六段【任务收尾】，**门3 在 handoff 步**，在骨架后单独问；不得先阻塞报告输出。
+      报告正文写完后运行 `验证/Invoke-Gate.ps1 -Mode report`；门读计划/台账/报告，检查计数一致、P0、P0 计划覆盖、证据、覆盖缺口；未 PASS/CONDITIONAL 不得写“整体通过/可准出”，且**本步停**——先修数据/证据或报阻塞。
+      门通过 → 按 `next: handoff` 追加一次提交/交平台确认（只此一次）；门未过不得进入 handoff。
       门回执在 `.gate/测试规范/report.json`；把 `verdict/gate/counts/p0/unverified` 回填报告 §0 后再复跑一次（回执必须与最终门一致）。非 PASS 禁用“全部通过/可发布”。
       `writeback` 只写 `.gate/测试规范/writeback.json`，不得覆盖 report 回执。
       全部阶段（P0～P9）结束或本步收尾时，按 AGENTS §5 输出最终【任务收尾】（执行明细置第 1 点，含汇报，可整段复制）；阶段中途只出 ≤3 行简报；收尾第 1 点纯执行汇报（代号带中文描述），第 4 点含待你确认表，第 6 点含当前/下一步。

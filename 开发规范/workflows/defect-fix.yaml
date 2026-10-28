@@ -28,6 +28,7 @@ steps:
   - name: 平台可用性
     id: preflight
     agent: defect-fixer
+    output: 平台可用性/鉴权结果 + 降级路由（route/reason/next_action）
     notes: >
       读项目档案 provider。若为「无」或未配置：
       route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；
@@ -167,11 +168,13 @@ steps:
 
   - name: 门禁
     id: gates
-    when: implementation_required
+    when: has_code_change
     agent: verifier-agent
     gate: completion-gate
+    gate_type: machine
     notes: >
       本批无代码/配置改动项 → 跳过（纯文档/纯评估）；有改动运行 `验证/Invoke-Gate.ps1`，门写 `.gate/开发规范/completion.json`。
+      `has_code_change` = 本轮 diff 非空（不含生成物）；与 `implementation_required`（清单已确认）区分，避免纯文档批空跑门。
       日志分诊（子代理编排 §2）：原始日志落盘，先脚本过滤；仅多文件语义归因才派子代理，返回摘要 ≤30 行。
       失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
 

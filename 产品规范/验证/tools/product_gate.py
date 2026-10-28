@@ -239,22 +239,28 @@ def check_prd(package_root: Path, path: Path) -> dict[str, Any]:
             if fm.get("review_status", "").upper() not in ("SELF_CHECKED", "APPROVED", "NOT_REQUIRED"):
                 issues.append("轻量 PRD status=APPROVED 需 review_status=SELF_CHECKED/APPROVED")
         else:
-            if fm.get("review_status", "").upper() != "APPROVED":
-                issues.append("status=APPROVED 但 review_status 不是 APPROVED")
-            if not fm.get("gate_id"):
-                issues.append("status=APPROVED 但缺少 gate_id（由 -Mode review 回执回填）")
-            reviews = [p for p in path.parent.glob("评审-*.md")]
-            if not reviews:
-                issues.append("status=APPROVED 但同目录无评审记录")
+            review_status = fm.get("review_status", "").upper()
+            if review_status == "APPROVED":
+                if not fm.get("gate_id"):
+                    issues.append("status=APPROVED 但缺少 gate_id（由 -Mode review 回执回填）")
+                reviews = [p for p in path.parent.glob("评审-*.md")]
+                if not reviews:
+                    issues.append("status=APPROVED 但同目录无评审记录")
+                else:
+                    review = max(reviews, key=lambda p: p.stat().st_mtime)
+                    r = check_review(review)
+                    issues += [f"评审记录: {x}" for x in r["issues"]]
+                    rfm = frontmatter(read(review))
+                    if not rfm.get("gate_id"):
+                        issues.append("评审记录缺少 gate_id（将 review 回执回填后复跑）")
+                    elif fm.get("gate_id") and rfm.get("gate_id") != fm.get("gate_id"):
+                        issues.append("PRD 与评审记录的 gate_id 不一致")
+            elif review_status == "HUMAN_APPROVED":
+                # A 路径：人审通过，不要求 AI 评审记录/gate_id；必须留批准人。
+                if not fm.get("approved_by"):
+                    issues.append("review_status=HUMAN_APPROVED 但缺少 approved_by（批准人）")
             else:
-                review = max(reviews, key=lambda p: p.stat().st_mtime)
-                r = check_review(review)
-                issues += [f"评审记录: {x}" for x in r["issues"]]
-                rfm = frontmatter(read(review))
-                if not rfm.get("gate_id"):
-                    issues.append("评审记录缺少 gate_id（将 review 回执回填后复跑）")
-                elif fm.get("gate_id") and rfm.get("gate_id") != fm.get("gate_id"):
-                    issues.append("PRD 与评审记录的 gate_id 不一致")
+                issues.append("status=APPROVED 但 review_status 不是 APPROVED/HUMAN_APPROVED")
     elif placeholders:
         warnings.append(f"草稿仍有 {len(placeholders)} 处占位符")
     issues += check_tbd(text)
@@ -341,6 +347,9 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
             issues.append("UAT 不适用需写批准人/接受人")
         return {"path": str(path), "issues": issues, "verdict": verdict,
                 "warnings": ["UAT 标记不适用；请确认本期确无真实用户验收要求"]}
+    # 兼容“带条件通过”写法；统一按“有条件通过”处理。
+    if verdict == "带条件通过":
+        verdict = "有条件通过"
     if not verdict:
         issues.append("缺少 verdict（通过/有条件/不通过）")
     elif verdict not in ("通过", "PASS", "APPROVED", "有条件通过", "CONDITIONAL"):
@@ -383,8 +392,12 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
             issues.append("有条件通过缺少责任人/接受人")
 
     if prd_path and prd_path.is_file():
-        prd_acs = extract_prd_acs(read(prd_path))
-        uat_acs = {row[0].strip() for row in rows if row and re.fullmatch(r"(?:AC|A)-\d+", row[0].strip())}
+        def _norm_ac(x: str) -> str:
+            return re.sub(r"^AC-", "A-", x.strip())
+
+        prd_acs = {_norm_ac(x) for x in extract_prd_acs(read(prd_path))}
+        uat_acs = {_norm_ac(row[0]) for row in rows
+                   if row and re.fullmatch(r"(?:AC|A)-\d+", row[0].strip())}
         missing = sorted(prd_acs - uat_acs)
         if missing:
             issues.append(f"UAT 未覆盖 PRD AC：{', '.join(missing[:10])}")
@@ -443,9 +456,10 @@ def check_writeback(path: Path) -> dict[str, Any]:
 def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:
     out_dir = project_root / RECEIPT_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"{mode}.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    out = out_dir / "completion.json"
+    out = out_dir / f"{mode}.json"
     out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # 兼容旧入口：仍写 completion.json，但以 {mode}.json 为准。
+    (out_dir / "completion.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return out
 
 

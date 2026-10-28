@@ -2,8 +2,9 @@
 doc_id: PRD-{产品/主题}-{序号}
 title: {主题} 产品需求文档（PRD）
 status: DRAFT
-review_status: PENDING
+review_status: PENDING   # PENDING / SELF_CHECKED / APPROVED（B 路径）/ HUMAN_APPROVED（A 路径）
 gate_id: ""
+approved_by: ""        # A 路径必填：人审批准人；B 路径可空
 version: V0.1
 product_version: {版本}
 owner: {产品负责人}

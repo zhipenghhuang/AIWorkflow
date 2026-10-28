@@ -706,8 +706,10 @@ def main() -> int:
 
     now_dt = datetime.now(timezone.utc).astimezone()
     now = now_dt.isoformat(timespec="seconds")
+    # gate_id 只标识“输入快照”（计划/冒烟/台账），不哈希报告本身：
+    # 报告是门输出，回填 verdict/gate 后再哈希会自指、永远无法与最终门一致。
     h = hashlib.sha256()
-    for p in [test_root / "测试计划.md", test_root / "测试报告.md", test_root / "00-稳定冒烟清单.md"]:
+    for p in [test_root / "测试计划.md", test_root / "00-稳定冒烟清单.md"]:
         if p.is_file():
             h.update(read(p).encode("utf-8", errors="replace"))
     ledger_files = sorted(test_root.rglob("*.md")) if test_root.is_dir() else []

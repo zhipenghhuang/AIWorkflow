@@ -8,6 +8,12 @@ workflow:
 entry_points:
   产品计划: goals
   产品规划: goals
+  路线图: roadmap
+  Roadmap: roadmap
+  版本规划: roadmap
+  下季度做什么: roadmap
+  下个月做什么: roadmap
+  排优先级（版本级）: roadmap
   按产品计划执行: next
   下一步: next
   当前状态: next
@@ -24,6 +30,7 @@ steps:
     agent: pm-analyst
     hitl: confirm_understanding
     hitl_when: understanding_needs_confirm
+    output: 产品计划工作稿 §1 目标/§2 指标（可并入产品计划草稿）
     notes: >
       读 `产品档案.md` §1/§2/§3 + `产品/需求池.md` + 上期复盘（若有）；
       产出本周期目标（O）与成功指标（KR）：基线 / 目标值 / 观测窗口；指标口径写清。
@@ -34,6 +41,7 @@ steps:
   - name: 路线图与优先级
     id: roadmap
     agent: pm-analyst
+    output: 产品计划工作稿 §2 路线图（Now/Next/Later + 依据/依赖/时间窗）
     notes: >
       路线图 Now / Next / Later + 版本映射；每项标用户价值、证据、依赖、时间窗。
       **未确认不排**：未完成客户需求理解/未确认范围的需求，只能进候选项，不承诺版本；竞品做法/领导偏好/单个客户不得直接排优先级。
@@ -46,10 +54,12 @@ steps:
     agent: pm-lead
     hitl: confirm_plan
     hitl_when: plan_needs_confirm
+    output: 产品计划工作稿 §3 范围/§4 里程碑（确认后同轮并入主档）
     notes: >
       本期做 / 不做（MVP）、产能约束、里程碑（设计 / 开发 / 提测 / UAT / 发布）、依赖与风险。
       confirm_plan：出示目标 / 路线图 / 本期范围 / 里程碑 / 风险请确认；首次计划或范围·指标·版本实质变更必停；
       同周期同版本只确认一次（「继续」沿用）。
+      **确认后必须同轮落盘**：把确认稿并入 `产品/产品计划.md`（§0/§3/§4），不要等 wrap；会话中断时以已落盘稿为准。
       **计划未确认不进入 PRD / 排期**（`规则/工作流.md` §1）。
 
   - name: 计划文档评审
@@ -57,6 +67,7 @@ steps:
     agent: reviewer-agent
     hitl: select_review_mode
     hitl_when: landing_doc_review_needed
+    output: 评审记录（产品/{版本或主题}/01-需求与定义/评审-计划-{yyyyMMdd}.md）或 HUMAN_APPROVED 声明
     notes: >
       首版或范围·指标·版本实质变更后、宣称「计划已可驱动 PRD/排期」前：按 `技能/artifact-review` STOP 选 A 自行通过｜B AI 独立审。
       选 A：出示目标/反范围/里程碑/风险自检摘要 → 用户确认 → HUMAN_APPROVED。

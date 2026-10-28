@@ -25,7 +25,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 ```
 
 4. 回执 `.gate/开发规范/completion.json`；空任务窗口 → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`。
-5. 先写中文 `【验证回执】`；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）。
+5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）。
 
 **落盘**：`开发规范/验证/` 只读；运行态写项目根 `.gate/开发规范/` 与 `.gate/frontend/`。
 

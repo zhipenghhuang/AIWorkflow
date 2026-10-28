@@ -1,5 +1,5 @@
 # 页面原型设计（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）
-# 入口即止：设计评审只到 review；画原型才走全链。
+# 入口即止：设计评审只到 review；画原型才按链执行到下一个门。
 workflow:
   id: prototype
   name: 页面原型设计
@@ -93,13 +93,13 @@ steps:
 
   - name: 设计评审
     id: review
-    agent: ux-designer
+    agent: reviewer-agent
     hitl: select_review_mode
     hitl_when: landing_doc_review_needed
     output: 产品/{版本或主题}/02-原型与设计/设计评审-{主题}.md
     notes: >
       **先选评审方式**（`技能/artifact-review`）：A 自行通过｜B AI 独立审（派 `reviewer-agent` 或异上下文，禁作者自卖自夸）。交开发前必问。
-      选 A：ux-designer 出示 12 项评分卡自检 → 用户确认 HUMAN_APPROVED。
+      选 A：ux-designer 出示 12 项评分卡自检 → reviewer-agent 核对 → 用户确认 HUMAN_APPROVED（批准人≠作者）。
       选 B：按 `技能/ui-visual-design-system` 清单 + `规则/模板/20-原型与设计/设计评审模板.md` 独立审：IA/一致性/状态/交互/文案/响应式/无障碍/视觉；12 项评分卡；阻断/重要/建议；需修回 hi-fi（≤1）。
       **评审分片**（≥8 页）：维度扇出；评分卡只算一次。能力 design-review 可选；未装按清单。
 
@@ -119,7 +119,7 @@ steps:
     output: 产品/{版本或主题}/02-原型与设计/开发交接-{主题}.md
     notes: >
       按 `规则/模板/20-原型与设计/开发交接模板.md` 产 `开发交接-{主题}.md`：组件/状态/交互/动效/tokens/响应式/无障碍证据/验收对照；覆盖矩阵与版本元数据；
-      评审通过后默认交付自洽开发交接/设计结论；`DES` 包仅多文件/签收/仓外/点名时停问建议，确认后 `handoff.send`。
+      评审通过后默认交付自洽开发交接/设计结论；`DES` 包仅多文件/签收/仓外/点名时停问建议，确认后走 `workflows/handoff.yaml` 的 `send`（含 `confirm_handoff`）；**不得在本步直接写 `{HO-ID}/`**。
       必须写清设计意图、必须保留、可优化、未提供、需开发决策；开发补充/差异化设计不得静默改主流程。
       回链 PRD §14 追溯矩阵「原型/页面」列；标注“原型≠生产代码”。
       confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。

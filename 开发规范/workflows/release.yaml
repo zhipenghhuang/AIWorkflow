@@ -1,4 +1,4 @@
-# 发布/上线/部署均从 readiness 起全链（就绪→验收→审批→部署→验证/回滚）；回滚为独立入口。
+# 发布/上线/部署从 readiness 起按链执行（就绪→验收→审批→部署→验证→记录→wrap/commit）；回滚为独立入口。
 workflow:
   id: release
   name: 发布与上线
@@ -23,6 +23,7 @@ steps:
     id: readiness
     agent: delivery-lead
     gate: release-readiness
+    gate_type: checklist
     output: 上线检查单（开发/06-发布与交付/）
     notes: >
       技能：`技能/qa-handoff-and-release/SKILL.md`、`技能/acceptance-and-launch/SKILL.md`（先读再核）。
@@ -146,3 +147,14 @@ steps:
     notes: >
       按 AGENTS §2 输出【任务收尾】：第 1 点含汇报（可整段复制），第 2～6 点齐；
       更新发布记录/发布说明/文档索引/activeContext/开发计划；未验证/未观察/遗留项明示。
+      发布产生的记录（CHANGELOG/发布说明/发布记录/工作日志）必须纳入拟提交；不得留在脏工作区。
+
+  - name: 拟提交
+    id: commit
+    agent: delivery-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    output: 拟提交确认结果
+    notes: 发布记录/发布说明/复盘/计划回写同批提交；拟提交清单按 `规则/工作流.md` §3；默认仅本地提交，推送/打 tag 单独确认。

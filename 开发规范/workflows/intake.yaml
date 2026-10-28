@@ -67,10 +67,12 @@ steps:
         when: change_is_substantive
       - name: confirm_requirements
         when: requirements_need_confirm
-    output: 影响矩阵/待确认项
+      - name: confirm_replan
+        when: c2_or_c3
+    output: 影响矩阵/待确认项 + C2/C3 重基线清单
     notes: >
       逐项分析：需求/AC、原型、架构/ADR、DB、API、前端、测试、任务/排期、发布/回滚、文档索引。
-      按 `规则/协作/协作与交接.md` §6 判 C0～C3；C1+ 需通知受影响角色并发 `CHG` 包；C2/C3 重基线并过门；影响矩阵写入变更记录/吸收报告。
+      按 `规则/协作/协作与交接.md` §6 判 C0～C3；C1+ 需通知受影响角色并发 `CHG` 包；C2/C3 必须 `confirm_replan` → 重基线（需求基线/任务清单/开发计划/测试计划）→ 过 `dev-plan` 检查；禁止拆成 C0/C1 绕过。影响矩阵写入变更记录/吸收报告。
       基于 `parse` 理解摘要与冲突/GAP 分析；不得绕开理解摘要凭文件名/标题判断影响；未裁决冲突先列待确认，不静默选一边。
       跨版本/高价值且 ≥3 影响域 → 只读分域评估（每域返回受影响/依据/动作 ≤30 行）；影响矩阵与结论集中写，不并行改同一文档。
       每项写“受影响/不受影响 + 依据/动作”；禁止沉默。

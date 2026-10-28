@@ -36,6 +36,7 @@ steps:
   - name: 识别子类
     id: classify
     agent: bug-agent
+    output: 子类判定（回归/提交/修改/查重/列表/巡检/澄清/产品回流 + 依据）
     notes: >
       回归/提交/修改/查重/列表/巡检/补充澄清/产品判定回流；回归默认 LIST=指派给我·未关闭（含打开/已解决），巡检=我提交的/我关注的未关闭，只读变化不默认回归；
       读单/快照/分流见 缺陷协作 §7.3；开发无法复现/请补充 → §8.4；产品确认/新文档 → testing plan §2.6，不在本轨直接改用例；
@@ -48,6 +49,7 @@ steps:
     agent: bug-agent
     tools:
       - defect-platform
+    output: 查重键/拉取快照 + diff 摘要（单号/变化/证据缺口）
     notes: >
       提交前查重；回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 §7.3 做快照 diff；
       api 读不全 → browser；仍不全 → 请用户补关键备注/附件，禁只看标题分析。
@@ -56,6 +58,9 @@ steps:
   - name: 提交或回写
     id: submit
     agent: bug-agent
+    gate: writeback-receipt
+    gate_type: machine
+    gate_when: remark_writeback
     hitl:
       - name: confirm_remark
         when: remark_writeback

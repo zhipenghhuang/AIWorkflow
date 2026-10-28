@@ -8,9 +8,11 @@ workflow:
 
 entry_points:
   排期: schedule
+  迭代规划: schedule
   交付计划: schedule
   任务拆解: schedule
   交付跟进: followup
+  风险升级: followup
   UAT: uat
   验收: uat
   发布: release
@@ -40,25 +42,29 @@ steps:
     agent: reviewer-agent
     hitl: select_review_mode
     hitl_when: landing_doc_review_needed
+    output: 评审记录（评审-交付计划-{版本}-{yyyyMMdd}.md）或 HUMAN_APPROVED 声明
     notes: >
       交付计划将驱动开发/测试窗口：**STOP【评审方式】**（`技能/artifact-review`）A 自行｜B AI。
       选 A：出示范围/里程碑/依赖/发布窗自检 → HUMAN_APPROVED。
       选 B：核范围与 PRD 一致、里程碑可执行、依赖显式、测试窗口合理；缺口分级；留痕 `评审-交付计划-{版本}-{yyyyMMdd}.md`。
-      通过后默认交付计划/排期正文；`PLAN` 包仅多文件/签收/仓外/点名时停问建议。未收回执不得称「已接收」。
+      通过后默认交付计划/排期正文；`PLAN` 包仅多文件/签收/仓外/点名时停问建议，确认后走 `workflows/handoff.yaml` send（含 `confirm_handoff`），本步不直接落包。未收回执不得称「已接收」。
 
   - name: 交付跟进
     id: followup
     agent: pm-lead
+    output: 产品计划 §7/§8 + 交付计划 §7 状态报告 + 风险/依赖台账
     notes: >
       交付进度/风险/依赖跟进；答疑书面留痕（评论/文档批注），禁口头改需求。
       发现新需求、需求变更、产品缺陷、开发不确定项 → 转 `workflows/change.yaml` intake，按受理/分诊/处置/联动流程执行；
       本步不另造变更单、不直接改 PRD/排期。
       收到开发提测/测试报告/澄清/变更包 → 先按 `workflows/handoff.yaml` receive 核对+回执，再更新跟进记录；未回执不得把下游标为已接收。
+      节奏：默认每周一次状态更新；关键依赖延期 >2 个工作日或 > 阶段工期 10% → 升级（计划 §13），并同步 §0/§8/§10。
 
   - name: UAT 验收
     id: uat
     agent: pm-lead
     gate: uat-evidence
+    gate_type: machine
     output: 产品/{版本或主题}/04-交付与验收/UAT-{版本}-{yyyyMMdd}.md（模板 规则/模板/40-交付与验收/UAT验收模板.md）
     notes: >
       技能：`技能/uat-and-retrospective/SKILL.md`；按 PRD 验收标准**逐条对照**（结果+证据）。
@@ -66,15 +72,17 @@ steps:
       **分模块核验**（子代理编排 §2）：≥3 模块 → 按模块只读扇出（AC 结果+证据+缺口 ≤30 行）；UAT 结论集中；单模块直做。
       可选输入：若项目已有测试报告/提测单/其它验收资料（任意路径/来源）则读；无则用现有资料/用户输入，不阻塞。测试报告是证据，不替代 UAT 结论。
       收到测试报告/准出 → 有包则 `handoff.receive`，无包则读报告正文；UAT 通过后默认交 UAT 记录；`UAT` 包按需先问后发。
-      判定产品缺陷 vs 实现缺陷（依据：PRD 原文/设计对照）；结论：通过/不通过/带条件（带条件须列遗留、责任人与接受人）。
+      判定产品缺陷 vs 实现缺陷（依据：PRD 原文/设计对照）；结论：通过/不通过/有条件通过（有条件通过须列遗留、责任人与接受人）。
 
   - name: 发布与复盘
     id: release
     agent: pm-lead
     gate: uat-evidence
+    gate_type: machine
     gate_when: has_uat
     hitl: confirm_release
     hitl_when: release_decision_needed
+    output: 发布决策 + 发布记录 + 复盘（产品/{版本或主题}/04-交付与验收/、06-复盘/）
     notes: >
       技能：`技能/uat-and-retrospective/SKILL.md`（先读再核）。
       前置：UAT 通过（带条件须已接受）；发布就绪：回滚预案/公告/客服话术/监控指标（并入 UAT 记录「发布前置」节）。

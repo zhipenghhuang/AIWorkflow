@@ -369,7 +369,7 @@ AIWorkflow/
 
 ## 自检
 
-改包后或用户点名时运行；业务任务不例行自检，接入时由 onboarding 核验一次并打标。
+改包后或用户点名时运行；业务任务不例行自检，接入时由 onboarding 核验一次并打标。push/PR 由 `.github/workflows/validate.yml` 自动跑同一组自检；本地命令同上。执行契约（自主边界/步骤契约/计划同步）见各包 `规则/核心/执行契约.md`；角色边界见 `规则/协作/角色契约.md`；外部方法来源见 `THIRD_PARTY.md`。
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-Template.ps1"

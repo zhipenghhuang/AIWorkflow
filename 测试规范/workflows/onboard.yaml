@@ -116,10 +116,16 @@ steps:
     id: gitignore
     agent: onboard-agent
     hitl: confirm_gitignore
+    output: .gitignore 更新 + `git check-ignore` 证据
+    notes: >
+      四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。
+      默认②；密钥/PII/真实用户数据任何情况不得入库；写后跑 `git check-ignore -v` 抽查 3 个关键路径并记录。
+      不忽略源文件、模板、当前计划/报告/用例。
 
   - name: 环境与工具检查
     id: capabilities
     agent: onboard-agent
+    output: 环境基线 §17 能力可用性记录（默认静默；点名装配时另出建议）
     notes: >
       默认静默：不输出工具清单、不冒烟（可用性由首次使用时的对应流程自行探测与降级）。
       仅当用户点名「装配能力」时，按 `能力/00-能力注册表.md` 盘点并给装配建议（安装指引指向 README「宿主适配」节）。
@@ -129,8 +135,10 @@ steps:
   - name: 核验与打标
     id: verify
     agent: onboard-agent
+    output: 测试/00-项目治理/接入核验-{yyyyMMdd}.md（①～⑦ 逐项 通过/缺口 + 证据）
     notes: >
-      按 onboard-agent 接入清单核验（①～⑦，含写「测试规范接入：已完成」；若有旧 landing=ok 删除并改写）；
+      按 onboard-agent 接入清单核验（①～⑦，含写「测试规范接入：已完成」；若有旧 landing=ok 删除并改写），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。
+      跑 `规则/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；BLOCKED 不得打标。
       有挂起原口令则 resume；此后业务任务见标记直跑。
 
   - name: 收尾

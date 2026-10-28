@@ -114,6 +114,16 @@ def main() -> int:
     if "【任务收尾】" in text and not re.search(r"待你确认（需拍板|：无", text):
         errors.append("缺少第 4 点待你确认表；无待确认写「待你确认：无」")
 
+    if "【任务收尾】" in text:
+        sc = re.search(r"【遵守自检】(.+)", text)
+        if not sc:
+            errors.append("缺少【遵守自检】行（route/mode/reads/gates/sync/skip/deviation）")
+        else:
+            body = sc.group(1)
+            for key in ("route=", "mode=", "reads="):
+                if key not in body:
+                    errors.append(f"【遵守自检】缺少 {key}")
+
     if verdict != "COMPLETE":
         for line in text.splitlines():
             if line.strip().startswith("【验证回执】"):

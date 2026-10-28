@@ -123,11 +123,13 @@ steps:
     when: substantive_change
     agent: reviewer-agent
     gate: product-review
+    gate_type: machine
     gate_when: ai_review_chosen
     hitl:
       - name: select_review_mode
         when: landing_doc_review_needed
       - name: confirm_prd
+        when: finalize_requested
     output: 评审记录（产品/{版本或主题}/01-需求与定义/评审-{主题}-{yyyyMMdd}.md）
     notes: >
       条件步：实质变更（范围/AC/状态机/权限/数据规则/NFR/版本目标）才走；纯文字澄清跳过。
@@ -142,6 +144,7 @@ steps:
     when: needs_linked_update
     agent: pm-lead
     gate: change-closure
+    gate_type: machine
     output: 验证结果（受理单 §7 / UAT 更新 / 变更单 §5）
     notes: >
       运行 `验证/Invoke-Gate.ps1 -Mode change`（读 `.gate/产品规范/change.json`）；受理单联动清单未闭合、验证结果缺失 → 不得关闭。

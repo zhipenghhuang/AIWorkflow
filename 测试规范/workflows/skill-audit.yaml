@@ -1,9 +1,10 @@
-# 能力与技能体检：入口即止（非 onboard 全链）；确认后可就地改本包技能/能力
+# 能力与技能体检：确认后可就地改本包技能/能力；体检必须走完整链
 workflow:
   id: skill-audit
   name: 能力与技能体检
-  version: 1
+  version: 2
   read_index: 规则/读取索引.md
+  chain: full   # 体检必须走完 scope→inventory→fit→propose→apply→wrap，不能停在 scope
 
 entry_points:
   体检能力: scope
@@ -30,6 +31,7 @@ steps:
   - name: 定范围与模式
     id: scope
     agent: onboard-agent
+    output: 体检范围卡（模式 project/generic、范围、依据）
     notes: >
       读 playbook §1：含「通用/母版/不按项目」→ generic；无填实 `环境基线.md` → **强制 generic**；有填实 → project。
       范围：全量｜仅能力｜仅技能｜按轨。generic 默认全量。
@@ -37,6 +39,7 @@ steps:
   - name: 盘点
     id: inventory
     agent: onboard-agent
+    output: 库存摘要（能力/技能/映射/缺口，含证据）
     notes: >
       能力注册表 + `环境基线.md` §17；`技能/README.md` 映射；抽查本范围 SKILL frontmatter；禁通读全部技能正文。
       输出【库存摘要】。
@@ -44,6 +47,7 @@ steps:
   - name: 适配分析
     id: fit
     agent: onboard-agent
+    output: 适配分析表（够用/缺口/过重/冲突/重复/映射断裂 + 证据）
     notes: >
       project：对照环境基线、T 级、轨道、计划缺口、近期门/降级。generic：对照主选备选与技能完整性，不写环境特例。
       分类：够用｜缺口｜过重｜冲突｜重复｜映射断裂。
@@ -51,7 +55,7 @@ steps:
   - name: 出具建议
     id: propose
     agent: onboard-agent
-    output: 测试/资料/_通用/能力技能体检报告.md（或用户指定）
+    output: 测试/00-项目治理/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）
     notes: >
       按 `规则/模板/00-接入与基线/能力技能体检报告模板.md` 与 playbook §3；P0 置顶。
       本包可就地改技能；未确认不改；可列「下一步：装配能力」。
@@ -61,9 +65,10 @@ steps:
     agent: onboard-agent
     hitl: confirm_skill_changes
     hitl_when: skill_changes_pending
+    output: 已应用变更清单 + ValidateTemplateRefs 自检结果
     notes: >
       有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按 playbook §4 执行；否则跳过。
-      改包后可选 ValidateTemplateRefs / 包自检。
+      改包后**必须**跑 `规则/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；失败不得声称完成；结果写入体检报告。
 
   - name: 收尾
     id: wrap
@@ -71,3 +76,13 @@ steps:
     output: 【任务收尾】
     notes: >
       按收尾骨架；第1点模式/范围/建议数/已应用数；第4点未执行项；第6点下一步。
+
+  - name: 拟提交
+    id: commit
+    agent: onboard-agent
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    output: 拟提交确认结果
+    tools:
+      - git
+    notes: 有技能/能力/基线改动才走；拟提交清单按 `规则/工作流.md` §3；无变更跳过。

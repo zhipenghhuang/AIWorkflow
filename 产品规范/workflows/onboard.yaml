@@ -53,6 +53,7 @@ steps:
   - name: 复制与挂载确认
     id: mount
     agent: onboard-agent
+    output: 项目根 AGENTS.md 薄指针（已存在则追加，不覆盖）
     notes: >
       验收：项目根 AGENTS.md 已补入指向本包 AGENTS.md 的引导语句
       （样例见 `规则/模板/00-接入与治理/根AGENTS薄指针.md`；已有则追加、没有则新建）；
@@ -110,10 +111,16 @@ steps:
     id: gitignore
     agent: onboard-agent
     hitl: confirm_gitignore
+    output: .gitignore 更新 + `git check-ignore` 证据
+    notes: >
+      四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。
+      默认②；密钥/PII/真实用户数据任何情况不得入库；写后跑 `git check-ignore -v` 抽查 3 个关键路径并记录。
+      不忽略源文件、模板、当前 PRD/计划/原型。
 
   - name: 环境与工具检查（可选）
     id: capabilities
     agent: onboard-agent
+    output: 产品档案 §6 能力可用性记录（默认静默；点名装配时另出建议）
     notes: >
       默认静默：不输出工具清单、不冒烟（可用性由首次使用流程自行探测与降级）。
       仅当用户点名「装配能力」时，按 `能力/00-能力注册表.md` 盘点并给装配建议（安装指引指向 README「宿主适配」节）。
@@ -122,9 +129,12 @@ steps:
   - name: 核验与打标
     id: verify
     agent: onboard-agent
+    output: 产品/00-项目治理/接入核验-{yyyyMMdd}.md（①～⑥ 逐项 通过/缺口 + 证据）
     notes: >
-      按 onboard-agent 接入清单核验（①～⑥，含写接入标记）；
-      此后按 AGENTS §0 第 3 点（接入状态）跳过落地检查。
+      按 onboard-agent 接入清单核验（①～⑥，含写接入标记），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。
+      跑 `规则/tools/Test-Template.ps1`；BLOCKED 不得打标。
+      核验通过后写「产品规范接入：已完成」；此后按 AGENTS §0 第 3 点（接入状态）跳过落地检查。
+      文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理。
 
   - name: 收尾
     id: wrap

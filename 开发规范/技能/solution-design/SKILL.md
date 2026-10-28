@@ -19,6 +19,9 @@ description: Use when a change needs architecture, interface, data, migration, s
 | 新增/修改 API、前后端契约 | `技能/api-design/SKILL.md` | OpenAPI/契约/错误码/幂等/兼容 |
 | 页面/路由/组件/状态/表单/交互 | `技能/frontend-design/SKILL.md` | 前端设计说明（页面/组件树/状态/异常/权限/性能/a11y） |
 | 认证/授权/敏感数据/上传/外部集成/公共 API | `技能/threat-modeling/SKILL.md` | 信任边界/威胁表/缓解/安全测试 |
+| 性能/容量/延迟/吞吐/成本 | `技能/performance-and-capacity/SKILL.md` | 基线/瓶颈/容量/降级/压测判据 |
+| 生产可诊断性/SLO/日志/指标/追踪/告警 | `技能/observability-and-instrumentation/SKILL.md` | SLI/SLO/信号/告警/成本 |
+| LLM/RAG/Agent/提示词/模型/工具调用 | `技能/ai-application-engineering/SKILL.md` + `技能/threat-modeling/SKILL.md` | 评测/护栏/成本/隐私/AI 安全 |
 
 不涉及的子技能不加载；主技能仍要覆盖架构、质量属性、取舍与 ADR。
 
@@ -28,7 +31,7 @@ description: Use when a change needs architecture, interface, data, migration, s
 - **架构视图**：上下文/容器/组件/部署（C4 或等价）；模块边界、依赖方向、数据流。
 - **取舍**：至少 2 个候选（除非事实标准）；写优点/代价/风险/改回条件；架构级进 ADR。
 - **技术选型**：按 02A 的约束→候选→矩阵→POC→ADR，不拍脑袋。
-- **非功能**：容量/性能/安全/兼容/可观测/回滚；不适用写「不适用」。
+- **非功能**：容量/性能/安全/兼容/可观测/回滚；不适用写「不适用」。性能按 02F 给基线/瓶颈/容量/降级；可观测按 SLO/信号/告警给最小集。
 - **测试策略**：单测/集成/契约/E2E/性能/安全/兼容；不可自验项单列。
 
 ## 1. 方案自检 10 问（逐问必答；不涉及也要写「不涉及」）
