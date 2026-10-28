@@ -1,14 +1,12 @@
 # 本机环境
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Python
 __pycache__/
 *.py[cod]
 
-# 本机本地工具与维护记录（不参与提交与推送）
+# 仅本机：更新项目资产（路径固定在本机，协作面与公开面均不入库）
 /Update-Assets.ps1
 /更新项目资产.bat
-/Push-Changes.ps1
-/一键推送.bat
-/activeContext.md

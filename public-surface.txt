@@ -1,0 +1,11 @@
+# AIWorkflow 公开面允许路径（相对仓库根；目录写末尾 / 表示整树）
+# 未列出的路径只进协作面，不进公开导出
+产品规范/
+开发规范/
+测试规范/
+README.md
+LICENSE
+CHANGELOG.md
+THIRD_PARTY.md
+.gitattributes
+public.gitignore

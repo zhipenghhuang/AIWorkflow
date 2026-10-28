@@ -1,0 +1,15 @@
+# Public surface only — do not list collab-only or machine-local paths here.
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
