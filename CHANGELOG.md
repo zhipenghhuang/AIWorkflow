@@ -20,6 +20,7 @@
 
 - 三包新增 `规则/核心/文档质量标准.md`：通用硬门槛、按文档位置的类型矩阵、交付前评审清单、参考基线（ISO/IEC/IEEE 29148、29119-3、ISTQB、MADR、Keep a Changelog/SemVer、Google SRE、GitHub Docs、Diátaxis、WCAG 2.2、OpenAPI 3.1）。
 - 三包 `AGENTS.md` §0.0 增加“所有文档过质量标准”；模板索引、维护入口增加指针。
+- 质量标准补充冲突优先级：AGENTS/红线 > 质量标准 > 模板结构；模板冲突先修模板，不按旧模板产出。
 
 ### Changed
 
