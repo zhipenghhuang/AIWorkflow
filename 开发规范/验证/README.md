@@ -7,29 +7,27 @@
 
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
-| L0 | 单文件/文案/配置，无行为/契约/权限/数据变化 | build/typecheck + 定向测试 + 冒烟（项目有则跑） | 命令+退出码；无代码改动 = NOT_VERIFIED |
-| L1 | 多文件、普通功能、前端行为变化 | L0 + lint + 受影响 E2E（前端）+ 前端七项 QA | 桌面+移动截图、console/network 报告 |
-| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 | 评审记录、security/rollback 证据 |
+| L0 | 单文件/文案/配置，无行为/契约/权限/数据变化 | build + test（定向或全仓）+ 冒烟 | 命令+退出码；空任务窗口 = NOT_VERIFIED |
+| L1 | 多文件、普通功能、前端行为变化 | L0 + lint + E2E（前端）+ 前端七项 QA | 桌面+移动截图、console/network |
+| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 | 评审记录、security/rollback |
 
-前端行为/布局变化最低 L1；纯文案可 L0-light，但仍要受影响页面截图 + console 无 error。
-**独立评审按需**：L0、确实低风险的 L1 可免；L2+/L3、高风险/大改/破坏性不可免。免审须在计划/验收记录理由与风险接受人；**免审不免自测/证据/门禁**。多波次先选“每波独立评审+过门”或“只 S5 全量评审”，不得混用；S5 已有波次评审时只做集成/抽样复核。
-工具/环境缺失 → `BLOCKED`，不是完成；没有项目命令时先填 `.gate/project-profile.json`，不能用“项目没配”跳过。
-时间只作参考，不作为跳检查的理由。
+**定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
+前端最低 L1；纯文案可 L0-light，仍要受影响页截图 + console 无 error。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 ## 2. 一次任务怎么跑
 
-1. 任务开始先写本轮标记：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（`.gate/task.json`）。`clarify`/`plan` 产出并确认验收清单（AC + 检查 + 证据）；L1 用任务卡并运行门时显式 `-Acceptance <任务清单>`；L2+ 落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`，L3 另含 `security`/`rollback`）。项目档案的「质量门禁命令」同步到 `.gate/project-profile.json`。
-2. 实施时按验收清单做；前端改动把 `frontend/design-qa.md` 复制到 `.gate/frontend/design-qa.md`：L1 填 1/2/3/6/7/10/15 七项，L2+ 填满 15 项；截图与 console/network 报告落 `.gate/frontend/`，截图必须晚于验收清单。
-3. 收尾前运行：
+1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 七项 / L2+ 十五项）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**。
+3. 收尾：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "开发/04-计划与任务/任务清单-xxx.md"
 ```
 
-4. 门输出 `.gate/开发规范/completion.json`（同时写 `auto.json`/`frontend.json`）与 ≤30 行摘要；`wrap` 只引用本轮回执。空 diff → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`，都不是完成。
-5. 报告先写中文 `【验证回执】`（通过/部分通过/阻塞/未验证），再写完成内容；`验证/Test-Report.ps1` 会检查中文结论对应的英文 verdict、gate、checks 与措辞。
+4. 回执 `.gate/开发规范/completion.json`；空任务窗口 → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`。
+5. 先写中文 `【验证回执】`；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）。
 
-**落盘纪律**：本目录（`开发规范/验证/`）是规范工具与模板，**只读**；运行态一律写项目根 `.gate/开发规范/` 与 `.gate/frontend/`；禁止写包内 `.state`/`project-profile.json`。
+**落盘**：`开发规范/验证/` 只读；运行态写项目根 `.gate/开发规范/` 与 `.gate/frontend/`。
 
 ## 3. 文件
 
@@ -51,8 +49,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 
 ## 5. 成本纪律
 
-- 只跑受影响范围；全量回归只留给发布/L3。
-- 截图桌面+移动各 1 张/页（L2+ 可按状态补）；JPEG/WebP 优先；不默认生成 HTML report/trace/video。
-- 门每次按当前 diff/验收清单重跑；不复用旧回执；任务开始 `-StartTask`，旧截图/旧验收直接 BLOCKED。
-- 不为每个小改新增文档；L1 验收清单嵌在任务卡，L2+ 才落 `.gate/acceptance.yaml`。
-- 规则/技能只读当前步；不通读全本。
+- 配了 `*_scoped` → 定向；未配 → 全仓 `project-*`（诚实标 id）。全量回归仍留给发布/L3。
+- 截图桌面+移动各 1/页；JPEG/WebP；不默认 HTML/trace/video。
+- 门按本轮 `base_commit`+验收重跑；不复用旧回执；早于任务开始的截图 → BLOCKED。
+- L1 验收嵌任务卡；L2+ 才落 `acceptance.yaml`。规则只读当前步。

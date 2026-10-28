@@ -5,15 +5,16 @@
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
+  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode execute -Scope "16-ASN" -ProjectRoot "."
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode review -ProjectRoot "."
+  powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
     [string]$ProjectRoot = (Get-Location).Path,
     [ValidateSet('execute', 'report', 'writeback', 'coverage', 'review')]
     [string]$Mode = 'report',
+    [string]$Scope = '',
     [switch]$Json
 )
 
@@ -35,6 +36,7 @@ if (-not $python) {
 
 $root = (Resolve-Path -LiteralPath $ProjectRoot).Path
 $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
+if ($Scope) { $gateArgs += @('--scope', $Scope) }
 if ($Json) { $gateArgs += '--json' }
 
 & $python.Source -B @gateArgs

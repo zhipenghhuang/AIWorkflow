@@ -259,7 +259,7 @@ def check_prd(package_root: Path, path: Path) -> dict[str, Any]:
         warnings.append(f"草稿仍有 {len(placeholders)} 处占位符")
     issues += check_tbd(text)
 
-    # Traceability: header + at least one row with F/R/A/AC values.
+    # Traceability: full PRD 硬拦；light 仅警告（对齐矩阵 avoid full-prd-for-P0-P1）
     sec = sections(text)
     trace_block = next((v for k, v in sec.items() if "追溯" in k), "")
     if trace_block:
@@ -270,14 +270,19 @@ def check_prd(package_root: Path, path: Path) -> dict[str, Any]:
                 table = (headers, rows)
                 break
         if not table:
-            issues.append("追溯矩阵不可读（需 F/R/A/AC 列）")
+            msg = "追溯矩阵不可读（需 F/R/A/AC 列）"
+            (warnings if level == "light" else issues).append(msg)
         else:
             headers, rows = table
             nonempty = [r for r in rows if sum(1 for c in r if c.strip()) >= 4]
             if not nonempty:
-                issues.append("追溯矩阵无有效行（F/R/A/AC 不能为空）")
+                msg = "追溯矩阵无有效行（F/R/A/AC 不能为空）"
+                (warnings if level == "light" else issues).append(msg)
     else:
-        issues.append("缺少追溯矩阵")
+        if level == "light":
+            warnings.append("轻量 PRD 无追溯矩阵（全量/准出前建议补）")
+        else:
+            issues.append("缺少追溯矩阵")
 
     return {"path": str(path), "issues": issues, "warnings": warnings,
             "status": status, "level": level, "ac_ids": sorted(extract_prd_acs(text))}
@@ -423,14 +428,15 @@ def check_writeback(path: Path) -> dict[str, Any]:
         issues.append("回写记录仍有模板占位符")
     if not re.search(r"((BUG|缺陷)[-_]?\d+|#\d+)", text, re.I):
         issues.append("缺少平台单号")
-    if "备注" not in text:
-        issues.append("缺少备注")
-    if "状态" not in text:
-        issues.append("缺少状态")
-    if "附件" not in text:
-        issues.append("缺少附件回查")
-    if "已回写" in text and "待回写" not in text and not re.search(r"(noteId|备注ID|回写时间|回执)", text, re.I):
-        issues.append("声称已回写但缺少回执/noteId/时间")
+    # 禁仅出现「备注/状态/附件」字样刷绿：须有取值或回查标识
+    if not re.search(r"(备注\s*[:：].{8,}|actionId\s*[=:：]\s*\d+|已补备注|【.*?备注)", text, re.I | re.S):
+        issues.append("缺少备注实质内容（勿仅写标题「备注」）")
+    if not re.search(r"(状态\s*[:：]\s*\S|\|\s*状态\s*\|[^\n]*\|\s*\S|status\s*[=:：]\s*\S)", text, re.I):
+        issues.append("缺少状态取值")
+    if not re.search(r"(fileId\s*[=:：]?\s*\d+|附件\s*[:：].*\d+|无附件|不适用附件)", text, re.I):
+        issues.append("缺少附件回查（fileId 或明示无附件）")
+    if "已回写" in text and "待回写" not in text and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", text, re.I):
+        issues.append("声称已回写但缺少回执/noteId/actionId/时间")
     return {"path": str(path), "issues": issues}
 
 
@@ -465,9 +471,10 @@ def main() -> int:
     checks: list[dict[str, Any]] = []
     blocked: list[str] = []
     result: dict[str, Any] = {"issues": []}
+    artifact_via = "explicit" if args.artifact else ("mtime" if path else "missing")
 
     if path is None or not path.is_file():
-        blocked.append(f"未找到 {args.mode} 产物（产品/**）；请用 --artifact 指定当前版本文件")
+        blocked.append(f"未找到 {args.mode} 产物（产品/**）；请用 --artifact 指定当前文件（推荐，避免 mtime 选错）")
     else:
         if args.mode == "prd":
             result = check_prd(package_root, path)
@@ -482,6 +489,10 @@ def main() -> int:
             result = check_writeback(path)
         checks.append({"id": args.mode, "status": "fail" if result.get("issues") else "pass",
                        "detail": result.get("issues", [])[:10]})
+        if not args.artifact:
+            warns = list(result.get("warnings") or [])
+            warns.append("未传 --artifact，按 mtime/SoT 自动选取；多版本并存时请显式指定")
+            result["warnings"] = warns
 
     failed = [c for c in checks if c.get("status") == "fail"]
     verdict = "READY"
@@ -497,12 +508,13 @@ def main() -> int:
     content = read(path) if path and path.is_file() else ""
     gate_id = f"{args.mode}-{hashlib.sha256(content.encode('utf-8', errors='replace')).hexdigest()[:12]}"
     completion = {
-        "gate_version": "2.0",
+        "gate_version": "2.1",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "gate_id": gate_id,
         "verdict": verdict,
         "artifact": str(path) if path else None,
+        "artifact_via": artifact_via,
         "checks": checks,
         "blocked": blocked,
         "warnings": result.get("warnings", []) if isinstance(result, dict) else [],

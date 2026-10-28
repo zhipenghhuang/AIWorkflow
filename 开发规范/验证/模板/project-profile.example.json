@@ -1,8 +1,16 @@
 {
-  "_comment": "复制为项目根 .gate/project-profile.json，按项目实际填写；勿写入开发规范/验证/（规范包只读）。缺项时 gate 会尝试 package.json 默认命令，仍缺则标记 SKIPPED/BLOCKED，不会假通过。",
+  "_comment": "复制为项目根 .gate/project-profile.json；勿写入开发规范/验证/。缺项时尝试 package.json；仍缺则 SKIP/BLOCKED。定向：仅当 *_scoped 含 {files} 时注入本任务变更路径，检查 id=targeted-*；否则跑下方全仓命令，id=project-*。",
   "build": "npm run build",
   "lint": "npm run lint",
   "test": "npm test",
+  "lint_scoped": "",
+  "test_scoped": "",
+  "e2e_scoped": "",
+  "_scoped_examples": {
+    "lint_scoped": "npx eslint {files}",
+    "test_scoped": "npx vitest related {files} --run",
+    "e2e_scoped": "npx playwright test {files}"
+  },
   "e2e": "npx playwright test",
   "smoke": "npm run test:smoke",
   "integration": "npm run test:integration",

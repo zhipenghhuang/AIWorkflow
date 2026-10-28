@@ -9,11 +9,14 @@
 | --- | --- | --- |
 | 生成覆盖 | `Invoke-Gate.ps1 -Mode coverage` | §3 映射/ID + §4 深度档自检/视觉基础行 |
 | 用例评审 | `Invoke-Gate.ps1 -Mode review` | 评审记录结构/独立性/放行结论（`.gate/测试规范/review.json`） |
-| 执行批末 | `Invoke-Gate.ps1 -Mode execute` | 台账/证据/阻塞检查 |
-| 出报告/准出 | `Invoke-Gate.ps1 -Mode report` | 报告↔台账↔P0 计划覆盖对账 |
+| 执行批末（步后门） | `Invoke-Gate.ps1 -Mode execute -Scope "{模块}"` | **仅 Scope 内**台账/证据/P0；回执含 `scope` |
+| 出报告/准出（准出门） | `Invoke-Gate.ps1 -Mode report` | **全仓**报告↔台账↔P0；忽略 Scope |
 | 交平台/回写 | `Invoke-Gate.ps1 -Mode writeback` | 平台回执检查（不覆盖 report） |
 
 ```powershell
+# 模块批末（例 M16）
+powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode execute -Scope "16-ASN" -ProjectRoot "."
+# 版本准出
 powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
 ```
 
@@ -34,7 +37,7 @@ powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -
 
 ## 4. 成本纪律
 
-- 门只读现有计划/台账/报告，不要求新增文档。
-- 只对版本级/全量/计划驱动跑 report 门；单模块小批跑 execute 门即可。
-- 证据抽样打开，不逐张人工看；失败/阻塞必看。
-- 全量回归只留给发布/大版本；补丁按计划 P0 冒烟 + 影响面。
+- **步后窄 / 准出宽**：模块批末 = `execute -Scope`；宣称准出 = `report` 全仓。二者不可混用。
+- execute 上 `coverage-map` / `p0-missing` 为 soft（矩阵 optional），不单独拉垮本批；report 仍硬。
+- 门只读现有计划/台账/报告，不新增文档；证据失败/阻塞必看。
+- 全量回归只留给发布/大版本；补丁 = P0 冒烟 + 影响面。

@@ -34,7 +34,7 @@ if (-not (Test-Path -LiteralPath $gate)) {
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
 if (-not $python) {
-    Write-Output 'GATE_PYTHON_MISSING: 需要 Python 3；无法运行完成门。结果=BLOCKED，不得声称完成。'
+    Write-Output 'GATE_PYTHON_MISSING: need Python 3; result=BLOCKED.'
     exit 1
 }
 

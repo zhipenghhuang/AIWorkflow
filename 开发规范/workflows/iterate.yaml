@@ -38,7 +38,7 @@ steps:
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
       **验收清单**：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process）并确认后冻结；实施中新增/变更 AC 走变更记录。
-      任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`）。
+      任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：含 `base_commit`；中途 commit 仍计入本任务 diff）。
       **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
       拆完先自检：RP 覆盖、AC、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐；再进 confirm。
       若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】，再到 commit 确认（跳过 confirm / implement / review / gates / deliver / release_handoff / retro）。

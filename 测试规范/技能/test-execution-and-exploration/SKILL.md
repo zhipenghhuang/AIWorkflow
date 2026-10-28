@@ -15,6 +15,7 @@ description: Use when executing tests or exploratory testing. Enforce preconditi
 - **阶段取轨**：功能/探索式走多Agent四档；接口单 Agent；发布前按轨契约；只读当前阶段轨契约，不跨轨通读。
 - **并行**：仅计划标注且账号/数据/浏览器 profile/写域隔离；同条用例禁并行；写冲突串行。
 - **状态**：更新 `测试/测试计划.md` §0（阶段/门/下一动作）与 §16.1 执行日志；正式对照落报告 §2。
+- **批末步后门**：模块终态齐 → `Invoke-Gate.ps1 -Mode execute -Scope {模块}`；准出另跑 `-Mode report`。禁无 Scope 全仓 FAIL 充当本批结论。
 - **停止**：P0-Smoke 未过/环境不可用/数据合规/计划实质偏差 → 按计划 §6 暂停或回计划门。
 
 ## 2. 执行经济（省时优先）

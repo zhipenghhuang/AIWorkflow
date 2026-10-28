@@ -8,9 +8,14 @@ Design goals:
 - Coverage parsing only reads case documents, never evidence notes.
 
 Usage:
-  python test_gate.py --package-root <测试规范> --project-root <project> [--mode execute|report|writeback|coverage|review]
+  python test_gate.py --package-root <测试规范> --project-root <project>
+    [--mode execute|report|writeback|coverage|review] [--scope <模块路径片段>]
 
 Exit: 0 = PASS, 1 = CONDITIONAL/FAIL/BLOCKED, 2 = usage.
+
+Scope（步后门）:
+  - execute：应带 --scope（如 16-ASN 或 功能测试/16）；缺则尝试从 activeContext/计划 §0 推断；仍无则 BLOCKED。
+  - report：忽略 --scope，永远全仓（准出门）。
 """
 from __future__ import annotations
 
@@ -22,6 +27,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# execute 上与检查矩阵 optional 对齐：可记 fail 但不单独拉垮步后 verdict
+EXECUTE_SOFT_CHECKS = frozenset({"coverage-map", "p0-missing"})
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -89,8 +97,45 @@ def is_current(path: Path) -> bool:
     return not any(part in path.parts for part in ("_归档", ".draft", "资料", "证据"))
 
 
+def scope_tokens(scope: str | None) -> list[str]:
+    if not scope:
+        return []
+    return [t.strip().replace("\\", "/") for t in re.split(r"[,;|]", scope) if t.strip()]
+
+
+def path_in_scope(path: Path, scope: str | None) -> bool:
+    tokens = scope_tokens(scope)
+    if not tokens:
+        return True
+    rel = str(path).replace("\\", "/")
+    return any(t in rel for t in tokens)
+
+
+def infer_scope(project_root: Path) -> str:
+    """Best-effort module hint for execute when --scope omitted."""
+    for rel in ("activeContext.md", "测试/测试计划.md"):
+        p = project_root / rel
+        if not p.is_file():
+            continue
+        text = read(p)
+        # 功能测试/16-ASN… or 16-ASN发货
+        m = re.search(r"功能测试[/\\](\d{2}-[^\s`|/]+)", text)
+        if m:
+            return m.group(1).rstrip("*/）)")
+        m = re.search(r"\bM(\d{2})\b", text)
+        if m:
+            return m.group(1)  # e.g. 16 matches …/16-…
+        m = re.search(r"开跑\s*\*?\*?M?(\d{2})", text)
+        if m:
+            return m.group(1)
+    return ""
+
+
 def resolve_evidence(ledger: Path, evidence: str) -> bool:
     if not evidence:
+        return False
+    evidence = evidence.strip().strip("`").strip()
+    if not evidence or evidence in ("—", "-", "无"):
         return False
     p = Path(evidence)
     if p.is_absolute():
@@ -98,6 +143,12 @@ def resolve_evidence(ledger: Path, evidence: str) -> bool:
     for base in (ledger.parent, *ledger.parents):
         if (base / evidence).exists():
             return True
+        # 台账写「功能测试/证据/…」时相对 测试/
+        if base.name == "测试" and (base / evidence).exists():
+            return True
+    test_root = next((b for b in ledger.parents if b.name == "测试"), None)
+    if test_root and (test_root / evidence).exists():
+        return True
     return False
 
 
@@ -259,7 +310,7 @@ def parse_report(path: Path, ledger_counts: dict[str, int]) -> dict[str, Any]:
             "receipt_verdict": receipt_verdict}
 
 
-def parse_coverage(root: Path) -> dict[str, Any]:
+def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
     issues: list[str] = []
     missing: list[str] = []
     seen = 0
@@ -268,7 +319,7 @@ def parse_coverage(root: Path) -> dict[str, Any]:
     if not base.is_dir():
         return {"issues": issues, "missing": missing, "seen": 0, "files": 0}
     for p in base.rglob("*.md"):
-        if not is_current(p):
+        if not is_current(p) or not path_in_scope(p, scope):
             continue
         if any(x in p.name for x in ("台账", "报告", "证据", "评审", "计划", "分析短表", "需求理解", "索引", "README")):
             continue
@@ -423,6 +474,7 @@ def main() -> int:
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
     ap.add_argument("--project-root", default=str(Path(__file__).resolve().parents[3]))
     ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage", "review"], default="report")
+    ap.add_argument("--scope", default="", help="步后门范围（execute 推荐）；report 忽略。例: 16-ASN 或 功能测试/16")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
@@ -444,6 +496,21 @@ def main() -> int:
     reported_verdict = ""
     receipt_verdict = ""
     review_conclusion = ""
+
+    # report = 准出门全仓；execute = 步后门需 scope
+    scope: str | None = None
+    if args.mode == "report":
+        scope = None
+    elif args.mode in ("execute", "coverage"):
+        scope = (args.scope or "").strip() or None
+        if args.mode == "execute" and not scope:
+            inferred = infer_scope(project_root)
+            if inferred:
+                scope = inferred
+                checks.append({"id": "scope-inferred", "status": "pass", "detail": scope})
+            else:
+                blocked.append("execute 须 --scope（模块路径片段，如 16-ASN）；无法从 activeContext/计划推断")
+                checks.append({"id": "scope-required", "status": "blocked", "detail": "missing --scope"})
 
     if args.mode == "review":
         records = find_review_records(test_root)
@@ -491,12 +558,15 @@ def main() -> int:
             else:
                 checks.append({"id": "plan-exists", "status": "pass", "detail": str(plan)})
 
-        if args.mode in ("execute", "report"):
-            ledgers = [p for p in test_root.rglob("*.md") if "台账" in p.name and is_current(p)] if test_root.is_dir() else []
+        if args.mode in ("execute", "report") and not any(c.get("id") == "scope-required" for c in checks):
+            all_ledgers = [p for p in test_root.rglob("*.md") if "台账" in p.name and is_current(p)] if test_root.is_dir() else []
+            # execute+scope：只扫本模块台账；report：全仓
+            ledgers = [p for p in all_ledgers if path_in_scope(p, scope)] if args.mode == "execute" else all_ledgers
             ledger_ids: set[str] = set()
             if not ledgers:
-                blocked.append("未找到执行台账（测试/功能测试/**/*台账*.md）")
-                checks.append({"id": "ledger-counts", "status": "blocked", "detail": "no ledger"})
+                msg = "未找到 Scope 内执行台账" if args.mode == "execute" and scope else "未找到执行台账（测试/**/*台账*.md）"
+                blocked.append(msg)
+                checks.append({"id": "ledger-counts", "status": "blocked", "detail": f"scope={scope or '*'}"})
             else:
                 evidence_missing: list[str] = []
                 blocked_bad: list[str] = []
@@ -510,7 +580,8 @@ def main() -> int:
                     evidence_missing += parsed["evidence_missing"]
                     blocked_bad += parsed["blocked_bad"]
                     ledger_issues += parsed["issues"]
-                checks.append({"id": "ledger-counts", "status": "fail" if ledger_issues else "pass", "detail": ledger_issues[:10]})
+                checks.append({"id": "ledger-counts", "status": "fail" if ledger_issues else "pass",
+                               "detail": (ledger_issues[:10] or f"ledgers={len(ledgers)} scope={scope or '*'}")})
                 checks.append({"id": "evidence-exists", "status": "fail" if evidence_missing else "pass", "detail": evidence_missing[:10]})
                 checks.append({"id": "blocked-reasons", "status": "fail" if blocked_bad else "pass", "detail": blocked_bad[:10]})
                 checks.append({"id": "p0-status", "status": "fail" if p0_fail else "pass", "detail": p0_fail[:10]})
@@ -518,9 +589,22 @@ def main() -> int:
                 smoke = test_root / "00-稳定冒烟清单.md"
                 smoke_text = read(smoke) if smoke.is_file() else ""
                 planned_p0 = extract_p0_ids(plan_text, smoke_text)
-                p0_missing = sorted(planned_p0 - ledger_ids)
-                checks.append({"id": "p0-missing", "status": "fail" if p0_missing else "pass",
-                               "detail": p0_missing[:10] if p0_missing else "all planned P0 present"})
+                # execute：只要求「本 Scope 台账内出现的计划 P0」齐终态；全仓计划 P0 留给 report
+                if args.mode == "execute":
+                    scoped_planned = {x for x in planned_p0 if any(x in i or i in x for i in ledger_ids)} or set()
+                    # 更稳：本 scope 台账里标了 P0 的缺终态已在 p0_fail；p0-missing 仅提示计划全集（soft）
+                    p0_missing = sorted(planned_p0 - ledger_ids) if not scope else sorted(planned_p0 - ledger_ids)
+                    soft = bool(p0_missing)
+                    checks.append({
+                        "id": "p0-missing",
+                        "status": ("fail" if soft else "pass"),
+                        "detail": f"{p0_missing[:10] if soft else 'scoped ok'} (execute: soft)",
+                    })
+                    _ = scoped_planned  # reserved for future tighten
+                else:
+                    p0_missing = sorted(planned_p0 - ledger_ids)
+                    checks.append({"id": "p0-missing", "status": "fail" if p0_missing else "pass",
+                                   "detail": p0_missing[:10] if p0_missing else "all planned P0 present"})
 
         if args.mode == "report":
             report = test_root / "测试报告.md"
@@ -540,13 +624,17 @@ def main() -> int:
                 if not receipt_verdict:
                     checks.append({"id": "report-receipt", "status": "skip", "detail": "报告暂无回执；复跑时必须一致"})
 
-        cov = parse_coverage(test_root) if test_root.is_dir() else {"issues": [], "missing": [], "seen": 0, "files": 0}
+        cov_scope = scope if args.mode in ("execute", "coverage") else None
+        cov = parse_coverage(test_root, cov_scope) if test_root.is_dir() else {"issues": [], "missing": [], "seen": 0, "files": 0}
         cov_issues = list(cov["issues"])
         if args.mode in ("report", "coverage"):
             cov_issues += cov["missing"]
             if cov["files"] > 0 and cov["seen"] == 0:
                 cov_issues.append("功能测试资产缺少设计点覆盖映射（覆盖三闸）")
-        checks.append({"id": "coverage-map", "status": "fail" if cov_issues else "pass", "detail": cov_issues[:10]})
+        cov_detail: Any = cov_issues[:10] if cov_issues else "ok"
+        if args.mode == "execute":
+            cov_detail = f"{cov_detail} (execute: soft)"
+        checks.append({"id": "coverage-map", "status": "fail" if cov_issues else "pass", "detail": cov_detail})
     else:
         receipts = [p for p in test_root.rglob("*.md") if ("回执" in p.name or "回写" in p.name) and is_current(p)] if test_root.is_dir() else []
         if not receipts:
@@ -570,7 +658,9 @@ def main() -> int:
                 issues.append("待回写缺少 export/无权限/原因")
             checks.append({"id": "writeback-receipt", "status": "fail" if issues else "pass", "detail": issues or str(receipt)})
 
-    failed = [c for c in checks if c.get("status") == "fail"]
+    soft_ids = EXECUTE_SOFT_CHECKS if args.mode == "execute" else frozenset()
+    failed = [c for c in checks if c.get("status") == "fail" and c.get("id") not in soft_ids]
+    soft_failed = [c for c in checks if c.get("status") == "fail" and c.get("id") in soft_ids]
     blocked_checks = [c for c in checks if c.get("status") == "blocked"]
     if args.mode == "coverage":
         verdict = "FAIL" if failed else "PASS"
@@ -585,7 +675,18 @@ def main() -> int:
             verdict = "PASS"
     elif args.mode == "writeback":
         verdict = "BLOCKED" if blocked or blocked_checks else ("FAIL" if failed else "PASS")
+    elif args.mode == "execute":
+        # 步后门：只认 Scope 内台账硬检查；历史他模块/计划全集 P0 缺失不拉垮
+        if blocked or blocked_checks:
+            verdict = "BLOCKED"
+        elif failed or p0_fail:
+            verdict = "FAIL"
+        elif any(aggregate.get(k, 0) for k in ("fail", "blocked", "pending", "not_run")):
+            verdict = "CONDITIONAL"
+        else:
+            verdict = "PASS"
     else:
+        # report 准出门：全仓硬
         if blocked or blocked_checks:
             verdict = "BLOCKED"
         elif failed or p0_fail or p0_missing:
@@ -597,8 +698,8 @@ def main() -> int:
         elif reported_verdict == "CONDITIONAL":
             verdict = "CONDITIONAL"
         elif any(aggregate.get(k, 0) for k in ("fail", "blocked", "pending", "not_run")):
-            verdict = "CONDITIONAL" if args.mode == "execute" else "FAIL"
-        elif args.mode == "report" and not reported_verdict:
+            verdict = "FAIL"
+        elif not reported_verdict:
             verdict = "FAIL"
         else:
             verdict = "PASS"
@@ -615,14 +716,16 @@ def main() -> int:
             h.update(read(p).encode("utf-8", errors="replace"))
     gate_id = f"{args.mode}-{h.hexdigest()[:12]}"
     completion = {
-        "gate_version": "2.0",
+        "gate_version": "2.1",
         "package": PACKAGE_NAME,
         "mode": args.mode,
+        "scope": scope or "",
         "gate_id": gate_id,
         "verdict": verdict,
         "counts": aggregate,
         "p0_fail": p0_fail,
         "p0_missing": p0_missing,
+        "soft_failed": [c.get("id") for c in soft_failed],
         "reported_verdict": reported_verdict,
         "receipt_verdict": receipt_verdict,
         "review_conclusion": review_conclusion,
@@ -636,6 +739,8 @@ def main() -> int:
     else:
         print("=== 完成门（测试规范）===")
         print(f"verdict: {verdict}")
+        if scope:
+            print(f"scope: {scope}")
         print(f"counts: total={aggregate['total']} pass={aggregate['pass']} fail={aggregate['fail']} blocked={aggregate['blocked']} pending={aggregate['pending']}")
         for c in checks:
             print(f"- {c['id']}: {c.get('status')} {str(c.get('detail', ''))[:160]}")

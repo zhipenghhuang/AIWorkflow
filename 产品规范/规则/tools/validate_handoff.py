@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """Validate a handoff package folder.
 
 Usage: python validate_handoff.py <package-dir>
@@ -9,7 +9,7 @@ Checks:
 - 00 has the required metadata fields and sections
 - 01 has a manifest table with 包内路径 and at least one row
 - every 02-文档/03-证据/04-回执 path mentioned in 01 exists
-- package folder name looks like HO-yyyyMMdd-NN-TYPE-FROM2TO
+- package folder name looks like HO-yyyyMMdd-NN-TYPE-FROM2TO (TO=DEV|QA|ALL|DEVQA|...)
 """
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ REQUIRED = [
 ]
 META = ["交接 ID", "类型", "发起方", "接收方", "版本", "状态", "日期", "回执截止"]
 SECTIONS = ["接收方要做的事", "验收/完成标准", "回执要求"]
-ID_RE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Z]{2,5}-[A-Z]{2,4}2[A-Z]{2,4}$")
+ID_RE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Z]{2,5}-[A-Z]{2,4}2[A-Z]{2,12}$")
 
 
 def split_row(line: str) -> list[str]:
@@ -70,7 +70,7 @@ def main() -> int:
             errors.append(f"MISSING_SECTION: 00-交接说明.md: {sec}")
 
     if not ID_RE.match(root.name):
-        errors.append(f"BAD_PACKAGE_ID: {root.name} (expect HO-yyyyMMdd-NN-TYPE-FROM2TO)")
+        errors.append(f"BAD_PACKAGE_ID: {root.name} (expect HO-yyyyMMdd-NN-TYPE-FROM2TO; multi-recv use ALL or DEVQA)")
     if text:
         m = re.search(r"\|\s*交接 ID\s*\|\s*`?([^|`]+)`?", text)
         if m and m.group(1).strip() != root.name:

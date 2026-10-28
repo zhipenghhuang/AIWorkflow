@@ -14,10 +14,14 @@ Options:
   --mode auto|frontend                    default auto
   --acceptance <file>                     acceptance checklist (md/yaml/json); relative to project root
   --task-id <id>                          current task id (also stored by --start-task)
-  --start-task <id>                       write .gate/task.json and exit
+  --start-task <id>                       write .gate/task.json (task_id/started_at/base_commit) and exit
   --json                                  print JSON summary
   --dry-run                               select checks only; verdict=DRY_RUN; never writes
   --allow-missing-acceptance              L0 bootstrap only; L1+ is always blocked
+
+Notes:
+  - StartTask freezes base_commit; changed_files = diff(base)..工作区 + untracked（中途 commit 不丢任务窗口）。
+  - 定向：profile 的 lint_scoped/test_scoped 含 {files} 才注入变更列表；否则跑全仓命令，检查 id 为 project-*。
 
 Exit: 0 = COMPLETE, 1 = PARTIAL/BLOCKED/NOT_VERIFIED/DRY_RUN, 2 = usage/config error.
 """
@@ -110,16 +114,33 @@ def _norm(rel: str) -> str:
     return rel
 
 
-def changed_files(project_root: Path, package_root: Path) -> list[str]:
+def changed_files(project_root: Path, package_root: Path, base_commit: str = "") -> list[str]:
+    """Files changed in the task window.
+
+    If base_commit is set (from -StartTask), diff against that commit so mid-task
+    commits still count. Otherwise fall back to HEAD (or working-tree-only).
+    """
     try:
         package_rel = _norm(str(package_root.relative_to(project_root))) if package_root != project_root else ""
     except ValueError:
         package_rel = ""
     files: set[str] = set()
-    has_head = bool(git(project_root, "rev-parse", "--verify", "HEAD"))
-    diff_args = ["diff", "--name-only", "-z", "HEAD"] if has_head else ["diff", "--name-only", "-z"]
-    for raw in git_z(project_root, *diff_args):
-        files.add(_norm(raw))
+    base = (base_commit or "").strip()
+    if base and git(project_root, "rev-parse", "--verify", f"{base}^{{commit}}"):
+        # working tree (+ index content via WT) vs task base; covers commits after StartTask
+        for raw in git_z(project_root, "diff", "--name-only", "-z", base):
+            files.add(_norm(raw))
+        # also names that differ only in index vs base when WT matches index oddly — rare; kept simple
+        for raw in git_z(project_root, "diff", "--name-only", "-z", "--cached", base):
+            files.add(_norm(raw))
+    else:
+        has_head = bool(git(project_root, "rev-parse", "--verify", "HEAD"))
+        diff_args = ["diff", "--name-only", "-z", "HEAD"] if has_head else ["diff", "--name-only", "-z"]
+        for raw in git_z(project_root, *diff_args):
+            files.add(_norm(raw))
+        if has_head:
+            for raw in git_z(project_root, "diff", "--name-only", "-z", "--cached", "HEAD"):
+                files.add(_norm(raw))
     for raw in git_z(project_root, "ls-files", "--others", "--exclude-standard", "-z"):
         files.add(_norm(raw))
 
@@ -482,6 +503,52 @@ def resolve_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str) -> s
     return None
 
 
+def _files_for_scope(files: list[str], key: str) -> list[str]:
+    """Pick paths suitable for lint/test injection (cap length for argv)."""
+    if key == "lint":
+        exts = (".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte", ".py", ".go", ".java", ".cs")
+    elif key == "e2e":
+        exts = (".ts", ".js", ".spec.ts", ".spec.js", ".feature")
+    else:
+        exts = (".ts", ".tsx", ".js", ".jsx", ".vue", ".py", ".go", ".java", ".cs")
+    out: list[str] = []
+    seen: set[str] = set()
+    for f in files:
+        fl = f.lower()
+        if not any(fl.endswith(e) for e in exts):
+            continue
+        if f in seen:
+            continue
+        seen.add(f)
+        out.append(f)
+        if len(out) >= 40:
+            break
+    return out
+
+
+def resolve_check_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str,
+                      files: list[str]) -> tuple[str | None, bool]:
+    """Return (command, is_scoped). Scoped only when profile has *_scoped with {files}."""
+    scoped_key = f"{key}_scoped"
+    tmpl = profile.get(scoped_key)
+    if isinstance(tmpl, str) and "{files}" in tmpl:
+        scoped_files = _files_for_scope(files, key)
+        if scoped_files:
+            return tmpl.replace("{files}", " ".join(scoped_files)), True
+        # template present but no matching files → fall through to project-wide
+    return resolve_cmd(profile, scripts, key), False
+
+
+def check_id_for(key: str, scoped: bool) -> str:
+    if key == "test":
+        return "targeted-test" if scoped else "project-test"
+    if key == "lint":
+        return "targeted-lint" if scoped else "project-lint"
+    if key == "e2e":
+        return "affected-e2e" if scoped else "project-e2e"
+    return key
+
+
 def project_root_has_playwright(scripts: dict[str, str]) -> bool:
     return any("playwright" in str(v).lower() for v in scripts.values())
 
@@ -493,8 +560,18 @@ def run_cmd_check(check_id: str, cmd: str | None, project_root: Path, timeout: i
     return {"id": check_id, "status": "pass" if r["exit"] == 0 else "fail", "command": cmd, **r}
 
 
+def _parse_iso_mtime(iso: str) -> float:
+    if not iso:
+        return 0.0
+    try:
+        s = iso.strip().replace("Z", "+00:00")
+        return datetime.fromisoformat(s).timestamp()
+    except Exception:
+        return 0.0
+
+
 def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
-                      acceptance_mtime: float) -> dict[str, Any]:
+                      acceptance_mtime: float, task_started_at: str = "") -> dict[str, Any]:
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
@@ -509,10 +586,12 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         problems.append("缺少桌面截图（文件名含 desktop/1280/1440）")
     if not any(x in names for x in ("mobile", "360", "375", "390")):
         problems.append("缺少移动截图（文件名含 mobile/360/375/390）")
-    if acceptance_mtime:
-        stale = [p.name for p in images if p.stat().st_mtime + 1 < acceptance_mtime]
+    floor = max(acceptance_mtime or 0.0, _parse_iso_mtime(task_started_at))
+    if floor:
+        stale = [p.name for p in images if p.stat().st_mtime + 1 < floor]
         if stale:
-            problems.append(f"截图早于本轮验收清单：{stale[:3]}")
+            label = "任务开始/验收清单"
+            problems.append(f"截图早于本轮{label}：{stale[:3]}")
     results_json = evidence_dir / "playwright-results.json"
     if results_json.is_file():
         try:
@@ -634,19 +713,25 @@ def main() -> int:
             return 2
         task_file = project_root / ".gate" / "task.json"
         task_file.parent.mkdir(parents=True, exist_ok=True)
-        task_file.write_text(json.dumps({"task_id": args.start_task,
-                                         "started_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")},
-                                        ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"task started: {args.start_task} -> {task_file}")
+        base_commit = git(project_root, "rev-parse", "HEAD") or ""
+        payload = {
+            "task_id": args.start_task,
+            "started_at": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+            "base_commit": base_commit or None,
+        }
+        task_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"task started: {args.start_task} base={base_commit or 'nogit'} -> {task_file}")
         return 0
 
     task_file = project_root / ".gate" / "task.json"
     task_id = args.task_id
     task_started = ""
+    base_commit = ""
     if task_file.is_file():
         try:
             task_data = json.loads(task_file.read_text(encoding="utf-8-sig"))
             task_started = str(task_data.get("started_at") or "")
+            base_commit = str(task_data.get("base_commit") or "")
             if not task_id:
                 task_id = str(task_data.get("task_id") or "")
             elif task_data.get("task_id") and task_data["task_id"] != task_id:
@@ -656,7 +741,7 @@ def main() -> int:
             print(f"TASK_FILE_INVALID: {exc}")
             return 2
 
-    files = changed_files(project_root, package_root)
+    files = changed_files(project_root, package_root, base_commit=base_commit)
     level, types = classify(files)
     if args.mode == "frontend":
         types = sorted(set(types + ["frontend"]))
@@ -690,19 +775,25 @@ def main() -> int:
     elif docs_only:
         checks += check_docs(project_root, files)
     else:
-        for key, cid in (("build", "build"), ("lint", "lint"), ("test", "targeted-test"), ("smoke", "smoke")):
-            cmd = resolve_cmd(profile, scripts, key)
+        for key in ("build", "lint", "test", "smoke"):
+            if key in ("lint", "test"):
+                cmd, scoped = resolve_check_cmd(profile, scripts, key, files)
+                cid = check_id_for(key, scoped)
+            else:
+                cmd = resolve_cmd(profile, scripts, key)
+                cid = key
             if args.dry_run:
                 checks.append({"id": cid, "status": "dry-run", "command": cmd})
             else:
                 checks.append(run_cmd_check(cid, cmd, project_root, int(timeouts.get(key, 600))))
         if "frontend" in types or args.mode == "frontend":
-            e2e = resolve_cmd(profile, scripts, "e2e")
+            e2e, e2e_scoped = resolve_check_cmd(profile, scripts, "e2e", files)
+            e2e_id = check_id_for("e2e", e2e_scoped)
             if args.dry_run:
-                checks.append({"id": "affected-e2e", "status": "dry-run", "command": e2e})
+                checks.append({"id": e2e_id, "status": "dry-run", "command": e2e})
             else:
-                checks.append(run_cmd_check("affected-e2e", e2e, project_root, int(timeouts.get("e2e", 900))))
-                checks.append(frontend_evidence(project_root, profile, level, acceptance_mtime))
+                checks.append(run_cmd_check(e2e_id, e2e, project_root, int(timeouts.get("e2e", 900))))
+                checks.append(frontend_evidence(project_root, profile, level, acceptance_mtime, task_started))
         if level_rank(level) >= 2:
             integration = resolve_cmd(profile, scripts, "integration")
             if integration:
@@ -750,17 +841,19 @@ def main() -> int:
         if blocked:
             reasons += [f"{c['id']} blocked: {c.get('detail', '')}" for c in blocked]
 
-    diff_text = git(project_root, "diff", "HEAD") if git(project_root, "rev-parse", "--verify", "HEAD") else ""
+    diff_ref = base_commit if base_commit else ("HEAD" if git(project_root, "rev-parse", "--verify", "HEAD") else "")
+    diff_text = git(project_root, "diff", diff_ref) if diff_ref else ""
     diff_hash = hashlib.sha256((diff_text + "\n" + "\n".join(files)).encode("utf-8", errors="replace")).hexdigest()[:16]
     commit = git(project_root, "rev-parse", "--short", "HEAD")
     gate_id = f"{commit or 'nogit'}-{diff_hash}"
     completion = {
-        "gate_version": "2.0",
+        "gate_version": "2.1",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "gate_id": gate_id,
         "task_id": task_id or meta.get("task_id") or "",
         "task_started_at": task_started,
+        "base_commit": base_commit or None,
         "verdict": verdict,
         "level": level,
         "change_types": types,

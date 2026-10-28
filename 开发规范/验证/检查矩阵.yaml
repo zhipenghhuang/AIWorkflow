@@ -3,20 +3,22 @@
 # 原则：高价值低成本默认做；高价值中成本按风险做；低价值高成本不做。
 
 version: 1
+# 检查 id 名实：profile 配了 lint_scoped/test_scoped/e2e_scoped（含 {files}）→ targeted-* / affected-e2e；
+# 未配 → project-lint / project-test / project-e2e（全仓命令，勿宣称「只跑受影响」）。
 levels:
   L0:
     description: 单文件/文案/配置；无行为、契约、权限、数据变化
-    required: [build, targeted-test, smoke]
+    required: [build, test-or-targeted-test, smoke]
     optional: [screenshot]
   L1:
     description: 多文件、普通功能、前端行为变化
-    required: [build, lint, targeted-test, smoke]
-    frontend_required: [affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
+    required: [build, lint-or-targeted-lint, test-or-targeted-test, smoke]
+    frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
     optional: [a11y-basic, visual-diff]
   L2:
     description: 跨模块、接口/数据变更、新功能
-    required: [build, lint, unit, integration, review-record]
-    frontend_required: [affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
+    required: [build, lint-or-targeted-lint, unit, integration, review-record]
+    frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
     manual: [review]
     optional: [contract-test, security-scan]
   L3:
@@ -26,7 +28,7 @@ levels:
     optional: [migration-rehearsal, load-test]
 
 post_gate:
-  - report-lint   # 报告生成后由 验证/Test-Report.ps1 执行；不属于 implementation gate
+  - report-lint   # iterate/change/defect-fix wrap 后由 验证/Test-Report.ps1；不属于 implementation gate
 
 change_types:
   frontend:
@@ -80,13 +82,13 @@ change_types:
 always:
   - acceptance-checklist
   - build
-  - targeted-test
+  - test-or-targeted-test
   - smoke
 
 # 高价值中成本（按风险）
 risk_based:
-  - lint
-  - affected-e2e
+  - lint-or-targeted-lint
+  - e2e-or-affected-e2e
   - frontend-screenshots
   - frontend-states
   - frontend-console
@@ -96,7 +98,7 @@ risk_based:
 
 # 低价值高成本（不做/少做）
 avoid:
-  - full-regression-every-change
+  - full-regression-every-change   # 未配 *_scoped 时 project-* 已是全仓；发布/L3 另跑全量
   - pixel-diff-every-page
   - exhaustive-a11y-every-change
   - multiple-approval-layers

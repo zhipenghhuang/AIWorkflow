@@ -7,12 +7,31 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.27.14` | 不变 | 本次仅开发轨 |
-| 开发规范 | `2026.10.28.5` | 更新 | 提交/推送/部署节奏、基线检查、提交提醒 |
-| 测试规范 | `2026.10.27.14` | 不变 | 本次仅开发轨 |
-| 母版仓 | `2026.10.28.5` | 更新 | 同上 |
+| 产品规范 | `2026.10.28.6` | 更新 | light 追溯降噪、writeback 实质校验、Artifact 推荐 |
+| 开发规范 | `2026.10.28.6` | 更新 | StartTask base、定向名实、defect 报告 lint |
+| 测试规范 | `2026.10.28.6` | 更新 | execute `-Scope` 步后门 vs report 准出门 |
+| 母版仓 | `2026.10.28.6` | 更新 | 三包验证分层对齐 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
+
+## [2026.10.28.6] - 2026-10-28
+
+### Added
+
+- 测试：`Invoke-Gate.ps1 -Mode execute -Scope`；缺 Scope 且无法推断 → BLOCKED；report 仍全仓。
+- 开发：`-StartTask` 写入 `base_commit`；门按 base..工作区计 diff；profile `*_scoped`+`{files}` 真正定向。
+- 产品：回执 `artifact_via`；未传 `-Artifact` 仅警告不拦。
+
+### Changed
+
+- 测试：execute 的 coverage/p0 对 Scope 外 soft；禁无 Scope 全仓 FAIL 当本批结论。
+- 产品：light PRD 缺追溯 → warning；writeback 须备注实质/状态取值/附件回查。
+- 开发：未配定向时检查 id=`project-*`；截图新鲜度对照 `started_at`；defect-fix wrap 跑 `Test-Report.ps1`。
+
+### Fixed
+
+- 开发：中途 commit 导致空 diff → `NOT_VERIFIED` 的假阴性（任务窗口丢失）。
+- 三包文档：去掉「定向/拒绝旧截图」与实现不符的表述。
 
 ## [2026.10.28.5] - 2026-10-28
 

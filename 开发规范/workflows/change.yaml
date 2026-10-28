@@ -51,7 +51,7 @@ steps:
       技能：`技能/requirements-and-spec/SKILL.md`（先读再澄清）。
       需求/验收点不明且本机可用 spec-clarify（能力注册表）时按需澄清；不可用按 `规则/核心/澄清.md`。
       变更分级见 AGENTS §0.1；L0 微改可轻量但不得跳过理解回执，L2+ 进入 requirements。
-      任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`）；后续门用它拒绝旧验收/旧截图。
+      任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：`task_id`/`started_at`/`base_commit`；门按 base 算 diff，截图须晚于 started_at/验收清单）。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
       输入含外部 PRD/方案/原型/专项/未决确认 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后同批：落 `资料/{版本或主题}/`（多包→`项目资料/`）→ 同步工作区 → S1/S2/S3 进 `资料/_归档/`；本包方案/基线正文改工作区不进资料。完整吸收链优先 `intake`。
       确认采纳或换代/换主题后按 `规则/文档治理.md` §7（不确定则 `confirm_iteration_close`；确认后 §7.1 完整关账，跳过仅发版项）。

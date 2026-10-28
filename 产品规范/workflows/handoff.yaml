@@ -54,17 +54,11 @@ steps:
     hitl_when: handoff_send_required
     output: 产品/交接/{HO-ID}/ + 【交接包已生成】
     notes: >
-      先读 `规则/协作/协作与交接.md` §4 与 `规则/模板/90-交接与收尾/交接包说明模板.md`、`规则/模板/90-交接与收尾/交接清单模板.md`。
-      选类型与接收方（§3）：REQ（PRD 定稿→开发/测试）、DES（原型评审→开发）、PLAN（计划/排期）、
-      UAT（验收→开发/测试）、REL（发布决策→开发/运维）、BUG（缺陷处置）、DEC（答疑/裁决）、RETRO（复盘）。
-      **前置硬条件**：REQ=PRD `status: APPROVED` 且 PRD 门 READY；DES=设计评审通过且 `confirm_prototype` 已过；
-      UAT=UAT 门 READY；REL=`confirm_release` 已过；CHG/BUG 另有确认门。未过门不得生成“可实施”包。
-      无论单包/多包同仓，一律生成完整包 `00/01/02/03/04`；冻结版本/日期/构建 → 按最小必带复制到 `02-文档/`、证据到 `03-证据/` → 写 `00/01` → 复制空白回执模板到 `04-回执/`（模板必带，默认不强制填）。
-      运行 `python 产品规范/规则/tools/validate_handoff.py <包路径>`（可用时）；缺件/占位符/版本不符先修。
-      更新 `交接台账.md`（状态=已发送）、产品计划 §0/§12、文档索引、activeContext；**不得写已接收**；已发送即可继续本侧准备，不以等回执阻塞日常。
-      传递：多包同仓 → 输出「同仓直读：产品/交接/{HO-ID}/」，**禁止**再让用户拷/转到对方 `资料/交接/`；仓外/单包 → 发文件夹或可选 ZIP `{HO-ID}.zip`。
-      输出【交接包已生成】：HO-ID/类型/接收方/路径/传递方式/必带/阻断/回执（默认可选；点名正式签收或发布/C2/C3 再填）/状态=已发送。
-      confirm_handoff：出示接收方/类型/必带/缺口/传递方式请确认；已由上一门确认同一发送时跳过。
+      先读 `规则/协作/协作与交接.md` §3.1/§4 与交接包说明/清单模板。
+      **内容优先**：默认交自洽 PRD/设计/变更等主文档；本步仅用户确认后落 HO。
+      **先问后发**：出示【拟发包】；确认后才写盘；禁止静默发包。
+      选类型：REQ/DES/PLAN/UAT/REL/BUG（无平台或点名）/DEC/RETRO；CHG 走 change_send。
+      包须读包即懂；多包同仓直读禁转发；仓外文件夹/ZIP。输出【交接包已生成】。
 
   - name: 接收与签收
     id: receive
@@ -88,16 +82,18 @@ steps:
   - name: 发送变更通知
     id: change_send
     agent: pm-lead
-    hitl: confirm_change
-    hitl_when: handoff_change_substantive
+    hitl:
+      - name: confirm_change
+        when: handoff_change_substantive
+      - name: confirm_handoff
+        when: handoff_send_required
     output: 产品/交接/{CHG-HO-ID}/ + 更新后的受影响文档
     notes: >
-      先按 `workflows/change.yaml` 完成受理/影响/处置/变更单；本步只负责“通知包”，不重复变更分析。
-      按 `规则/协作/协作与交接.md` §6 判 C0/C1/C2/C3；C2/C3 必须先过 `confirm_change`，计划级再 `confirm_plan`。
-      必带：变更单/决策、更新后的 PRD/AC/原型、影响矩阵、接收方必须做的事/截止、兼容/回滚/迁移、生效版本。
-      受影响角色逐个发（开发/测试/运维）；同一变更一个包可多接收方，但回执逐个登记。
-      更新 `交接台账.md`、产品计划 §0/§8/§10/§12、文档索引、activeContext；输出【变更通知已生成】+ 回执截止。
-      未确认不得发；不得用口头/聊天替代变更包。
+      先按 `workflows/change.yaml` 完成受理/影响/处置/变更单；本步只负责“通知包”。
+      按 §6 判 C0～C3；C2/C3 先过 `confirm_change`/`confirm_plan`。
+      **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，确认后才生成。
+      必带：变更单、更新后 PRD/AC/原型、影响矩阵、必做事项/截止、兼容/回滚、生效版本。
+      多包同仓直读，禁止转发；仓外发文件夹/ZIP。
 
   - name: 接收变更并适配
     id: change_receive
