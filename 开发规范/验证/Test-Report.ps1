@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   开发轨报告对账：检查【验证回执】与 .gate/开发规范/completion.json 是否一致，拦截假完成措辞。

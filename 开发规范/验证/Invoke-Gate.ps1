@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   开发轨完成门（唯一入口）。调用 验证/tools/gate.py，输出项目根 .gate/开发规范/。

@@ -21,13 +21,18 @@ function Test-CommitDocsOnly {
       if ($p -match '^\.gitignore$') { continue }
       # 本机双击入口与 Windows 侧工具（不进服务器运行态）
       if ($p -match '^(commit|pull|setup|unlock)\.bat$') { continue }
-      if ($p -match '^tools/(commit|pull|setup|shared-mode|unlock)\.ps1$') { continue }
+      if ($p -match '^tools/(commit|pull|setup|shared-mode|unlock|surfaces|project-sync|broker-helper)\.ps1$') { continue }
       if ($p -match '^tools/(fix-opencode\.py|harden-server\.bat)$') { continue }
+      if ($p -match '^surfaces\.txt$') { continue }
+      if ($p -match '^hooks/') { continue }
+      # update.sh 改公开源拉法仍需部署
       return $false
     }
     if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|项目资料/|extras/)') { continue }
     if ($p -match '^(README|AGENTS|CHANGELOG|activeContext|项目档案|产品档案|运行说明|THIRD_PARTY|LICENSE)\.md$') { continue }
     if ($p -match '^(public-surface\.txt|public\.gitignore)$') { continue }
+    if ($p -match '^\.public/') { continue }
+    if ($p -match '^(AGENTS\.public|README\.public)\.md$') { continue }
     if ($p -match '^\.gitattributes$') { continue }
     if ($p -match '^\.gitignore$') { continue }
     # 项目本机入口脚本改动不触发该项目的服务器更新
@@ -37,6 +42,7 @@ function Test-CommitDocsOnly {
   }
   return $true
 }
+
 function Initialize-SharedMode {
   $flag = @(git config --global --get deploy.sharedMode 2>$null) | Select-Object -First 1
   if ("$flag".Trim() -ne 'true') { return $false }

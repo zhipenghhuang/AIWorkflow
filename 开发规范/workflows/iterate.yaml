@@ -31,6 +31,7 @@ steps:
       输入含 PRD/迭代方案/原型/需求文档但无需求理解包 → 先回 `workflows/change.yaml` 的 analyze_input；不得凭聊天记忆或文档标题拆单。
       输入是交接包 → 先走 `workflows/handoff.yaml` receive 核对+回执；未签收不得拆单/实施。
       缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 requirements/design/`review-docs`（先 `select_review_mode` 再 `confirm_spec`）补确认；不凭聊天记忆直接拆单/实施。
+      **并行迭代**：当前版本仍在测试又收到新方案 → 先判「继续当前测试 / 关闭当前 / 并行」；未关闭不得把新需求塞进当前测试版本；并行须新分支/新版本，测试环境分开或排队；关闭走 `confirm_iteration_close`（停止新范围/冻结版本线，测试与缺陷修复可继续，归档待测试完成），再开新 minor。
       「只出任务清单」可只要求需求/方案要点，缺则一次一问；确认后进入 plan，不跳过计划依据。
 
   - name: 读方案与拆清单
