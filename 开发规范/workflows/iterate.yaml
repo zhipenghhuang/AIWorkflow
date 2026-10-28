@@ -8,12 +8,15 @@ workflow:
 
 entry_points:
   按方案实施: precheck
+  按这个方案做: precheck
+  按方案做: precheck
+  实施这个方案: precheck
   落地迭代方案: precheck
   继续迭代: precheck
   只出任务清单: precheck
 
 trigger:
-  - 按方案实施
+  - 按方案实施 / 按这个方案做 / 按方案做 / 实施这个方案
   - 落地迭代方案
   - 继续迭代
   - 只出任务清单
@@ -36,6 +39,7 @@ steps:
     output: 任务清单 + 冻结的验收清单（开发/04-计划与任务/任务清单-{版本或主题}.md）
     notes: >
       技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
+      输入是原始想法/无 PRD → 先按 `技能/product-shaping/SKILL.md` 给 3～5 行产品判断，再拆任务；不强制产品定义卡。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
       **验收清单**：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process）并确认后冻结；实施中新增/变更 AC 走变更记录。
@@ -67,7 +71,7 @@ steps:
     agent: iterate-lead
     output: 代码/配置改动 + 任务状态回写
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；失败/异常时 + `技能/debugging-and-error-recovery/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
       RP/AC 可核对且全覆盖才开工；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交** → 一组一子代理（worker-agent；同文件/同函数集归一组；默认串行）；批末定向门禁 → 核验 → 下一批；不达阈值直做。
       高风险/大改/破坏性变更核验者≠实施者（规则/专项/迭代交付.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
@@ -107,6 +111,7 @@ steps:
     output: .gate/开发规范/completion.json + 门禁摘要/文档同步
     notes: >
       按 `验证/检查矩阵.yaml` 取最小充分集；运行 `验证/Invoke-Gate.ps1 -Acceptance <任务清单>`；门自己跑关键检查并写 `.gate/开发规范/completion.json`。
+      有用户路径/交互/业务规则改动且无测试报告 → 按 `技能/test-design-and-execution/SKILL.md` 补最小功能测试；报告落 `开发/05-测试与验收/` 或并入验收证据。
       失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
       非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。
       日志分诊（子代理编排 §2）：原始日志落盘，先脚本过滤；仅多文件语义归因才派子代理，返回摘要 ≤30 行。

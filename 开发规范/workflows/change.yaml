@@ -49,6 +49,7 @@ steps:
       先按 `规则/核心/澄清.md`：给「需求理解包」（目标/用户与场景/范围/规则/权限/异常/AC/约束/假设/来源），列「缺口清单」并写影响；**一次只问一个问题**并附建议，直到没有实质性缺口或剩余缺口被明确接受为假设。有实质缺口时在 `analyze_input`/`requirements` 的 `confirm_understanding`/`confirm_requirements` 停；无缺口直接进后续步骤，不另造门。不重复问已确认项。
       验收清单草案：每条 AC 写「判定 + 检查 + 证据」；L0/L1 可写在任务卡/开发卡，L2+ 按 `验证/模板/验收清单.yaml` 落 acceptance 文件（见 `验证/README.md`），确认后冻结。
       技能：`技能/requirements-and-spec/SKILL.md`（先读再澄清）。
+      输入是原始想法/无 PRD → 先按 `技能/product-shaping/SKILL.md` 给 3～5 行产品判断（问题/用户/价值/MVP/非目标/成功标准），不强制产品定义卡；报错/回归先复现/红证/根因，不直接改。
       需求/验收点不明且本机可用 spec-clarify（能力注册表）时按需澄清；不可用按 `规则/核心/澄清.md`。
       变更分级见 AGENTS §0.1；L0 微改可轻量但不得跳过理解回执，L2+ 进入 requirements。
       任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：`task_id`/`started_at`/`base_commit`；门按 base 算 diff，截图须晚于 started_at/验收清单）。
@@ -187,6 +188,7 @@ steps:
     output: .gate/开发规范/completion.json + 验证回执
     notes: >
       有代码/配置改动才跑；按 `验证/检查矩阵.yaml` 取最小充分集（细则 `规则/核心/验证规则.md`）；
+      有用户路径/交互/业务规则改动且无测试报告 → 按 `技能/test-design-and-execution/SKILL.md` 补最小功能测试；报告落 `开发/05-测试与验收/` 或并入验收证据。
       运行 `验证/Invoke-Gate.ps1 -Acceptance <任务清单/开发卡>`；门读验收清单/diff/证据/process，自己跑关键检查并写 `.gate/开发规范/completion.json`。
       纯澄清无改动跳过本步；失败不声称完成；存量失败只对账新增。
       非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。
