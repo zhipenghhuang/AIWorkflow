@@ -62,7 +62,9 @@ steps:
       按当前阶段路由：S0/S1 走 `change` analyze_input（有 PRD/原型）/clarify/requirements；S2 走 `change` design；S3 走 `iterate` plan/confirm；
       S4/S5 走 `change` implement/review/verify 或 `iterate` implement/review/gates；S6 走 `change`/`iterate` 的 deliver 步；
       S7 走缺陷/测试报告（可选输入）；S8 走 `release`；S9 走 `retro`。执行到下一个 `hitl` 停止，不跳门。
+      进入/切换任务前检查工作区；有前序未提交 → 输出【基线检查】先提交/隔离/记录例外，不得开始下一任务；任务边界 dirty 时先停，不得继续下一任务。
       上游包未签收/退回 → 先走 `workflows/handoff.yaml` receive，不进入实施；本阶段发出包未回执 → 只能准备下一步，不得标阶段完成。
+      多波次：先确认计划选“每波独立评审+过门”或“整迭代只过 S5 全量评审”；不得混用；S5 已有波次评审时做集成/AC/证据/抽样复核，不逐行重审。
       每步结束回写：§0 计划状态/当前门/下一动作/健康度；§1 阶段状态/证据/下一步；§6/§7/§8 对应节；§12 执行日志（含 HO/回执）。
       缺证据不得标完成；门结论写「通过/不通过/有条件通过 + 批准人/日期/条件」。
       开发包独立运行；产品/测试输入可选，缺则降级，不阻塞。
