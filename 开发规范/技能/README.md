@@ -52,11 +52,26 @@
 | 变更含 LLM/RAG/Agent/提示词/模型/工具调用 | `技能/ai-application-engineering/SKILL.md` + `技能/threat-modeling/SKILL.md`（AI 安全） |
 | change / iterate：review | `技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` |
 | change / iterate：deliver | `技能/qa-handoff-and-release/SKILL.md` |
+| solo.frame（轻量档产品定义） | `技能/product-shaping/SKILL.md` |
+| solo.plan（一页方案卡） | `技能/product-shaping/SKILL.md` + `技能/solution-design/SKILL.md` + `技能/engineering-quality/SKILL.md` + `技能/task-breakdown/SKILL.md` |
+| solo.build（轻量实施） | `技能/implementation-and-selftest/SKILL.md` + `技能/engineering-quality/SKILL.md` |
+| solo.test（轻量测试） | `技能/test-design-and-execution/SKILL.md` |
 | release：acceptance / readiness / deploy / verify / rollback / postrelease | `技能/acceptance-and-launch/SKILL.md` + `技能/observability-and-instrumentation/SKILL.md` |
 | retro：gather / analyze / actions | `技能/retrospective-and-improvement/SKILL.md` |
 | defect-fix 全流程 | `规则/缺陷/缺陷修复协作.md`（本轨专规即技能） |
 | iterate 节奏/核验 | `规则/专项/迭代交付.md`（规则，不替代拆单技能） |
 | onboard 核验/装配/文档整理 | `agents/onboard-agent.yaml`（核验清单即技能） |
+
+## 轻量单人轨（solo）
+
+> 用于个人小项目/单一想法：默认一页方案卡 + 一次方案确认；不替代完整链。口径见 `规则/核心/轻量交付.md`。
+
+| 步骤 | 技能 | 说明 |
+| --- | --- | --- |
+| frame | `product-shaping` | 只在新想法/新产品/方向不清时走；小改跳过 |
+| plan | `product-shaping` + `solution-design` + `engineering-quality` + `task-breakdown` | 产品行为/技术/任务/验收/测试压到一页 |
+| build | `implementation-and-selftest` + `engineering-quality` | 按方案卡实施；失败时加 `debugging-and-error-recovery` |
+| test | `test-design-and-execution` | 最小充分集实测 + 轻量测试报告；P0 未过 = FAIL |
 
 ## 开发计划阶段 → 技能（每阶段至少一个）
 

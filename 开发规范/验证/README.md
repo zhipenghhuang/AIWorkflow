@@ -14,6 +14,8 @@
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
 前端最低 L1；纯文案可 L0-light，仍要受影响页截图 + console 无 error。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
+**轻量轨（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `技能/test-design-and-execution` 出最小充分集并实测，报告落 `05-测试与验收/`。完成门仍按本文件执行；P0 未过不得判通过。
+
 ## 2. 一次任务怎么跑
 
 1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。

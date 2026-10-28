@@ -1,0 +1,108 @@
+# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
+# 轻量单人轨：默认一页方案卡 + 一次方案确认；L2+/高风险按 规则/核心/轻量交付.md §2 升级 change/iterate。
+workflow:
+  id: solo
+  name: 轻量开发（单人或小项目）
+  version: 1
+  read_index: 规则/读取索引.md
+
+entry_points:
+  轻量开发: frame
+  我有个想法: frame
+  想法落地: frame
+  快速做: frame
+  小项目: frame
+  轻量方案: plan
+  只出轻量方案: plan
+  轻量测试: test
+  帮我测一下: test
+
+trigger:
+  - 轻量开发 / 我有个想法 / 想法落地 / 快速做 / 小项目
+  - 轻量方案 / 只出轻量方案
+  - 轻量测试 / 帮我测一下
+
+steps:
+  - name: 产品定义
+    id: frame
+    when: new_product_or_unclear_idea
+    agent: implementer
+    output: 产品定义卡（开发/01-需求基线/产品定义-{主题}-{yyyyMMdd}.md）
+    notes: >
+      技能：`技能/product-shaping/SKILL.md`（先读再做）；轻量档口径见 `规则/核心/轻量交付.md` §1～§3。
+      只在「新想法/新产品/方向不清」时走；小改/需求已清楚 → 跳过本步，直接 plan（方案卡第一节写 3～5 行产品判断）。
+      本步不单独停：产出直接进 plan，由 `confirm_spec` 一次确认；方向存在 ≥2 个互斥选择时，在方案卡里列选项与推荐，仍只停一次。
+      只问影响方向/范围/成功标准的问题：首轮 0～1 个，总 ≤3；技术细节自行给建议，不抛给用户。
+      产出：问题/用户与场景/现有替代/价值/成功标准/MVP/非目标/关键风险/假设；每条标 [事实]/[假设]/[待验证]。
+      产品定义卡一页；不写完整 PRD、不写技术方案、不做市场调研（用户点名除外）。
+      输入含 PRD/原型/文档 → 先按 `技能/product-doc-analysis/SKILL.md` 产出理解摘要，再填本卡，不重复问已确认项。
+
+  - name: 一页方案卡
+    id: plan
+    agent: implementer
+    hitl: confirm_spec
+    output: 方案卡（开发/02-方案设计/方案卡-{主题}-{yyyyMMdd}.md）
+    notes: >
+      技能：`技能/product-shaping/SKILL.md`（产品判断）+ `技能/solution-design/SKILL.md` 当前节 + `技能/engineering-quality/SKILL.md` + `技能/task-breakdown/SKILL.md`（任务拆分）；模板 `规则/模板/30-计划与任务/方案卡模板.md`。
+      本步只读/写方案卡，不改代码；把「产品行为 + 技术方案 + 任务 + 验收 + 测试策略 + 风险」压到一页。
+      必填：范围/非目标、主流程与状态/权限/异常、改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、测试点（P0/P1/类型）、风险/假设/待确认。
+      验收表必须可被 `验证/Invoke-Gate.ps1` 读取；每条 AC 有检查与证据（路径或命令）。
+      自检：AC 可观测；每个任务有文件与验证；P0 测试点齐；不把「应该/正常」写成验收。
+      需要独立代码评审/接口契约/迁移/安全 → 停下说明并升级 `change`/`iterate`，不硬走轻量档。
+      confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；用户确认后进 build；「只出轻量方案」→ 本步后直接 wrap，跳过 build/test。
+      更新 `文档索引.md`/`activeContext.md`（有变化时）。
+
+  - name: 实施与自测
+    id: build
+    agent: implementer
+    precondition: plan 已确认；方案卡验收表已冻结；范围/AC 未确认不得写代码
+    on_fail: 回 plan 修方案卡；范围超出先停下说明
+    output: 代码/配置改动 + 自测证据
+    notes: >
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；失败时 + `技能/debugging-and-error-recovery/SKILL.md`。
+      开工先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`。
+      按方案卡验收表实施；每完成一个可验证单元即跑检查并留证据；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
+      可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。
+      需独立评审/多波次/跨模块 → 升级 `change`/`iterate`；本步不冒充已评审。
+      实施完更新方案卡「执行记录」与任务状态，准备 test。
+
+  - name: 轻量测试
+    id: test
+    agent: verifier-agent
+    gate: completion-gate
+    gate_type: machine
+    gate_when: solo_gate_required
+    on_fail: 回 build 修复；P0 未过不得进 wrap，修后重跑原用例 + 冒烟 + 影响面
+    output: 轻量测试报告（开发/05-测试与验收/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/开发规范/completion.json
+    notes: >
+      技能：`技能/test-design-and-execution/SKILL.md`（先读再做）；模板 `规则/模板/40-交付与发布/轻量测试报告模板.md`；门禁见 `验证/README.md`。
+      按方案卡测试点设计最小充分集：主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。
+      先 UI 后 Network；不猜未见 API；失败留证（截图/命令/响应）；同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。
+      失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。
+      写报告：范围/环境/测试点/结果/证据/缺陷/缺口/verdict；P0 未过 = FAIL；有条件通过仅限 P0 全过、缺口非 P0、用户接受。
+      运行 `验证/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/开发规范/completion.json`；非 COMPLETE 不得进 wrap 报完成。
+      无方案卡/验收表（如单独「轻量测试」入口）：只做诊断测试并出报告，不跑 completion-gate；wrap 写 `verification=not_applicable`。
+      纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；wrap 写 `verification=not_applicable` + 依据。
+
+  - name: 收尾
+    id: wrap
+    agent: implementer
+    output: 【任务收尾】（六段 + 汇报，可整段复制）
+    notes: >
+      按 AGENTS §2 与 `规则/模板/90-交接与收尾/收尾骨架.md`：先写 `【验证回执】verdict=...`，再写第 1 点汇报，第 2～6 点齐；未验证/阻塞/升级项明示。
+      更新 activeContext、文档索引、方案卡/测试报告链接；有开发计划则同步 §0/§12；有版本关闭才更新根 CHANGELOG 与 `开发/工作日志.md`。
+      有测试报告时运行 `验证/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修，不得带假完成措辞。
+      本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
+
+  - name: 拟提交
+    id: commit
+    agent: implementer
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: >
+      无文件变更跳过本步与 hitl。
+      【拟提交】含基线/本任务-前序-无关统计/建议拆分/分支/是否推送/CI/PR·合并意图（`规则/工作流.md` §2）；默认仅本地提交，推送须单独确认。
+      代码/配置 + 方案卡 + 产品定义卡/测试报告 + 文档索引/activeContext + 本轮 wrap 更新同批；密钥零入库。
+      提交后回填方案卡/测试报告的提交 hash；推送/部署不在本步自动执行。
