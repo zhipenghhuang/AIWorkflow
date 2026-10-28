@@ -1,6 +1,6 @@
 ---
 name: test-analysis-and-plan
-description: Use when analyzing a test basis or writing a test plan. Produce change points, impact surface, risks, test types, scope, entry and exit criteria, and rounds.
+description: Use when analyzing a test basis or writing a test plan. Produce change points, impact surface, risks, test types, scope, entry and exit criteria, and rounds. 中文触发：测试分析、测试计划、变更点、影响面、风险、测试类型、准入准出、测试策略、自动化策略、测试数据与环境。
 ---
 
 # 分析与计划（技能 · 随包生效）
@@ -50,7 +50,10 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 | 复杂状态、组合配置、时序并发 | 功能 + 探索章程（状态/数据/干扰漫游） |
 | 性能敏感、大数据量、长稳 | 性能/容量/稳定性 |
 | 权限/敏感数据/上传/注入面 | 安全（SAST/DAST/负向 smoke） |
+| AI/LLM/RAG/Agent | AI 评测（oracle/重复阈值）+ 功能 + 提示注入/越权/红队 |
 | 浏览器/设备/OS/辅助功能 | 兼容/可访问性 |
+| 多语言/多地区 | 本地化（文案/日期/金额/RTL） |
+| 测试数据/环境/依赖变更 | 数据与环境核验、依赖回归 |
 | 存量数据、版本升级、可回退 | 数据迁移/升级/回滚演练 |
 | 业务验收/客户签字 | UAT |
 | 上线风险/监控/回滚 | 灰度/生产验证 |
@@ -67,6 +70,16 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 - **门禁**：每阶段入口/出口写清；未过不进入下游（或按阻断面分流）；计划偏差回计划门或记报告。
 - **估算与排期**：按用例数/模块/风险给粗略人日与里程碑；计划 §9.1 里程碑、§14.2 工作量偏差；不追求精确，但要有可对照的数。
 
+### 4.1 自动化分层与 CI 门
+
+- **分层**：接口/契约/单测优先于 UI；稳定的主链路/回归脚本化，探索/一次性/视觉判断保留人工或半自动。
+- **选择**：高频、稳定、可断言、数据可造、跨版本重复执行 → 脚本；频繁变/强视觉/难断言 → 人工/AI 辅助，不硬脚本化。
+- **CI 门**：提交级 smoke；合并/夜间全量或模块回归；发布前最小充分集；失败阻断规则写清，不静默跳过。
+- **flake 治理**：失败先分诊（产品/环境/数据/脚本/随机）；有界重试并记录；长期 flaky 隔离并修，不靠重跑刷绿。
+- **维护**：脚本 owner、选择器/数据/环境依赖、执行时长、清理；定期删失效脚本，避免负资产。
+- **AI 生成脚本**：只作候选；必须人工评审断言/数据/清理，禁直接进回归门。
+- 方法见 `技能/test-data-and-environment/SKILL.md`、`规则/专项/脚本执行.md`；本表只定策略与门。
+
 ## 5. 计划质量自检（落盘前逐项过）
 
 - 范围/排除/假设/约束齐，无「全部/适当」空词。
@@ -78,6 +91,9 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 - 回归、缺陷提交、探索章程可落地；缺陷策略与计划门授权一致。
 - 准入/准出可判定；P0/缺口/风险接受规则明确。
 - 环境/数据/账号/工具齐；外部责任项标注「协调/不冒充」。
+- 数据与环境：版本/隔离/造数/清理/依赖 mock 已定；无生产 PII。
+- AI 功能：oracle/评测集/重复阈值/红队/成本延迟已定；无 oracle 不写“通过”。
+- 自动化：分层/CI 门/flake 治理/维护 owner 已定；AI 生成脚本不直接进回归门。
 - 计划门摘要能一行说清：范围/类型/轨道顺序/缺陷策略/探索章程数/准出。
 
 ## 6. 参考

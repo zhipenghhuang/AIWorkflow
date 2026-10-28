@@ -1,6 +1,6 @@
 ---
 name: product-doc-analysis
-description: Use when a PRD, iteration plan, requirements document, page prototype, screenshot, or API/technical document is provided. Reconstruct the requirement model with citations, detect conflicts and gaps, and produce a confirmed understanding before design or implementation.
+description: Use when a PRD, iteration plan, requirements document, page prototype, screenshot, or API/technical document is provided. Reconstruct the requirement model with citations, detect conflicts and gaps, and produce a confirmed understanding before design or implementation. 中文触发：PRD 解析、需求文档、原型、截图、接口文档、冲突、缺口、理解包、引用。
 ---
 
 # 产品文档解析与需求理解（技能 · 随包生效）

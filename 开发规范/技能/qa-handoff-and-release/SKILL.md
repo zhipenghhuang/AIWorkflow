@@ -1,6 +1,6 @@
 ---
 name: qa-handoff-and-release
-description: Use when preparing a QA handoff or release. Produce a self-contained test-ready 提测单, optionally a QA handoff package after user confirm, release notes, rollout/rollback, and post-release checks.
+description: Use when preparing a QA handoff or release. Produce a self-contained test-ready 提测单, optionally a QA handoff package after user confirm, release notes, rollout/rollback, and post-release checks. 中文触发：提测、提测单、交接、发布说明、回滚预案、QA 接收、发布包。
 ---
 
 # 提测与发布（技能 · 随包生效）

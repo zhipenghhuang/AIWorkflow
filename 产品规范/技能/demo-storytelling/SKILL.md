@@ -1,6 +1,6 @@
 ---
 name: demo-storytelling
-description: Use when preparing a product demo, customer presentation, executive briefing, or dry run. Builds an audience-fit story, Mermaid flow, click-level demo script, data/fallback plan, and Q&A/objection handling aligned with the current project.
+description: Use when preparing a product demo, customer presentation, executive briefing, or dry run. Builds an audience-fit story, Mermaid flow, click-level demo script, data/fallback plan, and Q&A/objection handling aligned with the current project. 中文触发：产品演示、客户介绍、高管汇报、彩排、演示脚本、Q&A、异议处理。
 ---
 
 # 演示与故事线（技能 · 随包生效）

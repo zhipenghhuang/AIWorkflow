@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Use before merge or when the user asks for code review. Review correctness, requirement coverage, security, performance, maintainability, change scope, and UX/DX/AX impact with evidence.
+description: Use before merge or when the user asks for code review. Review correctness, requirement coverage, security, performance, maintainability, change scope, and UX/DX/AX impact with evidence. 中文触发：代码评审、代码审查、diff 评审、合并前评审、review、安全检查、性能问题、可维护性、AI 生成代码。
 ---
 
 # 代码评审（技能 · 随包生效）
@@ -51,7 +51,25 @@ description: Use before merge or when the user asks for code review. Review corr
 - **迁移**：脚本幂等、回滚/前滚、锁与时长；生产阶段才做老数据兼容，开发阶段按 `技能/engineering-quality/SKILL.md` §1.2 直接重建。  
 - **证据**：每条需修项给文件:行、问题、证据、严重度、修法；不采信“已修好”。
 
+### 5.1 AI 生成代码 / 供应链 / 可访问性
+
+- **AI 生成代码**：重点查“看似合理但不存在”的 API/配置/依赖、复制粘贴的过期用法、无依据的异常处理、未使用的抽象；要求作者能解释关键决策，不把“模型写的”当免责。
+- **供应链**：新增依赖看来源/版本/许可证/维护状态/锁文件；构建产物可追溯（SBOM/来源证明按项目适用）；不引入同名混淆包。
+- **可访问性/国际化**：键盘/焦点/语义/对比度；文案是否可翻译、日期/金额/时区/复数是否正确；不把中文硬编码进通用组件。
+- **隐私**：新增日志/埋点/导出是否含 PII；缓存/队列/第三方是否扩大数据暴露面。
+- 方法与测试分别见 `技能/ai-application-engineering/SKILL.md`、`技能/threat-modeling/SKILL.md`；本技能只列评审关注点。
+
 ## 6. 与流程衔接
 
 - 需修 → 回 implement；同回合重验 ≤1（`agents/reviewer-agent.yaml` 同规）。
 - 评审结论与依据（diff、命令输出）一并交编排；不采信口头「已修好」。
+
+## 7. 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “测试过了，不用审” | 测试覆盖与断言质量未知；评审看需求覆盖、边界与风险。 |
+| “改动很小” | 权限/数据/契约问题往往一行就够；按风险不看行数。 |
+| “AI 生成的应该没问题” | 模型会编造 API/配置；必须核对来源与可运行证据。 |
+| “风格问题不重要” | 只报项目规则内的风格；正确性/安全/可维护性优先。 |
+| “先合并再补” | 合并后修复成本更高；阻断项必须修完再合。 |

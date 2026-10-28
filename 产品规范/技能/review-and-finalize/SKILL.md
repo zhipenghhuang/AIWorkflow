@@ -1,6 +1,6 @@
 ---
 name: review-and-finalize
-description: Use when reviewing or finalizing a PRD. Apply four hard gates (metadata/evidence, diagrams, testability/traceability, unknown labeling), a 12-item scorecard, and issue a review verdict with blocking gaps.
+description: Use when reviewing or finalizing a PRD. Apply four hard gates (metadata/evidence, diagrams, testability/traceability, unknown labeling), a 12-item scorecard, and issue a review verdict with blocking gaps. 中文触发：PRD 评审、定稿、评分卡、阻断项、评审结论、追溯。
 ---
 
 # 评审与定稿（技能 · 随包生效）
@@ -65,3 +65,9 @@ description: Use when reviewing or finalizing a PRD. Apply four hard gates (meta
 - 不替写 PRD、不改正文；不追文风。
 - 业务口径拿不准 → 列问题请 PM 确认；不脑补。
 - 无原型/数据 → 按文本评，证据缺口记「待补」。
+
+## 7. DoD
+
+- 四道硬门 + 12 项评分卡逐项完成；阻断项列明。
+- 结论 `verdict` + 证据 + 待补项；≥20/24 且无阻断才可定稿。
+- 问题可定位到章节/ID；不改正文；选 A/B 方式已记录。

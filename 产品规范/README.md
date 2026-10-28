@@ -15,7 +15,7 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | `new-product`（0→1）· `plan`（产品计划/路线图）· `prd`（洞察/立项/PRD/评审/需求交接）· `prototype`（设计策略/项目适配/IA/线框/视觉/高保真/评审/交接）· `showcase`（演示/介绍/用户文档）· `change`（受理与变更）· `defect`（缺陷平台）· `deliver`（排期/UAT/发布/复盘）· `handoff`（交接包/接收回执/变更通知/状态）· `onboard` |
+| `workflows/` | `new-product`（0→1）· `plan`（产品计划/路线图）· `prd`（洞察/立项/PRD/评审/需求交接）· `prototype`（设计策略/项目适配/IA/线框/视觉/高保真/评审/交接）· `showcase`（演示/介绍/用户文档）· `change`（受理与变更）· `defect`（缺陷平台）· `deliver`（排期/UAT/发布/复盘）· `handoff`（交接包/接收回执/变更通知/状态）· `onboard` · `skill-audit`（能力技能体检） |
 | `agents/` | pm-analyst / prd-writer / pm-lead / reviewer-agent / ux-designer / onboard-agent / verifier-agent / worker-agent |
 | `能力/` | 可选能力注册表（技能/工具装配建议；`能力/00-能力注册表.md`） |
 | `技能/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；`技能/README.md`） |

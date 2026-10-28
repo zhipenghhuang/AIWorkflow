@@ -1,6 +1,6 @@
 ---
 name: test-basis-analysis
-description: Use when analyzing a PRD, iteration plan, requirements document, page prototype, API/technical document, code diff, or defect as the test basis. Build a cited requirement model, detect conflicts and ambiguities, derive testable points and oracles, and produce traceability before writing a test plan or cases.
+description: Use when analyzing a PRD, iteration plan, requirements document, page prototype, API/technical document, code diff, or defect as the test basis. Build a cited requirement model, detect conflicts and ambiguities, derive testable points and oracles, and produce traceability before writing a test plan or cases. 中文触发：测试依据、需求建模、PRD 分析、原型、接口文档、代码 diff、缺陷、歧义、oracle、追溯。
 ---
 
 # 测试依据分析（技能 · 随包生效）

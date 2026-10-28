@@ -17,7 +17,7 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | 流程定义：`intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划） |
+| `workflows/` | 流程定义：`intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划）/ `skill-audit`（能力技能体检） |
 | `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / onboard-agent / delivery-lead / worker-agent |
 | `能力/` | 可选能力注册表（技能/工具装配建议；`能力/00-能力注册表.md`） |
 | `技能/` | 内置专业技能（结构 `技能/<name>/SKILL.md`；编号→路径映射见 `技能/README.md`） |

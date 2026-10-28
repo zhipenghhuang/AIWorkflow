@@ -1,6 +1,6 @@
 ---
 name: acceptance-and-launch
-description: Use when UAT, acceptance, go-no-go, deployment, smoke verification, monitoring, or rollback is in scope. Execute the release with explicit gates and evidence.
+description: Use when UAT, acceptance, go-no-go, deployment, smoke verification, monitoring, or rollback is in scope. Execute the release with explicit gates and evidence. 中文触发：验收、UAT、上线、发布、部署、go/no-go、冒烟、发布后验证、监控、回滚、灰度、发布审批。
 ---
 
 # 验收与上线（技能 · 随包生效）
@@ -44,6 +44,15 @@ description: Use when UAT, acceptance, go-no-go, deployment, smoke verification,
 - 观察期结束出具发布结论：成功 / 带风险成功 / 回滚；遗留项进 `08-复盘与改进/`。  
 - 更新发布记录、文档索引、`activeContext.md`。
 
+### 4.1 渐进发布 / 特性开关 / SLO
+
+- **渐进**：能灰度不一次全量；按用户/租户/地域/比例分批；每批有进入/退出条件与观察窗。
+- **开关**：新功能默认关；开关有 owner、默认值、生效范围、清理期限；禁止永久开关堆积。
+- **SLO/错误预算**：发布前确认关键 SLI/SLO 与预算；预算不足时降级发布或只修可靠性，不硬上。
+- **观察**：对照发布前基线看错误率/延迟/吞吐/业务量；异常按“可观察/需修复/需回滚”分级。
+- **回滚演练**：高风险发布前至少验证一次回滚路径（预发/演练环境），记录耗时与数据影响。
+- 可观测细则见 `技能/observability-and-instrumentation/SKILL.md`；AI 功能发布另见 `技能/ai-application-engineering/SKILL.md`。
+
 ## 5. 回滚
 
 - 触发条件必须可判定（错误率/主链路失败/数据异常/资损风险）。  
@@ -65,3 +74,13 @@ description: Use when UAT, acceptance, go-no-go, deployment, smoke verification,
 - 回滚预案只写“再发一版”：那不是预案。  
 - 发布后不看监控，等用户报障。  
 - 观察期未结束就宣布成功。
+
+## 8. 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “测试环境过了就能上” | 生产数据/流量/配置不同；必须有生产验证与回滚。 |
+| “先全量，出问题再回滚” | 回滚也有成本和数据风险；能灰度先灰度。 |
+| “回滚就是再发一版” | 没有可执行步骤/数据说明/决策人就不是预案。 |
+| “监控没告警就是没问题” | 没埋点/没基线/没观察窗，告警沉默不代表正常。 |
+| “先上线再补审批” | 未过门不得部署；审批是发布的一部分。 |

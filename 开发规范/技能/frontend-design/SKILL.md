@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Use when frontend work needs design decisions: no product prototype, incomplete/reference-only prototype, UI adjustment, or design-system integration. Otherwise implement the product design directly; do not redraw an approved design.
+description: Use when frontend work needs design decisions: no product prototype, incomplete/reference-only prototype, UI adjustment, or design-system integration. Otherwise implement the product design directly; do not redraw an approved design. 中文触发：前端设计、UI 方向、设计系统、原型不完整、页面调整、视觉方向。
 ---
 
 # 前端设计（技能 · 随包生效）

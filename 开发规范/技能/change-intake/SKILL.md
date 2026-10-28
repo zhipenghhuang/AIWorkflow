@@ -1,6 +1,6 @@
 ---
 name: change-intake
-description: Use when a user sends a new document, a change request, a confirmation, or an open-item resolution during development. Register, classify, link to requirement/decision IDs, analyze impact, update only affected documents, and produce an absorption report for human confirmation.
+description: Use when a user sends a new document, a change request, a confirmation, or an open-item resolution during development. Register, classify, link to requirement/decision IDs, analyze impact, update only affected documents, and produce an absorption report for human confirmation. 中文触发：新文档、变更、确认项、收件箱、变更吸收、影响分析、需求变更、增量。
 ---
 
 # 变更吸收（技能 · 随包生效）

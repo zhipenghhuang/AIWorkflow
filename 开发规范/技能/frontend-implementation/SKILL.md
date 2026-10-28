@@ -1,6 +1,6 @@
 ---
 name: frontend-implementation
-description: Use when implementing frontend pages, routes, components, forms, or client data flows. Enforce component boundaries, loading-empty-error states, permissions, request encapsulation, performance, accessibility, compatibility, and UI evidence.
+description: Use when implementing frontend pages, routes, components, forms, or client data flows. Enforce component boundaries, loading-empty-error states, permissions, request encapsulation, performance, accessibility, compatibility, and UI evidence. 中文触发：前端实现、页面、路由、组件、表单、状态、请求封装、性能、无障碍、兼容。
 ---
 
 # 前端实现（技能 · 随包生效）

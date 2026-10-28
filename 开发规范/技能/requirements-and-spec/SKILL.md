@@ -1,6 +1,6 @@
 ---
 name: requirements-and-spec
-description: Use when requirements, acceptance criteria, scope, non-goals, or data rules are unclear. Produce a verifiable requirement baseline before design or implementation.
+description: Use when requirements, acceptance criteria, scope, non-goals, or data rules are unclear. Produce a verifiable requirement baseline before design or implementation. 中文触发：需求、验收标准、范围、非目标、数据规则、需求基线、澄清。
 ---
 
 # 需求与规格（技能 · 随包生效）

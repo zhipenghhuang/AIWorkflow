@@ -114,7 +114,7 @@ steps:
       ② 主读已点名或刚选定 → 仍须产出需求模型/轻量分析短表（目标/范围/非目标/角色/状态/权限/规则/异常/oracle/冲突/GAP），不问主读、不设额外 hitl；禁止「已点名主读」整步跳过导致无分析短表。
       ③ 资料收取：主读/输入含新文件或资料根有变化 → 按 `规则/文档治理.md` §3【入站分析】（T1～T9）；确认前不改文件。确认采纳后同批：**多包 → `项目资料/{版本或主题}/`**；**单包 → `测试/资料/{版本或主题}/` 或 `_通用/`** → 同步 CR/计划/用例 → S1/S2/S3 进 `资料/_归档/`；工作产物不回写资料。
       输入是交接包（含 `00-交接说明.md` + `01-交接清单.md`）→ 先走 `workflows/handoff.yaml` receive 核对+回执；未签收不得建模/写计划。
-      技能：`技能/test-basis-analysis/SKILL.md`（先建模再做分析）+ `技能/test-analysis-and-plan/SKILL.md`（计划方法）。
+      技能：`技能/test-basis-analysis/SKILL.md`（先建模再做分析）+ `技能/test-analysis-and-plan/SKILL.md`（计划方法）+ `技能/test-data-and-environment/SKILL.md`（环境/数据/账号）+ `技能/ai-feature-testing/SKILL.md`（AI 功能 oracle/评测集）。
       必做：依据盘点（PRD/迭代方案/原型/接口/代码 diff/历史缺陷）→ 十要素需求模型 → 文档内部/跨文档/原型/代码一致性 → 九类歧义扫描 → AC 可测性与 oracle → TP 追溯种子。
       每条规则/状态/预期标来源（章节/页码/页面/接口/`文件:行`）；无来源写 GAP/待确认，不猜；现网实现只作现状，不作预期。
       先给 6～8 行理解回执，再一次一问至无实质缺口（95% 仅参考，`规则/核心/澄清.md`）；不确定项按 §2.1 分流（阻塞即时问，非阻塞收尾汇总）；关键歧义未裁决 → 不写计划/用例，可出草案但标假设与影响。
@@ -153,7 +153,7 @@ steps:
       **归档**：当前 `测试/测试计划.md` 不移动；版本关闭见 `规则/文档治理.md` §7（计划/报告快照根 `_归档`；各轨资产进轨内 `_归档`；失效资料进 `资料/_归档`）；稳定冒烟/环境基线/可复用脚本不归档。
       **更新依据**：执行台账/证据、已批准 CR、实际日期/指标；禁聊天记忆/推测回写。
       **输入清点分片**（多Agent §1.5）：版本级输入 ≥5 份或资料量大 → 只读扇出（每份返回变更点/AC/影响面候选）；计划正文单写手；单份直做。
-      技能：`技能/test-analysis-and-plan/SKILL.md` + 评审时 `技能/test-artifact-review/SKILL.md`。
+      技能：`技能/test-analysis-and-plan/SKILL.md` + `技能/test-data-and-environment/SKILL.md` + 评审时 `技能/test-artifact-review/SKILL.md`。
     output: 测试/测试计划.md
 
   - name: 生成用例
@@ -180,7 +180,7 @@ steps:
       覆盖三闸见 testcase-agent 与 工作流 §2.1.0（含深度档 + 视觉基础）；落盘后 `validate_testcase.py` + `验证/Invoke-Gate.ps1 -Mode coverage`（验用例「设计点覆盖映射」与「覆盖摘要」中的深度档/视觉基础行；写 `.gate/测试规范/coverage.json`）；无回执不得称覆盖闸通过；分片超时直做同一门槛。**`gate: coverage-map` 仅功能全量/专项新生成/补生成**；探索式/随机/接口/发布前按轨契约软覆盖。
       **生成后必衔接评审**：功能全量/专项（T1+）落盘且覆盖闸过后，同会话续执行或「按计划执行」前必须进入 `review-cases`；本步只做完稿自检+评分卡自打，**不替代**独立评审（独立性见 testcase-reviewer）。入口即止仅生成时，收尾「下一步」写明：先用例评审再执行。
       脚本编写/更新：按 `规则/专项/脚本执行.md` §2 + `规则/tools/playwright/README.md` 的脚本结构；接口确定性用例**同轮产出脚本**，不得标“待脚本化”。
-      技能：`技能/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）；接口轨读 `技能/test-interface/SKILL.md`。
+      技能：`技能/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）+ `技能/ai-feature-testing/SKILL.md`（AI 功能附加）；接口轨读 `技能/test-interface/SKILL.md`。
     output: 测试/功能测试/ · 测试/接口测试/ · 测试/探索式测试/ · 测试/随机业务流程测试/（计划外） · 测试/发布前测试/{性能|安全|兼容|迁移}/ · 测试/脚本/（按计划 §3.2 资产；功能用例/台账/评审/证据同级；随机不进计划资产清单）
 
   - name: 用例与多轨资产评审
@@ -242,7 +242,7 @@ steps:
       工具：功能/探索式/随机业务流程轨 browser-mcp（基线 §8 绑定）+ 脚本执行器（基线「脚本执行」节，启用时）；接口/发布前轨按轨契约按需，不默认启用浏览器。
       **截图即视觉检**：浏览器 MCP/AI 直跑凡拍目标页截图 → 按工作流 §2.1.0 视觉六项同帧检；阻断→fail；非阻断→额外发现；已截必检；纯 API 无 UI 截图不适用。
       可选能力（`能力/00-能力注册表.md`）：vision-ui（语义/视觉难判时增强）；未装=AI 读图降级，**不免除**视觉六项。mobile-automation 仅移动端点名。
-      技能：`技能/test-execution-and-exploration/SKILL.md`（计划驱动/回归/探索式/随机业务流程；接口轨另读 `技能/test-interface/SKILL.md`；发布前轨另读 `技能/test-performance-security-compatibility/SKILL.md`）。
+      技能：`技能/test-execution-and-exploration/SKILL.md`（计划驱动/回归/探索式/随机业务流程）+ `技能/test-data-and-environment/SKILL.md`（数据/环境/隔离）+ `技能/ai-feature-testing/SKILL.md`（AI 非确定性执行）；接口轨另读 `技能/test-interface/SKILL.md`；发布前轨另读 `技能/test-performance-security-compatibility/SKILL.md`。
       MCP 细则：稳态含全链终局退程（多Agent §2.2）；异常细节仅红点/无工具/端口/并行冲突时点读。
       同方案无效 2 次换手段，禁同命令空重跑。**判 blocked 前四问**：能否造数/换样？能否换入口/角色？是否被测缺陷（→fail）？互异手段≥2 且总尝试≤3？任一未过不写 blocked。
       探索式/随机业务流程/接口/发布前方法与场景自备（见轨契约）。

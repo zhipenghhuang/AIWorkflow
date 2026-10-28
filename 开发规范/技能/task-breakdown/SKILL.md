@@ -1,6 +1,6 @@
 ---
 name: task-breakdown
-description: Use when an approved requirement or design must be broken into executable tasks. Produce dependency-ordered, vertically sliced, independently verifiable task cards with acceptance criteria and definition of done.
+description: Use when an approved requirement or design must be broken into executable tasks. Produce dependency-ordered, vertically sliced, independently verifiable task cards with acceptance criteria and definition of done. 中文触发：任务拆解、任务清单、依赖、估算、DoR、DoD、垂直切片、排期。
 ---
 
 # 任务拆解（技能 · 随包生效）

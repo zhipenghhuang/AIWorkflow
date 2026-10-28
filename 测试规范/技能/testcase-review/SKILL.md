@@ -1,6 +1,6 @@
 ---
 name: testcase-review
-description: Use when reviewing test cases after generation or before execution. Apply enterprise rubric for correctness, coverage, executability, and independent peer review.
+description: Use when reviewing test cases after generation or before execution. Apply enterprise rubric for correctness, coverage, executability, and independent peer review. 中文触发：用例评审、测试用例审查、覆盖、可执行性、独立评审、评分卡。
 ---
 
 # 用例评审（技能 · 随包生效）

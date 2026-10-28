@@ -1,6 +1,6 @@
 ---
 name: solution-design
-description: Use when a change needs architecture, interface, data, migration, security, observability, rollback, or test-strategy decisions before implementation.
+description: Use when a change needs architecture, interface, data, migration, security, observability, rollback, or test-strategy decisions before implementation. 中文触发：技术方案、架构、接口、数据、迁移、安全、可观测、回滚、测试策略、ADR。
 ---
 
 # 方案与设计（技能 · 随包生效）

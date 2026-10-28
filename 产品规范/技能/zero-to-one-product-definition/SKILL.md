@@ -1,6 +1,6 @@
 ---
 name: zero-to-one-product-definition
-description: Use when starting a new product or 0-to-1 initiative. Validate the problem, market, users, and riskiest assumptions; produce a go-hold-kill decision and a minimal product definition before a full PRD.
+description: Use when starting a new product or 0-to-1 initiative. Validate the problem, market, users, and riskiest assumptions; produce a go-hold-kill decision and a minimal product definition before a full PRD. 中文触发：0 到 1、新产品、立项、市场验证、PMF、go/hold/kill、最小产品定义。
 ---
 
 # 0→1 产品定义与验证（技能 · 随包生效）

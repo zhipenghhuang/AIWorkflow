@@ -22,7 +22,7 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | `testing` / `defect` / `handoff`（交接包/回执/变更通知） / `onboard` |
+| `workflows/` | `testing` / `defect` / `handoff`（交接包/回执/变更通知） / `onboard` / `skill-audit`（能力技能体检） |
 | `agents/` | analyzer / planner / testcase / **testcase-reviewer** / orchestrator / worker / reviewer（执行核验） / bug / report / onboard |
 | `能力/` | 可选能力注册表（技能/工具装配建议；`能力/00-能力注册表.md`） |
 | `技能/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；含 `name/description` frontmatter；`技能/README.md`） |

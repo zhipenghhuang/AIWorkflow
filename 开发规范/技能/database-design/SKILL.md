@@ -1,6 +1,6 @@
 ---
 name: database-design
-description: Use when a change needs new tables, fields, indexes, transactions, data migration, or query performance work. Design the conceptual and physical model, keys, indexes, isolation, concurrency, migration, rollback, backup, and data lifecycle.
+description: Use when a change needs new tables, fields, indexes, transactions, data migration, or query performance work. Design the conceptual and physical model, keys, indexes, isolation, concurrency, migration, rollback, backup, and data lifecycle. 中文触发：数据库设计、表结构、字段、索引、事务、隔离级别、数据迁移、查询性能、回滚。
 ---
 
 # 数据库设计（技能 · 随包生效）

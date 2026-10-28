@@ -1,6 +1,6 @@
 ---
 name: engineering-quality
-description: Use in design, implementation, and code review when correctness, reliability, security, performance, operability, maintainability, or delivery quality matters. Provides an enterprise-grade quality bar, design heuristics, evidence expectations, and a review rubric.
+description: Use in design, implementation, and code review when correctness, reliability, security, performance, operability, maintainability, or delivery quality matters. Provides an enterprise-grade quality bar, design heuristics, evidence expectations, and a review rubric. 中文触发：工程质量、质量条、正确性、可靠性、安全、性能、可观测、可维护、评审 rubric。
 ---
 
 # 工程质量（技能 · 随包生效）
@@ -26,8 +26,10 @@ description: Use in design, implementation, and code review when correctness, re
 | 10 | 兼容/依赖/供应链 | 版本/许可证/维护状态；生产阶段/外部契约的老数据/老客户端兼容；开发阶段按 §1.2 直接重建 | 依赖清单/SBOM/兼容用例 |
 | 11 | 可维护/最小复杂度 | 边界清晰、命名一致、无投机抽象、最小改动 | diff + 评审结论 |
 | 12 | 文档/变更记录 | 行为/接口/配置变化与实现同变更；ADR/CHANGELOG 更新 | 文档链接/版本记录 |
+| 13 | AI/LLM 行为（如适用） | 任务/失败成本清楚；评测集与阈值；提示词/模型版本化；护栏/兜底；成本/延迟预算 | 评测报告 + 红队/护栏 + 观测 |
+| 14 | 可访问性/国际化（如适用） | 键盘/焦点/对比度/语义；文案可翻译、日期/金额/时区/复数正确 | axe/人工走查 + 多语言样例 |
 
-> 阻断：1～5、9 未满足不得声称完成；6～8、10～12 可列遗留但必须有负责人/截止/风险接受人。
+> 阻断：1～5、9 未满足不得声称完成；高风险 AI（不可逆/对外/资金/权限）另按 §1.3 阻断；6～8、10～14 可列遗留但必须有负责人/截止/风险接受人。
 
 ### 1.1 三维体验（所有变更）
 
@@ -49,6 +51,16 @@ description: Use in design, implementation, and code review when correctness, re
 - 必须：明确丢弃范围与不可逆影响；用户要求保留时先备份；更新契约/文档/种子/夹具；不留悬空迁移脚本。
 - 恢复兼容：上线/试运行/真实数据/外部公开契约/用户明确要求 → 按生产标准做兼容与迁移；不得以“开发阶段”为由删生产数据。
 - 项目阶段未标或不确定 → 按生产保守处理；接入时必须在档案 §1 标清。
+
+### 1.3 AI/LLM 变更附加质量条
+
+- **先定失败成本**：建议/草稿、辅助决策、自动执行三级；自动执行且不可逆/对外/资金/权限 → 必须人工确认/二次授权 + 审计 + 回滚。
+- **可评测**：有代表性评测集、通过阈值、失败样本；提示词/模型/检索/工具变更必须回归同一套。
+- **可控制**：提示词与模型版本化；结构化输出服务端校验；工具白名单/最小权限/步数与预算上限。
+- **可兜底**：超时/限流/低置信/模型不可用有明确降级或转人工，不静默失败。
+- **可观测且不泄露**：记录模型/提示词版本、token、延迟、检索/工具调用、护栏触发；日志不落完整敏感 prompt/PII。
+- **可合规**：数据边界、供应商条款、保留/删除、跨境按适用法规；高风险场景上线前做红队。
+- 方法与测试分别见 `技能/ai-application-engineering/SKILL.md`、`技能/threat-modeling/SKILL.md`；本表只定质量条。
 
 ## 2. 设计与实施启发式
 
@@ -147,6 +159,18 @@ description: Use in design, implementation, and code review when correctness, re
 - 只测 happy path；改断言/跳测试/禁告警凑绿。
 - 大 diff 夹带重构；无 ADR/CHANGELOG；文档与实现脱节。
 - 为开发阶段旧数据造兼容层/双写/回填；用说明文字补布局；用重复规则/长文档补 AI 体验。
+
+### 7.1 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “先跑通，质量以后补” | 质量条不是打磨项；正确性/安全/回滚缺失会把返工放大。 |
+| “测试都过了就行” | 测试可能只覆盖 happy path；看断言、负面路径与证据新鲜度。 |
+| “这是小改动，不用设计/评审” | 小改动也可能碰权限/数据/契约；按风险分级，不按行数。 |
+| “框架/ORM 会处理安全” | 越权、注入、日志泄露仍需服务端校验与负面用例。 |
+| “AI 输出看起来对” | 没有评测/引用/阈值就不是验证；非确定性要重复与分档。 |
+| “先上线再观察” | 高风险/不可逆变更必须提前有护栏、灰度、回滚与人工接管。 |
+| “加个兼容层更稳” | 开发阶段背旧数据会固化错误结构；生产兼容才需要。 |
 
 ## 8. 输出与 DoD
 

@@ -1,6 +1,6 @@
 ---
 name: design-doc-review
-description: Use when reviewing development landing documents (requirements baseline, solution design, ADR, frontend design notes, task plan). Ask human vs AI review mode first; apply enterprise design-doc rubric when AI review is chosen.
+description: Use when reviewing development landing documents (requirements baseline, solution design, ADR, frontend design notes, task plan). Ask human vs AI review mode first; apply enterprise design-doc rubric when AI review is chosen. 中文触发：设计文档评审、需求基线、技术方案、ADR、前端设计说明、任务计划、A/B 评审。
 ---
 
 # 开发落地文档评审（技能 · 随包生效）

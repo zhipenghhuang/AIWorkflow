@@ -1,6 +1,6 @@
 ---
 name: presentation-design
-description: Use when creating a one-pager, pitch deck outline, or demo visuals. Structures the narrative, uses Mermaid diagrams and clear visual hierarchy, aligns with the project, and avoids generic AI-looking slides.
+description: Use when creating a one-pager, pitch deck outline, or demo visuals. Structures the narrative, uses Mermaid diagrams and clear visual hierarchy, aligns with the project, and avoids generic AI-looking slides. 中文触发：一页纸、Deck、路演、演示材料、视觉叙事、PPT 大纲。
 ---
 
 # 展示材料设计（技能 · 随包生效）
@@ -65,3 +65,10 @@ description: Use when creating a one-pager, pitch deck outline, or demo visuals.
 - `addsumtech/slides_maker`（可编辑 PPTX，MIT）
 
 包内模板优先；工具只增强，不改变内容标准。
+
+## 7. DoD
+
+- 受众/目标/一句话主张清楚；结构为问题→洞察→方案→证据→行动。
+- 每页一个信息点；图表有来源/口径；无模板化 AI 套话。
+- 演示路径/时长/备份/彩排记录齐；Q&A 与异议有准备。
+- 对外材料与当前 PRD/原型/构建一致；无未公开敏感信息。

@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Version](https://img.shields.io/badge/version-CHANGELOG-brightgreen.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
-[![Workflows](https://img.shields.io/badge/workflows-23-purple.svg)](#三套独立包)
+[![Workflows](https://img.shields.io/badge/workflows-26-purple.svg)](#三套独立包)
 [![Agents](https://img.shields.io/badge/agents-multi--agent-orange.svg)](#架构)
 [![Skills](https://img.shields.io/badge/skills-agent--skills-yellow.svg)](#架构)
 [![Templates](https://img.shields.io/badge/templates-lifecycle-lightgrey.svg)](#仓库结构)
@@ -103,9 +103,9 @@ flowchart LR
 
 | 包 | 定位 | 工作流 | 技能 | 角色 | 上手 |
 | --- | ---: | ---: | ---: | ---: | --- |
-| **[产品规范](./产品规范/README.md)** | 0→1 与迭代：需求 · PRD · 原型 · UAT · 发布 | 10 | 13 | 8 | [说明](./产品规范/README.md) · [入口](./产品规范/AGENTS.md) |
-| **[开发规范](./开发规范/README.md)** | 按 L0～L3 裁剪：澄清 → 实现 → 验证 → 提测 → 发布 | 9 | 21 | 9 | [说明](./开发规范/README.md) · [入口](./开发规范/AGENTS.md) |
-| **[测试规范](./测试规范/README.md)** | 计划驱动：分析 → 计划 → 生成 → 执行 → 报告 | 4 | 8 | 10 | [说明](./测试规范/README.md) · [入口](./测试规范/AGENTS.md) |
+| **[产品规范](./产品规范/README.md)** | 0→1 与迭代：需求 · PRD · 原型 · UAT · 发布 | 11 | 14 | 8 | [说明](./产品规范/README.md) · [入口](./产品规范/AGENTS.md) |
+| **[开发规范](./开发规范/README.md)** | 按 L0～L3 裁剪：澄清 → 实现 → 验证 → 提测 → 发布 | 10 | 24 | 9 | [说明](./开发规范/README.md) · [入口](./开发规范/AGENTS.md) |
+| **[测试规范](./测试规范/README.md)** | 计划驱动：分析 → 计划 → 生成 → 执行 → 报告 | 5 | 10 | 10 | [说明](./测试规范/README.md) · [入口](./测试规范/AGENTS.md) |
 
 <details>
 <summary><strong>产品规范 · 摘要</strong></summary>
@@ -191,7 +191,7 @@ robocopy "AIWorkflow\开发规范" "E:\path\to\your-project\开发规范" /E /XD
 
 > 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。产品 / 测试项目换成对应包名。
 >
-> **母版 / 实例边界**：母版只维护通用高标准；复制到项目后的规范包是**只读副本**，不要直接改。项目不匹配时，优先改项目产出的文档；通用改进回母版升版本，再整包更新实例。模板是骨架、标准是底线，按项目实际裁剪，不逐条硬凑。
+> **母版 / 实例边界**：母版只维护通用高标准。复制到项目后的规范包**默认不改**；AI 发现模板/规则/技能不匹配，先输出拟改内容/原因/影响，用户确认后只改当前实例，不影响母版。项目不匹配时优先改产出文档；通用改进回母版升版本。模板是骨架、标准是底线，按项目实际裁剪，不逐条硬凑。
 
 ### 3. 挂载项目根 `AGENTS.md`
 
@@ -301,9 +301,9 @@ robocopy "AIWorkflow\开发规范" "E:\path\to\your-project\开发规范" /E /XD
 
 ```text
 AIWorkflow/
-├─ 产品规范/          # 产品轨母版（10 workflow · 13 技能 · 8 角色 · 35 模板）
-├─ 开发规范/          # 开发轨母版（9 workflow · 21 技能 · 9 角色 · 32 模板）
-├─ 测试规范/          # 测试轨母版（4 workflow · 8 技能 · 10 角色 · 24 模板）
+├─ 产品规范/          # 产品轨母版（11 workflow · 14 技能 · 8 角色 · 35 模板）
+├─ 开发规范/          # 开发轨母版（10 workflow · 24 技能 · 9 角色 · 32 模板）
+├─ 测试规范/          # 测试轨母版（5 workflow · 10 技能 · 10 角色 · 24 模板）
 ├─ CHANGELOG.md       # 母版仓长期版本记录（最新在前）
 ├─ LICENSE            # MIT
 └─ README.md

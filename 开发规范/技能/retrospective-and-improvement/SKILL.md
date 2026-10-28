@@ -1,6 +1,6 @@
 ---
 name: retrospective-and-improvement
-description: Use after a release, iteration, incident, or repeated defect pattern. Produce a fact-based retrospective with metrics, root causes, and owned improvement actions.
+description: Use after a release, iteration, incident, or repeated defect pattern. Produce a fact-based retrospective with metrics, root causes, and owned improvement actions. 中文触发：复盘、迭代复盘、事故复盘、根因、改进项、行动项。
 ---
 
 # 复盘与改进（技能 · 随包生效）
@@ -63,3 +63,11 @@ description: Use after a release, iteration, incident, or repeated defect patter
 - 行动项没有负责人/日期：下次复盘还在。  
 - 复盘文档散落聊天/根目录：必须落 `08-复盘与改进/` 并进文档索引。  
 - 事故后只修代码，不改流程/门禁/监控。
+
+## 7. DoD
+
+- 时间线/事实/指标有来源；对事不对人。
+- 根因写清触发条件、机制、为何没挡住；至少 1 条系统改进。
+- 行动项有 owner/截止/验收/跟踪方式；复发检查已安排。
+- 文档落位并进索引；版本相关变化进 CHANGELOG。
+- 未验证的假设/缺口显式标注。

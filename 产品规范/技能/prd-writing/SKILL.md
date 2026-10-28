@@ -1,6 +1,6 @@
 ---
 name: prd-writing
-description: Use when writing or updating a PRD. Produce a complete, testable, traceable PRD with metadata, Mermaid flows/state, F/R/A/AC IDs, field sources, validation rules, NFR targets, metrics, decision log, and traceability matrix.
+description: Use when writing or updating a PRD. Produce a complete, testable, traceable PRD with metadata, Mermaid flows/state, F/R/A/AC IDs, field sources, validation rules, NFR targets, metrics, decision log, and traceability matrix. 中文触发：写 PRD、PRD 撰写、需求文档、产品需求、验收标准、追溯矩阵、NFR、埋点指标、AI 产品需求。
 ---
 
 # PRD 撰写（技能 · 随包生效）
@@ -53,6 +53,23 @@ description: Use when writing or updating a PRD. Produce a complete, testable, t
 - 待定：责任人 + 期限 + 影响；未标注 TBD 不允许。
 - 技术边界：产品不写架构/技术栈/DB/API/部署；需要可行性列问题交开发/用户。
 
+### 8.1 AI 产品需求补充（如适用）
+
+- **任务与失败成本**：用户要完成什么；错误输出的后果；哪些场景必须人工确认/转人工。
+- **可接受/不可接受输出**：事实错误、越权、泄露、危险建议、格式破坏等；写成可判定验收。
+- **数据边界**：哪些数据可输入/可保留/可出境；PII/密钥/商业机密；供应商条款由开发/法务确认。
+- **兜底与透明度**：低置信/超时/模型不可用时的行为；是否标注 AI 生成；是否可编辑/撤销。
+- **质量度量**：评测集/通过阈值/红队/线上反馈；不只写“准确率≥90%”，要写口径与样本。
+- **成本/延迟**：用户可感知的等待上限、配额/付费规则；异常消耗的处理。
+- 实现与测试方法见开发包技能 `ai-application-engineering`、测试包技能 `ai-feature-testing`（跨包不强制安装）；PRD 只写产品行为与验收。
+
+### 8.2 可访问性、国际化与指标
+
+- **可访问性**：目标等级（如 WCAG 2.2 AA）、键盘/对比度/缩放的验收；不适用的写理由。
+- **国际化**：目标语言/地区、日期/时区/金额/币种/复数/RTL；文案长度与翻译流程。
+- **指标**：决策问题 → 指标树 → 事件字典 → 看板/实验 → 护栏；方法与验收见 `技能/analytics-and-experimentation/SKILL.md`。
+- 无埋点/无国际化/无 a11y 要求时写「不适用 + 原因」，不默认为“以后再说”。
+
 ## 9. 完稿自检（与评审同源 · 作者侧硬纪律）
 
 落盘前过清单：元数据齐 / 16 节齐（或轻量节） / 主流程+状态图（P2+ 或 elevated） / F/R/A/AC 编号 / 每个 F 有 AC / R 有 A / 字段来源 / NFR 验收方式 / 指标窗口 / 权限/异常/边界 / 决策台账 / 追溯矩阵无空链 / 引用抽验 2～3 条 / 技术边界未越界。
@@ -94,3 +111,14 @@ P1↑ **仍可**免独立评审（默认 A / SELF_CHECKED），但作者自检�
 
 > 阻断：缺主流程/状态图（P2+/P1↑）、F 无 AC、R 无 A、追溯断链、未标注 TBD、技术架构写进 PRD。  
 > 通过：≥20/24 且无阻断（P1↑/P2+）；普通 P1 轻量按适用节评分，缺节须「不适用+理由」。
+
+## 11. 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “先写功能，规则以后再补” | 规则/权限/异常缺失会让开发按猜测实现，返工更贵。 |
+| “客户没说，先按常规做” | 未确认的假设必须标注并确认；不能写成事实。 |
+| “验收写‘正常’就行” | 不可判定=未定义完；必须条件+动作+可观测结果。 |
+| “AI 功能没法写验收” | 可写任务/失败成本/可接受输出/阈值/人工接管；不是不写。 |
+| “指标上线后再定” | 没有基线/埋点就无法判断成败；与功能同批定义。 |
+| “技术方案一起写进 PRD 省事” | 越过产品/技术边界；可行性问题交开发，PRD 只写行为与约束。 |

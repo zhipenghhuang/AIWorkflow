@@ -1,6 +1,6 @@
 ---
 name: prototype-and-interaction
-description: Use when designing page prototypes, wireframes, information architecture, interaction states, design strategy/differentiation, or handing UI off to development. Grounds the design in the real project and produces coverage, data, state, routing, accessibility, print, usability, and a design-intent handoff without requiring external design tools.
+description: Use when designing page prototypes, wireframes, information architecture, interaction states, design strategy/differentiation, or handing UI off to development. Grounds the design in the real project and produces coverage, data, state, routing, accessibility, print, usability, and a design-intent handoff without requiring external design tools. 中文触发：原型、线框图、信息架构、交互状态、设计策略、开发交接、可用性。
 ---
 
 # 原型与交互（技能 · 随包生效）
@@ -103,3 +103,10 @@ description: Use when designing page prototypes, wireframes, information archite
 
 - 通用模板套所有项目；只画主路径；状态缺失；标注含糊；组件不一致；过度装饰；忽略权限/空态；把高保真当生产代码。
 - 用大段说明文字弥补布局/层级问题；保留无决策价值的标语/副标题/装饰标签。
+
+## 12. DoD
+
+- 项目情境/用户/场景/约束清楚；设计策略能解释“为什么适合”。
+- 覆盖矩阵无断链；主页面状态齐（空/加载/错误/权限/极端）。
+- 手机可完成主任务；a11y 证据齐；单据可打印（如适用）。
+- 版本/交接/设计意图/必须保留/可优化/需决策清楚；原型≠生产代码。

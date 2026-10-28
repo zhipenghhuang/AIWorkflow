@@ -1,6 +1,6 @@
 ---
 name: development-plan
-description: Use when a development project or feature starts or needs a status check. Maintain the development control document from PRD and prototype through analysis, design, task breakdown, implementation, verification, QA handoff, release, and closure.
+description: Use when a development project or feature starts or needs a status check. Maintain the development control document from PRD and prototype through analysis, design, task breakdown, implementation, verification, QA handoff, release, and closure. 中文触发：开发计划、项目计划、排期、进度、阶段检查、当前状态、下一步、控制面。
 ---
 
 # 开发计划（技能 · 随包生效）

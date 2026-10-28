@@ -1,6 +1,6 @@
 ---
 name: test-artifact-review
-description: Use when reviewing test landing artifacts—test plan, analysis model, functional/API/exploratory/pre-release assets. Ask human vs AI review mode; on AI mode run deep autonomous analysis beyond checklists.
+description: Use when reviewing test landing artifacts—test plan, analysis model, functional/API/exploratory/pre-release assets. Ask human vs AI review mode; on AI mode run deep autonomous analysis beyond checklists. 中文触发：测试计划评审、分析评审、用例资产评审、接口资产评审、A/B 评审、自主分析。
 ---
 
 # 测试落地产物评审（技能 · 随包生效）
@@ -69,3 +69,9 @@ B. AI 独立评审 — 另起评审身份深析；留痕；功能轨可选 -Mode
 - 功能/接口/探索/发布前的**用例级**细轴 → 调用或内联 `testcase-review` / 各轨契约。  
 - 报告/台账对账 → **不**用本技能；用 `-Mode report/execute`。  
 - 选 A 时：仍须产出简短【自主分析摘要】（可压缩为 8～12 行），帮助人审，但放行权在人。
+
+## 7. DoD
+
+- 范围/依据/版本清楚；逐项量规有证据，不空写“符合”。
+- 独立分析指出风险/缺口/矛盾，不是复述清单。
+- 结论 verdict + 阻断项/待补项/责任人；选 A/B 方式已记录。

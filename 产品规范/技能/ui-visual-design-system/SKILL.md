@@ -1,6 +1,6 @@
 ---
 name: ui-visual-design-system
-description: Use when choosing a visual direction, defining design tokens, selecting/reusing a design system, differentiating the product UI, or reviewing UI consistency, accessibility, and responsiveness. Provides a self-contained design system, project-fit criteria, and review scorecard that works without external design skills.
+description: Use when choosing a visual direction, defining design tokens, selecting/reusing a design system, differentiating the product UI, or reviewing UI consistency, accessibility, and responsiveness. Provides a self-contained design system, project-fit criteria, and review scorecard that works without external design skills. 中文触发：视觉方向、设计系统、设计 tokens、配色、字体、UI 一致性、无障碍、响应式。
 ---
 
 # UI 视觉与设计系统（技能 · 随包生效）
@@ -98,3 +98,9 @@ description: Use when choosing a visual direction, defining design tokens, selec
 ## 7. 参考（可选，不随包）
 
 WCAG 2.2 AA、Material / Apple HIG、Vercel Web Interface Guidelines、Refactoring UI、Nielsen 10；需要时查，不强制安装。
+
+## 8. DoD
+
+- 视觉方向/理由/参考清楚；只选一套主设计系统，tokens 单一来源。
+- 关键页状态/响应式/a11y（键盘/对比度/缩放）有证据；问题分级。
+- 交接写清设计意图/必须保留/可优化/未提供/需开发决策；原型≠生产代码。

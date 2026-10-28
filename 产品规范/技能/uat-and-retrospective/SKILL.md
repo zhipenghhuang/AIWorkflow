@@ -1,6 +1,6 @@
 ---
 name: uat-and-retrospective
-description: Use when preparing UAT, release readiness, or a product retrospective. Verify acceptance criteria with evidence, decide release readiness, and produce owned improvement actions.
+description: Use when preparing UAT, release readiness, or a product retrospective. Verify acceptance criteria with evidence, decide release readiness, and produce owned improvement actions. 中文触发：UAT、验收、发布就绪、产品复盘、改进项、签收。
 ---
 
 # UAT 与复盘（技能 · 随包生效）

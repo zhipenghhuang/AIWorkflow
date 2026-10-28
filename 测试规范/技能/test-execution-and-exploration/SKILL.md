@@ -1,6 +1,6 @@
 ---
 name: test-execution-and-exploration
-description: Use when executing tests or exploratory testing. Enforce preconditions, evidence capture, failure classification, and bounded retries.
+description: Use when executing tests or exploratory testing. Enforce preconditions, evidence capture, failure classification, and bounded retries. 中文触发：测试执行、执行用例、探索式测试、SBTM、证据截图、失败分类、回归、重跑、非确定性、AI 功能执行、flake。
 ---
 
 # 执行与探索（技能 · 随包生效）
@@ -62,3 +62,35 @@ description: Use when executing tests or exploratory testing. Enforce preconditi
 
 - 造数遵循基线 §10/§11；用后清理或标注；写操作前查冲突登记（§15）。
 - 回归数据用 `REG-`/runStamp 幂等；跨轮复用先核对状态。
+
+## 7. 非确定性 / AI 功能执行
+
+- 同一用例重复 N 次（关键 3～5 次）；记录每次输出/判定/耗时，按阈值判通过，不拿一次结果代表稳定。
+- 先固定模型/提示词/检索/工具版本；变更一项就重跑同批，不混版本比较。
+- 失败分诊：模型随机性｜提示词/上下文｜检索｜工具/依赖｜数据｜环境｜真实缺陷；不确定先归类“待定”，不直接标产品缺陷。
+- 证据：模型/提示词/数据集版本、输入、输出、评分/引用、人工评审；敏感内容脱敏。
+- 红队/注入按 `技能/ai-feature-testing/SKILL.md` 执行；不在生产直接做未批准攻击。
+
+## 8. 证据完整性
+
+- 失败/阻塞/待实现必须有证据或已尝试/恢复条件；路径不存在 = FAIL/BLOCKED。
+- 截图晚于任务开始，钉住断言面；同帧做视觉六项检；不拿旧截图/他人截图充数。
+- 结果就地覆盖台账，只留最新；报告数字与台账逐项一致。
+- 不手改结果表、不跳测试、不禁告警凑绿；豁免须用户批准并记录。
+
+## 9. 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “重跑一次过了就算过” | 非确定性/flake 要看多次与分诊；一次通过可能是偶然。 |
+| “这个失败不重要，先跳过” | 跳过要记录缺口/风险接受；不能静默。 |
+| “截图差不多就行” | 证据要能定位断言面与时间；旧图/糊图不算。 |
+| “AI 输出没法判定” | 用规则/引用/rubric/人工+阈值；不是不判。 |
+| “先交平台，后面再补证据” | 弱证据/错题不交平台；回写要有回执。 |
+
+## 10. 执行 DoD
+
+- 用例/计划/环境/数据版本可追溯；前置满足或已记录替代。
+- 结果/证据/失败分类/重试有界；未测/阻塞显式列缺口。
+- 台账与报告数字一致；P0 未过不得判整体通过。
+- 清理完成或已隔离；证据路径可打开。

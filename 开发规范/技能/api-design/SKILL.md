@@ -1,6 +1,6 @@
 ---
 name: api-design
-description: Use when designing or changing HTTP-RPC APIs or service contracts. Define resources, operations, versioning, request and response schemas, errors, pagination, idempotency, auth, rate limits, compatibility, and observability before implementation.
+description: Use when designing or changing HTTP-RPC APIs or service contracts. Define resources, operations, versioning, request and response schemas, errors, pagination, idempotency, auth, rate limits, compatibility, and observability before implementation. 中文触发：接口设计、API 设计、服务契约、REST、错误码、分页、幂等、版本、限流、兼容。
 ---
 
 # API 设计（技能 · 随包生效）
@@ -50,3 +50,12 @@ description: Use when designing or changing HTTP-RPC APIs or service contracts. 
 
 - 输出：端点/方法/路径、请求/响应 schema、错误码、鉴权、分页、幂等、限流、示例、兼容说明。
 - 坑：只写成功响应；错误码随意；分页无上限；无幂等；破坏性改字段；文档与实现不一致；无超时/重试预算。
+
+## 7. DoD
+
+- 资源/操作/路径/方法清楚；请求/响应 schema 与示例一致。
+- 错误码/错误体/失败语义可判定；分页/排序/过滤有上限。
+- 鉴权/资源级授权/限流/配额明确；写操作幂等。
+- 版本/兼容/弃用策略明确；破坏性变更已确认。
+- 超时/重试/降级/可观测齐；契约测试与负面用例通过。
+- 文档与实现一致；未决项有 owner/截止。

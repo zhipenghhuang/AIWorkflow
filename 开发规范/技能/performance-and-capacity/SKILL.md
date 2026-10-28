@@ -1,6 +1,6 @@
 ---
 name: performance-and-capacity
-description: Use when a change has latency, throughput, concurrency, data-volume, resource, or cost constraints. Model workload, targets, bottlenecks, caching, scaling, load testing, SLO, and capacity headroom before implementation and release.
+description: Use when a change has latency, throughput, concurrency, data-volume, resource, or cost constraints. Model workload, targets, bottlenecks, caching, scaling, load testing, SLO, and capacity headroom before implementation and release. 中文触发：性能、容量、延迟、吞吐、并发、压测、SLO、缓存、扩容、成本。
 ---
 
 # 性能与容量（技能 · 随包生效）

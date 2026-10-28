@@ -1,6 +1,6 @@
 ---
 name: customer-needs-discovery
-description: Use when collecting, clarifying, or validating customer needs, feedback, interview notes, support tickets, competitor research, or a one-line product request. Separate stated wants from underlying problems, record evidence and assumptions, and confirm the need before writing a PRD, roadmap, or priority.
+description: Use when collecting, clarifying, or validating customer needs, feedback, interview notes, support tickets, competitor research, or a one-line product request. Separate stated wants from underlying problems, record evidence and assumptions, and confirm the need before writing a PRD, roadmap, or priority. 中文触发：客户需求、访谈、反馈、工单、竞品、需求洞察、JTBD、问题定义。
 ---
 
 # 客户需求发现与确认（技能 · 随包生效）

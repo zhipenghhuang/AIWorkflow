@@ -1,6 +1,6 @@
 ---
 name: testcase-design
-description: Use when generating or reviewing test cases. Apply equivalence partitioning, boundary values, decision tables, state transitions, scenarios, and observable assertions.
+description: Use when generating or reviewing test cases. Apply equivalence partitioning, boundary values, decision tables, state transitions, scenarios, and observable assertions. 中文触发：用例设计、测试用例、等价类、边界值、判定表、状态迁移、场景法、断言、覆盖率、AI 功能用例、无障碍用例。
 ---
 
 # 用例设计（技能 · 随包生效）
@@ -46,6 +46,14 @@ description: Use when generating or reviewing test cases. Apply equivalence part
 - 收尾对照：每个 P0/高风险设计点在映射说明或 §4 深度档自检标明已满足上表哪几行；缺行且无「不适用+依据」→ 覆盖缺口，不得开跑宣称完整。
 - 分片超时/直做降级：**同一深度档**，禁用「场景映射齐」替代。
 
+### 2.3 AI / 非确定性 / 可访问性附加
+
+- **AI 功能**：oracle 用规则/引用/rubric/人工评审；覆盖拒答、无依据、越权、提示注入、格式破坏、成本/延迟；重复 N 次按阈值判定（方法见 `技能/ai-feature-testing/SKILL.md`）。
+- **非确定性**：同一输入多次运行；记录通过率与方差；不把一次通过写成稳定。
+- **可访问性**：键盘全流程、焦点顺序/可见、对比度、语义/标签、错误提示、缩放 200%、减少动态；按 WCAG 2.2 AA 适用条款。
+- **国际化**：长文案/换行、日期/时区、金额/币种/小数、复数、RTL；不把中文写死在断言里。
+- **隐私**：用例数据不含真实 PII；证据脱敏；导出/日志用例覆盖敏感字段。
+
 ## 3. 断言写法
 
 - 每条预期必须**可观测**：值/文案/状态列/字段=值（杜绝「正常/正确」）。
@@ -53,7 +61,7 @@ description: Use when generating or reviewing test cases. Apply equivalence part
 
 ## 4. 常见漏测谱系（生成时对照补）
 
-金额与精度｜时间与时区｜分页边界与排序｜重复提交/幂等｜空态与首屏｜超长与 Emoji｜导入导出（模板/编码）｜权限域与越权｜并发同键｜缓存刷新｜浏览器返回/刷新态｜网络慢与失败重试｜**UI 布局/遮挡/截断/文案/冗余标语与标签**｜按钮/禁用/加载态｜错误提示与恢复。
+金额与精度｜时间与时区｜分页边界与排序｜重复提交/幂等｜空态与首屏｜超长与 Emoji｜导入导出（模板/编码）｜权限域与越权｜并发同键｜缓存刷新｜浏览器返回/刷新态｜网络慢与失败重试｜**UI 布局/遮挡/截断/文案/冗余标语与标签**｜按钮/禁用/加载态｜错误提示与恢复｜AI 拒答/引用/注入/重复运行｜键盘/焦点/对比度｜多语言/长文案/RTL｜成本/超时/降级。
 
 ## 5. 与文档的关系
 
@@ -67,6 +75,16 @@ description: Use when generating or reviewing test cases. Apply equivalence part
 - **引用抽验**：收尾前抽 2～3 条『设计来源』打开被引文件核对（不实即改）——错误尽量拦在生成期，评审再抽验加固。
 - **质量评分卡**：场景/前置/步骤/预期/负面边界/独立清理/追溯/可读/数据/版本十项，0～2 分；缺入口/步骤/预期/追溯为阻断；≥18/20 且无阻断才可交评审。  
   三维体验为横向门：UX（执行者能照做）、DX（脚本/维护成本）、AX（结构化/可追溯）任一净退化 → 需修，不计分。
+
+### 5.1 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “方案场景都覆盖了” | 场景 1:1 不等于技法展开；看深度档与边界/负向。 |
+| “字段太多，全排列” | 等价类 + pairwise 取代表；全排列是浪费不是严谨。 |
+| “预期写正常/正确就行” | 不可观测=不可判定；必须值/状态/字段。 |
+| “AI 输出没法测” | 用规则/引用/rubric/人工 + 重复阈值；不是不测。 |
+| “UI 看看就行” | 视觉基础条要进断言或相邻用例预期，截图同帧检。 |
 
 ## 6. 行业参考（按需对齐 · 不落空话）
 

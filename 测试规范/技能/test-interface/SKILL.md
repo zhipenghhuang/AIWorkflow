@@ -1,6 +1,6 @@
 ---
 name: test-interface
-description: Use for API and contract testing. Prefer script-first execution, contract coverage, negative/authorization checks, and reusable regression assets over repeated AI UI clicking.
+description: Use for API and contract testing. Prefer script-first execution, contract coverage, negative/authorization checks, and reusable regression assets over repeated AI UI clicking. 中文触发：接口测试、API 测试、契约测试、负向用例、鉴权、脚本化、回归资产。
 ---
 
 # 接口测试（技能 · 随包生效）
@@ -46,3 +46,9 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 - 按模块/契约版本维护脚本；新版本只更新受影响 endpoint；旧轮留档仅用户确认/版本关闭 → `测试/接口测试/_归档/{yyyyMMdd}-{版本或批次}/`，**禁**整包装进根 `测试/_归档/`。
 - 失败先区分：产品缺陷 / 契约漂移 / 脚本漂移 / 环境数据；脚本漂移修脚本，契约漂移更新用例与脚本。
+
+## 8. DoD
+
+- 契约覆盖成功/失败/边界/鉴权/幂等/兼容；breaking change 阻断。
+- 脚本可复跑、可复用、有清理；证据含请求/响应/断言/日志。
+- 失败已分类；未覆盖项/限制写清；不拿 mock 结论冒充真实链路。

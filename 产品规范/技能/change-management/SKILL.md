@@ -1,6 +1,6 @@
 ---
 name: change-management
-description: Use when a requirement, question, product defect, or new requirement arrives during or after delivery. Triage it, assess impact, require a change record for baseline changes, and update all linked product artifacts.
+description: Use when a requirement, question, product defect, or new requirement arrives during or after delivery. Triage it, assess impact, require a change record for baseline changes, and update all linked product artifacts. 中文触发：需求变更、变更单、产品缺陷、影响分析、变更评估、回写、受理。
 ---
 
 # 需求/问题受理与变更（技能 · 随包生效）

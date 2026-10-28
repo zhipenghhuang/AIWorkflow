@@ -1,6 +1,6 @@
 ---
 name: backend-implementation
-description: Use when implementing backend APIs, services, data access, jobs, integrations, or migrations. Enforce validation, authorization, transaction boundaries, idempotency, error semantics, concurrency, timeouts, observability, and integration tests.
+description: Use when implementing backend APIs, services, data access, jobs, integrations, or migrations. Enforce validation, authorization, transaction boundaries, idempotency, error semantics, concurrency, timeouts, observability, and integration tests. 中文触发：后端实现、服务端、API、数据访问、任务、集成、迁移、事务、幂等、超时、重试。
 ---
 
 # 后端实现（技能 · 随包生效）

@@ -1,6 +1,6 @@
 ---
 name: implementation-and-selftest
-description: Use when implementing or verifying a change. Enforce small steps, test-first where practical, minimal diffs, migration safety, and evidence-based self-test.
+description: Use when implementing or verifying a change. Enforce small steps, test-first where practical, minimal diffs, migration safety, and evidence-based self-test. 中文触发：实现、编码、自测、测试先行、最小改动、调试、提交前验证、红绿。
 ---
 
 # 实现与自测（技能 · 随包生效）

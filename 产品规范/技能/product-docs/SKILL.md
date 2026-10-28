@@ -1,6 +1,6 @@
 ---
 name: product-docs
-description: Use when writing user-facing documentation: quick start, user guide, FAQ, release notes/changelog, or training material. Organizes by user tasks, aligns screenshots and steps with the current build, and separates internal implementation from customer-facing content.
+description: Use when writing user-facing documentation: quick start, user guide, FAQ, release notes/changelog, or training material. Organizes by user tasks, aligns screenshots and steps with the current build, and separates internal implementation from customer-facing content. 中文触发：用户手册、快速开始、FAQ、发布说明、培训材料、帮助文档。
 ---
 
 # 产品用户文档（技能 · 随包生效）
@@ -67,3 +67,10 @@ description: Use when writing user-facing documentation: quick start, user guide
 - 无内部术语/密钥/真实 PII；
 - 版本、日期、适用范围清楚；
 - 有反馈入口。
+
+## 8. DoD
+
+- 按用户任务组织；非作者能按文档完成首个任务。
+- 截图/按钮/路径与当前构建一致；版本/适用范围/更新日期清楚。
+- 无内部术语/密钥/真实 PII；错误/限制/前置条件写清。
+- FAQ 覆盖高频问题；有反馈入口；发布说明与版本记录一致。

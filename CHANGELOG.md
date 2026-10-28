@@ -7,12 +7,39 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.10.28.10` | 更新 | 母版/实例边界与模板裁剪 |
-| 开发规范 | `2026.10.28.10` | 更新 | 母版/实例边界与模板裁剪 |
-| 测试规范 | `2026.10.28.10` | 更新 | 母版/实例边界与模板裁剪 |
-| 母版仓 | `2026.10.28.10` | 更新 | 三包通用落地治理 |
+| 产品规范 | `2026.10.28.11` | 更新 | 技能标准/指标实验/AI 产品补强 |
+| 开发规范 | `2026.10.28.11` | 更新 | 技能标准/调试/可观测/AI 应用补强 |
+| 测试规范 | `2026.10.28.11` | 更新 | 技能标准/数据环境/AI 测试补强 |
+| 母版仓 | `2026.10.28.11` | 更新 | 三包通用能力体检与补强 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
+
+## [2026.10.28.11] - 2026-10-28
+
+### Added
+
+- 三包 `技能/README.md` 新增「技能质量标准（Skill Anatomy）」：frontmatter 规范、正文结构、反合理化/红旗/验证、≤500 行与渐进披露、修改流程与验收清单。
+- 开发轨新增技能：`debugging-and-error-recovery`（复现/定位/缩小/修因/防回归）、`observability-and-instrumentation`（日志/指标/追踪/SLO/告警/成本）、`ai-application-engineering`（LLM/RAG/Agent/评测/护栏/成本/隐私）。
+- 产品轨新增技能：`analytics-and-experimentation`（指标树/事件字典/漏斗/留存/A-B/护栏/隐私）。
+- 测试轨新增技能：`test-data-and-environment`（环境基线/造数/隔离/清理/PII/依赖）、`ai-feature-testing`（oracle/评测集/非确定性/红队/工具调用）。
+- 开发 `threat-modeling` 补强：OWASP ASVS 5.0/WSTG、供应链（SLSA/Scorecard）、AI/LLM 威胁、滥用场景、安全验收与 DoD。
+- 开发 `engineering-quality` 补强：AI/LLM 与可访问性/国际化质量行、AI 高风险阻断、常见合理化表。
+- 开发 `code-review` 补强：AI 生成代码/供应链/a11y/i18n/合理化表。
+- 开发 `acceptance-and-launch` 补强：渐进发布/特性开关/SLO/回滚演练/合理化表。
+- 测试 `test-performance-security-compatibility` 补强：OWASP WSTG/LLM、Core Web Vitals（INP）、WCAG 2.2、i18n、混沌/韧性、合理化表。
+- 测试 `testcase-design`、`test-execution-and-exploration`、`test-analysis-and-plan` 补强：AI/非确定性用例、a11y/i18n、自动化分层与 CI、flake 治理、证据完整性。
+- 产品 `prd-writing` 补强：AI 产品需求、可访问性/国际化、指标/实验、合理化表。
+- 其余 9 份技能补齐验证/DoD 节：`api-design`、`retrospective-and-improvement`、`presentation-design`、`product-docs`、`prototype-and-interaction`、`review-and-finalize`、`ui-visual-design-system`、`test-artifact-review`、`test-interface`。
+- 三包 `能力/00-能力注册表.md` 新增可选能力：AI 评测/观测/护栏、特性开关、供应链、IaC 扫描、契约测试、a11y、可观测、实验/产品分析、AI 红队、混沌；补充 Agent Skills 规范、SLSA v1.2、OWASP LLM 2025、NIST AI RMF、ISO/IEC 42001、WCAG 2.2、Core Web Vitals、OpenTelemetry 等校准基线。
+
+### Changed
+
+- 三包 48 份技能 `description` 均具备中文触发词（其中 34 份本次补加），提升中文口令下的技能选择准确率。
+- 产品 `prd`、开发 `change`、测试 `testing` 的步骤注记挂载新技能，确保命中步骤可加载。
+- 测试 `Invoke-TestWorkflow.ps1` 自检白名单补充 `02-文档/`，消除交接包模板路径误报。
+- 根 `README.md` 计数同步：工作流 产品 11 / 开发 10 / 测试 5（合计 26），技能 产品 14 / 开发 24 / 测试 10（合计 48）。
+- 三包实例适配边界：实例默认不改；AI 发现不匹配先输出拟改内容/原因/影响，用户确认后可本地适配模板/技能/规则，留痕且不影响母版；母版整包更新前备份/比对。
+- 三包版本对齐 `2026.10.28.11`。
 
 ## [2026.10.28.10] - 2026-10-28
 

@@ -1,6 +1,6 @@
 ---
 name: artifact-review
-description: Use when reviewing product landing documents (PRD, product plan, iteration scope, design handoff). Ask human vs AI review mode first; apply enterprise rubric and independent AI review when chosen.
+description: Use when reviewing product landing documents (PRD, product plan, iteration scope, design handoff). Ask human vs AI review mode first; apply enterprise rubric and independent AI review when chosen. 中文触发：产品文档评审、PRD 评审、计划评审、原型评审、设计交接评审、A/B 评审。
 ---
 
 # 产品落地文档评审（技能 · 随包生效）

@@ -1,6 +1,6 @@
 ---
 name: requirement-discovery-and-prioritization
-description: Use when collecting requirements, analyzing users or competitors, prioritizing, or scoping a release. Produce traceable requirement-pool entries and a prioritized MVP scope.
+description: Use when collecting requirements, analyzing users or competitors, prioritizing, or scoping a release. Produce traceable requirement-pool entries and a prioritized MVP scope. 中文触发：需求收集、需求池、优先级、MVP、范围、竞品分析、排期。
 ---
 
 # 需求洞察与优先级（技能 · 随包生效）

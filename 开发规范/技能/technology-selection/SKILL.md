@@ -1,6 +1,6 @@
 ---
 name: technology-selection
-description: Use when choosing a language, framework, database, middleware, cloud service, or major library. Compare candidates with explicit criteria, evidence, POC, license, cost, risk, and an exit plan; record the decision as an ADR.
+description: Use when choosing a language, framework, database, middleware, cloud service, or major library. Compare candidates with explicit criteria, evidence, POC, license, cost, risk, and an exit plan; record the decision as an ADR. 中文触发：技术选型、框架、数据库、中间件、云服务、POC、许可、成本、ADR。
 ---
 
 # 技术选型（技能 · 随包生效）

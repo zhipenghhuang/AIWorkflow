@@ -1,6 +1,6 @@
 ---
 name: test-performance-security-compatibility
-description: Use for performance, security, compatibility, migration, and release-readiness testing. Enforce measurable targets, environment parity, tool evidence, and release blocking rules.
+description: Use for performance, security, compatibility, migration, and release-readiness testing. Enforce measurable targets, environment parity, tool evidence, and release blocking rules. 中文触发：性能测试、安全测试、兼容性测试、可访问性测试、迁移测试、发布前测试、压测、扫描、渗透、WCAG、Core Web Vitals、混沌测试。
 ---
 
 # 性能 / 安全 / 兼容（技能 · 随包生效）
@@ -21,19 +21,23 @@ description: Use for performance, security, compatibility, migration, and releas
 - **场景建模**：读/写/混合、峰值/均值、数据量级与分布（冷热）；关键交易优先。
 - **测量纪律**：预热后计；重复 ≥3 取中位/偏保守值；记录 p95/p99、吞吐、错误率、CPU/IO/慢查询/GC；环境不可比须标限制。
 - **报告**：目标 vs 实测 vs 结论逐行；瓶颈线索必留。
+- **前端性能**：Core Web Vitals（LCP/INP/CLS）+ 资源体积/请求数/缓存；用 Lighthouse/真实用户指标，不只看实验室分数；移动网络/低端设备单列。
 - 工具：`perf-test`（k6/JMeter/Locust）或项目自备；AI 只解读数据/给瓶颈假设。
 
 ## 3. 安全（最小负向集）
 
 - **扫描**：SAST（代码）、SCA（依赖/许可证）、secrets（密钥）、DAST（对外运行面）。
 - **业务负向**：越权/IDOR（横向/纵向）、注入（SQL/命令/模板）、认证会话、敏感数据回显/日志/导出、上传与路径、配置暴露。
+- **AI/LLM 安全**：直接/间接提示注入、越权检索、系统提示泄露、工具越权/过度代理、无限消耗、输出处理（XSS/命令/SQL）。
+- **方法对齐**：OWASP WSTG（Web）、OWASP ASVS 5.0（验证项）、OWASP Top 10 for LLM 2025（AI）；按适用性裁剪并写版本。
 - **阻断**：critical/high 未闭环不得判发布通过；工具产物须人工复核，禁直接当结论。
 - 工具：`sec-scan`（semgrep/ZAP/Trivy/gitleaks 等）或项目安全团队；AI 只做负向设计与复核。
 
 ## 4. 兼容 / 可访问性
 
 - **矩阵法**：浏览器/OS/设备/分辨率/网络/缩放各取代表值，不做全排列；重点端与退化端各 1。
-- **a11y**：对外页面至少自动扫描一次（axe-core），关键流程键盘/对比度抽查。
+- **a11y**：对外页面至少自动扫描一次（axe-core），关键流程键盘/焦点/对比度/语义/屏幕阅读器抽查；目标 WCAG 2.2 AA（适用时 EN 301 549）；覆盖缩放 200%、减少动态、错误提示可读。
+- **i18n/本地化**：文案长度/换行、日期/时间/时区、金额/币种/小数、复数/性别、RTL（如适用）；不把中文硬编码进通用组件。
 - **视觉**：`visual-reg` 截图比对关键页；动态内容遮罩，阈值按项目。
 - 移动端点名时用 `mobile-automation`（注册表）。
 
@@ -42,7 +46,24 @@ description: Use for performance, security, compatibility, migration, and releas
 - dry-run 先跑；核对行数/校验和/关键字段/状态；回滚演练记录耗时与数据影响。
 - 不可回滚或数据不可恢复 → 必须显式风险接受；否则不得发布。
 
+### 5.1 韧性 / 混沌（高风险必做）
+
+- 故障注入：依赖超时/错误、实例宕机、网络分区、磁盘/队列满、时钟漂移；按爆炸半径从小到大。
+- 验证：降级/熔断/重试/限流是否按设计生效；错误是否可恢复；数据是否一致。
+- 不在生产直接注入未批准的故障；先预发/演练环境，生产需审批与回滚预案。
+- 记录：注入条件、观察指标、实际行为、恢复时间、缺陷/改进项。
+
 ## 6. 结论纪律
 
 - 达标/通过 = 绑定可复核产物（报告/原始数据/日志）；未测面显式列缺口。
 - 环境/数据不可比、工具不可用、样本不足 → 写限制/缺口，禁假称已测。
+
+## 7. 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| “扫描没报就是安全” | 扫描覆盖有限；越权/业务逻辑/注入需人工负向设计。 |
+| “压测机跑得动就行” | 环境/数据/流量模型不可比；结论要写限制。 |
+| “兼容性测主流浏览器就够” | 按用户分布选代表端，退化端也要 1 个；写矩阵。 |
+| “a11y 是前端的事” | 验收要覆盖键盘/对比度/语义；自动扫描只是一部分。 |
+| “混沌测试太高级” | 高风险系统至少验证降级/超时/回滚，不一定要全套平台。 |
