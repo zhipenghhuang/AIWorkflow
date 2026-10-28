@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# 同源脚本：三包内容一致；改一处需同步另外两包。
 """Static quality gate for 技能/*/SKILL.md.
 
 Usage: python check_skills.py <package-root> [--strict]
