@@ -2,7 +2,7 @@
 
 > **用途**：开发协作 AI 入口。常驻最小集；命中口令 → `workflows/*.yaml` 当前 step → `规则/读取索引.md` 当前行 → 当前 `agents/*.yaml`。
 > **位置**：`开发规范/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；红线不被覆盖。
-> **template_version**：`2026.10.28.12`（单点：包内版本以本文为准；与产品/测试交接口径对齐）。
+> **template_version**：`2026.10.28.13`（单点：包内版本以本文为准；与产品/测试交接口径对齐）。
 > **架构**：Workflow + Agent + 规则/门/读取索引 + 技能/能力 + 验证层 + 开发计划控制面；落地文档 `review-docs` + `select_review_mode`（自行｜AI），代码审仍走 `review`。
 
 ## 0. 开工（每任务）
@@ -115,7 +115,7 @@
 | 2 | 新文档/收件箱/新变化/变更/确认项/变更吸收（不含交接包；交接包→handoff.receive，变更通知→handoff.change_*） | `intake` | scan；iterate-lead |
 | 3 | 按方案实施/落地迭代方案/继续迭代/只出任务清单 | `iterate` | precheck；iterate-lead |
 | 4 | 接入/重新接入/档案/装配/文档树/资料整理/文档清理/归档 | `onboard` | mount/migrate/profile/capabilities/docs/materials/lifecycle；onboard-agent |
-| 4.3 | 体检能力/技能优化/母版技能更新/通用优化技能 | `skill-audit` | scope→…→wrap；onboard-agent |
+| 4.3 | 体检能力/技能优化/母版技能更新/通用优化技能 | `skill-audit` | scope→…→wrap/commit；onboard-agent |
 | 5 | 提交/推送（单独口令） | 当前 workflow 末步，或 `change` | commit；implementer |
 | 6 | 常规变更/澄清/需求澄清（及未命中 1～5 的实施类） | `change` | clarify；implementer（**澄清=单步；常规变更=按链**） |
 | 6.1 | 分析 PRD/迭代方案/需求文档/页面原型/理解需求/解析原型 | `change` | analyze_input；implementer |

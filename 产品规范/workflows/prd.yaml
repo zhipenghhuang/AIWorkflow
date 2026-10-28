@@ -35,6 +35,7 @@ trigger:
 steps:
   - name: 需求洞察与需求池
     id: discover
+    output: 需求池/洞察记录（产品/需求池.md 或 产品/{版本或主题}/01-需求与定义/洞察-{yyyyMMdd}.md）
     agent: pm-analyst
     hitl: confirm_understanding
     hitl_when: understanding_needs_confirm
@@ -50,6 +51,7 @@ steps:
 
   - name: 优先级与立项
     id: prioritize
+    output: 需求池优先级/立项建议（产品/需求池.md §优先级）
     when: new_requirement_or_scope_change
     agent: pm-analyst
     hitl: confirm_scope
@@ -101,6 +103,7 @@ steps:
 
   - name: PRD 评审与定稿
     id: review
+    output: 评审记录或 HUMAN_APPROVED 声明
     agent: reviewer-agent
     gate: product-review
     gate_type: machine
@@ -144,6 +147,7 @@ steps:
 
   - name: 拟提交
     id: commit
+    output: 拟提交确认结果
     agent: prd-writer
     hitl: confirm_commit
     hitl_when: has_pending_commit

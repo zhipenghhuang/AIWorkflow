@@ -310,6 +310,22 @@ def parse_report(path: Path, ledger_counts: dict[str, int]) -> dict[str, Any]:
             "receipt_verdict": receipt_verdict}
 
 
+def check_exit_hard_items(text: str) -> list[str]:
+    """准出硬项：未关闭 S1/S2、探索章程未完成。缺少字段按缺口处理。"""
+    issues: list[str] = []
+    m = re.search(r"未关闭\s*S1/S2\s*[=:：]\s*(\d+)", text)
+    if not m:
+        issues.append("缺少「未关闭 S1/S2=n」")
+    elif int(m.group(1)) > 0:
+        issues.append(f"未关闭 S1/S2={m.group(1)}")
+    m = re.search(r"章程[:：]\s*计划\s*(\d+)[，,]\s*完成\s*(\d+)[，,]\s*未完成\s*(\d+)", text)
+    if not m:
+        issues.append("缺少「章程：计划/完成/未完成」")
+    elif int(m.group(3)) > 0:
+        issues.append(f"探索章程未完成={m.group(3)}")
+    return issues
+
+
 def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
     issues: list[str] = []
     missing: list[str] = []
@@ -621,6 +637,11 @@ def main() -> int:
                                "detail": reported_verdict or "准出评估缺失/不可识别"})
                 checks.append({"id": "p0-vs-verdict", "status": "fail" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "pass",
                                "detail": "P0 未过但报告写通过/有条件通过" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "consistent"})
+                if "## 5." in read(report):
+                    hard = check_exit_hard_items(read(report))
+                    checks.append({"id": "exit-hard-items", "status": "fail" if hard else "pass", "detail": hard[:10]})
+                else:
+                    checks.append({"id": "exit-hard-items", "status": "skip", "detail": "报告未含 §5；准出硬项需人工核"})
                 if not receipt_verdict:
                     checks.append({"id": "report-receipt", "status": "skip", "detail": "报告暂无回执；复跑时必须一致"})
 

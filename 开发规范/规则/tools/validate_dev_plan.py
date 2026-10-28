@@ -25,6 +25,10 @@ SECTIONS = [
     "## 9. 风险、依赖、决策",
     "## 10. 变更记录",
     "## 11. 关联文档",
+    "## 12. 执行日志（只追加）",
+    "## 13. 迭代索引与归档",
+    "## 14. 质量指标（DORA + 交付质量）",
+    "## 15. 追溯矩阵（PRD F/A/AC → RP/AC → 任务 → 测试 → 发布）",
 ]
 COLUMNS = ["阶段", "技能", "状态", "负责人", "输入", "动作", "产出", "门", "证据", "下一步"]
 STATUSES = {"未开始", "进行中", "部分完成", "阻塞", "待评审", "完成", "不适用"}
@@ -68,6 +72,18 @@ def main() -> int:
     for section in SECTIONS:
         if section not in text:
             errors.append(f"MISSING_SECTION: {section}")
+
+    def section_block(title: str) -> str:
+        if title not in text:
+            return ""
+        return text.split(title, 1)[1].split("\n## ", 1)[0]
+
+    exec_log = section_block("## 12. 执行日志（只追加）")
+    if exec_log and not re.search(r"(?m)^\|\s*(?:\d{4}-\d{2}-\d{2}|日期)", exec_log):
+        warnings.append("EXEC_LOG: §12 执行日志无日期行（只追加）")
+    trace = section_block("## 15. 追溯矩阵（PRD F/A/AC → RP/AC → 任务 → 测试 → 发布）")
+    if trace and not re.search(r"\b(?:F|R|A|AC|RP|T)-\d+", trace):
+        warnings.append("TRACE: §15 追溯矩阵无 F/R/A/AC/RP/T 编号")
 
     # Current status
     for key in ("当前阶段", "健康度", "下一步 3 件事"):

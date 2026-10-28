@@ -23,6 +23,7 @@ REQUIRED_SECTIONS = [
     "## 4. 覆盖矩阵",
     "## 5. 检查点",
     "## 6. 变更记录",
+    "## 7. 未决与假设",
 ]
 REQUIRED_COLUMNS = ["ID", "阶段", "任务", "要求点", "优先级", "风险", "依赖", "并行", "负责人", "预估", "状态"]
 STATUSES = {"未开始", "进行中", "阻塞", "待验收", "完成", "取消"}
@@ -95,6 +96,7 @@ def main() -> int:
                 continue
             rows.append(split_row(line))
     ids: list[str] = []
+    deps: dict[str, list[str]] = {}
     for row in rows:
         if not row or not row[0]:
             continue
@@ -113,14 +115,38 @@ def main() -> int:
         if not RP_RE.search(rp) and not rp.startswith("{"):
             warnings.append(f"NO_RP: {tid}: {rp!r}")
         dep = row[header.index("依赖")] if "依赖" in header else ""
-        for ref in re.findall(r"T-\d+", dep):
-            if ref == tid:
-                errors.append(f"SELF_DEPENDENCY: {tid}")
-            elif ref not in ids and ref not in [r[0].strip("` ") for r in rows]:
-                errors.append(f"UNKNOWN_DEPENDENCY: {tid} -> {ref}")
+        deps[tid] = re.findall(r"T-\d+", dep)
 
     if len(ids) != len(set(ids)):
         errors.append("DUPLICATE_ID: summary table has duplicate IDs")
+
+    # Dependency validation after all IDs are known (supports forward refs).
+    id_set = set(ids)
+    for tid, refs in deps.items():
+        for ref in refs:
+            if ref == tid:
+                errors.append(f"SELF_DEPENDENCY: {tid}")
+            elif ref not in id_set:
+                errors.append(f"UNKNOWN_DEPENDENCY: {tid} -> {ref}")
+
+    # Cycle detection (DFS; T-xx is small, no need for graph library).
+    state: dict[str, int] = {}
+
+    def visit(node: str, stack: list[str]) -> None:
+        if state.get(node) == 1:
+            cycle = " -> ".join(stack[stack.index(node):] + [node]) if node in stack else node
+            errors.append(f"DEPENDENCY_CYCLE: {cycle}")
+            return
+        if state.get(node) == 2:
+            return
+        state[node] = 1
+        for nxt in deps.get(node, []):
+            if nxt in id_set:
+                visit(nxt, stack + [node])
+        state[node] = 2
+
+    for tid in ids:
+        visit(tid, [])
 
     # Task cards
     card_ids = re.findall(r"^###\s+(T-\d+)\b", text, flags=re.M)

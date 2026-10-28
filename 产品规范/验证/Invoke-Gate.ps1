@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-  产品轨完成门。调用 验证/tools/product_gate.py，输出 .gate/completion.json。
+  产品轨完成门。调用 验证/tools/product_gate.py，输出 .gate/产品规范/{mode}.json（兼容 completion.json）。
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
 #>

@@ -375,6 +375,9 @@ AIWorkflow/
 powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "开发规范/规则/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
+python 产品规范/规则/tools/check_skills.py 产品规范 --strict
+python 开发规范/规则/tools/check_skills.py 开发规范 --strict
+python 测试规范/规则/tools/check_skills.py 测试规范 --strict
 powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-DocHygiene.ps1"
 powershell -ExecutionPolicy Bypass -File "开发规范/规则/tools/Test-DocHygiene.ps1"
 powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Test-DocHygiene.ps1"

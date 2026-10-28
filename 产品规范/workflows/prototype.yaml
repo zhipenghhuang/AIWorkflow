@@ -58,6 +58,7 @@ steps:
 
   - name: 视觉方向与设计系统
     id: visual
+    output: 视觉稿/设计 tokens/标注（产品/{版本或主题}/02-原型与设计/）
     agent: ux-designer
     hitl: confirm_design
     notes: >
@@ -136,6 +137,7 @@ steps:
 
   - name: 拟提交
     id: commit
+    output: 拟提交确认结果
     agent: ux-designer
     hitl: confirm_commit
     hitl_when: has_pending_commit

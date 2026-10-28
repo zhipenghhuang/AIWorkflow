@@ -168,6 +168,7 @@ steps:
 
   - name: 门禁
     id: gates
+    output: .gate/开发规范/completion.json + 门禁摘要
     when: has_code_change
     agent: verifier-agent
     gate: completion-gate

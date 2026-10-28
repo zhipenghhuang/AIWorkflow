@@ -15,6 +15,7 @@ entry_points:
   资料整理: materials
   资料归档: materials
   资料巡检: materials
+  文档整理: lifecycle
   文档巡检: lifecycle
   文档清理: lifecycle
   清理临时文件: lifecycle

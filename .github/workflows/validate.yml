@@ -39,6 +39,13 @@ jobs:
         shell: powershell
         run: powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
 
+      - name: Task list schema (dev)
+        if: matrix.package == '开发规范'
+        run: python "开发规范/规则/tools/validate_tasklist.py" "开发规范/规则/模板/30-计划与任务/任务清单模板.md" --lenient
+
+      - name: Skill quality gate
+        run: python "${{ matrix.package }}/规则/tools/check_skills.py" "${{ matrix.package }}" --strict
+
       - name: Doc hygiene
         shell: powershell
         run: powershell -ExecutionPolicy Bypass -File "${{ matrix.package }}/规则/tools/Test-DocHygiene.ps1"

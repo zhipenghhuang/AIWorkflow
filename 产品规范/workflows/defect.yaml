@@ -129,6 +129,7 @@ steps:
         when: finalize_requested
     output: 评审记录（产品/{版本或主题}/01-需求与定义/评审-{主题}-{yyyyMMdd}.md）
     notes: >
+      **单一出处**：通用评审/定稿规则以 `workflows/change.yaml` review 为准；本步只保留产品缺陷平台差异。
       条件步：实质变更/方案影响 AC/范围/权限/数据规则/NFR/版本目标才走；纯文字澄清跳过。
       **先 STOP【评审方式】**（`技能/artifact-review`）：A 自行通过｜B AI 独立审；未选不得恢复定稿。
       **选 A**：【完稿自检摘要】+ 产品视角要点 → HUMAN_APPROVED → `confirm_prd`；不跑 `-Mode review`；须 `-Mode prd` 非 BLOCKED（涉及 PRD 实质变更时）。
@@ -167,6 +168,7 @@ steps:
     gate_type: machine
     output: 验证结果 + 批末总结
     notes: >
+      **单一出处**：通用联动/关闭规则以 `workflows/change.yaml` verify 为准；本步只保留缺陷平台差异。
       运行 `验证/Invoke-Gate.ps1 -Mode change`（读 `.gate/产品规范/change.json`）；受理单联动清单未闭合、验证结果缺失 → 不得关闭。
       未 READY → **保持受理单打开，不得进入 wrap/commit 冒充完成**；先补联动/证据或报阻塞。
       按 `规则/缺陷/缺陷平台协作.md` §4 + `规则/模板/30-评审与变更/缺陷文案模板.md` §6：
@@ -187,6 +189,7 @@ steps:
 
   - name: 拟提交
     id: commit
+    output: 拟提交确认结果
     agent: pm-lead
     hitl: confirm_commit
     hitl_when: has_pending_commit
