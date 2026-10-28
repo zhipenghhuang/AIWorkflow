@@ -22,15 +22,19 @@
 - 三包 `文档治理` §8 + 测试 `工作流` §1.3：统一清理时机为「点名 lifecycle」或「换迭代/关版本 §7.1」；日常收尾不追问；仅已完结 `.draft`/临时可清。
 - 关版本业务步（plan/deliver/control/testing）标明仅关版本时扫清理，非日常收尾。
 
+### Removed
+
+- 按用户要求移除 GitHub Actions 工作流 `.github/workflows/validate.yml`；自检改为本地/按需运行，不依赖 GitHub Actions。保留 PR 模板与 CODEOWNERS。
+
 ## [2026.10.28.13] - 2026-10-28
 
 ### Added
 
-- 三包新增 `规则/tools/check_skills.py`：技能 frontmatter/中文触发词/≤500 行/方法标记/引用/重名静态质量门；CI 以 `--strict` 运行。
+- 三包新增 `规则/tools/check_skills.py`：技能 frontmatter/中文触发词/≤500 行/方法标记/引用/重名静态质量门；自检以 `--strict` 运行。
 - 三包新增 `技能/evals/README.md`：每轨 3 条低成本抽测（触发/期望/必须出现/不得出现），不跑全量 LLM 评测。
 - 产品/测试新增 `验证/tools/check_compliance.py`：检查收尾【验证回执】+【遵守自检】route/mode/reads。
 - 测试报告门新增 `exit-hard-items`：未关闭 S1/S2=0、探索章程未完成=0；缺字段/未过 → FAIL。
-- 开发计划校验扩到 §12～§15；任务清单校验加 §7 与依赖环检测；CI 增加任务清单 schema。
+- 开发计划校验扩到 §12～§15；任务清单校验加 §7 与依赖环检测；自检脚本增加任务清单 schema。
 
 ### Changed
 
@@ -50,7 +54,7 @@
 - 三包新增 `规则/核心/执行契约.md`：判断模式（execute/analyze/stop）、自主边界、步骤契约（output/verify/on_fail/escalate_to）、计划同步矩阵、时间/Token 纪律、收尾【遵守自检】。
 - 三包新增 `规则/协作/角色契约.md`：角色主责/决策权/停止与升级/不做什么；补足 agent YAML 之外的职责边界。
 - 步骤新增 `gate_type`（machine/checklist）、`precondition`、`on_fail`、`next` 等契约字段；`validate_workflow.py` 增加空转步、gate_type、next 引用、chain:full 终点警告。
-- 根新增 `.github/workflows/validate.yml`、PR 模板、CODEOWNERS、`THIRD_PARTY.md`；三包自检可在 push/PR 自动跑。
+- 根新增 PR 模板、CODEOWNERS、`THIRD_PARTY.md`；三包自检保持本地/按需。
 - 测试 `writeback-receipt` 门、开发 `confirm_replan`（C2/C3）、`dev_plan_required`/`has_code_change` 条件。
 
 ### Changed
