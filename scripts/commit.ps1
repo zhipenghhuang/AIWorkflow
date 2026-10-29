@@ -1,6 +1,7 @@
 ﻿# 双击 commit.bat 运行：提交推送本项目；在 deploy 环境下且项目已登记上线（online.txt）时同步更新服务器
 # 本项目可脱离 deploy 单独使用：独立环境仅做提交推送（含失败补推），不依赖任何 deploy 文件。
-# 在 deploy 环境下：读 surfaces.txt 区分 mirror/split；split 可选仅协作/仅公开/两者（回车=两者）；
+# 在 deploy 环境下：读 surfaces.txt 区分 mirror/split；有协作待推时 split 可选仅协作/仅公开/两者（回车=两者）；
+# 无待推则跳过（split 仍检查公开面，与 github/main 一致则跳过，否则补推）；
 # 自动写入 projects.txt（避免漏登记）；共享 .commit-deployed（纯文档/部署成功后登记，避免重复补部署）。
 # 纯文档改动（开发规范/、开发/、docs/、extras/、根说明 Markdown 等）只提交推送：不询问、不触发服务器更新。
 $ErrorActionPreference = 'Stop'
@@ -104,6 +105,8 @@ Write-Host "=== [$repoName] 当前分支与变更 ===" -ForegroundColor Cyan
 git status --short --branch
 
 $pushed = $false
+$publicPushed = $false
+$needCollab = $dirty -or ($aheadBefore -gt 0)
 try {
   if ($dirty) {
     $defaultMsg = 'update ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
@@ -113,39 +116,56 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'git add 失败' }
     git commit -m $msg
     if ($LASTEXITCODE -ne 0) { throw 'git commit 失败（见上方输出）' }
-  } else {
-    Write-Host "[$repoName] 工作区干净，检查并补推未同步的提交..." -ForegroundColor DarkGray
+  } elseif ($needCollab) {
+    Write-Host "[$repoName] 工作区干净，补推未同步的提交..." -ForegroundColor DarkGray
   }
 
-  if ($hasSurfaces) {
+  if (-not $hasSurfaces -or $surface.Mode -ne 'split') {
+    if (-not $needCollab) {
+      Write-Host "[$repoName] 已与远端同步，跳过推送。" -ForegroundColor DarkGray
+    } else {
+      if ($hasSurfaces) { Assert-CollabHeadSafeForPush -RepoPath $repoRoot -RepoName $repoName -Branch $branch }
+      if ($hasUpstream) { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push } else { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD }
+      if ($LASTEXITCODE -ne 0) { throw 'git push 失败' }
+      $pushed = $true
+      Write-Host "[$repoName] 提交与推送完成。" -ForegroundColor Green
+    }
+  } elseif (-not $needCollab) {
+    $statusLine = Get-SurfaceStatusLine -RepoPath $repoRoot -Surface $surface
+    Write-Host $statusLine -ForegroundColor Cyan
+    Write-Host "[$repoName] 协作面已同步，检查公开面..." -ForegroundColor DarkGray
+    $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
+    if ($publicResult -eq 'pushed') {
+      $pushed = $true
+      $publicPushed = $true
+      Write-Host "[$repoName] 公开面补推完成。" -ForegroundColor Green
+    }
+  } else {
     $statusLine = Get-SurfaceStatusLine -RepoPath $repoRoot -Surface $surface
     $pushChoice = Read-PushTargetChoice -RepoName $repoName -Surface $surface -StatusLine $statusLine
-  } else {
-    $pushChoice = 'mirror'
-  }
-
-  if ($pushChoice -eq 'skip') {
-    Write-Host "[$repoName] 已跳过推送（本地提交保留）。" -ForegroundColor Yellow
-  } elseif ($pushChoice -eq 'mirror' -or $surface.Mode -ne 'split') {
-    if ($hasUpstream) { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push } else { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD }
-    if ($LASTEXITCODE -ne 0) { throw 'git push 失败' }
-    $pushed = $true
-    Write-Host "[$repoName] 提交与推送完成。" -ForegroundColor Green
-  } else {
-    # split：协作面推全量；公开面按清单另推（文件集不同）
-    $doCollab = ($pushChoice -eq 'collab' -or $pushChoice -eq 'both')
-    $doPublic = ($pushChoice -eq 'public' -or $pushChoice -eq 'both')
-    if ($doCollab) {
-      if ($hasUpstream) { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push origin HEAD } else { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD }
-      if ($LASTEXITCODE -ne 0) { throw '推送协作面（origin/gitee）失败' }
-      Write-Host "[$repoName] 协作面已推送到 origin。" -ForegroundColor Green
-      $pushed = $true
+    if ($pushChoice -eq 'skip') {
+      Write-Host "[$repoName] 已跳过推送（本地提交保留，重跑可补推）。" -ForegroundColor Yellow
+    } else {
+      $doCollab = ($pushChoice -eq 'collab' -or $pushChoice -eq 'both')
+      $doPublic = ($pushChoice -eq 'public' -or $pushChoice -eq 'both')
+      if ($doCollab) {
+        Assert-CollabHeadSafeForPush -RepoPath $repoRoot -RepoName $repoName -Branch $branch
+        if ($hasUpstream) { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push origin HEAD } else { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD }
+        if ($LASTEXITCODE -ne 0) { throw '推送协作面（origin/gitee）失败' }
+        Write-Host "[$repoName] 协作面已推送到 origin。" -ForegroundColor Green
+        $pushed = $true
+      }
+      if ($doPublic) {
+        $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
+        if ($publicResult -eq 'pushed') {
+          $pushed = $true
+          $publicPushed = $true
+        } elseif ($publicResult -eq 'skipped' -and -not $doCollab) {
+          Write-Host "[$repoName] 公开面无变化。" -ForegroundColor DarkGray
+        }
+      }
+      Write-Host "[$repoName] 提交与推送完成（$pushChoice）。" -ForegroundColor Green
     }
-    if ($doPublic) {
-      Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
-      $pushed = $true
-    }
-    Write-Host "[$repoName] 提交与推送完成（$pushChoice）。" -ForegroundColor Green
   }
 } catch {
   Write-Host "[$repoName] 失败：$_" -ForegroundColor Red
@@ -163,7 +183,7 @@ if (-not $pushed) {
 
 # 与已部署版本一致且本次无新推送 => 无需部署
 $needDeploy = $isOnline -and $hasState -and ($deployedSha -ne $headSha)
-$realPush = $dirty -or $aheadBefore -gt 0
+$realPush = $dirty -or $aheadBefore -gt 0 -or $publicPushed
 if (-not ($realPush -or $needDeploy)) {
   Write-Host '本项目无新内容，结束。' -ForegroundColor Yellow
   exit 0
@@ -192,6 +212,7 @@ if ($compareFrom) {
 if ($baseOk) {
   $isDocsOnly = Test-CommitDocsOnly -Paths $files
 }
+if ($publicPushed) { $isDocsOnly = $false }
 if ($isDocsOnly) {
   # 已登记上线：写入 .commit-deployed，避免下次再当「待补部署」反复询问
   if ($isUnderDeploy -and $isOnline -and $hasState -and $headSha -match '^[0-9a-f]{7,40}$') {
