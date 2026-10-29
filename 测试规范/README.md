@@ -38,7 +38,7 @@
 | `规则/轨契约/` | `接口.md`、`探索式.md`、`发布前.md`（按口令点读） |
 | `规则/playbooks/` | 重阶段步骤卡：生成/执行/缺陷 |
 | `规则/模板/` | 按生命周期分 6 组：`00-接入与基线` / `10-计划` / `20-测试用例` / `30-执行与台账` / `40-报告与评审` / `90-交接与收尾`；先看 `规则/模板/模板索引.md` |
-| `规则/tools/` | 包自检（`Invoke-TestWorkflow -Action ValidateTemplateRefs`）+ 脚本档工具（`playwright/`、`merge-ledger.mjs`）+ 交接包校验 `validate_handoff.py` |
+| `规则/tools/` | 包自检（`Invoke-TestWorkflow -Action ValidateTemplateRefs`）+ 脚本档工具（`playwright/`、`merge-ledger.mjs`）+ 交接包校验 `validate_handoff.py` + 用例空话校验 `validate_testcase.py` |
 | `验证/` | 报告门 `验证/Invoke-Gate.ps1`、检查矩阵、台账/报告/覆盖校验脚本；独立可复制 |
 
 > 实例在项目根：`环境基线.md`、`activeContext.md`（含 `### 进行中` 快照）；测试产物统一在 **`测试/`**。  

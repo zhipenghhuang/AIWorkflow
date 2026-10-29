@@ -55,7 +55,7 @@ steps:
       任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：`task_id`/`started_at`/`base_commit`；门按 base 算 diff，截图须晚于 started_at/验收清单）。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建（或提示缺口），报备当前阶段/下一步。
       输入含外部 PRD/方案/原型/专项/未决确认 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后同批：落 `资料/{版本或主题}/`（多包→`项目资料/`）→ 同步工作区 → S1/S2/S3 进 `资料/_归档/`；本包方案/基线正文改工作区不进资料。完整吸收链优先 `intake`。
-      确认采纳或换代/换主题后按 `规则/文档治理.md` §7（不确定则 `confirm_iteration_close`；确认后 §7.1 完整关账，跳过仅发版项）。
+      确认采纳或换代/换主题后按 `规则/文档治理.md` §7（不确定则 `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 §7.1 关账，T2/T4 保留仍被引用的基础设计/流程图/原型；跳过仅发版项）。
       输入是交接包（含 `00-交接说明.md` + `01-交接清单.md`）→ 先走 `workflows/handoff.yaml` receive 核对+回执，再按包内文档做需求理解；未签收不得进入分析。
       输入含 PRD/迭代方案/原型/需求文档 → 下一步 `analyze_input` 必须执行；不得只凭标题/摘要写需求卡。
 
@@ -230,7 +230,7 @@ steps:
     notes: >
       更新 activeContext（焦点/最近变化/下一步/仍生效决策）、文档索引、任务清单状态；
       更新开发计划：§0 当前阶段/健康度/下一动作、§1 阶段状态/产出/证据/下一步 3 件事、§12 执行日志（L2+）。
-      有代码改动时读本轮 `.gate/开发规范/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`，不得读旧回执。按 AGENTS §2 输出【任务收尾】：先写 `【验证回执】verdict=...`，再写第 1 点汇报（可整段复制），第 2～6 点齐；未验证/阻塞项明示。
+      有代码改动读本轮 `.gate/开发规范/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `规则/模板/90-交接与收尾/收尾骨架.md` §2（含验证回执与遵守自检）
       有门回执时运行 `验证/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
       若发布已转 release，收尾注明发布状态与后续入口。
       本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。

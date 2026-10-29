@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Validate a module test-case document (index + structured cases).
 
-Usage: python validate_testcase.py <module-testcase.md>
+Usage: python validate_testcase.py <module-testcase.md> [--legacy]
+
+`--legacy`：把“模板化空话/场景空话”降为 WARN，用于审计历史资产；
+新生成/新修改用例默认严格（ERROR），避免“结构对齐但不可执行”。
 
 Checks (errors):
 - required sections 0-5
@@ -42,7 +45,14 @@ BANNED_FILLERS = [
     "以模块文档头部入口为准",
     "本步结果可在页面核对",
     "禁臆造未验证路由",
+    # 2026-10 实际资产审计新增：这些短语会让用例“看起来结构化、实际不可跟做”
+    "按场景数据",
+    "同业务详情/列表/弹层",
+    "展示值可记录并与手算/前置对照",
+    "提交结果可回查（成功提示或状态更新）",
+    "样本见前置",
 ]
+GENERIC_SCENARIO = "在模块入口验证「"
 
 
 def section(text: str, start: str, end: str | None) -> str:
@@ -52,6 +62,11 @@ def section(text: str, start: str, end: str | None) -> str:
     i += len(start)
     j = text.find(end, i) if end else -1
     return text[i:j] if j >= 0 else text[i:]
+
+
+def numbered_rows(block: str) -> int:
+    """只数表格里的编号数据行，不把正文编号/预期表混进步骤数。"""
+    return sum(1 for ln in block.splitlines() if re.match(r"^\|\s*\d+\s*\|", ln))
 
 
 def table_headers(block: str) -> list[list[str]]:
@@ -73,10 +88,12 @@ def has_cols(headers: list[list[str]], cols: list[str]) -> bool:
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("USAGE: validate_testcase.py <module-testcase.md>")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    legacy = "--legacy" in sys.argv
+    if not args:
+        print("USAGE: validate_testcase.py <module-testcase.md> [--legacy]")
         return 2
-    path = Path(sys.argv[1])
+    path = Path(args[0])
     if not path.exists():
         print(f"FILE_NOT_FOUND: {path}")
         return 2
@@ -101,7 +118,6 @@ def main() -> int:
             warnings.append("TRACEABILITY_IDS: 总览未见 F-/A-/AC- 编号（可先用设计点过渡）")
 
     overview_ids = set(re.findall(r"^\|\s*([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s*\|", overview, re.M))
-    detail_ids = set(CASE_HEADING.findall(details) and [m.group(1) for m in CASE_HEADING.finditer(details)])
     detail_ids = {m.group(1) for m in CASE_HEADING.finditer(details)}
 
     if not detail_ids:
@@ -131,19 +147,35 @@ def main() -> int:
             errors.append(f"{cid}: STEP_TABLE 需要 位置/操作/数据/中间预期")
         if not has_cols(h, ["判定面", "失败判定"]):
             errors.append(f"{cid}: EXPECTED_TABLE 需要 可观测判定面/失败判定")
-        step_rows = [ln for ln in block.splitlines() if re.match(r"^\|\s*\d+\s*\|", ln)]
-        if len(step_rows) < 3:
+        step_block = section(block, "**步骤", "**预期")
+        exp_block = section(block, "**预期", "**清理")
+        step_rows = numbered_rows(step_block)
+        exp_rows = numbered_rows(exp_block)
+        if step_rows < 3:
             warnings.append(f"{cid}: 步骤少于 3 步（确认是否过粗）")
-        if len(step_rows) > 10:
+        if step_rows > 10:
             warnings.append(f"{cid}: 步骤超过 10 步（考虑拆条）")
+        if exp_rows == 0:
+            errors.append(f"{cid}: EXPECTED_ROWS: 预期表没有编号判定行")
+        elif exp_rows < step_rows and "合并" not in block:
+            warnings.append(
+                f"{cid}: EXPECTED_ROWS: 预期 {exp_rows} 行 < 步骤 {step_rows} 行；"
+                "须逐步同号，或写明哪些步骤合并判定"
+            )
         for phrase in BANNED_FILLERS:
             if phrase in block:
-                errors.append(f"{cid}: FILLER_STEP: 含空话「{phrase}」——须写清场景载体入口/动作")
+                msg = f"{cid}: FILLER_STEP: 含空话「{phrase}」——须写清场景载体入口/动作"
+                (warnings if legacy else errors).append(msg)
         # Soft: whole-cell “执行批量” without a named business action nearby
         if re.search(r"\|\s*执行批量\s*\|", block) and not re.search(
             r"(分配|审批|关闭|提交|确认|导入|导出|催办|移交)", block
         ):
             errors.append(f"{cid}: FILLER_STEP: 「执行批量」未点名业务动作（分配/审批等）")
+        if GENERIC_SCENARIO in block:
+            warnings.append(
+                f"{cid}: GENERIC_SCENARIO: 一句话场景仍是「在模块入口验证…」模板句，"
+                "建议写谁在什么场景做什么（不单独阻断，但评审应修）"
+            )
 
     if not re.search(r"## 5\. 评审与变更", text):
         errors.append("MISSING_SECTION: ## 5. 评审与变更")

@@ -19,6 +19,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# Python 输出为 UTF-8；PowerShell 5.1 默认按系统代码页解码，中文会变乱码。
+$env:PYTHONIOENCODING = 'utf-8'
+try {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+    $OutputEncoding = [System.Text.Encoding]::UTF8
+} catch { }
 $packageRoot = Split-Path -Parent $PSScriptRoot
 $gate = Join-Path $PSScriptRoot 'tools/test_gate.py'
 

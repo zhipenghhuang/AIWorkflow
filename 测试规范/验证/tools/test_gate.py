@@ -41,6 +41,10 @@ RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
 STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用"}
 FAIL_STATUSES = {"失败", "阻塞", "待实现"}
 CASE_ID_RE = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b")
+# 覆盖门只抓“结构性空话”的高信号子集；完整清单在规则/tools/validate_testcase.py
+COVERAGE_FILLER_RE = re.compile(
+    r"按场景数据|同业务详情/列表/弹层|展示值可记录|本步结果可在页面核对|提交结果可回查"
+)
 
 
 def read(path: Path) -> str:
@@ -343,6 +347,11 @@ def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
             continue
         files += 1
         text = read(p)
+        if COVERAGE_FILLER_RE.search(text):
+            issues.append(
+                f"{p.relative_to(root)}: 用例含模板化空话（按场景数据/同业务详情…），"
+                "结构对齐≠可跟做；先按 validate_testcase.py 整改"
+            )
         if "设计点覆盖映射" not in text:
             missing.append(f"{p.relative_to(root)}: 缺少「设计点覆盖映射」")
             continue
