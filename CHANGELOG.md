@@ -19,12 +19,12 @@
 ### Added
 
 - 开发规范新增 `技能/cross-layer-consistency/SKILL.md`：需求追溯、角色权限、状态表面、数据形状四维矩阵；单一判定谓词；UI/API/DB 契约；缺陷根因分层与同类路径扫描。
-- 任务清单模板新增 §4.1～4.4 四维覆盖矩阵；验收清单新增 `coverage`/`negative_cases`；检查矩阵 L2/L3 增加跨层一致性检查。
+- 任务清单模板新增 §4.1～4.4 四维覆盖矩阵，供开发拆单/实施前对账。
 
 ### Changed
 
-- AGENTS §0.3 增加跨层一致性硬约束；需求/方案/任务/实现/评审/测试/缺陷工作流与读取索引挂接新技能。
-- `requirements-and-spec`、`task-breakdown`、`solution-design`、`database-design`、`api-design`、`frontend-implementation`、`test-design-and-execution`、`code-review`、`implementation-and-selftest` 增补对应检查点。
+- AGENTS §0.3 增加跨层一致性硬约束；需求/方案/任务/实现/评审/缺陷工作流与读取索引挂接新技能。
+- `requirements-and-spec`、`task-breakdown`、`solution-design`、`database-design`、`api-design`、`frontend-implementation`、`code-review`、`implementation-and-selftest` 增补对应检查点；实现前强制把方案条款抽成 `SC-xx` 清单并逐条自测。
 - 缺陷修复协作新增 §4.4：根因分层、同类路径、回归与规则缺口；缺陷工作流 triage/fix 同步。
 
 ## [2026.10.29.10] - 2026-10-29

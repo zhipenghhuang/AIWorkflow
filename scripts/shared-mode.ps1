@@ -4,7 +4,7 @@
 
 # 路径是否全部「无需服务器更新」（不 rebuild / 不刷新入口）。
 # - 子项目：规范包与开发文档树、说明类 Markdown、gitignore；代码/compose/Docker/依赖清单等仍需部署。
-# - deploy：文档与本机入口脚本（bat/tools 下 Windows 侧）；nginx/portal/update.sh/install.sh/online.txt/projects.txt 等仍需部署。
+# - deploy：文档与本机入口脚本（bat/tools 下 Windows 侧）；nginx/portal/hooks/update.sh/install.sh/online.txt/projects.txt 等仍需部署（hooks 为服务器发版真源）。
 function Test-CommitDocsOnly {
   param(
     [string[]]$Paths,
@@ -24,8 +24,7 @@ function Test-CommitDocsOnly {
       if ($p -match '^tools/(commit|pull|setup|shared-mode|unlock|surfaces|project-sync|broker-helper)\.ps1$') { continue }
       if ($p -match '^tools/(fix-opencode\.py|harden-server\.bat)$') { continue }
       if ($p -match '^surfaces\.txt$') { continue }
-      if ($p -match '^hooks/') { continue }
-      # update.sh 改公开源拉法仍需部署
+      # hooks/、update.sh、nginx、portal、online.txt 等均须部署
       return $false
     }
     if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|项目资料/|extras/)') { continue }

@@ -17,14 +17,14 @@ levels:
     optional: [a11y-basic, visual-diff]
   L2:
     description: 跨模块、接口/数据变更、新功能
-    required: [build, lint-or-targeted-lint, unit, integration, review-record, consistency-matrix]
+    required: [build, lint-or-targeted-lint, unit, integration, review-record]
     frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
-    manual: [review, cross-layer-consistency]
+    manual: [review]
     optional: [contract-test, security-scan]
   L3:
     description: 权限/资金/迁移/公共 API/安全合规/破坏性
     required: [L2, security-scan, security-evidence, rollback-evidence, independent-review]
-    manual: [rollback-drill, release-readiness, postrelease, cross-layer-consistency]
+    manual: [rollback-drill, release-readiness, postrelease]
     optional: [migration-rehearsal, load-test]
 
 post_gate:
@@ -96,8 +96,6 @@ risk_based:
   - a11y-basic
   - independent-review
 
-# 跨层一致性（L2+ 命中权限/状态/数据基数/多表面）：按 技能/cross-layer-consistency/SKILL.md
-# consistency-matrix：任务清单 §4.1～4.4 已填；cross-layer-consistency：评审记录含单一谓词/角色正反/第二次写/同类路径结论。
 # 低价值高成本（不做/少做）
 avoid:
   - full-regression-every-change   # 未配 *_scoped 时 project-* 已是全仓；发布/L3 另跑全量

@@ -85,7 +85,7 @@
 | S4 编码自测 | `技能/implementation-and-selftest/SKILL.md` + `技能/engineering-quality/SKILL.md` + `技能/frontend-implementation/SKILL.md` / `技能/backend-implementation/SKILL.md` + `技能/debugging-and-error-recovery/SKILL.md`（失败时）+ `技能/ai-application-engineering/SKILL.md`（AI 变更）+ `技能/cross-layer-consistency/SKILL.md`（命中时） | 前端/后端实现、质量条、调试、单测/自测/文档 |
 | S5 评审/CI | `技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（跨层一致性） | 代码评审/质量 rubric/安全/供应链/AI 生成代码 |
 | S6 提测 | `技能/qa-handoff-and-release/SKILL.md` | 提测单/回归指引/QA 接收 |
-| S7 测试/缺陷 | `技能/qa-handoff-and-release/SKILL.md` + `规则/缺陷/缺陷修复协作.md` + `技能/cross-layer-consistency/SKILL.md`（根因/同类路径） | 缺陷修复/回归/回写 |
+| S7 测试/缺陷 | `技能/qa-handoff-and-release/SKILL.md` + `规则/缺陷/缺陷修复协作.md` | 缺陷修复/回归/回写 |
 | S8 发布 | `技能/acceptance-and-launch/SKILL.md` + `技能/observability-and-instrumentation/SKILL.md` | 就绪检查/部署/冒烟/回滚/观察/SLO |
 | S9 收尾/复盘 | `技能/retrospective-and-improvement/SKILL.md` | 总结/复盘/归档 |
 

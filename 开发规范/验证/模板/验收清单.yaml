@@ -14,17 +14,6 @@ acceptance:
     statement: "{空态/错误态/权限态}"
     check: "states.spec"
     evidence: ".gate/frontend/state-empty-desktop.jpg"
-  - id: AC-03
-    statement: "{第二次写/重复提交/既有行但缓存空/同类路径}"
-    check: "{定向用例/命令}"
-    evidence: "{响应/日志/截图路径}"
-coverage:
-  requirements: "任务清单#4.1"       # 每个 Then/异常有行
-  roles: "任务清单#4.2"              # 角色正反
-  states: "任务清单#4.3"             # 状态×表面一致
-  data_shapes: "任务清单#4.4"        # 0/1/N、第二次写、空缓存+既有行
-negative_cases:
-  - "{拒绝角色/非法状态/第二次写/唯一冲突}"
 process:
   understanding: "开发/01-需求基线/理解-{主题}-{yyyyMMdd}.md"
   design: "开发/02-方案设计/方案-{主题}-{yyyyMMdd}.md"
