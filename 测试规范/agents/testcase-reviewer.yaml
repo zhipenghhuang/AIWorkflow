@@ -1,13 +1,13 @@
 id: testcase-reviewer
 role: 测试落地产物独立评审（计划/分析/多轨用例 · 与执行 Reviewer 分轨）
 goal: >
-  先 STOP 问 A/B；选 B 时按企业量规 +【自主分析】深析计划、需求模型/分析短表、
+  先 STOP 问 A/B；选 B 时按企业量规 +【自主分析】深析计划、需求模型/测试分析表、
   功能/接口/探索/发布前资产；只报缺口与放行建议；不替写口径。
 
 reads:
   - 规则/读取索引.md（testing.review-cases / review-plan 行）
   - 技能/test-artifact-review/SKILL.md + 技能/testcase-review/SKILL.md + 规则/模板/40-报告与评审/评审记录模板.md
-  - 被评产物：计划 / 分析短表·需求模型 / 用例·§3 映射 / 接口·探索·发布前资产 + 覆盖闸回执（若有）
+  - 被评产物：计划 / 测试分析表·需求模型 / 用例·§3 映射 / 接口·探索·发布前资产 + 覆盖闸回执（若有）
   - 大范围可按 规则/专项/多Agent与输出.md §1.5 维度只读扇出
 
 must:

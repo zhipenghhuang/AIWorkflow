@@ -45,6 +45,7 @@ except Exception:
 
 PACKAGE_NAME = "开发规范"
 RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
+GATE_MEDIA_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}
 FRONTEND_GLOBS = (
     ".tsx", ".jsx", ".vue", ".svelte", ".css", ".scss", ".less", ".html", ".htm",
     "/pages/", "/components/", "/views/", "/app/", "/templates/", "/layouts/",
@@ -59,6 +60,26 @@ EXCLUDE_PARTS = {
 }
 PATHISH = re.compile(r"(?:[A-Za-z]:[\\/]|\.{0,2}/|[\w.-]+\.(?:png|jpe?g|webp|gif|json|log|txt|md|ya?ml|xml|html?))", re.I)
 COMMANDISH = re.compile(r"^(?:npm|npx|node|python|py|pytest|go|cargo|mvn|gradle|dotnet|git|powershell|pwsh|bash|sh)\b", re.I)
+
+
+def clear_expired_gate_media(project_root: Path) -> int:
+    """Remove stale screenshots on StartTask. Keep JSON receipts and design-qa.md."""
+    removed = 0
+    targets = [
+        project_root / ".gate" / "frontend",
+        project_root / ".gate" / PACKAGE_NAME,
+    ]
+    for folder in targets:
+        if not folder.is_dir():
+            continue
+        for path in folder.iterdir():
+            if path.is_file() and path.suffix.lower() in GATE_MEDIA_SUFFIXES:
+                try:
+                    path.unlink()
+                    removed += 1
+                except OSError:
+                    pass
+    return removed
 
 
 def run(cmd: str, cwd: Path, timeout: int = 600) -> dict[str, Any]:
@@ -713,6 +734,7 @@ def main() -> int:
             return 2
         task_file = project_root / ".gate" / "task.json"
         task_file.parent.mkdir(parents=True, exist_ok=True)
+        cleared = clear_expired_gate_media(project_root)
         base_commit = git(project_root, "rev-parse", "HEAD") or ""
         payload = {
             "task_id": args.start_task,
@@ -720,7 +742,10 @@ def main() -> int:
             "base_commit": base_commit or None,
         }
         task_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"task started: {args.start_task} base={base_commit or 'nogit'} -> {task_file}")
+        print(
+            f"task started: {args.start_task} base={base_commit or 'nogit'} "
+            f"cleared_media={cleared} -> {task_file}"
+        )
         return 0
 
     task_file = project_root / ".gate" / "task.json"

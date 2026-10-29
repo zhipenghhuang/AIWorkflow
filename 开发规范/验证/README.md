@@ -18,8 +18,8 @@
 
 ## 2. 一次任务怎么跑
 
-1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 七项 / L2+ 十五项）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**。
+1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并清空 `.gate/frontend/` 旧媒体及 `.gate/开发规范/` 下误放的媒体（JSON 回执保留）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 七项 / L2+ 十五项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/开发规范/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**。
 3. 收尾：
 
 ```powershell
@@ -29,7 +29,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 4. 回执 `.gate/开发规范/completion.json`；空任务窗口 → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）。
 
-**落盘**：`开发规范/验证/` 只读；运行态写项目根 `.gate/开发规范/` 与 `.gate/frontend/`。
+**落盘**：`开发规范/验证/` 只读；运行态写项目根 `.gate/开发规范/`（仅 JSON）与 `.gate/frontend/`（截图 + design-qa）。
 
 ## 3. 文件
 

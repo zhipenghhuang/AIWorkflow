@@ -10,6 +10,7 @@ levels:
     description: 单文件/文案/配置；无行为、契约、权限、数据变化
     required: [build, test-or-targeted-test, smoke]
     optional: [screenshot]
+    # 交叉：触及权限/状态/数据基数/唯一约束/多表面 → 升 L1+，并按 技能/cross-layer-consistency；纯文案仍可 L0（见 AGENTS §0.1 / DEV-VER 相关）
   L1:
     description: 多文件、普通功能、前端行为变化
     required: [build, lint-or-targeted-lint, test-or-targeted-test, smoke]
@@ -47,7 +48,7 @@ change_types:
       - "**/templates/**"
       - "**/layouts/**"
     min_level: L1
-    notes: 纯文案/配置可 L0-light，但仍需受影响页面截图 + console 无 error。
+    notes: 纯文案/配置可 L0-light（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。
   api:
     globs:
       - "**/api/**"

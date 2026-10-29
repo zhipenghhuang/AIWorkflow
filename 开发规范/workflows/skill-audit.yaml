@@ -19,13 +19,12 @@ entry_points:
   更新技能: scope
   维护技能能力: scope
   通用优化技能: scope
-  母版技能更新: scope
-  母版能力优化: scope
+  通用最优技能: scope
 
 trigger:
   - 体检能力 / 能力技能体检 / 检查技能能力 / 能力优化 / 技能优化 / 优化能力 / 优化技能 / 优化技能能力
   - 更新能力建议 / 更新技能 / 维护技能能力
-  - 通用优化技能 / 母版技能更新 / 母版能力优化 / 通用最优技能
+  - 通用优化技能 / 通用最优技能
 
 steps:
   - name: 定范围与模式
@@ -33,7 +32,7 @@ steps:
     agent: onboard-agent
     output: 体检范围卡（模式 project/generic、范围、依据）
     notes: >
-      读 `规则/playbooks/skill-audit.md` §1 模式判定：口令含「通用」「母版」「不按项目」→ generic；
+      读 `规则/playbooks/skill-audit.md` §1 模式判定：口令含「通用」「不按项目」「通用优化」→ generic；
       否则无填实 `项目档案.md`（占位未换=无）→ **强制 generic** 并记「无项目对照自动」；有填实档案 → project。
       确认范围：全量｜仅外部能力｜仅随包技能｜按域。无偏好时：generic 默认全量；project 按档案栈推荐。
 
@@ -86,4 +85,4 @@ steps:
     output: 拟提交确认结果
     tools:
       - git
-    notes: 有技能/能力/档案改动才走；拟提交清单按 `规则/工作流.md` §3；无变更跳过。
+    notes: 有技能/能力/档案改动才走；拟提交清单按 `规则/模板/90-交接与收尾/收尾骨架.md` §0/§2 与 `规则/工作流.md` §2（git）；无变更跳过。

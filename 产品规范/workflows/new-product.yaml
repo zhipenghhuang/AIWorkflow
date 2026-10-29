@@ -1,4 +1,5 @@
 ﻿# 新产品 0→1（发现 → 立项 → 定义 → 需求 → 交付 → 上市 → 复盘）
+# 执行：多步链至下一个 hitl/产出即停；非 chain:full，勿一次跑穿全链。
 # 子流程只执行各步所列步骤；其 wrap/commit 不在本链重复，统一由本文件末 wrap/commit 收尾。
 workflow:
   id: new-product
@@ -24,7 +25,7 @@ steps:
     output: 产品/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md
     notes: >
       市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md`（先读再做）。
-      **先问题后方案**：按 `规则/核心/澄清.md` 先给理解回执，再一次一问至无实质缺口（95% 仅参考）；写清谁/场景/问题/现有替代/代价/目标结果/成功标准/非目标；单个客户/竞品/领导说法标样本与证据等级，不直接当市场结论。
+      **先问题后方案再确认**：澄清**按 `规则/核心/澄清.md` 执行**；**未双确认不得**提 Go / 写全量 PRD。产出须含谁/场景/问题/代价/目标/非目标/方案要点/承诺信号；单个客户/竞品/领导说法标样本与证据等级；访谈/综合用 `访谈指南模板`/`洞察综合模板`。
       **来源扇出**（子代理编排 §2）：≥4 独立来源 → 按来源只读扇出（市场/用户/竞品/问题），各返回证据表/去重键 ≤30 行；立项书与 Go/Hold/Kill 集中；单来源直做。
       产出立项书：`产品/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md`（模板 `规则/模板/10-规划与需求/立项书模板.md`）；
       引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。
@@ -45,17 +46,19 @@ steps:
     agent: pm-analyst
     output: 产品/产品计划.md
     notes: >
-      按 `workflows/plan.yaml` 执行：目标与指标 → 路线图 → 本期范围与里程碑 → `confirm_plan` → 落盘 `产品/产品计划.md`。
-      计划门由 plan.scope 执行，本步不重复弹门。
-      只写总领（做什么 / 为什么 / 何时 / 怎么算成功），需求细节归 PRD。
+      **子链**：按 `workflows/plan.yaml` 逐步执行（只读子 workflow **当前 step 块**；goals→roadmap→scope→review→publish）。
+      **门权威在子链**：`confirm_understanding` / `confirm_plan` / 评审门以 plan.yaml 步上 hitl 为准；本步不另造门、不重复弹已确认门。
+      落盘 `产品/产品计划.md`；只写总领（做什么 / 为什么 / 何时 / 怎么算成功），需求细节归 PRD。
+      子链 wrap/commit 不执行，统一由本文件末 wrap/commit 收尾。
 
   - name: 需求定义（PRD）
     id: prd
     agent: prd-writer
     output: PRD + 评审记录/原型（产品/{版本或主题}/01-需求与定义/、02-原型与设计/）
     notes: >
-      按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 执行；只执行所列步骤，不执行其 wrap/commit；PRD 落 `产品/{版本或主题}/01-需求与定义/PRD-{主题}.md`；
-      评审/定稿门由 prd.review 执行，本步不重复弹门；未定稿不排期。
+      **子链**：按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 逐步执行（只读当前 step 块）；不执行其 wrap/commit。
+      **门权威在子链**：理解门/定稿门以 prd.yaml hitl 为准；本步不重复弹门；未定稿不排期。
+      PRD 落 `产品/{版本或主题}/01-需求与定义/PRD-{主题}.md`。
       技能：`技能/prd-writing/SKILL.md` / `技能/review-and-finalize/SKILL.md`；界面原型见 `技能/prototype-and-interaction/SKILL.md` / `技能/ui-visual-design-system/SKILL.md`。
 
   - name: 交付与验收
@@ -63,8 +66,8 @@ steps:
     agent: pm-lead
     output: 交付计划 + UAT 记录（产品/{版本或主题}/04-交付与验收/）
     notes: >
-      按 `workflows/deliver.yaml` 的 schedule / followup / uat 执行；需求/问题/产品缺陷 → `workflows/change.yaml` 受理与处置；
-      UAT 门由 deliver.uat 执行，本步不重复跑门。
+      **子链**：按 `workflows/deliver.yaml` 的 schedule / followup / uat 逐步执行（只读当前 step 块）；需求/问题/产品缺陷 → `workflows/change.yaml` 受理与处置。
+      **门权威在子链**：UAT/评审门以 deliver.yaml（及 change）hitl 为准；本步不重复跑门。
       UAT 按 PRD 验收标准逐条对照（结果 + 证据）；产品缺陷 vs 实现缺陷要有依据。
       技能：`技能/change-management/SKILL.md` / `技能/uat-and-retrospective/SKILL.md`。
 

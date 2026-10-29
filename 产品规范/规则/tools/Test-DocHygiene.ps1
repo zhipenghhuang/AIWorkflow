@@ -74,7 +74,7 @@ foreach ($f in $rules) {
     }
 }
 $agentsTok = Get-ApproxTokens ([System.IO.File]::ReadAllText($agents, [System.Text.Encoding]::UTF8))
-if ($agentsTok -gt 5500) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>5500; trim resident set)") }
+if ($agentsTok -gt 7000) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>7000; quality-first resident hard rules; trim only conflicting restatements)") }
 $skillsDir = Join-Path $Root '技能'
 if (Test-Path -LiteralPath $skillsDir) {
     foreach ($sf in Get-ChildItem -LiteralPath $skillsDir -Recurse -File -Filter SKILL.md) {

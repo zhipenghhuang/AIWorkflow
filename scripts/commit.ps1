@@ -210,11 +210,11 @@ if ($compareFrom) {
   git cat-file -e "$compareFrom^{commit}" 2>$null
   if ($LASTEXITCODE -eq 0) {
     $baseOk = $true
-    $files = @(git diff --name-only "$compareFrom..HEAD" 2>$null)
+    $files = @(git -c core.quotepath=false diff --name-only "$compareFrom..HEAD" 2>$null)
   }
 } elseif ($dirty -and $aheadBefore -eq 0) {
   $baseOk = $true
-  $files = @(git show --pretty='' --name-only --diff-filter=ACDMRT HEAD 2>$null)
+  $files = @(git -c core.quotepath=false show --pretty='' --name-only --diff-filter=ACDMRT HEAD 2>$null)
 }
 if ($baseOk) {
   $isDocsOnly = Test-CommitDocsOnly -Paths $files

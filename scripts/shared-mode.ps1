@@ -13,7 +13,26 @@ function Test-CommitDocsOnly {
   if ($null -eq $Paths -or $Paths.Count -eq 0) { return $true }
   foreach ($raw in $Paths) {
     if ([string]::IsNullOrWhiteSpace($raw)) { continue }
-    $p = (($raw -replace '\\', '/').Trim() -replace '^\./', '')
+    # git 默认 core.quotepath 可能把中文路径写成 "\345\274\200..."（UTF-8 八进制），需按字节还原后再匹配
+    $name = $raw.Trim()
+    if ($name.Length -ge 2 -and $name.StartsWith('"') -and $name.EndsWith('"')) {
+      $esc = $name.Substring(1, $name.Length - 2)
+      $buf = New-Object System.Collections.Generic.List[byte]
+      for ($i = 0; $i -lt $esc.Length; $i++) {
+        if ($esc[$i] -eq [char]'\' -and ($i + 3) -lt $esc.Length -and $esc.Substring($i + 1, 3) -match '^[0-7]{3}$') {
+          $buf.Add([byte][Convert]::ToInt32($esc.Substring($i + 1, 3), 8)) | Out-Null
+          $i += 3
+        } elseif ($esc[$i] -eq [char]'\' -and ($i + 1) -lt $esc.Length) {
+          $ch = switch ($esc[$i + 1]) { 'n' { "`n" } 't' { "`t" } 'r' { "`r" } '"' { '"' } '\' { '\' } default { [string]$esc[$i + 1] } }
+          foreach ($b in [Text.Encoding]::UTF8.GetBytes($ch)) { $buf.Add($b) | Out-Null }
+          $i += 1
+        } else {
+          foreach ($b in [Text.Encoding]::UTF8.GetBytes([string]$esc[$i])) { $buf.Add($b) | Out-Null }
+        }
+      }
+      $name = [Text.Encoding]::UTF8.GetString($buf.ToArray())
+    }
+    $p = (($name -replace '\\', '/').Trim() -replace '^\./', '')
     if ($DeployRepo) {
       if ($p -match '^docs/') { continue }
       if ($p -match '^(README|AGENTS|activeContext)\.md$') { continue }

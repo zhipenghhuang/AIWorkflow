@@ -341,7 +341,7 @@ def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
     for p in base.rglob("*.md"):
         if not is_current(p) or not path_in_scope(p, scope):
             continue
-        if any(x in p.name for x in ("台账", "报告", "证据", "评审", "计划", "分析短表", "需求理解", "索引", "README")):
+        if any(x in p.name for x in ("台账", "报告", "证据", "评审", "计划", "测试分析表", "分析短表", "需求理解", "索引", "README")):
             continue
         if "用例" not in p.name and "testcase" not in p.name.lower():
             continue

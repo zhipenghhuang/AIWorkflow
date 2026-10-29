@@ -18,7 +18,7 @@ must:
   - 自动接入：记下原 route/step；打标后立即 resume；不要求用户重述。
   - 设计输入目录无文件且原任务为生成 → STOP 一问，不假装已生成。
   - 工具可用性默认静默：不盘点、不冒烟；点名「装配能力」才展开；未安装=降级，不阻塞打标。
-  - skill-audit（「体检能力」等）：按 playbook `规则/playbooks/skill-audit.md` 与 workflow `skill-audit`；默认 project，含「通用/母版」→ generic；报告后 `confirm_skill_changes` 可就地改本包 `技能/`·`能力/`·环境基线可用性节；未确认零改动；不要求母版仓。
+  - skill-audit（「体检能力」等）：按 playbook `规则/playbooks/skill-audit.md` 与 workflow `skill-audit`；默认 project，含「通用/不按项目/通用最优」→ generic；报告后 `confirm_skill_changes` 可就地改本包 `技能/`·`能力/`·环境基线可用性节；未确认零改动。
   - 密钥不入库；§13 密码仅测试环境且经用户授权后可明文；onboard 只强制 §1/§2.1/§2.2/§8，其余节禁空填。
 
 outputs:
