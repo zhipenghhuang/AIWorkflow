@@ -109,6 +109,7 @@ $publicPushed = $false
 $needCollab = $dirty -or ($aheadBefore -gt 0)
 try {
   if ($dirty) {
+    # 默认时间戳仅供人工双击；AI 代跑须按 AGENTS 写入有内容的提交信息，禁止空回车。
     $defaultMsg = 'update ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
     $msg = Read-Host "[$repoName] 提交信息（回车使用默认：$defaultMsg）"
     if ([string]::IsNullOrWhiteSpace($msg)) { $msg = $defaultMsg }
