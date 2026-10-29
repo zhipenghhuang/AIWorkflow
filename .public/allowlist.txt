@@ -1,7 +1,7 @@
 # AIWorkflow 公开允许路径（相对仓库根；目录写末尾 / 表示整树）
 # 元数据在 .public/（本清单、gitignore、AGENTS）；勿把 .public/ 写入下方
 # 根 AGENTS.md / activeContext.md 为协作面，永不加入。
-# 根 README.md 为唯一说明；协作专用段用 <!-- public:omit --> 包住，导出时自动去掉
+# 根 README.md 为唯一对外说明（正文默认可公开；协作专用段用 <!-- public:omit --> 包住，导出时自动去掉）
 产品规范/
 开发规范/
 测试规范/

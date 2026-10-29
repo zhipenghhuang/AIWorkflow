@@ -7,6 +7,8 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 > 产物/维度/脚本默认以 `规则/轨契约/接口.md` 为准；本技能=找 bug 的手感与提效方式。
 
+> **生成维 vs 执行维 · 域常青**：覆盖对照表可全维；默认可执行/可脚本=高风险维；`depth=full` 或发版/点名才补齐其余维。已有资产打开命中域增量更新（保 ID）；无域才首生；跨版本主档常青留下。
+
 ## 1. 契约阅读法
 
 - 从 OpenAPI/设计文档/Network 提取：必填、类型与格式、枚举、范围、长度、默认值、错误码表。

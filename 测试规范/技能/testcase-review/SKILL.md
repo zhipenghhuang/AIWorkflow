@@ -9,6 +9,8 @@ description: Use when reviewing test cases after generation or before execution.
 > **范围总览 / 计划·分析·多轨 / 选 B【自主分析】** → 先读 `技能/test-artifact-review/SKILL.md`。  
 > **定位**：生成之后、执行之前的**独立静态评审**；不重生成、不改口径。
 
+> **增量诚实 · 一遍过范围**：审「命中域是否增量到位、增改删表是否诚实」，不要求全仓重生才算一遍过；一遍过=命中范围宁多勿漏≠全库重写。未命中域缺改≠覆盖失败。
+
 ## 1. 必须先停问（与产品/开发统一）
 
 ```text

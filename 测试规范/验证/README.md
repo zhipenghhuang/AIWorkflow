@@ -41,4 +41,4 @@ powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -
 - **步后窄 / 准出宽**：模块批末 = `execute -Scope`；宣称准出 = `report` 全仓。二者不可混用。
 - execute 上 `coverage-map` / `p0-missing` 为 soft（矩阵 optional），不单独拉垮本批；report 仍硬。
 - 门只读现有计划/台账/报告，不新增文档；证据失败/阻塞必看。
-- 全量回归只留给发布/大版本；补丁 = P0 冒烟 + 影响面。
+- 迭代准出 suite≥module；发版/完整项目=full；补丁=core+窄影响面且报告标明补丁口径；报告须声明 suite。

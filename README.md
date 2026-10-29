@@ -14,7 +14,7 @@
 [![Skills](https://img.shields.io/badge/skills-agent--skills-yellow.svg)](#架构)
 [![Templates](https://img.shields.io/badge/templates-lifecycle-lightgrey.svg)](#仓库结构)
 [![GitHub](https://img.shields.io/badge/GitHub-AIWorkflow-181717?logo=github)](https://github.com/zhipenghhuang/AIWorkflow)
-[![Gitee](https://img.shields.io/badge/Gitee-镜像-C71D23?logo=gitee)](https://gitee.com/zhipenghhuang/AIWorkflow)
+[![Gitee](https://img.shields.io/badge/Gitee-C71D23?logo=gitee)](https://gitee.com/zhipenghhuang/AIWorkflow)
 
 `YAML` · `Multi-Agent` · `Human-in-the-Loop` · `Agent Skills` · `MCP` · `Playwright`
 
@@ -171,12 +171,20 @@ flowchart LR
 ### 1. 获取仓库
 
 ```bash
-# GitHub
+# 公开面（GitHub）：跑起来 / 阅读规范包所需内容
 git clone https://github.com/zhipenghhuang/AIWorkflow.git
+```
 
-# Gitee 镜像
+<!-- public:omit -->
+
+> 协作全量在 Gitee（含 `.public/`、根 `AGENTS.md`、本机脚本等；不进公开树）。根 README 其余正文均可公开；协作专用说明只写在本 omit 段。
+
+```bash
+# 协作仓（Gitee 全量）
 git clone https://gitee.com/zhipenghhuang/AIWorkflow.git
 ```
+
+<!-- /public:omit -->
 
 ### 2. 只复制一个包到项目根
 
@@ -438,7 +446,7 @@ python 产品规范/规则/tools/validate_handoff.py <交接包目录>
 能。工作流本身只依赖宿主；Python / Node / Playwright 缺失时走降级路径并提示一次。
 
 **会不会强制写很多文档？**  
-不会。开发轨 L0 不强制文档；L1 轻量；L2/L3 才走完整文档链。测试轨按计划范围生成，不做全量资产库。
+不会。开发轨 L0 不强制文档；L1 轻量；L2/L3 才走完整文档链。测试轨维护域常青分层库（L0/L1/L2），按计划装填执行（suite=core|module|full）；生成对命中域宁多勿漏，禁无分析全仓重生。
 
 **支持哪些宿主？**  
 任何支持 `AGENTS.md` 入口自动装载与文件读写 / 命令执行 / 对话确认的工具均可，例如 Cursor、Claude Code、opencode 等。包本身不绑定宿主。

@@ -108,3 +108,5 @@ description: Use when preparing a QA handoff or release. Produce a self-containe
 - 每次提测都机械问「要不要包」；或静默发包；或未发包却写 HO-ID。
 - 生产密钥/真实 PII 写进提测单；内部测试演示账号明文可以，但必须标注「仅测试」。
 - 发布后不看监控，等用户报障。
+
+> **收尾提示（可选）**：提测交接成功后，可在 `activeContext.md`「跨包同步」写一行「提测就绪｜路径｜版本」，便于测试装填；不强制。

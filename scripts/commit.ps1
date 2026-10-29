@@ -97,8 +97,14 @@ if ([string]::IsNullOrWhiteSpace($originUrl)) {
   Write-Host '未配置任何远程仓库：本次仅提交到本地、无法推送；配置地址后重跑即可补推' -ForegroundColor Yellow
 } elseif ($surface.Mode -eq 'mirror' -and $pushurls.Count -lt 2) {
   Write-Host '提示：mirror 建议配置 gitee+github 双远程推送（见 deploy 的 DEPLOY.md 第三节第2步）' -ForegroundColor Yellow
-} elseif ($surface.Mode -eq 'split' -and [string]::IsNullOrWhiteSpace($githubUrl)) {
-  Write-Host '提示：split 需要独立 remote.github（公开仓）' -ForegroundColor Yellow
+} elseif ($hasSurfaces -and $surface.Mode -eq 'split') {
+  # split 禁止 origin 双 pushurl：否则 git push origin 会把协作全量推到 GitHub，绕过公开面导出
+  if ($pushurls.Count -gt 0) {
+    throw "split 远程残留双 pushurl（旧 mirror 配置）。请先双击 deploy 根目录 setup.bat 或 pull.bat 校正远程后再提交（会清掉 pushurl，并确保有独立 github 公开仓）"
+  }
+  if ([string]::IsNullOrWhiteSpace($githubUrl)) {
+    throw 'split 缺少独立 remote.github（公开仓）。请先双击 deploy 根目录 setup.bat 或 pull.bat 校正远程后再提交'
+  }
 }
 
 Write-Host "=== [$repoName] 当前分支与变更 ===" -ForegroundColor Cyan

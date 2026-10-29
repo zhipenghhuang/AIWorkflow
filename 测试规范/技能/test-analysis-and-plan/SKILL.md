@@ -8,6 +8,8 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 > 用于：analyze / plan。**测试计划是执行编排的唯一载体**——计划不完整，后续执行一定失控。  
 > **分析前置**：analyze 先按 `技能/test-basis-analysis/SKILL.md` 建需求模型、冲突/九类歧义清单与 oracle；本技能负责把“可测点/风险”转成计划与编排。计划必须引用需求模型/AC/TP；歧义未裁决不得写成确定范围。
 
+**提测影响面 → 装填**：把提测单影响面/回归范围映射进计划 **§3.7**（命中域 + `suite=core|module|full`）；L0/L1/L2、suite、装填为测试内部词，不要求开发会写。有提测单优先消费其字段；无则自填命中域，不阻塞。
+
 ## 1. 分析：从方案文档到可测点
 
 - **先建模**：按 `test-basis-analysis` 十要素（目标/范围/角色/输入/输出/状态/规则/异常/依赖/待确认）+ 证据；再拆可测点。
