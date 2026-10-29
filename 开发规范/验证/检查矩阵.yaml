@@ -96,6 +96,8 @@ risk_based:
   - a11y-basic
   - independent-review
 
+# 跨层一致性（L2+ 命中权限/状态/数据基数/多表面）：按 技能/cross-layer-consistency/SKILL.md
+# consistency-matrix：任务清单 §4.1～4.4 已填；cross-layer-consistency：评审记录含单一谓词/角色正反/第二次写/同类路径结论。
 # 低价值高成本（不做/少做）
 avoid:
   - full-regression-every-change   # 未配 *_scoped 时 project-* 已是全仓；发布/L3 另跑全量
