@@ -8,7 +8,7 @@ description: Use when designing page prototypes, wireframes, information archite
 > 用于：`prototype` 工作流；`prd` 的原型条件步。  
 > 核心：**先项目情境，再结构，再视觉；每页有状态；原型可点击、可评审、可交接。**
 
-## 0. 项目情境与参考基准（不读项目资料不开画）
+## 0. 项目情境与参考基准（不读主读/情境资料不开画）
 
 - 读：PRD（F/A/AC）、产品计划、UAT/验收、现有系统截图、品牌/术语、约束（PC/手机/打印/离线/权限/数据量）。
 - 写进 `设计情境-{主题}.md`：

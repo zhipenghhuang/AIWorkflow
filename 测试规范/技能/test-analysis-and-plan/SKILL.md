@@ -14,7 +14,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 
 > **建模流程 SSOT** = `技能/test-basis-analysis/SKILL.md`。本技能**禁止**再写十要素/九类歧义/章节回执全流程；只**消费**已确认的测试分析表。
 
-- **输入**：`测试/功能测试/测试分析表.md`（覆盖单元+影响面+歧义+oracle）；无表或理解未确认 → 先回 analyze / `confirm_understanding`，不在此重建模。
+- **输入**：`测试/测试分析表.md`（覆盖单元+影响面+歧义+oracle）；无表或理解未确认 → 先回 analyze / `confirm_understanding`，不在此重建模。
 - **变更点三问**（计划用）：变了什么、影响谁（邻接）、回归边界（本期增量 / 依赖上游 P0-Smoke / 无关跨域默认排除）。
 - **覆盖与依赖**：P0/GATE 须落资产行；依赖版只强制 P0-Smoke 实测（禁假设已过；升全量须点名）。
 - **风险/类型**：主链路阻断等 → P0；按风险选功能/接口/回归/探索/性能/安全等，不适用写理由。

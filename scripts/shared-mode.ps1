@@ -1,4 +1,4 @@
-﻿# 共用电脑模式公共逻辑：检测 unlock.bat 的内存 broker，就绪时把 git / ssh 凭据来源指向 askpass 客户端。
+# 共用电脑模式公共逻辑：检测 unlock.bat 的内存 broker，就绪时把 git / ssh 凭据来源指向 askpass 客户端。
 # 由 scripts/ 下入口脚本调用：$sharedMode = Initialize-SharedMode（未开启共用模式时返回 $false）。
 # 另含 commit 共用：无需服务器更新的改动判定（只提交推送、不询问服务器）。
 
@@ -46,7 +46,7 @@ function Test-CommitDocsOnly {
       # hooks/、update.sh、nginx、portal、online.txt 等均须部署
       return $false
     }
-    if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|项目资料/|extras/)') { continue }
+    if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|extras/)') { continue }
     if ($p -match '^(README|AGENTS|CHANGELOG|activeContext|项目档案|产品档案|运行说明|THIRD_PARTY|LICENSE)\.md$') { continue }
     if ($p -match '^(public-surface\.txt|public\.gitignore)$') { continue }
     if ($p -match '^\.public/') { continue }
