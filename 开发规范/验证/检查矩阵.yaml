@@ -17,14 +17,14 @@ levels:
     optional: [a11y-basic, visual-diff]
   L2:
     description: 跨模块、接口/数据变更、新功能
-    required: [build, lint-or-targeted-lint, unit, integration, review-record]
+    required: [build, lint-or-targeted-lint, unit, integration, review-record, consistency-matrix]
     frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
-    manual: [review]
+    manual: [review, cross-layer-consistency]
     optional: [contract-test, security-scan]
   L3:
     description: 权限/资金/迁移/公共 API/安全合规/破坏性
     required: [L2, security-scan, security-evidence, rollback-evidence, independent-review]
-    manual: [rollback-drill, release-readiness, postrelease]
+    manual: [rollback-drill, release-readiness, postrelease, cross-layer-consistency]
     optional: [migration-rehearsal, load-test]
 
 post_gate:

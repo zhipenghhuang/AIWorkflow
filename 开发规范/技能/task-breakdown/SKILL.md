@@ -40,6 +40,7 @@ description: Use when an approved requirement or design must be broken into exec
 | 接口/契约 | 消费什么、产出什么；跨任务签名/字段 |
 | 测试先行 | 先写哪个失败测试/探针；无测点写理由 |
 | 验证命令与证据 | 命令 + 预期结果 + 证据落点 |
+| 覆盖矩阵 | 命中权限/状态/数据基数/多表面时，按 `技能/cross-layer-consistency/SKILL.md` 填四维矩阵；每行有测试/证据 |
 | 回滚/开关 | 高风险任务必填；无则写“不适用” |
 | 依赖/并行 | 依赖任务号；可并行标 `[P]`；同文件不并行 |
 | 规模 | XS/S/M/L；L 必须继续拆（>5 文件或 >1 个专注时段） |
@@ -67,6 +68,7 @@ description: Use when an approved requirement or design must be broken into exec
 - [ ] 每个任务可独立验收；L 任务已拆；高风险任务已前置。  
 - [ ] `[P]` 任务不同文件、无未完成依赖。  
 - [ ] 有检查点；每个检查点有可执行验证。  
+- [ ] 命中权限/状态/数据基数/多表面时，四维矩阵已填；每个 Then/异常/角色正反/第二次写都有行。  
 - [ ] 任务清单有变更记录；未覆盖旧清单前先问用户。  
 - [ ] 运行 `python 规则/tools/validate_tasklist.py <清单路径>` 通过（如可用）。
 

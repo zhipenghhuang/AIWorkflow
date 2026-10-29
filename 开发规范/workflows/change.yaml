@@ -101,7 +101,7 @@ steps:
     output: 方案/ADR（开发/02-方案设计/）
     notes: >
       条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案」才走；L0 单文件小改可跳过。
-      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A～02F）+ `技能/engineering-quality/SKILL.md` + `技能/observability-and-instrumentation/SKILL.md`（生产可诊断性）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端补设计时再读 `技能/frontend-design` + 前端设计说明模板。
+      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A～02F）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时：单一谓词+四维矩阵）+ `技能/observability-and-instrumentation/SKILL.md`（生产可诊断性）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端补设计时再读 `技能/frontend-design` + 前端设计说明模板。
       模板 `规则/模板/20-设计与技术/方案模板.md`，架构决策另落 ADR。
       必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；逐条响应 RP/F/R/AC/NFR；冲突/GAP 未裁决 → 不实施。
       **领域侦察分片**（L3/≥3 领域）：只读 scout；正文单写手。
@@ -133,8 +133,8 @@ steps:
     output: 任务清单 + 冻结的验收清单（开发/04-计划与任务/）
     notes: >
       条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
-      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
-      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/依赖无环/并行安全/L 已拆/检查点），再 confirm_backlog（清单+节奏三选）。
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）+ `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时先填四维矩阵）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
+      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/依赖无环/并行安全/L 已拆/检查点/四维矩阵），再 confirm_backlog（清单+节奏三选）。
       验收清单：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 acceptance 文件（见 `验证/README.md`）并确认后冻结；实施中新增/变更 AC 走变更记录。
       新建/更新清单 → L2+ 或范围/节奏实质变化才 `backlog_approval_required=true`；L1 小批只通知；需审批时未确认不得实施。
       更新开发计划：S3 任务与排期=进行中/完成，任务清单链接、里程碑、依赖、风险；清单未完成时禁止覆盖；不同工作先问用户。
@@ -146,7 +146,7 @@ steps:
     on_fail: 回 design/review-docs 或 requirements；不得以「先写再补」绕过
     output: 代码/配置改动
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md` + `技能/debugging-and-error-recovery/SKILL.md`（失败/异常时）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按矩阵实施）+ `技能/debugging-and-error-recovery/SKILL.md`（失败/异常时）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
       实现前读需求理解包的「必须保留/可优化/未提供」与验收清单 AC；原型/PRD 冲突或缺失 → 停下说明，不按截图猜后端规则、接口或状态机。
       按验收清单实施；每完成一个可验证单元即跑对应检查并留证据；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       可测逻辑同步补测；装配 docs-mcp 时按其核对最新文档（防幻觉 API）；
@@ -170,7 +170,7 @@ steps:
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
       评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能：`技能/code-review/SKILL.md`（五轴 + 全量覆盖 + 安全/供应链，先读再审）+ `技能/engineering-quality/SKILL.md` §5（质量 rubric）。
+      技能：`技能/code-review/SKILL.md`（五轴 + 全量覆盖 + 安全/供应链，先读再审）+ `技能/engineering-quality/SKILL.md` §5（质量 rubric）+ `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）。
       本机可用 code-review 时按其评审全量 diff；不可用按 `agents/reviewer-agent.yaml` 人工清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `技能/frontend-design/SKILL.md` §9 评分卡人工核。

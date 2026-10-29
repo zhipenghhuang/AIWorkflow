@@ -39,7 +39,7 @@ steps:
     agent: iterate-lead
     output: 任务清单 + 冻结的验收清单（开发/04-计划与任务/任务清单-{版本或主题}.md）
     notes: >
-      技能：`技能/task-breakdown/SKILL.md`（先读再拆）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）+ `技能/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
       输入是原始想法/无 PRD → 先按 `技能/product-shaping/SKILL.md` 给 3～5 行产品判断，再拆任务；不强制产品定义卡。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
@@ -72,7 +72,7 @@ steps:
     agent: iterate-lead
     output: 代码/配置改动 + 任务状态回写
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；失败/异常时 + `技能/debugging-and-error-recovery/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
+      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时按矩阵实施）；失败/异常时 + `技能/debugging-and-error-recovery/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
       RP/AC 可核对且全覆盖才开工；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交** → 一组一子代理（worker-agent；同文件/同函数集归一组；默认串行）；批末定向门禁 → 核验 → 下一批；不达阈值直做。
       高风险/大改/破坏性变更核验者≠实施者（规则/专项/迭代交付.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
@@ -96,7 +96,7 @@ steps:
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
       评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能：`技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` §5；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
+      技能：`技能/code-review/SKILL.md` + `技能/engineering-quality/SKILL.md` §5 + `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `技能/frontend-design/SKILL.md` §9 评分卡人工核。
       **评审分片**（子代理编排 §2）：>400 行有效 diff 或 L3 → 按维度只读扇出，编排去重；最终结论由本步 reviewer 定；小 diff 直做。

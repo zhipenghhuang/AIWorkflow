@@ -13,8 +13,9 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 ## 0. 实现前确认
 
 - 读任务卡：AC、精确文件/接口、测试先行、回滚/开关、DoD。
-- 读对应设计：02（+02B/02C/02D/02E/02F 如涉及）。
+- 读对应设计：02（+02B/02C/02D/02E/02F 如涉及）；命中权限/状态/数据基数/多表面时加读 `技能/cross-layer-consistency/SKILL.md`。
 - 明确“怎么证明它对”：失败测试/探针/验收命令；无测点写理由。
+- 先找同仓库既有正确写法（另一写入口/另一消费方/既有回归用例）；不复用就说明差异。
 
 ## 1. 小步红绿（自带验证的实现法）
 
@@ -41,6 +42,7 @@ description: Use when implementing or verifying a change. Enforce small steps, t
 
 - 每条验收点有对应验证动作与结果（命令+输出）。
 - 边界与错误路径至少各试 1 条（空值/非法/重复/越权其一）。
+- 命中权限/状态/多值对象时：角色正反、第二次写、并发/重试、既有行但缓存空，至少各 1 条；同类路径扫描结果一并记录。
 - 未验证路径显式写「未验证」（`规则/工作流.md` §3.1）。
 - 收尾写三维影响：UX/DX/AX 各一句；无证据的维度标「未验证」（`技能/engineering-quality/SKILL.md` §1.1）。
 - 可测逻辑同步补测；装配 unit-test-gen 时按覆盖缺口驱动（`能力/00-能力注册表.md`）。
