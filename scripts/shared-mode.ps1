@@ -61,47 +61,128 @@ function Test-CommitDocsOnly {
   return $true
 }
 
-function Initialize-SharedMode {
-  $flag = @(git config --global --get deploy.sharedMode 2>$null) | Select-Object -First 1
-  if ("$flag".Trim() -ne 'true') { return $false }
+function Resolve-DeployAskpassExe {
+  $temp = Join-Path $env:TEMP 'deploy-askpass.exe'
+  $persist = Join-Path $env:LOCALAPPDATA 'deploy-unlock\askpass.exe'
+  if (Test-Path -LiteralPath $temp) { return $temp }
+  if (Test-Path -LiteralPath $persist) { return $persist }
+  return $null
+}
 
-  $askpassExe = Join-Path $env:TEMP 'deploy-askpass.exe'
+function Test-DeployBrokerAlive {
   $infoPath = Join-Path $env:TEMP 'deploy-broker.info'
-  $brokerOk = $false
-  if ((Test-Path $askpassExe) -and (Test-Path $infoPath)) {
+  if (-not (Test-Path -LiteralPath $infoPath)) { return $false }
+  try {
+    $kv = @{}
+    foreach ($line in Get-Content -LiteralPath $infoPath) {
+      $p = $line.Trim() -split '=', 2
+      if ($p.Count -eq 2) { $kv[$p[0].Trim()] = $p[1].Trim() }
+    }
+    if ($kv['port'] -notmatch '^\d+$') { return $false }
+    if ($kv['pid'] -match '^\d+$') {
+      $proc = Get-Process -Id ([int]$kv['pid']) -ErrorAction SilentlyContinue
+      if (-not $proc) { return $false }
+    }
+    $t = New-Object System.Net.Sockets.TcpClient
     try {
-      $kv = @{}
-      foreach ($line in Get-Content -LiteralPath $infoPath) {
-        $p = $line.Trim() -split '=', 2
-        if ($p.Count -eq 2) { $kv[$p[0].Trim()] = $p[1].Trim() }
-      }
-      if ($kv['port'] -match '^\d+$') {
-        $t = New-Object System.Net.Sockets.TcpClient
-        $iar = $t.BeginConnect('127.0.0.1', [int]$kv['port'], $null, $null)
-        $brokerOk = $iar.AsyncWaitHandle.WaitOne(800) -and $t.Connected
-        $t.Close()
-      }
-    } catch {
-      $brokerOk = $false
+      $iar = $t.BeginConnect('127.0.0.1', [int]$kv['port'], $null, $null)
+      if (-not $iar.AsyncWaitHandle.WaitOne(800)) { return $false }
+      $t.EndConnect($iar)
+      return $t.Connected
+    } finally {
+      $t.Close()
     }
-  }
-  if (-not $brokerOk) {
-    # unlock 窗口被直接关闭时 finally 跑不到，会残留共用标记；这里自动复原并走常规模式
-    git config --global --unset deploy.sharedMode 2>$null
-    git config --global --unset-all credential.helper 2>$null
-    $bak = Join-Path $env:TEMP 'deploy-helper.bak'
-    if (Test-Path $bak) {
-      foreach ($h in Get-Content -LiteralPath $bak) {
-        if (-not [string]::IsNullOrWhiteSpace($h)) { git config --global --add credential.helper $h }
-      }
-      Remove-Item -LiteralPath $bak -Force -ErrorAction SilentlyContinue
-    }
-    Write-Host '已切回常规模式。' -ForegroundColor Yellow
+  } catch {
     return $false
   }
+}
 
-  $env:GIT_ASKPASS = $askpassExe
-  $env:SSH_ASKPASS = $askpassExe
+function Restore-DeployCredentialHelpers {
+  git config --global --unset-all credential.helper 2>$null
+  $bak = Join-Path $env:TEMP 'deploy-helper.bak'
+  $restored = @()
+  if (Test-Path -LiteralPath $bak) {
+    foreach ($h in Get-Content -LiteralPath $bak) {
+      if (-not [string]::IsNullOrWhiteSpace($h)) {
+        git config --global --add credential.helper $h
+        $restored += $h
+      }
+    }
+    Remove-Item -LiteralPath $bak -Force -ErrorAction SilentlyContinue
+  }
+  $hasStore = @($restored) | Where-Object { $_ -match '(?i)manager|wincred|store' }
+  if (-not $hasStore) {
+    if (Get-Command git-credential-manager -ErrorAction SilentlyContinue) {
+      git config --global --add credential.helper manager
+    } else {
+      git config --global --add credential.helper wincred
+    }
+  }
+}
+
+function Ensure-DeployCredentialHelpers {
+  $cur = @(git config --global --get-all credential.helper 2>$null)
+  if ($cur.Count -eq 0) {
+    Restore-DeployCredentialHelpers
+    Write-Host '已补回 git credential.helper（manager/wincred）。' -ForegroundColor Yellow
+  }
+}
+
+function Import-UserSshAskpassEnv {
+  if (-not $env:SSH_ASKPASS) {
+    $u = [Environment]::GetEnvironmentVariable('SSH_ASKPASS', 'User')
+    if ($u) { $env:SSH_ASKPASS = $u }
+  }
+  if (-not $env:SSH_ASKPASS_REQUIRE) {
+    $r = [Environment]::GetEnvironmentVariable('SSH_ASKPASS_REQUIRE', 'User')
+    if ($r) { $env:SSH_ASKPASS_REQUIRE = $r }
+  }
+}
+
+function Enable-ProcessAskpass {
+  param([string]$Exe, [switch]$ForGit)
+  if ([string]::IsNullOrWhiteSpace($Exe) -or -not (Test-Path -LiteralPath $Exe)) { return }
+  if ($ForGit) { $env:GIT_ASKPASS = $Exe }
+  $env:SSH_ASKPASS = $Exe
   $env:SSH_ASKPASS_REQUIRE = 'force'
-  return $true
+  if (-not $env:DISPLAY) { $env:DISPLAY = '1' }
+}
+
+function Enable-DeploySshAskpass {
+  Import-UserSshAskpassEnv
+  $exe = Resolve-DeployAskpassExe
+  if ($exe) { Enable-ProcessAskpass -Exe $exe }
+}
+
+function Clear-DeployAskpassFromProcess {
+  foreach ($name in @('GIT_ASKPASS', 'SSH_ASKPASS', 'SSH_ASKPASS_REQUIRE')) {
+    $v = [Environment]::GetEnvironmentVariable($name, 'Process')
+    if ($v -and ($v -like '*deploy-askpass*' -or $v -like '*deploy-unlock*')) {
+      Remove-Item "Env:$name" -ErrorAction SilentlyContinue
+    }
+  }
+}
+
+# 返回 $true = unlock 会话可用；$false = 常规本机凭据（credential.helper / 凭据管理器）
+function Initialize-SharedMode {
+  $askpassExe = Resolve-DeployAskpassExe
+  $brokerOk = Test-DeployBrokerAlive
+  $flag = @(git config --global --get deploy.sharedMode 2>$null) | Select-Object -First 1
+  $sharedFlag = ("$flag".Trim() -eq 'true')
+
+  if ($brokerOk -and $askpassExe) {
+    Enable-ProcessAskpass -Exe $askpassExe -ForGit
+    return $true
+  }
+
+  if ($sharedFlag -and -not $brokerOk) {
+    Write-Host 'unlock 会话未就绪（broker 无响应）。' -ForegroundColor Yellow
+    git config --global --unset deploy.sharedMode 2>$null
+    Restore-DeployCredentialHelpers
+    Write-Host '已切回常规模式。' -ForegroundColor Yellow
+  }
+
+  Ensure-DeployCredentialHelpers
+  Clear-DeployAskpassFromProcess
+  return $false
 }

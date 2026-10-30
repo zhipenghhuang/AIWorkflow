@@ -323,6 +323,7 @@ if ($sharedMode) {
   $sshAuth = @('-o', 'PreferredAuthentications=password', '-o', 'PubkeyAuthentication=no', '-o', 'NumberOfPasswordPrompts=1', '-o', 'ConnectTimeout=15')
 } else {
   Write-Host "=== 正在更新服务器：$repoName ===" -ForegroundColor Cyan
+  Enable-DeploySshAskpass
   $sshAuth = @()
 }
 # 实时回显服务器输出；失败详情段与失败标记标红（失败详情只由 update.sh 输出这一次，末尾不再重打）
