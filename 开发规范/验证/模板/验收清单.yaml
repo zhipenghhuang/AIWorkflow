@@ -1,6 +1,7 @@
 # 验收清单模板（L2+；复制到项目根 .gate/acceptance.yaml）
 # 确认后冻结；实施中新增/变更 AC 走变更记录。
 # 规范包只读：勿写入 开发规范/验证/。
+# 实施质量（DEV-IQ）：有行为须 implement_preflight；取重时 sc_trace/cross_layer/baseline_smoke/debts 不可空；见 实施质量门.md §8
 task_id: DEV-{yyyyMMdd}-{NNN}
 title: "{主题}"
 level: L2            # L0/L1/L2/L3；L2+ 必须有 process.review
@@ -10,16 +11,25 @@ acceptance:
     statement: "{条件 + 动作 + 可观测结果}"
     check: "build + login.spec"       # 可复跑命令/脚本/人工检查
     evidence: ".gate/frontend/smoke-desktop.jpg"  # 路径或命令输出；路径必须存在
+    sc_refs: ["SC-01"]                # 可选；指回任务卡条款
   - id: AC-02
     statement: "{空态/错误态/权限态}"
     check: "states.spec"
     evidence: ".gate/frontend/state-empty-desktop.jpg"
+    sc_refs: ["SC-02"]
 process:
   understanding: "开发/01-需求基线/理解-{主题}-{yyyyMMdd}.md"
   design: "开发/02-方案设计/方案-{主题}-{yyyyMMdd}.md"
   review: ".gate/review.md"          # L2+ 必填；reviewer/implementer/verdict
   security: ""                       # L3 必填：安全扫描/评审证据
   rollback: ""                       # L3 必填：回滚演练/预案证据
+# done|na|missing；有行为却 missing → verify 不得报全覆盖通过（DEV-IQ-09）
+implement_preflight: done
+# 取重维度建议必填（done|na|missing）
+sc_trace: "开发/04-计划与任务/任务清单-….md#SC"   # 或 inline 表路径；无 SC 写 missing
+cross_layer: done   # done | na | missing — 权限/状态/基数/多表面命中须 done
+baseline_smoke: na  # done | na | missing — 增量沿用基线时须 done
+debts: []           # ["DEBT-01"] 或 []；裁剪/豁免须非空 ID 列表或显式无
 scope_files: []                      # L2+ 建议填：允许改动的代码路径/文件
 non_goals:
   - "{明确不做}"

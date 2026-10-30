@@ -33,6 +33,7 @@ description: Use when requirements, acceptance criteria, scope, non-goals, or da
 
 - 输入含 PRD、迭代方案、需求文档、页面原型、截图、接口/技术文档 → 先按 `技能/product-doc-analysis/SKILL.md` 产出需求理解包（来源/目标/范围/角色/F-R-AC/状态/权限/字段/异常/NFR/冲突/GAP/置信度）。
 - 需求基线每条 AC 必须能指到理解包或原文；无来源标 GAP，不臆造。
+- 版本级迭代方案/验收矩阵先分 `DEV-AC / QA-AC / REL-AC`；基线只收 `DEV-AC`，`QA-AC/REL-AC` 转测试/UAT 交接，不写成开发 AC/任务。
 - 原型只作 UI/交互依据；后端规则/接口/状态机以 PRD/接口文档/用户裁决为准；冲突列出待裁决。
 - 理解包的冲突/GAP 未裁决项必须继承到基线 §7；不得静默消失。
 

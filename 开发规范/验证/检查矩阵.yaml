@@ -79,6 +79,17 @@ change_types:
     min_level: L0
     required: [links, placeholders]
 
+# 实施质量（人检/清单字段；与 规则/核心/实施质量门.md 对齐）
+# 取重时 verify 须对账；机器门仍以 tools/gate.py 可检项为准
+quality_gates:
+  - implement-preflight  # DEV-IQ-09；acceptance.implement_preflight；有行为却 missing 不得全覆盖通过
+  - sc-trace          # 任务卡/acceptance.sc_trace；无 SC 不得开工（L0 除外）
+  - selftest-vs-spec  # 断言指回 SC/AC；禁与方案相反刷绿
+  - cross-layer       # 命中则矩阵+第二次写/角色正反；acceptance.cross_layer
+  - important-surface # DEV-IQ-10；预检命中面须同批防护+负面自测
+  - debt-register     # 裁剪/豁免须 DEBT/OPEN；acceptance.debts
+  - baseline-smoke    # 沿用模块提测前冒烟；acceptance.baseline_smoke
+
 # 高价值低成本（默认）
 always:
   - acceptance-checklist

@@ -62,9 +62,10 @@ steps:
     on_fail: 回 plan 修方案卡；范围超出先停下说明
     output: 代码/配置改动 + 自测证据
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md`；失败时 + `技能/debugging-and-error-recovery/SKILL.md`。
+      **动手前硬门**：有行为变化须 DEV-IQ-09 短【实施预检】（可 1 行）；命中重要面 → DEV-IQ-10 同批硬补（轻量不降硬补）。方法 `implementation-and-selftest` §0.5。
+      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality`；预检命中面再读对应技能当前节；失败时 + `debugging-and-error-recovery`。
       开工先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`。
-      按方案卡验收表实施；每完成一个可验证单元即跑检查并留证据；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
+      按方案卡验收表+预检命中项实施；每完成一个可验证单元即跑检查并留证据；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。
       需独立评审/多波次/跨模块 → 升级 `change`/`iterate`；本步不冒充已评审。
       实施完更新方案卡「执行记录」与任务状态，准备 test。

@@ -100,7 +100,9 @@ description: Use when a change or defect touches permissions, state transitions,
 
 **回归**：原缺陷用例 + 每个同类路径各一条；缺陷单内部记录「根因层 / 同类路径 / 规则缺口 / 回归证据」。
 
-## 6. 判定 / DoD
+## 6. 判定 / DoD（硬门 · 对齐 DEV-IQ-03）
+
+> 命中本技能时，下列未勾不得标任务「完成」、不得报完成门全覆盖通过（可 `PARTIAL` 并列缺口）。细则 `规则/核心/实施质量门.md`。
 
 - [ ] 四张矩阵已填（或逐项写不适用+理由）；每行有自测/证据。
 - [ ] 每个 `Then`/异常/角色正反/第二次写/空缓存+既有行都有用例。
@@ -110,6 +112,7 @@ description: Use when a change or defect touches permissions, state transitions,
 - [ ] 缺陷已做同类路径扫描，原单+同类路径均有回归。
 - [ ] 自测预期能指回方案/AC；不存在「自测断言与方案相反」。
 - [ ] 以上证据写入任务卡/评审记录/缺陷记录，不只在对话里说。
+- [ ] 验收清单/任务卡已标 `cross_layer: done|na`（取重时不可空）。
 
 ## 7. 反合理化
 

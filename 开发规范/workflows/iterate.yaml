@@ -39,14 +39,14 @@ steps:
     agent: iterate-lead
     output: 任务清单 + 冻结的验收清单（开发/04-计划与任务/任务清单-{版本或主题}.md）
     notes: >
-      技能：`技能/task-breakdown/SKILL.md`（先读再拆）+ `技能/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
+      技能：`技能/task-breakdown/SKILL.md`（先读再拆）+ `技能/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `规则/核心/实施质量门.md`；模板 `规则/模板/30-计划与任务/任务清单模板.md`。
       输入是原始想法/无 PRD → 先按 `技能/product-shaping/SKILL.md` 给 3～5 行产品判断，再拆任务；不强制产品定义卡。
       L2+ 先读 `开发/开发计划.md`（旧项目可 `00-项目治理/开发计划.md`）；无则按 `技能/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
-      **验收清单**：每任务 AC 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process）并确认后冻结；实施中新增/变更 AC 走变更记录。
+      **验收清单**：每任务 AC+**SC** 对应「检查 + 证据」；L2+ 按 `验证/模板/验收清单.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process/sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
       任务开始先写本轮任务标记：`验证/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：含 `base_commit`；中途 commit 仍计入本任务 diff）。
       **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
-      拆完先自检：RP 覆盖、AC、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐；再进 confirm。
+      拆完先自检：RP 覆盖、AC、**SC 表**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；再进 confirm。
       若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】，再到 commit 确认（跳过 confirm / implement / review / gates / deliver / release_handoff / retro）。
       口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
       未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
@@ -72,11 +72,12 @@ steps:
     agent: iterate-lead
     output: 代码/配置改动 + 任务状态回写
     notes: >
-      技能：`技能/implementation-and-selftest/SKILL.md`（先读再改）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时按矩阵实施）；失败/异常时 + `技能/debugging-and-error-recovery/SKILL.md`；前端变更如需补设计/调整 UI，再读 `规则/模板/20-设计与技术/前端设计说明模板.md`，否则按产品设计实现。
-      RP/AC 可核对且全覆盖才开工；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
+      **动手前硬门**：DEV-IQ-09【实施预检】→ 命中面 DEV-IQ-10 同批硬补；未出示预检不得改代码。细则 `规则/核心/实施质量门.md` §3。方法 `技能/implementation-and-selftest/SKILL.md` §0.5。
+      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（命中时）+ 预检命中面再读 threat/perf/observability 当前节；失败时 + `debugging-and-error-recovery`；质量硬门 `实施质量门.md`；前端需补设计再读前端设计说明模板，否则按产品设计实现。
+      RP/AC/**SC**/预检可核对才开工；自测预期只认方案；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `验证/frontend/验收清单.md` 留状态/视口/console/network 截图。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交**（或清单 `[P]`≥3）→ 一组一子代理；**文件不相交可并行≤3**，同文件集串行；开跑声明 `mode=`；超时/空产物降级直做；批末定向门禁→核验→下一批；不达阈值直做。
       高风险/大改/破坏性变更核验者≠实施者（规则/专项/迭代交付.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
-      改动面超出清单先停下说明；未验证不得标完成。
+      改动面超出清单先停下说明；未验证不得标完成；文档冲突未关闭 OPEN 不得实现。
       每次任务边界/长任务前先检查 `git status`：有前序未提交 → 输出【基线检查】，先提交/隔离/记录例外，不得开始下一任务。
       改动 >20 文件或 >500 行（不含生成/锁文件）→ 暂停实现，先拆分提交或说明原因并获确认；不得继续堆。
 
