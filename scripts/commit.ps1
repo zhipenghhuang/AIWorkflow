@@ -2,8 +2,8 @@
 # 本项目可脱离 deploy 单独使用：独立环境仅做提交推送（含失败补推），不依赖任何 deploy 文件。
 # 在 deploy 环境下：读 surfaces.txt 区分 mirror/split；有协作待推时 split 可选仅协作/仅公开/两者（回车=两者）；
 # 无待推则跳过（split 仍检查公开面，与 github/main 一致则跳过，否则补推）；
-# 自动写入 projects.txt（避免漏登记）；共享 .commit-deployed（纯文档/部署成功后登记，避免重复补部署）。
-# 纯文档改动（开发规范/、开发/、docs/、extras/、根说明 Markdown 等）只提交推送：不询问、不触发服务器更新。
+# 自动写入 projects.txt（避免漏登记）；共享 .commit-deployed（仅服务器部署成功后登记并推送该记录）。
+# 纯文档改动（开发规范/、开发/、docs/、extras/、根说明 Markdown 等）只提交推送：不询问、不部署、不改部署记录。
 # AI 代跑：powershell -File scripts/commit.ps1 -Message '…' [-StagedOnly] [-PushTarget both|collab|public|skip] [-NoServer|-UpdateServer]
 # AI 代跑参数（人工双击 bat 不传参，仍走 Read-Host）：
 #   -Message       有内容的提交信息（AI 必填；禁止空/仅空白）
@@ -184,6 +184,8 @@ try {
   if (-not $hasSurfaces -or $surface.Mode -ne 'split') {
     if (-not $needCollab) {
       Write-Host "[$repoName] 已与远端同步，跳过推送。" -ForegroundColor DarkGray
+      # 流程完成（非用户 skip）：便于 .commit-deployed 欠账时仍能补部署
+      $pushed = $true
     } else {
       if ($hasSurfaces) { Assert-CollabHeadSafeForPush -RepoPath $repoRoot -RepoName $repoName -Branch $branch }
       if ($hasUpstream) { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push } else { git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD }
@@ -197,10 +199,11 @@ try {
     Write-Host "[$repoName] 协作面已同步，检查公开面..." -ForegroundColor DarkGray
     $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
     if ($publicResult -eq 'pushed') {
-      $pushed = $true
       $publicPushed = $true
       Write-Host "[$repoName] 公开面补推完成。" -ForegroundColor Green
     }
+    # 公开一致跳过也算流程完成（用户主动 skip 不走此支）
+    $pushed = $true
   } else {
     $statusLine = Get-SurfaceStatusLine -RepoPath $repoRoot -Surface $surface
     if ($hasPushTargetParam) {
@@ -280,13 +283,12 @@ if ($baseOk) {
 }
 if ($publicPushed) { $isDocsOnly = $false }
 if ($isDocsOnly) {
-  # 已登记上线：写入 .commit-deployed，避免下次再当「待补部署」反复询问
-  if ($isUnderDeploy -and $isOnline -and $hasState -and $headSha -match '^[0-9a-f]{7,40}$') {
-    $deployed[$repoName] = $headSha
-    $lines = @($deployed.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" } | Sort-Object)
-    Set-Content -LiteralPath $statePath -Value $lines
+  # 不影响服务器：不写 .commit-deployed、不 Sync（记录只在真正部署成功后更新）
+  if ($realPush) {
+    Write-Host '纯文档改动，已提交推送，跳过服务器更新。' -ForegroundColor DarkGray
+  } else {
+    Write-Host '本项目无需服务器更新，结束。' -ForegroundColor DarkGray
   }
-  Write-Host '纯文档改动，已提交推送，跳过服务器更新。' -ForegroundColor DarkGray
   exit 0
 }
 
@@ -359,11 +361,12 @@ $projDone = [bool]($sshLines | Where-Object { $_ -match ("^==>\s+" + [regex]::Es
 $allDone = [bool]($sshLines | Where-Object { $_ -match '^==>\s+全部更新完成\s*$' })
 
 if (-not $projFailed -and ($allDone -or $projDone)) {
-  # 部署成功：更新共享部署记录（保留其他项目行），避免下次重复补部署
+  # 部署成功：更新共享部署记录（保留其他项目行），再提交推送该记录供多机同步
   if ($isUnderDeploy) {
     $deployed[$repoName] = $headSha
     $lines = @($deployed.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" } | Sort-Object)
     Set-Content -LiteralPath $statePath -Value $lines
+    [void](Sync-CommitDeployedRecord -DeployRoot $parent -Reason 'after-server')
   }
   Write-Host '服务器更新完成。' -ForegroundColor Green
   exit 0

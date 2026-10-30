@@ -41,12 +41,13 @@ function Test-CommitDocsOnly {
       # 本机双击入口与 Windows 侧工具（不进服务器运行态）
       if ($p -match '^(commit|pull|setup|unlock)\.bat$') { continue }
       if ($p -match '^tools/(commit|pull|setup|shared-mode|unlock|surfaces|project-sync|broker-helper)\.ps1$') { continue }
-      if ($p -match '^tools/(fix-opencode\.py|harden-server\.bat)$') { continue }
+      if ($p -match '^tools/(fix-opencode\.py|harden-server\.bat|askpass\.cs)$') { continue }
       if ($p -match '^surfaces\.txt$') { continue }
+      if ($p -match '^\.commit-deployed$') { continue }
       # hooks/、update.sh、nginx、portal、online.txt 等均须部署
       return $false
     }
-    if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|extras/)') { continue }
+    if ($p -match '^(开发规范/|开发/|docs/|产品/|测试/|项目资料/|extras/)') { continue }
     if ($p -match '^(README|AGENTS|CHANGELOG|activeContext|项目档案|产品档案|运行说明|THIRD_PARTY|LICENSE)\.md$') { continue }
     if ($p -match '^(public-surface\.txt|public\.gitignore)$') { continue }
     if ($p -match '^\.public/') { continue }
@@ -59,6 +60,45 @@ function Test-CommitDocsOnly {
     return $false
   }
   return $true
+}
+
+# 部署记录入库后提交推送（deploy 仓 .commit-deployed），供其它机器 pull 后避免盲目补部署
+function Sync-CommitDeployedRecord {
+  param(
+    [Parameter(Mandatory = $true)][string]$DeployRoot,
+    [string]$Reason = 'state'
+  )
+  $statePath = Join-Path $DeployRoot '.commit-deployed'
+  if (-not (Test-Path -LiteralPath $statePath)) { return $false }
+  if (-not (Test-Path -LiteralPath (Join-Path $DeployRoot '.git'))) { return $false }
+
+  Push-Location $DeployRoot
+  try {
+    git add -- .commit-deployed
+    if ($LASTEXITCODE -ne 0) { throw 'git add .commit-deployed 失败' }
+    $staged = @(git diff --cached --name-only -- .commit-deployed 2>$null | Where-Object { $_ })
+    if ($staged.Count -eq 0) {
+      Write-Host '[deploy] .commit-deployed 无变更，跳过记录提交。' -ForegroundColor DarkGray
+      return $false
+    }
+    $msg = "chore: sync .commit-deployed ($Reason)"
+    git commit -m $msg -- .commit-deployed
+    if ($LASTEXITCODE -ne 0) { throw 'git commit .commit-deployed 失败' }
+    git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+      git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push
+    } else {
+      git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 push -u origin HEAD
+    }
+    if ($LASTEXITCODE -ne 0) { throw 'git push .commit-deployed 失败' }
+    Write-Host '[deploy] 已提交推送 .commit-deployed（多机同步部署记录）。' -ForegroundColor Green
+    return $true
+  } catch {
+    Write-Host "[deploy] .commit-deployed 提交推送失败：$_（本机记录已更新；网络恢复后重跑 commit 或手动提交该文件）" -ForegroundColor Yellow
+    return $false
+  } finally {
+    Pop-Location
+  }
 }
 
 function Resolve-DeployAskpassExe {
