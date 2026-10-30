@@ -64,7 +64,7 @@ steps:
     hitl:
       - name: confirm_remark
         when: remark_writeback
-      - name: confirm_commit
+      - name: confirm_platform
         when: platform_submit
     notes: >
       remark_writeback＝拟关/激/解决/标重复/补充澄清/回归写回备注；先出 id+备注全文再执行。
@@ -83,8 +83,8 @@ steps:
     id: wrap
     output: 【任务收尾】
     agent: report-agent
-    hitl: confirm_commit
+    hitl: confirm_platform
     hitl_when: has_pending_commit
     notes: >
-      门3 有拟入库时 STOP；确认后对照 `规则/模板/90-交接与收尾/收尾骨架.md` §2；第1点含提交/回归结果（动作+单号）
+      门3（`confirm_platform`）有拟入库时 STOP；确认后对照 `规则/模板/90-交接与收尾/收尾骨架.md` §2；第1点含提交/回归结果（动作+单号）
       本轮若用过浏览器 MCP → 按多Agent §2.2 全链终局退程（本套 Chrome）。

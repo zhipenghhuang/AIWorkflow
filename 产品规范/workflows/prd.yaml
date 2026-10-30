@@ -1,21 +1,26 @@
 ﻿# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
-# 需求与 PRD（洞察 → 立项 → PRD → 评审定稿）
-# 入口即止：写PRD/立项/PRD评审为单步入口；「收集需求」只到需求池。
+# 需求与 PRD（洞察 → 竞品对标（按需）→ 立项 → PRD → 评审定稿）
+# 入口即止：写PRD/立项/PRD评审/竞品对标为单步入口；「收集需求/竞品分析」只到洞察产出。
 workflow:
   id: prd
   name: 需求与 PRD
-  version: 5
+  version: 6
   read_index: 规则/读取索引.md
 
 entry_points:
   收集需求: discover
   需求洞察: discover
   竞品分析: discover
+  学习竞品: discover
   需求池: discover
   分析客户需求: discover
   需求调研: discover
   客户访谈: discover
   需求澄清: discover
+  竞品对标: benchmark
+  功能对标: benchmark
+  对标分析: benchmark
+  功能差距: benchmark
   立项: prioritize
   单需求立项: prioritize
   排优先级: prioritize
@@ -28,14 +33,15 @@ entry_points:
   定稿: review
 
 trigger:
-  - 收集需求 / 需求洞察 / 竞品分析 / 需求池
+  - 收集需求 / 需求洞察 / 竞品分析 / 学习竞品 / 需求池
+  - 竞品对标 / 功能对标 / 对标分析 / 功能差距
   - 立项 / 排优先级
   - 写 PRD / 出 PRD / 补 PRD / PRD 评审 / 定稿
 
 steps:
   - name: 需求洞察与需求池
     id: discover
-    output: 需求池/洞察记录（产品/需求池.md 或 产品/{版本或主题}/01-需求与定义/洞察-{yyyyMMdd}.md）
+    output: 需求池/洞察/竞品分析（产品/需求池.md 或 产品/{版本或主题}/01-需求与定义/洞察|竞品分析-*.md）
     agent: pm-analyst
     hitl: confirm_understanding
     hitl_when: understanding_needs_confirm
@@ -43,11 +49,27 @@ steps:
       来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `产品/需求池.md`（价值/成本/风险初判 + 状态）；
       **先还原需求**：技能 `技能/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案；单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
       澄清**按 `规则/核心/澄清.md` 执行**；正式访谈用 `访谈指南模板`，综合用 `洞察综合模板`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
+      **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `技能/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板 `竞品分析模板.md`）；产出借/改编/不借表并回绑本产品问题；影响定位/范围须确认。功能差距清单需求 → 转 `benchmark` 步（模式 P），不在本步只交对标矩阵冒充分析。
       **来源扇出**（子代理编排 §2）：批量洞察/竞品 ≥4 独立来源 → 按来源只读扇出（返回证据表/去重键 ≤30 行）；主 agent 去重入池；单条反馈直做。
       引用须可回查（来源+日期），无依据写「待验证」。
       能力（可选）：docs-mcp 查资料、browser-mcp 查竞品/后台；未装=按主读与用户输入。
-      输入含外部文档/竞品/反馈原件 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后落 `产品/资料/{版本或主题}/` 或 `_通用/`（或 T7 参考）；S1/S2/S3 同批进 `资料/_归档/`；本包写的 PRD 正文落工作区，不进资料。
-      技能：`技能/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
+      输入含外部文档/竞品/反馈原件 → 先按 `规则/文档治理.md` §3【入站分析】；确认前不改文件。确认采纳后落 `产品/资料/{版本或主题}/` 或 `_通用/`（或 T7 参考）；S1/S2/S3 同批进 `资料/_归档/`；本包写的 PRD/竞品分析正文落工作区，不进资料。
+      技能：`技能/requirement-discovery-and-prioritization/SKILL.md`（先读再做）；竞品向必加 `competitive-intelligence-and-learning`。
+
+  - name: 竞品对标与差距候选项
+    id: benchmark
+    output: 竞品对标矩阵 + 需求池候选项（产品/{版本或主题}/01-需求与定义/竞品对标-*.md + 产品/需求池.md）
+    agent: pm-analyst
+    hitl: confirm_scope
+    hitl_when: scope_decision_required
+    notes: >
+      入口=「竞品对标/功能对标/对标分析/功能差距」或 discover 分诊为模式 P。
+      技能：`技能/competitive-intelligence-and-learning/SKILL.md` **模式 P**（先读）+ `requirement-discovery-and-prioritization`（入池字段）。
+      落盘模板 `竞品对标模板.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
+      ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。
+      用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → 可跳过门。
+      发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。
+      能力：browser-mcp 可选；未装=用户提供链接/截图。
 
   - name: 优先级与立项
     id: prioritize
@@ -59,7 +81,8 @@ steps:
     notes: >
       条件步：跨版本/高价值需求或点名「立项」才走；小需求直接进 PRD（不设门）。
       方法按需：RICE / Kano / MoSCoW；产出：优先级 + 版本范围（MVP）+ 排除项 + 粗排期 + 依赖风险。
-      依据=确认的客户需求+证据+成本/风险；不把竞品做法、领导偏好、单个客户直接当优先级；未确认/未验证需求不排期；取舍给建议，不替用户决定。
+      依据=确认的客户需求+证据+成本/风险；**模式 S 借鉴项**须已回绑问题；**模式 P 候选项**进版本须本步或计划范围确认，不得因「竞品有」自动 Must。
+      不把领导偏好、单个客户直接当优先级；未确认/未验证需求不排期；取舍给建议，不替用户决定。
       技能：`技能/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
       confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD；仅跨版本/高价值/点名立项链时停。
 

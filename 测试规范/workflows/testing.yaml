@@ -1,6 +1,6 @@
 # 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
 # AI 测试主流程（声明式 Workflow · 执行宿主执行）
-# - 口令可切入任一步：仅执行 → 直接 execute（勿强制 analyze）；生成未点名主读才门1（一问即止，禁重问）
+# - 口令可切入任一步：仅执行 → 直接 execute（勿强制 analyze）；analyze/plan/generate 主读路径未确认 → 门1（一问即止，禁重问）
 # - 无「测试规范接入：已完成」（兼容旧 landing=ok）时才按 onboard-agent 清单核验一次，打标后免检（AGENTS 开工第3点）
 # - 正式轨：功能全量/专项 · 探索式 · 随机业务流程（计划外） · 接口 · 发布前（工作流 §1.2 + 规则/轨契约/）
 # - 确认门只认步上 hitl（标量或列表，可带 when）；条件不满足则该门跳过，不算违例
@@ -110,7 +110,7 @@ steps:
         when: understanding_needs_confirm
     output: 测试/测试分析表.md（必出·含 §0 Brief+Delta；模板 测试分析表模板）；T2/T3 可另出需求理解长文；旧「分析短表」文件须迁入本路径并补 §0
     notes: >
-      门/产出：主读未点名 → 列候选+建议一次一问；已点名仍须按模板产出**测试分析表**（**§0 Brief+本期差量表**／覆盖单元含 Delta ID／影响面／歧义／章节回执），禁跳过致无表或无 §0。有产品/开发 Delta → 引用对账。后续 plan/generate **双读原文+分析表**。
+      门/产出：主读判定（点名路径 > 唯一正式版 > 计划已登记 > 否则一问）；多份须主读+对照；冲突不静默选边，用户可声明冲突SSOT。仍须按模板产出**测试分析表**（**§0 Brief+本期差量表**／覆盖单元含 Delta ID／影响面／歧义／章节回执），禁跳过致无表或无 §0。有产品/开发 Delta → 引用对账。后续 plan/generate **双读原文+分析表**。
       交接包输入 → 先 `handoff.receive`；新资料 → `规则/文档治理.md` §3（确认前不改文件）。
       方法：`技能/test-basis-analysis`（必用）+ 按需 `test-analysis-and-plan` / `test-data-and-environment` / `ai-feature-testing`；澄清见 `规则/核心/澄清.md`。
       预期须有来源；无来源=GAP；现网不作预期。关键歧义未裁决 → 不写确定计划/用例。
@@ -147,22 +147,22 @@ steps:
         when: understanding_needs_confirm
       - name: select_mainread
         when: mainread_unspecified_for_generate
-      - name: confirm_commit
+      - name: confirm_platform
         when: standalone_generate_with_pending
     gate: coverage-map
     gate_type: machine
     gate_when: functional_coverage_required
     notes: >
-      门1：仅**新生成**且主读未点名时 STOP（analyze 已问过则跳过，不重问；用例评审不触发）。
+      门1：主读路径未确认时 STOP（analyze/plan 已确认同主读则跳过，不重问；用例评审不触发）。联测多版本须写明主读+对照。
       理解门：`confirm_understanding` 触发时先出示分析表 **§0 Brief+差量表** + oracle/冲突/GAP/置信度；未确认或无 §0 → 先执行 analyze 步并确认，再回本步生成。
       生成前须已有 **测试分析表（含 §0）**（`测试/测试分析表.md`；旧路径 `功能测试/` 下须迁入；可与本步同轮先 analyze）。**功能/专项**：双读原文+分析表 + 现行测试计划（缺/超范围先轻量补）。**探索式/接口/发布前**：独立口令可不要求完整计划，但**须至少读分析表 §0**（无表先补 §0/analyze），再按轨契约生成。**随机业务流程**仅独立口令、禁止写入测试计划。
       **追溯红线**：每条用例至少指到一个 RQ/AC/F/R/TP/`GATE/REL/§` 或页面/接口来源；预期（oracle）必须来自需求/AC/契约/用户裁决，不能来自现网实现（不得因现网只显示“—”就把“待补配置”改通过）；无来源先问或标“文档未声明”，不得臆造；映射无空行 + 覆盖单元至少 `GATE/AC/TP/F/R/§` + 深度档 + 数据链路/可观测性（覆盖三闸②，详版 `技能/testcase-design` §2.2/§2.4/§5）。
-      **计划驱动生成**：按 §3.2 资产清单 + §3.7 装填逐项生成/登记——命中域功能/专项→testcase-agent；接口→接口轨；发布前→发布前轨；探索式→计划 §12 章程 + `规则/模板/20-测试用例/探索式用例模板.md`；脚本按 `规则/专项/脚本执行.md` §1+§2。缺资产先补，计划项不静默跳过；超范围先更新计划/计划门。
-      **域常青增量（默认）**：只打开计划 §3.7 **命中域**现行用例；有域文件→锚点增量改（**保 caseId**）+ 增改删表；无域文件→冷启动按域首生。**禁**无分析全仓重生；**禁**口令「继续」触发/隐式 generate（「继续」只属 execute 装填续跑）。**一遍过**=命中+邻接宁多勿漏。同域无效合并≥2→有界重生。接口：覆盖对照禁空；depth 按 `规则/专项/多轨质量标准.md`——迭代默认 **standard**，发版 **full**，补丁才 **core**。
-      **大规模生成分片**（多Agent §1.5）：**≥3 域且 ≥40 条** → 一域一子代理，**只写**本轨 `.draft/generate/{域}.md`（功能专项用 `.draft/S-{NN}-{主题}/`）草稿；编排统一 ID/模板/排序并合并，跑覆盖三闸；单域/小批直做；**禁**多写手并行写同一正式域文件（分片仅 draft）。
+      **计划驱动生成**：按 §3.2 资产清单 + §3.7 装填逐项生成/登记——命中域功能/专项→testcase-agent + 功能「测试用例模板」；接口→「接口测试用例模板」+ `test-interface`；发布前→发布前轨；探索式→计划探索章程（§12）+「探索式用例模板」；脚本按 `规则/专项/脚本执行.md` §1+§2。缺资产先补，计划项不静默跳过；超范围先更新计划/计划门。
+      **域常青增量（默认）**：只打开计划 §3.7 **命中域**现行用例；有域文件→锚点增量改（**保 caseId**）+ 增改删表；无域文件→冷启动按域首生。**禁**无分析全仓重生；**禁**口令「继续」触发/隐式 generate（「继续」只属 execute 装填续跑）。**一遍过**=命中+邻接宁多勿漏。同域无效合并≥2→有界重生。接口：按接口模板；覆盖对照禁空；`validate_api_testcase.py`；depth 按 `多轨质量标准`——迭代默认 **standard**，发版 **full**，补丁才 **core**。
+      **大规模生成分片**（多Agent §1.5）：**≥3 域且**（预估≥40 条或用户点名）→ 一域一子代理，**只写** `.draft/generate/{域}.md`（专项 `.draft/S-{NN}-{主题}/`）；draft 不相交可并行≤3；编排合并+覆盖三闸；超时/空产物→降级直做并 `deviation=subagent_degraded`；开跑声明 `mode=`；**禁**并行写同一正式域文件。
       能测尽测（命中域内）；参照影响面/变更点；探索式轨按章程而不是臆造业务步骤。
-      独立生成（不续 execute）且有拟入库 → 生成后出示拟提交清单再 confirm_commit；同会话续 execute → 门3 只在 report。
-      覆盖三闸见 testcase-agent 与 工作流 §2.1.0；落盘后 `validate_testcase.py` + `验证/Invoke-Gate.ps1 -Mode coverage`；无回执不得称覆盖闸通过。**`gate: coverage-map` 仅功能/专项**；接口对照禁空 + depth 可执行；发布前硬映射表；探索章程目标闭环——均见 `规则/专项/多轨质量标准.md`（不得再用「软覆盖」空话代替）。
+      独立生成（不续 execute）且有拟入库 → 生成后出示拟提交清单再 confirm_platform；同会话续 execute → 门3 只在 report。
+      覆盖三闸见 testcase-agent 与 工作流 §2.1.0；功能落盘后 `validate_testcase.py` + `验证/Invoke-Gate.ps1 -Mode coverage`；接口落盘后 `validate_api_testcase.py`；无回执不得称覆盖/接口资产完成。**`gate: coverage-map` 仅功能/专项**；接口对照禁空 + depth 可执行；发布前硬映射表；探索章程目标闭环——均见 `多轨质量标准.md`（不得「软覆盖」空话代替）。
       **生成后必衔接评审**：命中域功能/专项（T1+）落盘且覆盖闸过后，同会话续执行或「按计划执行」前必须进入 `review-cases`；本步只做完稿自检+评分卡自打，**不替代**独立评审（独立性见 testcase-reviewer）。入口即止仅生成时，收尾「下一步」写明：先用例评审再执行。
       脚本编写/更新：按 `规则/专项/脚本执行.md` §2 + `规则/tools/playwright/README.md` 的脚本结构；接口确定性用例**同轮产出脚本**，不得标“待脚本化”。
       技能：`技能/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）+ `技能/ai-feature-testing/SKILL.md`（AI 功能附加）；接口轨读 `技能/test-interface/SKILL.md`。
@@ -185,7 +185,7 @@ steps:
       **范围不止功能用例**（多轨质量标准 §4）：功能全量/专项（强制）｜接口（T1+ 或进准出强制）｜发布前（T2+ 或发版/计划已列强制）｜探索式（计划纳入且 T2+ 或准出引用强制）｜随机仅点名。
       **先 STOP【评审方式】**：A 自行｜B AI 独立；可附自定义焦点（如「重点看权限/支付」）→ 选 B 时 AI 必须优先深析。未选不得进 P2。
       **选 A**：附【自主分析摘要】+ 自检/三闸摘要；HUMAN_APPROVED；不跑 `-Mode review`。
-      **选 B**：独立性；**先【自主分析】**（策略/漏测假设/矛盾/过测欠测/取舍）再量规；功能→A1–A6/S1–S6+三闸；接口/探索/发布前→轨契约；需修回 generate（≤1）。
+      **选 B**：独立性；**先【自主分析】**（策略/漏测假设/矛盾/过测欠测/取舍）再量规；功能→A1–A6/S1–S8+三闸；接口→I1–I6+轨契约；探索/发布前→模板字段+轨契约；需修回 generate（≤1）。
       **机器门（仅功能轨选 B）**：`case_review_required` → `-Mode review`；其它轨选 B 留痕即可（软机检）。
       **confirm_review**：需修/有条件放行时 STOP。
 
@@ -206,7 +206,7 @@ steps:
     notes: >
       **本步契约（硬）**：hitl 只认上方 when；方法/装填/冒烟/回归/视觉/子代理 **SSOT** = `规则/playbooks/execute.md` + `规则/工作流.md` §3 当前节 + 当前轨契约 + 命中技能（禁把整本方法抄进本 notes）。
       **批末机器门（`module_batch_complete`）**：终态齐后 `验证/Invoke-Gate.ps1 -Mode execute -Scope "{装填域}"`；回执须含 `scope`；禁无 Scope 全仓当本批结论；准出另 `-Mode report`。
-      **装填行（必做）**：读计划 §0/§3.7，展示 suite+命中域+已终态/next；有文件≠本轮跑；「继续」只续装填状态机。
+      **装填行（必做）**：读计划 §0/§3.7，展示 suite+命中域+已终态/next+**`mode=`**（多Agent §1.5.1）；有文件≠本轮跑；「继续」只续装填；≥2 模块同轮→模块子代理；超时降级见 §1.5.4；并行隔离见 §1.5.3。
       **门**：`understanding_needs_confirm` 假（计划已确认+分析表可开，见 `规则/门.md`）→ 跳过理解门；`scope_needs_confirm` 假 → 附【已预授权执行：按计划】；理解门为真时未确认不得开跑/判通过。
       **评审前置（功能全量/专项 T1+）**：P2 前须评审放行（或 T0 SELF_CHECKED 声明）；未放行先 `review-cases`。
       **计划驱动**：按计划 §9.2 阶段执行（不含随机业务流程）；停止/恢复见计划 §6；细节见 execute playbook。
@@ -244,11 +244,11 @@ steps:
   - name: 收尾与提交确认
     id: handoff
     agent: report-agent
-    hitl: confirm_commit
+    hitl: confirm_platform
     hitl_when: has_pending_commit_or_platform_ask
     output: 提交/交平台确认结果
     notes: >
-      报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次「是否提交入库/交平台」。
+      报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次「是否提交入库/交平台」（门3=`confirm_platform`；仓库 git 另走 `confirm_commit`/【拟提交·仓库】）。
       交平台/回写前运行 `验证/Invoke-Gate.ps1 -Mode writeback`（写 `.gate/测试规范/writeback.json`）；无回执不得声称已回写；无权限走 export。
       计划 §11 为「发现即提交」的缺陷不重复问；按模块批末/阶段末/收尾确认的批次，按对应清单确认后执行；未确认则结束。
       本轮用过浏览器 MCP → 按 `规则/专项/多Agent与输出.md` §2.2 全链终局退程（本套 Chrome）。

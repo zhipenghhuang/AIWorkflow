@@ -6,36 +6,19 @@ workflow:
   version: 1
   read_index: 规则/读取索引.md
 
+# 代表口令（非穷尽）；同义按 AGENTS + 入口判定路由
 entry_points:
+  写交接单: compose
   生成交接包: send
-  提测交接包: send
-  交接给测试: send
-  交接给产品: send
-  发布交接包: send
   接收交接包: receive
-  接收产品文档: receive
-  接收测试报告: receive
-  签收交接包: receive
-  导入交接包: receive
-  交接回执: receive
   交接状态: status
-  待回执: status
-  发变更通知: change_send
   变更通知: change_send
   同步变更: change_receive
-  收到变更: change_receive
-  变更影响分析: change_receive
   重规划: replan
-  计划调整: replan
-  重新基线: replan
-  计划偏离: replan
 
 trigger:
-  - 生成交接包 / 提测交接包 / 交接给测试 / 交接给产品 / 发布交接包
-  - 接收交接包 / 接收产品文档 / 接收测试报告 / 签收交接包 / 导入交接包 / 交接回执
-  - 交接状态 / 待回执
-  - 发变更通知 / 变更通知 / 同步变更 / 收到变更 / 变更影响分析
-  - 重规划 / 计划调整 / 重新基线 / 计划偏离
+  - 写交接单 / 生成交接包 / 接收交接包 / 交接状态
+  - 变更通知 / 同步变更 / 重规划
 
 steps:
   - name: 交接状态
@@ -49,6 +32,20 @@ steps:
       台账缺失 → 按 `规则/模板/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
       输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
 
+  - name: 写交接单文档
+    id: compose
+    agent: iterate-lead
+    hitl: confirm_intent
+    hitl_when: intent_needs_confirm
+    output: 自洽交接单文档（默认非 HO）
+    notes: >
+      **默认入口**。先读协作 §3.0～§3.0.1 与 `通用交接单文档模板.md`（择优写法，非填空卷）。
+      **意图择优**：先判 `intent_needs_confirm`（澄清 §0）。真 → 完整【意图理解】停等确认再落盘；假（意图已清）→ 一行【意图】回执后直写。禁止含糊「交接」直接成文。
+      **必做**：落笔前五问 → 选形态 A知会/B确认一页纸/C决策简报/D专模；禁止整表粘贴模板。
+      产品确认环境/演示 → 优先 B（情况介绍+少条确认+确认后我们做什么）；勿摊工程风险考卷。
+      **不**建 HO；回执默认否；正文禁内部路径代结论、禁印意图码/回执元数据。
+      口令含「交接包」未命中触发 → 仍本步。用户明确要包且命中 → 转 `send`。
+
   - name: 生成交接包
     id: send
     agent: iterate-lead
@@ -58,14 +55,11 @@ steps:
     verify: python 开发规范/规则/tools/validate_handoff.py "开发/交接/{HO-ID}"
     on_fail: 缺 00/01/快照/占位符/链接断 → 不发送；补后重跑校验
     notes: >
-      先读 `规则/协作/协作与交接.md` §3.0.1/§3.1/§4 与交接包说明/清单模板。
-      **本步只生成包**：单文档默认直接发文档，不生成 HO；只有命中包触发（多文件证据/正式签收/仓外/同发多主文档/点名）才走本步。先问后发，未确认零发包。
-      **先问后发（不可跳过）**：`confirm_handoff` 必停——出示【拟发包】；用户确认后才写盘；未确认零发包。禁止静默发包。
-      选类型：CLAR/DES/PLAN/QA/BUG（仅无平台或点名）/FIX（同上）/REL/RETRO；CHG 走 change_send；REQ/TEST/UAT/DEC/RISK 默认单文档，按需升级包。
-      **前置**：业务门过 ≠ 发包已授权；QA/FIX/BUG 自包含详实；有平台已交则拒绝重复 BUG/FIX 整包（§3.1.1）。
-      确认后：完整包 `00/01/02/03/04`（大文件可同仓联动）；`01` 列全材料/版本/路径/必读/用途/大小/SHA256/敏感级别，`00` 只列关键 3～7 份 → 跑 `validate_handoff.py` → 台账已发送；校验失败不得称「已发送」。
-      传递：多包同仓直读（禁拷到对方资料/交接）；仓外文件夹或 ZIP。
-      输出【交接包已生成】摘要。
+      **仅升包**。先读 §3.0 包触发；未命中 → 改走 `compose`，不得生 HO。
+      **先问后发**：`confirm_handoff` 出示【拟发包】；用户确认「要包」后才写盘；未确认零发包。
+      确认后：完整包 `00/01/02/03/04`（`04` 空白回执文件≠必须填写）；跑 `validate_handoff.py` → 台账已发送。
+      回执默认仍可选；仅正式签收/C2·C3/发布要求填写。
+      传递：多包同仓直读；仓外文件夹或 ZIP。输出【交接包已生成】。
 
   - name: 接收与签收
     id: receive

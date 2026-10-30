@@ -9,7 +9,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Version](https://img.shields.io/badge/version-CHANGELOG-brightgreen.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
-[![Workflows](https://img.shields.io/badge/workflows-26-purple.svg)](#三套独立包)
+[![Workflows](https://img.shields.io/badge/workflows-multi-purple.svg)](#三套独立包)
 [![Agents](https://img.shields.io/badge/agents-multi--agent-orange.svg)](#架构)
 [![Skills](https://img.shields.io/badge/skills-agent--skills-yellow.svg)](#架构)
 [![Templates](https://img.shields.io/badge/templates-lifecycle-lightgrey.svg)](#仓库结构)
@@ -78,7 +78,7 @@
 | 亮点 | 说明 |
 | --- | --- |
 | **声明式工作流** | `trigger → steps → agent`；条件步、确认门、质量闸都可审查 |
-| **多 Agent 协作** | 27 份角色契约，按当前步加载；重阶段再读 playbook，避免塞满上下文 |
+| **多 Agent 协作** | 角色契约按当前步加载；重阶段再读 playbook，避免塞满上下文 |
 | **人工确认门** | 需求、PRD、方案、清单、提交、发布、回滚、验收、回写——该停就停 |
 | **完成只认门** | Agent 只能提出候选完成；`验证/` 门读清单 / diff / 证据后才授予 `COMPLETE` / `PASS` / `READY` |
 | **能力可插拔** | 外部工具已装即用，未装降级；技能随包生效，命中步必用；「体检能力」可按项目或通用最优就地优化 |
@@ -103,17 +103,17 @@ flowchart LR
 
 | 包 | 定位 | 工作流 | 技能 | 角色 | 上手 |
 | --- | ---: | ---: | ---: | ---: | --- |
-| **[产品规范](./产品规范/README.md)** | 0→1 与迭代：需求 · PRD · 原型 · UAT · 发布 | 11 | 14 | 8 | [说明](./产品规范/README.md) · [入口](./产品规范/AGENTS.md) |
-| **[开发规范](./开发规范/README.md)** | 按 L0～L3 裁剪：澄清 → 实现 → 验证 → 提测 → 发布；内置轻量产品/测试轨 | 11 | 26 | 9 | [说明](./开发规范/README.md) · [入口](./开发规范/AGENTS.md) |
+| **[产品规范](./产品规范/README.md)** | 0→1 与迭代：需求 · 竞品 · PRD · 原型 · UAT · 发布 | 11 | 15 | 8 | [说明](./产品规范/README.md) · [入口](./产品规范/AGENTS.md) |
+| **[开发规范](./开发规范/README.md)** | 按 L0～L3 裁剪：澄清 → 实现 → 验证 → 提测 → 发布；内置轻量产品/测试轨 | 11 | 27 | 9 | [说明](./开发规范/README.md) · [入口](./开发规范/AGENTS.md) |
 | **[测试规范](./测试规范/README.md)** | 计划驱动：分析 → 计划 → 生成 → 执行 → 报告 | 5 | 10 | 10 | [说明](./测试规范/README.md) · [入口](./测试规范/AGENTS.md) |
 
 <details>
 <summary><strong>产品规范 · 摘要</strong></summary>
 
 - **边界**：只写需求、规则、原型、验收；技术架构 / 技术栈 / 数据库 / API / 部署留给开发轨。
-- **主链**：`new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard`
-- **质量门**：G0～G6；PRD / 原型 / 计划 / UAT / 复盘评分卡与追溯矩阵
-- **产物**：统一落在 `产品/`（计划、需求池、PRD、原型、UAT、GTM、交接包等）
+- **主链**：`new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard`（另含 `skill-audit`）
+- **质量门**：G0～G6；PRD / 原型 / 计划 / UAT / 复盘 / 竞品分析·对标评分卡与追溯矩阵
+- **产物**：统一落在 `产品/`（计划、需求池、竞品分析/对标、PRD、原型、UAT、GTM、交接包等）
 
 </details>
 
@@ -122,7 +122,7 @@ flowchart LR
 
 - **分级**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批与观察。
 - **轻量单人轨**：`solo`＝产品定义（按需）→ 一页方案卡 → 一次确认 → 实施 → 开发自验 → 完成门 → 收尾；轻量不降 AC/门/自验；档位拿不准先一问；L2+ 升级完整链。
-- **主链**：`solo` · `control` · `intake` · `change` · `iterate` · `defect-fix` · `handoff` · `release` · `retro` · `onboard`
+- **主链**：`solo` · `control` · `intake` · `change` · `iterate` · `defect-fix` · `handoff` · `release` · `retro` · `onboard`（另含 `skill-audit`）
 - **质量**：`engineering-quality` 统一工程质量条；完成门读 `.gate/开发规范/`
 - **产物**：落在 `开发/`；根 `CHANGELOG.md`＝发版史；`开发/工作日志.md`＝岗位里程碑；`发布说明`＝按版本叙事
 
@@ -132,7 +132,7 @@ flowchart LR
 <summary><strong>测试规范 · 摘要</strong></summary>
 
 - **编排载体**：`测试/测试计划.md` 为唯一版本级编排；正式轨并列功能 / 探索式 / 接口 / 发布前 / 缺陷。
-- **主链**：`testing` · `defect` · `handoff` · `onboard`
+- **主链**：`testing` · `defect` · `handoff` · `onboard`（另含 `skill-audit`）
 - **执行**：R0 冒烟 → R1 正式 → R2+ 回归；稳定主链路优先 Playwright；**能脚本不 AI**
 - **闸门**：覆盖三闸、冒烟前置、证据红线；P0 未通过不得判整体通过
 
@@ -141,7 +141,7 @@ flowchart LR
 <details>
 <summary><strong>单包 / 多包 / 交接</strong></summary>
 
-**工作根**：新产物固定落 `产品/` · `开发/` · `测试/`（各包必须有本包目录）。
+**单包优先**：复制哪个包，就只强制本包工作根（`产品/` 或 `开发/` 或 `测试/`）。另两目录**不要求**存在；多包联动可选、非必须，**不因缺他包阻塞本包**。
 
 **版本记录三分法**：根 `CHANGELOG.md`＝仅开发维护（给人看的项目发版史，Keep a Changelog）；`产品/工作日志.md` · `开发/工作日志.md` · `测试/工作日志.md`＝各岗位里程碑侧记，**互不写入根**；年归档各自 `{包}/_归档/工作日志/工作日志-{year}.md`。计划执行日志＝细粒度过程；工作日志＝里程碑摘要；发布说明＝按版本叙事。
 
@@ -264,11 +264,11 @@ robocopy "AIWorkflow\开发规范" "E:\path\to\your-project\开发规范" /E /XD
 
 五步执行模型：
 
-1. **路由** — 读包内 `AGENTS.md`（§0～§3），口令命中 workflow；首条输出 `route=workflow:... | step=... | reads=...`
-2. **加载** — 读 `规则/读取索引.md` 当前 step → workflow 当前 step 块 → 当前 agent → 当前 playbook / 技能；只读当前步，不预防性通读
-3. **执行** — 步内方法由 AI 自主选择；条件步按 `when` 跳过；步上 `hitl` 必须停下确认
+1. **路由** — 读包内 `AGENTS.md` **§0 硬节**；口令表仅路由未定/首次命中时读；命中 workflow；首条输出 `route=workflow:... | step=... | reads=...`；纯解释/对比/诊断走 `readonly:analysis`，不强行套 workflow（**禁止通读 §0～§3 全文**）
+2. **加载** — 按读序：§0 → workflow **当前 step 块** → `规则/读取索引.md` 当前行 → 当前 agent → 命中技能/playbook 当前节；只读当前步，不预防性通读
+3. **执行** — 步内方法由 AI 自主选择；条件步按 `when` 跳过；步上 `hitl` 必须停下确认；自主边界见 `规则/核心/执行契约.md`
 4. **验证** — 运行包内 `验证/Invoke-Gate.ps1`；门读验收清单 / diff / 证据，写 `.gate/`；只有门能授予完成态
-5. **落盘** — 按模板写入标准目录，更新索引 / 计划 / `activeContext.md`；收尾先写【验证回执】再写结论
+5. **落盘** — 按模板写入本包标准目录，更新索引 / 计划 / `activeContext.md`；收尾先写【验证回执】再写结论
 
 九层结构：
 
@@ -315,15 +315,15 @@ robocopy "AIWorkflow\开发规范" "E:\path\to\your-project\开发规范" /E /XD
 
 ```text
 AIWorkflow/
-├─ 产品规范/          # 产品轨母版（11 workflow · 14 技能 · 8 角色 · 35 模板）
-├─ 开发规范/          # 开发轨母版（11 workflow · 26 技能 · 9 角色 · 36 模板；含轻量单人轨）
-├─ 测试规范/          # 测试轨母版（5 workflow · 10 技能 · 10 角色 · 24 模板）
+├─ 产品规范/          # 产品轨母版
+├─ 开发规范/          # 开发轨母版（含轻量单人轨）
+├─ 测试规范/          # 测试轨母版（5 workflow · 10 技能 · 10 角色）
 ├─ CHANGELOG.md       # 母版仓长期版本记录（最新在前）
 ├─ LICENSE            # MIT
 └─ README.md
 ```
 
-> 数量以各包实际目录为准；新增/删除后用包内自检核对，不在多处重复维护计数。
+> workflow / 技能 / 角色与模板数量均以各包目录与自检为准；上表只作导航，不在多处维护计数。
 
 每个包内部结构一致：
 
@@ -346,7 +346,7 @@ AIWorkflow/
 <details>
 <summary><strong>文档落点（实例侧）</strong></summary>
 
-工作文档根固定 `产品/` · `开发/` · `测试/`。原始资料根推荐 `docs/`（其它名可，记档案）；资料模式 keep/mix/replace 只整理原始资料根。项目根只保留白名单（含档案入口、`activeContext.md`、原始资料根等）。
+各包只强制本包工作根（`产品/` / `开发/` / `测试/`）；未装的包不必建对应目录。原始资料根推荐 `docs/`（其它名可，记档案）；资料模式 keep/mix/replace 只整理原始资料根。项目根只保留白名单（含档案入口、`activeContext.md`、原始资料根等）。
 
 | 类别 | 落点 |
 | --- | --- |
@@ -376,7 +376,7 @@ AIWorkflow/
 - **技能随包，能力可选** — 技能给方法；能力给工具，缺失不阻塞；落地包可用「体检能力」就地改技能/能力（无需另有母版仓）。
 - **单一出处，版本单点** — `template_version` 只写在各包 `AGENTS.md`；根 README 不缀版本号。
 - **文档现行有效** — 只写当前存在的功能与规则；旧版归档，不堆「最终版 2」。
-- **交接有包有回执** — 跨角色交付用 `{HO-ID}`；变更按 C0～C3 重基线。
+- **内容优先 · 包按需** — 默认自洽主文档；升包才 `{HO-ID}`；正式签收才须回执；变更按 C0～C3 重基线。
 - **宿主无关** — 包内只写能力名，不写宿主名和本地路径。
 
 ---
@@ -412,6 +412,7 @@ python 产品规范/规则/tools/validate_prd.py <PRD.md>
 python 开发规范/规则/tools/validate_tasklist.py <任务清单.md>
 python 开发规范/规则/tools/validate_dev_plan.py <开发计划.md>
 python 测试规范/规则/tools/validate_testcase.py <模块用例.md>
+python 测试规范/规则/tools/validate_api_testcase.py <接口域用例.md>
 python 产品规范/规则/tools/validate_handoff.py <交接包目录>
 ```
 
@@ -440,7 +441,7 @@ python 产品规范/规则/tools/validate_handoff.py <交接包目录>
 不需要。执行器就是支持 `AGENTS.md` 的 AI 编码工具；YAML 是给 AI 读的流程定义，不是运行时依赖。
 
 **三个包必须一起装吗？单包 / 多包 / 交接怎么理解？**  
-不必一起装。工作根固定 `产品/` · `开发/` · `测试/`。版本记录：根 `CHANGELOG` 仅开发；产品/开发/测试各维护 `工作日志.md`、不改根；发布说明按版本；年归档各自 `_归档/工作日志/`。原始资料根（推荐 `docs/`）＝原始输入主副本（不归档）；当前包确认后复制进本包再吸收；对话/根散落先落入原始资料根。交接：内容优先、包按需；同仓直读不转发；仓外文件夹/ZIP；回执可选；收件走入站/吸收。
+不必。**默认单包独立落地**；多包可共用资料根与 `activeContext`，联动可选、非必须，不因缺他包阻塞。只强制本包工作根。版本记录：根 `CHANGELOG` 仅开发包维护；各岗位 `工作日志.md` 不写根。原始资料根（推荐 `docs/`）＝原始输入主副本；确认后复制进本包再吸收。交接：内容优先、包按需；同仓直读不转发；仓外文件夹/ZIP；未回执不得称「已接收」。
 
 **没有 Python / Node.js 能跑吗？**  
 能。工作流本身只依赖宿主；Python / Node / Playwright 缺失时走降级路径并提示一次。

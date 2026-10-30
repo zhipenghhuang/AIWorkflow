@@ -1,4 +1,4 @@
-# 共用电脑模式公共逻辑：检测 unlock.bat 的内存 broker，就绪时把 git / ssh 凭据来源指向 askpass 客户端。
+﻿# 共用电脑模式公共逻辑：检测 unlock.bat 的内存 broker，就绪时把 git / ssh 凭据来源指向 askpass 客户端。
 # 由 scripts/ 下入口脚本调用：$sharedMode = Initialize-SharedMode（未开启共用模式时返回 $false）。
 # 另含 commit 共用：无需服务器更新的改动判定（只提交推送、不询问服务器）。
 

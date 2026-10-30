@@ -24,7 +24,10 @@ REQUIRED = [
 ]
 META = ["交接 ID", "类型", "发起方", "接收方", "版本", "状态", "日期", "回执截止"]
 SECTIONS = ["接收方要做的事", "验收/完成标准", "回执要求"]
-ID_RE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Z]{2,5}-[A-Z]{2,4}2[A-Z]{2,12}$")
+# Strict pattern for common IDs; OTHER / project-extended TYPE allowed (WARN only if loose).
+ID_RE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Z]{2,8}-[A-Z]{2,6}2[A-Z]{2,16}$")
+ID_RE_LOOSE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Za-z0-9]{2,12}-[A-Za-z0-9]{2,8}2[A-Za-z0-9]{2,20}$")
+KNOWN_TYPES = {"PLAN", "REQ", "DES", "CHG", "BUG", "UAT", "REL", "RETRO", "DEC", "CLAR", "QA", "TEST", "FIX", "OTHER"}
 
 
 def split_row(line: str) -> list[str]:
@@ -69,8 +72,17 @@ def main() -> int:
         if not re.search(rf"^#+\s*.*{re.escape(sec)}", text, flags=re.M):
             errors.append(f"MISSING_SECTION: 00-交接说明.md: {sec}")
 
-    if not ID_RE.match(root.name):
-        errors.append(f"BAD_PACKAGE_ID: {root.name} (expect HO-yyyyMMdd-NN-TYPE-FROM2TO; multi-recv use ALL or DEVQA)")
+    warnings: list[str] = []
+    if ID_RE.match(root.name):
+        parts = root.name.split("-")
+        # HO-yyyyMMdd-NN-TYPE-FROM2TO → TYPE at index 3 when NN has no extra dashes
+        typ = parts[3] if len(parts) >= 5 else ""
+        if typ and typ.upper() not in KNOWN_TYPES:
+            warnings.append(f"WARN_UNKNOWN_TYPE: {typ} (allowed; declare intent in 00; known examples {sorted(KNOWN_TYPES)})")
+    elif ID_RE_LOOSE.match(root.name):
+        warnings.append(f"WARN_PACKAGE_ID_NONSTANDARD: {root.name} (accepted; prefer HO-yyyyMMdd-NN-TYPE-FROM2TO)")
+    else:
+        errors.append(f"BAD_PACKAGE_ID: {root.name} (expect HO-yyyyMMdd-NN-TYPE-FROM2TO; TYPE may be OTHER)")
     if text:
         m = re.search(r"\|\s*交接 ID\s*\|\s*`?([^|`]+)`?", text)
         if m and m.group(1).strip() != root.name:
@@ -109,6 +121,8 @@ def main() -> int:
         if rows == 0:
             errors.append("EMPTY_MANIFEST: 01-交接清单.md has no file rows")
 
+    for w in warnings:
+        print(w)
     if errors:
         for e in errors:
             print(e)

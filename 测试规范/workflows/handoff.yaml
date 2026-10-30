@@ -6,37 +6,20 @@ workflow:
   version: 1
   read_index: 规则/读取索引.md
 
+# 代表口令（非穷尽）；同义按 AGENTS + 入口判定路由
 entry_points:
+  写交接单: compose
   生成交接包: send
-  交接给开发: send
-  交接给产品: send
-  缺陷交接包: send
-  测试报告交接: send
   接收交接包: receive
-  接收提测包: receive
-  签收交接包: receive
-  导入交接包: receive
-  交接回执: receive
   交接状态: status
-  待回执: status
-  发变更通知: change_send
   变更通知: change_send
   同步变更: change_receive
-  收到变更: change_receive
-  变更影响分析: change_receive
   重规划: replan
-  计划调整: replan
-  重新基线: replan
-  计划偏离: replan
   提交: commit
-  推送: commit
 
 trigger:
-  - 生成交接包 / 交接给开发 / 交接给产品 / 缺陷交接包 / 测试报告交接
-  - 接收交接包 / 接收提测包 / 签收交接包 / 导入交接包 / 交接回执
-  - 交接状态 / 待回执
-  - 发变更通知 / 变更通知 / 同步变更 / 收到变更 / 变更影响分析
-  - 重规划 / 计划调整 / 重新基线 / 计划偏离
+  - 写交接单 / 生成交接包 / 接收交接包 / 交接状态
+  - 变更通知 / 同步变更 / 重规划
 
 steps:
   - name: 交接状态
@@ -50,6 +33,18 @@ steps:
       台账缺失 → 按 `规则/模板/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
       输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
 
+  - name: 写交接单文档
+    id: compose
+    agent: test-planner
+    hitl: confirm_intent
+    hitl_when: intent_needs_confirm
+    output: 自洽交接单文档（默认非 HO）
+    notes: >
+      **默认入口**。读协作 §3.0 与 `通用交接单文档模板.md`（择优，非填空卷）。
+      **意图择优**：先判 `intent_needs_confirm`（澄清 §0）。真 → 完整【意图理解】停等再落盘；假 → 一行【意图】回执后直写。禁止含糊「交接」直接成文。
+      五问→形态 A/B/C 或专模；禁止整表粘贴。
+      不建 HO；禁外印流程元数据。未命中触发却说「包」→ 仍本步。
+
   - name: 生成交接包
     id: send
     agent: test-planner
@@ -57,11 +52,8 @@ steps:
     hitl_when: handoff_send_required
     output: 测试/交接/{HO-ID}/ + 【交接包已生成】
     notes: >
-      先读 `规则/协作/协作与交接.md` §3.0/§3.1/§4 与交接包说明/清单模板。
-      **本步只生成包**：默认主文档（测试计划/报告/缺陷详单等）直接发**单文档**，不生成 HO；只有命中包触发（多文件证据/正式签收/仓外/同发多主文档/点名）才走本步。
-      **先问后发**：出示【拟发包】；确认后才写盘；未确认零发包。禁止静默发包。
-      选类型：CLAR/PLAN/DEC/BUG（无平台或点名；有平台已交→拒绝重复）/FIX/TEST/REL/RETRO；CHG 走 change_send；单文档默认直接发，不占 HO。
-      包须自包含；`01` 列全材料/版本/路径/必读/用途/大小/SHA256/敏感级别，`00` 只列关键 3～7 份；多包同仓直读禁转发；仓外文件夹/ZIP。输出【交接包已生成】。
+      **仅升包**。未命中包触发 → 改 `compose`。先问后发；`04` 空白≠必须填写。
+      有平台已交 → 拒绝重复 BUG 整包。输出【交接包已生成】。
 
   - name: 接收与签收
     id: receive

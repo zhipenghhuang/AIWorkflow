@@ -26,15 +26,17 @@
 | 10 | `技能/product-docs/SKILL.md` |
 
 > 新引用一律用实际路径；编号别名只用于兼容旧文本。  
-> **无编号别名**（勿强加 00–10）：`customer-needs-discovery`、`analytics-and-experimentation`、`artifact-review` 等后增技能，只按目录名引用。
+> **无编号别名**（勿强加 00–10）：`customer-needs-discovery`、`competitive-intelligence-and-learning`、`analytics-and-experimentation`、`artifact-review` 等后增技能，只按目录名引用。
 
 ## 步骤 → 技能映射
 
 | 步骤 | 技能 |
 | --- | --- |
 | plan：goals / roadmap | `技能/zero-to-one-product-definition/SKILL.md`（0→1）+ `技能/requirement-discovery-and-prioritization/SKILL.md`（迭代）+ `技能/customer-needs-discovery/SKILL.md`（目标依据）+ `技能/analytics-and-experimentation/SKILL.md`（指标树） |
-| new-product：discover / go / define | `技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md` |
-| prd：discover / prioritize | `技能/customer-needs-discovery/SKILL.md` + `技能/requirement-discovery-and-prioritization/SKILL.md` |
+| new-product：discover / go / define | `技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md` + `技能/competitive-intelligence-and-learning/SKILL.md`（模式 S） |
+| prd：discover | `技能/customer-needs-discovery/SKILL.md` + `技能/requirement-discovery-and-prioritization/SKILL.md`；竞品分析口令加 `competitive-intelligence-and-learning`（S） |
+| prd：benchmark | `技能/competitive-intelligence-and-learning/SKILL.md`（模式 P）+ `技能/requirement-discovery-and-prioritization/SKILL.md` |
+| prd：prioritize | `技能/requirement-discovery-and-prioritization/SKILL.md` + 按需 `customer-needs-discovery` |
 | prd：prd（撰写） | `技能/prd-writing/SKILL.md`（§9 完稿自检摘要 + P1↑；与 `03` 同源）+ `技能/analytics-and-experimentation/SKILL.md`（指标/埋点/实验） |
 | prd：review（评审定稿） | `技能/artifact-review/SKILL.md`（先选 A/B）+ `技能/review-and-finalize/SKILL.md`（选 B 量规） |
 | plan：review-plan | `技能/artifact-review/SKILL.md` |
@@ -43,7 +45,7 @@
 | change/defect：review（实质变更重审） | `技能/artifact-review/SKILL.md`（先选 A/B）+ `技能/review-and-finalize/SKILL.md`（选 B） |
 | change：intake / triage / assess / apply / verify（需求/问题/产品缺陷/变更） | `技能/customer-needs-discovery/SKILL.md`（intake）+ `技能/change-management/SKILL.md` |
 | defect：pull / analyze / apply / writeback（平台缺陷协作） | `技能/change-management/SKILL.md` + `规则/缺陷/缺陷平台协作.md` |
-| prototype：context / ia / wireframe / engineering / review / usability / handoff | `技能/prototype-and-interaction/SKILL.md`（设计策略/项目适配/交接边界） |
+| prototype：context / ia / wireframe / engineering / review / usability / handoff | `技能/prototype-and-interaction/SKILL.md`（设计策略/项目适配/交接边界）；context 竞品借鉴按需 + `competitive-intelligence-and-learning` §5 |
 | prototype：visual / hi-fi | `技能/ui-visual-design-system/SKILL.md`（设计系统策略/设计方向/tokens） |
 | deliver：schedule / followup（变更转 change） | `技能/change-management/SKILL.md` |
 | deliver：uat / release（含复盘） | `技能/uat-and-retrospective/SKILL.md` + `技能/analytics-and-experimentation/SKILL.md`（发布度量/实验） |

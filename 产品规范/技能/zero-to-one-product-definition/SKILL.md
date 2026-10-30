@@ -21,7 +21,7 @@ description: Use when starting a new product or 0-to-1 initiative. Validate the 
 
 - **用户**：访谈问过去行为与代价，不问“你会不会用”；样本写清（角色/数量/日期）。
 - **市场**：TAM/SAM/SOM 只要量级与依据；拿不到就写「待验证 + 验证方式」。
-- **竞品/替代**：官网、试用、公开资料；写链接 + 日期；禁凭印象。
+- **竞品/替代**：官网、试用、公开资料；写链接 + 日期；禁凭印象。方法与落盘按 `技能/competitive-intelligence-and-learning/SKILL.md` **模式 S**（竞品分析模板；借/改编/不借 ≥3）；禁只用功能对标矩阵代替选择性学习。
 - **数据**：注明口径、时间窗、样本；真实用户信息脱敏。
 
 ## 3. 商业论证（粗略但诚实）
@@ -71,6 +71,7 @@ description: Use when starting a new product or 0-to-1 initiative. Validate the 
 ## 9. 自检 4 项
 
 - [ ] 问题/用户/场景/替代/代价有证据，不是先想功能。
+- [ ] 竞品分析（或立项书 §3 等价）含学习决策；差异化或「不做强差异化」有依据。
 - [ ] 最危险假设已列，验证动作/责任人/截止明确。
 - [ ] MVP 有“不做”清单与退出/复审标准。
 - [ ] Go/Hold/Kill 结论有依据、反证与复审点。

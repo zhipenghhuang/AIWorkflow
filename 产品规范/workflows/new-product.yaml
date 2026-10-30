@@ -24,8 +24,9 @@ steps:
     hitl_when: understanding_needs_confirm
     output: 产品/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md
     notes: >
-      市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md`（先读再做）。
+      市场 / 用户 / 竞品 / 问题验证；技能：`技能/zero-to-one-product-definition/SKILL.md` + `技能/customer-needs-discovery/SKILL.md` + `技能/competitive-intelligence-and-learning/SKILL.md`（先读再做）。
       **先问题后方案再确认**：澄清**按 `规则/核心/澄清.md` 执行**；**未双确认不得**提 Go / 写全量 PRD。产出须含谁/场景/问题/代价/目标/非目标/方案要点/承诺信号；单个客户/竞品/领导说法标样本与证据等级；访谈/综合用 `访谈指南模板`/`洞察综合模板`。
+      **竞品（模式 S，0→1 默认）**：有 ≥2 可指认竞品/替代或战略定位需要时，落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（`竞品分析模板.md`）；学习决策表 **≥3 条**（借/改编/不借）回写立项书 §3；无公开竞品则写替代方案 +「待补竞品集」。禁只交功能对标矩阵代替选择性学习（对标跟进属迭代 `prd.benchmark`）。
       **来源扇出**（子代理编排 §2）：≥4 独立来源 → 按来源只读扇出（市场/用户/竞品/问题），各返回证据表/去重键 ≤30 行；立项书与 Go/Hold/Kill 集中；单来源直做。
       产出立项书：`产品/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md`（模板 `规则/模板/10-规划与需求/立项书模板.md`）；
       引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。

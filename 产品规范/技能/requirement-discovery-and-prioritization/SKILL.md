@@ -23,7 +23,7 @@ description: Use when collecting requirements, analyzing users or competitors, p
 | 用户反馈/客服工单 | 抽样、归类、频次统计 | 渠道+日期+样本量；原文可回查 |
 | 数据 | 埋点/报表/漏斗 | 指标名+口径+时间窗 |
 | 销售/业务 | 访谈、需求单 | 谁+何时+影响客户数 |
-| 竞品 | 官网/试用/公开资料 | 链接+日期（禁凭印象） |
+| 竞品 | 官网/试用/公开资料；系统分析见 `competitive-intelligence-and-learning`（S/P） | 链接+日期（禁凭印象）；S 回绑问题后入池；P 可先入候选项 |
 | 合规/外部 | 法规、审计、合同 | 条款/文件+日期 |
 
 ## 2. 访谈法（Mom Test 精神）
