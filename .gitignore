@@ -3,6 +3,11 @@
 Thumbs.db
 desktop.ini
 
+# AI/本机探针（勿入库）
+.commit-input*
+.tmp_*
+_parse_check*
+
 # Python
 __pycache__/
 *.py[cod]

@@ -4,6 +4,21 @@
 # 无待推则跳过（split 仍检查公开面，与 github/main 一致则跳过，否则补推）；
 # 自动写入 projects.txt（避免漏登记）；共享 .commit-deployed（纯文档/部署成功后登记，避免重复补部署）。
 # 纯文档改动（开发规范/、开发/、docs/、extras/、根说明 Markdown 等）只提交推送：不询问、不触发服务器更新。
+# AI 代跑：powershell -File scripts/commit.ps1 -Message '…' [-StagedOnly] [-PushTarget both|collab|public|skip] [-NoServer|-UpdateServer]
+# AI 代跑参数（人工双击 bat 不传参，仍走 Read-Host）：
+#   -Message       有内容的提交信息（AI 必填；禁止空/仅空白）
+#   -PushTarget    both|collab|public|skip（split 推送目标；不传则询问）
+#   -StagedOnly    只提交已 git add 的暂存区（分批用；禁止 git add -A）
+#   -NoServer      跳过服务器更新询问
+#   -UpdateServer  AI 模式下仍更新服务器（默认 AI 模式不询问、不更新）
+param(
+  [string]$Message,
+  [string]$PushTarget = '',
+  [switch]$StagedOnly,
+  [switch]$NoServer,
+  [switch]$UpdateServer
+)
+
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path $PSScriptRoot -Parent
 Set-Location $repoRoot
@@ -110,17 +125,56 @@ if ([string]::IsNullOrWhiteSpace($originUrl)) {
 Write-Host "=== [$repoName] 当前分支与变更 ===" -ForegroundColor Cyan
 git status --short --branch
 
+# --- AI / 非交互参数校验 ---
+$hasMessageParam = $PSBoundParameters.ContainsKey('Message')
+$hasPushTargetParam = -not [string]::IsNullOrWhiteSpace($PushTarget)
+$aiMode = $hasMessageParam -or $StagedOnly -or $hasPushTargetParam
+if ($hasMessageParam -and [string]::IsNullOrWhiteSpace($Message)) {
+  throw '[-Message] 不能为空；AI 代跑须写入有内容的提交信息（主题/版本 + 简述）'
+}
+if ($StagedOnly -and -not $hasMessageParam) {
+  throw '[-StagedOnly] 必须同时提供 -Message'
+}
+if ($hasMessageParam -and -not $StagedOnly) {
+  throw '[-Message] AI 代跑须同时加 -StagedOnly（先 git add 本批路径）；人工双击勿传 -Message'
+}
+if ($hasPushTargetParam) {
+  $PushTarget = $PushTarget.Trim().ToLowerInvariant()
+  if ($PushTarget -notin @('both', 'collab', 'public', 'skip')) {
+    throw "[-PushTarget] 无效：$PushTarget（允许 both / collab / public / skip）"
+  }
+}
+$stagedFiles = @(git diff --cached --name-only 2>$null)
+$hasStaged = $stagedFiles.Count -gt 0
+$needCommit = $false
+if ($StagedOnly) {
+  if (-not $hasStaged) { throw '[-StagedOnly] 暂存区为空：请先对本批路径执行 git add' }
+  $needCommit = $true
+} elseif ($dirty) {
+  $needCommit = $true
+} elseif ($hasMessageParam -and -not ($aheadBefore -gt 0)) {
+  throw '[-Message] 已提供但工作区无变更可提交（若只补推请去掉 -Message，或先改文件/git add）'
+}
+
 $pushed = $false
 $publicPushed = $false
-$needCollab = $dirty -or ($aheadBefore -gt 0)
+$needCollab = $needCommit -or ($aheadBefore -gt 0)
 try {
-  if ($dirty) {
-    # 默认时间戳仅供人工双击；AI 代跑须按 AGENTS 写入有内容的提交信息，禁止空回车。
-    $defaultMsg = 'update ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
-    $msg = Read-Host "[$repoName] 提交信息（回车使用默认：$defaultMsg）"
-    if ([string]::IsNullOrWhiteSpace($msg)) { $msg = $defaultMsg }
-    git add -A
-    if ($LASTEXITCODE -ne 0) { throw 'git add 失败' }
+  if ($needCommit) {
+    if ($hasMessageParam) {
+      $msg = $Message.Trim()
+    } else {
+      # 默认时间戳仅供人工双击；AI 代跑须传 -Message，禁止空回车用默认。
+      $defaultMsg = 'update ' + (Get-Date -Format 'yyyy-MM-dd HH:mm')
+      $msg = Read-Host "[$repoName] 提交信息（回车使用默认：$defaultMsg）"
+      if ([string]::IsNullOrWhiteSpace($msg)) { $msg = $defaultMsg }
+    }
+    if ($StagedOnly) {
+      Write-Host "[$repoName] 分批提交（仅暂存区 $($stagedFiles.Count) 个路径）..." -ForegroundColor Cyan
+    } else {
+      git add -A
+      if ($LASTEXITCODE -ne 0) { throw 'git add 失败' }
+    }
     git commit -m $msg
     if ($LASTEXITCODE -ne 0) { throw 'git commit 失败（见上方输出）' }
   } elseif ($needCollab) {
@@ -149,7 +203,12 @@ try {
     }
   } else {
     $statusLine = Get-SurfaceStatusLine -RepoPath $repoRoot -Surface $surface
-    $pushChoice = Read-PushTargetChoice -RepoName $repoName -Surface $surface -StatusLine $statusLine
+    if ($hasPushTargetParam) {
+      $pushChoice = $PushTarget
+      Write-Host "[$repoName] 推送目标（-PushTarget）：$pushChoice" -ForegroundColor Cyan
+    } else {
+      $pushChoice = Read-PushTargetChoice -RepoName $repoName -Surface $surface -StatusLine $statusLine
+    }
     if ($pushChoice -eq 'skip') {
       Write-Host "[$repoName] 已跳过推送（本地提交保留，重跑可补推）。" -ForegroundColor Yellow
     } else {
@@ -231,12 +290,22 @@ if ($isDocsOnly) {
   exit 0
 }
 
-# 服务器更新：deploy 环境下回车即更新；独立环境（如交付他人）默认回车跳过，输入 y 才更新
+# 服务器更新：deploy 环境下回车即更新；独立环境默认回车跳过。
+# AI 代跑（传了 -Message/-StagedOnly/-PushTarget）默认跳过；-UpdateServer 才更新；-NoServer 强制跳过。
 if ($isUnderDeploy) {
   if (-not $isOnline) {
     Write-Host '本项目未登记上线（online.txt），只提交推送、不更新服务器。' -ForegroundColor Yellow
     exit 0
   }
+}
+$skipServer = $NoServer -or ($aiMode -and -not $UpdateServer)
+if ($skipServer) {
+  Write-Host '已跳过服务器更新（AI 代跑默认跳过；需要时加 -UpdateServer）。' -ForegroundColor DarkGray
+  exit 0
+}
+if ($aiMode -and $UpdateServer) {
+  $doServer = $true
+} elseif ($isUnderDeploy) {
   $goServer = Read-Host '是否同步更新服务器？(回车更新，输入 n 跳过)'
   $doServer = [string]::IsNullOrWhiteSpace($goServer) -or $goServer.Trim() -eq 'y'
 } else {
