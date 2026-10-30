@@ -13,7 +13,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 ## 0. 生成落盘（不可让）
 
 1. 读分析表 **§0** + 主读/Network；禁猜未见 path/字段。  
-2. 按 **接口测试用例模板** 写/改域文件：`测试/接口测试/{NN}-{模块}接口用例.md`（§0～§7）。  
+2. 按 **接口测试用例模板** 写/改域文件：`测试/接口测试/{NN}-{短名}/{NN}-{短名}-接口用例.md`（§0～§7）。  
 3. 契约表 → 覆盖对照（每 EP×适用维禁空）→ 用例详情（请求要点 + 判定三要素）→ 脚本同轮。  
 4. 跑 `python 规则/tools/validate_api_testcase.py <域文件>`；ERROR 未清 = 未完成。  
 5. §0 声明本轮 `depth`；与计划/报告一致。

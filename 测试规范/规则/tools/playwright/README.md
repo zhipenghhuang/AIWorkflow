@@ -60,7 +60,7 @@ node 测试/脚本/executor.mjs --mode=api --plan=测试/接口测试/脚本/01-
 ## 3.1 API 模式（接口轨 · 无浏览器）
 
 - 适用：接口用例（契约明确、断言可写死）；判定口径见 `规则/专项/脚本执行.md` §1。
-- 脚本位置：`测试/接口测试/脚本/{NN}-{模块}.script.mjs`；登录钩子 `config.apiLogin(api, baseUrl, ctx)` 返回鉴权头对象（并入每步请求；可选，无则匿名）。
+- 脚本位置：`测试/接口测试/{NN}-{短名}/脚本/{NN}-{短名}.script.mjs`；登录钩子 `config.apiLogin`（可选）。
 - 步骤动作：仅 `api` 与 `note`；字段：`method`｜`path`｜`body`｜`headers`（覆盖鉴权头）｜`expectStatus`（默认 200）｜`expectMessage`（响应 message 含）｜`expectFields`（JSON 路径非空）｜`save`（`{bus 键: JSON 路径}`，供下游 `:key` 占位）。
 - 产出：jsonl 同上（`source=script-api`；通过行摘要默认带 `METHOD path -> 状态码;code=` 供落账）；失败自动落 `测试/功能测试/证据/{模块}/{CASE-ID}-api-{runStamp}.json`（请求+响应摘录）。
 - 实测：示例系统冒烟 4 条（登录/列表/401 负向/save 提取）≈105ms，全程无浏览器。

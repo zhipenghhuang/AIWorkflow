@@ -43,14 +43,31 @@ $toolFindings = New-Object System.Collections.Generic.List[string]
 $refCount = 0
 $anchorCount = 0
 
-$instanceLeafs = @('activeContext.md', '环境基线.md', 'CHANGELOG.md', '工作日志.md', '测试计划.md', '测试报告.md', '交接台账.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md', '资料索引.md')
+$instanceLeafs = @(
+    'activeContext.md', '环境基线.md', 'CHANGELOG.md', '工作日志.md',
+    '测试计划.md', '测试报告.md', '测试分析表.md', '交接台账.md',
+    '00-交接说明.md', '01-交接清单.md', '接收回执.md', '资料索引.md',
+    # 实例产物叶名后缀（工作流 §1.3.0 C 命名）；兼容旧平铺/短名
+    '用例.md', '台账.md', '方案.md', '报告.md',
+    '测试用例.md', '执行台账.md', '接口用例.md', '接口台账.md',
+    '功能用例.md', '功能台账.md', '探索用例.md', '探索台账.md',
+    '随机用例.md', '随机台账.md', '测试方案.md', '测试报告.md',
+    '00-发布前索引.md', '00-专项索引.md', '00-稳定冒烟清单.md'
+)
 $instancePrefixes = @('测试/', 'docs/', '.gate/', '04-回执/', '02-文档/')
 
 function Test-InstanceRef {
     param([string]$Token)
     $t = $Token.Replace('\', '/')
     if ($t -match '[{}…]') { return $true }
-    if ($instanceLeafs -contains (Split-Path $t -Leaf)) { return $true }
+    $leaf = Split-Path $t -Leaf
+    if ($instanceLeafs -contains $leaf) { return $true }
+    # C 命名：16-ASN-功能用例.md / 性能-测试方案.md 等
+    if ($leaf -match '(功能|接口|探索|随机)(用例|台账)\.md$') { return $true }
+    if ($leaf -match '-测试(方案|报告)\.md$') { return $true }
+    if ($leaf -match '(功能|接口|探索|随机)?(用例|台账|执行台账)\.md$') { return $true }
+    # 评审：合卷 评审-*.md；单域 *-评审-*.md
+    if ($leaf -match '^评审[-_]' -or $leaf -match '-评审-') { return $true }
     foreach ($p in $instancePrefixes) {
         if ($t.StartsWith($p, [StringComparison]::OrdinalIgnoreCase)) { return $true }
     }

@@ -15,7 +15,7 @@ Exit: 0 = PASS, 1 = CONDITIONAL/FAIL/BLOCKED, 2 = usage.
 
 Scope（步后门）:
   - execute：应带 --scope（如 16-ASN 或 功能测试/16）；缺则尝试从 activeContext/计划 §0 推断；仍无则 BLOCKED。
-  - report：忽略 --scope，永远全仓（准出门）。
+  - report：忽略 --scope，扫各轨现行台账；计数只认本轮装填（排除「未本轮验证」）。
 """
 from __future__ import annotations
 
@@ -38,8 +38,9 @@ except Exception:
 
 PACKAGE_NAME = "测试规范"
 RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
-STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用"}
+STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
 FAIL_STATUSES = {"失败", "阻塞", "待实现"}
+STALE_STATUS = "未本轮验证"
 CASE_ID_RE = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b")
 # 覆盖门只抓“结构性空话”的高信号子集；完整清单在规则/tools/validate_testcase.py
 COVERAGE_FILLER_RE = re.compile(
@@ -185,14 +186,21 @@ def to_int(s: str) -> int:
 def parse_ledger(path: Path) -> dict[str, Any]:
     text = read(path)
     sec = sections(text)
-    summary_block = next((v for k, v in sec.items() if "模块结论与汇总" in k or "汇总" in k), text)
+    summary_block = next(
+        (v for k, v in sec.items() if "域结论与汇总" in k or "模块结论与汇总" in k or "汇总" in k),
+        text,
+    )
     result_block = next((v for k, v in sec.items() if "结果表" in k), text)
+    # Prefer 本轮装填表（首张含总数/通过/失败）；兼容旧单表台账
     summary = pick_table(summary_block, ["总数", "通过", "失败"])
     results = pick_table(result_block, ["用例 ID", "结果"])
     issues: list[str] = []
     if re.search(r"\{\…\}|\{\.\.\.\}", text):
         issues.append(f"{path}: 仍有模板占位符")
-    counts = {"total": 0, "pass": 0, "fail": 0, "blocked": 0, "not_run": 0, "pending": 0, "na": 0}
+    counts = {
+        "total": 0, "pass": 0, "fail": 0, "blocked": 0, "not_run": 0,
+        "pending": 0, "na": 0, "stale": 0,
+    }
     p0_fail: list[str] = []
     evidence_missing: list[str] = []
     blocked_bad: list[str] = []
@@ -216,6 +224,15 @@ def parse_ledger(path: Path) -> dict[str, Any]:
             if status not in STATUSES:
                 issues.append(f"{cid or row[0]}: 未知结果状态 {status}")
                 continue
+            priority = cell(row, "用例优先级") or cell(row, "优先级")
+            evidence = cell(row, "证据路径")
+            summary_text = cell(row, "摘要")
+            if status == STALE_STATUS:
+                counts["stale"] += 1
+                # 未本轮验证：不计本轮通过率；但计划 P0 不得停留在此态
+                if "P0" in priority:
+                    p0_fail.append(f"{cid}:未本轮验证")
+                continue
             counts["total"] += 1
             if status == "通过":
                 counts["pass"] += 1
@@ -229,10 +246,6 @@ def parse_ledger(path: Path) -> dict[str, Any]:
                 counts["pending"] += 1
             elif status == "不适用":
                 counts["na"] += 1
-            # 用例优先级（P0-Smoke/P0-HighRisk/P1-Core/P2-Low）；兼容旧台账的“优先级”列。
-            priority = cell(row, "用例优先级") or cell(row, "优先级")
-            evidence = cell(row, "证据路径")
-            summary_text = cell(row, "摘要")
             if "P0" in priority and status != "通过":
                 if status == "不适用" and re.search(r"(依据|不适用|原因)", summary_text):
                     pass
@@ -245,7 +258,7 @@ def parse_ledger(path: Path) -> dict[str, Any]:
                     evidence_missing.append(f"{cid}: 证据不存在 {evidence}")
                 if status == "阻塞" and not re.search(r"(尝试|恢复|卡点|穷尽)", summary_text):
                     blocked_bad.append(f"{cid}: 阻塞缺已尝试/恢复条件")
-        if counts["total"] == 0:
+        if counts["total"] == 0 and counts["stale"] == 0:
             issues.append(f"{path}: 结果表无可识别用例（结果为空/未知）")
     else:
         issues.append(f"{path}: 未找到 §2 结果表（用例 ID/结果）")
@@ -266,7 +279,7 @@ def parse_ledger(path: Path) -> dict[str, Any]:
             }
             for k, v in declared.items():
                 if v != counts.get(k, 0):
-                    issues.append(f"{path}: {k} 汇总={v} 结果表={counts.get(k, 0)}")
+                    issues.append(f"{path}: {k} 汇总={v} 本轮结果表={counts.get(k, 0)}")
     else:
         issues.append(f"{path}: 未找到 §1 汇总表（总数/通过/失败）")
 
@@ -406,7 +419,13 @@ def find_review_records(root: Path) -> list[Path]:
         if not is_current(p):
             continue
         name = p.name
-        if name.startswith("评审-") or name.startswith("评审_") or "用例评审" in name:
+        # 合卷/计划：评审-*.md；单域 C 命名：{NN}-{短名}-评审-{戳}.md
+        if (
+            name.startswith("评审-")
+            or name.startswith("评审_")
+            or "-评审-" in name
+            or "用例评审" in name
+        ):
             out.append(p)
     return sorted(out, key=lambda p: p.stat().st_mtime, reverse=True)
 
@@ -432,12 +451,12 @@ def parse_review(path: Path) -> dict[str, Any]:
                 conclusion = "需修后放行"
             break
     if not conclusion:
-        # fallback whole doc
-        if re.search(r"\*\*结论\*\*[：:].{0,8}放行执行", text):
+        # fallback：整批结论 / 结论 行
+        if re.search(r"(整批)?结论[：:\*\s]{0,12}放行执行", text):
             conclusion = "放行执行"
-        elif re.search(r"\*\*结论\*\*[：:].{0,8}有条件放行", text):
+        elif re.search(r"(整批)?结论[：:\*\s]{0,12}有条件放行", text):
             conclusion = "有条件放行"
-        elif re.search(r"\*\*结论\*\*[：:].{0,8}需修后放行", text):
+        elif re.search(r"(整批)?结论[：:\*\s]{0,12}需修后放行", text):
             conclusion = "需修后放行"
         else:
             issues.append("结论不可解析（须为 放行执行/需修后放行/有条件放行）")
@@ -515,7 +534,10 @@ def main() -> int:
     test_root = project_root / "测试"
     checks: list[dict[str, Any]] = []
     blocked: list[str] = []
-    aggregate = {"total": 0, "pass": 0, "fail": 0, "blocked": 0, "not_run": 0, "pending": 0, "na": 0}
+    aggregate = {
+        "total": 0, "pass": 0, "fail": 0, "blocked": 0, "not_run": 0,
+        "pending": 0, "na": 0, "stale": 0,
+    }
     p0_fail: list[str] = []
     p0_missing: list[str] = []
     reported_verdict = ""
@@ -540,7 +562,7 @@ def main() -> int:
     if args.mode == "review":
         records = find_review_records(test_root)
         if not records:
-            blocked.append("未找到用例评审记录（测试/**/评审-*.md）")
+            blocked.append("未找到用例评审记录（测试/**/评审-*.md 或 **-评审-*.md）")
             checks.append({"id": "review-record", "status": "blocked", "detail": "missing"})
         else:
             latest = records[0]
@@ -773,7 +795,10 @@ def main() -> int:
         print(f"verdict: {verdict}")
         if scope:
             print(f"scope: {scope}")
-        print(f"counts: total={aggregate['total']} pass={aggregate['pass']} fail={aggregate['fail']} blocked={aggregate['blocked']} pending={aggregate['pending']}")
+        print(
+            f"counts: total={aggregate['total']} pass={aggregate['pass']} fail={aggregate['fail']} "
+            f"blocked={aggregate['blocked']} pending={aggregate['pending']} stale={aggregate.get('stale', 0)}"
+        )
         for c in checks:
             print(f"- {c['id']}: {c.get('status')} {str(c.get('detail', ''))[:160]}")
         if blocked:
