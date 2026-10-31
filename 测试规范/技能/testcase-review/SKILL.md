@@ -100,7 +100,7 @@ description: Use when reviewing test cases after generation or before execution.
 
 ## 8. 行业与 GitHub 方法整合（内化 · 不强制安装）
 
-> 方法已改写进本技能；外部仓库走 `能力/00-能力注册表.md` 的 `qa-skills` 等，未装则本技能降级自洽。
+> 方法已改写进本技能；外部仓库走 `能力/00-能力契约.md` 的 `qa-skills` 等，未装则本技能降级自洽。
 
 | 来源 | 吸收什么 |
 | --- | --- |

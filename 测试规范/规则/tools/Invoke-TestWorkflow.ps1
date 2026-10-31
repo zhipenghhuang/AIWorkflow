@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    测试规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力注册表） ④ AGENTS.md 版本单点存在。
+    测试规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力契约） ④ AGENTS.md 版本单点存在。
 .DESCRIPTION
     在资产目录（含 AGENTS.md）执行。实例文件引用（环境基线.md / activeContext.md / 测试/ 等）与示例占位路径不参与检查。
     自检时机：改本包后、用户点名。接入核验由 onboard 清单执行，不再依赖本脚本。
@@ -379,8 +379,8 @@ if (Test-Path -LiteralPath $wfDir) {
     }
 }
 
-# ---------- [3/4] 能力名声明（YAML tools/tools_allowed ⊆ 能力/00-能力注册表.md） ----------
-$capRegistryPath = Join-Path $Root '能力/00-能力注册表.md'
+# ---------- [3/4] 能力名声明（YAML tools/tools_allowed ⊆ 能力/00-能力契约.md） ----------
+$capRegistryPath = Join-Path $Root '能力/00-能力契约.md'
 if (Test-Path -LiteralPath $capRegistryPath) {
     $declaredCaps = New-Object System.Collections.Generic.HashSet[string]
     foreach ($line in [System.IO.File]::ReadAllLines($capRegistryPath, [System.Text.Encoding]::UTF8)) {
@@ -408,7 +408,7 @@ if (Test-Path -LiteralPath $capRegistryPath) {
                         if ($im.Success) {
                             $cap = $im.Groups[1].Value.Trim()
                             if (-not $declaredCaps.Contains($cap)) {
-                                $wfFindings.Add("CAP_UNDECLARED: ${capFile}:${capLn}: 能力名 '$cap' 未在 能力/00-能力注册表.md 声明")
+                                $wfFindings.Add("CAP_UNDECLARED: ${capFile}:${capLn}: 能力名 '$cap' 未在 能力/00-能力契约.md 声明")
                             }
                         }
                     }

@@ -2,9 +2,9 @@
 
 > **定位**：每一步的**专业方法与手艺**（playbook），随本包分发。命中步骤 → 步骤注记直接加载对应 `技能/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`技能/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `技能/` 指向本地 skills 目录（可选，不是前置条件）。  
-> **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部 skill 走 `能力/` +「装配能力」。  
+> **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部工具/skill 选型写入实例 `测试/能力/`（「装配能力」）；包内 `能力/` 仅契约与参考目录。  
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容），description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。
-> **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 走 `能力/00-能力注册表.md`（可选）。
+> **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 走 `能力/00-能力契约.md`（可选）。
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、obra/superpowers（MIT；系统化调试/验证）、fishzjp/qa-skills（MIT；需求模型/九类歧义/证据分级）、saleem-daqa/qa-test-case-generation（MIT）、JohnWayneeee/casely-qa-skill（MIT）、gneder/qa-test-plan-skill（MIT）、petrkindlmann/qa-skills（MIT）、fugazi/test-automation-skills-agents（ISTQB 静态测试清单）、GitHub Spec Kit（MIT；clarify/analyze）、ISTQB CTFL / ISO/IEC/IEEE 29119-3、OWASP WSTG / ASVS 5.0 / Top 10 for LLM 2025、WCAG 2.2、Core Web Vitals、OpenTelemetry、NIST AI RMF、schemathesis 等工具社区经验。
 

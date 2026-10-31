@@ -32,7 +32,7 @@ steps:
     agent: onboard-agent
     output: 体检范围卡（模式 project/generic、范围、依据）
     notes: >
-      读 playbook §1：含「通用/不按项目/通用最优」→ generic；无填实 `环境基线.md` → **强制 generic**；有填实 → project。
+      读 playbook §1：含「通用/不按项目/通用最优」→ generic；无填实基线且无 `测试/能力/00-能力清单.md` → **强制 generic**；有填实清单或基线 → project。
       范围：全量｜仅能力｜仅技能｜按轨。generic 默认全量。
 
   - name: 盘点
@@ -40,7 +40,7 @@ steps:
     agent: onboard-agent
     output: 库存摘要（能力/技能/映射/缺口，含证据）
     notes: >
-      能力注册表 + `环境基线.md` §17；`技能/README.md` 映射；抽查本范围 SKILL frontmatter；禁通读全部技能正文。
+      读 `测试/能力/00-能力清单.md`（无则记缺口）+ 包内契约/参考目录；`技能/README.md` 映射；抽查本范围 SKILL frontmatter；禁通读全部技能正文。
       输出【库存摘要】。
 
   - name: 适配分析
@@ -57,7 +57,7 @@ steps:
     output: 测试/00-项目治理/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）
     notes: >
       按 `规则/模板/00-接入与基线/能力技能体检报告模板.md` 与 playbook §3；P0 置顶。
-      本包可就地改技能；未确认不改；可列「下一步：装配能力」。
+      能力拟改只针对 `测试/能力/`；技能可改本包 `技能/`；未确认不改；可列「下一步：装配能力」。
 
   - name: 确认并应用
     id: apply
@@ -84,4 +84,4 @@ steps:
     output: 拟提交确认结果
     tools:
       - git
-    notes: 有技能/能力/基线改动才走；拟提交清单按 `规则/模板/90-交接与收尾/收尾骨架.md` §0/§2 与 `AGENTS.md` §4 git；无变更跳过。
+    notes: 有技能/实例能力/基线索引改动才走；拟提交清单按 `规则/模板/90-交接与收尾/收尾骨架.md` §0/§2 与 `AGENTS.md` §4 git；无变更跳过。

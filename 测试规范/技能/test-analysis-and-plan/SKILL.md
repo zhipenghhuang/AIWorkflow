@@ -101,4 +101,4 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 
 - ISO/IEC/IEEE 29119-3 测试计划要素（上下文/风险/策略/交付物/完成准则/度量/环境数据/回归/暂停恢复/角色/排期）。
 - ISTQB 风险驱动测试、测试金字塔、探索式测试（SBTM）。
-- 可选能力 `qa-skills`（test-strategy / test-planning / risk-based-testing / exploratory-testing）、`exploratory-skill`（SBTM 章程/MCOASTER 报告）——见 `能力/00-能力注册表.md`；未安装按本技能执行。
+- 可选能力 `qa-skills`（test-strategy / test-planning / risk-based-testing / exploratory-testing）、`exploratory-skill`（SBTM 章程/MCOASTER 报告）——见 `能力/00-能力契约.md`；未安装按本技能执行。
