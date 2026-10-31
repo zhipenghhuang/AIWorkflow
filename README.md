@@ -7,12 +7,17 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![Version](https://img.shields.io/badge/version-2026.10.31.12-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
+[![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
+[![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
+[![Skills](https://img.shields.io/badge/Agent%20Skills-built--in-success.svg)](#核心能力)
 [![Host](https://img.shields.io/badge/host-AGENTS.md-lightgrey.svg)](#快速开始)
+[![GitHub](https://img.shields.io/badge/GitHub-AIWorkflow-181717?logo=github)](https://github.com/zhipenghhuang/AIWorkflow)
 
 `YAML` · `Multi-Agent` · `Human-in-the-Loop` · `Agent Skills` · `MCP` · `Playwright`
 
-[快速开始](#快速开始) · [常用口令](#常用口令) · [架构](#架构) · [FAQ](#faq) · [CHANGELOG](./CHANGELOG.md)
+[快速开始](#快速开始) · [三套包](#三套独立包) · [常用口令](#常用口令) · [FAQ](#faq) · [CHANGELOG](./CHANGELOG.md)
 
 </div>
 
@@ -23,7 +28,6 @@
 > 公开同步按 `.public/allowlist.txt`；根 README 仅本 omit 块为协作专用。
 
 [![Gitee](https://img.shields.io/badge/Gitee-C71D23?logo=gitee)](https://gitee.com/zhipenghhuang/AIWorkflow)
-[![GitHub](https://img.shields.io/badge/GitHub-AIWorkflow-181717?logo=github)](https://github.com/zhipenghhuang/AIWorkflow)
 
 ```bash
 # 协作仓（Gitee 全量）
@@ -45,47 +49,14 @@ git clone https://gitee.com/zhipenghhuang/AIWorkflow.git
 
 | | |
 | --- | --- |
-| **不是** | 提示词合集、聊天技巧手册、自研编排引擎 |
 | **是** | 可版本化的工作流 + 角色契约 + HITL 确认门 + 完成门校验 + 文档治理 |
+| **不是** | 提示词合集、聊天技巧手册、自研编排引擎 |
 
 ---
 
-## 目录
+## 核心能力
 
-- [为什么需要它](#为什么需要它)
-- [核心亮点](#核心亮点)
-- [三套独立包](#三套独立包)
-- [快速开始](#快速开始)
-- [常用口令](#常用口令)
-- [架构](#架构)
-- [确认门与质量闸](#确认门与质量闸)
-- [仓库结构](#仓库结构)
-- [设计原则](#设计原则)
-- [自检](#自检)
-- [适用场景](#适用场景)
-- [FAQ](#faq)
-- [文档导航](#文档导航)
-- [反馈与贡献](#反馈与贡献)
-
----
-
-## 为什么需要它
-
-| 常见痛点 | AI Workflow 的做法 |
-| --- | --- |
-| 流程靠口口相传，换人、换会话就变样 | 流程写成 `workflows/*.yaml`，步骤 / 条件 / 门 / 产出可审查 |
-| AI 一上来就写代码或文档，方向错了才返工 | 需求、PRD、方案、清单、提交、发布设 HITL 确认门，未确认不进入下一步 |
-| 跨角色交接靠聊天，接收方不知道要做什么 | 默认自洽主文档；按需 `{HO-ID}` 标准包；**未回执不得称已接收** |
-| 每个项目都要重新解释一遍规范 | 整包复制即用；规则与实例分离，换项目只填档案 |
-| 外部工具不一定装得齐 | 实例 `能力/` 清单：已配即用，未配降级，不阻塞 |
-| 产物散落在聊天与桌面 | 文档治理：标准树、索引、归档、根目录白名单 |
-| 规范越写越多、互相矛盾 | 单一出处；包自检检查引用、锚点、YAML 与版本单点 |
-
----
-
-## 核心亮点
-
-| 亮点 | 说明 |
+| | |
 | --- | --- |
 | **声明式工作流** | `trigger → steps → agent`；条件步、确认门、质量闸可审查 |
 | **多 Agent 协作** | 角色契约按当前步加载；重阶段再读 playbook |
@@ -104,6 +75,21 @@ flowchart LR
     E -->|确认| F["产物落盘"]
     F --> G["索引 / 归档 / 交接"]
 ```
+
+<details>
+<summary><strong>为什么需要它（痛点对照）</strong></summary>
+
+| 常见痛点 | AI Workflow 的做法 |
+| --- | --- |
+| 流程靠口口相传，换人、换会话就变样 | 流程写成 `workflows/*.yaml`，步骤 / 条件 / 门 / 产出可审查 |
+| AI 一上来就写代码或文档，方向错了才返工 | 需求、PRD、方案、清单、提交、发布设 HITL 确认门，未确认不进入下一步 |
+| 跨角色交接靠聊天，接收方不知道要做什么 | 默认自洽主文档；按需 `{HO-ID}` 标准包；**未回执不得称已接收** |
+| 每个项目都要重新解释一遍规范 | 整包复制即用；规则与实例分离，换项目只填档案 |
+| 外部工具不一定装得齐 | 实例 `能力/` 清单：已配即用，未配降级，不阻塞 |
+| 产物散落在聊天与桌面 | 文档治理：标准树、索引、归档、根目录白名单 |
+| 规范越写越多、互相矛盾 | 单一出处；包自检检查引用、锚点、YAML 与版本单点 |
+
+</details>
 
 ---
 
@@ -140,7 +126,7 @@ flowchart LR
 | --- | --- | --- |
 | 支持 `AGENTS.md` 的 AI 编码工具（Cursor / Claude Code / opencode 等） | 执行宿主 | **必需** |
 | PowerShell 5.1+ | 包自检 / 完成门 | 维护与过门时 |
-| Python 3 + PyYAML | YAML schema、文档校验 | 可选（缺失则跳过并提示） |
+| Python 3 + PyYAML | 完成门、YAML schema、文档校验 | **完成门必需**；缺失=BLOCKED（工作流仍可读/执行，但不能声称完成） |
 | Node.js + Playwright | 测试脚本档 | 测试脚本轨可选 |
 | 浏览器 MCP | UI 功能 / 探索式执行 | 按需 |
 | Git | 提交门与版本管理 | 建议 |
@@ -155,13 +141,14 @@ cd AIWorkflow
 ### 2. 只复制一个包到项目根
 
 ```bash
-# macOS / Linux（以开发规范为例）
-cp -r 开发规范 /path/to/your-project/
+# macOS / Linux（以开发规范为例；排除运行态 / 过程文件 / 缓存）
+rsync -a --exclude .draft --exclude .state --exclude .gate --exclude __pycache__ \
+  开发规范 /path/to/your-project/
 ```
 
 ```powershell
-# Windows：排除运行态 / 缓存
-robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .state .gate __pycache__
+# Windows：排除运行态 / 过程文件 / 缓存
+robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .draft .state .gate __pycache__
 ```
 
 > 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。产品 / 测试换成对应包名。
@@ -188,15 +175,21 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .state .ga
 
 ### 4. 让 AI 接入，然后开跑
 
+对 AI 说：
+
 ```text
 接入开发规范
 ```
+
+再例如：
 
 ```text
 开发计划
 ```
 
 也可以直接说：`轻量开发` · `写 PRD` · `生成测试计划` · `按方案实施` ……
+
+成功标志：AI 首条输出含 `route=… | step=…`，并开始按包内 workflow 推进（遇确认门会停下等你拍板）。
 
 ---
 
@@ -219,7 +212,8 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .state .ga
 
 更完整口令表见各包 `AGENTS.md`（产品/开发 §3，测试 §2）。口语未命中时，按各自 `规则/核心/入口判定.md` 做意图判定。
 
-### 多包：意图→包（歧义时先查本表）
+<details>
+<summary><strong>多包：意图→包（歧义时先查本表）</strong></summary>
 
 单包装载无需本表。同项目启用 ≥2 个包时，口语可能命中多包——**先定包，再走该包口令/入口判定**；无法唯一则一问 + 推荐。
 
@@ -240,17 +234,22 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .state .ga
 
 根 `AGENTS.md` 列「已启用包」；一次会话只跑一个包。Cursor 可用各包模板 `cursor-rule样例.mdc`（按目录 globs，勿三包同时 alwaysApply）。
 
+</details>
+
 ---
 
-## 架构
+## 它如何工作
 
 五步执行模型：
 
-1. **路由** — 多包先按上表定包；新会话读包内 `AGENTS.md` **§0 硬节**（含 `activeContext` 总览/进行中/`rule_card` + 档案或基线**项目身份短读**；资料不足则探仓/择要 README → **先回写工作流文档**）；命中 workflow；首条输出 `route=… | step=… | reads=…`；纯解释走 `readonly:analysis`（**禁止通读 §0～§3 全文**）
-2. **加载** — 新会话：§0 → 当前 step 块 → 读取索引当前行（`rule_anchor`）→ 当前 agent → 命中技能/playbook。**同会话中段**：【规则心跳】重锚身份与当前步（见各包 `规则/核心/规则重锚.md`），不重读 §0 全文
+1. **路由** — 多包先定包；新会话读包内 `AGENTS.md` **§0 硬节** → 命中 workflow；首条输出 `route=… | step=… | reads=…`；纯解释走 `readonly:analysis`（**禁止通读 §0～§3 全文**）
+2. **加载** — 新会话：§0 → 当前 step 块 → 读取索引当前行 → 当前 agent → 命中技能/playbook。**同会话中段**：【规则心跳】重锚（见各包 `规则/核心/规则重锚.md`），不重读 §0 全文
 3. **执行** — 步内方法由 AI 自主；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门/约每 5～8 轮须心跳
 4. **验证** — `验证/Invoke-Gate.ps1`；只有门能授予 `COMPLETE` / `PASS` / `READY`
-5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`（含 `rule_card`）
+5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`
+
+<details>
+<summary><strong>分层落点</strong></summary>
 
 | 层 | 落点 |
 | --- | --- |
@@ -265,6 +264,8 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .state .ga
 | 文档治理 | `规则/文档治理.md` + `规则/模板/` |
 
 执行宿主是任意支持 `AGENTS.md` 自动装载的 AI 编码工具，**不自研编排引擎**。
+
+</details>
 
 ---
 
@@ -342,36 +343,11 @@ AIWorkflow/
 - **按风险分级** — 低风险少文档，高风险才全链。
 - **规则与实例分离** — 通用规范在包内；项目档案与业务产物在实例侧。
 - **技能随包，能力跟实例** — 技能给方法；能力选型/绑定在 `{工作根}/能力/`，包内仅契约与参考目录。
-- **单一出处** — `template_version` 只写在各包 `AGENTS.md`；根 README 不缀版本号。
+- **单一出处** — `template_version` 只写在各包 `AGENTS.md`；根 README 不缀版本号为权威源（徽章仅导航提示，真源仍看各包）。
 - **文档现行有效** — 只写当前存在的功能与规则。
 - **内容优先 · 包按需** — 默认自洽主文档；升包才 `{HO-ID}`。
 - **宿主无关** — 包内只写能力名，不写宿主名和本地路径。
 - **三维同向 / 做减法** — 兼顾 UX · DX · AX；界面先删无决策价值文案。
-
----
-
-## 自检
-
-改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。执行契约见各包 `规则/核心/执行契约.md`；外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-Template.ps1"
-powershell -ExecutionPolicy Bypass -File "开发规范/规则/tools/Test-Template.ps1"
-powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
-python 产品规范/规则/tools/check_skills.py 产品规范 --strict
-python 开发规范/规则/tools/check_skills.py 开发规范 --strict
-python 测试规范/规则/tools/check_skills.py 测试规范 --strict
-```
-
-完成门示例：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
-```
-
-单项校验（PRD / 任务清单 / 用例 / 交接包等）见各包 `规则/tools/`。
 
 ---
 
@@ -401,7 +377,7 @@ powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -
 不必。默认单包独立落地；多包联动可选，不因缺他包阻塞。
 
 **没有 Python / Node.js 能跑吗？**  
-能。工作流只依赖宿主；缺失时走降级并提示一次。
+工作流可以读、可以按步骤执行；但**完成门需要 Python**，缺失会返回 `BLOCKED`，不会降级成“已完成”。Node.js 只在测试脚本轨需要，缺失按降级处理。
 
 **会不会强制写很多文档？**  
 不会。开发 L0 不强制文档；L1 轻量；L2/L3 才走完整链。测试按计划装填（suite=core|module|full）。
@@ -414,6 +390,34 @@ powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -
 
 **版本怎么看？**  
 只认各包 `AGENTS.md` 的 `template_version`；根 [CHANGELOG.md](./CHANGELOG.md) 记产品发版史，不是版本声明源。
+
+---
+
+<details>
+<summary><strong>自检与完成门（维护 / 贡献时）</strong></summary>
+
+改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。执行契约见各包 `规则/核心/执行契约.md`；外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "产品规范/规则/tools/Test-Template.ps1"
+powershell -ExecutionPolicy Bypass -File "开发规范/规则/tools/Test-Template.ps1"
+powershell -ExecutionPolicy Bypass -File "测试规范/规则/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
+python 产品规范/规则/tools/check_skills.py 产品规范 --strict
+python 开发规范/规则/tools/check_skills.py 开发规范 --strict
+python 测试规范/规则/tools/check_skills.py 测试规范 --strict
+```
+
+完成门示例：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "测试规范/验证/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
+```
+
+单项校验（PRD / 任务清单 / 用例 / 交接包等）见各包 `规则/tools/`。
+
+</details>
 
 ---
 
@@ -440,12 +444,15 @@ powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -
 2. **验证方式**（跑了哪些自检 / 完成门）
 3. 若改了规则或路径，是否同步了读取索引与包 README
 
-**维护约定**
+<details>
+<summary><strong>维护约定</strong></summary>
 
 - 改步骤 → `workflows/`；改角色 → `agents/`；改红线 / 输出 → `规则/`；改方法 → `技能/`；改槽位契约/参考目录 → 包内 `能力/`；改项目选型/绑定 → 实例 `{工作根}/能力/`
 - 落地：「体检能力」技能改包内 `技能/`，能力改实例 `能力/`；契约通用改进回母版
 - 维护通用母版时：改动先落本仓再同步；实例 `能力/` 不在包内，不被包同步覆盖
 - 分支：仅维护 `main`
+
+</details>
 
 ---
 

@@ -7,6 +7,9 @@ desktop.ini
 .commit-input*
 .tmp_*
 _parse_check*
+.draft/
+.state/
+.gate/
 
 # Python
 __pycache__/

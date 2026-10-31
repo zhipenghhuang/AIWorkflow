@@ -55,7 +55,7 @@
 
 ## 3. 上手（快速开始）
 
-1. 复制整个 `开发规范/` 到项目根下一层；**排除** `.state/`、`.gate/`、`__pycache__/`（这些是运行态/缓存，不是规范）。推荐 `git archive` 或 `robocopy /XD .state .gate __pycache__`。  
+1. 复制 `开发规范/` 到项目根下一层；**排除** `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）。推荐 `git archive` 或 `robocopy /XD .draft .state .gate __pycache__`。
 2. 挂载：按 `规则/模板/00-接入与治理/根AGENTS薄指针.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖）。  
 3. 对 AI 说「接入开发规范」→ `workflows/onboard.yaml`：建档 → 文档树/索引/归档 → 根 `CHANGELOG.md` + `开发/工作日志.md` → 入库策略 → 打标。  
 3.1 **个人小项目/想法**：直接说「我有个想法：…」或「轻量开发」→ `solo`：按需产品定义 → 一页方案卡 → 你确认 → 实施 → AI 实测 → 收尾；L2+ 自动升级完整链。小改也可直接说「改一下…」走 `change` L0/L1。  

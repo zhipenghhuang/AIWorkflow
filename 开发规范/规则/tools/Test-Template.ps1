@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    开发规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力注册表） ④ AGENTS.md 版本单点存在。
+    开发规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力注册表） ④ AGENTS.md 版本单点存在；密钥扫描（check_secrets.py）。
 .DESCRIPTION
     在资产目录（含 AGENTS.md）执行。实例文件引用（项目档案.md / activeContext.md / 项目规范/* 等）与示例占位路径不参与检查。
     自检时机：改本包后、用户点名。接入核验由 onboard 清单执行，不再依赖本脚本。
@@ -431,6 +431,21 @@ elseif (-not $pyCmd) {
     $toolFindings.Add('YAML_SKIPPED: 未找到 python，YAML 语法未验证')
 }
 
+# ---------- 密钥扫描（同自检） ----------
+$secretStatus = '跳过'
+$secretChecker = Join-Path $rulesDir 'tools/check_secrets.py'
+if ($pyCmd -and (Test-Path -LiteralPath $secretChecker)) {
+    $secretOut = & $pyCmd.Source -B -X utf8 $secretChecker $Root 2>&1
+    if ($LASTEXITCODE -eq 0) { $secretStatus = 'OK' }
+    else {
+        $secretStatus = '失败'
+        foreach ($l in $secretOut) { $toolFindings.Add("SECRET: $l") }
+    }
+}
+elseif (-not $pyCmd) {
+    $toolFindings.Add('SECRET_SKIPPED: 未找到 python，密钥扫描未执行')
+}
+
 # ---------- [0/5] 开发计划模板 schema（需 python） ----------
 $docSchemaStatus = '跳过'
 $devPlanTemplate = Join-Path $rulesDir '模板/10-规划与需求/开发计划模板.md'
@@ -453,7 +468,7 @@ elseif (-not $pyCmd) {
 # ---------- 输出 ----------
 Write-Output '=== 开发规范自检（精简版） ==='
 Write-Output "根目录：$Root"
-Write-Output ("[0/5] YAML/文档 schema：{0}；开发计划模板 {1}" -f $yamlStatus, $docSchemaStatus)
+Write-Output ("[0/5] YAML/文档 schema：{0}；开发计划模板 {1}；密钥扫描 {2}" -f $yamlStatus, $docSchemaStatus, $secretStatus)
 Write-Output ("[1/5] 引用可解析（扫描 {0} 处）：{1}" -f $refCount, $(if ($refFindings.Count -eq 0) { 'OK' } else { "$($refFindings.Count) 处待处理" }))
 Write-Output ("[2/5] 章节锚点（扫描 {0} 处）：{1}" -f $anchorCount, $(if ($anchorFindings.Count -eq 0) { 'OK' } else { "$($anchorFindings.Count) 处待处理" }))
 Write-Output ("[3/5] workflows→agents + 步标记词表 + 能力名：{0}" -f $(if ($wfFindings.Count -eq 0) { 'OK' } else { "$($wfFindings.Count) 处待处理" }))
