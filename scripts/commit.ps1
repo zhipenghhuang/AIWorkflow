@@ -1,7 +1,7 @@
 ﻿# 双击 commit.bat 运行：提交推送本项目；在 deploy 环境下且项目已登记上线（online.txt）时同步更新服务器
 # 本项目可脱离 deploy 单独使用：独立环境仅做提交推送（含失败补推），不依赖任何 deploy 文件。
 # 在 deploy 环境下：读 surfaces.txt 区分 mirror/split；有协作待推时 split 可选仅协作/仅公开/两者（回车=两者）；
-# 无待推则跳过（split 仍检查公开面，与 github/main 一致则跳过，否则补推）；
+# 无待推则跳过（split 公开面输入未变则跳过网络核对与推送，变化才全量；失败不写缓存）；
 # 自动写入 projects.txt（避免漏登记）；共享 .commit-deployed（仅服务器部署成功后登记并推送该记录）。
 # 纯文档改动（开发规范/、开发/、docs/、extras/、根说明 Markdown 等）只提交推送：不询问、不部署、不改部署记录。
 # AI 代跑：powershell -File scripts/commit.ps1 -Message '…' [-StagedOnly] [-PushTarget both|collab|public|skip] [-NoServer|-UpdateServer]
@@ -11,12 +11,14 @@
 #   -StagedOnly    只提交已 git add 的暂存区（分批用；禁止 git add -A）
 #   -NoServer      跳过服务器更新询问
 #   -UpdateServer  AI 模式下仍更新服务器（默认 AI 模式不询问、不更新）
+#   -VerifyPublic  强制公开面全量核对一次（忽略本地输入指纹缓存；等价 DEPLOY_PUBLIC_VERIFY=1）
 param(
   [string]$Message,
   [string]$PushTarget = '',
   [switch]$StagedOnly,
   [switch]$NoServer,
-  [switch]$UpdateServer
+  [switch]$UpdateServer,
+  [switch]$VerifyPublic
 )
 
 $ErrorActionPreference = 'Stop'
@@ -197,7 +199,7 @@ try {
     $statusLine = Get-SurfaceStatusLine -RepoPath $repoRoot -Surface $surface
     Write-Host $statusLine -ForegroundColor Cyan
     Write-Host "[$repoName] 协作面已同步，检查公开面..." -ForegroundColor DarkGray
-    $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
+    $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList -VerifyPublic:$VerifyPublic
     if ($publicResult -eq 'pushed') {
       $publicPushed = $true
       Write-Host "[$repoName] 公开面补推完成。" -ForegroundColor Green
@@ -225,7 +227,7 @@ try {
         $pushed = $true
       }
       if ($doPublic) {
-        $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList
+        $publicResult = Invoke-SyncPublicSurface -RepoPath $repoRoot -RepoName $repoName -ListFileName $surface.PublicList -VerifyPublic:$VerifyPublic
         if ($publicResult -eq 'pushed') {
           $pushed = $true
           $publicPushed = $true

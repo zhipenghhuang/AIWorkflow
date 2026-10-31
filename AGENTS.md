@@ -5,6 +5,7 @@
 1. 开工先读 `README.md`（维护约定）和 `activeContext.md`（当前状态/下一步）。
 2. 改包后跑三包自检：产品/开发 `规则/tools/Test-Template.ps1`，测试 `规则/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`，技能 `check_skills.py --strict`。
 3. 协作/公开面按 `.public/allowlist.txt` + deploy `surfaces.txt` 的 `split` 规则；根 `AGENTS.md`、`activeContext.md`、`.public/`、`extras/` 不进公开面。
+   - **公开面（日常）**：真源=`.public/allowlist.txt`；README 协作段=`<!-- public:omit -->`；同步走本目录或 deploy 的 `commit`（split，禁止裸推 github）。本轮若新增/移动「跑起来或对外说明」所需路径、或改已公开说明文并出现过程树/本机入口/档案链接，或用户要求改公开范围 → 对照允许列表做拟公开/拟剥离/不确定，夹带不确定则问用户；确认后再改清单/omit 并同步。只改协作过程侧且不影响公开段 → 不动清单。改清单或推公开前先给简短核对结论。
 4. 提交用本目录 `commit.bat` / `scripts/commit.ps1` 或 deploy `commit.bat`；人工双击仍交互确认；split 禁止裸推 `github`。
 5. **AI 代跑提交（硬）**：用户口令「提交 / 提交推送」时必须走参数面（禁止管道/`Read-Host`、禁止仓内临时 stdin 文件）：
    - 先 `git status` + diff，按**一类一提交**拆批；每批写出有内容的 `-Message`（主题/版本 + 简述），**禁止**默认 `update 时间戳`。
