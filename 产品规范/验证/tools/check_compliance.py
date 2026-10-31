@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 同源脚本：产品/测试两包一致；改一处需同步。
+# 同源脚本：产品/开发/测试三包一致；改一处需同步。
 """Check a 收尾/报告 file for the mandatory 遵守自检 block.
 
 Usage: python check_compliance.py --report <file>

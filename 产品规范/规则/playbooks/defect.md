@@ -7,7 +7,7 @@
 
 | 步 | 必读 | 可选/按需 |
 | --- | --- | --- |
-| preflight | `workflows/defect.yaml` + `规则/缺陷/缺陷平台协作.md` §1 + `产品档案.md` §7 | 能力注册表 `defect-platform` |
+| preflight | `workflows/defect.yaml` + `规则/缺陷/缺陷平台协作.md` §1 + `产品档案.md` §7 | 能力契约 `defect-platform` |
 | pull | §2 + 受理模板 | 附件/评估单原文 |
 | source | §2.2 | 备注/附件 |
 | analyze | §3 + `技能/change-management/SKILL.md` §2 | PRD/设计原文、测试证据 |

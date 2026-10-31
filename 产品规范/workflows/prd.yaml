@@ -154,7 +154,7 @@ steps:
     id: handoff
     when: prd_ready_for_handoff
     agent: pm-lead
-    output: 产品/交接/{HO-ID}/（REQ → 开发/测试）+ 交接台账
+    output: 产品/交接/出站/需求/{HO-ID}/（REQ → 开发/测试；或仅出站实拷）+ 交接台账
     notes: >
       PRD 已 APPROVED 且 PRD 门 READY 后执行；本步只决定「交自洽 PRD 还是打 REQ 包」，**不得在本步直接写 `{HO-ID}/`**。
       **最优默认**：定稿后交付**自洽 PRD**（实施可读：全量 AC/范围/非目标/边界/NFR/待决写进 PRD）；**不**默认打 REQ 包。
@@ -167,7 +167,7 @@ steps:
     output: 【任务收尾】（PRD/评审明细置第 1 点）
     notes: >
       对照 `规则/模板/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写；
-      更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；未验证项明示。
+      更新产品计划 §0/§7/§10、activeContext、资料索引（有实质进展时）；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 
   - name: 拟提交
