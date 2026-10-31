@@ -2,10 +2,10 @@
 
 > **定位**：每一步的**专业方法与手艺**（playbook），随本包分发。命中步骤 → 步骤注记直接加载对应 `技能/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`技能/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `技能/` 指向本地 skills 目录（可选，不是前置条件）。  
-> **更新**：本包 `技能/` 可就地改。口令「体检能力」做检查与优化建议（确认后应用）；「通用优化技能」按通用最优改、不绑具体项目。外部 GitHub skill 仍走 `能力/` +「装配能力」。  
+> **更新**：本包 `技能/` 可就地改。口令「体检能力」做检查与优化建议（确认后应用）；「通用优化技能」按通用最优。外部工具选型写入实例 `开发/能力/`（「装配能力」）。  
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容）；description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。
-> **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 仍走 `能力/00-能力注册表.md`（可选）。
-> **与「能力」的区别**：技能=怎么做（方法/清单/手感，随包生效、必用）；`能力/00-能力注册表.md` 的能力=用哪些外部工具（选装；本机可用即自动使用、不可用走降级）。  
+> **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 仍走 `能力/00-能力契约.md`（可选）。
+> **与「能力」的区别**：技能=怎么做（随包必用）；能力选型真源=`开发/能力/00-能力清单.md`；包内契约/参考目录非真源。  
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `规则/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、obra/superpowers（MIT；系统化调试/计划/评审）、github/spec-kit（MIT）、bmad-code-org/BMAD-METHOD（MIT）、wshobson/agents（MIT）、alibaba/open-code-review（Apache-2.0）、Google Engineering Practices、Google AIP、Microsoft REST API Guidelines、OWASP ASVS 5.0、OWASP WSTG、OWASP Top 10 for LLM 2025、SLSA v1.2、OpenSSF Scorecard、12-Factor、DORA、C4/arc42/ADR、OpenTelemetry（含 GenAI 语义约定）、Diátaxis、Keep a Changelog/SemVer、WCAG 2.2、Core Web Vitals、NIST AI RMF、ISO/IEC 42001（许可以官方为准）。  
 

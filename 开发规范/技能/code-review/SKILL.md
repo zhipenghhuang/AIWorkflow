@@ -21,7 +21,7 @@ description: Use before merge or when the user asks for code review. Review corr
 
 - 先列**改动文件清单**（含测试、配置、迁移、文案资源），逐文件勾核一遍再写结论。
 - 大 diff 先按文件分组过，再回头精读高风险文件（金额/权限/并发/数据迁移）。
-- 本机可用 code-review 时按其全量 diff 模式跑（`能力/00-能力注册表.md`）；不可用=人工/子代理按同清单。
+- 本机可用 code-review 时按其全量 diff 模式跑（`能力/00-能力契约.md`）；不可用=人工/子代理按同清单。
 
 ## 3. 高风险信号清单（重点盯）
 

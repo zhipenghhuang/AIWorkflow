@@ -64,7 +64,7 @@ description: Use when implementing or verifying a change. Enforce implement pref
 - 新增动作码/审计/异步任务：中文标签与提交+终态同批（DEV-IQ-07）；否则债项化，不得静默用技术码冒充完成。
 - 未验证路径显式写「未验证」（`规则/工作流.md` §3.1）。
 - 收尾写三维影响：UX/DX/AX 各一句；无证据的维度标「未验证」（`技能/engineering-quality/SKILL.md` §1.1）。
-- 可测逻辑同步补测；装配 unit-test-gen 时按覆盖缺口驱动（`能力/00-能力注册表.md`）。
+- 可测逻辑同步补测；装配 unit-test-gen 时按覆盖缺口驱动（`能力/00-能力契约.md`）。
 
 ## 5. 测试层次与工程动作
 

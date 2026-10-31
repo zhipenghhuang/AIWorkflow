@@ -67,7 +67,7 @@ description: Use when a change needs architecture, interface, data, migration, s
 ## 5. 评审呈现（confirm_spec 时出示）
 
 - 一屏内：范围/排除 → 主链路 → 接口与数据 → 兼容与回滚 → 风险与未决。
-- 装配 design-diagram 时附一张图（`能力/00-能力注册表.md`）。
+- 装配 design-diagram 时附一张图（`能力/00-能力契约.md`）。
 
 ## 6. 企业设计补充（按变更面取用）
 

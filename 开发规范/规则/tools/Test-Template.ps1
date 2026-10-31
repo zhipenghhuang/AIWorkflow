@@ -357,8 +357,8 @@ if (Test-Path -LiteralPath $wfDir) {
     }
 }
 
-# ---------- [3/4] 能力名声明（YAML tools/tools_allowed ⊆ 能力/00-能力注册表.md） ----------
-$capRegistryPath = Join-Path $Root '能力/00-能力注册表.md'
+# ---------- [3/4] 能力名声明（YAML tools/tools_allowed ⊆ 能力/00-能力契约.md） ----------
+$capRegistryPath = Join-Path $Root '能力/00-能力契约.md'
 if (Test-Path -LiteralPath $capRegistryPath) {
     $declaredCaps = New-Object System.Collections.Generic.HashSet[string]
     foreach ($line in [System.IO.File]::ReadAllLines($capRegistryPath, [System.Text.Encoding]::UTF8)) {
@@ -386,7 +386,7 @@ if (Test-Path -LiteralPath $capRegistryPath) {
                         if ($im.Success) {
                             $cap = $im.Groups[1].Value.Trim()
                             if (-not $declaredCaps.Contains($cap)) {
-                                $wfFindings.Add("CAP_UNDECLARED: ${capFile}:${capLn}: 能力名 '$cap' 未在 能力/00-能力注册表.md 声明")
+                                $wfFindings.Add("CAP_UNDECLARED: ${capFile}:${capLn}: 能力名 '$cap' 未在 能力/00-能力契约.md 声明")
                             }
                         }
                     }

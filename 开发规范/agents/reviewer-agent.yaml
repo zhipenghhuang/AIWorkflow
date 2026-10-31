@@ -5,7 +5,7 @@ goal: RP/AC↔改动文件↔验证输出三方对账；只报正确性/需求�
 reads:
   - 规则/读取索引.md（review/check 当前 step 行）
   - 当前 step 的任务清单/需求基线/方案/实施方返回/diff/证据
-  - 技能 `code-review` 当前节 + `engineering-quality` §5；能力注册表（code-review/security-scan 可用时）
+  - 技能 `code-review` 当前节 + `engineering-quality` §5；能力契约（code-review/security-scan 可用时）
 
 must:
   - 不采信口头完成；结论附依据（差异、命令输出、扫描结果）。

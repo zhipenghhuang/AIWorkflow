@@ -27,7 +27,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 ```
 
 4. 回执 `.gate/开发规范/completion.json`；空任务窗口 → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`。
-5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）。
+5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** wrap 均跑）；可选 `python 验证/tools/check_compliance.py --report <收尾文件>`。
 
 **落盘**：`开发规范/验证/` 只读；运行态写项目根 `.gate/开发规范/`（仅 JSON）与 `.gate/frontend/`（截图 + design-qa）。
 
@@ -40,6 +40,7 @@ powershell -ExecutionPolicy Bypass -File "开发规范/验证/Invoke-Gate.ps1" -
 | `Invoke-Gate.ps1` | 唯一入口；调用 `tools/gate.py` |
 | `tools/gate.py` | 变更分级、验收清单解析、检查执行、`completion.json` |
 | `验证/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
+| `验证/tools/check_compliance.py` | 收尾【验证回执】+【遵守自检】字段（与产/测同源） |
 | `frontend/验收清单.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
 | `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 七项、L2+ 十五项 |
 | `frontend/playwright.config.template.ts` | Playwright 模板；默认 list+json，不生成 HTML/trace/video；证据落 `.gate/frontend/` |

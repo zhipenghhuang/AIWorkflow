@@ -253,4 +253,5 @@ steps:
     notes: >
       对照 `规则/模板/90-交接与收尾/收尾骨架.md` §2；第1点含【缺陷修复处理总结】与动作+单号
       有代码改动时读本轮 `.gate/开发规范/completion.json`；有门回执时运行 `验证/Test-Report.ps1 -Report <收尾文件>`，lint 不过先修报告。
-      更新发布记录/文档索引/activeContext/开发计划；未验证/待回写/待产品/跳过项明示。
+      **现状三处同拍**：更新 `activeContext` + 开发计划 §0（实质进入/处于 S7 写「S7 进行中」；G6 未签则注明正式门待补）+ `开发/文档索引.md` §1；发布记录按需。
+      `sync=` 须含 `triad=aligned|deferred:<原因>`；禁只改 activeContext。未验证/待回写/待产品/跳过项明示。
