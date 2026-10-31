@@ -122,11 +122,11 @@ flowchart LR
 
 **产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard`（另含 `skill-audit`）。产物落在 `产品/`。
 
-**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批。轻量 `solo`＝一页方案卡 → 确认 → 实施 → 自验 → 完成门。产物落在 `开发/`；根 `CHANGELOG.md`＝发版史。
+**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批。轻量 `solo`＝一页方案卡 → 确认 → 实施 → 自验 → 完成门。产物落在 `开发/`；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
 **测试**：`测试/测试计划.md` 为版本级编排。主链 `testing` · `defect` · `handoff` · `onboard`（另含 `skill-audit`）。R0 冒烟 → R1 正式 → R2+ 回归；稳定主链路优先 Playwright；**能脚本不 AI**。P0 未过不得判整体通过。
 
-**单包优先**：只强制本包工作根（`产品/` 或 `开发/` 或 `测试/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护；各岗位 `工作日志.md` 互不写入根。原始资料根推荐 `docs/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
+**单包优先**：只强制本包工作根（`产品/` 或 `开发/` 或 `测试/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护（无开发包则不建）；产/测写工作日志（发布决策可含对外摘要供开发落笔）。多包发版软序见开发文档治理。原始资料根推荐 `docs/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
 
 </details>
 
@@ -274,7 +274,7 @@ AIWorkflow/
 ├─ 产品规范/          # 产品轨母版
 ├─ 开发规范/          # 开发轨母版（含轻量单人轨）
 ├─ 测试规范/          # 测试轨母版
-├─ CHANGELOG.md       # 母版仓长期版本记录
+├─ CHANGELOG.md       # 母版仓产品发版史
 ├─ THIRD_PARTY.md     # 第三方方法与来源
 ├─ LICENSE            # MIT
 └─ README.md
@@ -307,7 +307,7 @@ AIWorkflow/
 | 原始资料根 | 推荐 `docs/` + `资料索引.md` |
 | 交接包 | `{包}/交接/{HO-ID}/` |
 | 索引入口 | `文档索引.md` · `开发计划.md` · `activeContext.md` |
-| 长期版本记录 | `CHANGELOG.md`（开发维护） |
+| 产品发版史 | `CHANGELOG.md`（开发维护；用户可见能力 / 破坏性 / 迁移 / 安全） |
 
 </details>
 
@@ -391,7 +391,7 @@ powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -
 可以。落地后直接改项目里的包副本（推荐「体检能力」确认后再改）。若维护通用母版并多项目同步：优先在母版改，自检后整包同步——同步会覆盖未回灌的实例侧包内改动。
 
 **版本怎么看？**  
-只认各包 `AGENTS.md` 的 `template_version`；根 [CHANGELOG.md](./CHANGELOG.md) 记历史，不是版本声明源。
+只认各包 `AGENTS.md` 的 `template_version`；根 [CHANGELOG.md](./CHANGELOG.md) 记产品发版史，不是版本声明源。
 
 ---
 
@@ -402,7 +402,7 @@ powershell -ExecutionPolicy Bypass -File "产品规范/验证/Invoke-Gate.ps1" -
 | [产品规范 README](./产品规范/README.md) · [AGENTS](./产品规范/AGENTS.md) | 产品轨上手与 AI 入口 |
 | [开发规范 README](./开发规范/README.md) · [AGENTS](./开发规范/AGENTS.md) | 开发轨上手与 AI 入口 |
 | [测试规范 README](./测试规范/README.md) · [AGENTS](./测试规范/AGENTS.md) | 测试轨上手与 AI 入口 |
-| [CHANGELOG](./CHANGELOG.md) | 母版仓版本记录 |
+| [CHANGELOG](./CHANGELOG.md) | 母版仓产品发版史 |
 | [THIRD_PARTY](./THIRD_PARTY.md) | 第三方方法与来源 |
 | [LICENSE](./LICENSE) | MIT |
 
