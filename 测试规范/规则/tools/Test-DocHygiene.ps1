@@ -73,8 +73,14 @@ foreach ($f in $rules) {
         if ($head -notmatch 'longform') { $warnings.Add("RULE_LONG: $($f.Name) $n lines (>240; add longform or split)") }
     }
 }
-$agentsTok = Get-ApproxTokens ([System.IO.File]::ReadAllText($agents, [System.Text.Encoding]::UTF8))
+$agentsText = [System.IO.File]::ReadAllText($agents, [System.Text.Encoding]::UTF8)
+$agentsTok = Get-ApproxTokens $agentsText
 if ($agentsTok -gt 7000) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>7000; quality-first resident hard rules; trim only conflicting restatements)") }
+$s0Match = [regex]::Match($agentsText, '(?s)## 0\..*?(?=\r?\n## 1\.)')
+if ($s0Match.Success) {
+    $s0Tok = Get-ApproxTokens $s0Match.Value
+    if ($s0Tok -gt 5500) { $warnings.Add("AGENTS_S0_TOKEN_BUDGET: ~$s0Tok tokens (>5500; pointerize into SSOT, keep hard one-liners)") }
+}
 $skillsDir = Join-Path $Root '技能'
 if (Test-Path -LiteralPath $skillsDir) {
     foreach ($sf in Get-ChildItem -LiteralPath $skillsDir -Recurse -File -Filter SKILL.md) {

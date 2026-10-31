@@ -129,6 +129,7 @@
 2. 跑 `规则/tools/Test-Template.ps1`；改引用/映射后跑 `规则/tools/Test-DocHygiene.ps1`。
 3. 更新包 `AGENTS.md` `template_version`；仅母版仓且有用户可见包能力变化时才更新母版根 `CHANGELOG.md`；业务项目不因改技能写项目根 CHANGELOG；不单独给技能设版本号。
 4. 新增技能必须在本表挂到具体步骤；跨阶段技能挂到所有适用阶段。
+5. **收敛**：长期无 step/`skills_required` 挂载、与相邻技能高度重复 → 并入 `references/` 或合并技能；经「体检能力/通用优化技能」确认后再删目录，禁止静默删技能。
 
 **5. 验收清单**
 

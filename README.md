@@ -7,7 +7,7 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.10.31.12-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.01.2-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -142,7 +142,9 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .draft .st
 
 ### 3. 挂载项目根 `AGENTS.md`
 
-已有则**追加**，不覆盖原文；没有则新建：
+**分层**：包内规范 = 通用规则；项目档案（或产品档案 / 环境基线）= 项目事实；根 `AGENTS.md` = 包挂载 +（可选）落地项目自写的对 AI 额外要求——**母版不规定偏好正文**。
+
+已有则**追加**挂载段，不覆盖原文；没有则新建：
 
 ```markdown
 # AGENTS.md
@@ -151,7 +153,7 @@ robocopy "开发规范" "E:\path\to\your-project\开发规范" /E /XD .draft .st
 
 1. 新会话：先读 `开发规范/AGENTS.md` **§0 硬节** → 命中口令行 → `workflows/*.yaml` **当前 step 块**；不要通读 §0～§3 全文或整本规则/技能/模板。
 2. 已路由中段：按 `开发规范/规则/核心/规则重锚.md` 心跳，不重读 §0 全文。
-3. 本会话按开发规范执行（单包装载；多包装载见薄指针「已启用包」+ 本文 **意图→包**）。
+3. 本会话按开发规范执行（单包装载；多包装载见挂载样例「已启用包」+ 本文 **意图→包**）。
 4. 与本文冲突时以本文为准；细则以 `开发规范/AGENTS.md` 为准。
 5. 文档按 `开发规范/规则/工作流.md` §5 落位；接入后先建 `文档索引.md`。
 ```

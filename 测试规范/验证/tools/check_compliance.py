@@ -44,6 +44,9 @@ def main() -> int:
             if key not in body:
                 warnings.append(f"【遵守自检】建议补 {key}")
 
+    if re.search(r"【(?:任务|执行|生成)收尾】", text) and "运行态：" not in text:
+        warnings.append("完整收尾建议含「运行态：」行（本轮进程/浏览器去向）")
+
     for e in errors:
         print(f"ERROR_COMPLIANCE: {e}")
     for w in warnings:

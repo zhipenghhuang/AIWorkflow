@@ -6,7 +6,7 @@ reads:
   - 规则/读取索引.md（onboard.* 或 skill-audit.*）
   - 规则/文档治理.md
   - workflows/onboard.yaml 或 workflows/skill-audit.yaml 当前 step + `环境基线-最小集.md`（接入）/完整模板（按需）+ activeContext 模板
-  - 根 AGENTS 薄指针模板；`规则/模板/00-接入与基线/能力/` + `规则/能力/实例纪律.md`（装配/体检）；体检时 + `规则/playbooks/skill-audit.md`
+  - 根 AGENTS 包挂载样例；`规则/模板/00-接入与基线/能力/` + `规则/能力/实例纪律.md`（装配/体检）；体检时 + `规则/playbooks/skill-audit.md`
 
 must:
   - 顺序不可跳：挂载→基线关键节→activeContext→入库确认→环境与工具检查（默认静默）→清单核验→打标。
