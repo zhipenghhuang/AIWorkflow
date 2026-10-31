@@ -21,21 +21,6 @@
 
 </div>
 
-<!-- public:omit -->
-
-> **协作面提示（导出公开树时本段删除）**  
-> 真源全量在 Gitee：含 `.public/`、根 `AGENTS.md`、`activeContext.md`、本机 `commit.bat` / `scripts/` 等；不进 GitHub 公开树。  
-> 公开同步按 `.public/allowlist.txt`；根 README 仅本 omit 块为协作专用。
-
-[![Gitee](https://img.shields.io/badge/Gitee-C71D23?logo=gitee)](https://gitee.com/zhipenghhuang/AIWorkflow)
-
-```bash
-# 协作仓（Gitee 全量）
-git clone https://gitee.com/zhipenghhuang/AIWorkflow.git
-```
-
-<!-- /public:omit -->
-
 ---
 
 ## 这是什么

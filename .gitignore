@@ -1,20 +1,18 @@
-# 本机环境
+# Public surface only — do not list collab-only or machine-local paths here.
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# AI/本机探针（勿入库）
-.commit-input*
-.tmp_*
-_parse_check*
+__pycache__/
+*.py[cod]
 .draft/
 .state/
 .gate/
-
-# Python
-__pycache__/
-*.py[cod]
-
-# 仅本机：更新项目资产（路径固定在本机，协作面与公开面均不入库）
-/Update-Assets.ps1
-/更新项目资产.bat
+.venv/
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+.env
+.env.*
+!.env.example
