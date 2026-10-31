@@ -92,6 +92,7 @@ steps:
 
   - name: 处置确认
     id: decide
+    when: decision_required
     agent: pm-lead
     hitl:
       - name: confirm_change
@@ -107,10 +108,12 @@ steps:
 
   - name: 联动落地
     id: apply
-    when: needs_linked_update
+    when: change_apply_required
     agent: pm-lead
+    on_fail: 回 decide/受理单；拒绝/重复/实现缺陷/补充信息不得更新基线
     output: 更新后的 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查 + 受理单 §6 联动清单
     notes: >
+      **仅接受/下期/立即修且确有联动项才进入**；拒绝/重复/不修/退回开发/补充信息不进本步，只落受理单/回执与下一步。
       按受理单 §6 逐项更新，只写现行有效；每项标「已更新/不适用/待补」，待补写责任人与截止，不得静默漏项。
       联动清单未闭合/待补无主 → 不得关闭；闭合门在下一步 `verify` 统一跑（先更新、后对账）。
       PRD 正文/§13 AC/§16.4 变更记录；原型/交互；交付计划范围/里程碑；产品计划 §0/§2/§7/§8/§10/§11；

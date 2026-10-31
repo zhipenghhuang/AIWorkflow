@@ -106,6 +106,8 @@ steps:
     id: analyze
     agent: test-analyzer
     hitl:
+      - name: select_mainread
+        when: mainread_unspecified
       - name: confirm_understanding
         when: understanding_needs_confirm
     output: 测试/测试分析表.md（必出·含 §0 Brief+Delta；模板 测试分析表模板）；T2/T3 可另出需求理解长文；旧「分析短表」文件须迁入本路径并补 §0
@@ -120,10 +122,14 @@ steps:
     id: plan
     agent: test-planner
     hitl:
+      - name: select_mainread
+        when: mainread_unspecified
       - name: confirm_understanding
         when: understanding_needs_confirm
       - name: select_review_mode
         when: landing_doc_review_needed
+      - name: confirm_review
+        when: review_needs_confirm
       - name: confirm_plan
         when: plan_needs_confirm
       - name: confirm_iteration_close
@@ -133,7 +139,7 @@ steps:
     notes: >
       产出/更新 `测试/测试计划.md`：只读模板 **§0+本轮待填节**（禁整模板通读）。计划是唯一编排载体（§3.2/§9/§10/§11/§12）。
       无测试分析表或表缺 §0 差量表（兼容旧称分析短表）→ 先回 analyze。范围/类型/编排须引用 analyze；未裁决歧义不得写成确定项。
-      门：`confirm_understanding` 未过或无 §0 不得「已确认」；T1+ 实质计划 → `select_review_mode` 后再 `confirm_plan`（摘要：范围/类型/轨道/缺陷策略/准出；同会话同载体一次）。
+      门：`confirm_understanding` 未过或无 §0 不得「已确认」；T1+ 实质计划 → `select_review_mode` 后按 `技能/test-artifact-review` 对计划/分析审；需修/有条件 → `confirm_review` 停；通过后才 `confirm_plan`（摘要：范围/类型/轨道/缺陷策略/准出；同会话同载体一次）。
       交接包 → `handoff.receive`；`PLAN` 包先问后发。方法：`技能/test-analysis-and-plan`；数据/评审技能按需。
       期中变更/关版本：CR+影响分析；A/B 就地更、C 回计划门、D 缺陷轨；关账见 `规则/文档治理.md` §7（`confirm_iteration_close`）。
       每次落盘更新 §0 + §16.1；更新依据=台账/证据/已批 CR，禁聊天记忆。
@@ -196,6 +202,8 @@ steps:
   - name: 执行测试
     id: execute
     agent: test-orchestrator
+    precondition: 功能/专项 T1+ 已由 review-cases 放行（T0 可 SELF_CHECKED 声明）；接口/发布前/探索式按各自评审规则；未放行不得开跑
+    on_fail: 回 review-cases 补齐；不得先执行后补评审
     gate: execute-batch
     gate_type: machine
     gate_when: module_batch_complete
@@ -221,6 +229,7 @@ steps:
     id: report
     agent: report-agent
     next: handoff   # 报告门通过后只追加一次提交/交平台确认，不重跑执行
+    on_fail: 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 handoff
     gate: report-consistency
     gate_type: machine
     notes: >
@@ -237,7 +246,7 @@ steps:
       同步回写计划 §0（计划状态=待关闭/已关闭、当前门=准出、下一动作）、§16.1 执行日志、§16.2 归档索引；关闭时按 §16.2 生成快照，不移动当前计划。
       现状三处同拍：`activeContext` + 计划 §0 + 导航层（报告准出摘要；有文档索引则同步）；`sync=` 含 `triad=aligned|deferred:<原因>`（执行契约 §4 规则 7）；语义已变禁只改 activeContext。
       **最优默认**：报告门 PASS/CONDITIONAL 后交付自洽 `测试报告.md`；**不**默认打 TEST 包。命中多文件证据/正式签收/仓外/点名 → 停问建议 TEST 包；确认后 `handoff.send`。未命中不机械每问。报告门未过不得建议「可准出」包。未收回执不得写“已接收/已准出”。
-      版本关闭：按 `规则/文档治理.md` §7；**计划/报告快照**→`测试/_归档/{yyyyMMdd}-{版本}/`；**功能/接口域主档常青留下**（不因关账整轨搬走）；轨内 `_归档/` **仅**下线域/重生快照/旧探索轮——**禁**写成「功能→功能测试/_归档/」把整轨现行主档归档；探索式/发布前按轨契约；失效资料→`资料/_归档/{yyyyMMdd}-{版本}/` + 清单；仍被引用的设计输入/测试数据/稳定冒烟清单保留；未确认不移动。
+      版本关闭：按 `规则/文档治理.md` §7；**计划/报告/测试分析表快照**→`测试/_归档/{yyyyMMdd}-{版本}/`；**功能/接口域主档常青留下**（不因关账整轨搬走）；轨内 `_归档/` **仅**下线域/重生快照/旧探索轮——**禁**写成「功能→功能测试/_归档/」把整轨现行主档归档；探索式/发布前按轨契约；失效资料→`资料/_归档/{yyyyMMdd}-{版本}/` + 清单；仍被引用的设计输入/测试数据/稳定冒烟清单保留；未确认不移动。
       更新 `测试/工作日志.md`（仅本文件）：索引+里程碑——报告门 PASS/CONDITIONAL → `报告完成`；有准出 → `轮次/准出`；版本关闭归档 → `版本关闭`（结论含准出口径；链到报告/计划）。无文件则按模板建。
       **不是**根 `CHANGELOG.md`、报告正文、计划 §16.1（过程仍写 §16.1/台账）。准出/报告可供开发发版核对，**不**写入根；版本关闭 ≠ 根发版史。
       **禁止**创建/修改/补链项目根 `CHANGELOG.md`；无开发包则不建根。
@@ -249,11 +258,14 @@ steps:
   - name: 收尾与提交确认
     id: handoff
     agent: report-agent
-    hitl: confirm_platform
-    hitl_when: has_pending_commit_or_platform_ask
+    hitl:
+      - name: confirm_platform
+        when: platform_ask_required
+      - name: confirm_commit
+        when: has_pending_commit
     output: 提交/交平台确认结果
     notes: >
-      报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次「是否提交入库/交平台」（门3=`confirm_platform`；仓库 git 另走 `confirm_commit`/【拟提交·仓库】）。
+      报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次：交平台/新建缺陷单走 `confirm_platform`，仓库 git 走 `confirm_commit`/【拟提交·仓库】；两者按各自 when 触发，不互相替代。
       交平台/回写前运行 `验证/Invoke-Gate.ps1 -Mode writeback`（写 `.gate/测试规范/writeback.json`）；无回执不得声称已回写；无权限走 export。
       计划 §11 为「发现即提交」的缺陷不重复问；按模块批末/阶段末/收尾确认的批次，按对应清单确认后执行；未确认则结束。
       本轮用过浏览器 MCP → 按 `规则/专项/多Agent与输出.md` §2.2 全链终局退程（本套 Chrome）。

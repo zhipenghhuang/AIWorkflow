@@ -62,6 +62,7 @@ steps:
 
   - name: UAT 验收
     id: uat
+    when: has_uat
     agent: pm-lead
     gate: uat-evidence
     gate_type: machine
@@ -77,6 +78,7 @@ steps:
   - name: 发布与复盘
     id: release
     agent: pm-lead
+    on_fail: 不发布；回 UAT/审批或报阻塞，不得用“已发布”措辞
     gate: uat-evidence
     gate_type: machine
     gate_when: has_uat

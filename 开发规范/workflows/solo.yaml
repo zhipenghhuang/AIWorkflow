@@ -100,6 +100,7 @@ steps:
 
   - name: 拟提交
     id: commit
+    output: 拟提交确认结果
     agent: implementer
     hitl: confirm_commit
     hitl_when: has_pending_commit

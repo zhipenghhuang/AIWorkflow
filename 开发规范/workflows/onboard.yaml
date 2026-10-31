@@ -132,7 +132,7 @@ steps:
   - name: 开发计划
     id: control
     agent: onboard-agent
-    output: 开发计划（开发/开发计划.md；新项目建议 开发/开发计划.md）
+    output: 开发计划（开发/开发计划.md）
     notes: >
       L2+ 新项目/新产品默认建：技能 `技能/development-plan/SKILL.md`；模板 `规则/模板/10-规划与需求/开发计划模板.md`。
       填一页状态/输入/阶段表（S0 进行中，其余未开始）/关联链接；已有则不覆盖，读现状后转 control sync。

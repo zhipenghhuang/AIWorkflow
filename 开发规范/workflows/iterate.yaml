@@ -69,7 +69,7 @@ steps:
   - name: 实施与定向自验
     id: implement
     when: implementation_required
-    agent: iterate-lead
+    agent: implementer
     output: 代码/配置改动 + 任务状态回写
     notes: >
       **动手前硬门**：DEV-IQ-09【实施预检】→ 命中面 DEV-IQ-10 同批硬补；未出示预检不得改代码。细则 `规则/核心/实施质量门.md` §3。方法 `技能/implementation-and-selftest/SKILL.md` §0.5。
@@ -122,7 +122,7 @@ steps:
   - name: 提测与发布文档
     id: deliver
     when: has_qa_or_deploy_or_requested
-    agent: iterate-lead
+    agent: implementer
     output: 提测单/发布说明/回滚预案（真源 06；实拷 交接/出站/提测|发布/）
     notes: >
       条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。

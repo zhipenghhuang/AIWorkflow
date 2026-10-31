@@ -37,7 +37,7 @@ steps:
         when: plan_needs_confirm
       - name: confirm_iteration_close
         when: iteration_close_needed
-    output: 开发计划（开发/开发计划.md；新项目建议 开发/开发计划.md）
+    output: 开发计划（开发/开发计划.md）
     notes: >
       本步只建/更新开发计划，不自动执行后续阶段；要推进说「按开发计划执行」。
       技能：`技能/development-plan/SKILL.md`（先读再做）；模板 `规则/模板/10-规划与需求/开发计划模板.md`。

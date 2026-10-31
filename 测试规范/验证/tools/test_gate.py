@@ -667,7 +667,7 @@ def main() -> int:
                 checks.append({"id": "report-verdict", "status": "pass" if reported_verdict else "fail",
                                "detail": reported_verdict or "准出评估缺失/不可识别"})
                 checks.append({"id": "p0-vs-verdict", "status": "fail" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "pass",
-                               "detail": "P0 未过但报告写通过/有条件通过" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "consistent"})
+                               "detail": "P0-Smoke/P0-HighRisk 未过但报告写通过/有条件通过" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "consistent"})
                 if "## 5." in read(report):
                     hard = check_exit_hard_items(read(report))
                     checks.append({"id": "exit-hard-items", "status": "fail" if hard else "pass", "detail": hard[:10]})

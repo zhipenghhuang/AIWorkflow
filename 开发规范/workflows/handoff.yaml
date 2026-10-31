@@ -15,6 +15,7 @@ entry_points:
   变更通知: change_send
   同步变更: change_receive
   重规划: replan
+  提交: commit
 
 trigger:
   - 写交接单 / 生成交接包 / 接收交接包 / 交接状态

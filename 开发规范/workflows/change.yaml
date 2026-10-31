@@ -100,18 +100,20 @@ steps:
     id: design
     when: new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested
     agent: implementer
+    hitl: confirm_spec
+    hitl_when: design_needs_spec_approval
     output: 方案/ADR（开发/02-方案设计/）
     notes: >
       条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案」才走；L0 单文件小改可跳过。
-      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 02A～02F）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时：单一谓词+四维矩阵）+ `技能/observability-and-instrumentation/SKILL.md`（生产可诊断性）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端补设计时再读 `技能/frontend-design` + 前端设计说明模板。
+      技能：`技能/solution-design/SKILL.md`（先读再产；按变更面加载 `technology-selection` / `database-design` / `api-design` / `frontend-design` / `threat-modeling` / `performance-and-capacity` 当前节）+ `技能/engineering-quality/SKILL.md` + `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时：单一谓词+四维矩阵）+ `技能/observability-and-instrumentation/SKILL.md`（生产可诊断性）+ `技能/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端补设计时再读 `技能/frontend-design` + 前端设计说明模板。
       模板 `规则/模板/20-设计与技术/方案模板.md`，架构决策另落 ADR。
       必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；逐条响应 RP/F/R/AC/NFR；冲突/GAP 未裁决 → 不实施。
       **领域侦察分片**（L3/≥3 领域）：只读 scout；正文单写手。
-      落盘后进入 `review-docs`（选 A/B + 授权）；本步不弹 confirm_spec。「只出方案」→ design 后仍进 review-docs 再收尾。
+      **L1 新方案**：本步 `confirm_spec` 授权；**L2+**：落盘后进入 `review-docs`（选 A/B + `confirm_spec`）；L0 无新方案可跳过。「只出方案」→ 按级别完成本步或 review-docs 后收尾。
 
   - name: 落地文档评审
     id: review-docs
-    when: landing_doc_review_needed
+    when: landing_doc_review_required
     agent: doc-reviewer
     hitl:
       - name: select_review_mode
@@ -173,7 +175,7 @@ steps:
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
       评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能：`技能/code-review/SKILL.md`（五轴 + 全量覆盖 + 安全/供应链，先读再审）+ `技能/engineering-quality/SKILL.md` §5（质量 rubric）+ `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）。
+      技能：`技能/code-review/SKILL.md`（六轴（含 UX/DX/AX）+ 全量覆盖 + 安全/供应链，先读再审）+ `技能/engineering-quality/SKILL.md` §5（质量 rubric）+ `技能/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）。
       本机可用 code-review 时按其评审全量 diff；不可用按 `agents/reviewer-agent.yaml` 人工清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `技能/frontend-design/SKILL.md` §9 评分卡人工核。

@@ -40,10 +40,12 @@ steps:
     notes: >
       出示问题 / 用户 / 市场 / 竞品 / 方案与 MVP 假设 / 成本收益 / 风险 / 结论（Go / Hold / Kill）请确认。
       批准（Go）才进入产品定义；Hold 列待验证项与责任人；Kill 记录原因并归档。
+      Hold/Kill 后直接 `wrap`/归档；`define/prd/deliver/launch` 的 `when: go_decision_go` 会自动跳过，不得继续写 PRD/排期/问发布。
       **未过立项不写全量 PRD**（`规则/工作流.md` §1）。
 
   - name: 产品定义与计划
     id: define
+    when: go_decision_go
     agent: pm-analyst
     output: 产品/产品计划.md
     notes: >
@@ -54,6 +56,7 @@ steps:
 
   - name: 需求定义（PRD）
     id: prd
+    when: go_decision_go
     agent: prd-writer
     output: PRD + 评审记录/原型（产品/{版本或主题}/01-需求与定义/、02-原型与设计/）
     notes: >
@@ -64,6 +67,7 @@ steps:
 
   - name: 交付与验收
     id: deliver
+    when: go_decision_go
     agent: pm-lead
     output: 交付计划 + UAT 记录（产品/{版本或主题}/04-交付与验收/）
     notes: >
@@ -74,6 +78,7 @@ steps:
 
   - name: 上市与复盘
     id: launch
+    when: go_decision_go
     agent: pm-lead
     hitl: confirm_release
     output: 发布决策 + GTM 检查 + 复盘（产品/{版本或主题}/04-交付与验收/、06-复盘/）

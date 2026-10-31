@@ -105,9 +105,11 @@ steps:
   - name: 联动与评审
     id: apply
     agent: pm-lead
+    on_fail: 回 decide；非产品缺陷只产处置单，不改 PRD/AC/计划
     output: 受理单 §6 + 变更单/最新 PRD/AC/计划/UAT + 缺陷处置单 + 附件清单
     notes: >
-      仅在 decide 确认后执行；纯拉取/只读分析止于 analyze，不落处置单。
+      **仅在 decide 确认后执行**；纯拉取/只读分析止于 analyze，不落处置单。
+      **产品缺陷才更新 PRD/AC/计划/UAT**；实现缺陷/非问题/重复/信息不足只产缺陷处置单与回执，不进入 PRD/AC 更新。
       即使无需联动，也至少落缺陷处置单/受理单回执；不适用项写原因。
       按 `workflows/change.yaml` 的 apply 规则更新 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查；
       已有受理单（pull 建档）就地更新，不重复建档；同一缺陷多轮处理只留一份现行受理单。

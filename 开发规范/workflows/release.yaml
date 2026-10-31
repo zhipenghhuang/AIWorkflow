@@ -72,6 +72,7 @@ steps:
     id: deploy
     when: release_approved
     agent: delivery-lead
+    on_fail: 停止发布，按回滚预案处理；不得隐瞒失败或继续观察
     tools:
       - git
       - ci
@@ -89,6 +90,7 @@ steps:
     id: verify
     when: has_deployed
     agent: delivery-lead
+    on_fail: 触发回滚/事故流程；未验证不得称发布成功
     tools:
       - browser-mcp
     output: 发布验证结果/发布记录
@@ -103,6 +105,7 @@ steps:
     id: rollback
     when: release_failed_or_direct_rollback
     agent: delivery-lead
+    on_fail: 升级事故处理；不重复无效操作，不掩盖数据/业务影响
     hitl: confirm_rollback
     tools:
       - git
@@ -127,6 +130,7 @@ steps:
 
   - name: 发布记录
     id: record
+    when: has_deployed
     agent: delivery-lead
     output: 发布汇报/发布记录（开发/06-发布与交付/）
     notes: >

@@ -101,6 +101,7 @@ steps:
 
   - name: 对外确认
     id: publish
+    when: materials_for_external
     agent: pm-lead
     hitl: confirm_materials
     hitl_when: materials_for_external

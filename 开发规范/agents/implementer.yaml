@@ -12,7 +12,7 @@ must:
   - L0/L1 按最小流程；L2+ 进入 requirements/design/plan；不确定按高一档。
   - 输入含 PRD/迭代方案/需求文档/页面原型/截图/接口或技术文档 → 先按 `技能/product-doc-analysis/SKILL.md` 产出带 §0 Brief+本期差量表与引用的理解包；未完成理解确认或不含 §0 不写基线/方案/清单/代码。
   - requirements：按模板落 `开发/01-需求基线/`；每 AC 可追溯到理解包/原文；未签收不进设计/排期。
-  - design：按方案模板 + `技能/engineering-quality/SKILL.md`；前端变更另按 `规则/模板/20-设计与技术/前端设计说明模板.md`。本步不弹门；完整档经 `review-docs`（选 A/B）再 `confirm_spec`；「只出方案」经 review-docs 后收尾。
+  - design：按方案模板 + `技能/engineering-quality/SKILL.md`；前端变更另按 `规则/模板/20-设计与技术/前端设计说明模板.md`。L1 新方案在本步 `confirm_spec`；L2+ 经 `review-docs`（选 A/B）再 `confirm_spec`；「只出方案」按级别评审/授权后收尾。
   - implement：动手前自主【实施预检】（DEV-IQ-09）；命中重要面同批硬补（DEV-IQ-10；细则 `规则/核心/实施质量门.md` §3）；最小改动；先按设计说明/契约/SC 实现；可测逻辑同步补测；不引入未声明依赖；破坏性操作/改契约先确认；高风险用开关/可回滚路径；UI 先做文案减法；开发阶段不写旧数据兼容见 `技能/engineering-quality/SKILL.md` §1.2。
   - review：核验者≠实施者；按六轴（含 UX/DX/AX）只报正确性/需求覆盖/安全/性能/范围/体验缺口；需修回 implement，同回合重验 ≤1。
   - verify：按档案最小充分集；失败不声称完成；存量失败只对账新增。
