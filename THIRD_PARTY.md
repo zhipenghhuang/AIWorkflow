@@ -12,7 +12,7 @@
 | [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) | MIT | 按规模裁剪、端到端交付；L0～L3 / T0～T3 / P0～P3 分级 |
 | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | MIT | skill anatomy、反合理化、Definition of Done；技能质量标准 |
 | [obra/superpowers](https://github.com/obra/superpowers) | MIT | 系统化调试、计划执行、评审/验证；`debugging-and-error-recovery`、`development-plan` |
-| [anthropics/skills](https://github.com/anthropics/skills) | Apache-2.0（部分 source-available） | frontend-design、doc-suite 等方法参考；能力注册表可选 |
+| [anthropics/skills](https://github.com/anthropics/skills) | Apache-2.0（部分 source-available） | frontend-design、doc-suite 等方法参考；能力契约可选 |
 | [wshobson/agents](https://github.com/wshobson/agents) | MIT | 多宿主插件/技能组织方式参考 |
 | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | MIT | Web Interface Guidelines / UI 审查 |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | MIT | 设计系统/风格/配色参考 |
@@ -49,5 +49,5 @@
 
 - 上游方法只作参考；**不逐字复制**受版权保护的标准正文。
 - 每次新增/替换来源：更新本文件 + 对应 `技能/README.md` 的「整合来源」。
-- 不把外部仓库整包塞进三包；需要安装的走 `能力/00-能力注册表.md` 的「装配能力」。
+- 不把外部仓库整包塞进三包；需要安装的走 `能力/00-能力契约.md` 的「装配能力」。
 - 许可不明或条款冲突的来源，不进入母版；改为链接引用。
