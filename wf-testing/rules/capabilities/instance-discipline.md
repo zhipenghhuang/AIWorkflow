@@ -1,0 +1,47 @@
+# 实例能力纪律（测试）
+
+> **读取级别：参考**。装配 / 体检 / 首次触达浏览器或外部工具时读；业务顺跑只读 `{workroot}/capabilities/00-能力清单.md` 相关行。
+
+## 1. 单一出处
+
+- **真源**：`{workroot}/capabilities/`（清单必有；`槽位/` · `绑定/` · `装配/` 按需）。
+- **禁双写**：环境基线、计划、activeContext、档案式文档**不得**维护完整选型/绑定正文；只写指针（路径或槽名）。
+- **包侧**：`capabilities/00-contract.md` = 槽位名与缺失策略；`capabilities/reference.md` = 候选举例。实例选型**不**写回包内。
+
+## 2. 目录与渐进读
+
+| 文件 | 何时读 |
+| --- | --- |
+| `{workroot}/capabilities/00-能力清单.md` | 需要外部工具时（Tier1） |
+| `{workroot}/capabilities/槽位/{slot}.md` | 清单 `详情=` 指向或复杂选型（Tier2） |
+| `{workroot}/capabilities/绑定/{slot}.md` | 清单 `绑定=` 指向或执行需端口/server（Tier3） |
+| `{workroot}/capabilities/装配/*` | 装配留痕 / 排障 |
+
+无清单 → 接入不强制填满；**命中槽需落状态**或「装配能力」→ 确认后写入（缺失提示见契约 §2，不因无清单而免提示）。
+
+## 3. 字段与 kind
+
+清单行：`能力名` · `启用` · `kind`（`mcp`｜`skill-cli`｜`builtin`｜`none`）· `impl` · `status`（available｜missing｜degraded｜prompted｜undecided）· `详情` · `绑定` · `verified`。
+
+- `kind=mcp`：按 MCP 稳态（挂载、Restart、禁静默换 server）；绑定见 `绑定/`。  
+- `kind=skill-cli`：按该实现手册（如 ego-browser / Playwright CLI+Skills）；不适用 CDP 套件则绑定文件写明。  
+- `kind=builtin`：包内脚本执行器等。  
+- **禁**未确认改启用集或换 `impl`。
+- **status 语义（提示相关）**：
+  - `available`：可用，不提示。
+  - `missing` / `undecided`：未决缺失 → 按契约 §2 **每次触达出【能力缺失】全块**。
+  - `prompted`：仅审计「曾出过全块」→ **不抑制**再提示；基线禁写「已提示」当结论。
+  - `degraded`：正在降级跑；备注含 `accepted=日期` 才算用户接受 → 同会话免全块，跨会话/新战役短提醒；无 `accepted` 视同未接受，仍出全块。
+
+## 4. 口令
+
+| 口令 | 行为 |
+| --- | --- |
+| 装配能力 | 对照契约+参考目录+现清单 → 安装宿主侧 → **写 `{workroot}/capabilities/`** |
+| 接受降级 / 暂不装 | 清单该槽 → `degraded` + `accepted=日期`；基线索引同步「未安装（已接受降级）」；不假装已装 |
+| 体检能力 | **能力**只改 `{workroot}/capabilities/`；**技能**可改包内 `skills/`（HITL） |
+| 业务适度建议 | 至多 1 条，指向装配/体检 |
+
+## 5. 安全
+
+清单/绑定可入库：无 token/密码；只用环境变量名与宿主配置入口类型。高风险槽（缺陷写回等）装配须显式确认。

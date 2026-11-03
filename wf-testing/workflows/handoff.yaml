@@ -1,0 +1,135 @@
+# 测试协作交接（接收 / 发送 / 回执 / 变更通知 / 状态）
+# 入口即止：send/receive/status/change_* 各自独立，不自动串跑。
+workflow:
+  id: handoff
+  name: 协作交接
+  version: 1
+  read_index: rules/read-index.md
+
+# 代表口令（非穷尽）；同义按 AGENTS + 入口判定路由
+entry_points:
+  写交接单: compose
+  生成交接包: send
+  接收交接包: receive
+  交接状态: status
+  变更通知: change_send
+  同步变更: change_receive
+  重规划: replan
+  提交: commit
+
+trigger:
+  - 写交接单 / 生成交接包 / 接收交接包 / 交接状态
+  - 变更通知 / 同步变更 / 重规划
+
+steps:
+  - name: 交接状态
+    id: status
+    agent: test-planner
+    output: handoff-ledger.md摘要（待回执/超时/退回/阻断）
+    notes: >
+      只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/test-plan.md` §0/§16.1；不重写计划、不发包。
+      报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断执行的 HO-ID、下一步入口。
+      有未登记新件（`{workroot}/handoff/inbound/` 有投放但台账无记录或仍为已投放）→ 建议先 `receive`/分析吸收，不直接开跑。
+      台账缺失 → 按 `rules/templates/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
+      输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
+
+  - name: 写交接单文档
+    id: compose
+    agent: test-planner
+    hitl: confirm_intent
+    hitl_when: intent_needs_confirm
+    output: 自洽交接单文档（默认非 HO；落 outbound/{category}/）
+    notes: >
+      **默认入口**。读协作 §3.0～§4.0 与 `通用交接单文档模板.md`（择优，非填空卷）。
+      **意图择优**：先判 `intent_needs_confirm`（澄清 §0）。真 → 完整【意图理解】停等再落盘；假 → 一行【意图】回执后直写。禁止含糊「交接」直接成文。
+      五问→形态 A/B/C 或专模；禁止整表粘贴。
+      专模真源写 `{workroot}/`，同轮实拷 `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建 HO；禁外印元数据。
+
+  - name: 生成交接包
+    id: send
+    agent: test-planner
+    hitl: confirm_handoff
+    hitl_when: handoff_send_required
+    output: "{workroot}/handoff/outbound/{category}/{HO-ID}/ + 【交接包已生成】"
+    notes: >
+      **仅升包**。未命中包触发 → 改 `compose`。先问后发；写盘到 `handoff/outbound/{category}/{HO-ID}/`；刷新出站散文件。
+      `04` 空白≠必须填写。有平台已交 → 拒绝重复 BUG 整包。输出【交接包已生成】。
+
+  - name: 接收与签收
+    id: receive
+    agent: test-planner
+    hitl:
+      - name: confirm_understanding
+        when: understanding_needs_confirm
+      - name: confirm_plan
+        when: plan_needs_confirm
+    output: 入站分析/吸收 + 接收回执（按需）+ 测试计划/文档更新 + 台账状态
+    notes: >
+      **硬**：打开→分析→吸收→同步；`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。
+      多包同仓直读对方出站；仓外主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`。
+      按类型更新计划/分析表/准入；正式签收才回执。更新台账、计划 §0/§16.1、索引、activeContext。
+
+  - name: 发送变更通知
+    id: change_send
+    agent: test-planner
+    hitl:
+      - name: confirm_plan
+        when: plan_needs_confirm
+      - name: confirm_handoff
+        when: handoff_send_required
+    output: "{workroot}/handoff/outbound/变更/{CHG-HO-ID}/ + 更新后的测试计划/用例/脚本"
+    notes: >
+      先按 `workflows/testing.yaml` 的 plan 期中变更完成 CR/影响分析；本步只负责“通知包”。
+      按 `rules/collaboration/handoff.md` §6 判 C0/C1/C2/C3；C2/C3 必须先过计划门。
+      **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，用户确认后才生成 HO 包。
+      必带：CR、影响矩阵、更新后的计划/用例/脚本/报告、接收方必须做的事/截止、回归范围、生效版本。
+      受影响角色逐个发（产品/开发）；同一变更一个包可多接收方，但回执逐个登记。
+      更新 `handoff-ledger.md`、测试计划 §0/§15/§16.1、 `{workroot}/INDEX.md`、activeContext；输出【变更通知已生成】+ 回执截止。
+      未确认不得发；不得用口头/聊天替代变更包。
+
+  - name: 接收变更并适配
+    id: change_receive
+    agent: test-planner
+    hitl:
+      - name: confirm_understanding
+        when: understanding_needs_confirm
+      - name: confirm_plan
+        when: plan_needs_confirm
+    output: 变更影响分析 + 测试计划/用例调整 + 回执
+    notes: >
+      读变更包 00/01/02；按 §6 判级别；核对 CR、影响矩阵、生效版本、回归范围。
+      先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。
+      更新 `{workroot}/changes/CR-*.md`、测试计划 §0/§2/§3/§9/§15/§16.1、受影响用例/脚本；C2/C3 回计划门。
+      更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。
+      与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
+
+  - name: 重规划
+    id: replan
+    agent: test-planner
+    hitl: confirm_plan
+    hitl_when: plan_needs_confirm
+    output: 更新后的测试计划 + 重规划记录
+    notes: >
+      按 `rules/collaboration/handoff.md` §6.2 触发（需求/提测退回/P0/环境数据/S1-S2/产能/发布窗口）执行；先冻结当前基线快照，再做影响矩阵。
+      选一个动作并写理由：保持+加缓冲｜重排轮次｜降范围/抽样｜拆轮次｜暂停升级｜重新基线；C2/C3 必须过计划门。
+      同轮更新测试计划 §0/§1.1/§2/§3/§5/§9/§10/§11/§14.3/§15/§16.1、`handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；受影响的 `TEST/REL` 包标 `已取代` 并重发。
+      重规划后重过受影响门（计划门/覆盖闸/报告门）；未过门不得准出；向产品/开发发 `CHG` 包并收回执。
+
+  - name: 收尾
+    id: wrap
+    agent: report-agent
+    output: 【任务收尾】（handoff/回执/变更置第 1 点）
+    notes: >
+      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项
+      更新测试计划 §0/§16.1、activeContext、 `{workroot}/INDEX.md`；未回执/退回/待补项明示。
+      本步只出骨架与拟提交清单；提交门在下一步。
+
+  - name: 拟提交
+    id: commit
+    output: 拟提交确认结果
+    agent: report-agent
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 AGENTS §4；提交后补一行结果，不重复六段。

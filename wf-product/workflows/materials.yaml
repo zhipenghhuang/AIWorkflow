@@ -1,0 +1,71 @@
+workflow:
+  id: materials
+  name: 产品权威文档库发布
+  version: 1
+  read_index: rules/read-index.md
+  chain: full
+
+entry_points:
+  导出项目文档: select
+  生成资料库: select
+  生成交付资料: select
+  发资料: select
+  发项目文档: select
+  打包项目文档: select
+
+trigger:
+  - 导出项目文档 / 生成资料库 / 生成交付资料
+  - 发资料 / 发项目文档 / 打包项目文档
+  - 版本关闭 / 交接前的完整文档包
+
+steps:
+  - name: 选择版本与范围
+    id: select
+    agent: pm-lead
+    output: 【材料库发布范围】版本/受众/域/包含/排除
+    notes: >
+      读 `layout.yaml`、`{workroot}/INDEX.md`、`{workroot}` 当前定稿与 `docs/materials/INDEX.md`。
+      版本取项目/迭代版本；缺则问一次，不硬造。默认只收定稿、正确、完整、可独立阅读的文档；
+      草稿/过程/证据/密钥/PII/未授权第三方文档不进库。01-requirements / 02-design / 06-release（业务决策）。
+      **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升 rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。
+      换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（见 `doc-governance.md` §7.1）。
+      外发前按现有 `confirm_handoff` / `confirm_intent` 确认，不新造门。
+
+  - name: 同步权威文档
+    id: sync
+    agent: pm-lead
+    output: docs/materials/{ver}/（00-overview～07-appendix，按需）
+    notes: >
+      从 `{workroot}` 选当前定稿，按域**覆盖复制**到 `docs/materials/{ver}/`；从 `inbound/` 选权威正确外部输入，
+      按域放入同一版本；不按 inputs/deliverables 分栏，来源写 `docs/materials/INDEX.md`。
+      每个 `{ver}/` 自包含；不建外挂 `_common/`；不设 `_archive/`；旧版本目录保留。
+      默认就地覆盖已有文件；仅显式保留历史时写入 `{ver}-r2` 或升 rev，不覆盖旧目录。
+      不直接编辑材料库正文；需要改先改 `{workroot}` 再重新发布（默认仍覆盖同 ver）。
+
+  - name: 版本说明与索引
+    id: index
+    agent: pm-lead
+    output: docs/materials/{ver}/README.md + docs/materials/INDEX.md
+    notes: >
+      README 写版本、范围、包含/不包含、阅读顺序、来源、缺失/待补、本次是否覆盖刷新。
+      INDEX 登记所有文件：版本/域/文档/来源（IN-xxxx、docs/... 或 generated）/状态/更新时间；刷新 `last_published_at`。
+      状态只写 `current / superseded`；默认覆盖同 ver；仅显式保留历史时升 `rev` 或 `{ver}-r2`。
+
+  - name: 校验
+    id: validate
+    agent: pm-lead
+    output: 【材料库校验】通过/待补
+    gate: materials-validate
+    gate_type: checklist
+    notes: >
+      核：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；
+      链接自包含，只发 `{ver}/` 不缺文件；测试数据默认不外发；旧版本状态正确。
+      待补项列明，不把“已生成”说成“已完整”。
+
+  - name: 收尾
+    id: wrap
+    agent: pm-lead
+    output: 【任务收尾】
+    notes: >
+      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出六段压缩；
+      写清版本、路径、包含/排除、校验结论、待确认；外发/交接仍按 `handoff` 台账/回执。

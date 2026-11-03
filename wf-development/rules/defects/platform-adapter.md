@@ -1,0 +1,33 @@
+# 缺陷平台适配（通用 · 内置 zentao）
+
+> 只在提交/回写/排障时读；`rules/defects/fix-collaboration.md` 平台指针指向本文件。
+> **骨架（三包同名）**：配置 SSOT → 能力表 → Zentao 要点 → 其它 provider。
+
+## 配置 SSOT
+
+端点/字段/枚举只认 **`project-profile.md`** 缺陷平台适配定义；状态与备注同轮；禁删缺陷；禁猜接口。语义动作（解决/指派/备注/关闭等）写回前换成档案取值映射。未适配或缺项且提交方式≠`export` → 一问补齐，补不齐改 `export` 或降级 `workflow:change`（对话/文档/粘贴）。
+
+## 能力表
+
+提交/回写方式按档案「提交方式」：
+
+| 方式 | 适用 | 要点 |
+| --- | --- | --- |
+| `api`（默认） | 平台开放接口 | 按档案适配端点/字段；仅 provider=zentao 且适配写「内置」时用下方禅道路径 |
+| `browser` | 仅 UI 可操作 | 档案适配后经浏览器；回写后按页面回查 |
+| `export` | 无权限/不可直连/用户代操作 | AI 出可复制回写包（备注全文+附件清单+状态/指派动作）；用户执行后回填；未回填标「待回写」，不得声称完成 |
+
+**无平台 / provider=无 / 仅文档或对话输入**：不走本文件直连；现象描述 → `change`；评估/修复结论以文档或交接包交付，口径与平台备注骨架同源。
+
+## Zentao 要点
+
+**内置 zentao**（仅 provider=zentao 且适配写「内置」）：
+
+API 直连；Token：`POST /api.php/v1/tokens`。列表/详情/解决/指派：v1。附件：v2 `/files` 字段 **`file`**；**非 ASCII 文件名须按 UTF-8 原字节写入 multipart `filename`**（防 .NET 自动转 MIME 编码致乱码）；**回查用 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`**（实测：v1 缺陷详情 `files` 字段可为空数组，**不得**据此判未挂载）。禁删 Bug。  
+解决码/状态/指派映射见 `rules/templates/40-交付与发布/缺陷文案模板.md` §6.9；未适配先补档案，禁猜。
+
+## 其它 provider
+
+- Jira / GitLab·GitHub Issue / ONES / TAPD 等：按档案最小能力契约补端点/字段；**禁**套用 Zentao 要点路径。  
+- 补不齐 → `export` 或用户粘贴；清单见 `capabilities/00-contract.md`。  
+- 备注版式按档案「备注格式」：`html` → 行间 `<br>`；多段时每段一个 `<p>…</p>`，禁空 `<p></p>`；`markdown`/`text` 行间单换行、块间至多一空行。

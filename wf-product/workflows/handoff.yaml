@@ -1,0 +1,133 @@
+# 产品协作交接（发送 / 接收 / 回执 / 变更通知 / 状态）
+# 入口即止：send/receive/status/change_* 各自独立，不自动串跑。
+workflow:
+  id: handoff
+  name: 协作交接
+  version: 1
+  read_index: rules/read-index.md
+
+# 代表口令（非穷尽）；同义按 AGENTS + 入口判定路由
+entry_points:
+  写交接单: compose
+  生成交接包: send
+  接收交接包: receive
+  交接状态: status
+  变更通知: change_send
+  同步变更: change_receive
+  重规划: replan
+  提交: commit
+
+trigger:
+  - 写交接单 / 生成交接包 / 接收交接包 / 交接状态
+  - 变更通知 / 同步变更 / 重规划
+
+steps:
+  - name: 交接状态
+    id: status
+    agent: pm-lead
+    output: handoff-ledger.md摘要（待回执/超时/退回/阻断）
+    notes: >
+      只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/product-plan.md` §0/§12；不重写计划、不发包。
+      报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断下游的 HO-ID、下一步入口。
+      有未登记新件（`{workroot}/handoff/inbound/` 有投放但台账无记录或仍为已投放）→ 建议先 `receive`/分析吸收。
+      台账缺失 → 按 `rules/templates/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
+      输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
+
+  - name: 写交接单文档
+    id: compose
+    agent: pm-lead
+    hitl: confirm_intent
+    hitl_when: intent_needs_confirm
+    output: 自洽交接单文档（默认非 HO；落 outbound/{category}/）
+    notes: >
+      **默认入口**。读协作 §3.0～§4.0 与 `通用交接单文档模板.md`（择优，非填空卷）。
+      **意图择优**：先判 `intent_needs_confirm`（澄清 §0）。真 → 完整【意图理解】停等再落盘；假 → 一行【意图】回执后直写。禁止含糊「交接」直接成文。
+      五问→形态 A/B/C 或专模；禁止整表粘贴。确认类优先 B 一页纸。
+      专模真源写版本目录，同轮实拷 `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建 HO；禁外印元数据。
+
+  - name: 生成交接包
+    id: send
+    agent: pm-lead
+    hitl: confirm_handoff
+    hitl_when: handoff_send_required
+    output: "{workroot}/handoff/outbound/{category}/{HO-ID}/ + 【交接包已生成】"
+    notes: >
+      **仅升包**。未命中包触发 → 改 `compose`。先问后发：确认后写盘到 `handoff/outbound/{category}/{HO-ID}/`；刷新出站散文件。
+      `04` 空白回执≠必须填写。多包同仓直读出站路径；仓外 ZIP。输出【交接包已生成】。
+
+  - name: 接收与签收
+    id: receive
+    agent: pm-lead
+    hitl:
+      - name: confirm_change
+        when: handoff_change_substantive
+      - name: confirm_plan
+        when: plan_level_change
+    output: 入站分析/吸收 + 接收回执（按需）+ 产品计划/文档更新 + 台账状态
+    notes: >
+      **硬**：打开→分析→吸收→同步；`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。
+      多包同仓直读对方出站；仓外主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`。
+      按类型更新计划/PRD/UAT 等；正式签收才回执。更新台账、计划 §0/§10/§12、索引、activeContext。
+
+  - name: 发送变更通知
+    id: change_send
+    agent: pm-lead
+    hitl:
+      - name: confirm_change
+        when: handoff_change_substantive
+      - name: confirm_handoff
+        when: handoff_send_required
+    output: "{workroot}/handoff/outbound/变更/{CHG-HO-ID}/ + 更新后的受影响文档"
+    notes: >
+      先按 `workflows/change.yaml` 完成受理/影响/处置/变更单；本步只负责“通知包”。
+      按 §6 判 C0～C3；C2/C3 先过 `confirm_change`/`confirm_plan`。
+      **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，确认后才生成。
+      必带：变更单、更新后 PRD/AC/原型、影响矩阵、必做事项/截止、兼容/回滚、生效版本。
+      多包同仓直读，禁止转发；仓外发文件夹/ZIP。
+
+  - name: 接收变更并适配
+    id: change_receive
+    agent: pm-lead
+    hitl:
+      - name: confirm_change
+        when: handoff_change_substantive
+      - name: confirm_plan
+        when: plan_level_change
+    output: 变更影响分析 + 产品计划/文档调整 + 回执
+    notes: >
+      读变更包 00/01/02；按 §6 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。
+      先做影响分析：PRD/AC、原型、范围/优先级、里程碑、UAT/发布、需求池、通知对象。
+      C0 → 就地更新并书面答复；C1 → 更新受影响文档/计划，回执；C2/C3 → 重基线并过门，必要时反向发 `CHG`。
+      更新 `handoff-ledger.md`、产品计划 §0/§8/§10/§12、 `{workroot}/INDEX.md`、activeContext；填写回执。
+      与现有 PRD/计划冲突 → 列冲突，不静默选一边；未裁决前不进入实施/排期。
+
+  - name: 重规划
+    id: replan
+    agent: pm-lead
+    hitl: confirm_plan
+    hitl_when: plan_level_change
+    output: 更新后的产品计划 + 重规划记录
+    notes: >
+      按 `rules/collaboration/handoff.md` §6.2 触发（范围/里程碑/依赖/S1-S2/环境/产能/合规）执行；先冻结当前基线快照，再做影响矩阵。
+      选一个动作并写理由：保持+加缓冲｜重排｜砍范围/降级 MVP｜拆波次｜暂停升级｜重新基线；C2/C3 必须过 `confirm_plan`。
+      同轮更新产品计划 §0/§1/§3/§4/§8/§10/§12、`handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；受影响的 `REQ/PLAN/UAT/REL` 包标 `已取代` 并重发。
+      重规划后重过受影响门（PRD/评审/UAT/发布）；未过门不得把阶段标完成；向受影响角色发 `CHG` 包并收回执。
+
+  - name: 收尾
+    id: wrap
+    agent: pm-lead
+    output: 【任务收尾】（handoff/回执/变更置第 1 点）
+    notes: >
+      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项
+      更新产品计划 §0/§10/§12、activeContext、 `{workroot}/INDEX.md`；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未回执/退回/待补项明示。
+      本步只出骨架与拟提交清单；提交门在下一步。
+
+  - name: 拟提交
+    id: commit
+    output: 拟提交确认结果
+    agent: pm-lead
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` §3；提交后补一行结果，不重复六段。

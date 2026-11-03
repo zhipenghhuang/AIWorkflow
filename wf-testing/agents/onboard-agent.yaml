@@ -1,0 +1,30 @@
+id: onboard-agent
+role: 测试包接入
+goal: "挂载 → 基线关键节 → activeContext → 入库确认 → 环境与工具检查（默认静默） → 按接入清单核验 → 打标 wf-testing onboard: done；兼跑能力/技能体检（skill-audit）。"
+
+reads:
+  - rules/read-index.md（onboard.* 或 skill-audit.*）
+  - rules/doc-governance.md
+  - workflows/onboard.yaml 或 workflows/skill-audit.yaml 当前 step + `环境基线-最小集.md`（接入）/完整模板（按需）+ activeContext 模板
+  - 根 AGENTS 包挂载样例；`rules/templates/00-接入与基线/capabilities/` + `rules/capabilities/instance-discipline.md`（装配/体检）；体检时 + `rules/playbooks/skill-audit.md`
+
+must:
+  - 顺序不可跳：挂载→基线关键节→activeContext→入库确认→环境与工具检查（默认静默）→清单核验→打标。
+  - mount：按根 AGENTS 薄指针模板补入（追加不覆盖）；单包指向本包，多包指向 `wf/AGENTS.md`；不写包装载说明/偏好正文。
+  - 接入清单：① 包在项目根下一层、根 AGENTS 已含本包引导；② 建档前已有界探查（有 README 则按实际结构择要；根 README 按用户偏好选档见项目README规则）；环境基线+activeContext 齐全；③ **无占位符**；基线「项目身份」+ §1/§2.1/§2.2/§8 已据实填；§2.1 含 `layout.yaml`/`layout_version`/`integration_level`/`inbound_structure`/原件根 `inbound/`/`docs/materials/`；`activeContext` 总览含一句话定位；确保 `{workroot}/` 与原件根 `inbound/`；④ 入库范围与 .gitignore 一致，规范包默认只写已装包一行、无注释；⑤ 运行时写 `wf-testing onboard: done`（占位未换不得打标；若有旧 `landing=ok` 删除并改写）；⑥ 脚本档按需；⑦ 工具默认静默；⑧ 无 `{workroot}/work-log.md` 则按模板创建，有则跳过；若有 `{workroot}/CHANGELOG.md` → 改名迁移候选（确认后→`work-log.md`）；**禁止**创建/修改/补链根 `CHANGELOG.md`；无开发包则不建根。
+  - activeContext：无文件则按模板建（总览一句话 + `## 测试` + 跨包同步 + 运行时本包行）；已有文件则只补/更新总览（若空）、本包分节与本包接入行，**禁止**整文件覆盖、禁止改他包分节/他包接入行。
+  - 旧结构迁移（「重新接入」=预授权）：按 `doc-governance.md` §3～§4 先意图分析/覆盖对照、列候选，确认后执行；**原件建齐 `inbound/{ver|topic}/` + `inbound/_common/`；定稿发布 `docs/materials/`**；旧 `inbound/项目文档/{ver}/` → `inbound/{ver}/`；根 `_archive` 内错位的各轨资产 → 各自轨 `_archive`；失效原件只改 `inbound/INDEX.md` 状态；更新基线 §2.1、计划、报告、`inbound/INDEX.md`/activeContext；冲突先问。重新接入时删除或改回本包「测试规范接入」行后重核验，不得动他包行。
+  - 资料收取/文档生命周期：按 `doc-governance.md` §3～§9；确认前只读，不改/不移/不删；失效资料只进 `inbound/INDEX.md 状态`；各轨资产进各自 `_archive/`。
+  - 交接：需要跨角色交接时建 `{workroot}/handoff/`（含 `outbound/`、`inbound/` 按需）+ `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-交接与收尾/交接台账模板.md`）；不预建空 HO；外来交接收件落 `{workroot}/handoff/inbound/{category}/`（须分析吸收；`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。
+  - 自动接入：记下原 route/step；打标后立即 resume；不要求用户重述。
+  - 设计输入目录无文件且原任务为生成 → STOP 一问，不假装已生成。
+  - 工具可用性：接入时不主动全量盘点/冒烟；点名「装配能力」才展开写入 `{workroot}/capabilities/`；未配置=降级不阻塞打标。**业务触达未装槽**仍按 `capabilities/00-contract.md` §2 出【能力缺失】块（与本条「接入静默」不冲突）。
+  - skill-audit（「体检能力」等）：按 playbook 与 `skill-audit`；能力只改 `{workroot}/capabilities/`，技能可改本包 `skills/`；基线 §8/§17 只刷索引；未确认零改动。
+  - 密钥不入库；§13 密码仅测试环境且经用户授权后可明文；onboard 只强制 §1/§2.1/§2.2/§8，其余节禁空填。
+
+outputs:
+  - env-baseline.md · {workroot}/capabilities/00-能力清单.md（如需要）· activeContext.md · {workroot}/work-log.md（如无）
+  - " `inbound/INDEX.md`"
+  - 迁移清单/归档清单/清理清单（确认后执行）
+  - 接入清单核验结论（默认不展开）
+  - resume 原口令

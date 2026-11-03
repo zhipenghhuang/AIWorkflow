@@ -1,0 +1,58 @@
+# 验证与定稿（产品轨）
+
+> **单一出处**：PRD/评审/UAT/变更/回写的完成状态与报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口。
+> **读取时机**：`prd.review`、`deliver.uat`、`change.apply`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。
+
+## 1. 不变量（带 ID）
+
+| ID | 不变量 |
+| --- | --- |
+| PRODUCT-VER-01 | PRD 结构完整 ≠ 需求定义完；AC 必须可判定，TBD 必须有责任人/期限。 |
+| PRODUCT-VER-02 | 定稿只认门：选 B → `review_status: APPROVED` + 独立评审记录 + `gate_id`；选 A → `review_status: HUMAN_APPROVED` + `approved_by`（批准人），不要求 AI 评审记录/gate_id。**无论 A/B**：P2+/P1↑/拟定稿须 `-Mode prd` 非 BLOCKED +【完稿自检摘要】；P0/普通 P1 可用 `prd_level=light` + SELF_CHECKED，交开发前仍须结构非 BLOCKED。 |
+| PRODUCT-VER-09 | 作者侧闭环：写 PRD 收尾必须落【完稿自检摘要】（非目标/假设/GAP/AC 抽验/权限或资金面/评分/结构门路径）；无摘要不得宣称定稿或交开发。 |
+| PRODUCT-VER-10 | P1↑（elevated）：命中权限/资金/隐私/不可逆数据/主数据规则 → 作者自检与 `-Mode prd` 按 P2，可免独立评审但不得用「普通 P1 light」跳过结构与摘要。 |
+| PRODUCT-VER-03 | 评审人 ≠ 作者；评审记录含清单/评分/阻断项；同一会话自评不算独立评审。`gate_id` 由门回执回填，不手编。 |
+| PRODUCT-VER-04 | 追溯闭合：全量 PRD 的 F/R/A/AC 无空链（light 缺追溯仅警告）；变更/缺陷联动清单逐项“已更新/不适用/待补”。 |
+| PRODUCT-VER-05 | UAT 对照 AC + 证据；有条件通过必须有遗留项、责任人、接受人；无 UAT 要求可写 `不适用` + 依据 + 批准人/接受人，不得用不适用绕过真实用户验收。 |
+| PRODUCT-VER-06 | 平台回写有回执：单号 + 备注实质 + 状态取值 + fileId/无附件；禁标题刷绿；无权限走 export，不得声称已回写。 |
+| PRODUCT-VER-07 | 报告先写中文回执结论（可定稿/草稿/阻塞）；非“可定稿”禁用“已定稿/评审通过/可发布”。 |
+| PRODUCT-VER-08 | 机器查结构/追溯/证据/回执；人判断价值/优先级/设计质量；两者都不可省。 |
+
+## 2. 完成状态
+
+| 状态 | 条件 | 报告措辞 |
+| --- | --- | --- |
+| `READY` | 结构/追溯/独立评审/UAT/联动/回写检查通过 | 已定稿/评审通过/可发布 |
+| `DRAFT` | 结构完整但有非阻断待确认/未定稿 | 草稿/待评审；列待确认 |
+| `BLOCKED` | 缺评审/缺证据/关键 TBD 无主/断链/无回执 | 未完成/阻塞/未验证 |
+
+> 中文回执映射：可定稿=READY｜草稿=DRAFT｜阻塞=BLOCKED；无门产物写“结论=不适用（verification=not_applicable）”。报告写中文，机器对账仍读 JSON 英文值。
+
+**定稿顺序（作者侧始终）**：落盘 →【完稿自检摘要】→ `-Mode prd`（`.gate/wf-product/prd.json`）→ 选 A/B。**选 B**：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。**选 A**：回填 `review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY → 可 `confirm_prd`。轻量/P1↑：`prd_level=light` 可免独立审，P1↑ 自检按 P2。回执目录 `.gate/wf-product/{mode}.json`。
+
+## 3. 分档验证
+
+| 级别 | 验证 |
+| --- | --- |
+| P0 文案/配置 | 压缩摘要 + TBD/留痕；结构门可选 |
+| P1 普通小功能 | 轻量节 +【完稿自检摘要】；交开发前 `-Mode prd` 非 BLOCKED；可不独立审 |
+| **P1↑** | 作者自检=P2（权限/rules/异常/AC）+ 摘要 + `-Mode prd` 必跑；独立审可选 |
+| P2 功能/版本 | 完整 PRD + 摘要 + `-Mode prd` + 必问 A/B（选 B 则独立审+gate_id）+ 追溯；UAT 按发布 |
+| P3 0→1/战略 | P2 + 立项/计划门 + 用户签收 + 发布决策 |
+
+## 4. 报告契约
+
+```text
+【验证回执】结论=可定稿/草稿/阻塞/不适用 | 校验={校验名（机器代号/时间）} | 检查={通过}/{总数} | 待确认={n 或列表}
+```
+
+- 回执在【任务收尾】第 1 点之前。
+- 可定稿（READY）才可写“已定稿/评审通过/可发布”；草稿（DRAFT）写“草稿/待评审”；阻塞（BLOCKED）写“未完成/阻塞”。
+- 数字/单号/路径与门输出一致；`校验=` 必须含 `gate_id`（可写“中文名（机器代号）”）。
+
+## 5. 成本纪律
+
+- 不新增 PRD/评审/UAT 文档；门读现有产物。
+- 全量 PRD 结构检查用 `validate_prd.py`；轻量 PRD 走 `prd_level=light` 最小校验；语义/独立性/闭合用轻量脚本。
+- P0/普通 P1 轻量；P1↑/P2+ 结构门硬；独立评审仍按 A/B（P2+ 必问）。
+- 人只看价值/取舍/设计质量；机器查结构/证据/回执；作者摘要防「自检空转」。

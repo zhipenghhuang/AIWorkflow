@@ -1,0 +1,181 @@
+# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
+# 需求与 PRD（洞察 → 竞品对标（按需）→ 立项 → PRD → 评审定稿）
+# 入口即止：写PRD/立项/PRD评审/竞品对标为单步入口；「收集需求/竞品分析」只到洞察产出。
+workflow:
+  id: prd
+  name: 需求与 PRD
+  version: 6
+  read_index: rules/read-index.md
+
+entry_points:
+  收集需求: discover
+  需求洞察: discover
+  竞品分析: discover
+  学习竞品: discover
+  需求池: discover
+  分析客户需求: discover
+  需求调研: discover
+  客户访谈: discover
+  需求澄清: discover
+  竞品对标: benchmark
+  功能对标: benchmark
+  对标分析: benchmark
+  功能差距: benchmark
+  立项: prioritize
+  单需求立项: prioritize
+  排优先级: prioritize
+  写PRD: prd
+  写 PRD: prd
+  出PRD: prd
+  补PRD: prd
+  PRD评审: review
+  PRD 评审: review
+  定稿: review
+
+trigger:
+  - 收集需求 / 需求洞察 / 竞品分析 / 学习竞品 / 需求池
+  - 竞品对标 / 功能对标 / 对标分析 / 功能差距
+  - 立项 / 排优先级
+  - 写 PRD / 出 PRD / 补 PRD / PRD 评审 / 定稿
+
+steps:
+  - name: 需求洞察与需求池
+    id: discover
+    output: 需求池/洞察/竞品分析（{workroot}/requirement-pool.md 或 {workroot}/{ver}/10-requirements/洞察|竞品分析-*.md）
+    agent: pm-analyst
+    hitl: confirm_understanding
+    hitl_when: understanding_needs_confirm
+    notes: >
+      来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）；
+      **先还原需求**：技能 `skills/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案；单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
+      澄清**按 `rules/core/clarification.md` 执行**；正式访谈用 `访谈指南模板`，综合用 `洞察综合模板`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
+      **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `skills/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板 `竞品分析模板.md`）；产出借/改编/不借表并回绑本产品问题；影响定位/范围须确认。功能差距清单需求 → 转 `benchmark` 步（模式 P），不在本步只交对标矩阵冒充分析。
+      **来源扇出**（子代理编排 §2）：批量洞察/竞品 ≥4 独立来源 → 按来源只读扇出（返回证据表/去重键 ≤30 行）；主 agent 去重入池；单条反馈直做。
+      引用须可回查（来源+日期），无依据写「待验证」。
+      能力（可选）：docs-mcp 查资料、browser-mcp 查竞品/后台；未装=按主读与用户输入。
+      输入含外部文档/竞品/反馈原件 → 先按 `rules/doc-governance.md` §3【入站分析】；确认前不改文件。确认采纳后落 `inbound/{ver|topic}/` 或 `_common/`（或 T7 参考）；S1/S2/S3 同批进 `inbound/_archive/`；本包写的 PRD/竞品分析正文落工作区，不进资料。
+      技能：`skills/requirement-discovery-and-prioritization/SKILL.md`（先读再做）；竞品向必加 `competitive-intelligence-and-learning`。
+
+  - name: 竞品对标与差距候选项
+    id: benchmark
+    output: 竞品对标矩阵 + 需求池候选项（{workroot}/{ver}/10-requirements/竞品对标-*.md + {workroot}/requirement-pool.md）
+    agent: pm-analyst
+    hitl: confirm_scope
+    hitl_when: scope_decision_required
+    notes: >
+      入口=「竞品对标/功能对标/对标分析/功能差距」或 discover 分诊为模式 P。
+      技能：`skills/competitive-intelligence-and-learning/SKILL.md` **模式 P**（先读）+ `requirement-discovery-and-prioritization`（入池字段）。
+      落盘模板 `竞品对标模板.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
+      ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。
+      用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → 可跳过门。
+      发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。
+      能力：browser-mcp 可选；未装=用户提供链接/截图。
+
+  - name: 优先级与立项
+    id: prioritize
+    output: 需求池优先级/立项建议（{workroot}/requirement-pool.md §优先级）
+    when: new_requirement_or_scope_change
+    agent: pm-analyst
+    hitl: confirm_scope
+    hitl_when: scope_decision_required
+    notes: >
+      条件步：跨版本/高价值需求或点名「立项」才走；小需求直接进 PRD（不设门）。
+      方法按需：RICE / Kano / MoSCoW；产出：优先级 + 版本范围（MVP）+ 排除项 + 粗排期 + 依赖风险。
+      依据=确认的客户需求+证据+成本/风险；**模式 S 借鉴项**须已回绑问题；**模式 P 候选项**进版本须本步或计划范围确认，不得因「竞品有」自动 Must。
+      不把领导偏好、单个客户直接当优先级；未确认/未验证需求不排期；取舍给建议，不替用户决定。
+      技能：`skills/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
+      confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD；仅跨版本/高价值/点名立项链时停。
+
+  - name: PRD 撰写
+    id: prd
+    agent: prd-writer
+    gate: product-prd
+    gate_type: machine
+    gate_when: prd_structure_required
+    hitl:
+      - name: confirm_understanding
+        when: understanding_needs_confirm
+      - name: confirm_scope
+        when: scope_unconfirmed
+    output: "{workroot}/{ver}/10-requirements/PRD-{主题}.md（模板 rules/templates/10-规划与需求/PRD模板.md）"
+    notes: >
+      skills_required: prd-writing｜skills_optional: analytics-and-experimentation（有指标/埋点/实验才读）
+      前置：产品计划已确认，或单需求范围已经 `confirm_scope` 批准；两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。
+      已在需求池/立项书/计划范围内 → 直接写；未定性新输入 → 先走 `workflows/change.yaml` intake，不跳过受理。
+      **写前先读**：确认的客户需求理解/受理单/需求池/证据；每条 F/R/AC 必须能追溯到来源（访谈/工单/数据/文档/裁决），无来源列 `Q-xx` 待确认，不臆造；未确认的推断标「假设」。
+      理解门先行：`confirm_understanding` 按 `rules/core/clarification.md` 出示理解复述+方案要点；**未双确认不得**落正式 PRD（可出草稿并标待确认）。
+      P2+ 且开发/测试角色可得时，按 `rules/collaboration/handoff.md` §2 做需求澄清（Three Amigos）：产品讲问题/AC，开发讲可行性/影响，测试讲可测性/oracle；产出澄清记录（问题/示例/AC/待决，可并入 PRD 的变更记录节或评审记录）并回写 PRD；角色不可得则跳过，不阻塞。
+      技能：`skills/prd-writing/SKILL.md`（先读再写）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验，可选）；自检清单与 `skills/review-and-finalize/SKILL.md` 同源。
+      要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段rules/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
+      **多需求/版本级**：用 `rules/templates/10-规划与需求/迭代方案模板.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；PRD 保留单需求明细。验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
+      写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。
+      **级别**：P0/普通 P1 → 轻量模板；**P1↑**（权限/资金/隐私/不可逆数据/主数据规则）→ 作者自检按 P2，可用轻量壳但须补权限/rules/异常/AC；P2+ → 全量模板。
+      **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing §9.1）；`gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。BLOCKED → 不得进评审/定稿；DRAFT → 可审不可定稿；进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。
+      P0 纯文案且无结构门要求时可跳过 gate；普通 P1 进交开发前仍须非 BLOCKED。
+      **证据侦察分片**（子代理编排 §2）：大 PRD（≥3 来源文档）→ 只读侦察 AC/状态机/权限/NFR/异常边界；PRD 正文单写手分节推进，禁并行写。
+      完稿按评审清单自检，带缺口禁落盘；同路径已有 PRD → 先读并增量更新，禁静默覆盖。
+
+  - name: 页面原型（条件）
+    id: prototype
+    when: has_ui_requirement
+    agent: ux-designer
+    output: "{workroot}/{ver}/20-design/原型-{主题}.html + 原型说明/交接要点（条件）"
+    notes: >
+      条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。
+      按 `workflows/prototype.yaml` 执行（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）；只执行所列步骤，不执行 prototype.wrap/commit（由本链统一收尾）。
+      原型完成后回 PRD 评审；PRD §14 追溯矩阵「原型/页面」列回填。
+      技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`。
+
+  - name: PRD 评审与定稿
+    id: review
+    output: 评审记录或 HUMAN_APPROVED 声明
+    agent: reviewer-agent
+    gate: product-review
+    gate_type: machine
+    gate_when: ai_review_chosen
+    hitl:
+      - name: select_review_mode
+        when: landing_doc_review_needed
+      - name: confirm_prd
+        when: finalize_requested
+    notes: >
+      入口=「PRD评审」→ `finalize_requested=false`（只评审）；入口=「定稿」或用户明确要进入排期 → true。
+      **先选评审方式**（`skills/artifact-review`）：STOP 出示【评审方式】A 自行评审通过｜B AI 独立评审；未选不得宣称通过/定稿。P0/P1 light 可提示默认 A；P2+ 必问。
+      **选 A**：出示【完稿自检摘要】+ 四硬门要点 → 用户确认 → `HUMAN_APPROVED`；**跳过**独立 reviewer 与 `-Mode review`；**仍必须** `-Mode prd` 非 BLOCKED（P2+/P1↑/拟定稿）；用户对放行负责。
+      **选 B**：技能 `skills/review-and-finalize/SKILL.md` + `skills/artifact-review`；独立复核（完整/可测/无歧义/范围/依赖/风险/验收/埋点/追溯/无臆造）；对照客户需求理解防偷换问题/扩大范围/假设当事实。
+      **B 路径门禁**：先写评审记录再跑 `-Mode review`（`gate_when: ai_review_chosen`）；READY 后回填 `gate_id`、`review_status=AI_REVIEWED`/`APPROVED`；再复跑 `-Mode prd`。未 READY 不得写“评审通过/定稿”。
+      **定稿前结构门（A/B 均适用）**：`confirm_prd` 前 `-Mode prd` 不得为 BLOCKED；无【完稿自检摘要】不得定稿。
+      **评审分片**（子代理编排 §2）：大 PRD → 维度扇出；评分卡只算一次。
+      产出：`评审-{主题}-{yyyyMMdd}.md`（B）或 HUMAN_APPROVED 声明（A）+【评审结论】+【完稿自检摘要】。
+      结论=需修 → 回 prd 修订（同回合≤1），不弹定稿门；通过且要定稿/排期 → `confirm_prd`；仅评审 → 收尾不弹定稿门。
+      批准后回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`；更新产品计划 §7。**未定稿不排期**。
+
+  - name: 需求交接包
+    id: handoff
+    when: prd_ready_for_handoff
+    agent: pm-lead
+    output: "{workroot}/handoff/outbound/需求/{HO-ID}/（REQ → 开发/测试；或仅出站实拷）+ handoff-ledger.md"
+    notes: >
+      PRD 已 APPROVED 且 PRD 门 READY 后执行；本步只决定「交自洽 PRD 还是打 REQ 包」，**不得在本步直接写 `{HO-ID}/`**。
+      **最优默认**：定稿后交付**自洽 PRD**（实施可读：全量 AC/范围/非目标/边界/NFR/待决写进 PRD）；**不**默认打 REQ 包。
+      **REQ 包按需**：多文件（原型源等）/正式签收/仓外 ZIP/点名 → 停问建议；确认后走 `workflows/handoff.yaml` 的 `send`（含 `confirm_handoff`），不另造模板。未命中不机械每问。
+      仅评审未定稿 → 跳过。未回执不得写“开发/测试已接收”。
+
+  - name: 收尾
+    id: wrap
+    agent: prd-writer
+    output: 【任务收尾】（PRD/评审明细置第 1 点）
+    notes: >
+      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写；
+      更新产品计划 §0/§7/§10、activeContext、 `inbound/INDEX.md`（有实质进展时）；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。
+      本步先出骨架与拟提交清单，提交门在下一步。
+
+  - name: 拟提交
+    id: commit
+    output: 拟提交确认结果
+    agent: prd-writer
+    hitl: confirm_commit
+    hitl_when: has_pending_commit
+    tools:
+      - git
+    notes: 无文件变更跳过本步与 hitl；拟提交清单按 `rules/workflow.md` §3；提交后补一行结果，不重复六段。

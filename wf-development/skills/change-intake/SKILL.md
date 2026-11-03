@@ -1,0 +1,96 @@
+---
+name: change-intake
+description: Use when a user sends a new document, a change request, a confirmation, or an open-item resolution during development. Register, classify, link to requirement/decision IDs, analyze impact, update only affected documents, and produce an absorption report for human confirmation. 中文触发：新文档、变更、确认项、收件箱、变更吸收、影响分析、需求变更、增量。
+---
+
+# 变更吸收（技能 · 随包生效）
+
+> 用于：用户随时发来新文档、聊天里说“改了/确认了/新增需求/这是新一期方案”，或 `inbound/` 出现未登记文件。  
+> 目标：**AI 自动收件、分类、覆盖对照、关联、影响分析、局部更新、准备开发；人只确认实质变更与归档。**  
+> 原则：**新文档不等于新真值；先分类/对照，再影响分析，最后局部更新；不静默覆盖基线，不静默归档旧资料。**  
+> 澄清纪律：按 `rules/core/clarification.md` 先读rules/skills/代码/文档做分析，只问 0～1 个高影响问题（总≤3），技术细节给建议；输入含 PRD/迭代方案/原型/文档时先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要，再谈影响。
+
+## 1. 收件
+
+- 文件 → 主副本必留原件根 `inbound/`并索引（可仅索引）→ 按需复制进 `inbound/` → 按需 A0～A2 吸收；原件不迁。见 `rules/doc-governance.md` §2～§4。**确认前不改名/不移动/不标记失效**；放入≠自动分发其它包。
+- 输入为 PRD/迭代方案/需求文档/页面原型/接口或技术文档 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要（来源/目标/范围/F-R-AC/冲突/GAP/置信度）；不得只登记文件名就做影响分析。
+- 归档候选（S1/S2/S3）→ 输出【资料收取与归档候选】；用户确认采纳后同批移 `inbound/_archive/{批次}/` + `归档清单`。部分覆盖/增量补充/参考不归档；工作产物不进 `inbound/`。
+- 聊天 → 在 `{workroot}/00-governance/change-log.md` 或 `{workroot}/00-governance/open-items.md` 建 `CR/OPEN`，保留来源/日期/原文要点。
+- 每个输入给 `DOC-xx`（原始资料）或 `CR-xx`（变更）编号。
+
+## 2. 分类
+
+| 类型 | 识别 | 落点/动作 |
+| --- | --- | --- |
+| PRD 补充/更新 | 需求、AC、范围、优先级变化 | 更新 `{workroot}/10-requirements/requirement-ledger.md` + PRD 对应章节 |
+| 迭代方案 | 只含本次迭代功能 | 建 `{workroot}/40-tasks/迭代-{版本}/迭代计划.md`；引用/新增 `R-xx` |
+| 未决项确认 | “这个定了/按 B 方案” | 关 `OPEN-xx`，写 `DEC-xx`，更新关联 R/AC/设计/任务 |
+| 设计/原型确认 | 接口、数据、页面、交互 | 迭代方案更新 `{workroot}/20-design/`；现行契约更新 `{workroot}/30-architecture/`；影响分析 |
+| docs/testing/发布资料 | 用例、报告、上线/回滚 | 更新 `04/05`；关联版本/R |
+| 会议纪要/原始资料 | 未形成结论 | 落 `inbound/{ver|topic}/` 或 `_common/`（保持原名），只登记，不直接改基线 |
+| 新需求/变更 | 新增功能、改范围/排期 | 建 `CR-xx`，走影响分析 + 确认 |
+
+歧义 → 先查/分析；仍不确定再问 0～1 个高影响问题，不要猜“这是新 PRD 还是确认”。
+
+## 3. 关联
+
+- 找已有 `R-xx` / `AC-xx` / `OPEN-xx` / `CR-xx` / `T-xx`。
+- 新增需求：分配 `R-xx`，写来源/日期/状态。
+- 修改需求：`CR-xx` 记录旧→新；正式产物直接替换旧结论，不在 PRD/台账里保留“已替代”说明。
+- 确认项：关闭 `OPEN-xx`，写结论/决策日期/关联 CR。
+- 找不到关联 → 标 `GAP`，不要硬套。
+
+## 4. 影响分析（逐项写“受影响/不受影响 + 依据”）
+
+```text
+需求/AC / 原型 / 架构/ADR / DB / API / 前端 / 测试 / 任务 / 发布 / 回滚 / `{workroot}/INDEX.md`
+```
+
+- 受影响：列出要改的章节/文件/任务/用例。
+- 不受影响：写依据，不能沉默。
+- 实质影响（范围/AC/排期/架构/发布）→ `confirm_change` / `confirm_spec` / `confirm_requirements` / `confirm_backlog`。
+
+## 5. 局部更新
+
+- 只改受影响章节；不重写全文。
+- 保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明）；变更前后与原因记 CR/变更记录。
+- 更新 `需求台账`、迭代计划、任务清单、docs/testing/发布文档（按影响）。
+- 更新 `开发计划` §9/§10、`{workroot}/INDEX.md`、`activeContext`。
+- 不新建重复文档；同一主题就地更新；不同工作先问用户。
+
+## 6. 开发准备
+
+- 新增/修改任务：补 AC、精确文件/接口、测试先行、验证命令、DoR/DoD。
+- 更新迭代计划：本次范围、依赖、风险、里程碑。
+- docs/testing/发布：按影响补用例、回归范围、发布说明/回滚。
+- 只准备，不直接实施；实施走 `change`/`iterate`。
+
+## 7. 变更吸收报告（给用户确认）
+
+```text
+【变更吸收报告】{时间} | {CR/DOC/OPEN}
+1. 输入与分类：{文件/聊天 → 类型}
+2. 关联：{R/AC/OPEN/CR/T}
+3. 影响矩阵：{受影响/不受影响 + 依据}
+4. 已更新：{文档/章节/任务/docs/testing/发布}
+5. 待确认：{范围/优先级/方案/排期/发布}
+6. 下一步：{进入 change/iterate / 仅关闭 / 等用户确认}
+```
+
+## 8. 常见坑
+
+- 把新文档直接当基线覆盖；不登记、不编号。
+- 只改聊天/一个文档，其他文档不联动。
+- 把迭代方案当完整 PRD；不建/不更新需求台账。
+- 确认项只写“已确认”，不关 OPEN、不写决策、不更新任务。
+- 影响分析沉默；漏 DB/API/docs/testing/发布。
+- 小变更重跑全链；大变更只改文案。
+- 不更新 `{workroot}/INDEX.md` / 开发计划，接手人不知道。
+
+## 常见合理化与反驳
+
+| 合理化 | 现实 |
+| --- | --- |
+| 「先塞进待办再看」 | 先分流/分级/影响面，再入受理；禁止未读资料开写。 |
+| 「交接包放一下就算接收」 | 入站须分析吸收；未回执不得称已接收。 |
+| 「小补充不用记变更」 | 改基线/AC 必须留痕；否则后续无法追溯。 |

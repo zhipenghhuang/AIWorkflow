@@ -1,0 +1,105 @@
+# 验证与完成（开发轨）
+
+> **单一出处**：验收清单、证据、完成状态、报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口；`verify/checks.yaml` 是策略表。
+> **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`wrap` 前；`review` 只读证据标准，不读门回执（门在 verify/gates 跑）。维护时读 `rules/core/rule-governance.md`。
+
+## 1. 不变量（带 ID）
+
+| ID | 不变量 |
+| --- | --- |
+| DEV-VER-01 | 先理解后执行：需求理解包/验收清单未确认，不写基线/方案/清单/代码。 |
+| DEV-VER-02 | 完成只认门：没有本轮 `.gate/wf-development/completion.json` 的 `COMPLETE`，只能报“未verify/阻塞/部分完成”；空 diff/dry-run 永远不是 COMPLETE。 |
+| DEV-VER-03 | 证据先于结论：结论必须引用本轮检查、退出码、证据路径；聊天文本/子代理自述不算证据。 |
+| DEV-VER-04 | 失败不声称完成；工具/环境缺失记 `BLOCKED`，不得降级为“人工清单已过”。 |
+| DEV-VER-05 | 风险不降级：L0～L3 由变更事实判定；前端行为/布局变化最低 L1。 |
+| DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险的 L1 可免独立评审，但须记录理由与风险接受人。 |
+| DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、截图；无证据不报完成。 |
+| DEV-VER-08 | 报告先写中文回执结论（通过/部分通过/阻塞/未验证），再写完成内容；非“通过”禁用“完成/通过/已修复/正常”。 |
+| DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=开发规范`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 verify/gates 跑。 |
+| DEV-VER-10 | 免审不免自检：任何任务（含免独立评审的 L0/L1）都必须有本轮docs/testing/冒烟/证据（定向或全仓，以 profile 为准）；多波次先选“每波独立评审+过门”或“只 S5 全量评审”，不得混用。 |
+| DEV-VER-11 | 实施质量对账：有行为变化须核对 `implement_preflight`；命中取重时另核 SC 追溯、跨层、基线冒烟、债项；重要面命中须有同批硬补证据。缺项不得报全覆盖「通过/完成」。细则只认 `implementation-quality.md`（§8）。 |
+| DEV-VER-12 | 验收分层：产品验收矩阵先分 `DEV-AC / QA-AC / REL-AC`；只有 `DEV-AC` 进入开发任务与 S5 门禁；`QA-AC` 由测试在 S6/S7 执行，`REL-AC` 由 UAT/发布在 S8 执行。 |
+| DEV-VER-13 | 禁止直接转任务：不得把 PRD/方案验收矩阵原样拆成开发实现任务；验收矩阵保留为测试资产，开发任务只抽取 `DEV-AC` 子集。 |
+
+## 2. 验收清单
+
+- **L0**：不强制验收清单；无代码改动时门返回 `NOT_VERIFIED`，不得报完成。
+- **L1**：写在任务卡/开发卡里的 `## 验收清单` 表；至少含 `AC | 判定 | 检查 | 证据`。运行门时用 `-Acceptance <任务清单>` 显式传入；不传且无 `.gate/acceptance.yaml` → BLOCKED。
+- **L2+**：落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`；L3 另含 `security`/`rollback`），确认后冻结；变更走变更记录。L2+ 缺独立评审记录 → BLOCKED。
+- **建议字段**（模板见 `verify/templates/acceptance.yaml`）：`implement_preflight`（有行为必填）；取重时另含 `sc_trace`、`cross_layer`、`baseline_smoke`、`debts`。缺则 verify 标明缺口（`PARTIAL`/`BLOCKED`，见实施质量门 §8）。
+- 每行必须能判定（条件+动作+可观测结果），检查可复跑，证据有落点；AC/SC 预期来自方案，不来自现网实现（DEV-IQ-02）。
+- 写不出 AC = 需求未定义完；不得进入实施。
+- 确认后不重复问；新增/变更 AC 走变更记录。
+- **规范包只读**：`wf-development/verify/` 仅工具与模板；运行态（验收清单、证据、project-profile、截图）一律写项目根 `.gate/`，禁止写入包内。
+
+## 2.1 验收分层（防职责错位）
+
+> 产品方案/PRD 中的验收矩阵是**验收资产**，不是开发任务清单。任务拆解前必须先分层；未分层不得拆单。
+
+| 类型 | owner | 执行阶段 | 典型内容 | 门禁用途 |
+| --- | --- | --- | --- | --- |
+| `DEV-AC` | {workroot}/verifier | S4/S5 | 单测、集成、契约、核心冒烟、权限/越权反例、幂等/并发、迁移回滚 | 写入 `.gate/acceptance*.yaml`，作为完成门输入 |
+| `QA-AC` | docs/testing/QA | S6/S7 | 业务验收矩阵、异常/边界/回归、缺陷复验、测试报告 | 不进入 S5；作为提测/测试通过证据 |
+| `REL-AC` | docs/product/业务/测试 | S8 | UAT、发布准入、遗留接受、回滚/监控确认 | 不进入 S5；作为发布评审输入 |
+
+**规则**：
+
+1. 产品方案/PRD 的每条验收场景标注 `DEV-AC / QA-AC / REL-AC`。
+2. **DEV-AC 必留（对称硬句）**：同时满足下列三项时，**至少 1 条**可复跑检查必须标 `DEV-AC` 并进开发任务/S5——不得仅因场景号落在产品验收矩阵、或「原文未标类型」就整条划为 `QA-AC`：
+   1. 本期**新增或改写**的对象生命周期起点（创建草稿 / 生成任务 / 下发请求 / 首次写库可见态等；示例非穷尽）；
+   2. 方案/AC 写明的**业务触发链**（A 发生 → 产生或更新 B），而非仅「打开已有对象再查询/展示」；
+   3. 失败会**阻断同模块后续 P0**（无草稿则无下发；无快照则无延期/统计分母等）。
+3. **仍可为 `QA-AC`/`REL-AC`**：全量组合矩阵、多角色长链路、全站/逐页视觉、真实双连与故障注入、跨版本大数据回归、UAT 业务签字等（示例非穷尽）。
+4. **未标注默认**：先按第 2 条「必留」判定；**判不中**再默认 `QA-AC` 记入待确认/测试交接，**不得**把必留项默认塞给 QA，也**不得**把非必留矩阵整包塞给开发。
+5. 任务清单只承接 `DEV-AC`；`QA-AC/REL-AC` 进入测试计划、UAT 计划或交接项，不建开发实现任务。
+6. `QA-AC` 未执行不阻断 S5；它阻断的是 S6 提测准入/S7 测试通过/S8 发布评审。
+7. `DEV-AC` 必须有本轮可复跑检查（证据保真见 `implementation-quality.md` DEV-IQ-02 / §5）；`QA-AC/REL-AC` 必须有执行记录和证据，不以“代码完成”替代。
+8. S5 评审只评 `DEV-AC` + 代码/CI/安全/回滚；不得用未执行的 `QA-AC/REL-AC` 否定开发完成门。
+
+## 3. 证据
+
+- 门自己跑关键检查并写 `completion.json`；不信任“已通过”文本。
+- 证据类型：命令+退出码、测试报告、Playwright trace/截图、console/network 日志、设计 QA、评审记录。
+- 前端证据落 `.gate/frontend/`；至少桌面+移动截图（JPEG/WebP 优先）；从 `verify/frontend/design-qa.md` 复制到 `.gate/frontend/design-qa.md`：L1 至少填 1/2/3/6/7/10/15 七项，L2+ 填满 15 项；结论非「不通过」。截图必须晚于本轮验收清单，否则视为旧证据。
+- 原始日志落 `.gate/logs/`；对话只放 ≤30 行摘要。
+- 证据不夹带密钥/PII；路径用相对路径。
+
+## 4. 完成状态
+
+| 状态 | 条件 | 报告措辞 |
+| --- | --- | --- |
+| `COMPLETE` | 验收全覆盖；必跑检查通过；证据可打开 | 完成/通过/已修复 |
+| `PARTIAL` | 核心通过；有非阻断缺口/跳过项 | 部分完成/部分验证；列缺口 |
+| `BLOCKED` | 检查失败/缺环境/缺证据/验收未覆盖 | 未完成/阻塞/未验证 |
+| `NOT_VERIFIED` | 未跑门 | 未verify/待验证 |
+
+> 中文回执映射：通过=COMPLETE｜部分通过=PARTIAL｜阻塞=BLOCKED｜未验证=NOT_VERIFIED。报告写中文，机器对账仍读 JSON 英文值。
+
+## 5. 前端分级
+
+| 变更 | 必做 |
+| --- | --- |
+| 纯文案/配置 | build + 受影响页面截图 + console 无 error |
+| 普通 UI 改动 | 上述 + 状态（loading/empty/error/permission）+ 360/768/1280 截图 + 键盘/焦点基础 |
+| 布局/交互/表单/权限 | 上述 + E2E 主链路 + network 4xx/5xx + 独立目检 |
+| 高风险/品牌页 | 上述 + 视觉基线/diff + a11y 扫描 + 深度设计评审 |
+
+设计合理性由 `verify/frontend/design-qa.md` 判断：L1 七项高价值检查，L2+ 十五项 + 独立目检；不追求每页像素级 diff。
+产品设计不完整 → 先出 1 页前端设计说明（布局/层级/tokens/状态），确认后再写代码。
+
+## 6. 报告契约
+
+```text
+【验证回执】结论=通过/部分通过/阻塞/未验证 | 校验=开发计划校验（dev-plan-validator） | 检查=8/8 | 未验证=0
+```
+
+- 回执在【任务收尾】第 1 点之前；`verify/Test-Report.ps1` 对账 `.gate/wf-development/completion.json`。
+- 数字与 `completion.json` 一致；未验证项显式列出；`校验=` 必须含本轮 `gate_id`（commit-diffHash），可写“中文名（机器代号）”。
+- 提交/部署/回写门仍按 YAML `hitl` 独立确认；门不替代提交授权。
+
+## 7. 成本纪律
+
+- 定向仅当 profile 配 `*_scoped`（`{files}`）；否则 `project-*` 全仓，勿假称受影响。全量回归留给发布/L3。
+- `-StartTask` 冻结 `base_commit`；门按 base..工作区计 diff（防中途 commit 空门）。截图新鲜度 = max(验收 mtime, task `started_at`)。
+- 不复用旧 `completion.json`；高价值低成本默认做（见 `verify/checks.yaml`）。
+- 不为 L0/L1 新增文档；不每个任务通读rules/技能。

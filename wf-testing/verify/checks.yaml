@@ -1,0 +1,58 @@
+# 检查矩阵（测试轨 · 人读策略）
+# 机器执行以 tools/test_gate.py 为准；本文件用于评审与调整。
+
+version: 1
+modes:
+  coverage:
+    required: [coverage-map]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性
+    optional: [depth-variant-date-entry]  # soft：变体/日期倒置/入口·字段齐套自检关键字
+  review:
+    required: [review-record, review-structure, review-verdict]
+    optional: [coverage-receipt, depth-variant-date-entry]
+    manual: [a1-a6-sampling, s1-s9-suite, scorecard-rerun, independent-context, weak-oracle-pass]
+  execute:
+    required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons, p0-status]
+    optional: [coverage-map, p0-missing, ui-evidence-for-named-ui]
+    manual: [delivery-gap-not-observation]  # 范围内入口缺失禁标观察
+  report:
+    required: [plan-exists, ledger-counts, report-counts, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
+    optional: [depth-variant-date-entry]
+    manual: [writeback-receipt, delivery-gap-closed-or-listed]
+  writeback:
+    required: [writeback-receipt]
+    manual: [note-status-same-round, attachment-check, platform-id]
+
+# 高价值低成本（默认）
+always:
+  - plan-exists
+  - ledger-counts
+  - evidence-exists
+  - p0-status
+  - report-verdict
+
+# 高价值中成本（按范围）
+risk_based:
+  - coverage-map
+  - review-record
+  - blocked-reasons
+  - writeback-receipt
+  # script-run-stamp / independent-sampling / a1-a6 语义审为人工+AI 量规项；
+  # 机器只核评审记录结构与放行结论，不写成虚假 required。
+
+# 软项（人读 + validate_testcase WARN；不单独机器 hard-fail）
+soft:
+  - depth-variant-or-na          # 方案有范围变体 → 用例或「不适用+依据」
+  - depth-date-invert-or-na      # 成对日期 → 倒置/交叉负向或「不适用+依据」
+  - depth-field-entry-complete   # 点名字段/按钮/菜单 → 齐套或交付缺口条
+  - weak-oracle-phrases          # 预期禁「正常/正确/成功即可」等（validate_testcase WEAK_ORACLE）
+  - ui-named-no-api-only-pass    # 点名 UI 须 L1（执行/评审人工核）
+  - judgment-and-path-witness    # 工作流 §3.0 禁弱通过 + 路径旁证须记（执行人工核）
+  - depth-feature-once           # §2.2 命中特征一次到位；禁事后堆条（评审人工核）
+
+# 低价值高成本（不做/少做）
+avoid:
+  - full-regression-every-patch
+  - re-read-all-cases-every-report
+  - screenshot-every-pass-case
+  - new-docs-for-T0-T1
+  - multiple-approval-layers

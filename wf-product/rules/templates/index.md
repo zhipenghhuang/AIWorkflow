@@ -1,0 +1,96 @@
+# 模板索引（产品轨）
+
+> 用途：按 step 找模板，避免“模板存在但没人用”。只读当前 step 需要的一行；不要通读。
+> 模板按生命周期分组存放在 `rules/templates/`；下表路径相对 `rules/templates/`。
+> **质量门槛**：模板只提供结构；产出必须过 `rules/core/doc-quality.md` 的定位/类型矩阵/评审清单，结构完整≠合格。
+
+## 00-接入与治理
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `00-接入与治理/layout模板.md` | onboard | 项目根 `layout.yaml`（单/多包布局真值） |
+| `00-接入与治理/文档索引模板.md` | onboard.docs | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
+| `00-接入与治理/项目总览INDEX模板.md` | onboard.docs（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
+| `00-接入与治理/inbound索引模板.md` | onboard.materials / 文档治理 | `inbound/INDEX.md`（全量原件登记） |
+| `00-接入与治理/materials索引模板.md` | materials.publish | `docs/materials/INDEX.md`（项目级） |
+| `00-接入与治理/materials版本README模板.md` | materials.publish | `docs/materials/{ver}/README.md` |
+| `00-接入与治理/产品档案模板.md` | onboard.profile | 项目根 `product-profile.md`；§3 内联产品规范要点 |
+| `00-接入与治理/项目README模板.md` | onboard.profile / 点名生成·更新 README | 按用户偏好择块拼接（非定死大纲）；已有勿整文件覆盖；规则见 `rules/core/project-readme.md` |
+| `00-接入与治理/activeContext模板.md` | onboard / 开工无文件时 | 项目根 `activeContext.md`（含 `### 进行中` 快照）；≤30 行 |
+| `00-接入与治理/根AGENTS薄指针.md` | onboard.mount | 项目根 AGENTS 包挂载样例（偏好正文由项目自写） |
+| `00-接入与治理/wf-AGENTS路由模板.md` | onboard.mount（多包） | `wf/AGENTS.md` 路由；只列已装包 |
+| `00-接入与治理/工作日志模板.md` | onboard / deliver.release / plan.publish | `{workroot}/work-log.md`：岗位里程碑（含接入/治理）；禁止改根 CHANGELOG |
+| `00-接入与治理/能力技能体检报告模板.md` | skill-audit.propose | `{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md`（工作产物，不进资料区） |
+
+## 10-规划与需求
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `10-规划与需求/产品计划模板.md` | plan.publish | `{workroot}/product-plan.md` 常青主档（含 §3.0 Brief+Delta） |
+| `10-规划与需求/迭代方案模板.md` | plan.publish / prd.prd（多需求版本） | 版本级迭代方案：范围、功能覆盖、验收矩阵、执行记录、发布条件；验收资产 ≠ 开发任务 |
+| `10-规划与需求/迭代变更摘要模板.md` | plan.scope / publish（按需） | 默认用计划 §3.0；仅仓外/版本归档/点名才落独立文件为唯一权威 |
+| `10-规划与需求/需求池模板.md` | prd.discover / change.new_requirement | `{workroot}/requirement-pool.md`（含证据/方案/确认列） |
+| `10-规划与需求/访谈指南模板.md` | prd.discover / new-product.discover | 正式访谈问题单（Mom Test） |
+| `10-规划与需求/洞察综合模板.md` | prd.discover / new-product.discover | 访谈/工单/数据综合一页纸（含竞品学习摘要） |
+| `10-规划与需求/竞品分析模板.md` | prd.discover / new-product.discover | 模式 S：选择性学习（借/改编/不借） |
+| `10-规划与需求/竞品对标模板.md` | prd.benchmark | 模式 P：功能/能力对标矩阵 → 候选项 |
+| `10-规划与需求/立项书模板.md` | new-product.discover / go | 0→1 机会评估（含方案要点/双确认/竞品学习） |
+| `10-规划与需求/PRD模板.md` | prd.prd（P2/P3） | 全量 PRD；P0/P1 用 `PRD-轻量模板.md` |
+| `10-规划与需求/PRD-轻量模板.md` | prd.prd（P0/P1） | 单页/≤3 AC；不省 AC/排除/风险 |
+
+## 20-原型与设计
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `20-原型与设计/设计评审模板.md` | prototype.review | 12 项评分卡 |
+| `20-原型与设计/原型说明模板.md` | prototype.context / wireframe | 小项目可合并单文件 |
+| `20-原型与设计/开发交接模板.md` | prototype.handoff | 设计意图/必须保留/可优化/未提供/验收对照 |
+| `20-原型与设计/原型工程化检查模板.md` | prototype.engineering | 路由/状态/响应式/a11y/打印 |
+| `20-原型与设计/可用性走查模板.md` | prototype.usability | 3～5 关键任务/Nielsen 10 |
+| `20-原型与设计/原型脚手架.html` | prototype.wireframe / hi-fi | 离线、无依赖起步 |
+
+## 30-评审与变更
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `30-评审与变更/评审记录模板.md` | prd.review / change.review | 独立评审记录 |
+| `30-评审与变更/受理与处置模板.md` | change.intake / defect.pull | 受理单/分诊/影响/联动/验证 |
+| `30-评审与变更/变更单模板.md` | change.assess / decide | 改动已定稿基线时（含 §2.1 Now→Proposed 差量表） |
+| `30-评审与变更/产品缺陷处置模板.md` | defect.apply | 产品缺陷处置单 |
+| `30-评审与变更/缺陷文案模板.md` | defect.writeback / 缺陷处置 | 平台备注/附件/状态/指派文案骨架 |
+
+## 40-交付与验收
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `40-交付与验收/交付计划模板.md` | deliver.schedule | 范围/里程碑/发布窗口 |
+| `40-交付与验收/UAT验收模板.md` | deliver.uat | **业务签收 SSOT**；逐条 AC 对照（≠ 开发工程侧 UAT） |
+| `40-交付与验收/GTM模板.md` | new-product.launch / deliver.release | 定价/渠道/物料/客服 |
+
+## 50-展示与文档
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `50-展示与文档/演示脚本模板.md` | showcase.audience / story / demo | 展示需求/故事线/脚本 |
+| `50-展示与文档/演示检查单模板.md` | showcase.environment | 构建/账号/seed/网络/兜底 |
+| `50-展示与文档/一页纸与Deck大纲模板.md` | showcase.materials | 一页纸/Deck 大纲 |
+| `50-展示与文档/用户手册与快速开始模板.md` | showcase.docs | 用户文档 |
+| `50-展示与文档/发布说明模板.md` | showcase.docs / deliver.release | **客户版**发布说明（≠ 开发工程/部署发布说明） |
+| `50-展示与文档/反馈记录模板.md` | showcase.dryrun | 彩排反馈/异议/需求 |
+
+## 60-复盘与改进
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `60-复盘与改进/复盘模板.md` | deliver.release | 目标 vs 实际/根因/行动项 |
+
+## 90-交接与收尾
+
+| 模板 | 用于 step | 说明 |
+| --- | --- | --- |
+| `90-交接与收尾/收尾骨架.md` | wrap / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
+| `90-交接与收尾/通用交接单文档模板.md` | **handoff.compose（默认）** | **择优写法**（五问→A/B/C/D）；非填空卷；禁整表套用、禁外印元数据 |
+| `90-交接与收尾/交接包说明模板.md` | handoff.send（仅升包） / prd.handoff / prototype.handoff | `{workroot}/handoff/outbound/{category}/{HO-ID}/00-交接说明.md` |
+| `90-交接与收尾/交接清单模板.md` | handoff.send | `01-交接清单.md`（包内文件/版本/必读） |
+| `90-交接与收尾/接收回执模板.md` | handoff.receive / 签收 | `04-回执/接收回执.md`（接受/有条件/退回） |
+| `90-交接与收尾/交接台账模板.md` | handoff.status / 交接初始化 | `{workroot}/handoff/handoff-ledger.md`（唯一登记） |

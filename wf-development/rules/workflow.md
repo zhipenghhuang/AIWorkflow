@@ -1,0 +1,286 @@
+# 工作流（常规变更 · 提交 · 交付 · 文档治理）
+
+> **读取级别：参考**（按节读取；按 `读取索引` 只读当前 step 节，禁止通读全本）。
+
+> **步骤顺序真值是 `workflows/*.yaml`**；本文保留护栏、阶段衔接与文档落位映射，不另立步骤表。  
+> **工作文档根**默认 `{workroot}/`；下表与文内相对路径均相对该根（对外写全路径时带 `{workroot}/` 前缀）。  
+> **计划同步/变更传播/自主边界**：见 `core/execution-contract.md` §2/§4；本文不重复。
+> **读取**：只读当前任务需要的节，不要通读；阶段顺序/门以 YAML 为准。  
+> 缺陷 → `playbooks/defect.md`；迭代 → `playbooks/iterate.md`；发布/验收 → `playbooks/release.md` + `skills/acceptance-and-launch/SKILL.md`。  
+> 步内怎么改/怎么验 → AI 自定（`AGENTS.md` §0.5）。确认门**只认**步上 `hitl:`（标量用 `hitl_when`；列表各项带 `when`）。
+
+## 0. 开发计划（开发控制面）
+
+> 测试有《测试计划》总领；开发用《开发计划》总领**开发工作自身**。  
+> 路径：`{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目按档案映射读取）；模板 `rules/templates/10-规划与需求/开发计划模板.md`；技能 `skills/development-plan/SKILL.md`；流程 `workflows/control.yaml`（init/run/sync/check/next）。  
+> 定位：只做阶段、门、状态、角色、产物索引、风险、下一步；**不复制** PRD/方案/任务/测试正文。L2+ 新项目/新产品默认启用；L0/L1 可写「不适用」。  
+> 计划状态：草稿 / 已确认 / 执行中 / 变更中 / 待关闭 / 已关闭；首次创建或范围·版本·里程碑实质变更过 `confirm_plan`。  
+> 归档：当前文件不移动；关闭时快照到 `{workroot}/_archive/{yyyyMMdd}-{ver}/development-plan.md`，当前计划重置/新建；稳定技术真值留 `project-profile.md`/ADR。
+
+阶段：`S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测 → S5 评审/CI → S6 提测 → S7 docs/testing/缺陷 → S8 发布 → S9 收尾/复盘`。  
+门：`G0 输入就绪 → G1 需求分析 → G2 方案批准 → G3 排期确认 → G4 开发完成 → G5 评审/CI → G6 提测就绪 → G7 测试通过 → G8 发布就绪 → G9 交付完成`。  
+规则：
+
+- 上一阶段未过门，不进入下一阶段；回退写明原因与影响。  
+- 每阶段转换/过门/发布/复盘/**波次切换**/**实质进入下一阶段**必须更新开发计划（阶段/状态/产出/证据/下一步）并同拍 `{workroot}/INDEX.md` + `activeContext`；**未更新开发计划，不得声称阶段完成**。  
+- 正式门未签但实质已进入（如测试已派单/缺陷已开工）→ §0 写「进行中（正式门待补）」，禁止热层领先冷层。  
+- 开发计划与代码/文档不一致 → 以代码与本轮验证为准，先修开发计划。  
+- 输入缺失（PRD/原型/AC/接口/环境）→ 一句话说明缺口，由用户提供/选择已有inbound/本包模板补；不强制引用其它包。  
+- 阶段门检查：`gate: dev-plan`（阶段表/门/证据/下一步完整；多波次时含 `G{n}-W{k}` 与 §0 波次一致；L2+ 缺则不过）。  
+- **交接门**：S6 提测**默认只交自洽提测单**（发出前合格线见协作与交接 §3.0）；`QA` 包仅多文件证据/正式签收/仓外/同发发版/点名时建议（先问后发）。S8 发布、S7 无平台缺陷等按需发包。有平台已交缺陷不强制 BUG/FIX 整包。多包同仓直读不转发；收件走入站/`intake` 吸收 + 可选签收；未收回执不得称「已接收」；C2/C3 重基线。  
+- **多波次（可选）**：迭代可拆 W1/W2…，S2～S5 按波次循环、阶段表仍各一行；§0 写当前波次；S2～S5 用进行中/部分完成 + 叠写各 Wn，**禁**因某波次已过就整行标「完成」；门结论写 `G{n}-W{k}`；细则 `skills/development-plan/SKILL.md` §3.1。
+
+## 0.1 新输入 / 变更吸收（intake）
+
+> 用户随时可能发新文档/聊天变更/确认项；新文档不等于新真值，先登记分类，再影响分析，最后局部更新。  
+> 流程：`workflows/intake.yaml`；方法：`skills/change-intake/SKILL.md`；模板：`rules/templates/10-规划与需求/变更记录模板.md`、`rules/templates/10-规划与需求/待决项模板.md`、`rules/templates/10-规划与需求/决策记录模板.md`、`rules/templates/10-规划与需求/变更吸收报告模板.md`。
+
+- 文件 → `inbound/{ver|topic}/` 或 `inbound/_common/`；暂时无法判断版本/主题时可先落 `inbound/` 根并标「待分类」，确认后同批归位，禁止长期平铺；按 `rules/doc-governance.md` §2 分类 + §4 覆盖对照；**确认后**才改名/登记/标记旧文件失效/归档；更新 `inbound/INDEX.md` 与 `{workroot}/INDEX.md`。
+- 聊天 → `{workroot}/00-governance/change-log.md`（CR）或 `{workroot}/00-governance/open-items.md`（OPEN）；确认项写 `DEC` 并关 OPEN。
+- 分类：PRD/需求/迭代/special/原型/设计/接口/技术/docs/testing/验收/反馈/调研/竞品/会议/数据/原始/其他（细则 `rules/doc-governance.md` §2）。
+- 关联：`R-xx`/`AC-xx`/`OPEN-xx`/`CR-xx`/`T-xx`；找不到标 `GAP`。
+- 影响矩阵：需求/AC、原型、架构/ADR、DB、API、前端、测试、任务、发布、回滚；每项写“受影响/不受影响 + 依据”。
+- 实质变更 → `confirm_change`；只影响设计 → `confirm_spec`；影响需求基线 → `confirm_requirements`；影响任务/排期 → `confirm_backlog`。
+- 局部更新：只改受影响章节；保留 ID；正式产物直接替换旧结论（不留“已替代/旧方案”说明），变更前后与原因记 CR/变更记录；更新需求台账/迭代计划/任务/测试/发布/开发计划、`{workroot}/INDEX.md`、`activeContext`。
+- 输出【变更吸收报告】；需要实施 → `change`/`iterate`；只确认 → 关闭 CR/OPEN。
+
+## 1. 常规变更护栏
+
+```text
+route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
+```
+
+- 探查前先读 `project-profile.md` §2（代码地图）；L2+ 先读 `{workroot}/development-plan.md`（旧项目可 `{workroot}/00-governance/development-plan.md`；阶段/下一步/缺口）；命中即免重复探查；新发现收尾回写（档案 §5）。  
+- 变更分级见 `AGENTS.md` §0.1；L0 微改不强制方案/清单/评审文档，L2+ 走完整链路。  
+- 目标/范围/验收按 `AGENTS.md` §0.1；架构级/新子系统先方案（`rules/templates/20-设计与技术/方案模板.md`；design 步 `confirm_spec`）批准再改；大改/高风险走 review 步（§4.4）。  
+- 多文件/新功能先拆任务清单（`rules/templates/30-计划与任务/任务清单模板.md`；技能 `skills/task-breakdown/SKILL.md`），确认后实施。  
+- 有 QA 交接或含部署 → deliver 步产提测单/发布说明（§4.5/§4.7）；含部署 → 转 `release` 工作流。  
+- 动手前说明拟改文件；有产品方案/缺陷预期时用验收点自检勾完。  
+- 无文件变更 → 跳过 `verify` 门禁与 `confirm_commit`。
+
+## 2. 提交与推送
+
+> 分支/合并真值：`project-profile.md` §1（修复落点分支、分支策略、分支命名规则、合并要求、默认推送目标）。未填则**先问再动**，禁按习惯自选。
+
+### 2.0 git（有 `.git` 时，每任务收尾）
+
+- 检查：当前分支与跟踪、未提交分类、`.gitignore` 是否覆盖密钥/凭据/依赖目录/构建产物/运行时数据等。
+- 结论**只**写入【任务收尾】第 2 点（字段与三包统一：`待提交摘要` / `git` / `.gitignore`；本轨另写未提交分账、建议动作、文档归档）；禁止收尾外另造 git 块。
+- 拟改 ignore → 第 4 点表（如 `G1 ignore`），确认后同轮改 `.gitignore`；第 2 点写「拟改项待确认」或「已按确认更新」。
+- 无 `.git` → 第 2 点 `git：无仓库`；`.gitignore：无仓库`。不替代下方【拟提交】门。
+
+### 2.1 提交节奏、基线检查与粒度
+
+- **提交触发**：任务完成自测/评审后、进入下一任务前、每天/会话结束、diff 超过阈值、长任务/破坏性操作前。  
+- **尽早提交**：rules/契约/大块正文等重要改动经确认后尽早本地提交，勿长期只停在工作区（并行会话或误操作可清空未提交改动）。
+- **基线检查**：任何新任务开始前先 `git status` 分账——本任务 / 前序任务 / 无关文件；有前序未提交时输出【基线检查】，先提交、隔离（worktree/stash/分支）或记录例外。**未提交默认不得开始下一任务**（例外=基线检查选项 C/D 且用户确认）。
+- **提交范围**：一任务/一逻辑改动一次；禁止 `git add -A` 跨任务混提；本任务代码+测试+文档同批；前序改动单独分批。
+- **阈值**：>20 个文件或 >500 行（不含生成/锁文件）→ 先拆分提交或说明原因并获确认，不得继续堆。
+- **默认动作**：仅本地提交；推送默认不做，须单独确认 remote/分支/CI；部署只走 `release` + `confirm_deploy`，不得从脏工作区部署。
+
+**未提交时输出【提交提醒】**：
+
+```text
+【提交提醒】
+- 当前任务/阶段：
+- 未提交：本任务 {n} / 前序 {m} / 无关 {k}
+- 建议：A 立即提交本任务；B 拆分批次；C 先隔离前序；D 记录例外继续（不推荐）
+请确认。
+```
+
+`hitl: confirm_commit`（条件满足或未写条件）时必须输出（前四项与三包统一；其后为本轨扩展）：
+
+```text
+【拟提交】
+- 文件：{本批清单}
+- .gitignore 现状：{一句}
+- 当前分支：{名}；跟踪远程：{origin/xxx 或无}
+- 本次动作：{仅提交（默认） / 提交+推送}；推送目标：{remote + 分支 或「不推送」}
+- 基线：{干净 / 含前序 N 文件（清单与处理）/ 含无关文件（排除）}
+- 未提交统计：本任务 {n} / 前序 {m} / 无关 {k}
+- 建议拆分：{单批 / 按任务拆为 N 批}
+- 目标落点：{对照档案「修复落点分支/命名规则」；相符写「相符」；不符写差异}
+- 推送前检查：{CI/测试结果；未跑写「未跑」}
+- PR/MR：{不开 / 拟开（目标分支=…；须另确认） / 档案要求必须开}
+- 合并：{不执行；合并须用户点名或档案明确授权}
+请确认：1) 是否提交本批；2) 如需推送，请明确「提交+推送」及目标分支。
+```
+
+未确认不得提交/推送；**默认仅提交**，推送须单独确认。密钥与凭据不得纳入。  
+提交信息与粒度：缺陷 `Bug #{id}：{简述}`（合并组一次提交并列出组内全部编号；独立缺陷单独提交）；迭代 `迭代 {版本/主题}：{简述}`；常规变更用简述。一次提交一类改动。  
+**文档同提交**：任务清单、提测单/发布说明、需求/方案、 `{workroot}/INDEX.md`、activeContext、根 `CHANGELOG.md`（**仅**用户可见版本关闭/发版时）与 `{workroot}/work-log.md`（里程碑时）等本轮产物应纳入同一提交或紧随的独立文档提交；不得留一批未提交文档在根目录。
+
+**推送与部署**：
+
+- 推送只在本地提交且docs/testing/CI 通过后进行；默认推到个人 feature 分支；保护分支/主干必须走 PR/MR。
+- 推送目标以【拟提交】确认的 remote/分支为准；未写明视为不推送。
+- 部署只走 `release`：`completion.json=COMPLETE`、干净工作区、已提交或已打 tag、上线检查单 GO、`confirm_deploy` 批准；缺一不部署。
+
+**分支与合并纪律（不可让）**：
+
+1. 提交前读档案 §1；当前分支与「修复落点分支/命名规则」不符 → **一问**（切到规定分支 / 新建合规分支 / 用户指定），**禁**擅自 `checkout -b`、切 `main`/`master` 或改远程默认分支。  
+2. 「提交+推送」只推送到【拟提交】写明的 remote/分支；档案「合并要求」禁止直推的分支 → 不得推，改为开 PR/MR 或请用户操作。  
+3. **禁**未点名执行：合并进主干、`gh pr merge` / MR 合并、force push、改历史（amend 已推送提交）、删除远程分支。  
+4. 开 PR/MR：仅当用户点名、菜单含「开 PR」、或档案「合并要求=必须 PR/MR」且用户在【拟提交】确认「拟开」；目标分支取档案或用户指定，禁自选。  
+5. 子代理禁 commit/push/开 PR/合并（见 §3.5）。  
+6. **多 remote / 异形 tip 隔离（条件硬）**：仓库另有 remote，或存在与日常工作分支内容不同形的 tip 时——**禁止**在当前工作树对该 tip 做 `checkout`/`reset`（含「先看一眼」）；对该 tip 的同步或历史改写只在临时目录或独立 worktree/clone。仅单 remote 且日常即在该 tip 上工作 → 本条不适用。
+
+## 3. 护栏（准确度）
+
+### 3.1 证据
+
+完成/通过类结论须附**本任务内**验证命令与结果；「应该通过 / 之前跑过 / 看起来正常」不构成证据；部分验证须显式写明未覆盖路径为「未验证」。  
+证据落点：任务清单状态记录、提测单 §3、发布记录 §8、测试台账（测试包）；聊天里的口头结论不算唯一证据。  
+实施质量：实施预检、重要面硬补、SC 追溯、自测对方案、跨层矩阵、裁剪债项、沿用基线冒烟 → `rules/core/implementation-quality.md`（DEV-IQ）；有行为缺预检或取重缺项不得报全覆盖完成。
+
+### 3.2 红绿与测试诚信（defects/修复）
+
+修前留红证；**禁修复后回退补红证**；无根因不修。禁先实现后补测冒充验收；禁改断言/跳过docs/testing/禁用告警凑绿（豁免须用户批准）。无效换路径与回根因见 `AGENTS.md` §0.3-7。
+
+### 3.3 门禁
+
+`gate: completion-gate`：先 `-StartTask`（冻结 base）；再 `Invoke-Gate.ps1 -Acceptance ...`。命令来自 `.gate/project-profile.json`：有 `*_scoped`+`{files}` → 定向；否则全仓 `project-*`。仅文档只跑 docs。L2+ 核 `process.review`，L3 核 `security`/`rollback`；空任务窗口/dry-run 不得报完成。
+负面验证（写接口/关键流程）：鉴权/越权、参数边界、终态重复、幂等并发、不存在对象、错误码语义。  
+门禁输出只取摘要（通过/失败数、新增失败清单）进对话，原始日志落盘；存量失败建基线，只对账新增差异。  
+核心模块且装配 mutation-gate（`capabilities/00-contract.md`）时可作测试有效性加强信号；不替代门禁结论。  
+门禁失败 → 最小修复，不夹带无关重构。  
+**安全/供应链**：装配 `security-scan`/`sbom` 时，评审/发布前跑最小集（密钥、依赖漏洞、许可证、SAST）；未装配=人工清单，不阻塞但记录降级。
+
+### 3.4 安全与文档
+
+文档与实现同变更；写入前以 `project-profile.md` 核验真实路径；接口与行为以代码或本轮实测为准。  
+安全底线：外部输入校验；防注入/越权；接口鉴权按接口自校；外部调用超时/错误处理；错误不回传敏感信息；密钥零入库；个人信息最小化/脱敏。  
+文档只写现行有效（AGENTS §5）；旧版移 `_archive/`（旧项目可用 `历史/`），不堆“最终版/最终版2”。  
+**开发阶段数据纪律**：`project-profile.md` §1 `项目阶段=开发` 时，直接改结构/删本次变更涉及的旧数据/重建 seed 与夹具，用新数据测试；禁写旧数据兼容分支/双写/回填；上线/真实数据/外部契约除外（`skills/engineering-quality/SKILL.md` §1.2）。
+
+### 3.5 子代理
+
+> 取档/阈值/并行/降级/派工 → `rules/collaboration/subagents.md`（单一出处）。本条只留不可让边界。
+
+- 先工具/单上下文；达阈值应拆或声明偏差；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
+- 超时/空产物 → 降级直做；子代理禁 commit/push/开 PR/合并/改平台/改确认门；不过 `hitl`/`gate`；核验后再结论。  
+- 返回须含：任务号/文件/RP·AC 覆盖/验证命令+结果/未决项/规则回执；禁「已完成」空壳。  
+- 高风险/大改/破坏性变更：核验者≠实施者（`agents/reviewer-agent.yaml`，只给产物＋验收＋diff）；核验不替代门禁。
+
+---
+
+## 4. 阶段衔接（按变更分级取用）
+
+> 条件步以 `../workflows/*.yaml` 为准；技能按步注加载对应 `skills/<name>/SKILL.md`（编号别名映射见 `skills/README.md`，先读再执行）；外部工具/能力见 `capabilities/00-contract.md`（已安装即启用；未安装=降级，不阻塞）。
+> **轻量档（solo）**：见 `rules/core/lightweight.md`；完整档仍按 §4.1～§4.6。
+
+### 4.1 需求基线（requirements 步）
+
+- 触发：新功能/范围变更/验收不明；L0/L1 可用轻量需求卡，L2+ 落 `{workroot}/10-requirements/`（`rules/templates/10-规划与需求/需求基线模板.md`）。  
+- 内容：背景/目标/用户故事/AC/NFR/明确不做/假设与依赖/签收。  
+- 门：`confirm_requirements`（需求基线或范围实质变更）；用户确认后冻结，变更走 §6。  
+- 产出：需求基线路径写入方案/任务清单/项目档案；未签收不得进入设计/排期（用户豁免须记录）。
+
+### 4.2 方案与设计（design 步）
+
+- 触发：架构级/新子系统/破坏性变更/高风险，或点名「出方案/方案评审」；小改直进 implement。  
+- 产出：方案（`rules/templates/20-设计与技术/方案模板.md`）——范围/接口/兼容与回滚/验收/未决项/NFR/安全/观测/测试策略；架构决策另落 `ADR模板.md`。  
+- 技能：`skills/solution-design/SKILL.md`，按变更面加载 `technology-selection` / `database-design` / `api-design` / `frontend-design` / `threat-modeling` / `performance-and-capacity`；不涉及不加载。
+- 门：`confirm_spec`——L1 新方案在 design 步；L2+ 在 review-docs 选 A/B 后。出示方案要点，批准后才实施；「只出方案」按级别完成评审/授权后收尾。
+- 三维影响：UX/DX/AX 与开发阶段数据处置（删除/重建/兼容）写入方案；无兼容需求写「不适用」，不留旧数据分支。  
+- 装配 design-diagram 时可产架构图；不可用纯文本。
+
+### 4.3 任务清单（plan 步）
+
+- 触发：多文件/新功能/迭代，或点名「只出任务清单」；L0 单文件小改可跳过。  
+- 方法：`skills/task-breakdown/SKILL.md`；模板 `rules/templates/30-计划与任务/任务清单模板.md`；落 `{workroot}/40-tasks/任务清单-{ver}.md`。  
+- 门：`confirm_backlog`（清单/节奏变更）；展示任务数/RP 覆盖/依赖/风险/节奏三选。  
+- 要求：每任务有 AC/verify/精确文件/DoD；每个 RP 有覆盖；垂直切片；检查点；变更记录；未完成任务清单禁止覆盖。
+
+### 4.4 评审（review 步）
+
+- 触发：L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」；L0 单文件可跳过；范围纪律同 §3.5。  
+- 执行：本机可用 `code-review` 时按其评审全量 diff；不可用派 `reviewer-agent` 独立核验。  
+- 补充：`security-scan` 可用时跑最小安全集；变更规模过大先拆。  
+- 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖）；需修回 implement，同回合重验≤1。L2+ 缺评审记录 = 完成门 BLOCKED。  
+- 三维体验：UX/DX/AX 任一净退化列需修；开发阶段检查是否残留旧数据兼容分支。
+- **S5 范围**：只评审代码/`DEV-AC`/CI/安全/回滚；产品验收矩阵的 `QA-AC/REL-AC` 未执行不阻断 S5，转入 S6/S7/S8。不得把方案验收矩阵原样拆成开发任务或 S5 阻断项；命中 DEV 必留的创建/生成触发链须在 `DEV-AC`（见 `rules/core/verification.md` §2.1）。
+
+### 4.5 提测（deliver 步）
+
+- 触发：有 QA 交接或含部署/发版；无 QA 且无部署可跳过。  
+- **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发自验（轻量报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
+- 产出：提测单（`rules/templates/40-交付与发布/提测单模板.md`）——部署版本、改动点/影响面、自测结论、已知问题、**裁剪债项、沿用基线再验摘要**、回归指引、测试设计输入；发布说明+回滚预案（`rules/templates/40-交付与发布/发布说明模板.md`）。  
+- 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`出站/发布/`）；提测单单点滚动，发布说明一版一档。  
+- 纪律：自测证据不足不交 QA；已知问题不瞒报；口头裁剪无债项不交 QA；沿用模块无基线冒烟（且未写不适用）不交 QA；开发自验 ≠ 版本准出；若同项目有测试包，提测单可作为其计划的可选输入（不强制）。
+- **提测输入**：附 `QA-AC` 验收矩阵/测试范围与数据账号；`QA-AC` 由测试执行，不要求开发在提测前全量跑完；未执行项标“待测试”，不得冒充通过。
+
+### 4.6 验收 / UAT（release.acceptance 步）
+
+- 触发：有业务验收/产品签收要求。  
+- 可选输入：已有 UAT/验收资料（任意路径/来源）→ 直接引用/对照，不重复验收；没有 → 本步产 UAT；不要求安装其它包。  
+- 产出：UAT/验收记录（`rules/templates/40-交付与发布/UAT验收模板.md`）落 `{workroot}/50-verification/`。  
+- 门：`confirm_acceptance`；结论=通过/有条件/不通过；未签收不得进入工程部署审批（用户豁免须记录）。  
+- 依据：需求基线/PRD AC + 测试报告 + 提测单；失败/遗留不瞒报。
+- **REL-AC 范围**：按 PRD/方案验收矩阵的 `REL-AC` 与 `QA-AC` 结果做 UAT/发布评审；未执行的 `QA-AC/REL-AC` 不得写成通过，也不得回流为 S5 阻断项。
+
+### 4.7 发布 / 上线（release 工作流）
+
+- 触发：发布/上线/部署/发版；回滚单独入口。  
+- 前置：提测单/测试报告/UAT/上线检查单/回滚预案齐；有代码改动的发布必须有本轮 `.gate/wf-development/completion.json` 的 `COMPLETE`；`gate: release-readiness`。  
+- 门：`confirm_deploy`（工程部署 go/no-go）；例外须写明风险/补偿/批准人。若项目已有业务发布决策（其它流程/用户确认）且 UAT 已过，本门只确认工程就绪，不重复业务决策；没有则本门覆盖业务+工程范围。  
+- 执行：按项目档案发布方式；失败即停；发布后先冒烟再回归；触发回滚条件就回滚（`confirm_rollback`）。  
+- 产出：上线检查单、发布记录、发布后验证；落 `{workroot}/60-release/`；更新 `{workroot}/INDEX.md`、`activeContext`；公告/客服/业务指标复盘若由其它角色负责，可引用本记录（不强制）。
+
+### 4.8 发布后 / 复盘（postrelease / retro）
+
+- 发布后按 `skills/acceptance-and-launch/SKILL.md` 观察日志/指标/告警；观察期结束出结论（成功/带风险成功/回滚）。  
+- 事故/回滚/重大发布/重复缺陷 → `retro` 工作流（`skills/retrospective-and-improvement/SKILL.md`；模板 `复盘模板.md`），落 `{workroot}/80-retrospectives/`。  
+- 行动项必须有负责人/截止/验收；下次复盘先对账上次行动项。
+
+---
+
+## 5. 文档落位与归档
+
+> 分类/覆盖/失效/版本关闭/清理：**以 `rules/doc-governance.md` 为准**（§2～§8）。本节只保留「workflow 产出 → 落点」与提交拟提交相关落点；工作文档根=`{workroot}/`。
+
+**workflow 产出 → 落点**（路径相对 `{workroot}/`，对外写全路径时带 `{workroot}/`）：
+
+| 产出 | 落点 | 命名 |
+| --- | --- | --- |
+| 项目治理 | `{workroot}/development-plan.md`；其余 `{workroot}/00-governance/` | 开发计划（L2+ 必建）、项目章程、风险登记、变更记录（按需） |
+| 需求基线 | `{workroot}/10-requirements/` | `需求-{主题}-{yyyyMMdd}.md` |
+| 产品定义卡（轻量） | `{workroot}/10-requirements/` | `产品定义-{主题}-{yyyyMMdd}.md`（一页；`solo.frame`） |
+| 方案 | `{workroot}/20-design/` | `方案-{主题}-{yyyyMMdd}.md`（迭代绑定；实施入口见文档治理 §5） |
+| 方案卡（轻量） | `{workroot}/20-design/` | `方案卡-{主题}-{yyyyMMdd}.md`（`solo.plan`；含验收表/测试策略） |
+| ADR | `{workroot}/30-architecture/ADR/` | `ADR-{序号}-{主题}.md`（长期；被替代标状态） |
+| 技术设计（长期 SSOT） | `{workroot}/30-architecture/` | 现行 API/架构/模块说明；就地更新 |
+| 前端设计说明 | `{workroot}/20-design/` | `前端设计说明-{主题}-{yyyyMMdd}.md` |
+| 缺陷评估 | `{workroot}/00-governance/缺陷评估/` | `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md` |
+| 产品返回资料 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；类型写索引 |
+| 任务清单/计划 | `{workroot}/40-tasks/` | `任务清单-{ver}.md` |
+| UAT/验收 | `{workroot}/50-verification/` | `UAT-{版本}-{yyyyMMdd}.md` |
+| 轻量测试报告 | `{workroot}/50-verification/` | `测试报告-{主题}-{yyyyMMdd}.md`（`solo.test`） |
+| 提测单 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/提测/` | `提测单-{版本}.md` |
+| 发布说明 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/发布/` | `发布说明-{版本}.md` |
+| 上线检查单/发布记录 | `{workroot}/60-release/`（真源）；按需实拷出站/发布 | `上线检查单-{版本}.md`、`发布记录-{版本}.md` |
+| 运维与协作（常青） | `{workroot}/70-ops/` | 切流、回归入口、Git/协作等现行说明 |
+| 复盘 | `{workroot}/80-retrospectives/`（真源）；同轮实拷 `{workroot}/handoff/outbound/复盘/` | `复盘-{版本或事件}-{yyyyMMdd}.md` |
+| 出站散文件/HO 包 | `{workroot}/handoff/outbound/{category}/`；升包另含 `{HO-ID}/` | 实拷可转发件；`00`～`04` |
+| 入站收件 | `{workroot}/handoff/inbound/{类别}/` | 格式不限；须分析吸收（`inbound/` 为原件、`handoff/inbound/` 为收件工作副本） |
+| handoff-ledger.md | `{workroot}/handoff/handoff-ledger.md` | 唯一登记 |
+| 外部资料 / 原始素材 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；见文档治理 §2 |
+| inbound/INDEX.md | `inbound/INDEX.md` | 类型/主题/版本/来源/关联/状态/覆盖关系 |
+| 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见capabilities/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
+| 工作日志 | `{workroot}/work-log.md` | 开发岗位里程碑（含接入/治理）；≠根 CHANGELOG |
+
+**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新 01～07 / 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
+
+**纪律（摘要）**：按档案 §9 映射落位不强行搬迁；文件名含版本/日期；归档/清理/根白名单见 `rules/doc-governance.md` §5～§8；提交拟提交节奏见本文 §2。
+
+---
+
+## 6. 变更控制（需求/方案/清单/发布）
+
+- **基线**：需求基线、方案、任务清单、发布说明一经确认即冻结；后续变更写“变更记录”（日期/变更/原因/影响/批准）。  
+- **需求变更**：影响 AC/范围/排期 → 回 `requirements`/`design` 重评；不得在实施中静默扩范围。  
+- **任务清单变更**：新增/删除/拆分/调序 → 更新清单并记 §6 变更记录；**禁覆盖未完成任务清单**；不同工作先问用户。  
+- **发布变更**：已批准发布的内容/窗口/回滚方案变更 → 重新 `confirm_deploy`；不得先斩后奏。  
+- **文档变更**：正式文档只写现行有效；旧版归档；同名文件不堆“最终版”。
+- **开发阶段数据/契约变更**：直接更新基线、schema、种子与夹具；旧数据按 §3.4 丢弃/重建；不写兼容层。
+- 变更控制记录落 `{workroot}/00-governance/change-log.md`（按需）或任务清单/发布说明的变更记录节。

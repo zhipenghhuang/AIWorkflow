@@ -1,0 +1,118 @@
+# 检查矩阵（开发轨 · 人读策略）
+# 机器执行以 tools/gate.py 为准；本文件用于评审与调整，不要求 gate 解析。
+# 原则：高价值低成本默认做；高价值中成本按风险做；低价值高成本不做。
+
+version: 1
+# 检查 id 名实：profile 配了 lint_scoped/test_scoped/e2e_scoped（含 {files}）→ targeted-* / affected-e2e；
+# 未配 → project-lint / project-test / project-e2e（全仓命令，勿宣称「只跑受影响」）。
+levels:
+  L0:
+    description: 单文件/文案/配置；无行为、契约、权限、数据变化
+    required: [build, test-or-targeted-test, smoke]
+    optional: [screenshot]
+    # 交叉：触及权限/状态/数据基数/唯一约束/多表面 → 升 L1+，并按 skills/cross-layer-consistency；纯文案仍可 L0（见 AGENTS §0.1 / DEV-VER 相关）
+  L1:
+    description: 多文件、普通功能、前端行为变化
+    required: [build, lint-or-targeted-lint, test-or-targeted-test, smoke]
+    frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
+    optional: [a11y-basic, visual-diff]
+  L2:
+    description: 跨模块、接口/数据变更、新功能
+    required: [build, lint-or-targeted-lint, unit, integration, review-record]
+    frontend_required: [e2e-or-affected-e2e, screenshots-desktop-mobile, states-console-network, design-qa]
+    manual: [review]
+    optional: [contract-test, security-scan]
+  L3:
+    description: 权限/资金/迁移/公共 API/安全合规/破坏性
+    required: [L2, security-scan, security-evidence, rollback-evidence, independent-review]
+    manual: [rollback-drill, release-readiness, postrelease]
+    optional: [migration-rehearsal, load-test]
+
+post_gate:
+  - report-lint   # iterate/change/defect-fix wrap 后由 verify/Test-Report.ps1；不属于 implementation gate
+
+change_types:
+  frontend:
+    globs:
+      - "**/*.tsx"
+      - "**/*.jsx"
+      - "**/*.vue"
+      - "**/*.svelte"
+      - "**/*.css"
+      - "**/*.scss"
+      - "**/*.html"
+      - "**/*.htm"
+      - "**/pages/**"
+      - "**/components/**"
+      - "**/views/**"
+      - "**/templates/**"
+      - "**/layouts/**"
+    min_level: L1
+    notes: 纯文案/配置可 L0-light（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。
+  api:
+    globs:
+      - "**/api/**"
+      - "**/*controller*"
+      - "**/*.proto"
+      - "**/openapi*"
+      - "**/swagger*"
+    min_level: L2
+  db:
+    globs:
+      - "**/migrations/**"
+      - "**/*.sql"
+    min_level: L3
+  auth_payment:
+    globs:
+      - "**/auth/**"
+      - "**/login/**"
+      - "**/payment/**"
+      - "**/pay/**"
+      - "**/security/**"
+      - "**/permission/**"
+      - "**/role/**"
+    min_level: L3
+  docs:
+    globs:
+      - "**/*.md"
+      - "**/*.txt"
+    min_level: L0
+    required: [links, placeholders]
+
+# 实施质量（人检/清单字段；与 rules/core/implementation-quality.md 对齐）
+# 取重时 verify 须对账；机器门仍以 tools/gate.py 可检项为准
+quality_gates:
+  - implement-preflight  # DEV-IQ-09；acceptance.implement_preflight；有行为却 missing 不得全覆盖通过
+  - sc-trace          # 任务卡/acceptance.sc_trace；无 SC 不得开工（L0 除外）
+  - selftest-vs-spec  # 断言指回 SC/AC；禁与方案相反刷绿
+  - cross-layer       # 命中则矩阵+第二次写/角色正反；acceptance.cross_layer
+  - important-surface # DEV-IQ-10；预检命中面须同批防护+负面自测
+  - debt-register     # 裁剪/豁免须 DEBT/OPEN；acceptance.debts
+  - baseline-smoke    # 沿用模块提测前冒烟；acceptance.baseline_smoke
+
+# 高价值低成本（默认）
+always:
+  - acceptance-checklist
+  - build
+  - test-or-targeted-test
+  - smoke
+
+# 高价值中成本（按风险）
+risk_based:
+  - lint-or-targeted-lint
+  - e2e-or-affected-e2e
+  - frontend-screenshots
+  - frontend-states
+  - frontend-console
+  - frontend-network
+  - a11y-basic
+  - independent-review
+
+# 低价值高成本（不做/少做）
+avoid:
+  - full-regression-every-change   # 未配 *_scoped 时 project-* 已是全仓；发布/L3 另跑全量
+  - pixel-diff-every-page
+  - exhaustive-a11y-every-change
+  - multiple-approval-layers
+  - new-docs-for-L0-L1
+  - read-all-rules-every-task
