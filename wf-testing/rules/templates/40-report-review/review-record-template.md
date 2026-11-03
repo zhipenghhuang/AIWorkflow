@@ -75,6 +75,7 @@
 | UX / DX / AX | `{通过 / 需修：…}` |
 | 机器门 | `Invoke-Gate -Mode review` → verdict=`{PASS/FAIL/BLOCKED/—}`；gate_id=`{…}` |
 | 引用抽验 | `{x/x 通过；失败列出}` |
+| Oracle 抽样 | `{n} 条 P0/GATE；mismatch={n}；对照分析表 §2 Oracle/AC` |
 
 ## 6. 缺口清单（按严重度 · 可扫描）
 

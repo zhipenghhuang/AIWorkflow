@@ -151,6 +151,11 @@ def main() -> int:
         for label in ["**前置条件**", "**测试数据**", "**清理", "**证据要求**", "**追溯**"]:
             if label not in block:
                 errors.append(f"{cid}: MISSING {label}")
+        if "验证点" in text:
+            om = re.search(r"Oracle\s*来源\s*[|：:]\s*([^|\n]+)", block)
+            oval = om.group(1).strip() if om else ""
+            if not om or oval in ("", "—", "待补", "无"):
+                errors.append(f"{cid}: MISSING_ORACLE: 新格式用例需写有效「Oracle 来源」（分析表单元ID/AC/主读）")
         if "**步骤" not in block:
             errors.append(f"{cid}: MISSING **步骤**")
             continue

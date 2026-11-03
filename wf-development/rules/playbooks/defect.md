@@ -14,11 +14,11 @@
 | handoff_product | §6.2 + 门表 `confirm_remark` | 平台适配 |
 | product_decision | §5.2/§5.3 | 产品新文档/附件 |
 | align | §5.3 + 文档治理 | 受影响文档清单 |
-| fix | §6.1/§6.3 + 技能 `implementation-and-selftest` | 方案模板（复杂） |
+| fix | §6.1/§6.3 + 技能 `implementation-and-selftest` §0.5 + `rules/core/implementation-quality.md` §3～§4 | 跨层命中→`cross-layer-consistency` §5；方案模板（复杂） |
 | clarify | §6.4/§6.5 + 门表 `confirm_remark` | 原单口径 |
 | gates | `verify/Invoke-Gate.ps1` + `verify/checks.yaml` | `.gate/wf-development/completion.json`、日志摘要 |
 | menu | §4.3 + 门表 `select_menu` | 总结模板 |
-| close | §6.3/§6.6 + 门表 `confirm_commit/deploy/remark` | 发布说明/回滚/上线检查单 |
+| close | §6.1/§6.9 + 缺陷文案模板 §6.0/§6.1/§6.9/§6.10 + `verification.md` §3～§4 + 门表 `confirm_commit/deploy/remark` | 发布说明/回滚/上线检查单 |
 | postrelease | 发布说明 + 发布记录模板 | 监控/日志 |
 
 ## 2. 流程卡
@@ -30,11 +30,11 @@
 5. **handoff_product**：备注全文 + 评估单附件 + 指派产品 + 状态「待产品确认」；`confirm_remark` 后执行；上传后回查。**有平台已回写 → 不强制 BUG 整包**；无平台/`export`/文档直提/点名 → 先问后发或走 `change`。提交后停，输出 AWAIT_PRODUCT，不进 fix。
 6. **product_decision**：读全产品结论/附件/新文档；归类认可/修改后认可/判定实现/判定非问题/补充信息；未读全不进 fix；仅回派无说明视为未确认，继续 AWAIT_PRODUCT。
 7. **align**：仅需实施时执行；逐项对照评估单/原方案，更新需求台账/方案/ADR/接口/DB/任务清单/UAT/提测/发布/开发计划/项目档案/变更记录/索引/activeContext；未对齐不得 fix。
-8. **fix**：修前红证；无根因不修；按原单口径复现；简单修复不强制完整方案，但更新受影响文档/清单；高风险/大改核验者≠实施者。
+8. **fix**：修前红证；先写缺陷修复卡（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码；无根因不修；按原单口径复现；简单修复不强制完整方案，但更新受影响文档/清单；高风险/大改核验者≠实施者。
 9. **clarify**：先按原单口径复现；一次列清缺什么/谁补/截止；给条件式下一步；备注读者=测试，只写中文结论与业务事实。
 10. **gates**：按档案最小充分集；失败不声称完成；存量失败只对账新增；无代码/配置改动可跳过。
 11. **menu**：输出【缺陷修复处理总结】+【用户选择菜单】；预授权默认只到菜单；产品缺陷项列评估单/产品结论/对齐状态。
-12. **close**：按菜单精确执行；含提交 → `confirm_commit`；含部署 → `confirm_deploy`；含回写 → `confirm_remark`（备注全文后必有【拟回写·底部摘要】，无类省略）；未验证不写「已修复」。写回后「完成了什么」含短段（动作+单号）+「影响：」；收尾对照 `closeout-skeleton.md` §2。已写回平台 → 不强制 FIX 整包；无平台/点名 → 先问后发。
+12. **close**：按菜单精确执行；含提交 → `confirm_commit`；含部署 → `confirm_deploy`；含回写 → `confirm_remark`（备注全文后必有【拟回写·底部摘要】，无类省略）；回写前四条件：①部署后冒烟/原单复核通过；②按 §6.1 生成备注并带提交 hash/版本；③展示全文+状态/指派/resolvedBuild；④状态+备注同轮写入。任一未满足只写「待验证」，不得写「已修复」。写回后「完成了什么」含短段（动作+单号）+「影响：」；收尾对照 `closeout-skeleton.md` §2。已写回平台 → 不强制 FIX 整包；无平台/点名 → 先问后发。
 13. **postrelease**：按发布说明跑主链路冒烟/关键回归；观察日志/指标/告警；触发回滚按预案；更新发布记录/索引/activeContext；失败/回滚不重复回写。
 
 ## 3. 红线

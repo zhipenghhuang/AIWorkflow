@@ -8,12 +8,16 @@ description: Use when implementing frontend pages, routes, components, forms, or
 > 用于：S4 编码自测中涉及页面/路由/组件/表单/交互/前端数据流的任务。  
 > 产出：可运行页面 + 单测/组件测试/E2E + 截图/录屏/控制台与网络证据。  
 > 原则：**先按设计说明实现，再写组件；先把状态写全，再补细节；前端隐藏不等于后端授权。**  
-> 输入：产品设计/开发交接（如有）、`rules/templates/20-design/frontend-design-spec-template.md`（需要补设计时）、`project-profile.md` §7.1；产品设计完整时按产品方案实现。  
+> 输入：产品设计/开发交接（如有）、`rules/templates/20-design/frontend-design-spec-template.md`（需要补设计时）、`rules/templates/20-design/frontend-prototype-parity-template.md`（原型对齐矩阵）、`project-profile.md` §7.1；产品设计完整时按产品方案实现。  
 > 质量条：`skills/engineering-quality/SKILL.md`（性能/安全/可观测/证据的单一出处）。
 
 ## 1. 结构与路由
 
 - 先读产品设计/交接；需要补设计时读前端设计说明，不另起视觉。
+- **原型单源（DEV-IQ-13）**：单 HTML 原型可能把模块以 `data:`/base64 嵌在 importmap；先跑 `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` 解码模块并枚举路由/导航/组件，禁止只搜原始 HTML 文本就判断“原型没有该页”。
+- 开工前给出「原型对齐矩阵」：路由→导航层级/文案→复用组件→列/区块→状态/空态；**冲突以方案/PRD 为主**（业务口径/命名/单合同/权限/路由），布局/组件/视觉以原型为主；按方案偏离原型要在矩阵标 `按方案`，重大偏离先 `OPEN-*` 确认。
+- **持续回指**：每条 SC/AC 标注来源文件+章节；编码、review、verify 都回看原文，不凭记忆；到波次检查点/来源更新时重跑矩阵并更新差异。
+- **不得自造一级导航/页面壳/表格/详情**：优先复用现有列表/详情壳与组件（如项目已有 `DocsView`/`DocDetailView`）；新增列表必须复用现有 tokens、表格、空态、错误态。项目专属组件名只写在项目文档/档案，不写进通用规则。
 - 页面/布局/路由/菜单/权限入口；路由守卫与深链。
 - 组件边界：容器/展示、复用组件、目录与项目约定一致。
 - 全局/页面/局部状态；避免重复状态与不一致。
@@ -54,6 +58,7 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - 单测：纯逻辑/格式化/校验；组件测试：状态与交互；E2E：主链路。
 - 手工自测：主路径 + 空/错/权限/重复提交。
 - 证据：截图/录屏、控制台无报错、网络请求/响应、性能面板（如涉及）。
+- **视觉验收（DEV-IQ-14）**：桌面 + 移动截图，并与同类页面/原型对照；接口 200、DOM 有文字、class 正确都不算视觉验收。截图不可用/窗口不可见 → 标 `UNVERIFIED`。**具体呈现形式（状态用色/标签/文字/图标、列宽、缩进）按原型/设计系统/场景择优，不设死规则；同类页面要一致、可辨识、可访问。**
 - 未验证项明示；不把“页面能打开”当“功能通过”。
 
 ## 6. 设计还原与设计 QA

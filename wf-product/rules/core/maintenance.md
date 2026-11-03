@@ -20,6 +20,7 @@
 - 能力契约/参考目录 → 包内 `capabilities/`；实例 → `{workroot}/capabilities/`（`rules/capabilities/instance-discipline.md`）
 - capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
 - 子代理编排 → `rules/collaboration/subagents.md`（单一出处），workflow/agent 只留指针
+- 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好）
 - 读取索引 → `rules/read-index.md`（改 step/reads 后同步）
 
 ## 1.1 体检 vs 装配 vs 维护

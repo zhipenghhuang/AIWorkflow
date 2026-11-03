@@ -89,6 +89,7 @@ python "wf-development/rules/tools/validate_workflow.py" "开发规范"
 19. 预检命中重要面却只做主路径、无同批防护/负面自测/债项 → DEV-IQ-10 失败。
 20. 命中 §2.1「DEV 必留」的触发链 AC，仅用合成行/mock 插入/只读打开预置对象即报 COMPLETE → DEV-IQ-02 / DEV-VER-12 失败。
 21. 方案写「生成/创建/下发时」却 SC 落点只写查询补齐、或先旁路后接写入口且无债项 → DEV-IQ-01 / DEV-IQ-09 写路径失败。
+22. 口令表/`entry_points` 指向不存在的 step，或 `read-index` 缺当前 step 行 → 规则卫生检查失败。
 
 eval 通过才算规则改好；不通过先修rules/脚本，不加新规则。
 

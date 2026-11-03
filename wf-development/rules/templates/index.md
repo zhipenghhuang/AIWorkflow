@@ -45,6 +45,7 @@
 | --- | --- | --- |
 | `20-design/solution-template.md` | change.design | 方案/接口/兼容/回滚 |
 | `20-design/frontend-design-spec-template.md` | change.design（前端变更） | 页面/状态/tokens/a11y/性能/交接 |
+| `20-design/frontend-prototype-parity-template.md` | change.design / implement（前端） | 原型对齐矩阵：路由/导航/复用组件/区块/状态；冲突与 OPEN 清单 |
 | `20-design/adr-template.md` | change.design | 架构决策 |
 | `20-design/product-defect-assessment-template.md` | defect-fix.assess_product | 只写评估，不写技术方案 |
 
@@ -67,7 +68,7 @@
 | `40-delivery/release-record-template.md` | release.record | 实际步骤/verify/观察 |
 | `40-delivery/uat-acceptance-template.md` | release.acceptance | 逐条 AC |
 | `40-delivery/lite-test-report-template.md` | solo.test | 轻量测试：范围/测试点/结果/证据/defects/缺口/verdict |
-| `40-delivery/defect-writeup-template.md` | defect-fix.close / 缺陷处置 | 平台备注/附件/状态/指派文案骨架 |
+| `40-delivery/defect-writeup-template.md` | defect-fix.close / 缺陷处置 | 平台备注/附件/状态/指派文案骨架；**close 必读 §6.0/§6.1/§6.9/§6.10** |
 
 ## 60-retro
 

@@ -130,6 +130,301 @@ def pick_table(block: str, required: list[str]) -> tuple[list[str], list[list[st
     return None
 
 
+def subsection(text: str, heading: str) -> str:
+    """Extract a ### heading block (used by analysis/plan sub-sections)."""
+    m = re.search(rf"^#{{2,3}}\s*{re.escape(heading)}(?:\s|$).*$", text, re.M)
+    if not m:
+        return ""
+    start = m.end()
+    nxt = re.search(r"^#{2,3}\s", text[start:], re.M)
+    return text[start:start + nxt.start()] if nxt else text[start:]
+
+
+def h2_section(text: str, prefix: str) -> str:
+    for key, value in sections(text).items():
+        if key.startswith(f"## {prefix}"):
+            return value
+    return ""
+
+
+def get_cell(row: list[str], headers: list[str], name: str) -> str:
+    try:
+        i = headers.index(name)
+    except ValueError:
+        return ""
+    return row[i].strip() if i < len(row) else ""
+
+
+def is_blank_cell(s: str) -> bool:
+    s = s.strip()
+    return s in {"", "—", "-", "…", "...", "待补"} or (s.startswith("{") and s.endswith("}"))
+
+
+def has_matrix_marker(s: str) -> bool:
+    s = s.strip()
+    return s.startswith("有") or s.startswith("N/A") or s.startswith("不适用")
+
+
+def find_analysis(test_root: Path) -> Path | None:
+    direct = test_root / "test-analysis.md"
+    if direct.is_file():
+        return direct
+    if not test_root.is_dir():
+        return None
+    for p in test_root.rglob("*.md"):
+        if not is_current(p):
+            continue
+        if p.name in ("test-analysis.md", "分析短表.md"):
+            return p
+    return None
+
+
+def parse_analysis(test_root: Path) -> dict[str, Any]:
+    """Hard checks for the new verification-point analysis format.
+
+    Legacy analysis files (no §2.2) are reported as legacy and skipped, so old
+    instances do not suddenly fail; new templates are gated hard.
+    """
+    p = find_analysis(test_root)
+    if p is None:
+        return {"path": None, "issues": ["缺少 test-analysis.md（或旧分析短表）"], "legacy": False, "ids": set()}
+    text = read(p)
+    is_new = bool(re.search(r"^#{2,3}\s*2\.2(?:\s|$)", text, re.M)) or "模块×面" in text
+    if not is_new:
+        return {"path": str(p), "issues": [], "legacy": True, "ids": set()}
+
+    issues: list[str] = []
+    ids: set[str] = set()
+    # §2 verification point table
+    block2 = h2_section(text, "2.")
+    t2 = pick_table(block2, ["单元ID", "方法", "归属"])
+    if not t2:
+        issues.append("§2 验证点表缺少 类型/方法/归属/Oracle 列")
+    else:
+        headers, rows = t2
+        for row in rows:
+            if not row or not row[0] or row[0] in ("单元ID", "—"):
+                continue
+            ids.add(row[0].strip())
+            typ = get_cell(row, headers, "类型")
+            pri = get_cell(row, headers, "优先级")
+            method = get_cell(row, headers, "方法")
+            owner = get_cell(row, headers, "归属")
+            oracle = get_cell(row, headers, "Oracle（可观测）") or get_cell(row, headers, "Oracle")
+            needs_method = ("负向" in typ) or ("计算" in typ) or pri.startswith("P0") or "GATE" in row[0]
+            if needs_method and (is_blank_cell(method) or is_blank_cell(owner) or is_blank_cell(oracle)):
+                issues.append(f"§2 验证点「{row[0]}」缺方法/归属/Oracle")
+
+    # §2.2 module x surface matrix
+    block22 = subsection(text, "2.2")
+    t22 = pick_table(block22, ["模块/切片", "负向/禁止"])
+    if not t22:
+        issues.append("§2.2 模块×面矩阵缺失或表头不可读")
+    else:
+        headers, rows = t22
+        for row in rows:
+            if not row or not row[0] or row[0] in ("模块/切片", "—"):
+                continue
+            for j, val in enumerate(row[1:], 1):
+                if is_blank_cell(val):
+                    issues.append(f"§2.2「{row[0]}」第{j}列为空")
+                elif not has_matrix_marker(val):
+                    issues.append(f"§2.2「{row[0]}」第{j}列未写 有/N/A+依据")
+
+    # §2.3 method x rule matrix
+    block23 = subsection(text, "2.3")
+    t23 = pick_table(block23, ["规则/计算", "算例"])
+    if not t23:
+        issues.append("§2.3 方法×规则矩阵缺失或表头不可读")
+    else:
+        headers, rows = t23
+        for row in rows:
+            if not row or not row[0] or row[0] in ("规则/计算", "—"):
+                continue
+            for j, val in enumerate(row[1:], 1):
+                if j < len(headers) and headers[j] == "验证点":
+                    if is_blank_cell(val):
+                        issues.append(f"§2.3「{row[0]}」缺验证点")
+                    continue
+                if is_blank_cell(val):
+                    issues.append(f"§2.3「{row[0]}」第{j}列为空")
+                elif not has_matrix_marker(val):
+                    issues.append(f"§2.3「{row[0]}」第{j}列未写 有/N/A+依据")
+
+    # §3.1 change impact
+    block31 = subsection(text, "3.1")
+    t31 = pick_table(block31, ["变更点 ID", "回归点"])
+    if not t31:
+        issues.append("§3.1 变更影响矩阵缺失或表头不可读")
+    else:
+        headers, rows = t31
+        for row in rows:
+            if not row or not row[0] or row[0] in ("变更点 ID", "—"):
+                continue
+            for j, val in enumerate(row[1:], 1):
+                if is_blank_cell(val):
+                    issues.append(f"§3.1「{row[0]}」第{j}列为空")
+            status = get_cell(row, headers, "状态")
+            if status not in ("已覆盖", "N/A", "不适用"):
+                issues.append(f"§3.1「{row[0]}」状态未闭环：{status or '空'}")
+
+    # §6 design document matrix
+    block6 = h2_section(text, "6.")
+    t6 = pick_table(block6, ["主读章节", "状态"])
+    if not t6:
+        issues.append("§6 设计文档覆盖矩阵缺失或表头不可读")
+    else:
+        headers, rows = t6
+        for row in rows:
+            if not row or not row[0] or row[0] in ("主读章节", "—"):
+                continue
+            status = get_cell(row, headers, "状态")
+            if status not in ("已覆盖", "N/A", "不适用"):
+                issues.append(f"§6「{row[0]}」状态未闭环：{status or '空'}")
+
+    # §7.1 sufficiency
+    block71 = subsection(text, "7.1")
+    t71 = pick_table(block71, ["检查", "通过条件"])
+    if not t71:
+        issues.append("§7.1 覆盖充分性表缺失或表头不可读")
+    else:
+        headers, rows = t71
+        for row in rows:
+            if not row or not row[0] or row[0] in ("检查", "—"):
+                continue
+            conclusion = row[2].strip() if len(row) > 2 else ""
+            if is_blank_cell(conclusion) or "缺口" in conclusion:
+                issues.append(f"§7.1「{row[0]}」未闭环：{conclusion or '空'}")
+
+    # §7.2 core chains
+    block72 = subsection(text, "7.2")
+    t72 = pick_table(block72, ["链路 ID", "关键步骤"])
+    if not t72:
+        issues.append("§7.2 核心链路表缺失或表头不可读")
+    else:
+        headers, rows = t72
+        for row in rows:
+            if not row or not row[0] or row[0] in ("链路 ID", "—"):
+                continue
+            case = get_cell(row, headers, "用例")
+            status = get_cell(row, headers, "状态")
+            if is_blank_cell(case) or case in ("待生成", "—") or status not in ("已覆盖", "N/A", "不适用"):
+                issues.append(f"§7.2「{row[0]}」未闭环：用例={case or '空'} 状态={status or '空'}")
+
+    return {"path": str(p), "issues": issues, "legacy": False, "ids": ids}
+
+
+def parse_plan_structure(plan: Path) -> dict[str, Any]:
+    text = read(plan)
+    is_new = bool(re.search(r"^#{2,3}\s*3\.8(?:\s|$)", text, re.M)) or "版本级四卷" in text
+    if not is_new:
+        return {"issues": [], "legacy": True}
+    issues: list[str] = []
+    block37 = subsection(text, "3.7")
+    t37 = pick_table(block37, ["模块/流程", "批次"])
+    if not t37:
+        issues.append("§3.7 执行矩阵缺少「批次」列")
+    else:
+        headers, rows = t37
+        for row in rows:
+            if not row or not row[0] or row[0] in ("模块/流程", "—"):
+                continue
+            if is_blank_cell(get_cell(row, headers, "批次")):
+                issues.append(f"§3.7「{row[0]}」缺批次")
+
+    block38 = subsection(text, "3.8")
+    t38 = pick_table(block38, ["卷", "验证角度", "状态"])
+    if not t38:
+        issues.append("§3.8 四卷表缺失或表头不可读")
+    else:
+        headers, rows = t38
+        got = {get_cell(row, headers, "卷").split()[0] for row in rows if row and row[0]}
+        for v in ("V1", "V2", "V3", "V4"):
+            if v not in got:
+                issues.append(f"§3.8 缺 {v} 卷行（不适用也应写 N/A+依据）")
+        for row in rows:
+            if not row or not row[0]:
+                continue
+            for col in ("卷", "验证角度", "负责人", "验证点范围", "出口", "状态"):
+                if is_blank_cell(get_cell(row, headers, col)):
+                    issues.append(f"§3.8「{row[0]}」缺 {col}")
+
+    block39 = subsection(text, "3.9")
+    t39 = pick_table(block39, ["批次", "卷/阶段", "并行组"])
+    if not t39:
+        issues.append("§3.9 批次表缺失或表头不可读")
+    else:
+        headers, rows = t39
+        if not rows:
+            issues.append("§3.9 批次表无数据行")
+        groups: dict[str, list[dict[str, str]]] = {}
+        for row in rows:
+            if not row or not row[0] or row[0] in ("批次", "—"):
+                continue
+            for col in ("批次", "卷/阶段", "模块/域", "装填用例", "执行形态", "并行组", "隔离套/账号/写域", "依赖/门", "合并/核验点"):
+                val = get_cell(row, headers, col)
+                if col == "并行组" and val in ("—", "-", "串行", "SERIAL"):
+                    continue
+                if is_blank_cell(val):
+                    issues.append(f"§3.9「{row[0]}」缺 {col}")
+            pg = get_cell(row, headers, "并行组")
+            if pg and pg not in ("—", "-", "串行", "SERIAL"):
+                groups.setdefault(pg, []).append({
+                    "batch": get_cell(row, headers, "批次"),
+                    "module": get_cell(row, headers, "模块/域"),
+                    "mode": get_cell(row, headers, "执行形态"),
+                    "iso": get_cell(row, headers, "隔离套/账号/写域"),
+                    "gate": get_cell(row, headers, "依赖/门"),
+                })
+        for pg, items in groups.items():
+            if len(items) > 3:
+                issues.append(f"§3.9 {pg} 有 {len(items)} 个批次，超过并发上限 3")
+            modules = [i["module"] for i in items]
+            if len(modules) != len(set(modules)):
+                issues.append(f"§3.9 {pg} 同模块多批次，台账/证据会冲突；须串行或拆 DraftPath")
+            ui_items = [i for i in items if ("模块子代理" in i["mode"] or "拆分" in i["mode"])]
+            if len(ui_items) > 2 and not any(("资源确认" in i["gate"] or "用户确认" in i["gate"]) for i in ui_items):
+                issues.append(f"§3.9 {pg} UI 子代理 {len(ui_items)} 个，超过默认浏览器并发 2；3 个需在依赖/门写资源确认/用户确认")
+            for item in ui_items:
+                if not re.search(r"profile|port|:\d+|browser", item["iso"], re.I):
+                    issues.append(f"§3.9 {item['batch']} UI 隔离未写 profile/port：{item['iso'] or '空'}")
+            seen: dict[str, str] = {}
+            for item in items:
+                for token in re.split(r"[\/、,，;；]+", item["iso"]):
+                    token = token.strip()
+                    if not token or token in ("—", "-", "串行", "SERIAL", "不适用"):
+                        continue
+                    if token in seen:
+                        issues.append(f"§3.9 {pg} 共享隔离 token「{token}」：{seen[token]} / {item['batch']}，须串行")
+                    else:
+                        seen[token] = item["batch"]
+    return {"issues": issues, "legacy": False}
+
+
+def parse_report_structure(text: str) -> dict[str, Any]:
+    is_new = "卷结论" in text or "批次与并行" in text
+    if not is_new:
+        return {"issues": [], "legacy": True}
+    issues: list[str] = []
+    block4 = h2_section(text, "4.")
+    for key, required in (
+        ("卷结论", ["卷", "应结论", "结论率"]),
+        ("验证点结论", ["验证点类型", "应结论", "结论率"]),
+        ("批次与并行", ["批次", "执行形态", "合并结果"]),
+    ):
+        t = pick_table(block4, required)
+        if not t:
+            issues.append(f"报告 §4 缺「{key}」表")
+    block6 = h2_section(text, "6.")
+    if not re.search(r"设计文档|变更影响|核心链路", block6):
+        issues.append("报告 §6 缺设计文档/变更影响/核心链路覆盖行")
+    block61 = subsection(text, "6.1")
+    if not pick_table(block61, ["门槛项", "证据"]):
+        issues.append("报告 §6.1 门槛-证据映射缺失")
+    return {"issues": issues, "legacy": False}
+
+
+
 def is_current(path: Path) -> bool:
     return not any(part in path.parts for part in ("_archive", "_archive", ".draft", "资料", "materials", "证据", "evidence"))
 
@@ -375,16 +670,20 @@ def check_exit_hard_items(text: str) -> list[str]:
     return issues
 
 
-def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
+def parse_coverage(root: Path, scope: str | None = None, valid_vp_ids: set[str] | None = None) -> dict[str, Any]:
+    valid_vp_ids = valid_vp_ids or set()
     issues: list[str] = []
     missing: list[str] = []
+    vp_issues: list[str] = []
+    oracle_issues: list[str] = []
     seen = 0
     files = 0
+    legacy_cases = 0
     base = root / "functional"
     if not base.is_dir():
         base = root / "功能测试"
     if not base.is_dir():
-        return {"issues": issues, "missing": missing, "seen": 0, "files": 0}
+        return {"issues": issues, "missing": missing, "vp_issues": vp_issues, "oracle_issues": oracle_issues, "seen": 0, "files": 0, "legacy_cases": 0}
     for p in base.rglob("*.md"):
         if not is_current(p) or not path_in_scope(p, scope):
             continue
@@ -410,6 +709,28 @@ def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
             issues.append(f"{p.relative_to(root)}: §3 映射表不可读")
             continue
         headers, rows = table
+        vp_idx = next((i for i, h in enumerate(headers) if "验证点" in h), None)
+        if vp_idx is not None:
+            for row in rows:
+                if not row or not row[0] or row[0] in ("ID", "—"):
+                    continue
+                vp = row[vp_idx].strip() if vp_idx < len(row) else ""
+                if is_blank_cell(vp) or vp in ("—", "待补"):
+                    vp_issues.append(f"{p.relative_to(root)}: 用例「{row[0]}」缺验证点")
+                elif valid_vp_ids and vp not in valid_vp_ids:
+                    vp_issues.append(f"{p.relative_to(root)}: 用例「{row[0]}」验证点「{vp}」不在分析表 §2")
+        else:
+            legacy_cases += 1
+        if vp_idx is not None:
+            block_matches = list(re.finditer(r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\b.*$", text, re.M))
+            for bi, bm in enumerate(block_matches):
+                bstart = bm.start()
+                bend = block_matches[bi + 1].start() if bi + 1 < len(block_matches) else len(text)
+                case_block = text[bstart:bend]
+                om = re.search(r"Oracle\s*来源\s*[|：:]\s*([^|\n]+)", case_block)
+                oval = om.group(1).strip() if om else ""
+                if not om or is_blank_cell(oval) or oval in ("—", "待补", "无"):
+                    oracle_issues.append(f"{p.relative_to(root)}: 用例「{bm.group(1)}」缺有效「Oracle 来源」")
         case_ids = set(re.findall(r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\b", text, re.M))
         for row in rows:
             if len(row) < 2:
@@ -431,7 +752,7 @@ def parse_coverage(root: Path, scope: str | None = None) -> dict[str, Any]:
             issues.append(f"{p.relative_to(root)}: §4 缺少「深度档自检」（映射无空≠深度够）")
         if not re.search(r"视觉基础|视觉/UI|无\s*UI", summary_src):
             issues.append(f"{p.relative_to(root)}: §4 缺少「视觉基础」行（或明示无 UI）")
-    return {"issues": issues, "missing": missing, "seen": seen, "files": files}
+    return {"issues": issues, "missing": missing, "vp_issues": vp_issues, "oracle_issues": oracle_issues, "seen": seen, "files": files, "legacy_cases": legacy_cases}
 
 
 def extract_p0_ids(*texts: str) -> set[str]:
@@ -554,6 +875,7 @@ def main() -> int:
     ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage", "review"], default="report")
     ap.add_argument("--scope", default="", help="步后门范围（execute 推荐）；report 忽略。例: 16-ASN 或 functional/16")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--strict", action="store_true", help="旧格式 analysis/plan/case/report 也按 FAIL 处理（新项目建议开启）")
     args = ap.parse_args()
 
     package_root = Path(args.package_root).resolve()
@@ -639,6 +961,26 @@ def main() -> int:
             else:
                 checks.append({"id": "plan-exists", "status": "pass", "detail": str(plan)})
 
+        # New-format analysis/plan gates. Legacy files are skipped (visible in checks),
+        # so existing instances keep running until migrated; new templates are hard-gated.
+        analysis = parse_analysis(test_root)
+        checks.append({
+            "id": "analysis-structure",
+            "status": "fail" if analysis["issues"] else "pass",
+            "detail": analysis["issues"][:12] or analysis.get("path") or "ok",
+        })
+        if analysis.get("legacy"):
+            checks.append({"id": "analysis-legacy", "status": "skip", "detail": "legacy analysis; new matrices not gated"})
+        if plan.is_file():
+            plan_struct = parse_plan_structure(plan)
+            checks.append({
+                "id": "plan-structure",
+                "status": "fail" if plan_struct["issues"] else "pass",
+                "detail": plan_struct["issues"][:12] or "ok",
+            })
+            if plan_struct.get("legacy"):
+                checks.append({"id": "plan-legacy", "status": "skip", "detail": "legacy plan; four volumes/batches not gated"})
+
         if args.mode in ("execute", "report") and not any(c.get("id") == "scope-required" for c in checks):
             all_ledgers = [p for p in test_root.rglob("*.md") if "台账" in p.name and is_current(p)] if test_root.is_dir() else []
             # execute+scope：只扫本模块台账；report：全仓
@@ -696,6 +1038,11 @@ def main() -> int:
             else:
                 parsed = parse_report(report, aggregate)
                 checks.append({"id": "report-counts", "status": "fail" if parsed["issues"] else "pass", "detail": parsed["issues"][:10]})
+                rep_struct = parse_report_structure(read(report))
+                checks.append({"id": "report-structure", "status": "fail" if rep_struct["issues"] else "pass",
+                               "detail": rep_struct["issues"][:10] or "ok"})
+                if rep_struct.get("legacy"):
+                    checks.append({"id": "report-legacy", "status": "skip", "detail": "legacy report; volume/point/batch tables not gated"})
                 reported_verdict = parsed["verdict"]
                 receipt_verdict = parsed["receipt_verdict"]
                 checks.append({"id": "report-verdict", "status": "pass" if reported_verdict else "fail",
@@ -711,7 +1058,14 @@ def main() -> int:
                     checks.append({"id": "report-receipt", "status": "skip", "detail": "报告暂无回执；复跑时必须一致"})
 
         cov_scope = scope if args.mode in ("execute", "coverage") else None
-        cov = parse_coverage(test_root, cov_scope) if test_root.is_dir() else {"issues": [], "missing": [], "seen": 0, "files": 0}
+        cov = parse_coverage(test_root, cov_scope, analysis.get("ids", set())) if test_root.is_dir() else {"issues": [], "missing": [], "vp_issues": [], "oracle_issues": [], "seen": 0, "files": 0, "legacy_cases": 0}
+        if cov.get("legacy_cases"):
+            checks.append({"id": "case-vp-legacy", "status": "skip",
+                           "detail": f"legacy cases without verification-point column: {cov['legacy_cases']}"})
+        checks.append({"id": "case-vp", "status": "fail" if cov.get("vp_issues") else "pass",
+                       "detail": cov.get("vp_issues", [])[:10] or "ok"})
+        checks.append({"id": "case-oracle", "status": "fail" if cov.get("oracle_issues") else "pass",
+                       "detail": cov.get("oracle_issues", [])[:10] or "ok"})
         cov_issues = list(cov["issues"])
         if args.mode in ("report", "coverage"):
             cov_issues += cov["missing"]
@@ -744,6 +1098,11 @@ def main() -> int:
                 issues.append("待回写缺少 export/无权限/原因")
             checks.append({"id": "writeback-receipt", "status": "fail" if issues else "pass", "detail": issues or str(receipt)})
 
+    if args.strict:
+        for c in checks:
+            if str(c.get("id", "")).endswith("-legacy"):
+                c["status"] = "fail"
+                c["detail"] = f"strict: {c.get('detail', '')}"
     soft_ids = EXECUTE_SOFT_CHECKS if args.mode == "execute" else frozenset()
     failed = [c for c in checks if c.get("status") == "fail" and c.get("id") not in soft_ids]
     soft_failed = [c for c in checks if c.get("status") == "fail" and c.get("id") in soft_ids]
@@ -804,7 +1163,7 @@ def main() -> int:
             h.update(read(p).encode("utf-8", errors="replace"))
     gate_id = f"{args.mode}-{h.hexdigest()[:12]}"
     completion = {
-        "gate_version": "2.1",
+        "gate_version": "2.2",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "scope": scope or "",

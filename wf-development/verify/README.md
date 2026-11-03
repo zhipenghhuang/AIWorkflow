@@ -16,6 +16,9 @@
 
 **轻量轨（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出最小充分集并实测，报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
+**任务清单 `[P]` 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md>`；文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 可在准出前再硬拦一次。  
+
+
 ## 2. 一次任务怎么跑
 
 1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并清空 `.gate/frontend/` 旧媒体及 `.gate/wf-development/` 下误放的媒体（JSON 回执保留）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
@@ -23,7 +26,7 @@
 3. 收尾：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "{workroot}/40-tasks/任务清单-xxx.md"
+powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "{workroot}/40-tasks/任务清单-xxx.md" -Tasklist "{workroot}/40-tasks/任务清单-xxx.md"
 ```
 
 4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`--dry-run` → `DRY_RUN`。
@@ -49,6 +52,13 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 ## 4. 完成状态
 
 > 状态语义、报告措辞与 COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED/DRY_RUN 条件见 `rules/core/verification.md` §4；本文件不重复，避免两套状态表漂移。
+
+### 4.1 前端视觉验收（DEV-IQ-13/14，硬）
+
+- L1+ 前端页面必须提供：**桌面截图 + 移动截图**，并与现有同类页面/原型逐项对照（导航层级/文案、复用组件、列/区块、空态/错误态）。
+- **接口 200、DOM 有文字、class 名正确、控制台无报错，均不能替代视觉验收**。
+- 截图不可用/窗口不可见 → `UNVERIFIED`，不得写 `COMPLETE` 或“页面正确”。
+- 单 HTML 原型若将模块嵌入 `data:`/base64 importmap：先解码模块再判断页面是否存在；只搜原始 HTML 文本得出的“原型没有”结论无效（DEV-IQ-13）。
 
 ## 5. 成本纪律
 

@@ -29,6 +29,7 @@
 | --- | --- | --- |
 | `10-planning/test-plan-lite-template.md` | testing.plan（T0/T1） | 范围/类型/执行矩阵/准出/风险 |
 | `10-planning/test-plan-template.md` | testing.plan（版本级） | 完整模板（§0～§18）；小任务用轻量节 |
+| `10-planning/test-plan-volume-template.md` | testing.plan（版本级固定四卷） | V1 主链/V2 功能/V3 方法/V4 收口；复用主计划与分析表验证点；不适用写 N/A |
 | `10-planning/test-analysis-template.md` | testing.analyze（必出） | 跨轨共用；落 `{workroot}/test-analysis.md`；功能双读全表，接口/发布前至少读 §0 |
 | `10-planning/user-facing-change-notes-template.md` | testing.analyze | 用户可读变化说明；AI 业务全景索引；T1+ 用户可见变化必出 |
 

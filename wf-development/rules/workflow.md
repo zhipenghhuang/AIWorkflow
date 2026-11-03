@@ -158,6 +158,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 > 取档/阈值/并行/降级/派工 → `rules/collaboration/subagents.md`（单一出处）。本条只留不可让边界。
 
 - 先工具/单上下文；达阈值应拆或声明偏差；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
+- **`[P]` 机检**：`validate_tasklist.py` 校验文件重叠/相互依赖/并行>3；FAIL 不派工。  
 - 超时/空产物 → 降级直做；子代理禁 commit/push/开 PR/合并/改平台/改确认门；不过 `hitl`/`gate`；核验后再结论。  
 - 返回须含：任务号/文件/RP·AC 覆盖/验证命令+结果/未决项/规则回执；禁「已完成」空壳。  
 - 高风险/大改/破坏性变更：核验者≠实施者（`agents/reviewer-agent.yaml`，只给产物＋验收＋diff）；核验不替代门禁。

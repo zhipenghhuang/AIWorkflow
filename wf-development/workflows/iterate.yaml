@@ -46,7 +46,7 @@ steps:
       **验收清单**：每任务 AC+**SC** 对应「检查 + 证据」；L2+ 按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process/sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
       任务开始先写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：含 `base_commit`；中途 commit 仍计入本任务 diff）。
       **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
-      拆完先自检：RP 覆盖、AC、**SC 表（未进 SC 的方案条款=0 或债项）**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；再进 confirm。
+      拆完先自检：RP 覆盖、AC、**SC 表（未进 SC=0 或债项；字段·跨章规则；入口类型；DEV-IQ-12）**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；并跑 `rules/tools/validate_tasklist.py`（[P] 文件重叠/相互依赖/并行>3 = FAIL）；再进 confirm。
       若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】，再到 commit 确认（跳过 confirm / implement / review / gates / deliver / release_handoff / retro）。
       口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
       未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
@@ -72,8 +72,8 @@ steps:
     agent: implementer
     output: 代码/配置改动 + 任务状态回写
     notes: >
-      **动手前硬门**：DEV-IQ-09【实施预检】→ 命中面 DEV-IQ-10 同批硬补；未出示预检不得改代码。细则 `rules/core/implementation-quality.md` §3。方法 `skills/implementation-and-selftest/SKILL.md` §0.5。
-      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（命中时）+ 预检命中面再读 threat/perf/observability 当前节；失败时 + `debugging-and-error-recovery`；质量硬门 `implementation-quality.md`；前端需补设计再读前端设计说明模板，否则按产品设计实现。
+      **动手前硬门**：来源完整性检查=0 缺漏（DEV-IQ-16）→ SC 差集=0（DEV-IQ-12）→ DEV-IQ-09【实施预检】→ 命中面 DEV-IQ-10 同批硬补；未出示预检不得改代码。修复/优化同样先过来源完整性。细则 `implementation-quality.md` §1.1/§3～§4。方法 `skills/implementation-and-selftest/SKILL.md` §0.5。
+      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（命中时）+ 预检命中面再读 threat/perf/observability 当前节；失败时 + `debugging-and-error-recovery`；质量硬门 `implementation-quality.md`；按 SC 忠实落地禁语义替换；前端需补设计再读前端设计说明模板，否则按产品设计实现。
       RP/AC/**SC**/预检可核对才开工；自测预期只认方案；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `verify/frontend/acceptance.md` 留状态/视口/console/network 截图。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交**（或清单 `[P]`≥3）→ 一组一子代理；**文件不相交可并行≤3**，同文件集串行；开跑声明 `mode=`；超时/空产物降级直做；批末定向门禁→核验→下一批；不达阈值直做。
       高风险/大改/破坏性变更核验者≠实施者（rules/special/iteration-delivery.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
@@ -112,7 +112,7 @@ steps:
     gate_type: machine
     output: .gate/wf-development/completion.json + 门禁摘要/文档同步
     notes: >
-      按 `verify/checks.yaml` 取最小充分集；运行 `verify/Invoke-Gate.ps1 -Acceptance <任务清单>`；门自己跑关键检查并写 `.gate/wf-development/completion.json`。
+      按 `verify/checks.yaml` 取最小充分集；运行 `verify/Invoke-Gate.ps1 -Acceptance <任务清单> -Tasklist <任务清单>`；门自己跑关键检查并写 `.gate/wf-development/completion.json`（`-Tasklist` 同时硬拦 `[P]` 文件/依赖/并行冲突）。
       **开发自验（硬）**：与 `change.verify` 同口径（`lightweight.md` §4.1）——无 QA/无正式测试报告时，L1+ 用户路径/业务rules/接口行为改动须出轻量报告或验收附录（含 verdict/P0/AC 走查）；跳过 deliver ≠ 跳过自验。
       失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
       非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。

@@ -17,6 +17,7 @@
 | TEST-VER-08 | 门读现有计划/台账/报告/评审记录，不无中生有；解析不了不猜，不得给 PASS（按 FAIL/BLOCKED）。 |
 | TEST-VER-09 | 用例评审：选 B → 评审记录 + `-Mode review` PASS/CONDITIONAL；选 A → HUMAN_APPROVED + 评审记录；T0 可 SELF_CHECKED；写手≠评审者（选 B 时）；阻断未清不得放行；有条件放行须接受人。 |
 | TEST-VER-10 | 准出对账排除 `未本轮验证`；本轮装填内 `未执行` 必须为 0 才可 PASS；旧「通过」未重跑不得冒充本构建通过。 |
+| TEST-VER-11 | gate 2.2 硬检新格式 `analysis-structure`/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；任一 FAIL 不得 PASS；旧格式 `*-legacy` 默认 skip，`-Strict` 时必须 FAIL。 |
 
 ## 2. 完成状态
 
@@ -37,7 +38,8 @@
 - 报告 §4 统计 ↔ 各台账 **本轮装填**汇总；不一致先修报告/台账，不得直接写准出。
 - `writeback` 模式只核回执（单号/备注/状态/附件），不要求计划/台账存在。
 - 报告 §1 准出评估 ↔ P0-Smoke/P0-HighRisk/缺口：P0-Smoke/P0-HighRisk 未过不得写“通过”；有条件通过必须有接受人/遗留项；须声明本轮 runId/构建与 suite/depth。
-- 覆盖：功能全量/专项 §3 映射无空行；P0 点有用例或“不适用+依据”；§4 须有深度档自检与视觉基础摘要（机器核存在性；语义深度由评审/AI 量规）。
+- 覆盖：功能全量/专项 §3 映射无空行且含验证点列；P0 点有用例或“不适用+依据”；§4 须有深度档自检与视觉基础摘要（机器核存在性；语义深度由评审/AI 量规）。
+- 点/矩阵/批次：点结论在分析表 §2.1；§2.2 模块×面、§2.3 方法×规则无空格；计划 §3.9 批次合并通过。`test_gate.py` 2.2 已硬检 `analysis-structure`/`plan-structure`/`case-vp`/`report-structure`；语义深度仍由 `verify/checks.yaml` manual 项评审。
 - 阻塞：摘要含已尝试≥2/恢复条件；缺数据/缺样本先造/换，不写阻塞；方案/AC 范围内未实现（菜单无入口且无接口）→待实现（实现缺陷），入口存在但 404/500/空壳→失败；均不写阻塞。
 - 回写：单号/备注/状态/附件回执；备注与状态同轮；`writeback` 模式只核回执。
 - 回执归属：report 读 `.gate/wf-testing/report.json`、execute 读 `execute.json`、writeback 读 `writeback.json`；核对 `package=测试规范` 与本轮 `gate_id`/`timestamp`。writeback 不得覆盖 report；不符=未验证。

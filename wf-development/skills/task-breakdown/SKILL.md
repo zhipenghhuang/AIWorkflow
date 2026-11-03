@@ -45,7 +45,7 @@ description: Use when an approved requirement or design must be broken into exec
 | 测试先行 | 先写哪个失败测试/探针；无测点写理由 |
 | 验证命令与证据 | 命令 + 预期结果 + 证据落点 |
 | 覆盖矩阵 | 命中权限/状态/数据基数/多表面时，按 `skills/cross-layer-consistency/SKILL.md` 填四维矩阵；每行有测试/证据 |
-| 方案条款 SC | 按 `rules/core/implementation-quality.md` 抽 Then/异常/第二次写/角色正反为 `SC-xx`；无 SC 不开工（L0 除外）；裁剪写入债项表 |
+| 方案条款 SC | 按 `rules/core/implementation-quality.md` §4（含 **DEV-IQ-12**）抽 Then/异常/第二次写/角色正反/**字段·枚举·可空**/跨章通用校验为 `SC-xx`，并填入口类型；无 SC 不开工（L0 除外）；裁剪写入债项表 |
 | 回滚/开关 | 高风险任务必填；无则写“不适用” |
 | 依赖/并行 | 依赖任务号；可并行标 `[P]`；同文件不并行 |
 | 规模 | XS/S/M/L；L 必须继续拆（>5 文件或 >1 个专注时段） |
@@ -61,6 +61,7 @@ description: Use when an approved requirement or design must be broken into exec
 ## 5. 并行与子代理
 
 - `[P]` 只给“不同文件、无未完成依赖、可独立验证”的任务。  
+- **机检**：`validate_tasklist.py` 校验 `[P]` 文件重叠、相互依赖、并行数 >3；任一命中 FAIL，先改任务卡或依赖。  
 - 默认串行；一组一子代理；同文件/同函数集归一组；提示词含任务号/路径/RP/AC/verify/禁止事项。  
 - 子代理返回：任务号、文件、RP 覆盖、验证命令+结果、未决项；编排核验后再回写完成。  
 - 高风险/大改/破坏性变更：核验者≠实施者；核验不替代机器门禁。
@@ -74,7 +75,7 @@ description: Use when an approved requirement or design must be broken into exec
 - [ ] 每个任务可独立验收；L 任务已拆；高风险任务已前置。  
 - [ ] `[P]` 任务不同文件、无未完成依赖。  
 - [ ] 有检查点；每个检查点有可执行验证。  
-- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；Then/异常/角色正反/第二次写已覆盖或债项化（细则只认 `implementation-quality.md` DEV-IQ-01）。  
+- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；Then/异常/角色正反/第二次写/**字段清单·枚举·可空**/跨章通用校验已覆盖或债项化；触发链已标入口类型且非仅 `query-enrich`（细则 `implementation-quality.md` DEV-IQ-01/12）。  
 - [ ] 命中权限/状态/数据基数/多表面时，四维矩阵已填；每个 Then/异常/角色正反/第二次写都有行。  
 - [ ] 任务清单有变更记录；未覆盖旧清单前先问用户。  
 - [ ] 运行 `python rules/tools/validate_tasklist.py <清单路径>` 通过（如可用）。
@@ -101,4 +102,5 @@ description: Use when an approved requirement or design must be broken into exec
 | 「任务越大越好控」 | 不可验证单元要拆；无 DoD/测点=未就绪。 |
 | 「估时凭感觉」 | 写依据与风险；不确定标区间并暴露假设。 |
 | 「矩阵以后填」 | 跨层命中时覆盖矩阵入任务卡，否则实施预检会挡。 |
-| 「先有 AC 再补 SC」 | 未进 SC 的必须/不得/Then=漏实施风险；confirm_backlog 前条款数须为 0 或债项。 |
+| 「先有 AC 再补 SC」 | 未进 SC 的必须/不得/Then/字段=漏实施；confirm_backlog 前差集须为 0 或债项（DEV-IQ-12）。 |
+| 「专章抽完即可」 | 约束本写入口的跨章通用规则也须挂 SC，否则运行期必漏。 |

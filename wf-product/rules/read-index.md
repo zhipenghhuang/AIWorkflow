@@ -20,10 +20,12 @@
 
 ## 按 step
 
+> 行内 `workflow.step` 为定位项；`/` 分隔并列项（可跨 workflow）；`workflow.*` = 该 workflow 全部 step；`commit` / `wrap` 为全局行，适用各 workflow 的对应末步。
+
 | step | 必读（核心 + 命中才读） | 可选 | 预算 |
 | --- | --- | --- | ---: |
 | 工作总结口令（无 workflow） | `rules/templates/90-handoff/closeout-skeleton.md` §3（含围栏外 `范围：from～to`）+ 项目根 `activeContext.md` 本包「工作总结锚点」 | 产品计划/工作日志（仅区间内） | 6k |
-| 无口令/意图不明 | `rules/core/routing.md` §0～§4 + §6（五元组/意图类/状态/首条）+ product-profile.md相关节 | 附录校验、产品计划 §0、需求池 | 5k |
+| 无口令/意图不明 | `rules/core/routing.md` §0～§6（五元组/意图类/状态/首条/资料不足升级）+ product-profile.md相关节 | 附录校验、产品计划 §0、需求池 | 5k |
 | plan.goals / roadmap / scope / publish / next | `workflows/plan.yaml` 当前 step 块 + 产品计划模板（含 §3.0 Brief+Delta）+ 迭代变更摘要模板（若独立落盘）+ `rules/core/clarification.md` §1～§5 + 技能 `requirement-discovery-and-prioritization`（迭代）或 `zero-to-one-product-definition`（0→1）；`next` 以计划 §0 现状为主 | 需求池/上期复盘/客户需求简报、`analytics-and-experimentation`（指标树）、`work-log-template.md`、`rules/core/doc-quality.md` §2 计划行（publish 定稿时） | 8k |
 | new-product.discover / go | `workflows/new-product.yaml` 当前 step 块 + 技能 `zero-to-one-product-definition` + `skills/customer-needs-discovery` + `skills/competitive-intelligence-and-learning`（模式 S）+ `rules/core/clarification.md` §1～§5 + 立项书模板 | 竞品分析模板、访谈指南/洞察综合、竞品/市场资料 | 8k |
 | new-product.define / prd / deliver / launch | 子链 `plan`/`prd`/`deliver` **当前 step 块**（门在子 yaml hitl）；本步 notes；PRD 模板（小改轻量节） | 计划/原型/UAT；子链 wrap/commit 不跑 | 8k |
@@ -51,12 +53,11 @@
 | handoff.compose | `workflows/handoff.yaml` compose 块 + 协作 §3.0～§3.0.1 + `handoff-note-template.md` + 台账 | 专模（PRD/开发交接等） | 6k |
 | handoff.status / send / receive / change_send / change_receive / replan | `workflows/handoff.yaml` 当前 step 块 + 协作当前节；**send** 另加交接包说明/清单 + 台账/计划 | 接收回执模板、文档治理 §3、变更单 | 8k |
 | showcase.audience / story / demo / environment / materials / docs / dryrun / publish | `workflows/showcase.yaml` 当前 step 块 + 技能 `demo-storytelling` / `product-docs` / `presentation-design` + 展示模板 | product-profile.md/计划/PRD/原型 | 8k |
-| onboard.* | `workflows/onboard.yaml` 当前 step 块 + `agents/onboard-agent.yaml` + `rules/doc-governance.md` | `rules/templates/00-onboarding/capabilities/`/`rules/capabilities/instance-discipline.md`、`work-log-template.md` | 8k |
+| onboard.* | `workflows/onboard.yaml` 当前 step 块 + `agents/onboard-agent.yaml` + `rules/doc-governance.md` 当前节（§2.4 起） | `rules/templates/00-onboarding/capabilities/`/`rules/capabilities/instance-discipline.md`、`work-log-template.md` | 8k |
 | skill-audit.* | `workflows/skill-audit.yaml` 当前 step 块 + `agents/onboard-agent.yaml` + `rules/playbooks/skill-audit.md` 当前节（discover 必读 §2.1） | `{workroot}/capabilities/00-能力清单.md`、包内契约/参考目录、`skills/README.md`、`capability-skill-audit-report-template.md`；按范围抽查 SKILL；discover 时 skills.sh / `npx skills find` | 8k |
 | commit | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认） + `rules/workflow.md` §3；有门产物读 `.gate/wf-product/{mode}.json` | git 状态 | 5k |
 | wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认）；有门产物读 `.gate/wf-product/{mode}.json`；无门产物写自检结论 | 产品计划 §0/§7/§10、activeContext | 5k |
-
-| materials.publish | `workflows/materials.yaml` 当前 step 块 + `rules/doc-governance.md` §5.2 + `docs/materials/INDEX.md` + `{workroot}` 当前定稿 | 版本 README/域目录/来源 | 6k |
+| materials.* | `workflows/materials.yaml` 当前 step 块 + `rules/doc-governance.md` §5.2 + `docs/materials/INDEX.md` + `{workroot}` 当前定稿 | 版本 README/域目录/来源 | 6k |
 
 ## 读取纪律
 

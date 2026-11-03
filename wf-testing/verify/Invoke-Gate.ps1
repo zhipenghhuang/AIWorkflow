@@ -8,6 +8,8 @@
   powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode execute -Scope "16-ASN" -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode report -ProjectRoot "." -Strict
 #>
 [CmdletBinding()]
 param(
@@ -15,7 +17,8 @@ param(
     [ValidateSet('execute', 'report', 'writeback', 'coverage', 'review')]
     [string]$Mode = 'report',
     [string]$Scope = '',
-    [switch]$Json
+    [switch]$Json,
+    [switch]$Strict
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +47,7 @@ $root = (Resolve-Path -LiteralPath $ProjectRoot).Path
 $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Scope) { $gateArgs += @('--scope', $Scope) }
 if ($Json) { $gateArgs += '--json' }
+if ($Strict) { $gateArgs += '--strict' }
 
 & $python.Source -B @gateArgs
 exit $LASTEXITCODE

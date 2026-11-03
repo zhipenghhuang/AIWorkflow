@@ -8,6 +8,8 @@
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -StartTask -TaskId "DEV-20261024-01" -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Mode frontend -Acceptance "{workroot}/40-tasks/任务清单.md" -ProjectRoot "."
+.EXAMPLE
+  powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Acceptance "{workroot}/40-tasks/任务清单.md" -Tasklist "{workroot}/40-tasks/任务清单.md" -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
@@ -15,6 +17,7 @@ param(
     [ValidateSet('auto', 'frontend')]
     [string]$Mode = 'auto',
     [string]$Acceptance = '',
+    [string]$Tasklist = '',
     [string]$TaskId = '',
     [switch]$StartTask,
     [switch]$Json,
@@ -39,6 +42,21 @@ if (-not $python) {
 }
 
 $root = (Resolve-Path -LiteralPath $ProjectRoot).Path
+
+if ($Tasklist) {
+    $tasklistPath = if ([System.IO.Path]::IsPathRooted($Tasklist)) { $Tasklist } else { Join-Path $root $Tasklist }
+    if (-not (Test-Path -LiteralPath $tasklistPath)) {
+        Write-Output "TASKLIST_MISSING: $tasklistPath"
+        exit 1
+    }
+    $validator = Join-Path $packageRoot 'rules/tools/validate_tasklist.py'
+    & $python.Source -B $validator $tasklistPath
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output 'TASKLIST_INVALID: [P] 文件重叠/相互依赖/并行>3 或结构不合法；不进入完成门'
+        exit 1
+    }
+}
+
 $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Acceptance) { $gateArgs += @('--acceptance', $Acceptance) }
 if ($TaskId) { $gateArgs += @('--task-id', $TaskId) }

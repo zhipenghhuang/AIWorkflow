@@ -2,21 +2,23 @@
 workflow:
   id: defect-fix
   name: 缺陷修复协作
-  version: 9
+  version: 11
   read_index: rules/read-index.md
 
 entry_points:
-  指派给我: pull
-  我的待修: pull
-  修复#: pull
-  "#数字": pull
-  落地优化方案: pull
+  缺陷修复: preflight
+  指派给我: preflight
+  我的待修: preflight
+  修复#: preflight
+  "#数字": preflight
+  落地优化方案: preflight
   拉取产品回复: product_decision
   产品回复: product_decision
   产品退回: product_decision
   继续缺陷: product_decision
 
 trigger:
+  - 缺陷修复
   - 指派给我
   - 我的待修
   - 修复#
@@ -28,10 +30,11 @@ steps:
   - name: 平台可用性
     id: preflight
     agent: defect-fixer
+    next: pull
     output: 平台可用性/鉴权结果 + 降级路由（route/reason/next_action）
     notes: >
       读项目档案 provider。若为「无」或未配置：
-      route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；
+      route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；终止本 workflow（不执行 next: pull）；
       禁止向用户索要编号、禁止空转拉平台。
       本轮有代码修复时，先 `verify/Invoke-Gate.ps1 -StartTask -TaskId "BUG-<id>" -ProjectRoot "."`（冻结 `base_commit`；截图须晚于 `started_at`/验收清单）。
 
@@ -149,7 +152,8 @@ steps:
     output: 修复/方案/验证结果
     notes: >
       修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（协作 §6；红绿与换路径细则见 AGENTS §0.3-7）。
-      **动手前**：改代码前短【实施预检】（DEV-IQ-09）；命中重要面同批硬补（DEV-IQ-10）；方法 `implementation-and-selftest` §0.5。
+      **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md` §3～§4，不另造表。
+      **动手前**：来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→ 短【实施预检】（DEV-IQ-09）；命中重要面同批硬补（DEV-IQ-10）；方法 `implementation-and-selftest` §0.5。
       按 `skills/cross-layer-consistency/SKILL.md` §5 做同类路径扫描：同模型其他写入口、同谓词其他消费方、同权限端点/菜单、同状态其他表面；逐条判「同defects/已正确/不适用」，原单+同类路径各补一条回归；记录根因层/规则缺口。
       **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。
       实现缺陷→按 §6.1 修；产品已认可/修改后认可→按新产品文档/评估单实施（§5.2/§5.3）；
@@ -220,6 +224,7 @@ steps:
       含提交/推送 → confirm_commit（【拟提交】块）；含部署 → 先过就绪检查并产出/更新发布说明+回滚预案+上线检查单
       （rules/templates/40-delivery/release-notes-template.md、rules/templates/40-delivery/go-live-checklist-template.md，落 {workroot}/60-release/），再 confirm_deploy（版本/窗口/影响面/回滚决策人）；
       未批准不部署；含回写 → confirm_remark（§6 备注全文）。
+      **回写就绪四条件**：①部署后冒烟/原单复核通过；②按 §6.1 生成备注并带提交 hash/版本；③展示全文+状态/指派/resolvedBuild；④状态+备注同轮写入。任一未满足只写「待验证」，不得 resolved。
       可与菜单同轮展示拟提交清单+备注全文+部署要点，用户一次确认后连续执行
       （预授权已含本步时，展示照常、免重复等待，见 AGENTS §0.2）。
       部署失败即停、不继续回写；部署后先冒烟再回写；未验证不得写成“已修复”。

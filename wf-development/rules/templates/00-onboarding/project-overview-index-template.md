@@ -10,6 +10,8 @@
 
 ## 1. 工作区索引
 
+> 多包示例；只保留已装包行，未装删除；单包不建本文件。
+
 | 包 | 工作区 | 索引 |
 | --- | --- | --- |
 | {{wf-product / 产品}} | `docs/product/` | `docs/product/INDEX.md` |
@@ -22,7 +24,7 @@
 | --- | --- |
 | 权威文档库 | `docs/materials/INDEX.md` |
 | 外部原件 | `inbound/INDEX.md` |
-| 工作根 | 见项目档案 §1（默认单包 `docs/`、多包 `docs/{owner}/`） |
+| 工作根 | 见项目档案/环境基线 §1（默认单包 `docs/`、多包 `docs/{owner}/`） |
 | 跨包快照 | `activeContext.md` |
 
 ## 3. 既有项目目录（未迁移）

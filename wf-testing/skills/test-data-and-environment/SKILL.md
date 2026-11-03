@@ -36,6 +36,8 @@ description: Use when planning or executing tests that depend on environments, a
 ## 3. 隔离与并行
 
 - 隔离维度：账号、租户、数据域、浏览器 profile、写域、消息队列、文件目录。
+- **隔离套登记**：并发前在计划 §7.3/§3.9 登记 `profileDir/debugPort/browserUrl/账号/写域/downloadDir`；同一隔离套只一个 worker；同一 MCP server/port 同时只一个操作会话（不同 tab 也不行）；隔离套数决定并行上限（≤3，UI 默认 ≤2）。
+- **浏览器资源**：性能/压测窗口不并行 UI；下载/截图写本批目录；同账号/同 profile/同 port/同写域任一交叉 → 串行。
 - 同一条用例禁并行；共享写资源串行；冲突登记（谁在用什么数据/账号）。
 - 并行前验证：两个 worker 同时跑不互踩；失败可定位到 worker。
 - 只读共享数据可复用；写数据默认私有。

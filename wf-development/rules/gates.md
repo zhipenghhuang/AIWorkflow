@@ -25,7 +25,7 @@
 | `confirm_rollback` | 回滚 | 出示触发信号/步骤/数据影响/预计时长；确认后执行 |
 | `confirm_acceptance` | UAT/业务验收 | 出示 AC 覆盖/失败项/遗留风险/发布建议；确认后进审批 |
 | `confirm_actions` | 复盘行动项 | 出示行动项/负责人/截止/验收；确认后落盘 |
-| `confirm_remark` | 回写前备注 | 出示 §6 备注全文；确认后回写 |
+| `confirm_remark` | 回写前备注 | 出示 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」 |
 | `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，只写已装包一行（多包 `/wf/`），无注释、不预列未装包；其它项只列路径；写档案 §1 并改 `.gitignore` |
 | `confirm_docs_migration` | inbound/工作文档归档、搬迁或临时清理 | 出示分类/覆盖对照/拟归档或清理清单与目标；确认后执行 |
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
@@ -45,6 +45,8 @@
 同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复。条件不满足 → 跳过该步（及其 hitl）；不确定按触发处理。`release_failed` = 部署失败或发布验证失败/触发回滚条件；`release_ready` = 上线检查单结论 GO；`release_ready_and_acceptance_passed` = 上线检查单 GO 且 UAT/验收通过或不需要；`release_approved` = `confirm_deploy` 已批准；`implementation_required` = 非「只出任务清单」且清单已确认；`backlog_approval_required` = L2+，或清单/范围/节奏实质变化；L1 小批只通知不审批。`has_product_docs_or_prototypes` = 输入含外部 PRD/迭代方案/需求文档/页面原型/截图/接口或技术文档；`understanding_needs_confirm` = 有外部文档/原型、存在 2 个以上实质歧义或冲突、L2+，或用户要求方案/排期/估算；已有**当前任务**理解确认记录则假，纯信息查询/机械低风险操作不触发。`intent_needs_confirm` = 口令/上下文对「给谁·做什么·交付形态」**无法唯一确定**，或跨角色外发handoff/确认文且本任务未对齐过该意图，或新开对外交付主题 → 真；纯查询/机械低风险、同任务意图已确认未变、本句已写死意图、或已对齐任务内的实施续跑（含改代码）→ 假。拿不准按真。细则 `clarification.md` §0。
 
 **评审模式**：`review_required` 在 clarify/plan 判定并写入计划/任务清单；**不单独设 hitl**——用户确认计划/清单后，AI 自动执行 review（或记录免审），不再逐次问“要不要评审”。评审记录的范围必须覆盖本轮完成门 diff；范围小于 diff → 该门不得判 `COMPLETE`。
+
+**波次评审**：计划选定“每波独立评审+过门”后，每波实施完成 → 该波 diff 独立评审 → 结论通过 → 才开下一波；未通过不得把下一波标完成。最终 S5 只做集成/AC/证据/抽样复核，不得替代波次评审。
 
 ## 3. 门档位（防过度审批）
 

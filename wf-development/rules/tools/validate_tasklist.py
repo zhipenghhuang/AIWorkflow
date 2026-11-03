@@ -97,6 +97,7 @@ def main() -> int:
             rows.append(split_row(line))
     ids: list[str] = []
     deps: dict[str, list[str]] = {}
+    parallel: dict[str, str] = {}
     for row in rows:
         if not row or not row[0]:
             continue
@@ -116,6 +117,7 @@ def main() -> int:
             warnings.append(f"NO_RP: {tid}: {rp!r}")
         dep = row[header.index("依赖")] if "依赖" in header else ""
         deps[tid] = re.findall(r"T-\d+", dep)
+        parallel[tid] = row[header.index("并行")] if "并行" in header else ""
 
     if len(ids) != len(set(ids)):
         errors.append("DUPLICATE_ID: summary table has duplicate IDs")
@@ -150,6 +152,7 @@ def main() -> int:
 
     # Task cards
     card_ids = re.findall(r"^###\s+(T-\d+)\b", text, flags=re.M)
+    card_blocks: dict[str, str] = {}
     for tid in ids:
         if tid not in card_ids:
             errors.append(f"MISSING_CARD: {tid}")
@@ -160,9 +163,54 @@ def main() -> int:
         start = text.find(f"### {tid}")
         next_card = text.find("\n### ", start + 1)
         block = text[start: next_card if next_card != -1 else len(text)]
+        card_blocks[tid] = block
         for key in ("验收标准", "改动范围", "验证", "完成定义"):
             if key not in block:
                 errors.append(f"CARD_FIELD: {tid}: missing {key}")
+
+    # Parallel safety: [P] tasks must not depend on each other and must have
+    # disjoint file scopes; at most 3 [P] tasks per wave.
+    p_ids = [tid for tid in ids if "[P]" in parallel.get(tid, "")]
+    if len(p_ids) > 3:
+        errors.append(f"PARALLEL_LIMIT: {len(p_ids)} [P] tasks > 3; split into waves")
+
+    def reachable(start: str, target: str) -> bool:
+        stack = [start]
+        seen: set[str] = set()
+        while stack:
+            cur = stack.pop()
+            for nxt in deps.get(cur, []):
+                if nxt == target:
+                    return True
+                if nxt not in seen:
+                    seen.add(nxt)
+                    stack.append(nxt)
+        return False
+
+    path_re = re.compile(r"[A-Za-z0-9_.@*?-]+(?:[\\/][A-Za-z0-9_.@*?-]+)+")
+    scopes: dict[str, set[str]] = {}
+    for tid in p_ids:
+        block = card_blocks.get(tid, "")
+        m = re.search(r"改动范围[^\n]*[：:]\s*(.+)", block)
+        scope_line = m.group(1) if m else ""
+        paths = {p.replace("\\", "/").lstrip("./") for p in path_re.findall(scope_line)}
+        paths |= {
+            p.replace("\\", "/").lstrip("./")
+            for p in re.findall(r"`([^`]+)`", scope_line)
+            if "/" in p or "\\" in p or "." in p
+        }
+        scopes[tid] = paths
+        if not paths:
+            errors.append(f"PARALLEL_SCOPE_UNKNOWN: {tid} [P] 无精确文件路径，无法证明与其它 [P] 互斥")
+
+    for i, a in enumerate(p_ids):
+        for b in p_ids[i + 1:]:
+            if reachable(a, b) or reachable(b, a):
+                errors.append(f"PARALLEL_DEPENDENCY_CONFLICT: {a} / {b} 互相依赖，不能并行")
+            for pa in scopes.get(a, set()):
+                for pb in scopes.get(b, set()):
+                    if pa == pb or pa.startswith(pb + "/") or pb.startswith(pa + "/"):
+                        errors.append(f"PARALLEL_FILE_CONFLICT: {a} / {b} 共享路径 {pa} / {pb}")
 
     # Coverage matrix should mention at least one RP if summary has RPs.
     if "## 4. 覆盖矩阵" in text and not RP_RE.search(text.split("## 4. 覆盖矩阵", 1)[1].split("## 5.", 1)[0]):

@@ -20,6 +20,7 @@
 - 能力契约/参考目录 → 包内 `capabilities/`；实例 → `{workroot}/capabilities/`（`rules/capabilities/instance-discipline.md`）
 - capabilities/技能体检流程 → `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
 - 文档树/归档 → `rules/doc-governance.md`
+- 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好；改触发矩阵先改前者）
 - 子代理编排 → `rules/collaboration/subagents.md`（单一出处），workflow/agent 只留指针
 - 读取索引 → `rules/read-index.md`（改 step/reads 后同步）
 - 轻量档（solo）→ `rules/core/lightweight.md`；步骤 → `workflows/solo.yaml`
@@ -58,6 +59,18 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 ## 5. 文档粒度
 
 常驻最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
+
+## 5.1 规则自优化闭环（DEV-IQ-15）
+
+每波收尾、复盘、缺陷族修复后，必须做一次：
+
+1. **现象**：这次暴露的具体错误/返工/缺口。
+2. **根因**：是理解、规则、模板、工具、检查项还是执行层。
+3. **改层**：优先改能防止复发的单一层——`rules/`、`skills/`、`templates/`、`tools/`、`verify/` 检查项；不要只在代码里补。
+4. **前端择优**：同时检查 UI 是否“实用 + 美观 + 与现有系统一致”：导航层级/复用组件/列与区块/密度/层级/间距/响应式/空态/错误态/权限态；原型冲突按方案，布局按原型，视觉按设计系统取优。
+5. **验证**：跑 `Test-Template.ps1`、`check_skills.py --strict` 或对应工具；记录改动与版本；同类问题第二次出现而规则未改 = 未收口。
+
+> 规则不是只增不改：发现重复/过时/冲突要合并或替换；维护优先改产出/模板/工具，而不是继续加长必读。
 
 ## 6. 宿主无关
 

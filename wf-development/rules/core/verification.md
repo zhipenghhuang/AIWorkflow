@@ -1,6 +1,7 @@
 # 验证与完成（开发轨）
 
 > **单一出处**：验收清单、证据、完成状态、报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口；`verify/checks.yaml` 是策略表。
+> **定位**：验证是**兜底与证明**——证明落地与 SC/AC 一致；**不替代** `implementation-quality.md` DEV-IQ-12 的抽全与忠实编码。理解/语义错误应在 plan/implement 消掉，不得指望本步「捞回」。
 > **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`wrap` 前；`review` 只读证据标准，不读门回执（门在 verify/gates 跑）。维护时读 `rules/core/rule-governance.md`。
 
 ## 1. 不变量（带 ID）
@@ -13,7 +14,7 @@
 | DEV-VER-04 | 失败不声称完成；工具/环境缺失记 `BLOCKED`，不得降级为“人工清单已过”。 |
 | DEV-VER-05 | 风险不降级：L0～L3 由变更事实判定；前端行为/布局变化最低 L1。 |
 | DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险的 L1 可免独立评审，但须记录理由与风险接受人。 |
-| DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、截图；无证据不报完成。 |
+| DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、**桌面+移动截图**，并与同类页面/原型对照（导航层级/文案、复用组件、列/区块、空态/错误态）；无证据不报完成。浏览器/MCP/截图不可用 → 前端项 `BLOCKED`/`UNVERIFIED`，不得口头放行；**接口 200、DOM 文本、class 名正确不能替代视觉完成证据**。单 HTML 原型须先解码 `data:`/base64 模块再核对（DEV-IQ-13），原始文本搜索无结果不能作为“原型无此页”的依据。 |
 | DEV-VER-08 | 报告先写中文回执结论（通过/部分通过/阻塞/未验证），再写完成内容；非“通过”禁用“完成/通过/已修复/正常”。 |
 | DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=开发规范`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 verify/gates 跑。 |
 | DEV-VER-10 | 免审不免自检：任何任务（含免独立评审的 L0/L1）都必须有本轮测试/冒烟/证据（定向或全仓，以 profile 为准）；多波次先选“每波独立评审+过门”或“只 S5 全量评审”，不得混用。 |
@@ -62,6 +63,7 @@
 - 证据类型：命令+退出码、测试报告、Playwright trace/截图、console/network 日志、设计 QA、评审记录。
 - 前端证据落 `.gate/frontend/`；至少桌面+移动截图（JPEG/WebP 优先）；从 `verify/frontend/design-qa.md` 复制到 `.gate/frontend/design-qa.md`：L1 至少填 1/2/3/6/7/10/15 七项，L2+ 填满 15 项；结论非「不通过」。截图必须晚于本轮验收清单，否则视为旧证据。
 - 原始日志落 `.gate/logs/`；对话只放 ≤30 行摘要。
+- 缺陷修复另需：原单口径红证（修复前失败）+ 修复后同入口实测 + 验证站冒烟/复核记录；平台回写按 §6.1 备注并带 commit/版本；未验证只写“待验证”，不得 resolved。
 - 证据不夹带密钥/PII；路径用相对路径。
 
 ## 4. 完成状态

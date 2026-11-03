@@ -3,7 +3,7 @@
 workflow:
   id: deliver
   name: 交付与验收
-  version: 4
+  version: 5
   read_index: rules/read-index.md
 
 entry_points:
@@ -11,6 +11,8 @@ entry_points:
   迭代规划: schedule
   交付计划: schedule
   任务拆解: schedule
+  交付计划评审: review-plan-deliver
+  评审交付计划: review-plan-deliver
   交付跟进: followup
   风险升级: followup
   UAT: uat

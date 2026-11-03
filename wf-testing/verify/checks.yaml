@@ -4,20 +4,21 @@
 version: 1
 modes:
   coverage:
-    required: [coverage-map]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性
+    required: [coverage-map, case-vp, case-oracle, analysis-structure, plan-structure]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性；新格式分析/计划/用例验证点/Oracle 硬检
     optional: [depth-variant-date-entry]  # soft：变体/日期倒置/入口·字段齐套自检关键字
+    manual: [point-matrix-no-gap, method-matrix-no-gap, design-doc-matrix, change-impact-matrix, core-chain]  # 本批命中域对应分析表 §2.2/§2.3 行；§3.1/§6/§7.2
   review:
     required: [review-record, review-structure, review-verdict]
     optional: [coverage-receipt, depth-variant-date-entry]
-    manual: [a1-a6-sampling, s1-s9-suite, scorecard-rerun, independent-context, weak-oracle-pass]
+    manual: [a1-a6-sampling, s1-s9-suite, scorecard-rerun, independent-context, weak-oracle-pass, plan-four-volumes, batch-table, point-verdict, design-doc-matrix, change-impact-matrix, core-chain]
   execute:
-    required: [plan-exists, ledger-counts, evidence-exists, blocked-reasons, p0-status]
+    required: [plan-exists, analysis-structure, plan-structure, case-vp, case-oracle, ledger-counts, evidence-exists, blocked-reasons, p0-status]
     optional: [coverage-map, p0-missing, ui-evidence-for-named-ui]
-    manual: [delivery-gap-not-observation]  # 范围内入口缺失禁标观察
+    manual: [delivery-gap-not-observation, batch-merge, parallel-isolation, result-self-check, batch-spotcheck]  # 范围内入口缺失禁标观察；§3.9 合并/隔离；落账前四问/批末抽样
   report:
-    required: [plan-exists, ledger-counts, report-counts, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
+    required: [plan-exists, analysis-structure, plan-structure, case-vp, case-oracle, ledger-counts, report-counts, report-structure, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
     optional: [depth-variant-date-entry]
-    manual: [writeback-receipt, delivery-gap-closed-or-listed]
+    manual: [writeback-receipt, delivery-gap-closed-or-listed, point-vs-case-counts, batch-parallel-stats, matrix-gap-closed, design-impact-core-gap]
   writeback:
     required: [writeback-receipt]
     manual: [note-status-same-round, attachment-check, platform-id]

@@ -160,7 +160,7 @@ steps:
     output: 【任务收尾】（发布/verify/回滚/复盘明细置第 1 点）
     notes: >
       对照 `rules/templates/90-handoff/closeout-skeleton.md` §2
-      更新发布记录/发布说明、`{workroot}/INDEX.md`/activeContext/开发计划 §0；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未verify/未观察/遗留项明示。
+      更新发布记录/发布说明、`{workroot}/INDEX.md`/activeContext/开发计划 §0；现状三处同拍（执行契约 §4 规则 7）；按 `rules/core/doc-facade-sync.md` 轻量对齐根 README/档案对外句（禁全扫）；`sync=` 含 `triad=` 与 `facade=`；语义已变禁只改 activeContext。未verify/未观察/遗留项明示。
       发布产生的记录（CHANGELOG/发布说明/发布记录/工作日志）必须纳入拟提交；不得留在脏工作区。
 
   - name: 拟提交

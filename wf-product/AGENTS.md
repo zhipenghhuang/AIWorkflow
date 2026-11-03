@@ -2,14 +2,14 @@
 
 > **用途**：产品协作 AI 入口。新会话读 §0；命中口令 → `workflows/*.yaml` 当前 step → `rules/read-index.md` 当前行 → 当前 `agents/*.yaml`。已路由同会话中段只靠 `rules/core/rule-anchor.md` 心跳，不重读本节全文。
 > **位置**：`wf-product/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；与用户指令冲突时见 §0 第 5 条（可覆盖）。
-> **template_version**：`2026.11.03.17`（单点：包内版本以本文为准；收尾版式硬条 + 合规拦粘行）。
+> **template_version**：`2026.11.03.19`（单点：包内版本以本文为准；门面事件同步 doc-facade-sync + 入口/读取链修正）。
 > **架构**：Workflow + Agent + rules/gates.md · rules/read-index.md + skills / capabilities + 验证层（PRD/评审/UAT/变更/回写）；落地文档先 `select_review_mode`（自行｜AI）。
 > **分层**：本包=通用产品规则；`product-profile.md`=项目事实；根 `AGENTS.md`=挂载 + 项目自写额外要求（母版不规定偏好正文）。
 
 ## 0. 开工（每任务）
 
 1. **中文**：对话与结论用中文；写现行结论。
-2. **activeContext + 项目身份（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（产品档案声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 产品` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `product-profile.md` → 只读 §1（场景/访谈/PRD 范围时再加 §2.2 标题行）；无或资料不足 → `rules/core/routing.md` §5 升级并先回写。空壳/占位必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。收尾只改本包；多包禁改他包。有 `{workroot}/product-plan.md` 且涉计划/续跑/交付时读 §0 与 §10。
+2. **activeContext + 项目身份（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（产品档案声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 产品` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `product-profile.md` → 只读 §1（场景/访谈/PRD 范围时再加 §2.2 标题行）；无或资料不足 → `rules/core/routing.md` §5 升级并先回写。空壳/占位必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。**门面同步**：仅当版本 bump / 迭代关闭 / 发布上线 / 对外可见事实变时按 `rules/core/doc-facade-sync.md`（禁每轮全扫 README）。收尾只改本包；多包禁改他包。有 `{workroot}/product-plan.md` 且涉计划/续跑/交付时读 §0 与 §10。
 3. **接入状态（一次判定）**：运行时有 `wf-product onboard: done` → 跳过落地检查；无标记 → 按 `agents/onboard-agent.yaml` 判定一次，具备则静默打标，不具备则走 `workflows/onboard.yaml`。
 4. **独立判断**：不迎合；先查错误前提/逻辑跳跃/信息缺失；数字/结论尽量核实；用户有误直接指出；主动提醒忽略的变量、成本与偏差。**方案择优（硬）**：不适配/高风险/明显更差 → 依据+主推（可 1 备选），禁静默照做。用户按第 5 条二次坚持 → 以用户为准并记 `deviation=`。
 5. **冲突与覆盖**：默认按本包规则与红线。用户指令冲突时：①不执行冲突项；②说明风险与替代；③用户再次明确选择 → 以用户为准。收尾 `deviation=` 如实。无冲突：用户明确指令 > 项目根 `AGENTS.md` > 本文 > 当前 agent 契约 > product-profile.md 要点（若有）。**拟改与现行代码、现网或 CI 稳定口径冲突 → 先指出再改，禁静默覆盖。** 红线默认可被用户二次明确覆盖。
@@ -116,17 +116,17 @@
 | 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §3（读/写 `activeContext` 本包工作总结锚点） |
 | 1 | 需求/问题/缺陷（未分类；对话/文档/链接/截图） | `change` | pm-lead（按分级条件链至下一门/关单） |
 | 2 | 启动新产品 / 新项目/从0到1/产品立项 | `new-product` | pm-analyst（discover→go→define，按链执行到下一个门） |
-| 3 | 产品计划/产品规划/路线图/版本规划 | `plan` | pm-analyst→pm-lead（goals→roadmap→scope→review→publish，按链执行到下一个门） |
+| 3 | 产品计划/产品规划/路线图/版本规划 | `plan` | pm-analyst→pm-lead（goals→roadmap→scope→review-plan→publish，按链执行到下一个门） |
 | 4 | 收集需求/需求洞察/需求池 | `prd` | discover |
 | 4.1 | 分析客户需求/访谈澄清 | `prd` | discover（先理解后入池） |
 | 4.2 | 竞品分析/对标 | `prd` | discover 或 benchmark（按入口判定） |
 | 5 | 单需求立项/排优先级 | `prd` | prioritize |
 | 6 | 写 PRD | `prd` | prd（须已确认范围） |
 | 7 | PRD 评审/定稿 | `prd` | review |
-| 8 | 排期/交付计划 | `deliver` | schedule→review |
+| 8 | 排期/交付计划 | `deliver` | schedule→review-plan-deliver |
 | 9 | 需求答疑/跟进 | `change` | intake→triage |
 | 10 | 需求变更/产品缺陷（对话/文档） | `change` | 按链至下一门 |
-| 11 | 平台产品缺陷拉取/分析 | `defect` | pull→analyze |
+| 11 | 平台产品缺陷拉取/分析 | `defect` | preflight→pull→source→analyze |
 | 12 | 平台回写 | `defect` | writeback |
 | 13 | UAT/验收 | `deliver` | uat |
 | 14 | 发布/上线检查/复盘 | `deliver` | release |
@@ -148,7 +148,7 @@
 | 26 | 交接状态 | `handoff` | status |
 | 27 | 变更通知/同步变更/重规划 | `handoff` | change_* / replan |
 
-**入口即止**：除 `workflow.chain: full`/明确多步链/「继续/按计划执行」外，从入口 step 执行到产出完成即停；不自动进入后续 step 或门。`onboard` 已标 `chain: full`，接入必须走到 `verify` 打标。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
+**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停；不自动进入后续 step 或门。`onboard` 已标 `chain: full`，接入必须走到 `verify` 打标。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
 **单条 vs 批量**：单条需求/问题/缺陷→`change`；平台缺陷→`defect`；批量洞察/需求池盘点→`prd` discover；**竞品分析/学习竞品**→`prd` discover（模式 S）；**竞品对标/功能差距**→`prd` benchmark（模式 P）；0→1→`new-product`（含模式 S）。分不清先 `change` 受理再分诊。
 **需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（`rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
@@ -156,7 +156,7 @@
 
 ## 4. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改门/红线/输出 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改读取索引 → `rules/read-index.md`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改门/红线/输出 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改读取索引 → `rules/read-index.md`。自检见 `rules/core/maintenance.md` §2。
 
 ## 5. 多包（自动探测）
 

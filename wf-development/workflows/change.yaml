@@ -139,8 +139,8 @@ steps:
     output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/）
     notes: >
       条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
-      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`（SC/债项）；模板 `rules/templates/30-planning-tasks/task-list-template.md`。
-      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/**每任务 SC；未进 SC 的方案条款=0 或债项**/依赖无环/并行安全/L 已拆/检查点/四维矩阵/裁剪债项），再 confirm_backlog（清单+节奏三选）。
+      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`（SC/债项/DEV-IQ-12）；模板 `rules/templates/30-planning-tasks/task-list-template.md`。
+      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/**每任务 SC；未进 SC 的方案条款=0 或债项；字段·枚举·跨章通用规则已挂；触发链入口类型**/依赖无环/并行安全/L 已拆/检查点/四维矩阵/裁剪债项；DEV-IQ-12），并跑 `rules/tools/validate_tasklist.py`（[P] 文件重叠/相互依赖/并行>3 = FAIL），再 confirm_backlog（清单+节奏三选）。
       验收清单：每任务 AC 对应「检查 + 证据」；L2+ 按 `verify/templates/acceptance.yaml` 落 acceptance 文件（见 `verify/README.md`，含 sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
       新建/更新清单 → L2+ 或范围/节奏实质变化才 `backlog_approval_required=true`；L1 小批只通知；需审批时未确认不得实施。
       更新开发计划：S3 任务与排期=进行中/完成，任务清单链接、里程碑、依赖、风险；清单未完成时禁止覆盖；不同工作先问用户。
@@ -152,10 +152,10 @@ steps:
     on_fail: 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过
     output: 代码/配置改动
     notes: >
-      **动手前硬门**：先按 `rules/core/implementation-quality.md` DEV-IQ-09 自主【实施预检】（扫描表 §3.1）；命中 DEV-IQ-10 重要面 → 同批硬补（SC+防护+负面自测）后再改代码；未出示预检不得动手。方法 `skills/implementation-and-selftest/SKILL.md` §0.5。
-      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（权限/状态/数据基数/多表面时）+ 预检命中面再读 `threat-modeling`/`performance-and-capacity`/`observability-and-instrumentation` 当前节；失败时 + `debugging-and-error-recovery`；AI 变更 + `ai-application-engineering`；质量硬门 `implementation-quality.md`；前端需补设计再读前端设计说明模板，否则按产品设计实现。
-      实现前读需求理解包的「必须保留/可优化/未提供」与验收清单 AC/**SC**；原型/PRD 冲突或缺失 → 停下说明并 OPEN，不按截图猜后端规则、接口或状态机，不静默选边。
-      按验收清单+SC 实施；自测预期只认方案（冲突停工，禁改断言刷绿）；每完成一个可验证单元即跑对应检查并留证据；前端按 `verify/frontend/acceptance.md` 留状态/视口/console/network 截图。
+      **动手前硬门**：SC 差集=0（DEV-IQ-12）→ 按 `implementation-quality.md` DEV-IQ-09 自主【实施预检】（§3.1）；命中 DEV-IQ-10 → 同批硬补后再改代码；未出示预检不得动手。方法 `skills/implementation-and-selftest/SKILL.md` §0.5。
+      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（权限/状态/数据基数/多表面时）+ 预检命中面再读 `threat-modeling`/`performance-and-capacity`/`observability-and-instrumentation` 当前节；失败时 + `debugging-and-error-recovery`；AI 变更 + `ai-application-engineering`；质量硬门 `implementation-quality.md` §3～§4；前端需补设计再读前端设计说明模板，否则按产品设计实现。
+      实现前读需求理解包的「必须保留/可优化/未提供」与验收清单 AC/**SC**；**按 SC 逐条落地，禁语义替换与半实现收工**；原型/PRD 冲突或缺失 → 停下说明并 OPEN，不按截图猜后端规则、接口或状态机，不静默选边。
+      按验收清单+SC 实施；自测预期只认方案（冲突停工，禁改断言刷绿）；自测证明忠实而非补理解；每完成一个可验证单元即跑对应检查并留证据；前端按 `verify/frontend/acceptance.md` 留状态/视口/console/network 截图。
       可测逻辑同步补测；装配 docs-mcp 时按其核对最新文档（防幻觉 API）；
       本机可用 unit-test-gen 时按覆盖缺口驱动单测（禁无断言凑覆盖率）；不可用=手写+门禁。
       **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交** → 一组一子代理；文件不相交可并行≤3；开跑 `mode=`；超时降级直做；批末定向门禁→核验→下一批；单文件/L0 直做；子代理不改清单/计划。
@@ -175,6 +175,7 @@ steps:
       条件步：L2+/L3、高风险/大改/破坏性变更或点名「代码评审」必走；L0 单文件、确实低风险的 L1 单点可跳过，但须在计划/验收记录理由与风险接受人；免审不免自测/证据。
       评审范围必须覆盖本轮完成门 diff；若门禁 diff 含未审波次，评审记录必须补覆盖，否则不得判 `COMPLETE`。
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
+      波次门按 `rules/gates.md`「波次评审」执行；选“每波独立评审+过门”时，未通过不得开下一波。
       评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账/缺口），供完成门核对；L2+ 缺评审记录或缺 SC 对账（非 na）= BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
       技能：`skills/code-review/SKILL.md`（六轴 + §4.0 方案一致性 + 全量覆盖 + 安全/供应链）+ `skills/engineering-quality/SKILL.md` §5 + `skills/cross-layer-consistency/SKILL.md`（命中时）。
@@ -197,7 +198,7 @@ steps:
       有代码/配置改动才跑；按 `verify/checks.yaml` 取最小充分集（细则 `rules/core/verification.md` + 取重时 `rules/core/implementation-quality.md` §8）。
       **开发自验（硬）**：无 QA / 无正式测试报告时，L1+ 且触及用户路径/交互/业务rules/接口行为 → 必按 `skills/test-design-and-execution/SKILL.md` 出轻量报告（或方案卡/验收附录含完整 verdict/P0/AC·SC 走查/证据）；仅 build/lint/单测绿不算功能自验完成。口径 `rules/core/lightweight.md` §4.1。有正式测试报告 → 引用，不重复造、不冒充准出。
       **质量对账**：核对 acceptance 的 implement_preflight/sc_trace/cross_layer/baseline_smoke/debts（或任务卡等价字段）；有行为却缺预检、或取重缺项 → 不得报全覆盖通过。
-      运行 `verify/Invoke-Gate.ps1 -Acceptance <任务清单/开发卡>`；门读验收清单/diff/证据/process，自己跑关键检查并写 `.gate/wf-development/completion.json`。
+      运行 `verify/Invoke-Gate.ps1 -Acceptance <任务清单/开发卡> -Tasklist <任务清单>`；门读验收清单/diff/证据/process，自己跑关键检查并写 `.gate/wf-development/completion.json`（`-Tasklist` 同时硬拦 `[P]` 文件/依赖/并行冲突）。
       纯澄清无改动跳过本步；失败不声称完成；存量失败只对账新增。
       非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。
       工具/环境缺失 → BLOCKED，不得以“人工清单已过”替代；前端变更必须有状态/视口/console/network/截图证据。

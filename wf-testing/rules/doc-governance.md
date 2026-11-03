@@ -152,7 +152,7 @@ docs/materials/
 | --- | --- | --- |
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
-| `{workroot}/test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 计划/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
+| `{workroot}/test-plan.md`（+ V1～V4 卷）、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 主计划/四卷/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
 | `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档 |
 | `{workroot}/changes/` | 绑定 | CR 关闭归档 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
@@ -215,6 +215,7 @@ docs/materials/
 | 临时/过程/失败/重复清理 | 必做 | 必做 |
 | 修断链 | 必做 | 必做 |
 | 材料库：关账前用最新定稿**覆盖刷新**关闭版 `{prev}/`，INDEX 标 `superseded`；再建/更新下一版 `{next}/` 为 `current`；旧目录保留 | **必做** | **必做** |
+| 根 README / 基线对外句（门面；见 `rules/core/doc-facade-sync.md`；本包不写根 CHANGELOG） | **按需** | **按需**（测试入口/怎么验；轻量） |
 | 根 CHANGELOG / 发布说明 / 部署 / 公告 | 跳过（除非点名发版） | 按 release 门 |
 
 > **换迭代 materials（硬）**：确认关账后，必须先按当时工作区定稿覆盖刷新即将关闭的 `{prev}/`（保证「上一期资料=关账瞬间最新」），再开 `{next}/`；禁止只改 INDEX 状态而不刷新正文。并行不关 → 本行跳过。显式「保留关闭版历史快照」→ 关闭版可先复制为 `{prev}-r2` 再覆盖，或只升 rev。

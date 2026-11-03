@@ -10,7 +10,7 @@
 | 门1 | `select_mainread`（when: `mainread_unspecified` / `mainread_unspecified_for_generate` / `exploratory_mainread_missing`） | analyze/plan/generate（及探索）主读路径未确认 → STOP 一问；已选定或唯一正式版已在 §0/理解门写明待确认 → 可续；不得重问 |
 | 意图门 | `confirm_intent`（when: `intent_needs_confirm`） | 仅歧义/外发未对齐/新开交付时出示【意图理解】并停等；意图已清跳过（可一行回执即做）。细则 `clarification.md` §0。≠ 理解门；≠ 交接门 |
 | 理解门 | `confirm_understanding`（when: `understanding_needs_confirm`） | **主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言 |
-| 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门 |
+| 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门。版本级须先过：分析表 §2.2/§2.3 无空格 + §3.8 四卷 + §3.9 批次表；缺项=计划门不通过 |
 | 门2 | `confirm_scope`（when: `scope_needs_confirm`） | 开跑前一行：主读/计划范围/环境 → 确认；同会话同载体只一次；计划驱动已确认 → 跳过并附【已预授权执行：按计划】 |
 | 门3 | `confirm_platform`（when: `standalone_generate_with_pending` / `platform_ask_required` / `platform_submit`） | 有拟入库、须问交平台/新建缺陷单/回写 → STOP（交平台用专用确认句）；**≠** git；否则跳过 |
 | git提交 | `confirm_commit` | 【拟提交·仓库】（见 `workflow.md` §4.1；≡ 产品/开发 `confirm_commit`）；≠收尾第 2 点「待提交摘要」；≠门3 |
@@ -20,17 +20,18 @@
 | 技能变更门 | `confirm_skill_changes`（when: `skill_changes_pending`） | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料 |
 | 交接门 | `confirm_handoff`（when: `handoff_send_required`） | **凡拟生成任一 HO 或缺陷统一导出必停**：出示类型/接收方/必带摘要/落点（缺陷须写清「本批一份单文件或单 EXPORT 目录」）/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「报告门/计划门/批末/平台已交」代替本门。有平台交缺陷 → 本门不因「补导出」置真。未收回执不得称「已接收」；可称「已发送」 |
-| 覆盖闸 | `gate: coverage-map`（when: `functional_coverage_required`） | 功能全量/专项新生成/补生成：运行 `verify/Invoke-Gate.ps1 -Mode coverage`；§3 映射无空行且 ID 真实；§4 须含深度档自检与视觉基础行；不适用于其它轨 |
+| 覆盖闸 | `gate: coverage-map`（when: `functional_coverage_required`） | 功能全量/专项新生成/补生成：运行 `verify/Invoke-Gate.ps1 -Mode coverage`；§3 映射无空行且 ID 真实；§4 须含深度档自检与视觉基础行；分析表 §2.2/§2.3 无空格；不适用于其它轨 |
 | 用例评审闸 | `gate: case-review`（when: `case_review_required`） | 功能全量/专项 T1+（或点名评审）：运行 `verify/Invoke-Gate.ps1 -Mode review`；评审记录存在、结论可解析、独立性声明、阻断未清不得放行；回执 `.gate/wf-testing/review.json`；未 PASS 不得写「放行执行/评审通过」 |
 | 评审方式门 | `select_review_mode`（when: `landing_doc_review_needed`） | **STOP 二选一**：A 自行｜B AI（testcase-reviewer）；可附自定义焦点。适用面见 `landing_doc_review_needed`（计划/分析表/功能/接口/发布前/探索式）。同产物只问一次；未选不得宣称评审通过/计划可驱动/进 P2 |
 | 评审确认门 | `confirm_review`（when: `review_needs_confirm`） | 结论=需修后放行、有条件放行须接受人、或与计划 P2 入口冲突 → STOP；已放行且无未接受重要项 → 跳过 |
-| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本模块终态齐后：`Invoke-Gate.ps1 -Mode execute -Scope "{模块}"`；只对 Scope 内台账；回执含 `scope`；禁无 Scope 全仓当本批结论 |
+| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | **每批一次**（不是阶段末一次合成）：本批终态齐后 `Invoke-Gate.ps1 -Mode execute -Scope "{模块}"`；只对 Scope 内台账；回执含 `scope`；禁无 Scope 全仓当本批结论。批次合并按计划 §3.9：文件在、逐条落盘、计数一致、结果合法、证据可打开；未过不得开下一批 |
 | 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前运行 `verify/Invoke-Gate.ps1 -Mode report`；**全仓**对账；未 PASS/CONDITIONAL 不得写整体通过；回执 `.gate/wf-testing/report.json` |
 | 回写闸 | `gate: writeback-receipt`（when: `remark_writeback`） | 交平台/回写前运行 `verify/Invoke-Gate.ps1 -Mode writeback`；无回执/备注状态不同轮/附件未回查 → BLOCKED；只写 `writeback.json`，不覆盖 report |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 | 回写模式 | `verify/Invoke-Gate.ps1 -Mode writeback` | 同上（gate 与命令的单一出处）；未过不得声称已回写 |
 
-> **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。
+> **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。  
+> **gate 2.2**：`test_gate.py` 对新格式硬检 `analysis-structure`/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；旧格式默认 `skip`，加 `-Strict` 变 FAIL。
 
 ## 2. `when` / `gate_when` 词表
 

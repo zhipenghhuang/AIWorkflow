@@ -5,19 +5,31 @@
 
 ## 1. 是什么
 
-**AI Workflow 包（测试轨）**：主链见 `workflows/testing.yaml`——需求/测试依据分析（需求模型/oracle/追溯）→ **测试计划（唯一编排载体）** → 生成 → **用例评审（独立量规/机器门）** → 按计划执行 → 报告（口令可切入任一步）；内置专业技能（`skills/`：随包生效、按步自动加载，含 `testcase-review`）+ 可选能力层（`capabilities/` 注册表：本机可用即自动使用、不可用降级）。版本级单点：`{workroot}/test-plan.md`（范围/类型/轨道/编排/回归/defects/探索式/准入准出）、`{workroot}/test-report.md`（计划对照/准出评估/遗留风险）。  
-**依据建模**：PRD/迭代方案/原型/接口/代码 diff 先按 `skills/test-basis-analysis/SKILL.md` 建需求模型，落跨轨共用 **`{workroot}/test-analysis.md`（§0 Brief+本期差量表置顶）**/冲突/九类歧义/oracle/TP 追溯；同轮生成**用户版业务变化说明**（`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；T1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。有产品/开发 Delta 则引用对账。功能/专项双读全表；接口/发布前/探索式至少读 §0。确认门主屏出示 §0 后才写计划/用例；预期无来源不写断言。  
+**AI Workflow 包（测试轨）**：主链见 `workflows/testing.yaml`——需求/测试依据分析（需求模型/oracle/追溯）→ **测试计划（唯一编排载体）** → 生成 → **用例评审（独立量规/机器门）** → 按计划执行 → 报告（口令可切入任一步）；内置专业技能（`skills/`：随包生效、按步自动加载，含 `testcase-review`）+ 可选能力层（`capabilities/` 注册表：本机可用即自动使用、不可用降级）。版本级单点：`{workroot}/test-plan.md`（主计划；V1～V4 卷文件从属）、`{workroot}/test-report.md`（计划对照/准出评估/遗留风险）。  
+**依据建模**：PRD/迭代方案/原型/接口/代码 diff 先按 `skills/test-basis-analysis/SKILL.md` 建需求模型，落跨轨共用 **`{workroot}/test-analysis.md`（§0 Brief+本期差量表置顶）**/冲突/九类歧义/oracle/TP 追溯；**§2 覆盖单元即验证点**（类型/方法/归属/oracle），§2.1 记点级结论。同轮生成**用户版业务变化说明**（`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；T1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。有产品/开发 Delta 则引用对账。功能/专项双读全表；接口/发布前/探索式至少读 §0。确认门主屏出示 §0 后才写计划/用例；预期无来源不写断言。版本级固定四卷（V1 主链/V2 功能/V3 方法/V4 收口；模板 `test-plan-volume-template.md`），主计划仍是唯一编排入口。  
 正式并列轨：功能全量/专项、探索式、接口、发布前、缺陷；**计划驱动模式**按测试计划把各轨串成一条执行链（功能→接口→探索式→非功能→回归→缺陷闭环→报告）。  
 **接口域**：独立模板 `rules/templates/20-test-cases/api-test-case-template.md`（契约+对照+用例+脚本清单）+ `validate_api_testcase.py`；禁套功能用例模板。探索式模板含步骤四列与章程映射；随机模板为旅程会话+去重窗+发现分流（均比功能轻、须可判定）。  
 口令映射 workflow；条件 `hitl`/`hitl_when`、覆盖三闸、冒烟前置与阻断面、证据红线默认按规则（用户二次明确选择覆盖除外，见 `AGENTS.md` §0 第 5 条）；执行形态按 `multi-agent-output.md` §1.5 决策树取档并声明 `mode=`（脚本→续跑单模块直跑→同轮≥2 模块子代理→单模块大/高风险拆分）；只读/draft/隔离套可并行≤3；超时降级直做。  
 首次无 `wf-testing onboard: done`（兼容旧 `landing=ok`）时自动按接入清单核验并打标一次；之后直跑。  
 **独立实施**：本包可单独落地，不要求开发/产品包同时安装或默认联动；跨包输入是可选的——有则按用户指定路径读入，无则按现有主读/基线执行，最多一句提示，不阻塞、不反复追问。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；不需要额外协作目录或合同文件，本包仍独立执行。  
-**成本策略**：**域常青分层库** + **变更装填**（suite=`core|module|full`）+ **多轨质量标准**（`rules/special/multi-track-quality.md`：接口 depth 迭代默认 `standard`、发版 `full`；发布前硬映射；探索章程闭环）。禁日常通读全库。功能 P0 / 接口适用维脚本化；发布前工具测量。**完整覆盖**=映射齐；**完整执行**=按 suite/depth 装填，非每迭代全库重跑。禁无分析全仓重生；禁「继续」隐式 generate。  
+**成本策略**：**域常青分层库** + **变更装填**（suite=`core|module|full`）+ **多轨质量标准**（`rules/special/multi-track-quality.md`：接口 depth 迭代默认 `standard`、发版 `full`；发布前硬映射；探索章程闭环）。禁日常通读全库。功能 P0 / 接口适用维脚本化；发布前工具测量。**完整覆盖**=验证点/用例映射无空 + P0/GATE/负向/计算类点有结论；**完整执行**=按 suite/depth 装填，非每迭代全库重跑。禁无分析全仓重生；禁「继续」隐式 generate。  
 **新版本入口**：计划 §3.7 逐模块/流程标「P0 冒烟/P0 待脚本/迭代功能/接口确定性/一次性/淘汰」；P0 冒烟脚本登记 `{workroot}/smoke-checklist.md`，再按矩阵执行。  
 **额外发现**：AI 执行中同时记录用例之外的 UI/布局/显示/文案/冗余标签/console/network/UX 异常，进报告 §5.4；不静默忽略。  
 **体验纪律**：验收 UI 减法（冗余文案/标签、删后仍可理解）与 UX/DX/AX 三维；测试资产同样不得净退化；详见 `AGENTS.md` §0.2-11、`rules/templates/20-test-cases/a11y-ux-checklist.md` §2.1。  
 **执行引擎**：UI 稳定主链路/E2E 与 API/契约默认 Playwright 脚本；AI 用于设计、探查、失败复核、探索式与报告；性能/安全/兼容/迁移用专项工具，AI 只解读与判定。  
 方法参考：ISO/IEC/IEEE 29119-3 测试计划要素、ISTQB 风险驱动/测试金字塔、SBTM 探索式测试；需求分析与澄清参考 fishzjp/qa-skills `requirement-analysis`/`clarify-pattern`、GitHub Spec Kit `clarify`/`analyze`、addyosmani/agent-skills `interview-me`；可选 `qa-skills`/`exploratory-skill` 见 `capabilities/00-contract.md`（未安装按内置技能执行）。  
+
+### 1.1 验证点模型（设计完整性层）
+
+- **验证点**=可独立判定“过/不过”的最小承诺；一个验证点可以有多个用例，但**只出一个结论**；一条用例可覆盖多个验证点，每个点分别登记。
+- **类型**：正向/负向/不变量/状态/计算/权限/集成/非功能/视觉；负向含“不新增/不改变/不自动/禁止”，必须写可观测反向断言；计算类必须有最小分母集、公式、精度与期望值。
+- **方法**：等价/边界/判定/状态/场景/算例/错误推测；P0/GATE/负向/计算类必填。
+- **覆盖面矩阵**：分析表 §2.2 按模块×面逐格 `有/N/A+依据`；空格=缺口，不得用“模块简单”跳过。
+- **方法×规则矩阵**：分析表 §2.3 按 P0/高风险规则逐方法确认；只测主路径不算完整。
+- **归属**：阶段/轨/卷；同一验证点只归一处出结论，他处经过只作前置/造数，不重复计通过。
+- **点结论**：登记在 `{workroot}/test-analysis.md` §2/§2.1；用例结论在台账；报告 §4 分列卷结论（V1～V4）、“验证点结论率”和“用例通过率”，三者不得互相替代。
+- **版本级固定四卷**：V1 主链 / V2 功能 / V3 方法 / V4 收口；不适用写 `N/A+依据`，不删卷、不改号。主计划仍是唯一编排入口；每卷用 `test-plan-volume-template.md`，共用同一验证点登记表。T0/T1 用轻量计划（同一机制裁剪，不套四卷），不是第二套分卷机制。
+- **批次**：计划 §3.9 `B-Vx-xx` 批次表是执行、合并、缺陷提交、子代理、并行的真值；版本级未填=计划门遗漏，先补表；执行期缺表才默认直跑/串行并记 `deviation=no_batch_plan`。模块子代理=一模块一子代理；拆分档=Worker+Reviewer；脚本档=执行器。
 
 ## 2. 目录
 
@@ -45,7 +57,7 @@
 > 实例在项目根：`env-baseline.md`、`activeContext.md`；测试产物统一在 **`{workroot}/`**。目录 SSOT：`rules/workflow.md` §1.3.0。  
 > **统一落盘（C）**：`{NN}-{短名}/` 内 `*-功能用例/功能台账` 或 `*-接口用例/接口台账`；探索/随机戳夹自描述；发布前=`{专项}-测试方案/test-report.md`；证据轨级；共享执行器=`{workroot}/scripts/`。SSOT=`rules/workflow.md` §1.3.0。  
 > **新鲜度**：准出只认本轮装填；非装填标 `未本轮验证`；报告声明 runId/suite/本轮实测。  
-> **归档**：计划/报告/CR/交接 → `{workroot}/_archive/`；域主档常青留下；细则 `rules/doc-governance.md` §7。  
+> **归档**：主计划/四卷/报告/CR/交接 → `{workroot}/_archive/`；域主档常青留下；细则 `rules/doc-governance.md` §7。  
 > **交接**：内容优先、包按需；出站按需实拷（缺陷有平台→零导出）；入站 `handoff/inbound/{类别}/`。分析表跨轨：`{workroot}/test-analysis.md`。状态唯一入口：计划 §0。
 
 ### 2.1 实例目录分类（禁止根目录堆测试产物）
@@ -62,7 +74,7 @@
 | `{workroot}/changes/` | `CR-{yyyyMMdd-HHmm}-{slug}.md` | 整期方案 |
 | `{workroot}/scripts/` | 共享 executor / config | 业务域脚本（放域夹） |
 | `{workroot}/handoff/` | `outbound|inbound/{category}/` + `handoff-ledger.md` | 把材料库当收件箱 |
-| `{workroot}/_archive/` | 计划/报告/CR/交接快照 + `_pending-cleanup/` | 仍有效域主档 |
+| `{workroot}/_archive/` | 主计划/四卷/报告/CR/交接快照 + `_pending-cleanup/` | 仍有效域主档 |
 | `docs/materials/` | 项目级权威文档库；测试写 `05-testing` | 草稿/证据/密钥/PII |
 
 > 规则：项目根保留 `env-baseline.md`、`activeContext.md` 与原件根 `inbound/`；所有测试产物都在 `{workroot}/` 下；权威文档库是项目级 `docs/materials/`。  
@@ -131,9 +143,12 @@
 
 ```text
 wf-testing/rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs
+wf-testing/verify/Invoke-Gate.ps1 -Mode coverage -ProjectRoot "." -Strict
+wf-testing/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
 ```
 
 自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。自检含 YAML 语法/schema（`rules/tools/validate_workflow.py`，需 Python + PyYAML）。  
+**gate 2.2**：新格式硬检 `analysis-structure`/`plan-structure`/`case-vp`/`report-structure`；旧实例默认 `skip`，迁移后加 `-Strict` 变 FAIL。  
 可选输入：见 §1「独立实施」；有则按用户指定路径读入，无则按现有资料执行，最多一句提示，不阻塞；回写由用户点名。
 
 ## 5. 宿主适配（宿主无关）

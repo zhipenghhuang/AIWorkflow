@@ -106,7 +106,7 @@ steps:
       ②.1 归档前做引用检查：被当前计划/用例/脚本/报告引用的设计输入、测试数据、稳定冒烟清单保留原位或标“基线”，不标失效。
       ③ 输出【文档治理检查】：保留/更新/归档/清理/待确认；**确认前不改/不移/不删**。
       有候选 → `docs_migration_needed=true`，停在本门等确认；无候选 → 报「无生命周期候选」，不改文件。
-      关账按 `rules/doc-governance.md` §7：计划/报告/CR/交接落 `{workroot}/_archive/`；**功能/接口域主档常青留下**；轨内 `_archive/` 仅下线域/重生快照/旧探索轮；失效资料落 `inbound/INDEX.md 状态`。
+      关账按 `rules/doc-governance.md` §7：主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；**功能/接口域主档常青留下**；轨内 `_archive/` 仅下线域/重生快照/旧探索轮；失效资料落 `inbound/INDEX.md 状态`。
       清理只删已知临时/缓存/未引用失败产物与过期运行态（`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）；进行中 draft、现行证据（含仍被报告引用的失败实拍）、当前计划/报告、源文件、用户文件、密钥永不自动删除；不确定移 `{workroot}/_archive/_pending-cleanup/{yyyyMMdd}/` 并写清理清单。
 
   - name: activeContext

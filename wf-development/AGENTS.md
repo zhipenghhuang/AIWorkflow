@@ -2,14 +2,14 @@
 
 > **用途**：开发协作 AI 入口。新会话读 §0；命中口令 → `workflows/*.yaml` 当前 step → `rules/read-index.md` 当前行 → 当前 `agents/*.yaml`。已路由同会话中段只靠 `rules/core/rule-anchor.md` 心跳，不重读本节全文。
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；与用户指令冲突时见 §0 第 5 条（可覆盖）。
-> **template_version**：`2026.11.03.17`（单点：包内版本以本文为准；收尾版式硬条 + 合规拦粘行）。
+> **template_version**：`2026.11.03.23`（单点：包内版本以本文为准；门面事件同步 doc-facade-sync + 入口/读取链修正）。
 > **架构**：Workflow + Agent + rules/gates.md · rules/read-index.md + skills / capabilities + 验证层 + 开发计划控制面；落地文档 `review-docs` + `select_review_mode`（自行｜AI，仅完整档），代码审仍走 `review`。
 > **分层**：本包=通用开发规则；`project-profile.md`=项目事实；根 `AGENTS.md`=挂载 + 项目自写额外要求（母版不规定偏好正文）。
 
 ## 0. 开工（每任务）
 
 1. **中文**：对话与结论用中文；写现行结论。
-2. **activeContext + 项目身份 + 开发计划（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（项目档案声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 开发` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `project-profile.md` → 只读 §1 + §2 表；无或资料不足 → `rules/core/routing.md` §5 升级补强并先回写。空壳/占位/命令不可用必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读分析除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。收尾只改本包分节；多包禁改他包。L2+ 读 `{workroot}/development-plan.md` 报备阶段/门/下一步。
+2. **activeContext + 项目身份 + 开发计划（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（项目档案声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 开发` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `project-profile.md` → 只读 §1 + §2 表；无或资料不足 → `rules/core/routing.md` §5 升级补强并先回写。空壳/占位/命令不可用必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读分析除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。**门面同步**：仅当版本 bump / 迭代关闭 / 发布上线 / 对外可见事实变时按 `rules/core/doc-facade-sync.md`（禁每轮全扫 README）。收尾只改本包分节；多包禁改他包。L2+ 读 `{workroot}/development-plan.md` 报备阶段/门/下一步。
 3. **接入状态（一次判定）**：运行时有 `wf-development onboard: done` → 跳过落地检查；无标记 → 按 `agents/onboard-agent.yaml` 判定一次，具备则静默打标，不具备则走 `workflows/onboard.yaml`。`Test-Template.ps1` 只在改包/点名时跑。
 4. **独立判断**：不迎合；先查错误前提/逻辑跳跃/信息缺失；数字/结论尽量核实来源；用户有误直接指出；主动提醒忽略的变量、成本与偏差。**方案择优（硬）**：不适配/高风险/明显更差 → 依据+主推（可 1 备选）供确认，禁静默照做。用户按第 5 条二次坚持 → 以用户为准并记 `deviation=`。
 5. **冲突与覆盖**：默认按本包规则与红线。用户指令冲突时：①不执行冲突项；②说明风险与替代；③用户再次明确选择 → 以用户为准。收尾 `deviation=` 如实。无冲突：用户明确指令 > 项目根 `AGENTS.md` > 本文 > 当前 agent 契约 > project-profile.md 技术要点（若有）。**拟改与现行代码或 CI 稳定口径冲突 → 先指出再改，禁静默覆盖。** 红线默认可被用户二次明确覆盖。
@@ -59,14 +59,14 @@
 ### 0.3 硬红线（易疏忽）
 
 1. 证据先于结论；未验证不称完成。
-2. 缺陷：修前红证；禁回退补红证；无根因不修；未验证不回写；产品缺陷先评估/确认。
+2. 缺陷：修前红证；禁回退补红证；无根因不修；未验证不回写；回写按缺陷文案模板 §6.1 生成并展示全文，状态+备注同轮；产品缺陷先评估/确认。
 3. 最小改动；密钥零入库；文档只写现行；新输入按 `rules/doc-governance.md` §3 分流。
 4. 禁刷绿；git 前拟提交确认；分支/推送/PR 见 `rules/workflow.md` §2。
 5. 子代理禁 git/平台/改门；高风险核验者≠实施者。
 6. 文档不落根；发布不跳门；失败按回滚预案。
-7. 需求理解先于方案；UX/DX/AX 不净退化。
+7. 需求理解先于方案；UX/DX/AX 不净退化。**理解正确 → 一次做对**；验证/缺陷修复是兜底，不替代忠实落地。
 8. **跨层**：L2+/L3 或权限/状态/数据基数/多表面 → `skills/cross-layer-consistency`；同判定单服务端谓词；UI 可见须同权 API。
-9. **实施质量**：只认 `rules/core/implementation-quality.md`（SC 先于代码；DEV-IQ-09 预检；DEV-IQ-10 重要面硬补；自测只认方案/AC）。
+9. **实施质量**：只认 `rules/core/implementation-quality.md`（SC 先于代码；**DEV-IQ-12 执行忠实**；DEV-IQ-09 预检；DEV-IQ-10 重要面硬补；自测只认方案/AC）。
 
 ### 0.4 验证与汇报（硬约束）
 
@@ -106,13 +106,13 @@
 | ---: | --- | --- | --- |
 | 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §3（读/写 `activeContext` 本包工作总结锚点） |
 | 1 | 缺陷修复/指派给我/产品回复 | `defect-fix` | preflight；defect-fixer |
-| 2 | 新文档/变更吸收（交接包→handoff） | `intake` | scan |
+| 2 | 新文档/变更吸收（交接包→handoff） | `intake` | scan（按链至吸收报告/收尾） |
 | 3 | 按方案实施/继续迭代 | `iterate` | precheck |
 | 4 | 接入/档案/文档树/inbound/清理/生成README/更新README/整理README | `onboard` | 对应 step；README 见 `rules/core/project-readme.md` |
 | 4.3 | 技能 / 能力体检或优化 | `skill-audit` | scope→…→wrap/commit |
 | 4.4 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→wrap |
 | 5 | 提交/推送 | 当前末步或 `change` | commit |
-| 5.1 | 轻量开发 / 想法落地 | `solo` | frame；体量大则升级 change/iterate |
+| 5.1 | 轻量开发 / 想法落地 | `solo` | frame（按链至完成门；体量大则升级 change/iterate） |
 | 5.2 | 轻量方案 | `solo` | plan |
 | 5.3 | 轻量测试 / 验收 | `solo` | test |
 | 6 | 常规变更/需求澄清 | `change` | clarify（澄清单步；变更按链） |
@@ -123,7 +123,7 @@
 | 9 | 提测/发布说明/回滚预案 | `change` | deliver |
 | 10 | 发布/上线（生产） | `release` | readiness 起按链 |
 | 11 | 回滚 | `release` | rollback |
-| 12 | 复盘 | `retro` | gather |
+| 12 | 复盘 | `retro` | gather（按链至行动项/收尾） |
 | 13 | 开发计划/下一步/按计划执行 | `control` | init/sync/next/check/run |
 | 14 | 维护/查询 | 本文 + `rules/core/maintenance.md` | —；清理→行 4；技能→4.3 |
 | 15 | 写交接单/交接包/接收/变更/重规划 | `handoff` | 默认 compose；升包才 send |
@@ -131,14 +131,14 @@
 **部署歧义（硬规则）**：裸说「部署/推服务器」先判环境，不默认 S8：test/staging/UAT → S7 环境部署（版本按项目模式，只记录+冒烟，不触发 `confirm_deploy`）；prod/生产/正式 → `release`/S8；无法判断只问一次目标。提交/推送 ≠ 部署。
 **复合口令**：「提交推送部署更新服务器」= commit→push→环境更新；唯一 test 环境按 S7，多环境问一次；不得默认 S8。
 
-**入口直达**：单步口令（代码评审/提测/下一步/回滚/澄清）只执行该 step 到产出完成即停；`change`/`iterate`/`release` 按各自链路继续到下一个门或收尾；「只出任务清单」到 wrap + commit 确认即止。`workflow.chain: full`（如 onboard）例外，必须走到 verify/打标。单步入口仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
+**入口直达**：单步口令（代码评审/提测/下一步/回滚/澄清）只执行该 step 到产出完成即停；表中标「按链」的从入口执行到链末停点；`change`/`iterate`/`release` 按各自链路继续到下一个门或收尾；「只出任务清单」到 wrap + commit 确认即止。`workflow.chain: full`（如 onboard）例外，必须走到 verify/打标。单步入口仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
 **互斥**：「落地…#编号…优化方案」=缺陷；「落地迭代方案」=迭代；无 `#` 又无「迭代」→ 一问。未命中 1～5 的改代码/改配置实施类 → `change`；发布/回滚/复盘各自独立。有开发计划且续跑语义（下一步/继续开发计划/当前状态）→ 优先 `control`。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
 **首条**：`route=workflow:<id> | step=<id> | level=<L0-L3> | mode=... | reason=... | reads=<读取索引行> | next_action=…`；有输入加 `input=<diff/路径>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
 
 ## 4. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改子代理 → `rules/collaboration/subagents.md`；改读取索引 → `rules/read-index.md`；改轻量档 → `rules/core/lightweight.md` + `workflows/solo.yaml`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改子代理 → `rules/collaboration/subagents.md`；改读取索引 → `rules/read-index.md`；改轻量档 → `rules/core/lightweight.md` + `workflows/solo.yaml`。自检见 `rules/core/maintenance.md` §2。
 
 ## 5. 文档治理（摘要）
 

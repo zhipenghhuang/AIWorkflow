@@ -3,20 +3,20 @@
 workflow:
   id: defect
   name: 产品缺陷平台协作
-  version: 3
+  version: 4
   read_index: rules/read-index.md
 
 entry_points:
-  拉取产品缺陷: pull
-  我的产品缺陷: pull
-  缺陷平台产品缺陷: pull
-  禅道产品缺陷: pull
-  产品缺陷: pull
-  产品缺陷评审: pull
-  开发评估单评审: pull
-  产品缺陷处置: pull
-  产品判定: pull
-  产品判定回流: pull
+  拉取产品缺陷: preflight
+  我的产品缺陷: preflight
+  缺陷平台产品缺陷: preflight
+  禅道产品缺陷: preflight
+  产品缺陷: preflight
+  产品缺陷评审: preflight
+  开发评估单评审: preflight
+  产品缺陷处置: preflight
+  产品判定: preflight
+  产品判定回流: preflight
   平台回写: writeback
   回写产品缺陷: writeback
   粘贴产品缺陷: pull
@@ -34,13 +34,14 @@ steps:
   - name: 平台配置与可用性
     id: preflight
     agent: pm-lead
+    next: pull
     output: 平台可用性/降级说明
     notes: >
       读 `rules/defects/platform-collaboration.md` §1 与 `product-profile.md` §7；若同项目已有开发/测试包配置，
       优先复用其 provider/端点/凭据来源。
       provider=无/未填 → 问一次是否现在配置 §7；不配置则降级（用户粘贴/导出文件/评估单文档或转 change），
       禁反复索要编号、禁猜接口、禁套用未声明平台路径。
-      平台不可用/权限不足 → 输出阻塞与已尝试；恢复后回 pull；可临时粘贴/export。
+      平台不可用/权限不足 → 输出阻塞与已尝试，终止本 workflow（不执行 next: pull）；恢复后回 pull；可临时粘贴/export。
 
   - name: 拉取与读取
     id: pull

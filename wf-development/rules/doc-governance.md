@@ -121,7 +121,7 @@ docs/materials/
 | T5 范围/优先级 | 砍需求、重排期 | 计划/需求池 | 状态与范围节 | 旧通知工作区侧可归档 |
 | T6 缺陷/回流 | 产品回复、修复说明 | `inbound/`；结论 → 治理/变更/缺陷评估 | 对齐需求、设计、测试 | 旧评估可归档 |
 | T7 仅参考 | 无强制采纳 | 只登记 `inbound/INDEX.md` | 一般不改 SSOT | 不进工作区现行 |
-| T8 冲突 | 未裁决矛盾 | `inbound/` 状态=`pending` | 停下问 | 不覆盖现行 |
+| T8 冲突 | 未裁决矛盾（含产品补充与既有确认/决策冲突） | `inbound/` 状态=`pending`；先交叉核对既有确认/决策并登记 OPEN | 停下问 | 不覆盖现行 |
 | T9 交接类 | 跨角色交付/提测/签收/对方材料 | 主副本 `inbound/`；工作副本 `{workroot}/handoff/inbound/{category}/` | 打开分析 + A0～A2；台账/计划回写 | 出站快照不可改；入站非 SSOT |
 
 - 交接类别用英文 id（`requirements/plan/design/qa/report/bug/fix/clarification/release/uat/change/retro/decision/unsorted`），口令别名见 `rules/path-aliases.md`。
@@ -221,6 +221,7 @@ docs/materials/
 | 临时/过程/失败/重复清理 | 必做 | 必做 |
 | 修断链 | 必做 | 必做 |
 | 材料库：关账前用最新定稿**覆盖刷新**关闭版 `{prev}/`，INDEX 标 `superseded`；再建/更新下一版 `{next}/` 为 `current`；旧目录保留 | **必做** | **必做** |
+| 根 README / 档案对外句（门面；见 `rules/core/doc-facade-sync.md`） | **按需**（仍写已关迭代为「当前」或入口断则必做） | **必做**（轻量对应句；禁全扫重写） |
 | 根 CHANGELOG / 发布说明 / 部署 / 公告 | 跳过（除非点名发版） | 按 release 门 |
 
 > **换迭代 materials（硬）**：确认关账后，必须先按当时工作区定稿覆盖刷新即将关闭的 `{prev}/`（保证「上一期资料=关账瞬间最新」），再开 `{next}/`；禁止只改 INDEX 状态而不刷新正文。并行不关 → 本行跳过。显式「保留关闭版历史快照」→ 关闭版可先复制为 `{prev}-r2` 再覆盖，或只升 rev。

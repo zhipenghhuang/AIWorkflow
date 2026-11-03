@@ -85,6 +85,8 @@ quality_gates:
   - implement-preflight  # DEV-IQ-09；acceptance.implement_preflight；有行为却 missing 不得全覆盖通过
   - sc-trace          # 任务卡/acceptance.sc_trace；无 SC 不得开工（L0 除外）
   - selftest-vs-spec  # 断言指回 SC/AC；禁与方案相反刷绿
+  - defect-red-green  # 缺陷修复：修复前红证 + 修复后同口径绿证（原单入口/边界）
+  - writeback-ready   # 回写：§6.1 八段 + hash/版本 + 状态/指派 + 验证站冒烟
   - cross-layer       # 命中则矩阵+第二次写/角色正反；acceptance.cross_layer
   - important-surface # DEV-IQ-10；预检命中面须同批防护+负面自测
   - debt-register     # 裁剪/豁免须 DEBT/OPEN；acceptance.debts

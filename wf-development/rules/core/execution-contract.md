@@ -78,7 +78,7 @@
 | `escalate_to` | 升级对象 | 影响范围/风险时必填 |
 
 - `gate_type: machine` 才可声称「机器过门」；`checklist` 必须给检查方法/证据，不得假装自动。
-- `chain: full` 终点必须有 `output` + `verify`；否则不得标 full。
+- `chain: full` 终点必须有 `output` + 可核验终点（`verify`、`gate` 或收尾骨架 §2）；空终点不得标 full。
 - `next` 只用于有意短链（如 report→handoff），不得用来绕过门。
 - 禁止新增「只写 gate、无检查方法」的空门；新增门必须同时写 `gate_type` 与证据来源。
 - **适用范围**：关键产出/决策步（影响门、交付、外部承诺、基线、发布/回滚/回写）必须齐；纯内部转换/只读步可用 notes 说明，不强制补空 `gate`/`on_fail`。高风险的实施、发布、回滚、回写步不可省 `on_fail`。
@@ -93,8 +93,9 @@
 | 进度/阻塞 | §0/§12 + {workroot}/INDEX.md + `activeContext.md` + 工作日志（里程碑）+ handoff-ledger.md |
 | 缺陷 | 缺陷台账 + §7 + 测试报告（如启用）+ **开发计划 §0（实质进入/处于 S7 时）+ {workroot}/INDEX.md + `activeContext.md`** |
 | 交接 | handoff-ledger.md + §0/§12 + {workroot}/INDEX.md + `activeContext.md` |
-| 发布 | §0/§10 + 发布说明 + 根 `CHANGELOG.md`（仅开发；多包输入见文档治理版本记录）+ 工作日志 |
+| 发布 | §0/§10 + 发布说明 + 根 `CHANGELOG.md`（仅开发；多包输入见文档治理版本记录）+ 工作日志 + **门面同步**（`doc-facade-sync.md`） |
 | 回滚/事故 | §9/§10 + 复盘 + 发布记录 |
+| 版本 bump / 迭代关闭 / 对外可见事实变 | 最小集见上表相关行；**另**按 `rules/core/doc-facade-sync.md`（轻量对应句；禁全扫 README） |
 
 **规则**：
 
@@ -107,7 +108,8 @@
 6. **进行中=跨会话快照**：任务开始、状态变化、阻塞、收尾前必须更新本包 `### 进行中`；不能只在收尾写。收尾时状态=已完成/待确认/阻塞，未提交文件写实际，下一步口令写下一条。**总览**须保持项目一句话定位（已接入禁止长期「无」）；与档案 §1 冲突以档案为准并同轮改总览。
 7. **状态与导航（硬）**：**状态唯一权威＝开发计划 §0**（阶段变则含 §1 对应行）；`activeContext` 是热快照；`{workroot}/INDEX.md` 只写当前入口、文档清单、版本/材料包、归档、缺失——**不重复阶段/门/状态**。**齐改触发**：阶段/门/焦点/下一动作**语义变化**时同轮改计划 §0 + 索引入口 + `activeContext`；语义未变可只更新「进行中」。收尾前对账：§0 与索引入口不一致 → **先修计划再收尾**。正式门未签但实质已进入下一阶段（如测试已派单/缺陷已开工）→ §0 写「进行中（正式门待补）」，**禁止**热层领先 §0。`sync=` 须含 `triad=aligned` 或 `triad=deferred:<原因>`（用户按冲突覆盖除外）；禁只写 `activeContext` 冒充同步完成。
 8. **项目身份短读**：每新会话开工一次（见 `AGENTS.md` §0）；同会话文件未变不重读；日常优先档案 §1+§2 表，不预防性通读根 README。
-9. **资料不足升级（硬）**：身份/地图空壳、占位、与代码冲突、命令不可用、或缺支撑本任务的关键事实 → 入口判定 §5：有 README 则按实际结构择要，不够则探查仓库实情 → **同轮必回写**档案/`activeContext`（真源）→ 可选同步根 README（见 `rules/core/project-readme.md`）→ 收尾【资料补强】。死守空资料继续执行=违规；升级读取计入 `reads=`。
+9. **资料不足升级（硬）**：身份/地图空壳、占位、与代码冲突、命令不可用、或缺支撑本任务的关键事实 → 入口判定 §5：有 README 则按实际结构择要，不够则探查仓库实情 → **同轮必回写**档案/`activeContext`（真源）→ 有缺口则按 `doc-facade-sync.md` 补已核实句（无缺口=`facade=na`）→ 收尾【资料补强】。死守空资料继续执行=违规；升级读取计入 `reads=`。
+10. **门面同步（硬·事件触发）**：版本 bump、迭代关闭、发布/上线、或本轮核实的对外可见事实变化 → 只认 `rules/core/doc-facade-sync.md`；未命中不扫 README。`sync=` 须含 `facade=aligned|na|deferred:<原因>`（与 `triad=` 并列；只读可 `facade=na`）。
 
 ## 5. 时间 / Token 纪律
 
@@ -122,7 +124,7 @@
 【遵守自检】route=workflow:step | mode=execute/analyze/stop | reads=... | gates=... | sync=... | skip=... | deviation=...
 ```
 
-- `route` 必须是实际执行入口；`reads` 列实际读过的文件；`gates` 列门 id/结果；`sync` 列更新的计划/索引/台账，**且须含** `triad=aligned|deferred:<原因>`（§4 规则 7；只读可写 `triad=na`）；`skip` 列跳过步骤 + 理由；`deviation` 按实际情况如实记录取舍（无则写无）。
+- `route` 必须是实际执行入口；`reads` 列实际读过的文件；`gates` 列门 id/结果；`sync` 列更新的计划/索引/台账，**且须含** `triad=aligned|deferred:<原因>`（§4 规则 7；只读可写 `triad=na`）与 `facade=aligned|na|deferred:<原因>`（§4 规则 10）；`skip` 列跳过步骤 + 理由；`deviation` 按实际情况如实记录取舍（无则写无）。
 - 缺此项 = 未完成收尾；不得只写「已完成」。
 
 ## 7. 规则心跳（中段重锚）

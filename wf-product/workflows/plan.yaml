@@ -3,7 +3,7 @@
 workflow:
   id: plan
   name: 产品计划
-  version: 6
+  version: 7
   read_index: rules/read-index.md
 
 entry_points:
@@ -15,6 +15,8 @@ entry_points:
   下季度做什么: roadmap
   下个月做什么: roadmap
   排优先级（版本级）: roadmap
+  计划评审: review-plan
+  计划文档评审: review-plan
   按产品计划执行: next
   下一步: next
   当前状态: next
