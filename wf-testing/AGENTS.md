@@ -2,7 +2,7 @@
 
 > **用途**：测试规范 AI 入口。新会话读 §0；命中口令 → `workflows/*.yaml` 当前 step → `rules/read-index.md` 当前行 → 当前 `agents/*.yaml`。已路由同会话中段只靠 `rules/core/rule-anchor.md` 心跳，不重读本节全文。
 > **位置**：`wf-testing/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；与用户指令冲突时见 §0 第 5 条（可覆盖）。
-> **template_version**：`2026.11.03.16`（单点：包内版本以本文为准；工作总结强制围栏外 `范围：from～to`）。
+> **template_version**：`2026.11.03.17`（单点：包内版本以本文为准；收尾版式硬条 + 合规拦粘行）。
 > **架构**：Workflow + Agent + rules/gates.md · rules/read-index.md + skills / capabilities + 验证层（台账/报告/覆盖/评审/回写）；主链分析→计划→生成→**用例评审（先选自行｜AI）**→执行→报告。
 > **分层**：本包=通用测试规则；`env-baseline.md`（及同仓档案）=项目事实；根 `AGENTS.md`=挂载 + 项目自写额外要求（母版不规定偏好正文）。
 

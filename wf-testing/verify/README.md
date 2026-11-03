@@ -12,7 +12,7 @@
 | 执行批末（步后门） | `Invoke-Gate.ps1 -Mode execute -Scope "{模块}"` | **仅 Scope 内**台账/证据/P0；回执含 `scope` |
 | 出报告/准出（准出门） | `Invoke-Gate.ps1 -Mode report` | 扫各轨现行台账；**只计本轮装填**（排除「未本轮验证」）；忽略 Scope |
 | 交平台/回写 | `Invoke-Gate.ps1 -Mode writeback` | 平台回执检查（不覆盖 report） |
-| 收尾自检 | `python verify/tools/check_compliance.py --report <收尾文件>` | 【验证回执】+【遵守自检】route/mode/reads |
+| 收尾自检 | `python verify/tools/check_compliance.py --report <收尾文件>` | 【验证回执】+【遵守自检】route/mode/reads；头块禁粘行；完整收尾汇报导语 |
 
 ```powershell
 # 模块批末（例 M16）

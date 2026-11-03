@@ -40,7 +40,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 | `Invoke-Gate.ps1` | 唯一入口；调用 `tools/gate.py` |
 | `tools/gate.py` | 变更分级、验收清单解析、检查执行、`completion.json` |
 | `verify/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
-| `verify/tools/check_compliance.py` | 收尾【验证回执】+【遵守自检】字段（与产/测同源） |
+| `verify/tools/check_compliance.py` | 收尾【验证回执】+【遵守自检】字段；头块禁粘行；汇报导语（与产/测同源） |
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
 | `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 七项、L2+ 十五项 |
 | `frontend/playwright.config.template.ts` | Playwright 模板；默认 list+json，不生成 HTML/trace/video；证据落 `.gate/frontend/` |

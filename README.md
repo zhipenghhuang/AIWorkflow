@@ -7,7 +7,7 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.03.13-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.03.17-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -136,7 +136,7 @@ rsync -a --exclude .draft --exclude .state --exclude .gate --exclude __pycache__
 robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .state .gate __pycache__
 ```
 
-> 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`），由项目根 `layout.yaml` 解析。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 只写一行 `/<包目录>/`（多包 `/wf/`），不预列未装包、不加注释。
+> 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`）。工作根由项目档案 §1 的 `workroot` 声明；未声明时单包用 `docs/`、多包用 `docs/{owner}/`。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 只写一行 `/<包目录>/`（多包 `/wf/`），不预列未装包、不加注释。
 >
 > **母版 / 实例**：母版只维护通用高标准。复制后的包默认不改；发现不匹配时先输出拟改内容 / 原因 / 影响，确认后只改当前实例。项目特例优先改产出文档；通用改进回母版升版本。
 
@@ -153,7 +153,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 细则以该文件为准；该文件不存在时按普通项目继续，不编造包规。
 ```
 
-挂载样例见各包 `根AGENTS薄指针.md`；多包路由模板见 `wf-AGENTS路由模板.md`。
+挂载样例见各包 `root-agents-pointer.md`；多包路由模板见 `wf-agents-routing-template.md`。
 
 ### 4. 让 AI 接入，然后开跑
 
@@ -191,7 +191,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 测试 | `生成测试计划` / `按测试计划执行` | 计划门 → 分轨执行 → 报告 |
 | 测试 | `测试报告` / `提交缺陷` / `回归验证` | 准出 · 查重提交 · 回归 |
 | 三包 | `生成交接包` / `装配能力` / `体检能力` | 交接 / 装工具 / 就地优化技能·能力 |
-| 三包 | `导出项目文档` / `生成资料库` / `发资料` | 从 `docs/materials/` 生成可整包发送的完整项目文档集 |
+| 三包 | `导出项目文档` / `生成资料库` / `发资料` | 把 `{workroot}/` 定稿整理进 `docs/materials/{ver}/`，生成可整包发送的完整项目文档集 |
 
 更完整口令表见各包 `AGENTS.md`（产品/开发 §3，测试 §2）。口语未命中时，按各自 `rules/core/routing.md` 做意图判定。
 
@@ -245,7 +245,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 能力层 | 包内契约+参考目录；实例真源 `{工作根}/capabilities/` |
 | 验证层 | `verify/`（运行态 → 项目根 `.gate/`） |
 | 文档治理 | `rules/doc-governance.md` + `rules/templates/` |
-| 布局 | 项目根 `layout.yaml`（单/多包、workroot、materials、handoff） |
+| 工作根 | 项目档案 §1 的 `workroot`；默认单包 `docs/`、多包 `docs/{owner}/` |
 | 权威文档库 | 项目级 `docs/materials/{ver}/`（00-overview～07-appendix；README + INDEX） |
 
 执行宿主是任意支持 `AGENTS.md` 自动装载的 AI 编码工具，**不自研编排引擎**。

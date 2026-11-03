@@ -12,7 +12,7 @@
 | UAT | `Invoke-Gate.ps1 -Mode uat` | AC 覆盖/证据/遗留接受人 |
 | 变更关闭 | `Invoke-Gate.ps1 -Mode change` | 联动清单闭合 |
 | 平台回写 | `Invoke-Gate.ps1 -Mode writeback -Artifact …` | 单号 + 备注实质 + 状态取值 + 附件回查 |
-| 收尾自检 | `python verify/tools/check_compliance.py --report <收尾文件>` | 【验证回执】+【遵守自检】route/mode/reads |
+| 收尾自检 | `python verify/tools/check_compliance.py --report <收尾文件>` | 【验证回执】+【遵守自检】route/mode/reads；头块禁粘行；完整收尾汇报导语 |
 
 ```powershell
 # 推荐始终带 -Artifact，避免多版本 mtime 选错
