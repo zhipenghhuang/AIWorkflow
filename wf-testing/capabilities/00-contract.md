@@ -14,7 +14,7 @@
 | `browser-mcp` | browser-automation | 同上（别名；YAML 兼容） | 同 `browser-automation` | 同左 | 条件 |
 | `脚本执行器` | script-runner | 已脚本化回归/冒烟 | 本包 executor | 降级 AI 逐条 | 否 |
 | `子代理` | subagent | 模块档/拆分档 | 宿主子代理 | 直跑档 | 否 |
-| `defect-platform` | defect-platform | 缺陷提交/回归/回写 | list · get · comment · transition（或 export） | export | 否 |
+| `defect-platform` | defect-platform | 缺陷提交/回归/回写 | list · get · comment · transition | 确认后本批统一导出（禁逐条目录；禁与平台并行） | 否 |
 | `vision-ui` | vision-ui | 视觉/语义复核 | 截图语义判定 | 直跑+截图 | 否 |
 | `mobile-automation` | mobile-automation | 移动端点名 | 真机/模拟器自动化 | 报未启用 | 否 |
 | `api-client` | api-client | 契约导入/集合回放 | 集合或 HTTP 回放 | 主读+现网 | 否 |

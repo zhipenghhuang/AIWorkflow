@@ -5,8 +5,8 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 # 接口测试（技能 · 随包生效）
 
-> 产物/维度/脚本默认以 `rules/tracks/api.md` 为准；**文档骨架**以 `rules/templates/20-测试用例/接口测试用例模板.md` 为准；本技能=找 bug 的手感与提效方式。  
-> **禁**用功能 `测试用例模板.md` 顶替接口域文档。
+> 产物/维度/脚本默认以 `rules/tracks/api.md` 为准；**文档骨架**以 `rules/templates/20-test-cases/api-test-case-template.md` 为准；本技能=找 bug 的手感与提效方式。  
+> **禁**用功能 `test-case-template.md` 顶替接口域文档。
 
 > **生成维 vs 执行维 · 域常青**：覆盖对照禁空；depth 见 `rules/special/multi-track-quality.md`——迭代默认 `standard`（命中接口全部适用维可执行+脚本）、发版 `full`、仅补丁才 `core`（高风险维）。已有资产打开命中域增量更新（保 ID）；无域才首生；跨版本主档常青留下。
 

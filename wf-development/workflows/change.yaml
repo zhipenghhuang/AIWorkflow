@@ -68,9 +68,9 @@ steps:
     hitl_when: understanding_needs_confirm
     output: 需求理解包（{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md；§0 Brief+Delta 必填）+ 用户版业务变化说明（{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md；L1+ 用户可见变化必出，L0/无可见变化可省并记录）
     notes: >
-      技能：`skills/product-doc-analysis/SKILL.md`（先读再做）；模板 `rules/templates/10-规划与需求/需求理解包模板.md`；只读输入，不改代码/基线。
+      技能：`skills/product-doc-analysis/SKILL.md`（先读再做）；模板 `rules/templates/10-planning/requirement-understanding-template.md`；只读输入，不改代码/基线。
       输入含 PRD、迭代方案、需求文档、页面原型、截图、接口/技术文档时必走；单文档/小改用轻量 §0+迷你 Delta，L2+ 或多文档用完整包（§0 门面 + 下钻）。
-      用户版说明：与理解包同轮生成；技能 `product-doc-analysis` §4.2 + 模板 `rules/templates/10-规划与需求/用户版业务变化说明模板.md`；只写用户可见变化/业务全景/角色影响/操作变化/不变/FAQ/AI 索引；禁 S1/G6/P0/OPEN/缺陷号/任务ID/内部路径；不替代基线/AC；与正式方案/产品确认冲突时以正式结论为准并修正本文。L1+ 且存在用户可见业务变化 → 必出；L0 或纯内部无用户可见变化 → 在理解包 §0 写「无用户可见变化」，不单独出。
+      用户版说明：与理解包同轮生成；技能 `product-doc-analysis` §4.2 + 模板 `rules/templates/10-planning/user-facing-change-notes-template.md`；只写用户可见变化/业务全景/角色影响/操作变化/不变/FAQ/AI 索引；禁 S1/G6/P0/OPEN/缺陷号/任务ID/内部路径；不替代基线/AC；与正式方案/产品确认冲突时以正式结论为准并修正本文。L1+ 且存在用户可见业务变化 → 必出；L0 或纯内部无用户可见变化 → 在理解包 §0 写「无用户可见变化」，不单独出。
       **§0 必填**：【业务与变更简报】+【本期差量表】（增/改/删）+【影响摘要】；有产品迭代变更摘要/计划 §3.0/变更单 Delta → 引用对账不另造 ID；无则自建并标「待产品确认」。
       下钻：来源清单、角色/场景、F/R/AC、状态机、权限、字段、异常/NFR、原型、冲突表、GAP/假设、追溯种子、确认状态（见技能 §4）。
       读迭代方案按技能 §1.1：验收矩阵先分 `DEV-AC / QA-AC / REL-AC`（含 DEV 必留，见 verification §2.1）；只有 `DEV-AC` 进理解包/开发范围，`QA-AC/REL-AC` 转测试/UAT 交接，不写成开发任务。
@@ -90,7 +90,7 @@ steps:
     output: 需求基线（{workroot}/10-requirements/）
     notes: >
       条件步：新功能/范围变更/验收不明才走；小改用轻量需求卡（背景/目标/AC/非目标）。
-      输入：已有 `analyze_input` 需求理解包 → 直接引用，不重读全文；有用户版业务变化说明 → 作为业务上下文读取，不替代 AC/基线；无理解包但含外部 PRD/原型 → 先回 analyze_input 补；没有 PRD → 一句话说明缺口，由用户提供/选择只用已有inbound/按模板 `rules/templates/10-规划与需求/需求基线模板.md` 补一份。
+      输入：已有 `analyze_input` 需求理解包 → 直接引用，不重读全文；有用户版业务变化说明 → 作为业务上下文读取，不替代 AC/基线；无理解包但含外部 PRD/原型 → 先回 analyze_input 补；没有 PRD → 一句话说明缺口，由用户提供/选择只用已有inbound/按模板 `rules/templates/10-planning/requirement-baseline-template.md` 补一份。
       可选输入（不强制）：项目已有 PRD/需求文档（任意路径/来源）→ 引用并只补技术验收/差距/非功能；不得重写或臆造业务需求。
       技能：`skills/requirements-and-spec/SKILL.md`。
       必过：用户故事、AC（条件+动作+可观测结果，逐条可追溯到理解包/原文）、NFR（性能/安全/隐私/兼容/可观测）、明确不做、假设/依赖、签收；理解包的冲突/GAP 未裁决项必须继承，不得静默消失。基线只收 `DEV-AC`；`QA-AC/REL-AC` 不进开发 AC/任务。
@@ -108,7 +108,7 @@ steps:
     notes: >
       条件步：新功能/接口或数据变更、架构级/新子系统/破坏性/高风险或点名「出方案」才走；L0 单文件小改可跳过。
       技能：`skills/solution-design/SKILL.md`（先读再产；按变更面加载 `technology-selection` / `database-design` / `api-design` / `frontend-design` / `threat-modeling` / `performance-and-capacity` 当前节）+ `skills/engineering-quality/SKILL.md` + `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时：单一谓词+四维矩阵）+ `skills/observability-and-instrumentation/SKILL.md`（生产可诊断性）+ `skills/ai-application-engineering/SKILL.md`（AI/LLM 变更）；前端补设计时再读 `skills/frontend-design` + 前端设计说明模板。
-      模板 `rules/templates/20-设计与技术/方案模板.md`，架构决策另落 ADR。
+      模板 `rules/templates/20-design/solution-template.md`，架构决策另落 ADR。
       必答：范围/接口/数据/迁移/权限/失败与回滚/兼容/观测/测试策略/未决项；逐条响应 RP/F/R/AC/NFR；冲突/GAP 未裁决 → 不实施。
       **领域侦察分片**（L3/≥3 领域）：只读 scout；正文单写手。
       **L1 新方案**：本步 `confirm_spec` 授权；**L2+**：落盘后进入 `review-docs`（选 A/B + `confirm_spec`）；L0 无新方案可跳过。「只出方案」→ 按级别完成本步或 review-docs 后收尾。
@@ -139,8 +139,8 @@ steps:
     output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/）
     notes: >
       条件步：多文件/新功能/跨模块才走；单文件 L0 可跳过。
-      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`（SC/债项）；模板 `rules/templates/30-计划与任务/任务清单模板.md`。
-      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/**每任务 SC 表**/依赖无环/并行安全/L 已拆/检查点/四维矩阵/裁剪债项），再 confirm_backlog（清单+节奏三选）。
+      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`（SC/债项）；模板 `rules/templates/30-planning-tasks/task-list-template.md`。
+      本步只读，不改代码/配置；拆完先自检（RP 覆盖/AC/**每任务 SC；未进 SC 的方案条款=0 或债项**/依赖无环/并行安全/L 已拆/检查点/四维矩阵/裁剪债项），再 confirm_backlog（清单+节奏三选）。
       验收清单：每任务 AC 对应「检查 + 证据」；L2+ 按 `verify/templates/acceptance.yaml` 落 acceptance 文件（见 `verify/README.md`，含 sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
       新建/更新清单 → L2+ 或范围/节奏实质变化才 `backlog_approval_required=true`；L1 小批只通知；需审批时未确认不得实施。
       更新开发计划：S3 任务与排期=进行中/完成，任务清单链接、里程碑、依赖、风险；清单未完成时禁止覆盖；不同工作先问用户。
@@ -175,16 +175,16 @@ steps:
       条件步：L2+/L3、高风险/大改/破坏性变更或点名「代码评审」必走；L0 单文件、确实低风险的 L1 单点可跳过，但须在计划/验收记录理由与风险接受人；免审不免自测/证据。
       评审范围必须覆盖本轮完成门 diff；若门禁 diff 含未审波次，评审记录必须补覆盖，否则不得判 `COMPLETE`。
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
-      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
+      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账/缺口），供完成门核对；L2+ 缺评审记录或缺 SC 对账（非 na）= BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能：`skills/code-review/SKILL.md`（六轴（含 UX/DX/AX）+ 全量覆盖 + 安全/供应链，先读再审）+ `skills/engineering-quality/SKILL.md` §5（质量 rubric）+ `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）。
+      技能：`skills/code-review/SKILL.md`（六轴 + §4.0 方案一致性 + 全量覆盖 + 安全/供应链）+ `skills/engineering-quality/SKILL.md` §5 + `skills/cross-layer-consistency/SKILL.md`（命中时）。
       本机可用 code-review 时按其评审全量 diff；不可用按 `agents/reviewer-agent.yaml` 人工清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `skills/frontend-design/SKILL.md` §9 评分卡人工核。
       **评审分片**（子代理编排 §2）：>400 行有效 diff 或 L3 → 按维度只读扇出（正确性/安全/性能/测试覆盖），编排去重；最终结论由本步 reviewer 定；小 diff 直做。
       只报正确性/需求覆盖/安全/性能/范围缺口；需修回 implement，同回合重验≤1；核验不替代门禁。
-      **需求覆盖核对**：验收清单 AC → diff/测试，逐条判「已覆盖/未覆盖/不适用+依据」；缺覆盖列缺口，不以代码风格替代需求核对。
-      **证据核对**：只看本轮 diff/docs/testing/截图证据；完成门由下一步 verify 统一运行；评审不声称完成。前端变更核对状态/视口/console/network/截图。
+      **需求覆盖核对**：验收清单 AC + 任务卡 SC → diff/测试，逐条「已覆盖/未覆盖/不适用+依据」；L2+/L3 按技能 §4.0 抽核 2～3 条关键原文（有理解包则带路径，不整篇重读）；缺覆盖列缺口。
+      **证据核对**：只看本轮 diff/测试/截图证据；完成门由下一步 verify 统一运行；评审不声称完成。前端变更核对状态/视口/console/network/截图。
 
   - name: 自验与完成门
     id: verify
@@ -215,7 +215,7 @@ steps:
       条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
       **意图择优**：口令已点名「提测单/发布说明」或流水线自然到达且产物唯一 → 一行回执后直写；产物/接收方有歧义 → `confirm_intent` 停等后再写。
       **跳过本步 ≠ 跳过自验**：无提测单时，verify 的开发自验报告/AC 走查仍须齐（`lightweight.md` §4.1）；收尾写【开发自验】。
-      技能：`skills/qa-handoff-and-release/SKILL.md`；模板 `rules/templates/40-交付与发布/提测单模板.md`、发布说明模板；质量硬门 `rules/core/implementation-quality.md` §6～§7。
+      技能：`skills/qa-handoff-and-release/SKILL.md`；模板 `rules/templates/40-delivery/qa-handoff-template.md`、发布说明模板；质量硬门 `rules/core/implementation-quality.md` §6～§7。
       **最优默认：一份完整自洽提测单**（市面 Ready-for-QA 内容层）；项目/迭代背景、环境/账号/数据、业务规则、AC/场景、已知问题、**裁剪债项、沿用基线再验摘要**写进正文；禁「见{workroot}/…」。
       **测试对象是部署环境**：提测单只写实际部署版本；不写文档版本/commit/tag/`.deploy-rev`，不要求测试读本地文件、进服务器目录或执行开发命令；内部测试演示账号可写明文并标注「仅测试」。
       **落盘**：真源 `{workroot}/60-release/`；同轮实拷提测单→`handoff/outbound/提测/`、发布说明→`handoff/outbound/发布/`（协作 §4.0）。
@@ -244,7 +244,7 @@ steps:
       更新 activeContext（焦点/最近变化/下一步/仍生效决策）、 `{workroot}/INDEX.md`、任务清单状态；
       更新开发计划：§0 当前阶段/健康度/下一动作、§1 阶段状态/产出/证据/下一步 3 件事、§12 执行日志（L2+）。
       现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。
-      有代码改动读本轮 `.gate/wf-development/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2（含验证回执与遵守自检）
+      有代码改动读本轮 `.gate/wf-development/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `rules/templates/90-handoff/closeout-skeleton.md` §2（含验证回执与遵守自检）
       有门回执时运行 `verify/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
       若发布已转 release，收尾注明发布状态与后续入口。
       未提交默认不得开始下一任务（例外=基线检查选项 C/D 且用户确认）。

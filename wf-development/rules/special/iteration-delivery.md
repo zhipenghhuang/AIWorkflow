@@ -2,7 +2,7 @@
 
 > **真值分层**：步骤/门 = `workflows/iterate.yaml`；读什么 = `rules/playbooks/iterate.md`；本文 = 口令/DoR/DoD/输出骨架（**不另写第二套步骤表**）。角色见 `agents/iterate-lead.yaml`。  
 > 确认门只认步上 `hitl`（标量用 `hitl_when`）。  
-> 拆单方法：`skills/task-breakdown/SKILL.md`；模板：`rules/templates/30-计划与任务/任务清单模板.md`；发布/验收：`skills/acceptance-and-launch/SKILL.md`；复盘：`skills/retrospective-and-improvement/SKILL.md`。
+> 拆单方法：`skills/task-breakdown/SKILL.md`；模板：`rules/templates/30-planning-tasks/task-list-template.md`；发布/验收：`skills/acceptance-and-launch/SKILL.md`；复盘：`skills/retrospective-and-improvement/SKILL.md`。
 
 ## 1. 口令
 
@@ -42,7 +42,7 @@
 
 ## 4. 任务清单
 
-位置：`{workroot}/40-tasks/任务清单-{ver}.md`；模板 `rules/templates/30-计划与任务/任务清单模板.md`。  
+位置：`{workroot}/40-tasks/任务清单-{ver}.md`；模板 `rules/templates/30-planning-tasks/task-list-template.md`。  
 字段：ID/阶段/任务/要求点（RP）/优先级/风险/依赖/并行/负责人/预估/状态；任务卡含 AC、精确文件/接口、三维影响、测试先行、验证命令、回滚/开关、DoD、状态记录。  
 规则：
 
@@ -80,10 +80,10 @@
 ```
 
 提交信息与粒度见 `rules/workflow.md` §2；文档落位/归档见 rules/workflow.md §5。  
-本节的【迭代交付总结】置入【任务收尾】「完成了什么」短段，并单列「影响：」；「汇报：」须用 `rules/templates/90-交接与收尾/收尾骨架.md` §1 **结论说明体**（导语加粗、正文一段）。若需对外粘贴【迭代交付汇报】清单，可附于第 1 点但不得替代「汇报」段、不得在汇报下另起工程子 bullet；第 2～6 点按收尾骨架 §2。
+本节的【迭代交付总结】置入【任务收尾】「完成了什么」短段，并单列「影响：」；「汇报：」须用 `rules/templates/90-handoff/closeout-skeleton.md` §1 **结论说明体**（导语加粗、正文一段）。若需对外粘贴【迭代交付汇报】清单，可附于第 1 点但不得替代「汇报」段、不得在汇报下另起工程子 bullet；第 2～6 点按收尾骨架 §2。
 
 ## 6. 复盘与改进
 
-- 迭代完成、发布回滚、事故、重复缺陷 → `retro` 工作流（`skills/retrospective-and-improvement/SKILL.md`；模板 `复盘模板.md`）。  
+- 迭代完成、发布回滚、事故、重复缺陷 → `retro` 工作流（`skills/retrospective-and-improvement/SKILL.md`；模板 `retro-template.md`）。  
 - 轻量复盘至少：做得好/待改进/行动项（负责人+截止+验收）。  
 - 行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`；下次复盘先对账。

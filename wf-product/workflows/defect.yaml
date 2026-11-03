@@ -85,7 +85,7 @@ steps:
       体验类不挡主路径 → 转 change，不硬开产品缺陷。
       测试直提结论五选一：产品缺陷/实现defects/非问题/重复/信息不足。
       批量时以侦察回执为输入；**五选一/处置建议/相符证明集中**，不采信子代理终态。
-      给出处置建议：立即修/下版/不修/退回docs/development/补充信息。
+      给出处置建议：立即修/下版/不修/退回开发/补充信息。
 
   - name: 处置确认
     id: decide
@@ -114,7 +114,7 @@ steps:
       按 `workflows/change.yaml` 的 apply 规则更新 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查；
       已有受理单（pull 建档）就地更新，不重复建档；同一缺陷多轮处理只留一份现行受理单。
       产品缺陷确认 → 产出 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md`
-      （模板 `rules/templates/30-评审与变更/产品缺陷处置模板.md`），写清判定、依据、新口径、对开发要求、验收标准、指派对象。
+      （模板 `rules/templates/30-review-change/product-defect-disposition-template.md`），写清判定、依据、新口径、对开发要求、验收标准、指派对象。
       实现defects/非问题/重复/信息不足也产出缺陷处置单（说明+下一步+指派），不要求 PRD 变更。
       实质变更 → 走 review 步（产品视角：是否解决原问题/AC 影响/范围/风险；不评价技术实现细节）。
       生成回写附件：缺陷处置单/受理单/变更单/评审意见/PRD 变更摘要（按需）；不修改代码或技术方案。
@@ -155,7 +155,7 @@ steps:
     hitl: confirm_remark
     output: 平台回写结果（备注/附件/状态/指派）
     notes: >
-      按 `rules/templates/30-评审与变更/缺陷文案模板.md` §5/§6：回写前出示 id、来源、结论、备注全文、附件名、
+      按 `rules/templates/30-review-change/defect-writeup-template.md` §5/§6：回写前出示 id、来源、结论、备注全文、附件名、
       状态/指派变更、目标版本；确认后执行。
       运行 `verify/Invoke-Gate.ps1 -Mode writeback`；无回执/备注状态不同轮/附件未回查 → 不得声称已回写。
       未配置平台/无权限 → 先回 preflight；无既有分析/结论 → 回 pull/analyze，不凭空回写；
@@ -165,7 +165,7 @@ steps:
       禁密钥/绝对路径/用例路径。
       附件上传后回查挂载；失败重试≤1，禁删缺陷。平台不支持/无权限 → 出 export 包，标「待回写」。
       指派：产品缺陷/实现缺陷→开发；非问题/重复/信息不足按来源→测试或开发；
-      补充信息/信息不足→提交人/docs/testing/开发（按来源）。目标版本/截止写清。
+      补充信息/信息不足→提交人/测试/开发（按来源）。目标版本/截止写清。
       回写后更新受理单 §6/§7。
 
   - name: 验证与关闭
@@ -179,7 +179,7 @@ steps:
       **单一出处**：通用联动/关闭规则以 `workflows/change.yaml` verify 为准；本步只保留缺陷平台差异。
       运行 `verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）；受理单联动清单未闭合、验证结果缺失 → 不得关闭。
       未 READY → **保持受理单打开，不得进入 wrap/commit 冒充完成**；先补联动/证据或报阻塞。
-      按 `rules/defects/platform-collaboration.md` §4 + `rules/templates/30-评审与变更/缺陷文案模板.md` §6：
+      按 `rules/defects/platform-collaboration.md` §4 + `rules/templates/30-review-change/defect-writeup-template.md` §6：
       产品缺陷 → 受影响 AC/UAT 重验；开发完成新文档实施后验证；未验证不关单。
       实现缺陷 → 产品侧回执后由开发/测试流程跟踪；产品侧不写「已修复」。
       非问题/重复/信息不足 → 产品给依据；测试接受后关闭或转需求；未接受转产品复核。
@@ -191,7 +191,7 @@ steps:
     agent: pm-lead
     output: 【任务收尾】（产品缺陷协作总结置第 1 点）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点含【产品缺陷协作总结】与本轮真实单号
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点含【产品缺陷协作总结】与本轮真实单号
       更新产品计划 §0/§7/§10、activeContext、 `inbound/INDEX.md`；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未verify/待回写项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

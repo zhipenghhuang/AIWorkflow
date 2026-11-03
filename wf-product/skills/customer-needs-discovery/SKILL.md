@@ -46,7 +46,7 @@ description: Use when collecting, clarifying, or validating customer needs, feed
 - 可反问：**“如果不用向任何人交代，你真正想要的是什么？”**
 - **承诺信号**：愿不愿试点、预付、介绍同事、占用日历；“听起来不错”不算承诺。
 - 访谈对象不足/无法访谈 → 用现有工单/数据/行为证据，标缺口，不编访谈；对**产品决策用户**仍须按 `rules/core/clarification.md` 多轮问清并确认。
-- 需要正式访谈时：用模板 `rules/templates/10-规划与需求/访谈指南模板.md`；综合用 `rules/templates/10-规划与需求/洞察综合模板.md`。
+- 需要正式访谈时：用模板 `rules/templates/10-planning/interview-guide-template.md`；综合用 `rules/templates/10-planning/insight-synthesis-template.md`。
 
 ## 4. 问题定义（先问题，后方案）
 
@@ -82,7 +82,7 @@ description: Use when collecting, clarifying, or validating customer needs, feed
 
 | 假设 | 依据 | 影响 | 验证方式 | 责任人 | 截止 |
 | --- | --- | --- | --- | --- | --- |
-| `{…}` | `{访谈/数据/竞品/经验}` | `{范围/优先级/方案}` | `{访谈/原型docs/testing/数据验证}` | `{…}` | `{…}` |
+| `{…}` | `{访谈/数据/竞品/经验}` | `{范围/优先级/方案}` | `{访谈/原型测试/数据验证}` | `{…}` | `{…}` |
 
 - 假设不得写成事实；不得直接进 PRD 的“已确认”节。
 - 高风险假设（付费意愿、合规、采用阻力）优先向用户确认或设计验证；未验证不进版本承诺。
@@ -99,7 +99,7 @@ description: Use when collecting, clarifying, or validating customer needs, feed
 
 - **需求洞察卡**（单条/小批）：问题陈述、角色、证据、现有替代、代价、期望结果、方案要点、假设、优先级初判、确认状态、建议下一步。
 - **客户需求简报**（版本级/0→1）：角色地图、问题清单、证据表、假设表、机会排序、非目标、方案要点、待验证项、双确认状态。
-- **访谈指南 / 洞察综合**：见 `rules/templates/10-规划与需求/`。
+- **访谈指南 / 洞察综合**：见 `rules/templates/10-planning/`。
 - 落点：`{workroot}/requirement-pool.md`、`{workroot}/{ver}/10-requirements/洞察-*.md`、`访谈指南-*.md`、`洞察综合-*.md`、受理单 §2.1。
 - 输出给下游：需求池条目 `R-xx` + 证据 + 假设 + 方案要点摘要 + 确认状态；不直接当已定稿 PRD。
 

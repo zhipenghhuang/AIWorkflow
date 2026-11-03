@@ -16,7 +16,7 @@ description: Use when implementing or verifying a change. Enforce implement pref
 - 读对应设计：02（+02B/02C/02D/02E/02F 如涉及）；命中权限/状态/数据基数/多表面时加读 `skills/cross-layer-consistency/SKILL.md`。
 - **实施质量门**：`rules/core/implementation-quality.md` DEV-IQ-01～04、**09～10**（SC 先于代码；预检先于代码；重要面硬补；冲突 OPEN）。
 - **先抽方案条款**：把方案/PRD/技术设计中的「必须/应/允许/不得/可/仅/同一/不因/Then/状态/权限/重复/补传/并发/边界/异常」逐条抽成 `SC-xx`，写入任务卡（覆盖矩阵 §4.1 追溯 + 任务卡 SC 表）；没有条款清单不开工。固定覆盖见实施质量门 §4。
-- 明确“怎么证明它对”：失败docs/testing/探针/验收命令；**预期只认 SC/AC**，不认现网实现；无测点写理由。
+- 明确“怎么证明它对”：失败测试/探针/验收命令；**预期只认 SC/AC**，不认现网实现；无测点写理由。
 - 先找同仓库既有正确写法（另一写入口/另一消费方/既有回归用例）；不复用就说明差异。
 - 文档冲突或「表 vs 注」打架 → 停，登记 OPEN，不静默选边（DEV-IQ-04）。
 

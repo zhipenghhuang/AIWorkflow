@@ -24,7 +24,7 @@
 **内置 zentao**（仅 provider=zentao 且适配写「内置」）：
 
 API 直连；Token：`POST /api.php/v1/tokens`。列表/详情/解决/指派：v1。附件：v2 `/files` 字段 **`file`**；**非 ASCII 文件名须按 UTF-8 原字节写入 multipart `filename`**（防 .NET 自动转 MIME 编码致乱码）；**回查用 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`**（实测：v1 缺陷详情 `files` 字段可为空数组，**不得**据此判未挂载）。禁删 Bug。  
-解决码/状态/指派映射见 `rules/templates/40-交付与发布/缺陷文案模板.md` §6.9；未适配先补档案，禁猜。
+解决码/状态/指派映射见 `rules/templates/40-delivery/defect-writeup-template.md` §6.9；未适配先补档案，禁猜。
 
 ## 其它 provider
 

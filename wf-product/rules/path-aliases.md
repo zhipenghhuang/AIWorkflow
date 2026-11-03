@@ -53,5 +53,4 @@
 | `产品/05-展示与材料/` | `{workroot}/{ver}/50-showcase/` |
 | `产品/06-复盘/` | `{workroot}/{ver}/90-retrospectives/` |
 | `docs/`（旧原始资料根） | 先判定：原件 → `inbound/`；旧工作根 → `{workroot}/`；混合 → 停问 |
-| `产品规范/` 旧包名 | `wf-product/`（多包 `wf/wf-product/`） |
 | `产品档案.md` | `product-profile.md` |

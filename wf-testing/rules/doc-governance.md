@@ -4,7 +4,7 @@
 > 铁律：**先分析分类 → 输出候选 → 用户确认 → 才改名/移动/标记失效/归档/删除**；确认前只读。
 > **三层**：`inbound/` 原件（可乱）｜`{workroot}/` 工作区（过程/草稿/待确认）｜`docs/materials/` 权威文档库（定稿/完整/可发送）。
 > **单包优先**：仅本包即可闭环；缺产品/测试包 → 一句缺口，不阻塞、不强制安装、不自动跑他包。
-> **布局真值**：`layout.yaml`；本包工作根 `{workroot}` 由 `layout.packages.wf-testing.workroot` 解析（单包 `docs/`，多包 `docs/testing/`）。
+> **工作根**：见 §2.4；非标准工作根必须在环境基线声明，不另建根文件。
 > **材料库**：项目级 `docs/materials/`，不按包拆；只放定稿、正确、完整、可独立阅读的文档；可直接整包发送。
 
 ## 1. 三层
@@ -30,7 +30,7 @@ inbound/
 └── {ver|topic|batch}/       # 按版本/主题/批次
 ```
 
-- 认根：`layout.yaml` 的 `inbound_root`；无 layout → 一问，不猜。
+- 认根：项目根 `inbound/`；用户另行指定时按指定；不定 → 一问，不猜。
 - 新外部输入先落 `inbound/`，再分析；不得直接放 `docs/materials/`。
 - `INDEX.md` 复用 `inbound/INDEX.md`字段：`ID | 文件 | 类型 | 主题/版本 | 来源 | 关联 | 状态 | 覆盖/替代 | 登记时间`。
 - 状态：`current / reference / pending / superseded`；失效只改状态，不建 `_archive/`。
@@ -88,11 +88,12 @@ docs/materials/
 - 测试材料库写入域：`05-testing`。
 
 - **编号约定**：测试轨（`functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/`）为并列轨道，不编号、不表示执行先后；执行顺序只认测试计划 §0/§9.2。
+- **工作根**：读环境基线「项目身份」的 `workroot`；未声明按约定：单包 `docs/`，多包 `docs/{owner}/`；非标准必须在基线声明，不另建根文件。
 - 工作区可含过程稿、草稿、待确认、证据；正式文档只写现行有效。
 - 单包为 `docs/` 平铺；多包为 `docs/testing/`。
 - **工作区索引**：`{workroot}/INDEX.md`（单包即 `docs/INDEX.md`）；只做导航：当前入口、文档清单、版本/材料包、归档、缺失；**不写阶段/门/状态**（状态权威＝计划 §0）。
 - **项目总览**：多包或保留原目录时用 `docs/INDEX.md`；链到各工作区索引、`docs/materials/INDEX.md`、`inbound/INDEX.md` 与既有目录；不写状态、不替代工作区索引；多包各包只改本包一行。
-- **共享/控制路径**：`docs/materials/`、`docs/handoff/`（单包）、`inbound/`、`layout.yaml`。
+- **共享/控制路径**：`docs/materials/`、`docs/handoff/`（单包）、`inbound/`。
 - 无内容不建空目录；模板是骨架，不是强制空树。
 
 ### 2.5 接入级别（I0～I3）
@@ -155,7 +156,7 @@ docs/materials/
 | `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档 |
 | `{workroot}/changes/` | 绑定 | CR 关闭归档 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
-| `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；实拷刷新；关版本同批归档；台账常青 |
+| `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；报告/计划等按需实拷；**缺陷有平台时禁止**为交单实拷详单（见 `handoff.md` §3.1.1）；关版本同批归档；台账常青 |
 | `{workroot}/handoff/inbound/{category}/` | 收件工作副本 | 须分析吸收；非永久主副本；关版本可归档 |
 | `{workroot}/**/.draft/` | 临时 | 清理候选 |
 | `docs/materials/` | 权威文档库 | 按版本发布；不设 `_archive`；旧版本保留 |
@@ -257,7 +258,7 @@ docs/materials/
 
 | 时点 | 动作 |
 | --- | --- |
-| 接入/重新接入 | 读 `layout.yaml`；确保 `{workroot}/` + 索引（单包 `docs/INDEX.md`；多包 `{workroot}/INDEX.md` + 总览）+ `inbound/` + `docs/materials/`；全索引；按需复制/吸收 |
+| 接入/重新接入 | 按 §2.4 定位工作根（基线声明优先，否则按约定）；确保 `{workroot}/` + 索引（单包 `docs/INDEX.md`；多包 `{workroot}/INDEX.md` + 总览）+ `inbound/` + `docs/materials/`；全索引；按需复制/吸收 |
 | 新文档/变更/未决/专项 | §3～§4；确认后同步+归档同批；定稿发布 materials（默认覆盖最新） |
 | 换代/换主题/版本升级 | §7 关账；**必做**覆盖刷新关闭版 materials→`superseded`，再建下一版 `current` |
 | 版本关闭/正式发布 | §7 全表；默认覆盖发布 materials |

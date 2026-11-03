@@ -7,7 +7,7 @@ description: Use when planning or executing tests that depend on environments, a
 
 > 用于：analyze / plan / generate / execute 中涉及环境、账号、数据、依赖的准备与核验。  
 > 定位：**数据与环境是测试的一部分，不是开跑前的杂事**；不可复现的数据会让结论不可信。  
-> 边界：环境搭建/运维归docs/development/Ops；本技能定义测试侧准备、隔离、清理与证据。  
+> 边界：环境搭建/运维归开发/Ops；本技能定义测试侧准备、隔离、清理与证据。  
 > 不适用：纯静态检查/无需环境数据的评审；仍要记录依据与版本。
 
 ## 1. 环境基线（先核验再开跑）

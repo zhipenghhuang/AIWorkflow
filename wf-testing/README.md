@@ -8,14 +8,14 @@
 **AI Workflow 包（测试轨）**：主链见 `workflows/testing.yaml`——需求/测试依据分析（需求模型/oracle/追溯）→ **测试计划（唯一编排载体）** → 生成 → **用例评审（独立量规/机器门）** → 按计划执行 → 报告（口令可切入任一步）；内置专业技能（`skills/`：随包生效、按步自动加载，含 `testcase-review`）+ 可选能力层（`capabilities/` 注册表：本机可用即自动使用、不可用降级）。版本级单点：`{workroot}/test-plan.md`（范围/类型/轨道/编排/回归/defects/探索式/准入准出）、`{workroot}/test-report.md`（计划对照/准出评估/遗留风险）。  
 **依据建模**：PRD/迭代方案/原型/接口/代码 diff 先按 `skills/test-basis-analysis/SKILL.md` 建需求模型，落跨轨共用 **`{workroot}/test-analysis.md`（§0 Brief+本期差量表置顶）**/冲突/九类歧义/oracle/TP 追溯；同轮生成**用户版业务变化说明**（`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；T1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。有产品/开发 Delta 则引用对账。功能/专项双读全表；接口/发布前/探索式至少读 §0。确认门主屏出示 §0 后才写计划/用例；预期无来源不写断言。  
 正式并列轨：功能全量/专项、探索式、接口、发布前、缺陷；**计划驱动模式**按测试计划把各轨串成一条执行链（功能→接口→探索式→非功能→回归→缺陷闭环→报告）。  
-**接口域**：独立模板 `rules/templates/20-测试用例/接口测试用例模板.md`（契约+对照+用例+脚本清单）+ `validate_api_testcase.py`；禁套功能用例模板。探索式模板含步骤四列与章程映射；随机模板为旅程会话+去重窗+发现分流（均比功能轻、须可判定）。  
+**接口域**：独立模板 `rules/templates/20-test-cases/api-test-case-template.md`（契约+对照+用例+脚本清单）+ `validate_api_testcase.py`；禁套功能用例模板。探索式模板含步骤四列与章程映射；随机模板为旅程会话+去重窗+发现分流（均比功能轻、须可判定）。  
 口令映射 workflow；条件 `hitl`/`hitl_when`、覆盖三闸、冒烟前置与阻断面、证据红线默认按规则（用户二次明确选择覆盖除外，见 `AGENTS.md` §0 第 5 条）；执行形态按 `multi-agent-output.md` §1.5 决策树取档并声明 `mode=`（脚本→续跑单模块直跑→同轮≥2 模块子代理→单模块大/高风险拆分）；只读/draft/隔离套可并行≤3；超时降级直做。  
 首次无 `wf-testing onboard: done`（兼容旧 `landing=ok`）时自动按接入清单核验并打标一次；之后直跑。  
 **独立实施**：本包可单独落地，不要求开发/产品包同时安装或默认联动；跨包输入是可选的——有则按用户指定路径读入，无则按现有主读/基线执行，最多一句提示，不阻塞、不反复追问。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；不需要额外协作目录或合同文件，本包仍独立执行。  
 **成本策略**：**域常青分层库** + **变更装填**（suite=`core|module|full`）+ **多轨质量标准**（`rules/special/multi-track-quality.md`：接口 depth 迭代默认 `standard`、发版 `full`；发布前硬映射；探索章程闭环）。禁日常通读全库。功能 P0 / 接口适用维脚本化；发布前工具测量。**完整覆盖**=映射齐；**完整执行**=按 suite/depth 装填，非每迭代全库重跑。禁无分析全仓重生；禁「继续」隐式 generate。  
 **新版本入口**：计划 §3.7 逐模块/流程标「P0 冒烟/P0 待脚本/迭代功能/接口确定性/一次性/淘汰」；P0 冒烟脚本登记 `{workroot}/smoke-checklist.md`，再按矩阵执行。  
 **额外发现**：AI 执行中同时记录用例之外的 UI/布局/显示/文案/冗余标签/console/network/UX 异常，进报告 §5.4；不静默忽略。  
-**体验纪律**：验收 UI 减法（冗余文案/标签、删后仍可理解）与 UX/DX/AX 三维；测试资产同样不得净退化；详见 `AGENTS.md` §0.2-11、`rules/templates/20-测试用例/无障碍与UX检查清单.md` §2.1。  
+**体验纪律**：验收 UI 减法（冗余文案/标签、删后仍可理解）与 UX/DX/AX 三维；测试资产同样不得净退化；详见 `AGENTS.md` §0.2-11、`rules/templates/20-test-cases/a11y-ux-checklist.md` §2.1。  
 **执行引擎**：UI 稳定主链路/E2E 与 API/契约默认 Playwright 脚本；AI 用于设计、探查、失败复核、探索式与报告；性能/安全/兼容/迁移用专项工具，AI 只解读与判定。  
 方法参考：ISO/IEC/IEEE 29119-3 测试计划要素、ISTQB 风险驱动/测试金字塔、SBTM 探索式测试；需求分析与澄清参考 fishzjp/qa-skills `requirement-analysis`/`clarify-pattern`、GitHub Spec Kit `clarify`/`analyze`、addyosmani/agent-skills `interview-me`；可选 `qa-skills`/`exploratory-skill` 见 `capabilities/00-contract.md`（未安装按内置技能执行）。  
 
@@ -38,7 +38,7 @@
 | `rules/special/` | `multi-track-quality.md`、`multi-agent-output.md`、`script-execution.md` |
 | `rules/tracks/` | `api.md`、`exploratory.md`、`random-flows.md`、`pre-release.md`（按口令点读） |
 | `rules/playbooks/` | 重阶段步骤卡：生成/执行/缺陷 |
-| `rules/templates/` | 按生命周期分 6 组：`00-接入与基线` / `10-计划` / `20-测试用例` / `30-执行与台账` / `40-报告与评审` / `90-交接与收尾`；先看 `rules/templates/index.md` |
+| `rules/templates/` | 按生命周期分 6 组：`00-onboarding` / `10-planning` / `20-test-cases` / `30-execution` / `40-report-review` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检（`Invoke-TestWorkflow -Action ValidateTemplateRefs`）+ 脚本档工具（`playwright/`、`merge-ledger.mjs`）+ 交接包校验 `validate_handoff.py` + 功能用例校验 `validate_testcase.py` + 接口用例校验 `validate_api_testcase.py` |
 | `verify/` | 报告门 `verify/Invoke-Gate.ps1`、检查矩阵、台账/报告/覆盖校验脚本；独立可复制 |
 
@@ -46,7 +46,7 @@
 > **统一落盘（C）**：`{NN}-{短名}/` 内 `*-功能用例/功能台账` 或 `*-接口用例/接口台账`；探索/随机戳夹自描述；发布前=`{专项}-测试方案/test-report.md`；证据轨级；共享执行器=`{workroot}/scripts/`。SSOT=`rules/workflow.md` §1.3.0。  
 > **新鲜度**：准出只认本轮装填；非装填标 `未本轮验证`；报告声明 runId/suite/本轮实测。  
 > **归档**：计划/报告/CR/交接 → `{workroot}/_archive/`；域主档常青留下；细则 `rules/doc-governance.md` §7。  
-> **交接**：内容优先、包按需；出站实拷 `handoff/outbound/{category}/`，入站 `handoff/inbound/{类别}/`。分析表跨轨：`{workroot}/test-analysis.md`。状态唯一入口：计划 §0。
+> **交接**：内容优先、包按需；出站按需实拷（缺陷有平台→零导出）；入站 `handoff/inbound/{类别}/`。分析表跨轨：`{workroot}/test-analysis.md`。状态唯一入口：计划 §0。
 
 ### 2.1 实例目录分类（禁止根目录堆测试产物）
 
@@ -87,11 +87,11 @@
 
 ## 3. 上手（快速开始）
 
-1. 复制 `wf-testing/`（排除 `.draft/`、`.state/`、`.gate/`、`__pycache__/`）；包默认不进入项目 git，不跟踪时 `.gitignore` 只写一行 `/wf-testing/`（多包 `/wf/`），不预列未装包、不加注释；在项目根 `AGENTS.md` 补入引导语句（样例见 `rules/templates/00-接入与基线/根AGENTS薄指针.md`）
+1. 复制 `wf-testing/`（排除 `.draft/`、`.state/`、`.gate/`、`__pycache__/`）；包默认不进入项目 git，不跟踪时 `.gitignore` 只写一行 `/wf-testing/`（多包 `/wf/`），不预列未装包、不加注释；在项目根 `AGENTS.md` 补入引导语句（样例见 `rules/templates/00-onboarding/root-agents-pointer.md`）
 2. 设计文档放入设计输入目录（默认 `inbound/{ver|topic}/` 或 `_common/`；新文件先按 `rules/doc-governance.md` 收取/对照）  
 3. 主流程：「生成测试计划」→ 计划门确认 →「生成测试资产」→「用例评审」放行 →「按测试计划执行」→ 报告/准出；日常用「当前状态 / 下一步」只读计划 §0；也可用「生成测试资产」/「执行××专题」单轨切入  
 3.1 **不用口令**：任意自然语言描述要测什么/怎么测/跑测/准出即可；AI 按 `rules/core/routing.md` 抽五元组→意图类→计划状态修正，不抠固定措辞；首条 `route`/`reason`。有计划优先按 §0 续跑；未建模不得直接写用例；判断错可一句纠正。  
-4. 缺陷按计划 §11 提交；有平台→交平台为主不发 BUG 包；无平台/点名缺陷交接→**先问后发**详单包（§3.1.1）。
+4. 缺陷按计划 §11 提交；有平台→**完整交平台即完成、零导出**；无平台/`export`/点名→**先问后发、本批统一一份**（禁逐条文件夹；§3.1.1）。
 5. 交接：**内容优先、包按需、先问后发**。默认交报告/计划/平台缺陷；说「生成交接包…」或命中多文件/签收/仓外时才问并发包。接收类口令走 `receive`。
 
 ```text
@@ -141,7 +141,7 @@ wf-testing/rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs
 本包不写死任何宿主（Cursor / opencode / Claude Code 等均可）；换宿主改实例侧（`{workroot}/capabilities/` + 基线索引），包零改动。
 
 - **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；浏览器自动化按需（功能/探索式轨必需）、子代理（分片/核验，按 `rules/special/multi-agent-output.md` §1.5 阈值取档）。  
-- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-接入与基线/根AGENTS薄指针.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。
+- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-onboarding/root-agents-pointer.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。
 - **MCP/Skill 配置落点**：只写宿主本地/用户级配置（如 Cursor：`%USERPROFILE%\.cursor\mcp.json`）；实例选型与绑定写 `{workroot}/capabilities/`（基线 §8/§17 仅索引）；禁项目内 mcp 作规范入口。
 - **能力（可选）**：槽位见包内 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`（kind=`mcp`｜`skill-cli`｜`builtin`）。清单 available 即用，否则按契约降级；**缺失触达须独立【能力缺失】块**（每次触达直至「接受降级」或装成；`prompted` 仅审计不抑制）。点名「装配能力」/「接受降级」后写实例。纪律：`rules/capabilities/instance-discipline.md`。  
 - **体检能力**：口令「体检能力」等 → `skill-audit`：能力改 `{workroot}/capabilities/`，技能可改本包 `skills/`。

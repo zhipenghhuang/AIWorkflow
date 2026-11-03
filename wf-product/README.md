@@ -30,12 +30,12 @@
 | `rules/defects/` | `platform-collaboration.md`、`platform-adapter.md` |
 | `rules/special/` | `quality-gate.md`（审计参考，不是额外确认门） |
 | `rules/playbooks/` | 重阶段步骤卡：变更/defects/原型/发布/skill-audit |
-| `rules/templates/` | 按生命周期分 8 组：`00-接入与治理` / `10-规划与需求` / `20-原型与设计` / `30-评审与变更` / `40-交付与验收` / `50-展示与文档` / `60-复盘与改进` / `90-交接与收尾`；先看 `rules/templates/index.md` |
+| `rules/templates/` | 按生命周期分 8 组：`00-onboarding` / `10-planning` / `20-design` / `30-review-change` / `40-delivery` / `50-showcase-docs` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`（YAML 语法/schema + 引用/锚点/流程引用/步标记/能力名/版本单点）+ `validate_workflow.py` + `validate_handoff.py`（交接包完整性） |
 | `verify/` | PRD/评审/UAT/变更/回写门 `verify/Invoke-Gate.ps1`、检查矩阵、产物校验脚本；独立可复制 |
 
 > 实例在项目根：`product-profile.md`（含 §3 产品规范要点——固定内联）、`activeContext.md`（含 `### 进行中` 快照）；产出统一在 **`{workroot}/`**；权威文档库为项目级 `docs/materials/`。  
-> **三层**：`inbound/` 原件；`{workroot}/` 工作区（计划/需求池/版本目录/user/handoff/能力/过程）；`docs/materials/` 定稿、完整、可发送的权威文档库。  
+> **三层**：`inbound/` 原件；`{workroot}/` 工作区（计划/需求池/版本目录/user/handoff/capabilities/过程）；`docs/materials/` 定稿、完整、可发送的权威文档库。  
 > **交接**：内容优先、包按需；默认交自洽主文档并实拷 `{workroot}/handoff/outbound/{category}/`；HO 仅多文件/正式签收/仓外/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。多包同仓直读对方出站，禁无意义转发。  
 > **可选联动（不强制）**：本包可独立落地，不要求安装开发/测试包；PRD/立项书/产品计划可作为其输入；工程部署由开发轨执行（如启用），未启用由用户安排。多包同项目共用 `inbound/` 与 `activeContext.md`，本包仍独立执行。  
 > **边界**：产品负责需求、规则、原型、验收；技术架构、技术栈、数据库/API/部署归开发轨（如启用）或由用户安排。  
@@ -72,7 +72,7 @@
 ## 3. 上手（快速开始）
 
 1. 复制 `wf-product/` 到项目根下一层；排除 `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）；包默认不进入项目 git，不跟踪时 `.gitignore` 只写一行 `/wf-product/`（多包 `/wf/`），不预列未装包、不加注释
-2. 挂载：按 `rules/templates/00-接入与治理/根AGENTS薄指针.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）  
+2. 挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）  
 3. 对 AI 说「接入产品规范」→ 生成 `product-profile.md` 与 `activeContext.md`、确认入库策略、打标  
 4. 之后直接说口令：「收集需求」「竞品分析」「竞品对标」「产品计划」「写 PRD」「设计简报」「画原型」「PRD 评审」「排期」「需求变更」「UAT」「发布」「准备演示」「用户手册」「发布说明」「复盘」「资料收取」「资料整理」「资料归档」「文档巡检」「清理临时文件」  
 4.1 **不用口令**：任意自然语言描述需求/反馈/规划即可；AI 按 `rules/core/routing.md` 抽五元组→意图类→状态修正，不抠固定措辞；首条 `route`/`reason`。单条默认受理、批量走洞察、空白新品走 0→1；判断错可一句纠正。  
@@ -102,7 +102,7 @@ wf-product/rules/tools/Test-Template.ps1
 本包不写死任何宿主（Cursor / opencode / Claude Code 等均可）；换宿主只改实例侧（`product-profile.md`），包零改动。
 
 - **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；子代理（按 `rules/collaboration/subagents.md`：达阈值分片/适当并行≤3/超时降级）、MCP 按需。  
-- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-接入与治理/根AGENTS薄指针.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。
+- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-onboarding/root-agents-pointer.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。
 - **能力（可选）**：槽位见 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`。清单 available 即用，否则降级；档案 §6 仅索引；点名「装配能力」写入实例。纪律：`rules/capabilities/instance-discipline.md`。  
 - **体检能力**：口令「体检能力」等 → `skill-audit`：能力改 `{workroot}/capabilities/`，技能可改本包 `skills/`。
 - **MCP 配置落点**：只写宿主本地/用户级配置（路径以宿主官方文档为准）；禁项目内配置作规范入口。  

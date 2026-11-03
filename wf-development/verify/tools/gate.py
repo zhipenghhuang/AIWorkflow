@@ -47,9 +47,9 @@ PACKAGE_NAME = "wf-development"
 RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
 
 def default_project_root(package_root: Path) -> Path:
-    """Walk up to the project root marked by layout.yaml or activeContext.md."""
+    """Walk up to the project root marked by activeContext.md."""
     for p in (package_root, *package_root.parents):
-        if (p / "layout.yaml").is_file() or (p / "activeContext.md").is_file():
+        if (p / "activeContext.md").is_file():
             return p
     return package_root.parent
 GATE_MEDIA_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}
@@ -419,6 +419,13 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
             missing.append("评审记录缺少 implementer/实施人")
         if rv and im and rv.group(1).strip() == im.group(1).strip():
             missing.append("评审人不能等于实施者")
+        # L2+：须有 SC 对账（或 na）；与 code-review §4.0 / review.md 字段对齐，禁只勾 AC
+        if not re.search(
+            r"(?:SC\s*对账|SC\s*覆盖|方案条款对账|sc[_ -]?trace)\s*[:：]|SC\s*对账\s*=\s*na\b|\bSC\b.{0,12}(?:不适用|na)\b",
+            text,
+            re.I,
+        ):
+            missing.append("评审记录缺少 SC 对账（或 na）")
 
     for key, label in (("understanding", "需求理解包"), ("design", "方案/设计")):
         val = process.get(key, "")

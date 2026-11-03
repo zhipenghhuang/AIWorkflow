@@ -95,7 +95,7 @@ description: Use when a build, test, runtime behavior, or production symptom fai
 - 没有首错/完整堆栈，只截最后一行。
 - 用“重启/清缓存/重装”当结论，不解释机制。
 - 修复后不回跑原场景，或只跑 happy path。
-- 为了让测试变绿而改断言/跳docs/testing/降阈值。
+- 为了让测试变绿而改断言/跳测试/降阈值。
 - 生产故障先改代码、后想回滚。
 
 ## 7. 输出（故障卡）

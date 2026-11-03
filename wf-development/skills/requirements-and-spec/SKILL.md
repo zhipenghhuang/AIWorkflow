@@ -58,11 +58,11 @@ description: Use when requirements, acceptance criteria, scope, non-goals, or da
 
 ## 5. 需求基线落盘（L2+）
 
-- 需求稳定后，按 `rules/templates/10-规划与需求/需求基线模板.md` 落 `{workroot}/10-requirements/`；小改用轻量需求卡（背景/目标/AC/非目标）。
+- 需求稳定后，按 `rules/templates/10-planning/requirement-baseline-template.md` 落 `{workroot}/10-requirements/`；小改用轻量需求卡（背景/目标/AC/非目标）。
 - 用户故事：`作为{角色}，我希望{能力}，以便{价值}`；每个故事至少一条 AC。
 - NFR 必过：性能/可用性/安全/隐私/兼容/可观测；不适用写「不适用」。
 - 范围必须含「明确不做」；未确认项标「假设」并写验证方式。
-- 签收：docs/product/业务/技术/测试至少相关方确认；未签收不得进入设计/排期（用户豁免须记录）。
+- 签收：产品/业务/技术/测试至少相关方确认；未签收不得进入设计/排期（用户豁免须记录）。
 
 ## 6. 常见坑
 

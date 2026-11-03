@@ -55,5 +55,4 @@
 | `测试/脚本/` | `{workroot}/scripts/` |
 | `测试/证据/` | `{workroot}/{轨}/evidence/` |
 | `docs/`（旧原始资料根） | 先判定：原件 → `inbound/`；旧工作根 → `{workroot}/`；混合 → 停问 |
-| `测试规范/` 旧包名 | `wf-testing/`（多包 `wf/wf-testing/`） |
 | `环境基线.md` | `env-baseline.md` |

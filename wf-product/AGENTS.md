@@ -2,14 +2,14 @@
 
 > **用途**：产品协作 AI 入口。新会话读 §0；命中口令 → `workflows/*.yaml` 当前 step → `rules/read-index.md` 当前行 → 当前 `agents/*.yaml`。已路由同会话中段只靠 `rules/core/rule-anchor.md` 心跳，不重读本节全文。
 > **位置**：`wf-product/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；与用户指令冲突时见 §0 第 5 条（可覆盖）。
-> **template_version**：`2026.11.03.13`（单点：包内版本以本文为准；工作总结强制围栏外 `范围：from～to`）。
+> **template_version**：`2026.11.03.14`（单点：包内版本以本文为准；工作总结强制围栏外 `范围：from～to`）。
 > **架构**：Workflow + Agent + rules/gates.md · rules/read-index.md + skills / capabilities + 验证层（PRD/评审/UAT/变更/回写）；落地文档先 `select_review_mode`（自行｜AI）。
 > **分层**：本包=通用产品规则；`product-profile.md`=项目事实；根 `AGENTS.md`=挂载 + 项目自写额外要求（母版不规定偏好正文）。
 
 ## 0. 开工（每任务）
 
 1. **中文**：对话与结论用中文；写现行结论。
-2. **activeContext + 项目身份（硬短读）**：先读项目根 `layout.yaml`（本包 root/workroot/materials_root/handoff_root）；缺失/同 id 双份 → 停问，不按旧路径写。再读 `activeContext.md` **总览（必填）** + `## 产品` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `product-profile.md` → 只读 §1（场景/访谈/PRD 范围时再加 §2.2 标题行）；无或资料不足 → `rules/core/routing.md` §5 升级并先回写。空壳/占位必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时对齐产品计划 §0 + `{workroot}/INDEX.md` 当前入口 + `activeContext`（索引不写状态；细则执行契约 §4 规则 7）；语义未变可只改进行中。收尾只改本包；多包禁改他包。有 `{workroot}/product-plan.md` 且涉计划/续跑/交付时读 §0 与 §10。
+2. **activeContext + 项目身份（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（产品档案声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 产品` 的 `### 进行中`（含 `rule_card`）+ 跨包同步；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：有 `product-profile.md` → 只读 §1（场景/访谈/PRD 范围时再加 §2.2 标题行）；无或资料不足 → `rules/core/routing.md` §5 升级并先回写。空壳/占位必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。收尾只改本包；多包禁改他包。有 `{workroot}/product-plan.md` 且涉计划/续跑/交付时读 §0 与 §10。
 3. **接入状态（一次判定）**：运行时有 `wf-product onboard: done` → 跳过落地检查；无标记 → 按 `agents/onboard-agent.yaml` 判定一次，具备则静默打标，不具备则走 `workflows/onboard.yaml`。
 4. **独立判断**：不迎合；先查错误前提/逻辑跳跃/信息缺失；数字/结论尽量核实；用户有误直接指出；主动提醒忽略的变量、成本与偏差。**方案择优（硬）**：不适配/高风险/明显更差 → 依据+主推（可 1 备选），禁静默照做。用户按第 5 条二次坚持 → 以用户为准并记 `deviation=`。
 5. **冲突与覆盖**：默认按本包规则与红线。用户指令冲突时：①不执行冲突项；②说明风险与替代；③用户再次明确选择 → 以用户为准。收尾 `deviation=` 如实。无冲突：用户明确指令 > 项目根 `AGENTS.md` > 本文 > 当前 agent 契约 > product-profile.md 要点（若有）。**拟改与现行代码、现网或 CI 稳定口径冲突 → 先指出再改，禁静默覆盖。** 红线默认可被用户二次明确覆盖。
@@ -17,16 +17,15 @@
 
 | 场景 | 读什么 |
 | --- | --- |
-| 新会话首轮已路由 | 本文 **§0 硬节**（本轮一次）→ workflow 当前 step 块 → 读取索引当前行 → 当前 agent/产物；写/更新 `rule_card` |
-| 同会话已路由中段 | **不重读 §0 全文**；按 `rules/core/rule-anchor.md` 做【规则心跳】→ 必要时只重读 step 块 + 读取索引当前行 + agent/产物 |
+| 新会话 / 同会话中段 | 读序、读取预算与只读范围只认 `rules/read-index.md` |
 | 路由未定/首条 | 本文 §3 口令表或 `rules/core/routing.md` → 再按上行走已路由；多包歧义先查 `wf/AGENTS.md` **意图→包** |
 | 有门/写 YAML | `rules/gates.md` 当前行；不通读全表 |
 | verify/收尾 | `verify/README.md` + `rules/core/verification.md` + 当前产物/证据；报告门 |
-| 交接/变更 | `rules/collaboration/handoff.md` 当前节 + **默认**`通用交接单文档模板.md`（升包才读交接包说明）+ `handoff-ledger.md`；变更按 C0～C3 |
+| 交接/变更 | `rules/collaboration/handoff.md` 当前节 + **默认**`handoff-note-template.md`（升包才读交接包说明）+ `handoff-ledger.md`；变更按 C0～C3 |
 | inbound/文档治理 | `rules/doc-governance.md` 当前节 |
 | 维护/查询 | 本文 + `rules/core/maintenance.md` + 点名 |
 
-同一会话文件未变不重读；后续 delta-only；探查限定目录/关键词。**workflow 文件只读当前 step 块（当前 `- name:` 至下一个），不整文件通读。** **规则阅读不是越多越稳**：读错轨/读全本会稀释当前步约束。**读取预算（目标，非硬上限）：核心必读 ≤3～4（本文当前相关节 + 当前 step YAML 块 + 当前 agent/当前关键产物）；方法层按读取索引「命中才读」；总量 ≤8k；复杂步可至 5 并在收尾 reads= 说明；不得为省预算跳过门/证据/红线。** 标 `读取级别：参考` 的大文件只读当前节。宿主整文件注入本文时：中段仍只认心跳 + `rule_card`，禁止每步当全文必读。
+同一会话文件未变不重读；后续 delta-only；探查限定目录/关键词。**workflow 文件只读当前 step 块（当前 `- name:` 至下一个），不整文件通读。** **规则阅读不是越多越稳**：读错轨/读全本会稀释当前步约束。不得为省预算跳过门/证据/红线。标 `读取级别：参考` 的大文件只读当前节。宿主整文件注入本文时：中段仍只认心跳 + `rule_card`，禁止每步当全文必读。
 
 7. **执行契约**：判断模式（execute/analyze/stop）、自主边界、步骤契约、计划同步见 `rules/core/execution-contract.md`。规则是下限不是百科全书；产物/路径未列尽按契约 **§1.3** 归类落盘（禁方便堆、禁为补漏加百科）；低价值步骤可合并/省略；输出/门/证据/红线默认不可省（用户按第 5 条选择覆盖除外）；跳过与取舍写收尾【遵守自检】，不静默偏离。只读解释/对比/诊断按 `rules/core/execution-contract.md` §1.2，不强行进入交付链；用户要详细时用分析说明，不受只读简报 2～3 行限制。
 8. **规则心跳（硬）**：触发与一行格式只认 `rules/core/rule-anchor.md`；切步 / 过门前后 / 约每 5～8 轮用户消息须输出【规则心跳】并按需 `rule_card=refresh`。心跳≠收尾自检。
@@ -34,6 +33,7 @@
 ### 0.0 事实与文档（硬规则）
 
 - 环境/构建/账号/日期/结果/缺陷号/发布窗口/审批结论等事实字段，必须来自配置、命令输出、权威文档或用户确认；未核实写「待确认」并问，禁止用默认/示例/历史值补。
+- **假设/待验证禁升格**：未确认不得写入正式承诺或验收定论（`doc-quality.md` §1 第 2.1 条）。
 - 生成后回查关键字段；同一事实只保留一个来源；**当前有效状态**：只写当前存在的功能/流程/rules/约束；删除即移除，不追加「已删除/已废弃/不要再用」；不写历史过程、旧方案、变更原因、未采纳方案；对用户输出结论性现行状态，不复述需求与「本次改了什么」。细则见 `rules/core/doc-quality.md` §1 第9条；结构完整≠合格。
 - templates / rules / skills 可按项目实际适配：发现不匹配或更好做法 → 先出拟改/原因/影响，用户确认后改本包并登记。
 - 模板是骨架、标准是底线：按项目裁剪；不适用写不适用+理由；能靠产出文档解决的优先改产出。
@@ -70,7 +70,7 @@
 6. **受理先定性**：新需求/变更/缺陷先受理分诊；已在计划/需求池/立项书范围或点名补 PRD 的可直接写/改。
 7. **缺陷/回写/发布**：产品缺陷须 PRD 原文+现网证据+相符证明；实现缺陷退回开发/测试；变更/缺陷后按受理单 §6 逐项标「已更新/不适用/待补」；平台回写须 `confirm_remark` 且备注状态同轮；无权限走 export。
 8. **上线/展示/隐私**：UAT 未过不发布；有条件通过须列遗留/责任人/接受人；无成功指标不发布（无埋点写“不适用+原因”）；对外材料与当前 PRD/原型/构建一致；真实 PII 脱敏。
-9. **inbound/子代理/体验**：新输入按文档治理 §3 分流；采纳后 S1/S2/S3 同批归档；换代/换主题同会话 §7 关账（**materials 必做**覆盖刷新关闭版→superseded 再开新版；日常发布默认 overwrite-latest）；子代理不 git/平台/对外发布/同一 PRD 并行写；界面减法，UX/DX/AX 不净退化。
+9. **inbound/子代理/体验**：新输入按文档治理 §3 分流；采纳后 S1/S2/S3 同批归档；换代/换主题同会话 §7 关账（materials 覆盖刷新为硬项）；子代理不 git/平台/对外发布/同一 PRD 并行写；界面减法，UX/DX/AX 不净退化。
 
 ### 0.3 框架固定 · 局部自主
 
@@ -101,11 +101,11 @@
 ## 1. 接入
 
 实例在项目根：`product-profile.md`（§3 产品规范要点、§7 缺陷平台可选）、`activeContext.md`；产出统一在 `{workroot}/`；权威文档库为 `docs/materials/`。占位符未换=未接入。
-工作根必须有 `{workroot}/`。原件根 `inbound/`（由 `layout.yaml` 固定；原夹文件不迁出）。`keep`/`mix`/`replace` 只管原树结构，仍可索引/复制/吸收。中途存量全索引，按需复制或 A0～A2 吸收。细则 `rules/doc-governance.md` §2。交接：`{workroot}/handoff/outbound|inbound/{category}/` + `handoff-ledger.md`（`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。口令「接入产品规范/重新接入/生成产品档案」→ `onboard.yaml`；必须建索引（单包 `docs/INDEX.md`；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`）。
+工作根必须有 `{workroot}/`。原件根 `inbound/` 固定在项目根；原夹文件不迁出。`keep`/`mix`/`replace` 只管原树结构，仍可索引/复制/吸收。中途存量全索引，按需复制或 A0～A2 吸收。细则 `rules/doc-governance.md` §2。交接：`{workroot}/handoff/outbound|inbound/{category}/` + `handoff-ledger.md`（`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。口令「接入产品规范、重新接入、生成产品档案」→ `onboard.yaml`；标准树与索引按 `rules/doc-governance.md` §2.4 建。
 
 ## 2. 收尾
 
-触发：工作流末步、产品计划全部阶段结束、点名「收尾/总结」。**对照** `rules/templates/90-交接与收尾/收尾骨架.md` §2（专规只填第1点）。**必须含【遵守自检】与「运行态：」行**，缺项=未收尾。提交/回写门按 YAML `hitl` 在骨架后确认；完整【拟提交】在 commit 只展示一次（第 2 点仅「待提交摘要」）。
+触发：工作流末步、产品计划全部阶段结束、点名「收尾/总结」。**骨架与硬项以** `rules/templates/90-handoff/closeout-skeleton.md` §2 为准（专规只填第1点；缺项=未收尾）。**写完整收尾前打开 §2 样例对照版式**（标题/回执/自检各一行；汇报结论说明体）；禁凭记忆粘行。提交/回写门按 YAML `hitl` 在骨架后确认；完整【拟提交】在 commit 只展示一次（第 2 点仅「待提交摘要」）。
 
 ## 3. 口令 → Workflow（命中即停）
 
@@ -113,7 +113,7 @@
 
 | 优先 | 命中 | workflow | 默认 agent 链 |
 | ---: | --- | --- | --- |
-| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-交接与收尾/收尾骨架.md` §3（读/写 `activeContext` 本包工作总结锚点） |
+| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §3（读/写 `activeContext` 本包工作总结锚点） |
 | 1 | 需求/问题/缺陷（未分类；对话/文档/链接/截图） | `change` | pm-lead（按分级条件链至下一门/关单） |
 | 2 | 启动新产品 / 新项目/从0到1/产品立项 | `new-product` | pm-analyst（discover→go→define，按链执行到下一个门） |
 | 3 | 产品计划/产品规划/路线图/版本规划 | `plan` | pm-analyst→pm-lead（goals→roadmap→scope→review→publish，按链执行到下一个门） |
@@ -135,7 +135,7 @@
 | 16.1 | 资料收取/整理 | `onboard` | materials |
 | 16.2 | 文档清理/归档巡检 | `onboard` | lifecycle |
 | 16.3 | 技能 / 能力体检或优化 | `skill-audit` | scope→…→wrap/commit |
-| 16.4 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→validate→wrap |
+| 16.4 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→wrap |
 | 17 | 提交/推送 | 当前 workflow 末步 | 对应角色 |
 | 18 | 维护/查询 | 本文 + `rules/core/maintenance.md` | —；清理→16.2；技能→16.3 |
 | 19 | 画原型/原型设计 | `prototype` | 按链或点子步（context/wireframe/visual/hi-fi） |
@@ -148,7 +148,7 @@
 | 26 | 交接状态 | `handoff` | status |
 | 27 | 变更通知/同步变更/重规划 | `handoff` | change_* / replan |
 
-**入口即止**：除 `workflow.chain: full`/明确多步链/「继续/按计划执行」外，从入口 step 执行到产出完成即停；不自动进入后续 step 或门。`onboard` 已标 `chain: full`，接入必须走到 `verify` 打标。单步入口结束仍按 `rules/templates/90-交接与收尾/收尾骨架.md` 输出。
+**入口即止**：除 `workflow.chain: full`/明确多步链/「继续/按计划执行」外，从入口 step 执行到产出完成即停；不自动进入后续 step 或门。`onboard` 已标 `chain: full`，接入必须走到 `verify` 打标。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
 **单条 vs 批量**：单条需求/问题/缺陷→`change`；平台缺陷→`defect`；批量洞察/需求池盘点→`prd` discover；**竞品分析/学习竞品**→`prd` discover（模式 S）；**竞品对标/功能差距**→`prd` benchmark（模式 P）；0→1→`new-product`（含模式 S）。分不清先 `change` 受理再分诊。
 **需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（`rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
@@ -160,11 +160,11 @@
 
 ## 5. 多包（自动探测）
 
-`layout.yaml` mode=multi（`wf/`）或多根 `wf-*` = 多包；单个 `wf-*` = 单包；同 id 双份/半迁停问。
+`wf/`（含 ≥2 个 `wf-*`）=多包；项目根单个 `wf-*` =单包；同 id 双份/半迁停问。
 - **口令表节号**：本包与开发 §3；测试 §2（勿跨包按节号直译）。
 - **单包独立为默认**；多包联动**可选、非必须**；不要求装齐三包、不强制同时启用、**不因缺他包阻塞本包**；跨包同步只登记状态，不等于自动联动。**联动=交付物字段+同仓直读，≠共安装、≠自动跑对方、≠强制引用他包路径。**
 - **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写**已装包**；不描述包的用途/装载/升级。规范包**默认不跟踪**：`.gitignore` 只写一行 `/<已装包>/`（多包 `/wf/`）；不预列未装包、不加注释。用户明确要求跟踪时才跟踪。
-- 共用原件根 `inbound/`（由 `layout.yaml` 固定；无则 onboard 建）、根 `activeContext.md`（总览 → 已启用包分节 → 跨包同步 → 运行时；单包只建本包节）。
+- 共用原件根 `inbound/`（项目根固定；无则 onboard 建）、根 `activeContext.md`（总览 → 已启用包分节 → 跨包同步 → 运行时；单包只建本包节）。
 - 各包只改本分节、与本包相关的跨包同步一行、本包接入行；禁止整文件覆盖或改他包分节。
 - 一次会话只执行一个包 workflow；跨包默认交自洽交付物或同仓直读对方 `handoff/outbound/`；**仅升包时**用 `handoff/outbound/{category}/{HO-ID}/`；不复制正文、不自动执行对方 workflow。
 - **歧义定包**：缺陷/发布/下一步等先查 `wf/AGENTS.md` **意图→包**；无法唯一则一问。

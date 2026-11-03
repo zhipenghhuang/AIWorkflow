@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a task-list Markdown file generated from 任务清单模板.md.
+"""Validate a task-list Markdown file generated from task-list-template.md.
 
 Usage: python validate_tasklist.py <task-list.md> [--lenient]
 

@@ -20,7 +20,7 @@ acceptance:
 process:
   understanding: "{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md"
   design: "{workroot}/20-design/方案-{主题}-{yyyyMMdd}.md"
-  review: ".gate/review.md"          # L2+ 必填；reviewer/implementer/verdict
+  review: ".gate/review.md"          # L2+ 必填；reviewer/implementer/verdict/AC 覆盖/SC 对账（或 na）
   security: ""                       # L3 必填：安全扫描/评审证据
   rollback: ""                       # L3 必填：回滚演练/预案证据
 # done|na|missing；有行为却 missing → verify 不得报全覆盖通过（DEV-IQ-09）

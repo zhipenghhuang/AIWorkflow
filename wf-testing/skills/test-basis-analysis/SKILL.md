@@ -122,7 +122,7 @@ requirement_model:
 
 > **市面做法**：ISTQB Test Analysis 产出 **test conditions**；企业用 **RTM/测试分析工作表** 夹在「原文」与「用例」之间——**不是**直接对着 PRD 写用例。本仓等价物即下表文件。
 
-- **主产物（必落）**：按模板 `rules/templates/10-计划/测试分析表模板.md` 写到项目实例  
+- **主产物（必落）**：按模板 `rules/templates/10-planning/test-analysis-template.md` 写到项目实例  
   `{workroot}/test-analysis.md`（跨轨共用；勿再默认写到 `functional/` 下）  
   必含：**§0 Brief+本期差量表**｜§2 覆盖单元（测试条件，含 Delta ID 列）｜§3 影响面｜§4 歧义冲突｜§6 章节回执；T2/T3 加 §5 追溯矩阵。  
 - **兼容**：若实例仅有旧 `{workroot}/functional/test-analysis.md` 或「分析短表」→ 迁入 `{workroot}/test-analysis.md` 或头注见新路径并补 §0；下游以新路径为准。  
@@ -134,7 +134,7 @@ requirement_model:
 ## 5.1 用户版业务变化说明（T1+ 用户可见变化必出）
 
 - **目的**：让业务用户 1 分钟看懂本次变化；同时给 AI 一份完整、连续的业务上下文，帮助测试计划/用例/评审理解角色、流程、数据与用户可观察结果。
-- **落点**：`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；模板 `rules/templates/10-计划/用户版业务变化说明模板.md`。
+- **落点**：`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；模板 `rules/templates/10-planning/user-facing-change-notes-template.md`。
 - **时点**：与测试分析表同轮生成或校验；优先读取开发/产品已有用户版/变更摘要，缺则生成；不另造阶段门。
 - **必填结构**：§0 30 秒看懂；§1 变化清单（`U-01` 增/改/删，以前/现在/影响谁）；§2 业务全景（目标/角色/主流程/对象状态/规则不变量/权限/异常/非目标）；§3 页面与操作变化；§4 按角色要做什么；§5 不变与边界；§6 FAQ；§7 用户可观察结果；§8 AI 阅读索引（来源、RQ/AC/TP、用例域/回归域、环境/数据依赖）；§9 确认。
 - **测试用法**：用户版说明帮助理解业务与用户可观察结果；oracle、追溯、覆盖矩阵、准出仍以测试分析表 + 原文 + AC 为准；不得用用户版替代分析表或用例断言。

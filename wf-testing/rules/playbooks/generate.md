@@ -7,13 +7,13 @@
 
 | 步 | 必读 | 按需读 | 不要读 |
 | --- | --- | --- | --- |
-| analyze | `testing.yaml` analyze + `workflow.md` §2.1.0 + `skills/test-basis-analysis` + `测试分析表模板` | 主读/上版失败摘要 | 执行/缺陷全本；`test-analysis-and-plan`（挂 plan） |
-| plan（轻量） | 本卡 + `测试计划-轻量模板.md` + **测试分析表** + `skills/test-analysis-and-plan` | 上版报告/稳定冒烟 | 完整模板（§0～§18；小任务用轻量） |
+| analyze | `testing.yaml` analyze + `workflow.md` §2.1.0 + `skills/test-basis-analysis` + `test-analysis-template.md` | 主读/上版失败摘要 | 执行/缺陷全本；`test-analysis-and-plan`（挂 plan） |
+| plan（轻量） | 本卡 + `test-plan-lite-template.md` + **测试分析表** + `skills/test-analysis-and-plan` | 上版报告/稳定冒烟 | 完整模板（§0～§18；小任务用轻量） |
 | plan（版本级） | 完整测试计划模板 + 本卡 + **测试分析表** + `skills/test-analysis-and-plan` | 输入清点扇出 | 执行/缺陷全本 |
-| generate 功能 | `workflow.md` §2 头+§2.1.0 + **`测试用例模板.md`** + 本卡 + 计划 §3.2/§3.7 + **测试分析表** + **命中域现行用例** + `skills/testcase-design`（§2.2 深度/§2.4/§5） | 脚本执行 §1/§2；提测单影响面（若有） | 接口/发布前契约（非本轨）；`_archive`；勿代替 review-cases |
-| generate 接口 | `tracks/api.md` + `skills/test-interface` + **`接口测试用例模板.md`** + **命中接口域现行资产** + 分析表 §0 | 脚本执行 §2；depth=full 时全维；落盘后 `validate_api_testcase.py` | 功能 `测试用例模板`；功能用例全量；未点名全仓重生 |
-| generate 探索式 | `tracks/exploratory.md` + **`探索式用例模板.md`**（步骤四列+章程映射）+ 分析表 §0 | 计划 §12 | 功能覆盖三闸；功能用例模板 |
-| generate 随机业务流程 | `tracks/random-flows.md` + **`随机业务流程用例模板.md`**（用户旅程+办结+去重窗+分流） | 账本最近 N 轮；有则基线菜单地图/`00-稳定冒烟清单`（办结候选） | 计划 §3/§9；主读/分析表作判定；探索式菜谱；功能三闸 |
+| generate 功能 | `workflow.md` §2 头+§2.1.0 + **`test-case-template.md`** + 本卡 + 计划 §3.2/§3.7 + **测试分析表** + **命中域现行用例** + `skills/testcase-design`（§2.2 深度/§2.4/§5） | 脚本执行 §1/§2；提测单影响面（若有） | 接口/发布前契约（非本轨）；`_archive`；勿代替 review-cases |
+| generate 接口 | `tracks/api.md` + `skills/test-interface` + **`api-test-case-template.md`** + **命中接口域现行资产** + 分析表 §0 | 脚本执行 §2；depth=full 时全维；落盘后 `validate_api_testcase.py` | 功能 `test-case-template.md`；功能用例全量；未点名全仓重生 |
+| generate 探索式 | `tracks/exploratory.md` + **`exploratory-case-template.md`**（步骤四列+章程映射）+ 分析表 §0 | 计划 §12 | 功能覆盖三闸；功能用例模板 |
+| generate 随机业务流程 | `tracks/random-flows.md` + **`random-flow-case-template.md`**（用户旅程+办结+去重窗+分流） | 账本最近 N 轮；有则基线菜单地图/`00-稳定冒烟清单`（办结候选） | 计划 §3/§9；主读/分析表作判定；探索式菜谱；功能三闸 |
 | generate 发布前 | `tracks/pre-release.md` + 专项技能 | 工具 README | 功能覆盖三闸（不适用） |
 | review-cases | `workflow.md` §2.5 + `skills/testcase-review` + 评审记录模板 + 被审用例/映射/**测试分析表**/需求模型 | coverage 回执；可选 `qa-skills` 能力 | 执行专规；生成者自评 |
 
@@ -30,7 +30,7 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 
 ## 3. 流程卡
 
-1. **analyze**：主读判定（点名路径 > 唯一正式版 > 计划已登记 > 否则一问）；多份须主读+对照；冲突不静默选边（可用户声明冲突SSOT）。仍出 **测试分析表**（`{workroot}/test-analysis.md`，模板见 `10-计划/测试分析表模板`）。影响源：提测单若有→CR→主读 diff→用户点名。禁整步空过；关键歧义未裁决先问。
+1. **analyze**：主读判定（点名路径 > 唯一正式版 > 计划已登记 > 否则一问）；多份须主读+对照；冲突不静默选边（可用户声明冲突SSOT）。仍出 **测试分析表**（`{workroot}/test-analysis.md`，模板见 `10-planning/测试分析表模板`）。影响源：提测单若有→CR→主读 diff→用户点名。禁整步空过；关键歧义未裁决先问。
 2. **plan**：双读「主读原文 + 测试分析表」；填 §3.7 装填；有前序/GATE 写依赖版 P0-Smoke；理解未确认不得计划已确认。
 3. **generate**：**双读原文 + 测试分析表**（以分析表覆盖单元/影响面/oracle 为生成清单，原文核证据）→ 只处理命中域增量（保 caseId）；无域首生；缺分析表先回 analyze。**禁**无分析表整版重生；**禁**「继续」触发 generate。同域无效合并≥2 → 有界重生。
 4. **覆盖三闸**（功能命中域/专项）：对本期命中域+邻接影响面『一遍过·宁多勿漏』（宁可多、不要缺；≠全仓重生）。① 可测承诺；② 映射无空行 + 深度档；③ 缺口三分类。拿不准多生成，禁瘦映射凑齐。细则 `workflow.md` §2.1.0。跑 `-Mode coverage`。
@@ -69,4 +69,4 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 
 ## 6. 输出
 
-用例/台账/脚本/测试分析表/计划/评审记录；生成或评审收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+用例/台账/脚本/测试分析表/计划/评审记录；生成或评审收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。

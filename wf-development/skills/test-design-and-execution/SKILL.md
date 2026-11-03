@@ -111,12 +111,12 @@ description: Use when a change needs functional testing, acceptance checks, expl
 - 每个失败修复后立即跑：原失败用例 + 冒烟子集 + 影响面组；不等批末。
 - 同一方案无效 2 次 → 换路径或升级，不继续重试刷绿。
 - 回归结果就地覆盖，只留最新；报告写轮次与遗留。
-- 已脚本化的稳定回归优先脚本；脚本失败先分诊（docs/product/环境/数据/脚本），不直接判产品缺陷。
+- 已脚本化的稳定回归优先脚本；脚本失败先分诊（产品/环境/数据/脚本），不直接判产品缺陷。
 - 不手改结果表、不跳测试、不禁告警凑绿；豁免须用户批准并记录。
 
 ## 6. 报告
 
-按 `rules/templates/40-交付与发布/轻量测试报告模板.md` 写；最少：
+按 `rules/templates/40-delivery/lite-test-report-template.md` 写；最少：
 
 - 范围/环境/构建/测试时间；
 - 测试点与结果表（ID/类型/场景/预期/实际/结果/证据）；

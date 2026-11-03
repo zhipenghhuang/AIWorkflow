@@ -13,8 +13,8 @@
 | analyze | §3 + `skills/change-management/SKILL.md` §2 | PRD/设计原文、测试证据 |
 | decide | §4 + 门表 `confirm_change` | 变更单模板 |
 | apply | §4.3 + 产品缺陷处置模板 | 变更单/评审模板 |
-| writeback | `rules/templates/30-评审与变更/缺陷文案模板.md` §5/§6 + 门表 `confirm_remark` | 平台适配定义 |
-| verify | §4 + `rules/templates/30-评审与变更/缺陷文案模板.md` §6 | UAT/回归证据 |
+| writeback | `rules/templates/30-review-change/defect-writeup-template.md` §5/§6 + 门表 `confirm_remark` | 平台适配定义 |
+| verify | §4 + `rules/templates/30-review-change/defect-writeup-template.md` §6 | UAT/回归证据 |
 
 ## 2. 流程卡
 
@@ -25,7 +25,7 @@
 5. **decide**：出示每条来源/依据/相符证明/影响/处置选项/指派；`confirm_change` 后才实施。纯拉取/只读分析止于 analyze，不落处置单。
 6. **apply**：更新 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查，逐项标「已更新/不适用/待补」；产品缺陷产出 `缺陷处置-{BUG-ID}-...md`；实质变更走 review。已回写平台 → 不强制 BUG 整包；无平台/点名 → **先问后发**自包含处置包。
 7. **review**：只评产品视角（是否解决原问题/AC/范围/风险/合规），不评技术实现；通过才恢复 `APPROVED`。
-8. **writeback**：出示 id+结论+备注全文+附件名+状态/指派；包末必有【拟回写·底部摘要】（无类省略）；`confirm_remark` 后执行；备注与状态同轮；附件回查挂载；失败重试 ≤1；无权限走 export；收尾「完成了什么」短段复述单号清单并单列「影响：」；对照 `收尾骨架` §2。
+8. **writeback**：出示 id+结论+备注全文+附件名+状态/指派；包末必有【拟回写·底部摘要】（无类省略）；`confirm_remark` 后执行；备注与状态同轮；附件回查挂载；失败重试 ≤1；无权限走 export；收尾「完成了什么」短段复述单号清单并单列「影响：」；对照 `closeout-skeleton.md` §2。
 9. **verify**：受影响 AC/UAT 重验；实现缺陷由开发/测试跟踪，产品不写「已修复」；未验证不关单。检查 BUG 包回执；未回执不得写“开发/测试已接收”。
 
 ## 3. 红线
@@ -37,4 +37,4 @@
 
 ## 4. 输出
 
-受理单/处置单/变更单/评审记录 + 平台回写结果或 export 包 + 最新产物路径 + 回执。收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+受理单/处置单/变更单/评审记录 + 平台回写结果或 export 包 + 最新产物路径 + 回执。收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。

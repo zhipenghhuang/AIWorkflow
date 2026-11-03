@@ -36,6 +36,6 @@
 ## 2. 生态索引
 
 - 技能安装器：vercel-labs/skills（`npx skills find` / find-skills）；标准：agentskills.io、anthropics/skills、addyosmani/agent-skills、mattpocock/skills。
-- PM：deanpeters/Product-Manager-Skills；BMAD PM 仅作方法参考；设计底座：包内原型技能 + `原型脚手架.html`。
+- PM：deanpeters/Product-Manager-Skills；BMAD PM 仅作方法参考；设计底座：包内原型技能 + `prototype-scaffold.html`。
 - 吸收纪律：体检 discover 后方法回灌 `skills/` 或装配本表能力；禁止外装 skill 覆盖口令→workflow。
 - 实例写入：`{workroot}/capabilities/`；宿主安装见 README「宿主适配」。

@@ -99,7 +99,7 @@ steps:
       有未吸收新文档/变化 → 先走 `本期变更`（plan 步的期中变更逻辑），不直接改用例/脚本。
       有未回执/退回/阻断执行的交接包 → 先走 `workflows/handoff.yaml` status/receive，不直接进入执行。
       测试包独立运行；PRD/提测单/UAT 为可选输入，缺则按主读/基线执行，不阻塞。
-      结束对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2（只读可 2～3 行简报）。
+      结束对照 `rules/templates/90-handoff/closeout-skeleton.md` §2（只读可 2～3 行简报）。
       输出首条：route=workflow:testing | step=status | phase=… | gate=… | next_action=…
 
   - name: 分析需求
@@ -113,7 +113,7 @@ steps:
     output: "{workroot}/test-analysis.md（必出·含 §0 Brief+Delta；模板 测试分析表模板）+ {workroot}/说明-{主题}-用户版-{yyyyMMdd}.md（T1+ 用户可见变化必出；L0/无可见变化可省并记录）；T2/T3 可另出需求理解长文；旧「分析短表」文件须迁入本路径并补 §0"
     notes: >
       门/产出：主读判定（点名路径 > 唯一正式版 > 计划已登记 > 否则一问）；多份须主读+对照；冲突不静默选边，用户可声明冲突SSOT。仍须按模板产出**测试分析表**（**§0 Brief+本期差量表**／覆盖单元含 Delta ID／影响面／歧义／章节回执），禁跳过致无表或无 §0。有产品/开发 Delta → 引用对账。后续 plan/generate **双读原文+分析表**。
-      用户版说明：与测试分析表同轮生成或校验；优先读开发/产品已有用户版或变更摘要，缺则按 `rules/templates/10-计划/用户版业务变化说明模板.md` 生成。只写用户可见变化/业务全景/角色影响/操作变化/不变/FAQ/AI 索引；重点写测试可观察结果、角色/数据/环境、回归影响；禁 S1/G6/P0/OPEN/缺陷号/任务ID/内部路径；不替代测试分析表/AC/oracle。T1+ 且存在用户可见变化 → 必出；L0 或纯内部无可见变化 → 在分析表 §0 写「无用户可见变化」，不单独出。
+      用户版说明：与测试分析表同轮生成或校验；优先读开发/产品已有用户版或变更摘要，缺则按 `rules/templates/10-planning/user-facing-change-notes-template.md` 生成。只写用户可见变化/业务全景/角色影响/操作变化/不变/FAQ/AI 索引；重点写测试可观察结果、角色/数据/环境、回归影响；禁 S1/G6/P0/OPEN/缺陷号/任务ID/内部路径；不替代测试分析表/AC/oracle。T1+ 且存在用户可见变化 → 必出；L0 或纯内部无可见变化 → 在分析表 §0 写「无用户可见变化」，不单独出。
       交接包输入 → 先 `handoff.receive`；新资料 → `rules/doc-governance.md` §3（确认前不改文件）。
       方法：`skills/test-basis-analysis`（必用）+ 按需 `test-analysis-and-plan` / `test-data-and-environment` / `ai-feature-testing`；澄清见 `rules/core/clarification.md`。
       预期须有来源；无来源=GAP；现网不作预期。关键歧义未裁决 → 不写确定计划/用例。
@@ -215,7 +215,7 @@ steps:
         when: exploratory_mainread_missing
       - name: confirm_scope
         when: scope_needs_confirm
-    output: 执行结果/≤3 行简报（末步对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2）
+    output: 执行结果/≤3 行简报（末步对照 `rules/templates/90-handoff/closeout-skeleton.md` §2）
     notes: >
       **本步契约（硬）**：hitl 只认上方 when；方法/装填/冒烟/回归/视觉/子代理 **SSOT** = `rules/playbooks/execute.md` + `rules/workflow.md` §3 当前节 + 当前轨契约 + 命中技能（禁把整本方法抄进本 notes）。
       **批末机器门（`module_batch_complete`）**：终态齐后 `verify/Invoke-Gate.ps1 -Mode execute -Scope "{装填域}"`；回执须含 `scope`；禁无 Scope 全仓当本批结论；准出另 `-Mode report`。
@@ -240,10 +240,10 @@ steps:
       门通过 → 按 `next: handoff` 追加一次提交/交平台确认（只此一次）；门未过不得进入 handoff。
       门回执在 `.gate/wf-testing/report.json`；把 `verdict/gate/counts/p0/unverified` 回填报告 §0 后再复跑一次（回执必须与最终门一致）。非 PASS 禁用“全部通过/可发布”。
       `writeback` 只写 `.gate/wf-testing/writeback.json`，不得覆盖 report 回执。
-      全部阶段结束对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；阶段中途 ≤3 行简报。
+      全部阶段结束对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；阶段中途 ≤3 行简报。
       失败/待实现汇总与交平台建议并入第 1 点；是否交平台在下一步（handoff）只问一次（禁用例级刷屏）。
       对账工具优先（多Agent §1.5）：台账计数/证据可打开先用脚本；仅证据充分性/语义归因派核验子代理，返回差异清单 ≤30 行。
-      版本级/全量/计划驱动：对照计划 §9.2 计划 vs 实际、§10 回归、§11 缺陷、§12 探索、§5 准出 → 出「准出评估」并更新 `{workroot}/test-report.md`（模板 `rules/templates/40-报告与评审/测试报告模板.md`；报告 §2 计划对照、§3 类型覆盖、§4 统计、§5 defects/回归/探索式、§6 覆盖缺口、§7 准出；滚动就地更新只留最新口径）。
+      版本级/全量/计划驱动：对照计划 §9.2 计划 vs 实际、§10 回归、§11 缺陷、§12 探索、§5 准出 → 出「准出评估」并更新 `{workroot}/test-report.md`（模板 `rules/templates/40-report-review/test-report-template.md`；报告 §2 计划对照、§3 类型覆盖、§4 统计、§5 defects/回归/探索式、§6 覆盖缺口、§7 准出；滚动就地更新只留最新口径）。
       **需求覆盖**：报告对照**测试分析表**覆盖单元/追溯，列出 RQ/AC/TP→用例覆盖、歧义关闭/遗留、无来源预期与 GAP；未测项显式列缺口，不以“已执行”替代“已覆盖”。
       同步回写计划 §0（计划状态=待关闭/已关闭、当前门=准出、下一动作）、§16.1 执行日志、§16.2 归档索引；关闭时按 §16.2 生成快照，不移动当前计划。
       现状三处同拍：`activeContext` + 计划 §0 + 导航层（报告准出摘要；有 `{workroot}/INDEX.md`则同步）；`sync=` 含 `triad=aligned|deferred:<原因>`（执行契约 §4 规则 7）；语义已变禁只改 activeContext。
@@ -269,6 +269,6 @@ steps:
     output: 提交/交平台确认结果
     notes: >
       报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次：交平台/新建缺陷单走 `confirm_platform`，仓库 git 走 `confirm_commit`/【拟提交·仓库】；两者按各自 when 触发，不互相替代。
-      交平台/回写前运行 `verify/Invoke-Gate.ps1 -Mode writeback`（写 `.gate/wf-testing/writeback.json`）；无回执不得声称已回写；无权限走 export。
+      交平台/回写前运行 `verify/Invoke-Gate.ps1 -Mode writeback`（写 `.gate/wf-testing/writeback.json`）；无回执不得声称已回写；无权限 → 一问补适配或本批统一导出（确认前零落盘）；交平台成功 → 零导出。
       计划 §11 为「发现即提交」的缺陷不重复问；按模块批末/阶段末/收尾确认的批次，按对应清单确认后执行；未确认则结束。
       本轮用过浏览器 MCP → 按 `rules/special/multi-agent-output.md` §2.2 全链终局退程（本套 Chrome）；退程结果写入收尾「运行态：」行；退程失败或仍在运行 → 第 4 点问关闭/保持，禁静默残留。

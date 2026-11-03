@@ -3,11 +3,11 @@
 .SYNOPSIS
     初始化项目文档骨架（只建目录/索引，不移动、不删除任何文件）。
 .DESCRIPTION
-    按 layout.yaml 的单/多包布局创建工作区、docs/materials、inbound、handoff 与 _archive，
+    按项目档案声明的工作根（未声明按单/多包约定）创建工作区、docs/materials、inbound、handoff 与 _archive，
     并生成索引骨架：
       - 单包：docs/INDEX.md 即工作区索引
       - 多包：docs/{owner}/INDEX.md 为工作区索引；docs/INDEX.md 为项目总览
-    已有目录/文件跳过；无内容不建空目录。
+    已有目录/文件跳过；无内容不建空目录。只建目录与索引，不生成额外根文件。
 .PARAMETER ProjectRoot
     项目根目录；默认当前目录。
 .PARAMETER Mode
@@ -34,7 +34,22 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
 $ProjectRoot = (Resolve-Path -LiteralPath $ProjectRoot).Path
 $packageId = "wf-$Owner"
-$workrootRel = if ($Mode -eq 'single') { 'docs' } else { "docs/$Owner" }
+$workrootRel = $null
+foreach ($profileName in @('project-profile.md', 'env-baseline.md', 'product-profile.md')) {
+    $profilePath = Join-Path $ProjectRoot $profileName
+    if (-not (Test-Path -LiteralPath $profilePath -PathType Leaf)) { continue }
+    $profileText = [System.IO.File]::ReadAllText($profilePath, [System.Text.Encoding]::UTF8)
+    $m = [regex]::Match($profileText, '^\|\s*workroot\s*\|\s*`?([^`|]+?)`?\s*\|', 'Multiline')
+    if ($m.Success) {
+        $value = $m.Groups[1].Value.Trim().TrimEnd('/', '\')
+        if ($value -match '^默认' -or $value -match '非标准') { continue }
+        $workrootRel = $value
+        break
+    }
+}
+if ([string]::IsNullOrWhiteSpace($workrootRel)) {
+    $workrootRel = if ($Mode -eq 'single') { 'docs' } else { "docs/$Owner" }
+}
 $workroot = Join-Path $ProjectRoot ($workrootRel -replace '/', [IO.Path]::DirectorySeparatorChar)
 $docs = Join-Path $ProjectRoot 'docs'
 $inbound = Join-Path $ProjectRoot 'inbound'
@@ -76,44 +91,6 @@ function New-FileIfMissing([string]$Path, [string]$Content) {
 
 foreach ($rel in $commonDirs) { New-DirIfMissing (Join-Path $ProjectRoot ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)) }
 foreach ($rel in $workDirs) { New-DirIfMissing (Join-Path $workroot ($rel -replace '/', [IO.Path]::DirectorySeparatorChar)) }
-
-$layoutPath = Join-Path $ProjectRoot 'layout.yaml'
-if (-not (Test-Path -LiteralPath $layoutPath)) {
-    $packageBlock = if ($Mode -eq 'single') {
-        @"
-  packages:
-    ${packageId}:
-      root: $packageId
-      workroot: docs
-      handoff_root: docs/handoff
-      archive_root: docs/_archive
-"@
-    } else {
-        @"
-  packages:
-    ${packageId}:
-      root: wf/$packageId
-      workroot: docs/$Owner
-      handoff_root: docs/$Owner/handoff
-      archive_root: docs/$Owner/_archive
-"@
-    }
-    $layout = @"
-layout:
-  mode: $Mode
-  version: 2
-  inbound_root: inbound
-  ssot_root: docs
-  materials_root: docs/materials
-$packageBlock
-"@
-    New-FileIfMissing $layoutPath $layout
-} else {
-    $layoutText = Get-Content -LiteralPath $layoutPath -Raw -Encoding UTF8
-    if ($layoutText -notmatch "mode:\s*$Mode") {
-        throw "LAYOUT_MODE_CONFLICT: layout.yaml 不是 mode=$Mode；先确认布局或改用正确 Mode。"
-    }
-}
 
 $now = (Get-Date).ToString('yyyy-MM-dd HH:mm')
 
@@ -159,7 +136,7 @@ $overviewTpl = @'
 # 项目文档总览
 
 > 更新：__NOW__
-> 只做入口与既有目录说明；不写阶段/门/状态。布局真值：`layout.yaml`。
+> 只做入口与既有目录说明；不写阶段/门/状态。工作根见产品档案 §1。
 
 ## 工作区索引
 
@@ -234,4 +211,4 @@ if ($created.Count -eq 0) {
     Write-Output "$verb $($created.Count) 项："
     foreach ($c in $created) { Write-Output ("  - " + $c) }
 }
-Write-Output "布局：mode=$Mode owner=$Owner workroot=$workrootRel index=$(if ($Mode -eq 'single') { 'docs/INDEX.md' } else { "$workrootRel/INDEX.md + docs/INDEX.md" })"
+Write-Output "工作根：$workrootRel（mode=$Mode owner=$Owner） index=$(if ($Mode -eq 'single') { 'docs/INDEX.md' } else { "$workrootRel/INDEX.md + docs/INDEX.md" })"

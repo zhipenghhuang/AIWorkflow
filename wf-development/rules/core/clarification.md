@@ -195,10 +195,10 @@
 
 | 场景 | 落点 | 最少内容 |
 | --- | --- | --- |
-| 外部 PRD/迭代方案/原型 | `{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md` | **§0 Brief+本期差量表（必填）**、来源、下钻理解包、缺口清单、Q/A、冲突、GAP、假设、置信度；模板见 `rules/templates/10-规划与需求/需求理解包模板.md` |
+| 外部 PRD/迭代方案/原型 | `{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md` | **§0 Brief+本期差量表（必填）**、来源、下钻理解包、缺口清单、Q/A、冲突、GAP、假设、置信度；模板见 `rules/templates/10-planning/requirement-understanding-template.md` |
 | 需求基线 | `{workroot}/10-requirements/需求-{主题}-{yyyyMMdd}.md` | 来源、Q/A、假设、AC、非目标 |
 | 轻量需求卡 | 需求卡/任务说明 | 目标、AC、非目标、假设 |
-| 待确认/决策项 | `{workroot}/00-governance/open-items.md` | 编号+中文短名/**归属(P/D/S)**/事项/选项/建议/影响/默认/可转发docs/product/结论 |
+| 待确认/决策项 | `{workroot}/00-governance/open-items.md` | 编号+中文短名/**归属(P/D/S)**/事项/选项/建议/影响/默认/可转发产品/结论 |
 | 待确认单（对话或转发） | 对话第 4 点或独立块；P/S 可复制转发产品 | 见 §1.1 最小字段 |
 
 - 记录格式：`Q: … → A: …（归属/来源/日期/裁决人）`。

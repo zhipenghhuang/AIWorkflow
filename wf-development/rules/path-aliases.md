@@ -56,5 +56,4 @@
 | `开发/07-运维与协作/` | `{workroot}/70-ops/` |
 | `开发/08-复盘与改进/` | `{workroot}/80-retrospectives/` |
 | `docs/`（旧原始资料根） | 先判定：原件 → `inbound/`；旧工作根 → `{workroot}/`；混合 → 停问 |
-| `开发规范/` 旧包名 | `wf-development/`（多包 `wf/wf-development/`） |
 | `项目档案.md` | `project-profile.md` |

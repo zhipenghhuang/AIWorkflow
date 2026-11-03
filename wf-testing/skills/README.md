@@ -21,7 +21,7 @@
 | 接口轨 | `skills/test-interface/SKILL.md`（脚本优先 + 契约/复用；+ `rules/tracks/api.md`） |
 | 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（基础/标准/高风险级 + 工具矩阵/LLM 安全/韧性；+ `rules/tracks/pre-release.md`） |
 | AI/LLM/RAG/Agent 功能 | `skills/ai-feature-testing/SKILL.md`（oracle/评测集/重复阈值/红队）+ `skills/test-performance-security-compatibility/SKILL.md`（安全） |
-| report | `rules/templates/40-报告与评审/测试报告模板.md` + `rules/workflow.md` §4（即技能） |
+| report | `rules/templates/40-report-review/test-report-template.md` + `rules/workflow.md` §4（即技能） |
 | defect | `rules/defects/collaboration.md`（即技能） |
 | 脚本档 | `rules/special/script-execution.md`（即技能） |
 | onboard | `agents/onboard-agent.yaml`（核验清单即技能） |

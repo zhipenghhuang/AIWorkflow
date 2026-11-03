@@ -48,7 +48,7 @@ python wf-testing/rules/tools/validate_api_testcase.py <接口域用例.md>
 
 ## 3. 无障碍/UX
 
-`rules/templates/20-测试用例/无障碍与UX检查清单.md`；结果并入测试报告 §11。
+`rules/templates/20-test-cases/a11y-ux-checklist.md`；结果并入测试报告 §11。
 
 ## 4. 重排维护
 

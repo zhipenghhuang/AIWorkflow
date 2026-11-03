@@ -39,14 +39,14 @@ steps:
     agent: iterate-lead
     output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
     notes: >
-      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`；模板 `rules/templates/30-计划与任务/任务清单模板.md`。
+      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`；模板 `rules/templates/30-planning-tasks/task-list-template.md`。
       输入是原始想法/无 PRD → 先按 `skills/product-shaping/SKILL.md` 给 3～5 行产品判断，再拆任务；不强制产品定义卡。
       L2+ 先读 `{workroot}/development-plan.md`（旧项目可 `{workroot}/00-governance/development-plan.md`）；无则按 `skills/development-plan/SKILL.md` 创建/提示缺口。
       本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
       **验收清单**：每任务 AC+**SC** 对应「检查 + 证据」；L2+ 按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process/sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
       任务开始先写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：含 `base_commit`；中途 commit 仍计入本任务 diff）。
-      **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/docs/testing/风险」表 ≤30 行；主 agent 拆清单；小改直做。
-      拆完先自检：RP 覆盖、AC、**SC 表**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；再进 confirm。
+      **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
+      拆完先自检：RP 覆盖、AC、**SC 表（未进 SC 的方案条款=0 或债项）**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；再进 confirm。
       若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】，再到 commit 确认（跳过 confirm / implement / review / gates / deliver / release_handoff / retro）。
       口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
       未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
@@ -95,14 +95,14 @@ steps:
       触发条件由步上 `review_required` 控制；L2+/L3、高风险/大改/破坏性或点名必走；L0 或确实低风险的 L1 单点可跳过，但须在计划/验收记录理由与风险接受人；免审不免自测/证据。
       评审范围必须覆盖本轮完成门 diff；若门禁 diff 含未审波次，评审记录必须补覆盖，否则不得判 `COMPLETE`。
       多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
-      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/缺口），供完成门核对；L2+ 缺评审记录 = BLOCKED。
+      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账/缺口），供完成门核对；L2+ 缺评审记录或缺 SC 对账（非 na）= BLOCKED。
       本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能：`skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` §5 + `skills/cross-layer-consistency/SKILL.md`（权限/状态/数据基数/多表面时按四维矩阵核）；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
+      技能与核对口径同 `change.review`（含 `code-review` §4.0 AC+SC / 原文抽核）；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
       security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
       UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `skills/frontend-design/SKILL.md` §9 评分卡人工核。
       **评审分片**（子代理编排 §2）：>400 行有效 diff 或 L3 → 按维度只读扇出，编排去重；最终结论由本步 reviewer 定；小 diff 直做。
       需修回 implement，同回合重验≤1；核验不替代门禁。
-      **证据核对**：只看本轮 diff/docs/testing/截图证据；完成门由下一步 gates 统一运行；评审不声称完成。前端变更核对状态/视口/console/network/截图。
+      **证据核对**：只看本轮 diff/测试/截图证据；完成门由下一步 gates 统一运行；评审不声称完成。前端变更核对状态/视口/console/network/截图。
 
   - name: 全量门禁与文档同步
     id: gates
@@ -146,7 +146,7 @@ steps:
     output: 复盘（{workroot}/80-retrospectives/）
     notes: >
       条件步：迭代完成/发布回滚/事故/重复缺陷才走；小迭代可 3～5 条轻量复盘。
-      技能：`skills/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `rules/templates/60-复盘与改进/复盘模板.md`。
+      技能：`skills/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `rules/templates/60-retro/retro-template.md`。
       若 release 工作流已做复盘 → 本步只补迭代视角/链接，不重复同一分析。
       更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；行动项必须有负责人/截止/验收，进任务清单或 `{workroot}/80-retrospectives/改进项.md`；下次复盘先对账。
       本步只补复盘结论/行动项/链接，不重复六段；最终收尾由 wrap 输出。
@@ -162,7 +162,7 @@ steps:
       更新 `handoff-ledger.md`；未回执/退回/有条件接收列入收尾与 §0 当前阻塞；有未回执的必需交接不得把迭代标完成。
       迭代/版本关闭：追加 `{workroot}/work-log.md` 里程碑；**仅**用户可见版本关闭/发版时更新根 `CHANGELOG.md`（产品发版史；禁接入/文档治理/过程项）；勿把工作日志当根 CHANGELOG，勿把 §12 抄进工作日志。
       迭代关闭：按 `rules/doc-governance.md` §7 扫描；先判 T1/T2/T4；T2/T4 保留仍被引用的基础设计/流程图/原型，不整夹归档；失效资料 → `inbound/_archive/{yyyyMMdd}-{版本}/` + 清单；失去实施入口的增量方案/清单 → `{workroot}/_archive/{yyyyMMdd}-{版本}/`；部分/增量/参考不动；未确认不移动。
-      有代码改动读本轮 `.gate/wf-development/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点含迭代交付总结
+      有代码改动读本轮 `.gate/wf-development/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含迭代交付总结
       有门回执时运行 `verify/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
       本步先出骨架与拟提交清单；有未提交文件时必须输出【提交提醒】（本任务/前序/无关统计+建议）；完整【拟提交】在下一步 commit 只展示一次；未提交默认不得开始下一任务（例外=基线检查选项 C/D 且用户确认）。
 

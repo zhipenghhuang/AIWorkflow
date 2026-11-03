@@ -22,7 +22,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 
 ## 2. 计划：企业级测试计划（§0～§18；核心 §1～§16）
 
-按 `rules/templates/10-计划/测试计划模板.md` 填，不跳节：
+按 `rules/templates/10-planning/test-plan-template.md` 填，不跳节：
 
 0. 一页状态（计划状态/当前阶段/当前门/下一动作/需人工/健康度/阻塞）
 1. 测试对象与构建（版本/主读/环境/计划版本/负责人）
@@ -32,7 +32,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 5. 准出标准（P0、类型完成、缺陷清零、回归、探索式、报告）
 6. 暂停/恢复（环境/主链路/数据合规/计划变更）
 7. 环境、数据、账号与工具（环境矩阵/数据策略/角色/能力）
-8. 风险与应对（docs/product/项目风险、概率、责任人）
+8. 风险与应对（产品/项目风险、概率、责任人）
 9. 里程碑与执行编排（P0～P9 阶段表：范围/依赖/并行/入口/出口/产出）
 10. 回归策略（连续回归、跨版本失败/待实现/已修复、原单+冒烟+影响面、升级口径）
 11. 缺陷管理（分级、提交策略、查重、修复-回归闭环）
@@ -76,7 +76,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 - **分层**：接口/契约/单测优先于 UI；稳定的主链路/回归脚本化，探索/一次性/视觉判断保留人工或半自动。
 - **选择**：高频、稳定、可断言、数据可造、跨版本重复执行 → 脚本；频繁变/强视觉/难断言 → 人工/AI 辅助，不硬脚本化。
 - **CI 门**：提交级 smoke；合并/夜间全量或模块回归；发布前最小充分集；失败阻断规则写清，不静默跳过。
-- **flake 治理**：失败先分诊（docs/product/环境/数据/脚本/随机）；有界重试并记录；长期 flaky 隔离并修，不靠重跑刷绿。
+- **flake 治理**：失败先分诊（产品/环境/数据/脚本/随机）；有界重试并记录；长期 flaky 隔离并修，不靠重跑刷绿。
 - **维护**：脚本 owner、选择器/数据/环境依赖、执行时长、清理；定期删失效脚本，避免负资产。
 - **AI 生成脚本**：只作候选；必须人工评审断言/数据/清理，禁直接进回归门。
 - 方法见 `skills/test-data-and-environment/SKILL.md`、`rules/special/script-execution.md`；本表只定策略与门。

@@ -6,7 +6,7 @@ description: Use when an approved requirement or design must be broken into exec
 # 任务拆解（技能 · 随包生效）
 
 > 用于：`iterate` 的 `plan` 步、`change` 的条件 `plan` 步。先读本技能，再拆单。  
-> 产出：`{workroot}/40-tasks/任务清单-{ver}.md`，骨架见 `rules/templates/30-计划与任务/任务清单模板.md`。  
+> 产出：`{workroot}/40-tasks/任务清单-{ver}.md`，骨架见 `rules/templates/30-planning-tasks/task-list-template.md`。  
 > 原则：**先垂直切片，再按文件分组派工**；任务不是“一行状态”，而是“可独立验收的交付单元”。
 
 ## 1. 输入（缺一先补）
@@ -26,7 +26,7 @@ description: Use when an approved requirement or design must be broken into exec
 4. **垂直切片**：每个任务尽量交付一条可演示、可测试的完整路径；禁止“所有 DB / 所有 API / 所有 UI”横向切。  
 5. **写任务卡**：目标、AC、精确文件/接口、测试先行、验证命令、回滚/开关、DoD、依赖、规模。  
 6. **定检查点**：每 2～3 个任务或每个阶段一个 checkpoint；高风险任务前置（fail fast）。  
-7. **自检**：每个 RP 有任务；每个任务有 AC/verify/文件；依赖无环；无孤儿任务；`[P]` 不冲突；L 任务已拆。  
+7. **自检**：每个 RP 有任务；每个任务有 AC/verify/文件/SC（或 na）；方案/PRD「必须/允许/不得/Then」未进 SC 且无债项 → 不得确认；依赖无环；无孤儿任务；`[P]` 不冲突；L 任务已拆。  
 8. **确认与冻结**：`confirm_backlog` 展示清单 + 节奏；确认后冻结基线；后续变更走“变更记录”，**禁止覆盖未完成任务清单**。
 
 ## 3. 任务卡字段（最小集）
@@ -39,12 +39,12 @@ description: Use when an approved requirement or design must be broken into exec
 | 要求点（RP） | `R-01` 等；无来源的任务不建 |
 | 验收标准（AC） | `AC-01` 起；可观测、可判定；禁止“正常/正确” |
 | 验证类型 | `DEV-AC / QA-AC / REL-AC`；开发任务只允许 `DEV-AC` |
-| 验证 owner/阶段 | {workroot}/docs/testing/产品 + S5/S6/S7/S8；QA/REL 不作为开发门输入 |
+| 验证 owner/阶段 | 测试/产品 + S5/S6/S7/S8；QA/REL 不作为开发门输入 |
 | 改动范围 | 精确文件/目录/接口；不写“相关模块” |
 | 接口/契约 | 消费什么、产出什么；跨任务签名/字段 |
-| 测试先行 | 先写哪个失败docs/testing/探针；无测点写理由 |
+| 测试先行 | 先写哪个失败测试/探针；无测点写理由 |
 | 验证命令与证据 | 命令 + 预期结果 + 证据落点 |
-| 覆盖矩阵 | 命中权限/状态/数据基数/多表面时，按 `skills/cross-layer-consistency/SKILL.md` 填四维矩阵；每行有docs/testing/证据 |
+| 覆盖矩阵 | 命中权限/状态/数据基数/多表面时，按 `skills/cross-layer-consistency/SKILL.md` 填四维矩阵；每行有测试/证据 |
 | 方案条款 SC | 按 `rules/core/implementation-quality.md` 抽 Then/异常/第二次写/角色正反为 `SC-xx`；无 SC 不开工（L0 除外）；裁剪写入债项表 |
 | 回滚/开关 | 高风险任务必填；无则写“不适用” |
 | 依赖/并行 | 依赖任务号；可并行标 `[P]`；同文件不并行 |
@@ -74,7 +74,7 @@ description: Use when an approved requirement or design must be broken into exec
 - [ ] 每个任务可独立验收；L 任务已拆；高风险任务已前置。  
 - [ ] `[P]` 任务不同文件、无未完成依赖。  
 - [ ] 有检查点；每个检查点有可执行验证。  
-- [ ] 每任务有 SC 表（或标不适用）；Then/异常/角色正反/第二次写已覆盖或债项化。  
+- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；Then/异常/角色正反/第二次写已覆盖或债项化（细则只认 `implementation-quality.md` DEV-IQ-01）。  
 - [ ] 命中权限/状态/数据基数/多表面时，四维矩阵已填；每个 Then/异常/角色正反/第二次写都有行。  
 - [ ] 任务清单有变更记录；未覆盖旧清单前先问用户。  
 - [ ] 运行 `python rules/tools/validate_tasklist.py <清单路径>` 通过（如可用）。
@@ -101,3 +101,4 @@ description: Use when an approved requirement or design must be broken into exec
 | 「任务越大越好控」 | 不可验证单元要拆；无 DoD/测点=未就绪。 |
 | 「估时凭感觉」 | 写依据与风险；不确定标区间并暴露假设。 |
 | 「矩阵以后填」 | 跨层命中时覆盖矩阵入任务卡，否则实施预检会挡。 |
+| 「先有 AC 再补 SC」 | 未进 SC 的必须/不得/Then=漏实施风险；confirm_backlog 前条款数须为 0 或债项。 |

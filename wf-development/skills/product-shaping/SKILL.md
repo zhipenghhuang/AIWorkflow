@@ -15,7 +15,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 **适用**
 
 - 只有一个想法、目标用户/场景/成功标准还没说清。
-- 新项目/新docs/product/新模块，需要先定 MVP 与不做什么。
+- 新项目/新产品/新模块，需要先定 MVP 与不做什么。
 - 多个需求抢资源，需要快速判断先后。
 - 方案卡需要补「产品判断」一节。
 
@@ -62,7 +62,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 
 ## 3. 产品定义卡（一页）
 
-按 `rules/templates/10-规划与需求/产品定义卡模板.md` 填；最少包含：
+按 `rules/templates/10-planning/product-definition-card-template.md` 填；最少包含：
 
 1. **一句话定义**：给谁、解决什么问题、带来什么结果。
 2. **问题与证据**：来源/样本/日期；事实与假设分开。

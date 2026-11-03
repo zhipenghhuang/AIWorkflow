@@ -5,7 +5,7 @@ description: Use when writing or updating a PRD. Produce a complete, testable, t
 
 # PRD 撰写（技能 · 随包生效）
 
-> 用于：prd 步。按 `rules/templates/10-规划与需求/PRD模板.md` 落盘；本技能=把 PRD 写到**可开发、可测试、可追溯**。  
+> 用于：prd 步。按 `rules/templates/10-planning/prd-template.md` 落盘；本技能=把 PRD 写到**可开发、可测试、可追溯**。  
 > **写前门槛**：须已完成理解+方案双确认（受理单/澄清记录/需求池确认列）；澄清程序**按 `rules/core/clarification.md` 执行**。**未双确认不得**写正式 PRD / 称可开发（可出标「待确认」草稿）。每条 F/R/AC 必须能指到来源；无来源列 `Q-xx`；未确认推断标「假设」。禁止把单个客户/竞品做法/领导偏好写成市场需求。
 
 ## 1. 写作顺序（16 节）
@@ -60,7 +60,7 @@ description: Use when writing or updating a PRD. Produce a complete, testable, t
 
 - **任务与失败成本**：用户要完成什么；错误输出的后果；哪些场景必须人工确认/转人工。
 - **可接受/不可接受输出**：事实错误、越权、泄露、危险建议、格式破坏等；写成可判定验收。
-- **数据边界**：哪些数据可输入/可保留/可出境；PII/密钥/商业机密；供应商条款由docs/development/法务确认。
+- **数据边界**：哪些数据可输入/可保留/可出境；PII/密钥/商业机密；供应商条款由开发/法务确认。
 - **兜底与透明度**：低置信/超时/模型不可用时的行为；是否标注 AI 生成；是否可编辑/撤销。
 - **质量度量**：评测集/通过阈值/红队/线上反馈；不只写“准确率≥90%”，要写口径与样本。
 - **成本/延迟**：用户可感知的等待上限、配额/付费规则；异常消耗的处理。
@@ -75,7 +75,7 @@ description: Use when writing or updating a PRD. Produce a complete, testable, t
 
 ### 8.3 多需求版本：迭代方案
 
-- 单需求细节写 PRD；多需求/多功能的版本用 `rules/templates/10-规划与需求/迭代方案模板.md` 汇总。
+- 单需求细节写 PRD；多需求/多功能的版本用 `rules/templates/10-planning/iteration-plan-template.md` 汇总。
 - 迭代方案至少含：一页状态、范围/非目标、功能清单（F-xx）、rules/状态、页面映射、验收矩阵（A/AC + 前置/动作/预期）、执行记录模板、实施准备/启用条件、追溯矩阵、决策来源、发布条件/回滚。
 - 迭代方案中的验收矩阵是测试/UAT 资产；必须先标 `DEV-AC / QA-AC / REL-AC`，不得原样转成开发任务。
 - 发布条件写清：P0 AC 通过、阻断缺陷清零、QA-AC/REL-AC 结果齐、UAT 签字、回滚预案；未执行不得写通过。

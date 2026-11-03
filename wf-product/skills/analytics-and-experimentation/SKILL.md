@@ -7,7 +7,7 @@ description: Use when defining product metrics, event tracking, funnels, retenti
 
 > 用于：PRD 的指标/埋点节、发布度量、功能验证、增长实验、复盘归因。  
 > 定位：**先有决策问题，再有指标；先有口径，再有数据**。指标不是“上线后看看”，而是验收的一部分。  
-> 边界：数据平台/SQL/BI 属docs/development/数据侧；本技能定义产品口径与验收方法。  
+> 边界：数据平台/SQL/BI 属开发/数据侧；本技能定义产品口径与验收方法。  
 > 不适用：无用户/无数据决策的内部工具；写「不适用 + 原因」，不硬造指标。
 
 ## 1. 从决策问题到指标

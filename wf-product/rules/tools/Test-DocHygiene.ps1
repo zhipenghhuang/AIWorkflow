@@ -105,7 +105,7 @@ if (Test-Path -LiteralPath $readIndexPath) {
     }
 }
 
-$tplDir = Join-Path $Root 'rules/模板'
+$tplDir = Join-Path $Root 'rules/templates'
 $tplIndex = Join-Path $Root 'rules/templates/index.md'
 if ((Test-Path -LiteralPath $tplDir) -and (Test-Path -LiteralPath $tplIndex)) {
     $indexText = Get-Content -LiteralPath $tplIndex -Raw -Encoding UTF8

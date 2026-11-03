@@ -30,7 +30,7 @@ steps:
       只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/product-plan.md` §0/§12；不重写计划、不发包。
       报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断下游的 HO-ID、下一步入口。
       有未登记新件（`{workroot}/handoff/inbound/` 有投放但台账无记录或仍为已投放）→ 建议先 `receive`/分析吸收。
-      台账缺失 → 按 `rules/templates/90-交接与收尾/交接台账模板.md` 建，但不虚构历史。
+      台账缺失 → 按 `rules/templates/90-handoff/handoff-ledger-template.md` 建，但不虚构历史。
       输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
 
   - name: 写交接单文档
@@ -40,7 +40,7 @@ steps:
     hitl_when: intent_needs_confirm
     output: 自洽交接单文档（默认非 HO；落 outbound/{category}/）
     notes: >
-      **默认入口**。读协作 §3.0～§4.0 与 `通用交接单文档模板.md`（择优，非填空卷）。
+      **默认入口**。读协作 §3.0～§4.0 与 `handoff-note-template.md`（择优，非填空卷）。
       **意图择优**：先判 `intent_needs_confirm`（澄清 §0）。真 → 完整【意图理解】停等再落盘；假 → 一行【意图】回执后直写。禁止含糊「交接」直接成文。
       五问→形态 A/B/C 或专模；禁止整表粘贴。确认类优先 B 一页纸。
       专模真源写版本目录，同轮实拷 `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建 HO；禁外印元数据。
@@ -118,7 +118,7 @@ steps:
     agent: pm-lead
     output: 【任务收尾】（handoff/回执/变更置第 1 点）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项
       更新产品计划 §0/§10/§12、activeContext、 `{workroot}/INDEX.md`；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未回执/退回/待补项明示。
       本步只出骨架与拟提交清单；提交门在下一步。
 

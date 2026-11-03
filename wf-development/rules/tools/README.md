@@ -7,7 +7,7 @@
 | `validate_workflow.py` | YAML 语法 + workflow/agent 基本 schema + step/agent/entry_points/hitl/when/gate 引用 | `python rules/tools/validate_workflow.py .` |
 | `validate_tasklist.py` | 任务清单模板/实例校验：章节/列/ID/状态/依赖/任务卡字段/RP 覆盖 | `python rules/tools/validate_tasklist.py <清单路径>` |
 | `validate_dev_plan.py` | 开发计划校验：阶段/门/状态/下一步/关键节/链接 | `python rules/tools/validate_dev_plan.py <开发计划路径>` |
-| `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner development`；读/建 `layout.yaml`；搬迁仍需确认） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner development` |
+| `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner development`；按档案 `workroot`，未声明按约定；搬迁仍需确认） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner development` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） | `python rules/tools/check_secrets.py .` |
 
 - `Test-Template.ps1` 会调用 `validate_workflow.py`（需要 Python + PyYAML）；找不到 Python 时显示“跳过”，不假装通过。  

@@ -26,7 +26,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 | 迭代方案 | 只含本次迭代功能 | 建 `{workroot}/40-tasks/迭代-{版本}/迭代计划.md`；引用/新增 `R-xx` |
 | 未决项确认 | “这个定了/按 B 方案” | 关 `OPEN-xx`，写 `DEC-xx`，更新关联 R/AC/设计/任务 |
 | 设计/原型确认 | 接口、数据、页面、交互 | 迭代方案更新 `{workroot}/20-design/`；现行契约更新 `{workroot}/30-architecture/`；影响分析 |
-| docs/testing/发布资料 | 用例、报告、上线/回滚 | 更新 `04/05`；关联版本/R |
+| 测试/发布资料 | 用例、报告、上线/回滚 | 更新 `04/05`；关联版本/R |
 | 会议纪要/原始资料 | 未形成结论 | 落 `inbound/{ver|topic}/` 或 `_common/`（保持原名），只登记，不直接改基线 |
 | 新需求/变更 | 新增功能、改范围/排期 | 建 `CR-xx`，走影响分析 + 确认 |
 
@@ -54,7 +54,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 
 - 只改受影响章节；不重写全文。
 - 保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明）；变更前后与原因记 CR/变更记录。
-- 更新 `需求台账`、迭代计划、任务清单、docs/testing/发布文档（按影响）。
+- 更新 `需求台账`、迭代计划、任务清单、测试/发布文档（按影响）。
 - 更新 `开发计划` §9/§10、`{workroot}/INDEX.md`、`activeContext`。
 - 不新建重复文档；同一主题就地更新；不同工作先问用户。
 
@@ -62,7 +62,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 
 - 新增/修改任务：补 AC、精确文件/接口、测试先行、验证命令、DoR/DoD。
 - 更新迭代计划：本次范围、依赖、风险、里程碑。
-- docs/testing/发布：按影响补用例、回归范围、发布说明/回滚。
+- 测试/发布：按影响补用例、回归范围、发布说明/回滚。
 - 只准备，不直接实施；实施走 `change`/`iterate`。
 
 ## 7. 变更吸收报告（给用户确认）
@@ -72,7 +72,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 1. 输入与分类：{文件/聊天 → 类型}
 2. 关联：{R/AC/OPEN/CR/T}
 3. 影响矩阵：{受影响/不受影响 + 依据}
-4. 已更新：{文档/章节/任务/docs/testing/发布}
+4. 已更新：{文档/章节/任务/测试/发布}
 5. 待确认：{范围/优先级/方案/排期/发布}
 6. 下一步：{进入 change/iterate / 仅关闭 / 等用户确认}
 ```
@@ -83,7 +83,7 @@ description: Use when a user sends a new document, a change request, a confirmat
 - 只改聊天/一个文档，其他文档不联动。
 - 把迭代方案当完整 PRD；不建/不更新需求台账。
 - 确认项只写“已确认”，不关 OPEN、不写决策、不更新任务。
-- 影响分析沉默；漏 DB/API/docs/testing/发布。
+- 影响分析沉默；漏 DB/API/测试/发布。
 - 小变更重跑全链；大变更只改文案。
 - 不更新 `{workroot}/INDEX.md` / 开发计划，接手人不知道。
 

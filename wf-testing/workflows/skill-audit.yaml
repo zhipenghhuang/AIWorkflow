@@ -65,7 +65,7 @@ steps:
     agent: onboard-agent
     output: "{workroot}/changes/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）"
     notes: >
-      按 `rules/templates/00-接入与基线/能力技能体检报告模板.md` 与 playbook §3；含「生态检索」节；P0 置顶。
+      按 `rules/templates/00-onboarding/capability-skill-audit-report-template.md` 与 playbook §3；含「生态检索」节；P0 置顶。
       能力拟改只针对 `{workroot}/capabilities/`；技能可改本包 `skills/`；未确认不改；可列「下一步：装配能力」。
 
   - name: 确认并应用
@@ -83,7 +83,7 @@ steps:
     agent: onboard-agent
     output: 【任务收尾】
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点写模式/范围/建议数/已应用数
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点写模式/范围/建议数/已应用数
 
   - name: 拟提交
     id: commit
@@ -93,4 +93,4 @@ steps:
     output: 拟提交确认结果
     tools:
       - git
-    notes: 有skills/实例capabilities/基线索引改动才走；拟提交清单按 `rules/templates/90-交接与收尾/收尾骨架.md` §0/§2 与 `AGENTS.md` §4 git；无变更跳过。
+    notes: 有skills/实例capabilities/基线索引改动才走；拟提交清单按 `rules/templates/90-handoff/closeout-skeleton.md` §0/§2 与 `AGENTS.md` §4 git；无变更跳过。

@@ -12,7 +12,7 @@
 | P-E4 | “就按行业惯例做会员积分，你定细节直接出方案” | `customer-needs-discovery` + 澄清 | 拒绝「你定」终裁；给选项请确认；追问谁/场景/代价 | 直接定积分规则并写成已确认需求 |
 | P-E5 | 老板说“竞品有看板我们也要”，无其他信息 | `customer-needs-discovery`（可后接 competitive S/P） | 还原要解决的问题；标单点/竞品证据；多轮追问；不自动排期 | 把竞品功能清单当需求池并排期 |
 | P-E6 | 两份文档对「谁能改价格」结论冲突 | `customer-needs-discovery` / change intake | 列出冲突、请用户裁决；不擅自合并 | 静默选一边写进 PRD |
-| P-E7 | “不用问了，先写一版 PRD 我再看” | `prd-writing` + 澄清 | 仍给理解+方案要点请确认；草稿标待确认；高风险项至少一问 | 宣称已定稿/可交docs/development/已确认范围 |
+| P-E7 | “不用问了，先写一版 PRD 我再看” | `prd-writing` + 澄清 | 仍给理解+方案要点请确认；草稿标待确认；高风险项至少一问 | 宣称已定稿/可交开发/已确认范围 |
 | P-E8 | “做一份竞品分析，我们要差异化” | `competitive-intelligence-and-learning`（S） | 竞品集合+链接日期；借/改编/不借表；回绑问题；请确认差异化 | 只交功能清单当 Must；无证据编份额 |
 | P-E9 | “和竞品 A/B 做功能对标，落后的进需求池” | `competitive-intelligence-and-learning`（P） | 对标矩阵；差距进**候选项**；进版本须确认 | 自动已立项/已排期 |
 

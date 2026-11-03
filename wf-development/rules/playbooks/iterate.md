@@ -8,13 +8,13 @@
 | 步 | 必读 | 可选/按需 |
 | --- | --- | --- |
 | precheck | `iterate.yaml` + 需求基线/方案/开发计划现状 | 项目档案 §8 |
-| plan | `skills/task-breakdown/SKILL.md` + 任务清单模板（L1 可用 `开发卡-轻量模板.md`） | 代码地图 scout（大仓） |
+| plan | `skills/task-breakdown/SKILL.md` + 任务清单模板（L1 可用 `dev-card-lite-template.md`） | 代码地图 scout（大仓） |
 | confirm | 门表 `confirm_backlog`（仅需 approve 时） | 清单 §6 |
-| implement | `skills/implementation-and-selftest/SKILL.md` + `skills/engineering-quality/SKILL.md` | 子代理编排 §2、`前端设计说明模板.md` |
+| implement | `skills/implementation-and-selftest/SKILL.md` + `skills/engineering-quality/SKILL.md` | 子代理编排 §2、`frontend-design-spec-template.md` |
 | review | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` §5 + reviewer-agent | security-scan |
 | gates | `verify/Invoke-Gate.ps1` + `verify/checks.yaml` | `.gate/wf-development/completion.json`、日志摘要 |
 | deliver | `skills/qa-handoff-and-release/SKILL.md` + 提测/发布模板 | 回滚预案 |
-| wrap | `rules/templates/90-交接与收尾/收尾骨架.md` | 文档治理、根 `CHANGELOG.md` |
+| wrap | `rules/templates/90-handoff/closeout-skeleton.md` | 文档治理、根 `CHANGELOG.md` |
 | release_handoff | 发布就绪包 + `release.yaml` | 上线检查单 |
 | retro | `skills/retrospective-and-improvement/SKILL.md` + 复盘模板 | 上次行动项对账 |
 
@@ -29,7 +29,7 @@
 ## 3. 流程卡
 
 1. **precheck**：读需求基线/方案/开发计划/清单现状；确认需求已签收、方案已批准（L2+）；输入是交接包 → 先 `handoff.receive` 核对+回执；输入含 PRD/迭代方案/原型但无理解包，或理解包无 §0 Brief/本期差量表 → 先回 `change.analyze_input`；缺失 → 一句话说明，转 `change` 的 10-requirements/design 补确认。
-2. **plan**：只读，不改代码；输入=已确认需求/方案 + 代码地图 + 项目档案 §8；大仓/≥5 文件可派只读 scout（返回文件/函数/调用方/docs/testing/风险 ≤30 行）；拆完自检 RP 覆盖/AC/精确文件/依赖无环/并行冲突/L 已拆/检查点。
+2. **plan**：只读，不改代码；输入=已确认需求/方案 + 代码地图 + 项目档案 §8；大仓/≥5 文件可派只读 scout（返回文件/函数/调用方/测试/风险 ≤30 行）；拆完自检 RP 覆盖/AC/精确文件/依赖无环/并行冲突/L 已拆/检查点。
 3. **confirm**：仅 L2+ 或范围/节奏实质变化时 approve；L1 默认 notify；「继续迭代」清单未变 → 跳过。
 4. **implement**：按清单执行；完成当场回写状态/验证摘要/提交号；≥3 个可独立任务且文件集不相交才分片；默认串行；子代理不改清单/计划。
 5. **review**：仅多文件/新功能/高风险/大改/点名时执行；L0 单文件跳过；核验者≠实施者；只报正确性/需求覆盖/安全/性能/范围缺口。
@@ -48,4 +48,4 @@
 
 ## 5. 输出
 
-任务清单/代码/验证证据/提测单/发布说明/复盘/收尾。收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+任务清单/代码/验证证据/提测单/发布说明/复盘/收尾。收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。

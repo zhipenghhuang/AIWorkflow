@@ -40,14 +40,14 @@ steps:
     output: 开发计划（{workroot}/development-plan.md）
     notes: >
       本步只建/更新开发计划，不自动执行后续阶段；要推进说「按开发计划执行」。
-      技能：`skills/development-plan/SKILL.md`（先读再做）；模板 `rules/templates/10-规划与需求/开发计划模板.md`。
+      技能：`skills/development-plan/SKILL.md`（先读再做）；模板 `rules/templates/10-planning/development-plan-template.md`。
       命名：本文档=开发计划（总览/开发轨总控）；S3=任务与排期（任务清单/依赖/估算/DoR/DoD/检查点），是计划里的一个阶段。
       路径：新项目默认 `{workroot}/development-plan.md`（建议 `{workroot}/development-plan.md`）；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`，以 `project-profile.md` §9 为准。
       输入：PRD/原型/AC/接口/仓库/环境（能拿到多少写多少；缺口写 §2 并由用户提供/选择已有资料）。
       无 PRD/只有想法 → 先按 `skills/product-shaping/SKILL.md` 给产品判断（问题/用户/价值/MVP/非目标/成功标准），再填 §2；不强制产品定义卡。
       输入含 PRD/迭代方案/原型 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要/理解包（来源/目标/范围/F-R-AC/冲突/GAP/置信度）；S0 未完成理解确认不得进入 S1/S2。
       新建：复制模板，填 §0 一页状态（计划状态/当前门/下一动作/需人工）、§2 输入/外部输入、§1 阶段表（S0 进行中，其余未开始；每阶段“技能”列必填）、§10 变更、§12 执行日志、§13 归档索引。
-      建 `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-交接与收尾/交接台账模板.md`）；按模板登记 REQ/DES/PLAN/QA/TEST/FIX/REL 节点；无跨角色交接可不建包，但台账保留。
+      建 `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-handoff/handoff-ledger-template.md`）；按模板登记 REQ/DES/PLAN/QA/TEST/FIX/REL 节点；无跨角色交接可不建包，但台账保留。
       L2+ 同时确认 需求台账/变更记录/待决项/决策记录/`inbound/` + `inbound/INDEX.md` 存在；无则按模板补。
       每阶段按阶段表“技能”列加载技能；S2 技术方案按变更面加载 02A/02B/02C/02D/02E/02F，不要求全读。
       已存在：不覆盖；读现状后转 sync，避免丢失进度。
@@ -124,7 +124,7 @@ steps:
     agent: iterate-lead
     output: 【任务收尾】（计划/进度/下一步明细置第 1 点，六段压缩）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出六段压缩；第1点含当前阶段/门/下一步
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出六段压缩；第1点含当前阶段/门/下一步
       只读查询不写计划；有实质进展时更新开发计划 §0/§12、 `{workroot}/INDEX.md` 与 activeContext（现状三处同拍；`sync=` 含 `triad=`）；更新 `handoff-ledger.md` 摘要与待回执/退回项。
       版本/迭代关闭：追加 `{workroot}/work-log.md` 里程碑（索引+条目；结论/产出/遗留）；**仅**用户可见版本关闭/发版时更新根 `CHANGELOG.md`（产品语言：用户可见capabilities/破坏性/迁移·兼容/安全；禁接入/文档治理/过程项）——工作日志≠根 CHANGELOG≠开发计划执行日志。
       按 `rules/doc-governance.md` §3～§5 扫描 `inbound/`，输出【资料收取与归档候选】；只归档用户确认的 `失效` 项，部分覆盖/增量/参考不动；未确认不移动。

@@ -48,8 +48,8 @@ steps:
     notes: >
       来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）；
       **先还原需求**：技能 `skills/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案；单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
-      澄清**按 `rules/core/clarification.md` 执行**；正式访谈用 `访谈指南模板`，综合用 `洞察综合模板`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
-      **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `skills/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板 `竞品分析模板.md`）；产出借/改编/不借表并回绑本产品问题；影响定位/范围须确认。功能差距清单需求 → 转 `benchmark` 步（模式 P），不在本步只交对标矩阵冒充分析。
+      澄清**按 `rules/core/clarification.md` 执行**；正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
+      **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `skills/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板 `competitor-analysis-template.md`）；产出借/改编/不借表并回绑本产品问题；影响定位/范围须确认。功能差距清单需求 → 转 `benchmark` 步（模式 P），不在本步只交对标矩阵冒充分析。
       **来源扇出**（子代理编排 §2）：批量洞察/竞品 ≥4 独立来源 → 按来源只读扇出（返回证据表/去重键 ≤30 行）；主 agent 去重入池；单条反馈直做。
       引用须可回查（来源+日期），无依据写「待验证」。
       能力（可选）：docs-mcp 查资料、browser-mcp 查竞品/后台；未装=按主读与用户输入。
@@ -65,7 +65,7 @@ steps:
     notes: >
       入口=「竞品对标/功能对标/对标分析/功能差距」或 discover 分诊为模式 P。
       技能：`skills/competitive-intelligence-and-learning/SKILL.md` **模式 P**（先读）+ `requirement-discovery-and-prioritization`（入池字段）。
-      落盘模板 `竞品对标模板.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
+      落盘模板 `competitive-benchmark-template.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
       ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。
       用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → 可跳过门。
       发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。
@@ -97,7 +97,7 @@ steps:
         when: understanding_needs_confirm
       - name: confirm_scope
         when: scope_unconfirmed
-    output: "{workroot}/{ver}/10-requirements/PRD-{主题}.md（模板 rules/templates/10-规划与需求/PRD模板.md）"
+    output: "{workroot}/{ver}/10-requirements/PRD-{主题}.md（模板 rules/templates/10-planning/prd-template.md）"
     notes: >
       skills_required: prd-writing｜skills_optional: analytics-and-experimentation（有指标/埋点/实验才读）
       前置：产品计划已确认，或单需求范围已经 `confirm_scope` 批准；两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。
@@ -107,7 +107,7 @@ steps:
       P2+ 且开发/测试角色可得时，按 `rules/collaboration/handoff.md` §2 做需求澄清（Three Amigos）：产品讲问题/AC，开发讲可行性/影响，测试讲可测性/oracle；产出澄清记录（问题/示例/AC/待决，可并入 PRD 的变更记录节或评审记录）并回写 PRD；角色不可得则跳过，不阻塞。
       技能：`skills/prd-writing/SKILL.md`（先读再写）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验，可选）；自检清单与 `skills/review-and-finalize/SKILL.md` 同源。
       要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段rules/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
-      **多需求/版本级**：用 `rules/templates/10-规划与需求/迭代方案模板.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；PRD 保留单需求明细。验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
+      **多需求/版本级**：用 `rules/templates/10-planning/iteration-plan-template.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；PRD 保留单需求明细。验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
       写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。
       **级别**：P0/普通 P1 → 轻量模板；**P1↑**（权限/资金/隐私/不可逆数据/主数据规则）→ 作者自检按 P2，可用轻量壳但须补权限/rules/异常/AC；P2+ → 全量模板。
       **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing §9.1）；`gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。BLOCKED → 不得进评审/定稿；DRAFT → 可审不可定稿；进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。
@@ -166,7 +166,7 @@ steps:
     agent: prd-writer
     output: 【任务收尾】（PRD/评审明细置第 1 点）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写；
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写；
       更新产品计划 §0/§7/§10、activeContext、 `inbound/INDEX.md`（有实质进展时）；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。
       本步先出骨架与拟提交清单，提交门在下一步。
 

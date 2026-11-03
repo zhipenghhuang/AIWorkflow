@@ -48,7 +48,7 @@
 | change：design / S2 技术方案 | `skills/solution-design/SKILL.md`（主技能）+ `skills/engineering-quality/SKILL.md`（质量条）+ `skills/technology-selection/SKILL.md` / `skills/database-design/SKILL.md` / `skills/api-design/SKILL.md` / `skills/frontend-design/SKILL.md`（按需）/ `skills/threat-modeling/SKILL.md` / `skills/performance-and-capacity/SKILL.md` / `skills/observability-and-instrumentation/SKILL.md` / `skills/ai-application-engineering/SKILL.md`（按变更面加载） |
 | change / iterate：plan | `skills/task-breakdown/SKILL.md` + `skills/cross-layer-consistency/SKILL.md`（矩阵入任务卡） |
 | change / iterate：implement / verify / S4 编码自测 | `skills/implementation-and-selftest/SKILL.md`（**§0.5 实施预检强制**）+ `skills/engineering-quality/SKILL.md` + 按端前后端 + `cross-layer-consistency`（命中时）+ 预检命中面再读 threat/perf/observability 当前节 |
-| 构建/docs/testing/运行失败、线上异常、偶发问题 | `skills/debugging-and-error-recovery/SKILL.md`（先恢复再根因） |
+| 构建/测试/运行失败、线上异常、偶发问题 | `skills/debugging-and-error-recovery/SKILL.md`（先恢复再根因） |
 | 设计/实施/发布涉及生产可诊断性、SLO、日志/指标/追踪/告警 | `skills/observability-and-instrumentation/SKILL.md` |
 | 变更含 LLM/RAG/Agent/提示词/模型/工具调用 | `skills/ai-application-engineering/SKILL.md` + `skills/threat-modeling/SKILL.md`（AI 安全） |
 | change / iterate：review | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` |
@@ -69,7 +69,7 @@
 
 | 步骤 | 技能 | 说明 |
 | --- | --- | --- |
-| frame | `product-shaping` | 只在新想法/新docs/product/方向不清时走；小改跳过 |
+| frame | `product-shaping` | 只在新想法/新产品/方向不清时走；小改跳过 |
 | plan | `product-shaping` + `solution-design` + `engineering-quality` + `task-breakdown` | 产品行为/技术/任务/验收/测试压到一页 |
 | build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` | 预检→硬补→按方案卡实施；失败时加 `debugging-and-error-recovery` |
 | test | `test-design-and-execution` | 最小充分集实测 + 轻量测试报告；P0 未过 = FAIL |
@@ -85,7 +85,7 @@
 | S4 编码自测 | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` + 按端前后端 + `debugging-and-error-recovery`（失败时）+ `ai-application-engineering`（AI 变更）+ `cross-layer-consistency`（命中时）+ 预检命中面子技能当前节 | 预检→硬补→实现、质量条、调试、单测/自测/文档 |
 | S5 评审/CI | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` + `skills/cross-layer-consistency/SKILL.md`（跨层一致性） | 代码评审/质量 rubric/安全/供应链/AI 生成代码 |
 | S6 提测 | `skills/qa-handoff-and-release/SKILL.md` | 提测单/回归指引/QA 接收 |
-| S7 docs/testing/缺陷 | `skills/qa-handoff-and-release/SKILL.md` + `rules/defects/fix-collaboration.md` | 缺陷修复/回归/回写 |
+| S7 测试/缺陷 | `skills/qa-handoff-and-release/SKILL.md` + `rules/defects/fix-collaboration.md` | 缺陷修复/回归/回写 |
 | S8 发布 | `skills/acceptance-and-launch/SKILL.md` + `skills/observability-and-instrumentation/SKILL.md` | 就绪检查/部署/冒烟/回滚/观察/SLO |
 | S9 收尾/复盘 | `skills/retrospective-and-improvement/SKILL.md` | 总结/复盘/归档 |
 

@@ -32,7 +32,7 @@
 | `rules/defects/` | `fix-collaboration.md`、`platform-adapter.md` |
 | `rules/special/` | `iteration-delivery.md`（迭代/任务清单/DoR/DoD 参考） |
 | `rules/playbooks/` | 重阶段步骤卡：迭代/缺陷/发布 |
-| `rules/templates/` | 按生命周期分 7 组：`00-接入与治理` / `10-规划与需求` / `20-设计与技术` / `30-计划与任务` / `40-交付与发布` / `60-复盘与改进` / `90-交接与收尾`；先看 `rules/templates/index.md` |
+| `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
 | `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 15 项清单/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
 
@@ -56,15 +56,15 @@
 ## 3. 上手（快速开始）
 
 1. 复制 `wf-development/` 到项目根下一层；**排除** `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）。推荐 `git archive` 或 `robocopy /XD .draft .state .gate __pycache__`。包默认不进入项目 git；不跟踪时 `.gitignore` 只写一行 `/wf-development/`（多包 `/wf/`），不预列未装包、不加注释。
-2. 挂载：按 `rules/templates/00-接入与治理/根AGENTS薄指针.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）。  
+2. 挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）。  
 3. 对 AI 说「接入开发规范」→ `workflows/onboard.yaml`：建档 → 文档树/索引/归档 → 根 `CHANGELOG.md` + `{workroot}/work-log.md` → 入库策略 → 打标。  
 3.1 **个人小项目/想法**：直接说「我有个想法：…」或「轻量开发」→ `solo`：按需产品定义 → 一页方案卡 → 你确认 → 实施 → AI 实测 → 收尾；L2+ 自动升级完整链。小改也可直接说「改一下…」走 `change` L0/L1。  
 3.2 **不用口令**：任意自然语言描述即可；AI 按 `rules/core/routing.md` 抽五元组→意图类→状态修正，不抠固定措辞；首条 `route`/`reason`。轻量/完整由项目状态决定；判断错可一句纠正。  
 4. 之后任务**不再**例行落地自检，直接路由执行。  
 5. 新文档/变化/确认项：直接把文件发给 AI，或说「这是新一期方案/这个未决项定了/新增需求…」→ `workflows/intake.yaml`：收件→分类→覆盖对照→影响分析→局部更新→变更吸收报告；你只确认实质变更与资料归档。整理现有资料说「资料收取 / 资料整理 / 资料归档 / 资料巡检」；检查工作文档/临时文件说「文档巡检 / 清理临时文件」。  
-6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-规划与需求/开发计划模板.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称。  
+6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-planning/development-plan-template.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称。  
 6.1 日常推进：说 **「按开发计划执行 / 下一步 / 当前状态」** → `control` 的 run/next；读计划 §0，按当前阶段路由到 change/iterate/release/retro，执行到下一个门停止；每步回写计划与执行日志。  
-7. 新功能/迭代：说「按方案实施」或「只出任务清单」→ 任务清单按 `rules/templates/30-计划与任务/任务清单模板.md` 落 `{workroot}/40-tasks/`；确认后实施。  
+7. 新功能/迭代：说「按方案实施」或「只出任务清单」→ 任务清单按 `rules/templates/30-planning-tasks/task-list-template.md` 落 `{workroot}/40-tasks/`；确认后实施。  
 8. 发布：说「发布/上线」→ `workflows/release.yaml`；发布前必须过上线检查单与审批。测试/预发部署不算 S8（A 模式 `rc.N`；B 模式 `0.3.x` QA 批次）；版本口径见 `rules/core/versioning.md`。  
 9. 复盘：说「复盘/事故复盘」→ `workflows/retro.yaml`。
 10. 交接：**内容优先、包按需**。提测默认只交提测单；说「生成交接包…」或命中多文件/签收/仓外/同发发版时先问再 send。接收走 receive。多包同仓直读。
@@ -93,7 +93,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 本包不写死任何宿主（Cursor / opencode / Claude Code 等均可）；换宿主只改实例侧（`project-profile.md`），包零改动。
 
 - **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；子代理（按 `rules/collaboration/subagents.md`：达阈值分片/文件不相交可并行≤3/超时降级）、MCP（如缺陷平台）按需。  
-- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-接入与治理/根AGENTS薄指针.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。  
+- **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-onboarding/root-agents-pointer.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。  
 - **MCP 配置落点**：只写宿主本地/用户级配置（如 Cursor：`%USERPROFILE%\.cursor\mcp.json`；路径以宿主官方文档为准）；禁项目内配置作规范入口。  
 - **能力（可选）**：槽位见 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`。清单 available 即用，否则降级；档案 §6 仅索引；点名「装配能力」写入实例。纪律：`rules/capabilities/instance-discipline.md`。  
 - **体检能力**：口令「体检能力」等 → `skill-audit`：能力改 `{workroot}/capabilities/`，技能可改本包 `skills/`。  
@@ -101,7 +101,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 
 ## 6. 文档与归档
 
-- **三层**：`inbound/` 原件；`{workroot}/` 工作区；`docs/materials/` 项目权威文档库。布局由项目根 `layout.yaml` 解析：单包 `workroot: docs`，多包 `workroot: docs/development`。  
+- **三层**：`inbound/` 原件；`{workroot}/` 工作区；`docs/materials/` 项目权威文档库。工作根读项目档案 §1 `workroot`；未声明按单包 `docs/`、多包 `docs/development/`。
 - **工作区**：`development-plan.md`、`work-log.md`、`00-governance/`（变更/待决/决策/缺陷评估）、`10-requirements/`、`20-design/`、`30-architecture/ADR/`、`40-tasks/`、`50-verification/`、`60-release/`、`70-ops/`、`80-retrospectives/`、`capabilities/`、`handoff/`、`_archive/`；按需建，无内容不建空目录。  
 - **权威文档库**：项目级 `docs/materials/`；每版 `{ver}/` 自包含，域 `00-overview`～`07-appendix`；`README.md` + `INDEX.md`；不设 `_archive`，旧版本保留；正文从工作区发布，不直接改。  
 - **原件**：`inbound/INDEX.md` 全量登记；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档。  

@@ -1,6 +1,6 @@
 # 缺陷平台协作（拉取 · 分析 · 处置）
 
-> 读取：只读当前步节 + `rules/templates/30-评审与变更/缺陷文案模板.md`/`rules/defects/platform-adapter.md` 对应节；不要通读。
+> 读取：只读当前步节 + `rules/templates/30-review-change/defect-writeup-template.md`/`rules/defects/platform-adapter.md` 对应节；不要通读。
 
 > **适用**：产品侧处理禅道/Jira/ONES 等平台的缺陷，尤其是测试直接提交并指派给产品、开发提交产品缺陷评估单待产品评审、产品缺陷待处置。  
 > **来源两类**：`测试直提`（测试判定产品缺陷，直接指派产品，不经开发）与 `开发评估单`（开发判定产品缺陷，提交评估单并指派产品）。  
@@ -62,8 +62,8 @@ route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|AN
 
 ### 2.3 建档
 
-每条缺陷落一份 `{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-评审与变更/受理与处置模板.md`），编号用平台单号（如 `BUG-123`），并记录平台、来源类型、提交人、指派、状态、附件清单、开发评估单。批末输出清单摘要。  
-判定/处置完成后，落 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-评审与变更/产品缺陷处置模板.md`），作为平台附件指派开发/测试；产品缺陷必落，实现defects/非问题/重复/信息不足也至少给说明+指派。
+每条缺陷落一份 `{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/intake-disposition-template.md`），编号用平台单号（如 `BUG-123`），并记录平台、来源类型、提交人、指派、状态、附件清单、开发评估单。批末输出清单摘要。  
+判定/处置完成后，落 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/product-defect-disposition-template.md`），作为平台附件指派开发/测试；产品缺陷必落，实现defects/非问题/重复/信息不足也至少给说明+指派。
 
 ## 3. 分析
 
@@ -113,13 +113,13 @@ route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|AN
 | 实现缺陷 | 开发 | 开发 |
 | 非问题/设计如此 | 测试 | 开发（默认）或按备注指派测试 |
 | 重复 | 测试（关联主单） | 开发（关联主单） |
-| 信息不足 | docs/testing/提交人 | docs/development/提交人 |
+| 信息不足 | 测试/提交人 | 开发/提交人 |
 
 联动清单、重审、验证按 `../workflows/change.yaml`；产品侧只出产品结论/变更单/评审意见，不修改代码或技术方案。
 
 ## 5～7. 回写/附件/批末（指针）
 
-> 回写备注骨架/附件/状态/指派/批末总结见 `rules/templates/30-评审与变更/缺陷文案模板.md` §5～§7；本文中 `§5.x`～`§7` 指该文件同名节。只在拟回写时读。
+> 回写备注骨架/附件/状态/指派/批末总结见 `rules/templates/30-review-change/defect-writeup-template.md` §5～§7；本文中 `§5.x`～`§7` 指该文件同名节。只在拟回写时读。
 
 ## 8～11. 平台适配/其它 provider/安全/坑（指针）
 

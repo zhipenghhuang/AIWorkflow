@@ -37,7 +37,7 @@ steps:
     agent: iterate-lead
     output: DOC/CR/OPEN/DEC 登记
     notes: >
-      分类：PRD/需求/迭代/special/原型/设计/接口/技术/docs/testing/验收/反馈/调研/竞品/会议/数据/原始/其他（细则 `rules/doc-governance.md` §2）。
+      分类：PRD/需求/迭代/special/原型/设计/接口/技术/测试/验收/反馈/调研/竞品/会议/数据/原始/其他（细则 `rules/doc-governance.md` §2）。
       输入为 PRD/迭代方案/需求文档/原型/接口或技术文档 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要（须含 Brief+本期差量增/改/删 + 来源/目标/范围/F-R-AC/冲突/GAP/置信度），再登记；不得只登记文件名。
       登记：`inbound/` 文件给 DOC；变更给 CR；确认项关 OPEN 并写 DEC；原始资料只登记不升级基线。
       关联：R/AC/OPEN/CR/T；找不到 → 标 GAP，不硬套。
@@ -91,7 +91,7 @@ steps:
     output: 已更新文档/台账/任务 · 【迭代关账/归档候选】（如有）
     notes: >
       只改受影响章节；保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明），变更前后与原因只记 CR/变更记录。
-      更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、docs/testing/发布文档（按影响）。
+      更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、测试/发布文档（按影响）。
       更新：`开发计划` §0（计划状态/当前门/下一动作）、§1（受影响阶段/范围）、§9/§10、§12 执行日志；`{workroot}/INDEX.md`、`activeContext`。
       更新 `handoff-ledger.md`：受影响交接包标 `已取代/需重发`；C1+ **建议**发 `CHG`（先问后发）；未正式签收场景不以缺回执阻塞日常吸收完成判定。
       不新建重复文档；同一主题就地更新；不同工作先问用户。
@@ -103,7 +103,7 @@ steps:
     agent: iterate-lead
     output: 【变更吸收报告】
     notes: >
-      按 `rules/templates/10-规划与需求/变更吸收报告模板.md` 输出：输入/分类、关联、影响矩阵、已更新、待确认、下一步。
+      按 `rules/templates/10-planning/change-absorption-report-template.md` 输出：输入/分类、关联、影响矩阵、已更新、待确认、下一步。
       需要开发 → 建议 `workflows/change.yaml`（局部）或 `iterate.yaml`（迭代）；只在文档层 → 关闭 CR/OPEN。
       未确认项列最前；不擅自实施、不提交/推送。
       第1点或附录须含关账/归档结果（已确认执行 / 并行不关 / 无候选 / 待确认清单）。
@@ -113,7 +113,7 @@ steps:
     agent: iterate-lead
     output: 【任务收尾】（变更吸收报告置第 1 点）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点含【变更吸收报告】
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含【变更吸收报告】
       更新 `{workroot}/INDEX.md`、`activeContext/`开发计划；未确认/待实施项明示。
       本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
 

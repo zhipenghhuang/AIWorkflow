@@ -5,7 +5,7 @@ description: Use when preparing a QA handoff or release. Produce a self-containe
 
 # 提测与发布（技能 · 随包生效）
 
-> 用于：deliver 步、含部署的缺陷修复。提测单模板：`rules/templates/40-交付与发布/提测单模板.md`；发布说明：`rules/templates/40-交付与发布/发布说明模板.md`。
+> 用于：deliver 步、含部署的缺陷修复。提测单模板：`rules/templates/40-delivery/qa-handoff-template.md`；发布说明：`rules/templates/40-delivery/release-notes-template.md`。
 
 ## 1. 提测单自洽（默认，最高优先）
 

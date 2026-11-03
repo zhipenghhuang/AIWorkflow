@@ -32,28 +32,35 @@ PACKAGE_NAME = "wf-product"
 RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
 
 def default_project_root(package_root: Path) -> Path:
-    """Walk up to the project root marked by layout.yaml or activeContext.md."""
+    """Walk up to the project root marked by activeContext.md."""
     for p in (package_root, *package_root.parents):
-        if (p / "layout.yaml").is_file() or (p / "activeContext.md").is_file():
+        if (p / "activeContext.md").is_file():
             return p
     return package_root.parent
 
-def find_docs_root(project_root: Path) -> Path:
-    """Resolve product docs workroot from layout.yaml, then known layouts."""
-    layout = project_root / "layout.yaml"
-    if layout.is_file():
+
+def declared_workroot(project_root: Path):
+    for name in ("project-profile.md", "env-baseline.md"):
+        f = project_root / name
+        if not f.is_file():
+            continue
         try:
-            import yaml  # type: ignore
-            data = yaml.safe_load(layout.read_text(encoding="utf-8")) or {}
-            workroot = (((data.get("layout") or {}).get("packages") or {}).get("wf-product") or {}).get("workroot")
-            if workroot:
-                return project_root / str(workroot)
+            m = re.search(r"^\|\s*workroot\s*\|\s*`?([^`|]+?)`?\s*\|", f.read_text(encoding="utf-8"), re.M)
+            if m:
+                val = m.group(1).strip()
+                if val.startswith("默认") or "非标准" in val:
+                    continue
+                return project_root / val.rstrip("/")
         except Exception:
             pass
-    for rel in ("docs/product", "docs", "产品"):
-        candidate = project_root / rel
-        if candidate.is_dir():
-            return candidate
+    return None
+
+def find_docs_root(project_root: Path) -> Path:
+    """Resolve product workroot from the profile, then the package convention."""
+    w = declared_workroot(project_root)
+    if w: return w
+    if (project_root / "wf").is_dir():
+        return project_root / "docs" / "product"
     return project_root / "docs"
 PLACEHOLDER_RE = re.compile(r"\{[^{}\n]{1,80}\}")
 

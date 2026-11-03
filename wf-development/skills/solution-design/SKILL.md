@@ -5,10 +5,10 @@ description: Use when a change needs architecture, interface, data, migration, s
 
 # 方案与设计（技能 · 随包生效）
 
-> 用于：design 步。产出按 `rules/templates/20-设计与技术/方案模板.md` 落盘；本技能=把方案写**扎实**的手艺。  
+> 用于：design 步。产出按 `rules/templates/20-design/solution-template.md` 落盘；本技能=把方案写**扎实**的手艺。  
 > 本技能是 S2 的“主skills/路由器”；涉及技术选型、数据库、API、前端、安全时，按下表加载子技能，不要求全读。  
 > **工程质量条**：所有 design 步同时加载 `skills/engineering-quality/SKILL.md` §1/§4/§5；本技能只写方案结构与取舍，不重复质量条。  
-> **前端变更**：需要补前端设计/调整 UI 时，按需读 `skills/frontend-design/SKILL.md` + `rules/templates/20-设计与技术/前端设计说明模板.md`；产品设计完整且无冲突时，方案只写实现要点并引用产品设计，不重做 UI。
+> **前端变更**：需要补前端设计/调整 UI 时，按需读 `skills/frontend-design/SKILL.md` + `rules/templates/20-design/frontend-design-spec-template.md`；产品设计完整且无冲突时，方案只写实现要点并引用产品设计，不重做 UI。
 
 ## 0. 子技能路由（按变更面加载）
 
@@ -76,7 +76,7 @@ description: Use when a change needs architecture, interface, data, migration, s
 - **可观测**：日志（结构化、无敏感信息）、指标（RED/USE）、追踪、告警阈值/升级路径。
 - **测试策略**：单测/集成/契约/E2E/性能/安全/兼容；不可自验项单列。
 - **迁移**：幂等、可回滚或可前滚、大表锁与时长、双写/回填、灰度。
-- **ADR**：架构级/破坏性/多方案取舍另落 `ADR-{序号}-{主题}.md`（模板 `ADR模板.md`），方案只放链接与结论。
+- **ADR**：架构级/破坏性/多方案取舍另落 `ADR-{序号}-{主题}.md`（模板 `adr-template.md`），方案只放链接与结论。
 
 ## 7. 常见坑
 

@@ -6,7 +6,7 @@ description: Use after a release, iteration, incident, or repeated defect patter
 # 复盘与改进（技能 · 随包生效）
 
 > 用于：`retro` 工作流、`release` 的事故后复盘、迭代收尾。  
-> 产出：`{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`，模板见 `rules/templates/60-复盘与改进/复盘模板.md`。  
+> 产出：`{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`，模板见 `rules/templates/60-retro/retro-template.md`。  
 > 原则：**对事不对人；事实先于判断；改进项必须有着落。**
 
 ## 1. 何时做
@@ -59,7 +59,7 @@ description: Use after a release, iteration, incident, or repeated defect patter
 ## 6. 常见坑
 
 - 变成追责会：没人说真话，根因查不出。  
-- 只写“加强docs/testing/加强评审”：没有具体动作和验收。  
+- 只写“加强测试/加强评审”：没有具体动作和验收。  
 - 行动项没有负责人/日期：下次复盘还在。  
 - 复盘文档散落聊天/根目录：必须落 `{workroot}/80-retrospectives/` 并进 `{workroot}/INDEX.md`。  
 - 事故后只修代码，不改流程/门禁/监控。

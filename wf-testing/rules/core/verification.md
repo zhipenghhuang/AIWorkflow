@@ -12,7 +12,7 @@
 | TEST-VER-03 | 失败/阻塞/待实现（实现缺陷）必须有证据或已尝试/恢复条件；证据路径必须可打开。 |
 | TEST-VER-04 | 未测项、覆盖缺口、口径待探查、环境缺口、**未本轮验证规模**必须显式列出，不以“已执行/库内曾通过”替代“本构建已覆盖”。 |
 | TEST-VER-05 | 报告先写中文回执结论（可准出/有条件准出/不准出/阻塞），并与门 JSON 一致；非“可准出/有条件准出”禁用“全部通过/可发布”。 |
-| TEST-VER-06 | 交平台/回写必须有回执；无权限走 export，不得声称已回写。 |
+| TEST-VER-06 | 交平台/回写必须有回执；无权限 → 一问补适配或确认后本批统一导出，不得声称已回写；有平台成功提交不得另落导出。 |
 | TEST-VER-07 | 按 §3.7 装填 + `rules/special/multi-track-quality.md` §3：迭代 suite≥module 且接口 depth≥standard（范围含接口时）；发版=功能 full + 接口 full + 发布前硬映射按风险级完成；补丁才允许 core + 接口 depth=core 且须标明补丁口径；报告声明 suite/depth/**本轮 runId·构建**。 |
 | TEST-VER-08 | 门读现有计划/台账/报告/评审记录，不无中生有；解析不了不猜，不得给 PASS（按 FAIL/BLOCKED）。 |
 | TEST-VER-09 | 用例评审：选 B → 评审记录 + `-Mode review` PASS/CONDITIONAL；选 A → HUMAN_APPROVED + 评审记录；T0 可 SELF_CHECKED；写手≠评审者（选 B 时）；阻断未清不得放行；有条件放行须接受人。 |

@@ -136,7 +136,7 @@ requirement_model:
 ## 4. 输出：需求理解包（§0 门面 + 下钻）
 
 > **人类快查**：文件**开头必有**【业务与变更简报】+【本期差量表】（对齐 OpenSpec proposal/delta、Change Brief）。完整十要素等下钻节供实现；确认门主屏只出示 §0 + 待确认单。  
-> 模板：`rules/templates/10-规划与需求/需求理解包模板.md`。
+> 模板：`rules/templates/10-planning/requirement-understanding-template.md`。
 
 - **权威 Delta**：若输入含产品「迭代变更摘要」或产品计划 §3.0 / 变更单差量表 → **引用其 ID 与增改删**，只做校验/补技术影响，禁止另造一套编号；冲突进冲突表。无产品 Delta → 自建并标「待产品确认」。
 - 轻量（L0/L1 或单文档）：至少落 **§0 Brief + 迷你 Delta（≤5 行）** + 目标/AC/非目标/GAP/假设/置信度（可写在需求卡）。
@@ -189,7 +189,7 @@ requirement_model:
 ## 4.2 用户版业务变化说明（L1+ 用户可见变化必出）
 
 - **目的**：让业务用户 1 分钟看懂本次变化；同时给 AI 一份完整、连续的业务上下文，辅助 10-requirements/20-design/plan 理解业务与适配任务。
-- **落点**：`{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md`；模板 `rules/templates/10-规划与需求/用户版业务变化说明模板.md`。
+- **落点**：`{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md`；模板 `rules/templates/10-planning/user-facing-change-notes-template.md`。
 - **时点**：与 §4 理解包同轮生成；理解包确认后同步确认/更新；不另造阶段门。
 - **必填结构**：§0 30 秒看懂；§1 变化清单（`U-01` 增/改/删，以前/现在/影响谁）；§2 业务全景（目标/角色/主流程/对象状态/规则不变量/权限/异常/非目标）；§3 页面与操作变化；§4 按角色要做什么；§5 不变与边界；§6 FAQ；§7 用户可观察结果；§8 AI 阅读索引（来源、F/R/AC、受影响模块/任务、必须保留行为）；§9 确认。
 - **读者语言**：业务用户能直接看懂；不写 S1/G6/P0/OPEN、缺陷号、任务 ID、内部路径、AC 编号堆砌；技术字段/接口/数据库不写。

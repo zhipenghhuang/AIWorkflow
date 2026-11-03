@@ -91,8 +91,8 @@ description: Use when choosing a visual direction, defining design tokens, selec
 ## 6. 交付
 
 - tokens 文件 + 组件说明 + 页面路径/截图 + 无障碍证据；问题分级（阻断/重要/建议）。
-- 交接按 `rules/templates/20-原型与设计/开发交接模板.md`，写清设计意图、必须保留、可优化、未提供、需开发决策。
-- 交接给docs/development/AI：结构稳定、路径/ID 明确、术语一致；删除无决策价值的说明。
+- 交接按 `rules/templates/20-design/dev-handoff-template.md`，写清设计意图、必须保留、可优化、未提供、需开发决策。
+- 交接给开发/AI：结构稳定、路径/ID 明确、术语一致；删除无决策价值的说明。
 - 原型 ≠ 生产代码；开发按项目框架实现，不直接上线原型。
 
 ## 7. 参考（可选，不随包）

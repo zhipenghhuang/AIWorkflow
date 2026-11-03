@@ -34,13 +34,6 @@ if ([string]::IsNullOrWhiteSpace($Root)) {
 $Root = (Resolve-Path -LiteralPath $Root).Path
 $rulesDir = Join-Path $Root "rules"
 $repoRoot = Split-Path -Parent $Root
-$probe = $Root
-while ($probe -and -not (Test-Path -LiteralPath (Join-Path $probe 'layout.yaml'))) {
-    $parent = Split-Path -Parent $probe
-    if ($parent -eq $probe) { break }
-    $probe = $parent
-}
-if ($probe -and (Test-Path -LiteralPath (Join-Path $probe 'layout.yaml'))) { $repoRoot = $probe }
 
 $refFindings = New-Object System.Collections.Generic.List[string]
 $anchorFindings = New-Object System.Collections.Generic.List[string]
@@ -63,7 +56,7 @@ $instanceLeafs = @(
 )
 $instanceLeafs += @('文档索引.md', '工作日志.md', '开发计划.md', '产品计划.md', '测试计划.md', '项目档案.md', '产品档案.md', '环境基线.md', '资料索引.md', '交接台账.md', '变更记录.md', '待决项.md', '决策记录.md', '需求台账.md')
 $instanceLeafs += @('计划执行看板.md', 'versioning.md', 'change-log.md', '改进项.md', 'requirement-pool.md', 'open-items.md', 'decisions.md', 'specials-index.md', 'coverage-ledger.md', '00-能力清单.md')
-$instanceLeafs += @('layout.yaml', 'handoff-ledger.md', 'test-plan.md', 'test-report.md', 'test-analysis.md', 'smoke-checklist.md', 'product-plan.md', 'development-plan.md', 'work-log.md', 'project-profile.md', 'product-profile.md', 'env-baseline.md')
+$instanceLeafs += @('handoff-ledger.md', 'test-plan.md', 'test-report.md', 'test-analysis.md', 'smoke-checklist.md', 'product-plan.md', 'development-plan.md', 'work-log.md', 'project-profile.md', 'product-profile.md', 'env-baseline.md')
 $instancePrefixes = @('docs/', '.gate/', '04-回执/', '02-文档/')
 $instancePrefixes += @('inbound/', 'docs/materials/', 'docs/development/', 'docs/product/', 'docs/testing/', 'wf-product/', 'wf-development/', 'wf-testing/', 'wf/')
 

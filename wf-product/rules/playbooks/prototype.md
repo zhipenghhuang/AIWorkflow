@@ -25,7 +25,7 @@
 | engineering | 工程化检查模板 | 脚本/链接检查 |
 | review | 设计评审模板 + 评分卡 | 子代理（≥8 页） |
 | usability | 可用性走查模板 | 真实用户（无则内部走查） |
-| handoff | `开发交接模板.md` + 门表 `confirm_prototype` | PRD §14 |
+| handoff | `dev-handoff-template.md` + 门表 `confirm_prototype` | PRD §14 |
 
 ## 3. 流程卡
 
@@ -37,7 +37,7 @@
 6. **engineering**：导航/路由/历史/返回/未保存提醒；数据/seed/重置；状态矩阵核对；WCAG 2.2 AA；缺项列阻断。
 7. **review**：按清单 + 12 项评分卡；检查文案减法与三维体验；阻断项必须 2 分；需修回 hi-fi（同回合≤1）；≥8 页可按维度扇出。
 8. **usability**：3～5 个关键任务走查；Nielsen 10；无真实用户标「内部走查」，不冒充用户测试。
-9. **handoff**：按 `开发交接模板.md` 写设计意图/必须保留/可优化/未提供/需开发决策；组件/状态/交互/tokens/响应式/无障碍证据/验收对照；回填 PRD §14；`confirm_prototype` 后才交开发。
+9. **handoff**：按 `dev-handoff-template.md` 写设计意图/必须保留/可优化/未提供/需开发决策；组件/状态/交互/tokens/响应式/无障碍证据/验收对照；回填 PRD §14；`confirm_prototype` 后才交开发。
 
 ## 4. 红线
 
@@ -48,4 +48,4 @@
 
 ## 5. 输出
 
-情境/IA/线框/高保真/tokens/工程化检查/评审/走查/交接。收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+情境/IA/线框/高保真/tokens/工程化检查/评审/走查/交接。收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。

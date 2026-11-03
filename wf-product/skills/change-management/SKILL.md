@@ -16,7 +16,7 @@ description: Use when a requirement, question, product defect, or new requiremen
 - 必还原：谁/场景/问题/现有替代/代价/目标结果/成功标准/明确不做；证据等级 + 样本量；未确认推断标「假设/待验证」。
 - 信息不足：先查/分析；仍不确定则按 `rules/core/clarification.md` 继续澄清；未知写「待确认」，禁臆造；**未双确认不得**进入分诊定稿。
 - 去重：同一问题合并，重复项指向主条目；一条一档，生成 `RQ/CR/BUG-…` 编号。
-- 落 `{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-评审与变更/受理与处置模板.md`）。
+- 落 `{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/intake-disposition-template.md`）。
 
 ## 2. 分诊判定树
 
@@ -115,7 +115,7 @@ description: Use when a requirement, question, product defect, or new requiremen
 **{受理编号/主题}**（{已关闭|待验证|待回写}，{已更新}/{受影响}，{说明}）：{四要素一段}。
 ```
 
-第 2～6 点严格按 `rules/templates/90-交接与收尾/收尾骨架.md` §2；「完成了什么」为短段、「影响：」独立成行；「汇报」用结论说明体（导语加粗、正文一段），不得省略字段、不得在汇报下挂子 bullet。
+第 2～6 点严格按 `rules/templates/90-handoff/closeout-skeleton.md` §2；「完成了什么」为短段、「影响：」独立成行；「汇报」用结论说明体（导语加粗、正文一段），不得省略字段、不得在汇报下挂子 bullet。
 
 ## 8. 常见坑
 

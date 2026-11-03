@@ -29,4 +29,4 @@
 
 ## 4. 输出
 
-交付计划 / UAT 记录 / 发布检查 / 复盘 / 回归需求池。收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+交付计划 / UAT 记录 / 发布检查 / 复盘 / 回归需求池。收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。

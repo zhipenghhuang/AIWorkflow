@@ -31,7 +31,7 @@ steps:
     output: 直接原因/根本原因/贡献因素
     notes: >
       5 Whys/因果链追到可改变的系统性原因；不要停在“人为疏忽”。
-      贡献因素：流程/工具/docs/testing/评审/监控/文档/排期/沟通；做得好/做不好各列。
+      贡献因素：流程/工具/测试/评审/监控/文档/排期/沟通；做得好/做不好各列。
       只对事不对人；结论附证据。
 
   - name: 行动项
@@ -49,7 +49,7 @@ steps:
     agent: delivery-lead
     output: 复盘文档（{workroot}/80-retrospectives/）
     notes: >
-      按 `rules/templates/60-复盘与改进/复盘模板.md` 落 `{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`。
+      按 `rules/templates/60-retro/retro-template.md` 落 `{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`。
       需要跨角色同步时**建议**是否发 `RETRO` 包；确认后才生成。
       更新 `{workroot}/INDEX.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`。
       下次复盘先对账上次行动项；未完成项说明原因与新截止。
@@ -59,7 +59,7 @@ steps:
     agent: delivery-lead
     output: 【任务收尾】（复盘结论/行动项置第 1 点）
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点含复盘结论/行动项
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含复盘结论/行动项
       未确认/未闭环行动项明示。
       本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
 

@@ -6,7 +6,7 @@ description: Use when a development project or feature starts or needs a status 
 # 开发计划（技能 · 随包生效）
 
 > 用于：新项目/新产品开发、L2+ 功能/迭代、阶段检查、进度/下一步同步。  
-> 产出：`{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`；模板 `rules/templates/10-规划与需求/开发计划模板.md`）。  
+> 产出：`{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`；模板 `rules/templates/10-planning/development-plan-template.md`）。  
 > 定位：**开发工作自己的控制面**，类似《测试计划》之于测试；只管阶段、门、状态、产物索引、风险、下一步，不复制正文。  
 > **命名约定**：本文档叫《开发计划》（总览全文，类似《测试计划》）；流程里的 S3 叫**任务与排期**（任务清单/依赖/估算/DoR/DoD/检查点）。二者分开命名：**开发计划是总览，S3 是其中一个阶段**。  
 > 参考方法（改写适配，非逐字复制）：GitHub Spec Kit（plan/40-tasks/converge）、Addy Osmani `planning-and-task-breakdown` 与 Definition of Done、Superpowers `writing-plans`/`executing-plans`、BMAD 的按规模裁剪与 durable context、Google Engineering Practices 的 code review、GitHub flow 的 PR/CI 节奏。
@@ -35,7 +35,7 @@ description: Use when a development project or feature starts or needs a status 
 
 ```text
 S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测
-→ S5 评审/CI → S6 提测 → S7 docs/testing/缺陷 → S8 发布 → S9 收尾/复盘 → CLOSED
+→ S5 评审/CI → S6 提测 → S7 测试/缺陷 → S8 发布 → S9 收尾/复盘 → CLOSED
 ```
 
 | 门 | 通过条件 |
@@ -73,7 +73,7 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 4. **真源优先级**：§0（当前阶段/门/下一动作）> 门结论 > 阶段表叠写列；互相矛盾时以代码/本轮验证为准，**先修开发计划**。  
 5. **单波次迭代**：无 W/M 拆分时，不强制波次后缀；门写 `G2` 即可。
 6. **评审模式二选一**：多波次在计划 §0/§1 明确选“① 每波独立评审 + 各自过门”或“② 整迭代只过 S5 全量评审”；不得 W3/W4 单独过门、W1/W2 留到 S5 的混用。模式 ① 下 S5 只做集成/AC/证据/抽样复审；模式 ② 下 S5 必须全量覆盖。
-7. **简单波次可免独立评审**：L0，或确实低风险/单点的 L1，可免；L2+/L3、权限/资金/迁移/公共 API/破坏性不可免。免审须在计划/任务清单写“免审理由 + 风险接受人”；**免审不免自检**，docs/testing/冒烟/证据仍按级别执行（有 `*_scoped` 则定向，否则全仓）。不得把 L2+ 说成“阶段简单”绕过。
+7. **简单波次可免独立评审**：L0，或确实低风险/单点的 L1，可免；L2+/L3、权限/资金/迁移/公共 API/破坏性不可免。免审须在计划/任务清单写“免审理由 + 风险接受人”；**免审不免自检**，测试/冒烟/证据仍按级别执行（有 `*_scoped` 则定向，否则全仓）。不得把 L2+ 说成“阶段简单”绕过。
 8. **评审记录范围=门禁 diff**：评审记录的范围必须覆盖本轮 `completion.json` 的 diff；范围小于 diff 或只覆盖部分波次，不得判 `COMPLETE`。
 
 ## 4. 执行步骤

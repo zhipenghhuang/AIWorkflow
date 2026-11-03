@@ -5,7 +5,7 @@ goal: 平台拉取 → 分类 → 红证修复或产品评估 → 门禁 → 菜
 reads:
   - rules/read-index.md（defect-fix 当前 step 行）
   - rules/playbooks/defect.md
-  - rules/defects/fix-collaboration.md 当前步节 + rules/defects/platform-adapter.md（平台时）+ rules/templates/40-交付与发布/缺陷文案模板.md（写回时）
+  - rules/defects/fix-collaboration.md 当前步节 + rules/defects/platform-adapter.md（平台时）+ rules/templates/40-delivery/defect-writeup-template.md（写回时）
   - 产品缺陷时读评估模板；复杂实施读方案模板；部署时读上线检查单/发布说明模板
 
 tools_allowed:
@@ -22,7 +22,7 @@ must:
   - 产品缺陷只写评估单（含实现核对摘要），不写完整技术方案；只凭页面观感不得判产品缺陷；提交后停（AWAIT_PRODUCT）；产品回复后先读全附件/备注，对齐文档后再实施。
   - 测试无资料默认实现缺陷正确；开发改判需求缺口须注明并交产品终审。体验类不挡主路径 → 不硬推产品缺陷，点名改走 change。
   - 修前红证；无根因不修；改代码前短【实施预检】（DEV-IQ-09/10）；未自验不提交、不回写；安全相关按 `workflow.md` §3.4 检查。
-  - 平台备注按 §6 写全，与状态同轮；读者=docs/testing/产品，只写中文结论与业务事实；禁英文处置码/类名/仓库路径/内部任务编号。
+  - 平台备注按 §6 写全，与状态同轮；读者=测试/产品，只写中文结论与业务事实；禁英文处置码/类名/仓库路径/内部任务编号。
   - close 按步上 hitl；含部署先过就绪检查，再 `confirm_deploy`；部署后先冒烟再回写。
   - 子代理按 `rules/collaboration/subagents.md` §2 取档；返回 ≤30 行可直填备注的事实素材；高风险/大改核验者≠实施者。
   - postrelease 更新发布记录、`{workroot}/INDEX.md`、`activeContext`；失败/回滚不重复回写已回写项；复盘按skills/模板。

@@ -67,7 +67,7 @@ steps:
     agent: onboard-agent
     output: "{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md（无治理目录则 inbound/_common/ 或用户指定）"
     notes: >
-      按 `rules/templates/00-接入与治理/能力技能体检报告模板.md` 与 playbook §3 写报告；含「生态检索」节；P0 置顶。
+      按 `rules/templates/00-onboarding/capability-skill-audit-report-template.md` 与 playbook §3 写报告；含「生态检索」节；P0 置顶。
       能力拟改只针对 `{workroot}/capabilities/`；技能可改本包 `skills/`；未确认不改。可列「下一步：装配能力」。
 
   - name: 确认并应用
@@ -85,7 +85,7 @@ steps:
     agent: onboard-agent
     output: 【任务收尾】
     notes: >
-      对照 `rules/templates/90-交接与收尾/收尾骨架.md` §2；第1点含模式/范围/建议数/已应用数；可提示「装配能力」或下次体检。
+      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含模式/范围/建议数/已应用数；可提示「装配能力」或下次体检。
 
   - name: 拟提交
     id: commit
@@ -95,4 +95,4 @@ steps:
     output: 拟提交确认结果
     tools:
       - git
-    notes: 有skills/capabilities/档案改动才走；拟提交清单按 `rules/templates/90-交接与收尾/收尾骨架.md` §0/§2 与 `rules/workflow.md` §2（git）；无变更跳过。
+    notes: 有skills/capabilities/档案改动才走；拟提交清单按 `rules/templates/90-handoff/closeout-skeleton.md` §0/§2 与 `rules/workflow.md` §2（git）；无变更跳过。

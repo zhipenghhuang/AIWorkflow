@@ -5,7 +5,7 @@ description: Use when reviewing test cases after generation or before execution.
 
 # 用例评审（技能 · 随包生效）
 
-> 字段/门禁以 `rules/workflow.md` §2.5、`rules/templates/40-报告与评审/评审记录模板.md`、`agents/testcase-reviewer.yaml` 为准；本技能=**用例细轴**量规。  
+> 字段/门禁以 `rules/workflow.md` §2.5、`rules/templates/40-report-review/review-record-template.md`、`agents/testcase-reviewer.yaml` 为准；本技能=**用例细轴**量规。  
 > **范围总览 / 计划·分析·多轨 / 选 B【自主分析】** → 先读 `skills/test-artifact-review/SKILL.md`。  
 > **定位**：生成之后、执行之前的**独立静态评审**；不重生成、不改口径。
 
@@ -45,7 +45,7 @@ description: Use when reviewing test cases after generation or before execution.
 
 ### 3.1 接口用例量规（I1–I6 · 审接口域时用；与 A 轴并列，任一条 FAIL=阻断）
 
-> 骨架 SSOT=`接口测试用例模板.md`；机检=`validate_api_testcase.py`。
+> 骨架 SSOT=`api-test-case-template.md`；机检=`validate_api_testcase.py`。
 
 | ID | 轴 | PASS | FAIL（阻断） |
 | --- | --- | --- | --- |

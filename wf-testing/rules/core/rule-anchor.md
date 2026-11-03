@@ -11,7 +11,7 @@
 | 包 | 测试规范 |
 | 入口 | 本包 `AGENTS.md`；一次会话只跑**一个**包 workflow |
 | 多包 | 根 `AGENTS.md`「已启用包」路由；歧义口令先查 `wf/AGENTS.md` **意图→包** |
-| 产物根 | `{workroot}/`；基线 `env-baseline.md`（同仓可有docs/product/项目档案） |
+| 产物根 | `{workroot}/`；基线 `env-baseline.md`（同仓可有产品/项目档案） |
 
 ## 2. 当前步：必读 / 禁读（重锚时）
 

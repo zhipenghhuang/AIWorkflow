@@ -65,7 +65,7 @@ description: Use when analyzing market competitors, benchmarking feature parity,
 
 ### 2.4 落盘与下游
 
-- 模板：`rules/templates/10-规划与需求/竞品分析模板.md`  
+- 模板：`rules/templates/10-planning/competitor-analysis-template.md`  
 - 路径：`{workroot}/{ver}/10-requirements/竞品分析-{主题}-{yyyyMMdd}.md`  
 - 资料原件：`inbound/`（入站纪律见文档治理）；分析正文在工作区。  
 - 下游：洞察综合引用 L-xx；需求池条目带来源 `竞品分析` + 回绑问题；设计情境引用「借/不借」。
@@ -102,7 +102,7 @@ description: Use when analyzing market competitors, benchmarking feature parity,
 
 ### 3.3 落盘
 
-- 模板：`rules/templates/10-规划与需求/竞品对标模板.md`  
+- 模板：`rules/templates/10-planning/competitive-benchmark-template.md`  
 - 路径：`{workroot}/{ver}/10-requirements/竞品对标-{主题}-{yyyyMMdd}.md`  
 - 同步更新 `{workroot}/requirement-pool.md` 候选项（去重键=能力项+问题域）。
 

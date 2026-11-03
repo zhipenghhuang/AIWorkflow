@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | preflight | `defect-fix.yaml` + `project-profile.md` provider | 平台适配 |
 | pull | `rules/defects/fix-collaboration.md` §4.1 + §6 读单口径 | 附件/评估单 |
-| triage | §4.1/§7 + `rules/缺陷分类?`（本包用 §7） | 原单 steps/数据/环境 |
+| triage | §4.1/§7（本包用 §7） | 原单 steps/数据/环境 |
 | assess_product | §5.1 + 产品缺陷评估模板 | 原单/证据 |
 | handoff_product | §6.2 + 门表 `confirm_remark` | 平台适配 |
 | product_decision | §5.2/§5.3 | 产品新文档/附件 |
@@ -24,7 +24,7 @@
 ## 2. 流程卡
 
 1. **preflight**：provider=无/未配置 → 降级 `change`；禁索要编号、禁空转拉平台。
-2. **pull**：读全单（标题/steps/数据/环境/附件/历史备注/产品评估）；同号重复预检；历史预检跳过「待docs/product/已处理」；产品已回复 → 直接进 product_decision。批量 ≥5 单且读单成本高 → 逐单只读扇出，返回 ≤30 行；分类/处置集中。
+2. **pull**：读全单（标题/steps/数据/环境/附件/历史备注/产品评估）；同号重复预检；历史预检跳过「待产品/已处理」；产品已回复 → 直接进 product_decision。批量 ≥5 单且读单成本高 → 逐单只读扇出，返回 ≤30 行；分类/处置集中。
 3. **triage**：实现缺陷→implementation_required；产品缺陷/需求缺口/设计口径不明→product_defect（须先实现核对）；信息不足/无法复现/环境数据不一致/预期不明/重复/设计如此/非defects/外部/已在其它构建修复→need_clarification。产品缺陷不得先写完整技术方案，只写评估单。体验类不挡主路径不硬推 product_defect。
 4. **assess_product**：先实现核对（代码/接口排除未做/做错/缺段/接口错误/环境）；再写判定依据/问题影响/方案选项 A/B/C/推荐/影响面/待产品确认；不写可编码实现细节、不拆任务、不排期；落 `{workroot}/00-governance/缺陷评估/`。未核对不得出单。
 5. **handoff_product**：备注全文 + 评估单附件 + 指派产品 + 状态「待产品确认」；`confirm_remark` 后执行；上传后回查。**有平台已回写 → 不强制 BUG 整包**；无平台/`export`/文档直提/点名 → 先问后发或走 `change`。提交后停，输出 AWAIT_PRODUCT，不进 fix。
@@ -34,7 +34,7 @@
 9. **clarify**：先按原单口径复现；一次列清缺什么/谁补/截止；给条件式下一步；备注读者=测试，只写中文结论与业务事实。
 10. **gates**：按档案最小充分集；失败不声称完成；存量失败只对账新增；无代码/配置改动可跳过。
 11. **menu**：输出【缺陷修复处理总结】+【用户选择菜单】；预授权默认只到菜单；产品缺陷项列评估单/产品结论/对齐状态。
-12. **close**：按菜单精确执行；含提交 → `confirm_commit`；含部署 → `confirm_deploy`；含回写 → `confirm_remark`（备注全文后必有【拟回写·底部摘要】，无类省略）；未验证不写「已修复」。写回后「完成了什么」含短段（动作+单号）+「影响：」；收尾对照 `收尾骨架` §2。已写回平台 → 不强制 FIX 整包；无平台/点名 → 先问后发。
+12. **close**：按菜单精确执行；含提交 → `confirm_commit`；含部署 → `confirm_deploy`；含回写 → `confirm_remark`（备注全文后必有【拟回写·底部摘要】，无类省略）；未验证不写「已修复」。写回后「完成了什么」含短段（动作+单号）+「影响：」；收尾对照 `closeout-skeleton.md` §2。已写回平台 → 不强制 FIX 整包；无平台/点名 → 先问后发。
 13. **postrelease**：按发布说明跑主链路冒烟/关键回归；观察日志/指标/告警；触发回滚按预案；更新发布记录/索引/activeContext；失败/回滚不重复回写。
 
 ## 3. 红线
@@ -46,4 +46,4 @@
 
 ## 4. 输出
 
-总结菜单/备注全文/评估单/对齐记录/发布记录/复盘。收尾按 `rules/templates/90-交接与收尾/收尾骨架.md`。
+总结菜单/备注全文/评估单/对齐记录/发布记录/复盘。收尾按 `rules/templates/90-handoff/closeout-skeleton.md`。
