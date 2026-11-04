@@ -44,7 +44,7 @@
 | `rules/gates.md` | 门/`when`/`gate_when` 语义、门档位；含 coverage-map / case-review / report-consistency / writeback-receipt |
 | `rules/workflow.md` | 产物路径、覆盖三闸、收尾摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 |
-| `rules/core/` | `clarification.md`、`routing.md`、`verification.md`、`execution-contract.md`、`doc-quality.md`、`rule-governance.md`、`maintenance.md` |
+| `rules/core/` | `clarification.md`、`routing.md`、`verification.md`、`execution-contract.md`、`doc-quality.md`、`rule-governance.md`、`maintenance.md`、`context-memory.md` |
 | `rules/collaboration/` | `handoff.md`、`roles.md` |
 | `rules/defects/` | `collaboration.md`、`classification.md`、`platform-adapter.md` |
 | `rules/special/` | `multi-track-quality.md`、`multi-agent-output.md`、`script-execution.md` |

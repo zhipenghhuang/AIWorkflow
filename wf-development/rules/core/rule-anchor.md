@@ -17,7 +17,7 @@
 
 **必读（按序，够用即停）**：
 
-1. `activeContext.md` 本包 `### 进行中` 的 `rule_card`（有则；无则本心跳后补写）  
+1. `activeContext.md` 本包 `### 进行中` 的 `rule_card`（有则；无则本心跳后补写）+ 本包 `### 生效中的偏好` 中范围=项目/包（≤3 行）  
 2. 命中 `workflows/*.yaml` **当前 step 块**（当前 `- name:` 至下一个）  
 3. `rules/read-index.md` **当前行**（本行即 `rule_anchor`）  
 4. 当前 `agents/*.yaml` + 当前关键产物/证据  

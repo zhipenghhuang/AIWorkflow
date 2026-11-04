@@ -52,6 +52,17 @@ $ctx = Join-Path (Split-Path $Root -Parent) 'activeContext.md'
 if (Test-Path -LiteralPath $ctx) {
     $ctxLines = Get-Lines $ctx
     if ($ctxLines -gt 60) { $warnings.Add("ACTIVE_CONTEXT_LONG: $ctxLines lines (>60; target <=30)") }
+    $ctxText = [System.IO.File]::ReadAllText($ctx, [System.Text.Encoding]::UTF8)
+    foreach ($spec in @(
+        @{ H = '生效中的偏好'; N = 5; Code = 'ACTIVE_CONTEXT_PREF_LONG' },
+        @{ H = '洞见与易踩坑'; N = 3; Code = 'ACTIVE_CONTEXT_INSIGHT_LONG' }
+    )) {
+        $m = [regex]::Match($ctxText, "(?ms)^###\s*$([regex]::Escape($spec.H))\s*\r?\n(.*?)(?=^###\s|\z)")
+        if ($m.Success) {
+            $bullets = @($m.Groups[1].Value -split "\r?\n" | Where-Object { $_ -match '^\s*-\s+' })
+            if ($bullets.Count -gt $spec.N) { $warnings.Add("$($spec.Code): $($spec.H) $($bullets.Count) entries (>$($spec.N))") }
+        }
+    }
 }
 
 $rulesDir = Join-Path $Root 'rules'

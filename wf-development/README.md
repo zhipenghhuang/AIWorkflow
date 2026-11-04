@@ -27,7 +27,7 @@
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
 | `rules/workflow.md` | 护栏、提交门、文档落位摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 + 根 CHANGELOG / 工作日志 / 发布说明 |
-| `rules/core/` | `execution-contract.md`、`doc-quality.md`、`clarification.md`、`routing.md`、`lightweight.md`、`verification.md`、`implementation-quality.md`（DEV-IQ）、`versioning.md`、`rule-governance.md`、`maintenance.md` |
+| `rules/core/` | `execution-contract.md`、`doc-quality.md`、`clarification.md`、`routing.md`、`lightweight.md`、`verification.md`、`implementation-quality.md`（DEV-IQ）、`versioning.md`、`rule-governance.md`、`maintenance.md`、`context-memory.md` |
 | `rules/collaboration/` | `handoff.md`、`roles.md`、`subagents.md` |
 | `rules/defects/` | `fix-collaboration.md`、`platform-adapter.md` |
 | `rules/special/` | `iteration-delivery.md`（迭代/任务清单/DoR/DoD 参考） |

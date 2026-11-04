@@ -74,7 +74,7 @@ steps:
       **工作根**按 `rules/doc-governance.md` §2.4 定位；**原件根 `inbound/`** 只登记/整理，主副本不迁入 `{workroot}/`。
       `keep`/`mix`/`replace` 只管原件结构（仍无 `_archive/`）；均允许索引/复制/吸收。原件禁止迁入 `{workroot}/`。
       旧 `inbound/项目文档/{ver}/`、`inbound/原始素材/`、旧扁平前缀 → `inbound/{ver|topic}/` 或 `inbound/_common/`；旧工作区 `inbound/` 副本先判定，不直接当原件；材料库只收定稿。
-      更新 `project-profile.md` §9、`{workroot}/INDEX.md`、`inbound/INDEX.md`、`docs/materials/INDEX.md`、开发计划链接、activeContext；冲突/无法判断先问一次，不覆盖。
+      更新 `project-profile.md` §9、`{workroot}/INDEX.md`、`inbound/INDEX.md`、`docs/materials/INDEX.md`、开发计划链接、activeContext；`activeContext` 合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。冲突/无法判断先问一次，不覆盖。
       迁移后核对链接，再进入 docs/control 步。
 
   - name: 文档树与归档

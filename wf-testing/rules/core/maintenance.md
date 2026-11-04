@@ -16,6 +16,7 @@
 - 轨边界 → `rules/tracks/`
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`
+- 工作记忆/偏好/洞见/坑沉淀 → `rules/core/context-memory.md`（读/写/升级/清理单一出处）
 - 适配：templates / rules / skills 可按项目实际适配；AI 先出拟改/原因/影响，用户确认后改本包并登记；能靠产出文档解决的优先改产出
 - 技能 → `skills/`（**可就地改**；通用最优：「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例选型/绑定 → `{workroot}/capabilities/`（纪律 `rules/capabilities/instance-discipline.md`）

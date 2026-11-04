@@ -11,7 +11,7 @@
 ## 默认行（所有 step）
 
 - **核心必读（≤4 来源）**：`AGENTS.md` §0 · 命中 `workflows/{workflow}.yaml` 当前 step 块 · 当前 `agents/{role}.yaml` · 当前产物/证据（顺序见上方「读序」）。
-- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中`；项目身份见 `env-baseline.md`（`AGENTS.md` §0 已列）。
+- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中` + `### 生效中的偏好`（项目/包）；项目身份见 `env-baseline.md`（`AGENTS.md` §0 已列）。
 - **命中才读**：本索引对应行；方法层 skills / playbook / 模板按 step 命中再读。
 - 不读：其它 workflow、全部 agents、全部规则、全部模板；**不跨轨通读**。
 
@@ -44,8 +44,8 @@
 | testing.execute（随机业务流程） | `rules/playbooks/execute.md` + `rules/tracks/random-flows.md` + **本轮随机用例** | 写完整【执行收尾】时→骨架 §2 样例；`多Agent` §1.1/§2.1；`test-execution-and-exploration` §4.1；账本窗；禁计划/主读当编排或判定 | 8k |
 | testing.execute（发布前） | `rules/playbooks/execute.md` + `rules/tracks/pre-release.md` + `多轨质量标准` §2.3 + 专项技能 | 写完整【执行收尾】时→骨架 §2 样例；工具 README、`ai-feature-testing` | 8k |
 | testing.execute（批末） | `verify/README.md` + `verification.md` + 本模块台账 + `closeout-skeleton.md` §2 样例；`Invoke-Gate.ps1 -Mode execute -Scope …` | 计划 §3.9 批次合并/§9/§10 | 6k |
-| testing.report | `verify/README.md` + `rules/core/verification.md` + `多轨质量标准` §3 + `workflow.md` §4 + 测试报告模板 + 计划 §5/§9/§10/§3.9 + 收尾骨架 §2 样例 | 收尾骨架 §0/§0.5；台账/证据；批次/并行统计；`work-log-template.md`；`ai-feature-testing` | 8k |
-| testing.handoff | `verify/README.md`（writeback）+ 收尾骨架 §2 样例 + 拟提交/交平台清单 | 骨架 §0/§0.5；git 状态、回写回执 | 6k |
+| testing.report | `verify/README.md` + `rules/core/verification.md` + `多轨质量标准` §3 + `workflow.md` §4 + 测试报告模板 + 计划 §5/§9/§10/§3.9 + 收尾骨架 §2 样例 + `rules/core/context-memory.md` §4（沉淀判断） | 收尾骨架 §0/§0.5；台账/证据；批次/并行统计；`work-log-template.md`；`ai-feature-testing` | 8k |
+| testing.handoff | `verify/README.md`（writeback）+ 收尾骨架 §2 样例 + `rules/core/context-memory.md` §4（沉淀判断）+ 拟提交/交平台清单 | 骨架 §0/§0.5；git 状态、回写回执 | 6k |
 | handoff.compose | `workflows/handoff.yaml` compose 块 + 协作 §3.0～§3.0.1 + `handoff-note-template.md` + 台账 | 专模（报告/计划等） | 6k |
 | handoff.*（status/send/receive/change_*/replan） | `workflows/handoff.yaml` 当前 step 块 + 协作当前节；**send** 另加交接包说明/清单 + 台账/计划 | 接收回执模板、测试报告/变更模板 | 8k |
 | defect.* | `workflows/defect.yaml` 当前 step 块 + `rules/playbooks/defect.md` + `rules/defects/collaboration.md` 当前节（提交含 §6.0） | 平台适配 §0+能力（平台时）；缺陷文案（提交/回写时）；缺陷分类 §0/§0.4（分流/到不了防混）；基线缺陷节 | 8k |

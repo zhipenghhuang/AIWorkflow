@@ -51,7 +51,7 @@ steps:
       `{workroot}/计划执行看板.md` → 合并进 `{workroot}/test-plan.md` §0/§16 后删除。
       资料迁移前先按 `rules/doc-governance.md` 做覆盖对照，输出迁移/改名/归档候选；确认后执行，不静默丢文件。
       若存在 `{workroot}/CHANGELOG.md`：列为迁移候选——**用户确认后**改名为 `{workroot}/work-log.md`（内容按工作日志模板整理索引+里程碑条；勿与根 `CHANGELOG.md` 混淆）；未确认不改名。
-      更新 `env-baseline.md` §2.1、测试计划/报告、`inbound/INDEX.md`、`docs/materials/INDEX.md`、activeContext；旧路径不改则注明兼容，不强迁。
+      更新 `env-baseline.md` §2.1、测试计划/报告、`inbound/INDEX.md`、`docs/materials/INDEX.md`、activeContext；`activeContext` 合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。旧路径不改则注明兼容，不强迁。
       文件冲突/无法判断归属/三项混在一个方案 → 停下问一次，不擅自覆盖。
       迁移后核对链接与引用，再进入 baseline/context。
 
@@ -61,7 +61,7 @@ steps:
     output: env-baseline.md（§1/§2.1/§2.2/§8）· {workroot}/work-log.md（如无）
     notes: >
       挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 补入薄指针（追加不覆盖）；单包指向本包，多包指向 `wf/AGENTS.md`；不写包装载说明。
-      **按实填档（硬）**：建档前有界探查（预览地址/`{workroot}/`/既有计划若有）。「项目身份」写 workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认 mix）；基线登录/设计输入/入库/浏览器能力索引节据实填；**禁止**占位符未换就打「wf-testing onboard: done」。
+      **按实填档（硬）**：建档前有界探查（预览地址/`{workroot}/`/既有计划若有）。「项目身份」写 workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认 mix）、`流程偏好`（按计划与级别推断；用户可改，不额外提问）；基线登录/设计输入/入库/浏览器能力索引节据实填；**禁止**占位符未换就打「wf-testing onboard: done」。
       有根 `README.md` 则按**其实际结构**择要取用；细则见 `rules/core/project-readme.md`。根 README 按用户偏好选档后写（模板仅素材）；已有不覆盖；点名生成/更新/整理时对照市面高标准给可选补强。
       按 `rules/doc-governance.md` §2.4 定位工作根；登记原件根 `inbound/INDEX.md`；权威文档库 `docs/materials/`。
       建索引：单包 `docs/INDEX.md`（含工作区导航）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 在总览登记既有目录）；不写阶段/门。

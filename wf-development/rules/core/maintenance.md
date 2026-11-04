@@ -15,6 +15,7 @@
 - collaboration/handoff/变更分级 → `rules/collaboration/handoff.md`；交接步骤 → `workflows/handoff.yaml`；回执/台账模板 → `rules/templates/`
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`
+- 工作记忆/偏好/洞见/坑沉淀 → `rules/core/context-memory.md`（读/写/升级/清理单一出处）
 - 适配：templates / rules / skills 可按项目实际适配；先拟改/原因/影响，用户确认后改本包并登记；能靠产出文档解决的优先改产出
 - 技能 → `skills/`（**可就地改**；通用最优用口令「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例 → `{workroot}/capabilities/`（`rules/capabilities/instance-discipline.md`）

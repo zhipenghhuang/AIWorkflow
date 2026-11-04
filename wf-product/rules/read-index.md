@@ -11,7 +11,7 @@
 ## 默认行（所有 step）
 
 - **核心必读（≤4 来源）**：`AGENTS.md` §0 · 命中 `workflows/{workflow}.yaml` 当前 step 块 · 当前 `agents/{role}.yaml` · 当前产物/证据（顺序见上方「读序」）。
-- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中`；项目身份见 `product-profile.md` §1（`AGENTS.md` §0 已列）。
+- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中` + `### 生效中的偏好`（项目/包）；项目身份见 `product-profile.md` §1（`AGENTS.md` §0 已列）。
 - **命中才读**：本索引对应行「可选」列；方法层 skills / playbook / 模板按 step 命中再读。
 - 不读：其它 workflow、全部 agents、全部模板、全本规则。
 
@@ -56,7 +56,7 @@
 | onboard.* | `workflows/onboard.yaml` 当前 step 块 + `agents/onboard-agent.yaml` + `rules/doc-governance.md` 当前节（§2.4 起） | `rules/templates/00-onboarding/capabilities/`/`rules/capabilities/instance-discipline.md`、`work-log-template.md` | 8k |
 | skill-audit.* | `workflows/skill-audit.yaml` 当前 step 块 + `agents/onboard-agent.yaml` + `rules/playbooks/skill-audit.md` 当前节（discover 必读 §2.1） | `{workroot}/capabilities/00-能力清单.md`、包内契约/参考目录、`skills/README.md`、`capability-skill-audit-report-template.md`；按范围抽查 SKILL；discover 时 skills.sh / `npx skills find` | 8k |
 | commit | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认） + `rules/workflow.md` §3；有门产物读 `.gate/wf-product/{mode}.json` | git 状态 | 5k |
-| wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认）；有门产物读 `.gate/wf-product/{mode}.json`；无门产物写自检结论 | 产品计划 §0/§7/§10、activeContext | 5k |
+| wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认）+ `rules/core/context-memory.md` §4（沉淀判断）；有门产物读 `.gate/wf-product/{mode}.json`；无门产物写自检结论 | 产品计划 §0/§7/§10、activeContext | 5k |
 | materials.* | `workflows/materials.yaml` 当前 step 块 + `rules/doc-governance.md` §5.2 + `docs/materials/INDEX.md` + `{workroot}` 当前定稿 | 版本 README/域目录/来源 | 6k |
 
 ## 读取纪律

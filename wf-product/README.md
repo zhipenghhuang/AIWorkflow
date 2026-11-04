@@ -25,7 +25,7 @@
 | `rules/gates.md` | 门语义、`when` 词表、门档位（autonomous/notify/approve）；含 product-review/uat-evidence/change-closure/writeback-receipt |
 | `rules/workflow.md` | 铁律、产物路径、拟提交与收尾摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 |
-| `rules/core/` | `clarification.md`、`routing.md`、`verification.md`、`rule-governance.md`、`maintenance.md`、`execution-contract.md`、`doc-quality.md` |
+| `rules/core/` | `clarification.md`、`routing.md`、`verification.md`、`rule-governance.md`、`maintenance.md`、`execution-contract.md`、`doc-quality.md`、`context-memory.md` |
 | `rules/collaboration/` | `handoff.md`、`subagents.md`、`roles.md` |
 | `rules/defects/` | `platform-collaboration.md`、`platform-adapter.md` |
 | `rules/special/` | `quality-gate.md`（审计参考，不是额外确认门） |

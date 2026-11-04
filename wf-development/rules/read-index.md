@@ -12,7 +12,7 @@
 ## 默认行（所有 step）
 
 - **核心必读（≤4 来源）**：`AGENTS.md` §0 · 命中 `workflows/{workflow}.yaml` 当前 step 块 · 当前 `agents/{role}.yaml` · 当前产物/证据（顺序见上方「读序」）。
-- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中`；项目身份见 `project-profile.md` §1 + §2 表（`AGENTS.md` §0 已列）。
+- **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中` + `### 生效中的偏好`（项目/包）；项目身份见 `project-profile.md` §1 + §2 表（`AGENTS.md` §0 已列）。
 - **命中才读**：本索引对应行「可选」列；方法层 skills / playbook / 模板按 step 命中再读。
 - 不读：其它 workflow、全部 agents、全部模板、全本规则。
 
@@ -38,7 +38,7 @@
 | change.verify / iterate.gates | `verify/README.md` + `rules/core/verification.md` + `verify/checks.yaml` + 验收清单/diff/证据；取重或有行为时 + `rules/core/implementation-quality.md` §8（含 implement_preflight） | `.gate/wf-development/completion.json`、日志摘要 | 6k |
 | change.deliver / iterate.deliver | 技能 `qa-handoff-and-release` + 提测/发布模板；`rules/core/implementation-quality.md` §6～§7（债项/基线再验；有开关时 +DEV-IQ-11）+ `rules/core/versioning.md` §3～§7；有代码改动时 + 本轮 `.gate/wf-development/completion.json` | 发布说明/回滚预案 | 8k |
 | change.release_handoff / iterate.release_handoff | `workflows/change.yaml` 或 `iterate.yaml` 当前 step 块 + 技能 `qa-handoff-and-release` / `acceptance-and-launch` 当前节 + `rules/core/versioning.md` §5～§7 | 提测/发布/上线检查单 | 8k |
-| change.wrap / control.wrap / intake.wrap / handoff.wrap / release.wrap / retro.wrap / defect-fix.wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、遵守自检）；命中版本 bump/关迭代/发版/对外事实变时 + `rules/core/doc-facade-sync.md` | {workroot}/INDEX.md / activeContext/根 `CHANGELOG.md`/`{workroot}/work-log.md` | 6k |
+| change.wrap / control.wrap / intake.wrap / handoff.wrap / release.wrap / retro.wrap / defect-fix.wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、遵守自检）+ `rules/core/context-memory.md` §4（沉淀判断）；命中版本 bump/关迭代/发版/对外事实变时 + `rules/core/doc-facade-sync.md` | {workroot}/INDEX.md / activeContext/根 `CHANGELOG.md`/`{workroot}/work-log.md` | 6k |
 | handoff.compose | `workflows/handoff.yaml` compose 块 + 协作 §3.0～§3.0.1 + `handoff-note-template.md` + 台账 | 专模（提测单等） | 6k |
 | handoff.status / send / receive / change_send / change_receive / replan | `workflows/handoff.yaml` 当前 step 块 + 协作当前节；**send** 另加交接包说明/清单模板 + 台账/计划 | 接收回执模板、提测/发布模板 | 8k |
 | change.commit / iterate.commit / control.commit / intake.commit / retro.commit / handoff.commit / release.commit / iterate.wrap | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2（中文回执、第4点待确认） + `rules/workflow.md` §2；有门回执时 + 本轮 `.gate/wf-development/completion.json` | git 状态、`{workroot}/INDEX.md` / 根 `CHANGELOG.md`/`{workroot}/work-log.md` | 6k |
@@ -46,7 +46,7 @@
 | solo.plan | `workflows/solo.yaml` 当前 step 块 + `rules/core/lightweight.md` §0/§2～§5 + 技能 `product-shaping`/`solution-design`/`task-breakdown` + 方案卡模板；`engineering-quality`（命中风险/质量条时读当前节） | 需求基线/方案templates/代码地图 | 7k |
 | solo.build | 技能 `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` + 方案卡 + project-profile.md §2/§7；`implementation-quality.md` §3～§4（有行为时，含 DEV-IQ-12）；失败时 + `debugging-and-error-recovery` | 预检命中面技能当前节；前后端子技能、前端设计说明 | 8k |
 | solo.test | `workflows/solo.yaml` 当前 step 块 + `rules/core/lightweight.md` §4 + 技能 `test-design-and-execution` + `verify/README.md` + `verify/checks.yaml` + 方案卡/验收清单 | 轻量测试报告模板、本轮 `.gate/wf-development/completion.json` | 7k |
-| solo.wrap / solo.commit | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2 + `rules/workflow.md` §2；有门回执时 + 本轮 `.gate/wf-development/completion.json` | {workroot}/INDEX.md / activeContext/根 `CHANGELOG.md`/`{workroot}/work-log.md` | 6k |
+| solo.wrap / solo.commit | `rules/templates/90-handoff/closeout-skeleton.md` §0/§0.5/§2 + `rules/workflow.md` §2 + `rules/core/context-memory.md` §4（沉淀判断）；有门回执时 + 本轮 `.gate/wf-development/completion.json` | {workroot}/INDEX.md / activeContext/根 `CHANGELOG.md`/`{workroot}/work-log.md` | 6k |
 | iterate.precheck / confirm / release_handoff / retro | `workflows/iterate.yaml` 当前 step 块 + `rules/playbooks/iterate.md` 当前节 | 开发计划/复盘模板 | 8k |
 | defect-fix.preflight / pull / triage / gates / menu | `workflows/defect-fix.yaml` 当前 step 块 + `rules/playbooks/defect.md` 当前行 + `rules/defects/fix-collaboration.md` 当前节 | 平台时→`platform-adapter.md`；gates→`verify/README.md`；产品缺陷→评估模板 | 8k |
 | defect-fix.fix | `workflows/defect-fix.yaml` fix 块 + `rules/defects/fix-collaboration.md` §4.4/§4.5 + `rules/core/implementation-quality.md` §3～§4（DEV-IQ-09/10/12；有代码时）+ `skills/implementation-and-selftest` §0.5 | 跨层命中→`cross-layer-consistency` §5；复杂实施→方案模板；失败→`debugging-and-error-recovery` | 8k |

@@ -10,7 +10,7 @@ reads:
 
 must:
   - mount：按根 AGENTS 挂载样例补入薄指针（追加不覆盖）；单包指向本包，多包指向 `wf/AGENTS.md`；不写包装载说明/偏好正文。
-  - profile：建档前有界探查（有 README 则按实际结构择要，不够则探仓）；产品档案 §1/§2/§3/§4 据实填（§1 须含一句话定位与目标用户；禁占位打标）；根 README 按用户偏好选档（模板仅素材）、已有不覆盖；§7 缺陷平台可选，问一次，未启用写「无」；§1 记 workroot/原件根 `inbound/`/权威文档库 `docs/materials/`；同步写 `activeContext` 总览一句话；确保 `{workroot}/` 与原件根 `inbound/`；无 `{workroot}/work-log.md` 则按模板创建，有则跳过；若有 `{workroot}/CHANGELOG.md` → 改名迁移候选（确认后→`work-log.md`）；**禁止**创建/修改/补链根 `CHANGELOG.md`；无开发包则不建根。
+  - profile：建档前有界探查（有 README 则按实际结构择要，不够则探仓）；产品档案 §1/§2/§3/§4 据实填（§1 须含一句话定位与目标用户；流程偏好按计划与 PRD 存量推断，用户可改，不额外提问；禁占位打标）；根 README 按用户偏好选档（模板仅素材）、已有不覆盖；§7 缺陷平台可选，问一次，未启用写「无」；§1 记 workroot/原件根 `inbound/`/权威文档库 `docs/materials/`；同步写 `activeContext` 总览一句话；确保 `{workroot}/` 与原件根 `inbound/`；无 `{workroot}/work-log.md` 则按模板创建，有则跳过；若有 `{workroot}/CHANGELOG.md` → 改名迁移候选（确认后→`work-log.md`）；**禁止**创建/修改/补链根 `CHANGELOG.md`；无开发包则不建根。
   - 建 `inbound/`（`_common/` + `{ver}/` + `handoff/` + `_archive/` + `inbound/INDEX.md`；禁 `项目文档/`、禁强制类型前缀）；对外文档固定 `{workroot}/user/`；旧扁平/`项目文档/` 残留列迁移候选。
   - 交接：需要跨角色交接时建 `{workroot}/handoff/`（含 `outbound/`、`inbound/` 按需）+ `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-handoff/handoff-ledger-template.md`）；不预建空 HO；外来交接收件落 `{workroot}/handoff/inbound/{category}/`（须分析吸收；`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。
   - migrate（「重新接入」预授权）：按 `doc-governance.md` §3 先覆盖对照、列候选，确认后执行；更新计划/索引/activeContext；冲突先问。

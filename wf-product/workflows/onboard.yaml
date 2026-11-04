@@ -45,7 +45,7 @@ steps:
     notes: >
       「重新接入」= 按现行文档治理规则迁移；先扫描旧结构，按 `rules/doc-governance.md` §4 做覆盖对照，列迁移/改名/归档候选，经 `confirm_docs_migration` 确认后执行，不静默丢文件。
       映射：`{workroot}/输入/`、`inbound/项目文档/{ver}/`、旧扁平前缀文件、`inbound/反馈|调研|竞品|数据/` → `inbound/{ver|topic}/` 或 `_common/`（保持原文件名；类型写索引；**不要**项目文档层、**不要**强制类型前缀扁平）；
-      旧工作区/资料副本先判定：原件进 `inbound/`，定稿进 `docs/materials/`，过程稿进工作区；建立/更新 `inbound/INDEX.md`；更新计划 §7、路径引用、activeContext。
+      旧工作区/资料副本先判定：原件进 `inbound/`，定稿进 `docs/materials/`，过程稿进工作区；建立/更新 `inbound/INDEX.md`；更新计划 §7、路径引用、activeContext；`activeContext` 合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。
       冲突/无法判断先问一次，不覆盖；迁移后核对链接，再进入 mount/profile。
       若存在 `{workroot}/CHANGELOG.md`：列为迁移候选——**用户确认后**改名为 `{workroot}/work-log.md`（内容按工作日志模板整理索引+里程碑条；勿与根 `CHANGELOG.md` 混淆）；未确认不改名。
       共用原件根 `inbound/`：认根=用户指定优先，否则判定表，不定则问。原夹文件不迁出。`keep`/`mix`/`replace` 只管原树；仍可索引/复制/吸收。中途存量全索引，按需复制或 A0～A2。
@@ -66,7 +66,7 @@ steps:
     agent: onboard-agent
     output: product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板 rules/templates/）
     notes: >
-      **按实填档（硬）**：建档前有界探查（`{workroot}/`、既有 PRD/计划/用户材料若有）。档案第一节须含一句话定位、目标用户、workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认 mix）；第二～四节据实填或「无」/「待确认」；**禁止**占位符未换就打「wf-product onboard: done」。
+      **按实填档（硬）**：建档前有界探查（`{workroot}/`、既有 PRD/计划/用户材料若有）。档案第一节须含一句话定位、目标用户、workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认 mix）；第二～四节据实填或「无」/「待确认」；§1 `流程偏好` 按计划与 PRD 存量推断（轻量优先/完整优先；用户可改，不额外提问；轻量≠降 AC/门/评审）。**禁止**占位符未换就打「wf-product onboard: done」。
       有根 `README.md` 则按**其实际结构**择要取用；细则见 `rules/core/project-readme.md`。根 README 按用户偏好选档后写（模板仅素材）；已有不覆盖；点名生成/更新/整理时对照市面高标准给可选补强。
       §7 缺陷平台可选：问是否启用禅道/Jira/ONES，启用填 provider/baseUrl/凭据来源/提交方式/适配定义，
       未启用写「无」；同项目已有开发/测试包配置可复用，不重复存凭据。缺陷平台未配置不阻塞接入。

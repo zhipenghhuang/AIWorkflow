@@ -51,7 +51,7 @@ steps:
     notes: >
       按 `rules/templates/60-retro/retro-template.md` 落 `{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`。
       需要跨角色同步时**建议**是否发 `RETRO` 包；确认后才生成。
-      更新 `{workroot}/INDEX.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`。
+      更新 `{workroot}/INDEX.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`；按 `rules/core/context-memory.md` §4 复盘沉淀（升级 / 清理偏好与洞见）。
       下次复盘先对账上次行动项；未完成项说明原因与新截止。
 
   - name: 收尾

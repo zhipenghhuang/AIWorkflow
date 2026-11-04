@@ -33,6 +33,7 @@
 | --- | --- |
 | 项目一句话定位 | `{为谁解决什么问题}` |
 | 当前版本/主题 | `{版本或迭代主题；无则写「无」}` |
+| 流程偏好 | `{轻量优先 / 完整优先；默认按计划与级别推断}`（影响入口；轻量≠降门/准出/证据，见 `rules/core/routing.md` §3） |
 | workroot | 默认为 docs/；非标准时写实际路径 |
 | integration_level | `{I0 / I1 / I2 / I3；默认 I3}` |
 | inbound_structure | `{keep / mix / replace；默认 mix}` |
