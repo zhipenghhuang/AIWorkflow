@@ -20,8 +20,8 @@ description: Use when executing tests or exploratory testing. Enforce preconditi
 | 缺数据/样本 | 造数/换样（基线配方）；再跑本条 | 直接 blocked |
 | 入口 404/空壳（有菜单） | 记 fail+证据；可绕过则跑独立面 | 猜替代 API 换载体；把该条标 pass |
 | 无菜单无接口（范围内） | 待实现（实现缺陷）进批次 | 当 blocked；标观察/仅 GAP；用 API 旁路把点名 UI 条刷绿 |
-| 点名 UI 仅 API/L0 | 未走 L1 → 不得 pass；旁路另记 | L0/纯 API 冒充 UI 终态 |
-| 浏览器不可用（点名 UI） | 拉起失败→blocked | L0 凑 pass |
+| 点名 UI 仅 API/E0 | 未走 E1 → 不得 pass；旁路另记 | E0/纯 API 冒充 UI 终态 |
+| 浏览器不可用（点名 UI） | 拉起失败→blocked | E0 凑 pass |
 | 弱通过 / 空扫 / 空成功 / 授权未生效 | 按工作流 §3.0-6 定性 fail 或造数后再判 | 观察后宣称达标；无样本标 pass |
 | 同路径旁证问题 | 记 fail/额外发现+证据；不换载体 | 因「非本条断言」静默忽略 |
 | 断言面不可达 | blocked+已试路径 | 写成实现缺校验 fail |
@@ -32,7 +32,7 @@ description: Use when executing tests or exploratory testing. Enforce preconditi
 | 选择器/文案微调（用例笔误） | 同轮小修用例+同步脚本；摘要注「用例待修」 | 为过用例改业务预期 |
 | Flake/偶发 | 同方案无效 2 次换手段；记频率；不一次绿即稳 | 静默跳过 |
 | 上游阻断下游 | 能换样/绕过→照跑；不能→下游 blocked 点名上游 | 重复记 fail |
-| MCP/浏览器断 | 按基线拉起/重试；仍挂→点名 UI 停并 blocked，禁 L0 代过 | 无差别新开对话空转 |
+| MCP/浏览器断 | 按基线拉起/重试；仍挂→点名 UI 停并 blocked，禁 E0 代过 | 无差别新开对话空转 |
 | 口径待探查 | 先读本载体实现值再断言 | 换功能点「好测的」 |
 
 **自主分析三步（每条异常默认走）**：① 取证 → ② 归因（产品｜脚本/用例｜数据｜环境｜flake）→ ③ 处置后继续装填。产品缺陷不自愈成通过。  

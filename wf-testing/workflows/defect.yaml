@@ -1,10 +1,9 @@
-# 无「wf-testing onboard: done」（兼容旧 landing=ok）时才按 onboard-agent 清单核验一次；打标后免检（AGENTS 开工第3点）；§13 按需补
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: defect
   name: 测试缺陷协作
   version: 7
-  read_index: rules/read-index.md
-
 entry_points:
   缺陷协作: classify
   查重: classify
@@ -16,81 +15,72 @@ entry_points:
   缺陷变化巡检: classify
   补充澄清: classify
   产品判定回流: classify
-
 trigger:
-  - 缺陷协作
-  - 查重
-  - 提交到平台
-  - 回归（指派给我 / 已解决 / 平台）
-  - 指派给我 + 回归|验证|复测
-  - 缺陷变化巡检 / 我提交的缺陷有没有新回复 / 看产品确认
-  - 补充澄清 / 开发无法复现 / 请补充说明
-  - 产品判定回流 / 产品退回测试 / 产品说非问题
-
+- 缺陷协作
+- 查重
+- 提交到平台
+- 回归（指派给我 / 已解决 / 平台）
+- 指派给我 + 回归|验证|复测
+- 缺陷变化巡检 / 我提交的缺陷有没有新回复 / 看产品确认
+- 补充澄清 / 开发无法复现 / 请补充说明
+- 产品判定回流 / 产品退回测试 / 产品说非问题
 preflight:
-  skip_if: "activeContext wf-testing onboard: done"
+  skip_if: activeContext 中 wf-testing onboard 的值为 done
   once: 按 agents/onboard-agent.yaml 接入清单核验
-  on_fail: "onboard → write wf-testing onboard: done → resume"
-
+  on_fail: 'onboard → 写 wf-testing onboard: done → resume'
 steps:
-  - name: 识别子类
-    id: classify
-    agent: bug-agent
-    next: search
-    output: 子类判定（回归/提交/修改/查重/列表/巡检/澄清/产品回流 + 依据）
-    notes: >
-      回归/提交/修改/查重/列表/巡检/补充澄清/产品判定回流；回归默认 LIST=指派给我·未关闭（含打开/已解决），巡检=我提交的/我关注的未关闭，只读变化不默认回归；
-      读单/快照/分流见 缺陷协作 §7.3；开发无法复现/请补充 → §8.4；产品确认/新文档 → testing plan §2.6，不在本轨直接改用例；
-      产品判定非问题/重复/信息不足 → §7.4/§8.8；产品缺陷直提 → 指派产品，不经开发；
-      未点子类先 LIST 再问；本轨专规读够（见 bug-agent reads）。
-      **批量侦察**（多Agent §1.5）：≥5 单且读单成本高（多备注/附件/评估单）或合计 ≥20k token → 逐单只读扇出（一单/小批一子代理），返回子类候选/证据缺口/查重键；子类结论与处置集中，不采信子代理终态。
-
-  - name: 查重或拉取
-    id: search
-    agent: bug-agent
-    next: submit
-    tools:
-      - defect-platform
-    output: 查重键/拉取快照 + diff 摘要（单号/变化/证据缺口）
-    notes: >
-      提交前查重；回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 §7.3 做快照 diff；
-      api 读不全 → browser；仍不全 → 请用户补关键备注/附件，禁只看标题分析。
-      批量查重/快照 diff 可按单只读扇出；主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定集中。
-
-  - name: 提交或回写
-    id: submit
-    when: defect_submit_required
-    agent: bug-agent
-    on_fail: 不提交/不回写；补证据、补探查或问用户；不得为交平台改标失败
-    gate: writeback-receipt
-    gate_type: machine
-    gate_when: remark_writeback
-    hitl:
-      - name: confirm_remark
-        when: remark_writeback
-      - name: confirm_platform
-        when: platform_submit
-    notes: >
-      remark_writeback＝拟关/激/解决/标重复/补充澄清/回归写回备注；先出 id+备注全文再执行。
-      platform_submit＝计划 §11 为批末/阶段末/收尾确认且本轮拟新建单时触发；执行批 ID 与计划 §3.9 对齐；修复批可另立 `B-FIX-xx` 并在计划 §11.2 登记；细则见 `rules/defects/collaboration.md` §6.0/§6.1（分流：本地消化/盯办/缺陷；待实现进缺陷清单；测本地消化不开单；外力盯办须实机类型+指派匹配或问用户）。
-      补充澄清用 §8.4；回归未通过用 §8.1；新问题用 §8.5；非修复处置用 §8.6；产品判定回流用 §8.8；写后按 §8.7 回查。
-      产品缺陷：提交后直接指派产品负责人，不经开发；产品判定非问题/重复/信息不足 → 指派回测试，按 §7.4/§8.8 处理。
-      建单标题：`[V版本?][测试类型]`+正文（已确认迭代版本才加 `[V…]`；类型必加；§5.0）。
-      列表/仅查重展示/仅建单（无状态回写）→ 跳过 remark 门；拟新建单仍按 platform_submit 门；列表子类可跳过本步直 wrap。
-      回写内容由编排集中生成；子代理只提供事实素材，不写平台、不改状态。
-      **缺陷通道（§3.1.1）**：`api`/`browser`/「提交禅道|平台」→ **完整交平台即完成**（writeback 回执 + 台账单号）；**禁止**同轮导出包、BUG HO、出站实拷详单、一缺陷一目录。
-      无平台/`export`/点名「缺陷交接包|发给开发|仅导出」→ **先问后发**：出示【拟统一导出】（条数/单文件或单 EXPORT 目录）；确认后本批**只落一份**（见 handoff §3.1.1；禁「拟提交」充数；禁逐条文件夹）。
-      基线 §13 不全 → 先问补适配直提 vs 统一导出；确认前零落盘。
-      更新台账/计划平台号；仅导出路径才更新 `handoff-ledger.md`；未回执不得写“开发/产品已接收”。
-    output: 平台单号（或待确认后的统一导出路径）· 备注与状态同轮 · 可复制汇总块（collaboration.md §5.2）
-
-  - name: 收尾
-    id: wrap
-    output: 【任务收尾】
-    agent: report-agent
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    notes: >
-      **git 提交门**：有文件变更时按 `confirm_commit` 出示【拟提交·仓库】；平台提交/回写已在 submit 步按门3确认，不在本步重复问。
-      确认后对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含提交/回归结果（动作+单号）
-      本轮若用过浏览器 MCP → 按多Agent §2.2 全链终局退程（本套 Chrome）；结果写入「运行态：」；失败/仍在运行 → 第 4 点问关闭/保持。
+- name: 识别子类
+  id: classify
+  must_read:
+  - rules/packets/defect/classify.md
+  agent: bug-agent
+  next: search
+  output: 子类判定（回归/提交/修改/查重/列表/巡检/澄清/产品回流 + 依据）
+  notes: 回归/提交/修改/查重/列表/巡检/补充澄清/产品判定回流；回归默认 LIST=指派给我·未关闭（含打开/已解决），巡检=我提交的/我关注的未关闭，只读变化不默认回归； 读单/快照/分流见 缺陷协作 ；开发无法复现/请补充 →
+    ；产品确认/新文档 → testing plan ，不在本轨直接改用例； 产品判定非问题/重复/信息不足 → /；产品缺陷直提 → 指派产品，不经开发； 未点子类先 LIST 再问；本轨专规读够（见 bug-agent reads）。
+    **批量侦察**（多Agent ）：≥5 单且读单成本高（多备注/附件/评估单）或合计 ≥20k token → 逐单只读扇出（一单/小批一子代理），返回子类候选/证据缺口/查重键；子类结论与处置集中，不采信子代理终态。
+- name: 查重或拉取
+  id: search
+  must_read:
+  - rules/packets/defect/search.md
+  agent: bug-agent
+  next: submit
+  tools:
+  - defect-platform
+  output: 查重键/拉取快照 + diff 摘要（单号/变化/证据缺口）
+  notes: 提交前查重；回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 做快照 diff； api 读不全 →
+    browser；仍不全 → 请用户补关键备注/附件，禁只看标题分析。 批量查重/快照 diff 可按单只读扇出；主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定集中。
+- name: 提交或回写
+  id: submit
+  must_read:
+  - rules/packets/defect/submit.md
+  when: defect_submit_required
+  agent: bug-agent
+  on_fail: 不提交/不回写；补证据、补探查或问用户；不得为交平台改标失败
+  gate: writeback-receipt
+  gate_type: machine
+  gate_when: remark_writeback
+  hitl:
+  - name: confirm_remark
+    when: remark_writeback
+  - name: confirm_platform
+    when: platform_submit
+  notes: remark_writeback＝拟关/激/解决/标重复/补充澄清/回归写回备注；先出 id+备注全文再执行。 platform_submit＝计划 为批末/阶段末/收尾确认且本轮拟新建单时触发；执行批 ID 与计划 对齐；修复批可另立
+    `B-FIX-xx` 并在计划 登记；细则见 `rules/defects/collaboration.md` /（分流：本地消化/盯办/缺陷；待实现进缺陷清单；测本地消化不开单；外力盯办须实机类型+指派匹配或问用户）。 补充澄清用 ；回归未通过用
+    ；新问题用 ；非修复处置用 ；产品判定回流用 ；写后按 回查。 产品缺陷：提交后直接指派产品负责人，不经开发；产品判定非问题/重复/信息不足 → 指派回测试，按 / 处理。 建单标题：`[V版本?][测试类型]`+正文（已确认迭代版本才加
+    `[V…]`；类型必加；）。 列表/仅查重展示/仅建单（无状态回写）→ 跳过 remark 门；拟新建单仍按 platform_submit 门；列表子类可跳过本步直 wrap。 回写内容由编排集中生成；子代理只提供事实素材，不写平台、不改状态。
+    **缺陷通道（）**：`api`/`browser`/「提交禅道|平台」→ **完整交平台即完成**（writeback 回执 + 台账单号）；**禁止**同轮导出包、BUG HO、出站实拷详单、一缺陷一目录。 无平台/`export`/点名「缺陷交接包|发给开发|仅导出」→
+    **先问后发**：出示【拟统一导出】（条数/单文件或单 EXPORT 目录）；确认后本批**只落一份**（见 handoff ；禁「拟提交」充数；禁逐条文件夹）。 基线 不全 → 先问补适配直提 vs 统一导出；确认前零落盘。 更新台账/计划平台号；仅导出路径才更新
+    `handoff-ledger.md`；未回执不得写“开发/产品已接收”。
+  output: 平台单号（或待确认后的统一导出路径）· 备注与状态同轮 · 可复制汇总块（collaboration.md §5.2）
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/defect/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  output: 【任务收尾】
+  agent: report-agent
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  notes: '**git 提交门**：有文件变更时按 `confirm_commit` 出示【拟提交·仓库】；平台提交/回写已在 submit 步按门3确认，不在本步重复问。 确认后对照 `rules/templates/90-handoff/closeout-skeleton.md`
+    ；第1点含提交/回归结果（动作+单号） 本轮若用过浏览器 MCP → 按多Agent 全链终局退程（本套 Chrome）；结果写入「运行态：」；失败/仍在运行 → 第 4 点问关闭/保持。'

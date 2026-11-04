@@ -1,6 +1,6 @@
 # 迭代交付
 
-> **真值分层**：步骤/门 = `workflows/iterate.yaml`；读什么 = `rules/playbooks/iterate.md`；本文 = 口令/DoR/DoD/输出骨架（**不另写第二套步骤表**）。角色见 `agents/iterate-lead.yaml`。  
+> **真值分层**：步骤/门 = `workflows/iterate.yaml`；主流程/分级/读什么 = `rules/playbooks/iterate.md`；本文 = **口令 / DoR / DoD / 输出骨架**（不另写第二套步骤表）。角色见 `agents/iterate-lead.yaml`。  
 > 确认门只认步上 `hitl`（标量用 `hitl_when`）。  
 > 拆单方法：`skills/task-breakdown/SKILL.md`；模板：`rules/templates/30-planning-tasks/task-list-template.md`；发布/验收：`skills/acceptance-and-launch/SKILL.md`；复盘：`skills/retrospective-and-improvement/SKILL.md`。
 
@@ -15,30 +15,17 @@
 
 路径歧义 → 一问。无 `#` 的「落地…优化方案」且无「迭代」字样 → 一问缺陷或迭代。
 
-## 2. 前置
+## 2. 前置（DoR / DoD）
 
 - 档案关键项已填；需求基线/方案已确认（L2+；无则先补，不凭聊天记忆）。
 - L2+ 《开发计划》已建/已读；无则按 `skills/development-plan/SKILL.md` 创建或提示缺口（不强制引用其它包）。
 - 任务清单未建 → 先按 `skills/task-breakdown/SKILL.md` 拆；旧清单未完成 → 先问是否续跑/替换，**禁覆盖**。
-- DoR：需求/AC 明确、依赖就绪、环境/数据可用、方案/接口已确认、任务可独立验证。
-- DoD：AC 满足、测试通过、评审通过（如触发）、三维影响已说明、文档同步、证据留存、可回滚；项目级 DoD 见档案 §8。
+- **DoR**：需求/AC 明确、依赖就绪、环境/数据可用、方案/接口已确认、任务可独立验证。
+- **DoD**：AC 满足、测试通过、评审通过（如触发）、三维影响已说明、文档同步、证据留存、可回滚；项目级 DoD 见档案 §8。
 
-## 3. 主流程
+## 3. 主流程指针
 
-顺序与确认门以 `../workflows/iterate.yaml` 为准（确认门只认步上 `hitl`；条件满足才不可跳过）。偏离则暂停澄清。
-
-1. **plan**：只读侦察 → 拆清单 → 自检 → 确认；产出 `{workroot}/40-tasks/任务清单-{ver}.md`。  
-2. **confirm**：展示任务数/RP 覆盖/依赖/风险/节奏三选（一次性/逐项停/连续 N 项停）；清单/节奏变更才触发 `confirm_backlog`。  
-3. **implement**：按清单执行；完成当场回写状态/验证摘要/提交号；任务多且可独立时按组派子代理（默认串行）。  
-4. **review**：高风险/大改/破坏性变更或点名评审；核验者≠实施者；需修回 implement，同回合重验≤1。  
-5. **gates**：全量门禁/文档同步；失败不声称完成。  
-6. **deliver**：有 QA/部署 → 提测单/发布说明（工程版）+回滚预案，落 `{workroot}/60-release/`；先产文档再提交，文档随代码提交。**提测单质量以 `skills/qa-handoff-and-release` + 提测单模板硬规则为准**（环境就绪事实、开关当前值、可执行入口、编号来源；禁回填 commit）。  
-7. **wrap**：总结+拟提交（`confirm_commit`）；无变更跳过；提交前确认 `{workroot}/INDEX.md`、`activeContext`、任务清单已更新。  
-8. **release_handoff**：含部署 → 转 `workflows/release.yaml`；本步只产发布就绪包，不直接部署。  
-9. **retro**：迭代完成/事故/重大发布 → `retro` 工作流；小迭代可 3～5 条轻量复盘。
-
-**子代理**：按 `rules/collaboration/subagents.md` 取档——**≥3 个可独立任务且文件集不相交**（或 `[P]`≥3）才分片；一组一子代理；同文件集归一组串行；**文件不相交可并行≤3**；超时降级直做；提示含任务号/路径/RP/AC/验证；禁改清单与节奏；返回 ≤30 行；编排核验后回写完成。  
-**分批与核验**：分批时逐批推进——一批执行 → 批末定向门禁 → 批末核验 → 下一批；核验以差异与证据审查为主，不重复执行重型验证（存疑时最小命令抽查）；**高风险/大改/破坏性变更**：核验者≠实施者——按 `agents/reviewer-agent.yaml` 派独立核验（只给产物＋验收＋diff，不给作者解释），需修同回合重验≤1，仍不过如实上报；核验不替代机器门禁。
+顺序与确认门以 `workflows/iterate.yaml` 为准；读卡与分级以 `rules/playbooks/iterate.md` 为准。本文不复述步骤表。
 
 ## 4. 任务清单
 

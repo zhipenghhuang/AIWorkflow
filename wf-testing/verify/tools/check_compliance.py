@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # 同源脚本：产品/开发/测试三包一致；改一处需同步。
-"""Check a 收尾/报告 file for the mandatory 遵守自检 block.
+"""Check a 收尾/报告 file for the mandatory 遵守自检 block and six-point layout.
+
+Checks: title/receipt/self-check one per line; 汇报（可直接复制）block; 1～6
+sections in order; point 2/4/6 fixed sub-fields; appendix 资料补强/工作记忆/运行态.
+Pure reports without a 收尾 title only get receipt/self-check checks.
 
 Usage: python check_compliance.py --report <file>
 
@@ -10,7 +14,13 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from pathlib import Path
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
+except Exception:
+    pass
 
 MODES = {"execute", "analyze", "stop"}
 
@@ -24,9 +34,22 @@ _HEADER_MARKERS = (
     "【遵守自检】",
 )
 _TITLE_MARKERS = ("【任务收尾】", "【执行收尾】", "【生成收尾】")
+_TITLE_RE = re.compile(r"【(?:任务|执行|生成)收尾】")
+_REPORT_LABEL = re.compile(r"汇报(?:（可直接复制）)?[：:]")
 _REPORT_LEAD = re.compile(
-    r"汇报[：:][ \t]*(?:\n+[ \t]*(?:```[^\n]*\n)?)?[ \t]*\*\*[^*]+\*\*[ \t]*[（(]"
+    r"汇报(?:（可直接复制）)?[：:][ \t]*(?:\n+[ \t]*(?:```[^\n]*\n)?)?[ \t]*\*\*[^*]+\*\*[ \t]*[（(]"
 )
+_SECTION_RE = re.compile(
+    r"(?m)^\s*([1-6])\.\s*(完成了什么|改了哪些文件|如何验证|假设与未决项|还存在什么问题或风险|当前进度与下一步)"
+)
+_SECTION_LABELS = {
+    1: ("影响：",),
+    2: ("文件：", "未提交：", "建议动作：", "待提交摘要：", "git：", ".gitignore：", "文档归档："),
+    4: ("假设：", "待你确认", "默认（不回复即执行）：", "回复：", "可转发产品："),
+    6: ("当前：", "下一步：", "优先级：", "建议：", "不建议：", "完成标志："),
+}
+_DECISION_LABELS = ("事项：", "选项：", "建议：", "影响/默认：")
+_APPENDIX_LABELS = ("资料补强：", "工作记忆：", "运行态：")
 
 
 def _check_header_lines(text: str, errors: list[str]) -> None:
@@ -44,19 +67,102 @@ def _check_header_lines(text: str, errors: list[str]) -> None:
 
 
 def _check_report_lead(text: str, errors: list[str], warnings: list[str]) -> None:
-    if not re.search(r"【(?:任务|执行|生成)收尾】", text):
+    if not _TITLE_RE.search(text):
         return
-    if not re.search(r"汇报[：:]", text):
-        warnings.append("完整收尾建议含「汇报：」+ 结论说明体导语")
+    if not _REPORT_LABEL.search(text):
+        errors.append("完整收尾须有「汇报（可直接复制）：」块（不得并入第 1 点）")
         return
     if not _REPORT_LEAD.search(text):
         errors.append("汇报须以 **短名**（结论态…）导语起笔（可紧随汇报：换行或 text 围栏内）")
+    start = _REPORT_LABEL.search(text)
+    if start:
+        end = text.find("1. 完成了什么", start.end())
+        body = text[start.end(): end if end >= 0 else len(text)]
+        if "`" in body:
+            warnings.append("汇报块含行内反引号；汇报层禁路径/命令/标识，明细层可用")
+
+
+def _check_sections(text: str, errors: list[str]) -> None:
+    if not _TITLE_RE.search(text):
+        return
+    receipt_match = re.search(r"【验证回执】([^\n]+)", text)
+    if receipt_match:
+        receipt = receipt_match.group(1)
+        for key in ("结论=", "校验=", "检查="):
+            if key not in receipt:
+                errors.append(f"【验证回执】缺少 {key}")
+        if "未验证=" not in receipt and "待确认=" not in receipt:
+            errors.append("【验证回执】缺少 未验证= 或 待确认=")
+    matches = list(_SECTION_RE.finditer(text))
+    nums = [int(m.group(1)) for m in matches]
+    if nums != [1, 2, 3, 4, 5, 6]:
+        errors.append("1～6 点须齐全、按顺序各起一行；当前=" + (",".join(map(str, nums)) or "无"))
+        return
+    pos = [m.start() for m in matches]
+    sections: dict[int, str] = {}
+    for index, match in enumerate(matches):
+        end = pos[index + 1] if index + 1 < len(pos) else len(text)
+        sections[int(match.group(1))] = text[match.start():end]
+
+    for number, labels in _SECTION_LABELS.items():
+        body = sections.get(number, "")
+        for label in labels:
+            if label not in body:
+                errors.append(f"第 {number} 点缺少「{label}」")
+
+    point4 = sections.get(4, "")
+    if "待你确认" in point4 and "待你确认：无" not in point4:
+        for label in _DECISION_LABELS:
+            if label not in point4:
+                errors.append(f"第 4 点决策项缺少「{label}」")
+
+    point6 = sections.get(6, "")
+    if "下一步：" in point6:
+        if "1）" not in point6:
+            errors.append("第 6 点下一步须至少 1 个动作（1）…）")
+        for label in ("执行：", "产出："):
+            if label not in point6:
+                errors.append(f"第 6 点下一步缺少「{label}」")
+
+    appendix_marker = "附：运行与沉淀"
+    point6 = sections.get(6, "")
+    if appendix_marker not in point6:
+        errors.append("第 6 点后缺少「附：运行与沉淀」")
+        appendix = ""
+    else:
+        point6, appendix = point6.split(appendix_marker, 1)
+        sections[6] = point6
+    for label in _APPENDIX_LABELS:
+        if label not in appendix:
+            errors.append(f"附录缺少「{label}」")
+
+
+def _check_self_check(text: str, errors: list[str]) -> None:
+    m = re.search(r"【遵守自检】([^\n]+)", text)
+    if not m:
+        errors.append("缺少【遵守自检】")
+        return
+    body = m.group(1)
+    for key in ("route=", "mode=", "reads=", "gates=", "sync=", "skip=", "deviation="):
+        if key not in body:
+            errors.append(f"【遵守自检】缺少 {key}")
+    mm = re.search(r"mode=([a-z]+)", body)
+    if mm and mm.group(1) not in MODES:
+        errors.append(f"mode={mm.group(1)} 不在 execute/analyze/stop")
+    sync_match = re.search(r"sync=([^|]+)", body)
+    if sync_match:
+        sync_body = sync_match.group(1)
+        if "triad=" not in sync_body:
+            errors.append("【遵守自检】sync= 须含 triad=aligned|na|deferred:<原因>")
+        if "facade=" not in sync_body:
+            errors.append("【遵守自检】sync= 须含 facade=aligned|na|deferred:<原因>")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", required=True)
     args = ap.parse_args()
+
     path = Path(args.report)
     if not path.is_file():
         print(f"REPORT_MISSING: {path}")
@@ -67,26 +173,10 @@ def main() -> int:
 
     if "【验证回执】" not in text:
         errors.append("缺少【验证回执】")
-    m = re.search(r"【遵守自检】([^\n]+)", text)
-    if not m:
-        errors.append("缺少【遵守自检】")
-    else:
-        body = m.group(1)
-        for key in ("route=", "mode=", "reads="):
-            if key not in body:
-                errors.append(f"【遵守自检】缺少 {key}")
-        mm = re.search(r"mode=([a-z]+)", body)
-        if mm and mm.group(1) not in MODES:
-            errors.append(f"mode={mm.group(1)} 不在 execute/analyze/stop")
-        for key in ("gates=", "sync=", "skip=", "deviation="):
-            if key not in body:
-                warnings.append(f"【遵守自检】建议补 {key}")
-
     _check_header_lines(text, errors)
     _check_report_lead(text, errors, warnings)
-
-    if re.search(r"【(?:任务|执行|生成)收尾】", text) and "运行态：" not in text:
-        warnings.append("完整收尾建议含「运行态：」行（本轮进程/工具去向）")
+    _check_sections(text, errors)
+    _check_self_check(text, errors)
 
     for e in errors:
         print(f"ERROR_COMPLIANCE: {e}")

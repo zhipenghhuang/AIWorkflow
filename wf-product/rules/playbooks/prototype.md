@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # Playbook · 页面原型（含 quick path）
 
 > 只读本卡 + 当前步 YAML；技能按步读，**不要一次读两个技能全本**。
@@ -23,7 +25,7 @@
 | visual | `skills/ui-visual-design-system/SKILL.md` + 门表 `confirm_design` | 设计系统策略/参考 |
 | hi-fi | 两项技能相关节 + tokens | ui-generation（可选） |
 | engineering | 工程化检查模板 | 脚本/链接检查 |
-| review | 设计评审模板 + 评分卡 | 子代理（≥8 页） |
+| review | 设计评审模板 + 评分卡 + `prototype-coverage.md` + `verify/README.md`（design-review + 真实浏览器走查证据） | 子代理（≥8 页） |
 | usability | 可用性走查模板 | 真实用户（无则内部走查） |
 | handoff | `dev-handoff-template.md` + 门表 `confirm_prototype` | PRD §14 |
 
@@ -35,7 +37,7 @@
 4. **visual**：设计系统策略（复用/扩展/选一套）；2～3 个方向（P0 可 1 个），写清为什么适合本产品；推荐 1 个；design tokens；文案减法与三维影响（UX/DX/AX）结论；`confirm_design` 后才高保真。
 5. **hi-fi**：静态 HTML/CSS（或项目现有栈），可点击；状态矩阵逐项落地；响应式/无障碍基础；≥8 页分页构建，禁并行写 `index.html`。
 6. **engineering**：导航/路由/历史/返回/未保存提醒；数据/seed/重置；状态矩阵核对；WCAG 2.2 AA；缺项列阻断。
-7. **review**：按清单 + 12 项评分卡；检查文案减法与三维体验；阻断项必须 2 分；需修回 hi-fi（同回合≤1）；≥8 页可按维度扇出。
+7. **review**：按清单 + 12 项评分卡；核对 `prototype-coverage.md` 与真实浏览器走查证据；检查文案减法与三维体验；阻断项必须 2 分；需修回 hi-fi（同回合≤1）；≥8 页可按维度扇出。
 8. **usability**：3～5 个关键任务走查；Nielsen 10；无真实用户标「内部走查」，不冒充用户测试。
 9. **handoff**：按 `dev-handoff-template.md` 写设计意图/必须保留/可优化/未提供/需开发决策；组件/状态/交互/tokens/响应式/无障碍证据/验收对照；回填 PRD §14；`confirm_prototype` 后才交开发。
 
@@ -44,6 +46,7 @@
 - 原型≠生产代码；不冒充品牌级视觉；不臆造品牌/用户数据。
 - 删冗余文案后不清楚 → 改布局/层级，不加回说明；必要操作/状态/风险文案必留。
 - 未过设计评审不交开发；状态/响应式/无障碍不可省。
+- 评审必须真实打开原型走查；缺覆盖矩阵行不得通过；选 B 须 design-review 机器门 READY。浏览器不可用时记 `browser=unavailable`，用户走查证据可过门前评审；覆盖矩阵仍硬。
 - 页面分片只写本页文件；共享 tokens/组件由编排定。
 
 ## 5. 输出

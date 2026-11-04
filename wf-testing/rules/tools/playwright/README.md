@@ -28,7 +28,7 @@ node {workroot}/scripts/executor.mjs --plan={workroot}/scripts/01-xxx.script.mjs
 node {workroot}/scripts/executor.mjs --plan={workroot}/scripts/01-xxx.script.mjs --check        # 同步检查（不执行）
 node {workroot}/scripts/executor.mjs --plan=… --headless=false               # 有头调试
 node {workroot}/scripts/executor.mjs --plan=… --runStamp=20261015-01         # 固定数据戳
-node {workroot}/scripts/executor.mjs --mode=api --plan={workroot}/api/脚本/01-xxx.script.mjs --draftDir={workroot}/api/.draft --evidenceDir={workroot}/api/证据   # 接口轨（无浏览器）
+node {workroot}/scripts/executor.mjs --mode=api --plan={workroot}/api/{NN}-{短名}/scripts/01-xxx.script.mjs --draftDir={workroot}/api/.draft --evidenceDir={workroot}/api/evidence   # 接口轨（无浏览器）
 ```
 
 | 选项 | 说明 |

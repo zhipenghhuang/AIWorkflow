@@ -54,7 +54,7 @@ description: Use when starting a new product or 0-to-1 initiative. Validate the 
 
 ## 7. 交付给下游
 
-- 立项书 → `{workroot}/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md`
+- 立项书 → `{workroot}/{ver}/10-requirements/立项书-{yyyyMMdd}.md`
 - 产品计划 → `{workroot}/product-plan.md`（总控表 + 路线图）
 - 通过后：`skills/prd-writing/SKILL.md` 写 PRD；`skills/requirement-discovery-and-prioritization/SKILL.md` 维护需求池。
 

@@ -57,7 +57,7 @@
 
 > 接口用例天然可脚本化（HTTP + 断言）；**确定性用例默认脚本**，回归 0 token、无浏览器。纪律见 `rules/special/script-execution.md`。
 
-- 执行器：`{workroot}/scripts/executor.mjs --mode=api --draftDir={workroot}/api/.draft --evidenceDir={workroot}/api/证据`；脚本放 `{workroot}/api/{NN}-{短名}/scripts/`。  
+- 执行器：`{workroot}/scripts/executor.mjs --mode=api --draftDir={workroot}/api/.draft --evidenceDir={workroot}/api/evidence`；脚本放 `{workroot}/api/{NN}-{短名}/scripts/`。  
 - **生成即脚本**：可脚本化=是 → 用例与脚本同轮产出；不可脚本化须写理由（语义判定/一次性/依赖未定），禁默认只出用例。  
 - 登录钩子：`config.apiLogin`（返回鉴权头对象）；步骤动作限 `api`（`expectStatus`/`expectMessage`/`expectFields`/`save`）与 `note`；无 token/越权用隔离上下文。  
 - **域常青 + suite/depth**：脚本按模块/契约维护；跨版本保留主档；只更新受影响 endpoint。回归：`--suite=core|module|full`（或 tags）+ **depth=`core|standard|full`**（与多轨质量标准对齐）；**P0 接口冒烟**→`{workroot}/smoke-checklist.md`。迭代默认 depth=`standard`；发版=`full`；补丁才=`core`。轨内 `_archive/` 仅下线域/重生快照/点名旧轮；**禁**关账整轨搬走现行；**禁**进根 `{workroot}/_archive/`。  

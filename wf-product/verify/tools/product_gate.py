@@ -7,7 +7,7 @@ Design goals:
 - A gate result must belong to the current artifact (content hash gate_id), not a previous version.
 
 Usage:
-  python product_gate.py --package-root <wf-product> --project-root <project> [--mode prd|review|uat|change|writeback] [--artifact <file>]
+  python product_gate.py --package-root <wf-product> --project-root <project> [--mode prd|review|design-review|uat|change|writeback] [--artifact <file>]
 
 Exit: 0 = READY, 1 = DRAFT/BLOCKED, 2 = usage.
 """
@@ -153,6 +153,7 @@ def find_artifact(root: Path, mode: str, explicit: str | None = None, docs_root:
     patterns = {
         "prd": ["PRD-*.md"],
         "review": ["评审-*.md"],
+        "design-review": ["设计评审-*.md"],
         "uat": ["UAT-*.md"],
         "change": ["受理-*.md", "变更-*.md"],
         "writeback": ["缺陷处置-*.md", "受理-*.md"],
@@ -249,7 +250,7 @@ def check_prd(package_root: Path, path: Path) -> dict[str, Any]:
         issues += light_issues
         warnings += light_warnings
     else:
-        validator = package_root / "规则" / "tools" / "validate_prd.py"
+        validator = package_root / "rules" / "tools" / "validate_prd.py"
         if validator.is_file():
             p = subprocess.run([sys.executable, "-B", str(validator), str(path)],
                                capture_output=True, text=True, encoding="utf-8", errors="replace")
@@ -356,12 +357,28 @@ def check_review(path: Path) -> dict[str, Any]:
         if not table or not any(sum(1 for c in r if c.strip()) >= 3 for r in table[1]):
             issues.append("评审清单未填写（需 全部通过 或 逐条例外表）")
     conclusion = next((v for k, v in sec.items() if "结论" in k), "")
+    is_design = path.name.startswith("设计评审")
     if not conclusion:
         issues.append("评审结论节缺失")
-    elif re.search(r"(需修|不通过|未通过|部分通过)", conclusion):
+    elif not is_design and re.search(r"(需修|不通过|未通过|部分通过)", conclusion):
         issues.append("评审结论为需修/未通过，不能视为通过")
-    elif "通过" not in conclusion:
+    elif not is_design and "通过" not in conclusion:
         issues.append("评审结论节缺少 通过")
+    if is_design:
+        coverage = path.parent / "prototype-coverage.md"
+        if not coverage.is_file():
+            issues.append("原型设计评审缺少 prototype-coverage.md（PRD/原型→页面/路由/状态/截图）")
+        else:
+            cov = read(coverage)
+            for head in ("## 2.", "## 3.", "## 5."):
+                if head not in cov:
+                    issues.append(f"prototype-coverage.md 缺少章节 {head}")
+            cov_conclusion = next((v for k, v in sections(cov).items() if "结论" in k), "")
+            cov_line = next((line for line in cov_conclusion.splitlines() if "覆盖结论" in line), "")
+            cov_match = re.search(r"覆盖结论[：:]\s*`?([^`\s（(]+)", cov_line)
+            cov_verdict = cov_match.group(1) if cov_match else ""
+            if cov_verdict not in ("通过", "PASS", "APPROVED"):
+                issues.append("prototype-coverage.md 覆盖结论未写通过（需单独一行：覆盖结论：通过）")
     return {"path": str(path), "issues": issues, "verdict": verdict}
 
 
@@ -390,6 +407,8 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
     table = pick_table(text, ("逐条验收", "## 2."), ("验收编号", "结果"))
     if not table:
         table = pick_table(text, ("逐条验收", "## 2."), ("AC", "结果"))
+    result_idx = 2
+    evidence_idx = 3
     if not table:
         issues.append("UAT 缺少逐条验收表（验收编号/AC + 结果 + 证据）")
         rows: list[list[str]] = []
@@ -417,7 +436,9 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
             if "条件" in result and not re.search(r"(责任人|接受人)", " ".join(row), re.I):
                 issues.append(f"{ac_id}: 有条件通过缺少责任人/接受人")
 
-    conditional = verdict in ("有条件通过", "CONDITIONAL") or any("条件" in r[2] for r in rows if len(r) > 2)
+    conditional = verdict in ("有条件通过", "CONDITIONAL") or any(
+        "条件" in row[result_idx] for row in rows if len(row) > result_idx
+    )
     if conditional:
         block = next((v for k, v in sections(text).items() if "结论" in k), "")
         if not re.search(r"(责任人|owner)", block, re.I) or not re.search(r"(接受人|acceptor)", block, re.I):
@@ -433,6 +454,8 @@ def check_uat(path: Path, prd_path: Path | None) -> dict[str, Any]:
         missing = sorted(prd_acs - uat_acs)
         if missing:
             issues.append(f"UAT 未覆盖 PRD AC：{', '.join(missing[:10])}")
+    elif not re.search(r"(PRD|需求基线|变更单|受理单)", text, re.I):
+        issues.append("未找到 PRD/需求基线，且 UAT 未注明 AC 来源；无法核对验收覆盖")
     return {"path": str(path), "issues": issues, "verdict": verdict}
 
 
@@ -461,8 +484,10 @@ def check_change(path: Path) -> dict[str, Any]:
             if not any(s in line for s in ("已更新", "不适用", "待补")):
                 issues.append(f"联动项状态不明确：{line[:100]}")
     close_block = next((v for k, v in sec.items() if "验证" in k or "7." in k), "")
-    if close_block and not re.search(r"结果\s*[:：]\s*(通过|不通过|待验证|不适用)", close_block):
-        issues.append("§7 缺少验证结果（通过/不通过/待verify/不适用）")
+    if not close_block:
+        issues.append("缺少验证/闭合节（§7）；未记录验证结果不得关闭")
+    elif not re.search(r"结果\s*[:：]\s*(通过|不通过|待验证|不适用)", close_block):
+        issues.append("§7 缺少验证结果（通过/不通过/待验证/不适用）")
     return {"path": str(path), "issues": issues}
 
 
@@ -499,7 +524,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
     ap.add_argument("--project-root", default=None)
-    ap.add_argument("--mode", choices=["prd", "review", "uat", "change", "writeback"], default="prd")
+    ap.add_argument("--mode", choices=["prd", "review", "design-review", "uat", "change", "writeback"], default="prd")
     ap.add_argument("--artifact", default=None)
     ap.add_argument("--docs-root", default=None)
     ap.add_argument("--json", action="store_true")
@@ -522,11 +547,11 @@ def main() -> int:
     artifact_via = "explicit" if args.artifact else ("mtime" if path else "missing")
 
     if path is None or not path.is_file():
-        blocked.append(f"未找到 {args.mode} 产物（{workroot}/**）；请用 --artifact 指定当前文件（推荐，避免 mtime 选错）")
+        blocked.append(f"未找到 {args.mode} 产物（{docs_root}/**）；请用 --artifact 指定当前文件（推荐，避免 mtime 选错）")
     else:
         if args.mode == "prd":
             result = check_prd(package_root, path)
-        elif args.mode == "review":
+        elif args.mode in ("review", "design-review"):
             result = check_review(path)
         elif args.mode == "uat":
             prd = find_artifact(project_root, "prd", docs_root=docs_root)
@@ -548,13 +573,16 @@ def main() -> int:
         verdict = "BLOCKED"
     elif args.mode == "prd" and result.get("status") != "APPROVED":
         verdict = "DRAFT"
-    elif args.mode == "review" and result.get("verdict") not in ("通过", "PASS", "APPROVED"):
+    elif args.mode in ("review", "design-review") and result.get("verdict") not in ("通过", "PASS", "APPROVED"):
         verdict = "DRAFT"
     elif args.mode == "uat" and result.get("verdict") not in ("通过", "PASS", "APPROVED", "有条件通过", "CONDITIONAL", "不适用", "N/A", "NOT_APPLICABLE"):
         verdict = "DRAFT"
 
     content = read(path) if path and path.is_file() else ""
-    gate_id = f"{args.mode}-{hashlib.sha256(content.encode('utf-8', errors='replace')).hexdigest()[:12]}"
+    # gate_id 是回执元数据，写入产物后不得改变内容指纹。
+    stable = re.sub(r"(?m)^\s*gate_id\s*:.*(?:\r?\n|$)", "", content)
+    stable = re.sub(r"(?m)^\s*\|[^\n]*gate_id[^\n]*\|\s*$", "", stable)
+    gate_id = f"{args.mode}-{hashlib.sha256(stable.encode('utf-8', errors='replace')).hexdigest()[:12]}"
     completion = {
         "gate_version": "2.1",
         "package": PACKAGE_NAME,

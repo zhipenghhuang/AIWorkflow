@@ -1,6 +1,6 @@
-# {版本} 复盘
+# {ver} 复盘
 
-> 落 `{workroot}/{ver}/90-retrospectives/复盘-{版本}.md`；改进项回需求池（带责任人/期限）。
+> 落 `{workroot}/{ver}/90-retrospectives/复盘-{ver}.md`；改进项回需求池（带责任人/期限）。
 
 ## 1. 目标 vs 实际
 

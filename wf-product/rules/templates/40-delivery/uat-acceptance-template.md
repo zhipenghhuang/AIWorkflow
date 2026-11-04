@@ -1,13 +1,13 @@
 ---
-doc_id: UAT-{版本}-{yyyyMMdd}
+doc_id: UAT-{ver}-{yyyyMMdd}
 verdict: PENDING   # 通过 / 不通过 / 有条件通过 / 不适用（无 UAT 要求时，须写依据+批准人/接受人）
 gate_id: ""
 updated: {yyyy-MM-dd}
 ---
 
-# {版本} UAT 验收记录
+# {ver} UAT 验收记录
 
-> 按 PRD 验收标准**逐条对照**（结果+证据）；产品缺陷 vs 实现缺陷要有依据。落 `{workroot}/{ver}/40-delivery/UAT-{版本}-{yyyyMMdd}.md`。`gate_id` 可选，以 `-Mode uat` 回执为准。
+> 按 PRD 验收标准**逐条对照**（结果+证据）；产品缺陷 vs 实现缺陷要有依据。落 `{workroot}/{ver}/40-delivery/UAT-{ver}-{yyyyMMdd}.md`。`gate_id` 可选，以 `-Mode uat` 回执为准。
 > 变更/产品缺陷处置后，受影响 AC 必须重验并更新本表；未重验不得作为发布依据。
 > **事实字段（硬规则）**：环境/入口、版本/构建、参与人、验收结果/证据必须实际确认；未确认写「待确认」并停下问，禁止用默认/示例/历史值；禁止辩解式/对比式冗余括注。
 

@@ -7,7 +7,8 @@
 
 - 不变量/路由/读取协议 → `AGENTS.md`
 - 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS §3 指针与读取索引「无口令」行；附录仅校验勿当词典）
-- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 AGENTS §0 第 8 条、执行契约 §7、activeContext `rule_card`）
+- 开局卡 → `rules/core/cold-start.md`
+- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 cold-start、执行契约、activeContext `rule_card`）
 - 步骤 → `workflows/`（含 `skill-audit.yaml`；0→1：`new-product.yaml`；计划：`plan.yaml`；受理/变更：`change.yaml`；缺陷平台：`defect.yaml`；展示：`showcase.yaml`；原型：`prototype.yaml`）
 - 角色契约（决策权）→ `rules/collaboration/roles.md`；角色 YAML IO → `agents/`
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`；缺陷平台：`rules/defects/platform-collaboration.md`）
@@ -38,11 +39,11 @@
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-DocHygiene.ps1"
-python wf-product/rules/tools/check_skills.py 产品规范 --strict
+python wf-product/rules/tools/check_skills.py wf-product --strict
 python wf-product/rules/tools/validate_prd.py <PRD.md>
 ```
 
-> **`check_skills.py` 必须带包根**（上例 `产品规范` 或包内 `.`）；裸跑 `--strict` 会假报 `SKILL_DIR_MISSING`。
+> **`check_skills.py` 必须带包根路径**（上例 `wf-product` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-product`。
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）；文档卫生见 `Test-DocHygiene.ps1`。
 

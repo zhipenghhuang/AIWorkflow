@@ -6,18 +6,33 @@ description: Use when implementing frontend pages, routes, components, forms, or
 # 前端实现（技能 · 随包生效）
 
 > 用于：S4 编码自测中涉及页面/路由/组件/表单/交互/前端数据流的任务。  
-> 产出：可运行页面 + 单测/组件测试/E2E + 截图/录屏/控制台与网络证据。  
-> 原则：**先按设计说明实现，再写组件；先把状态写全，再补细节；前端隐藏不等于后端授权。**  
-> 输入：产品设计/开发交接（如有）、`rules/templates/20-design/frontend-design-spec-template.md`（需要补设计时）、`rules/templates/20-design/frontend-prototype-parity-template.md`（原型对齐矩阵）、`project-profile.md` §7.1；产品设计完整时按产品方案实现。  
-> 质量条：`skills/engineering-quality/SKILL.md`（性能/安全/可观测/证据的单一出处）。
+> **硬门 SSOT**：`rules/core/frontend-gate.md`（本技能不重复门条款）。  
+> 质量条：`skills/engineering-quality/SKILL.md`。
+
+## 0. 必做（先于编码）
+
+1. 读 `frontend-gate.md`；L0 无 UI → 整技能 na。  
+2. 有单 HTML 原型 → 先 `extract_prototype_modules.py` 解码，禁只搜原始 HTML。  
+3. 写/更新 `.gate/frontend/parity-matrix.md`（含字段网格；冲突裁决）。  
+4. 实现时不自造一级导航/页面壳；优先复用现有列表/详情壳。  
+5. 每页做完立即对照矩阵；深链直达；菜单视口可达。  
+6. L2+：`frontend.capture` → `evidence.json`；再 `frontend_parity`；手写通过无效。  
+7. 回执 `skills=frontend-implementation`（+ 分析步则含 product-doc-analysis）。
+
+## 0.1 禁做
+
+- 用 API 200 / DOM 文本 / 测试绿代替截图验收。  
+- 骨架屏/登录页当完成证据。  
+- 用户报一点只修一点（须缺陷族全量审计）。
 
 ## 1. 结构与路由
 
 - 先读产品设计/交接；需要补设计时读前端设计说明，不另起视觉。
 - **原型单源（DEV-IQ-13）**：单 HTML 原型可能把模块以 `data:`/base64 嵌在 importmap；先跑 `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` 解码模块并枚举路由/导航/组件，禁止只搜原始 HTML 文本就判断“原型没有该页”。
-- 开工前给出「原型对齐矩阵」：路由→导航层级/文案→复用组件→列/区块→状态/空态；**冲突以方案/PRD 为主**（业务口径/命名/单合同/权限/路由），布局/组件/视觉以原型为主；按方案偏离原型要在矩阵标 `按方案`，重大偏离先 `OPEN-*` 确认。
+- 开工前给出「原型对齐矩阵」：路由→导航层级/文案→复用组件→列/区块/字段网格→交互/筛选/日期→状态/空态/权限；**冲突以方案/PRD 为主**（业务口径/命名/单实体与多实体语义/权限/路由），布局/组件/视觉以原型为主；按方案偏离原型要在矩阵标 `按方案`，重大偏离先 `OPEN-*` 确认。
+- **路由/菜单/深链台账（DEV-IQ-17）**：同步写 `.gate/frontend/route-coverage.json`；一级/二级菜单在 1440×900 与 1280×720 下必须可见或可滚动到达，展开项不得把同级挤出；新建/详情/授权/统计钻取等关键深链必须直达；每条路由配桌面+移动截图，哈希不得跨路由复用。
 - **持续回指**：每条 SC/AC 标注来源文件+章节；编码、review、verify 都回看原文，不凭记忆；到波次检查点/来源更新时重跑矩阵并更新差异。
-- **不得自造一级导航/页面壳/表格/详情**：优先复用现有列表/详情壳与组件（如项目已有 `DocsView`/`DocDetailView`）；新增列表必须复用现有 tokens、表格、空态、错误态。项目专属组件名只写在项目文档/档案，不写进通用规则。
+- **不得自造一级导航/页面壳/表格/详情**：优先复用现有列表/详情壳与组件（具体名称见项目档案/设计文档）；新增列表必须复用现有 tokens、表格、空态、错误态。项目专属组件名只写在项目文档/档案，不写进通用规则。
 - 页面/布局/路由/菜单/权限入口；路由守卫与深链。
 - 组件边界：容器/展示、复用组件、目录与项目约定一致。
 - 全局/页面/局部状态；避免重复状态与不一致。
@@ -93,6 +108,7 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - [ ] 组件边界/状态归属清楚；无超大组件与散落全局状态。
 - [ ] 设计 tokens/组件复用；无内联样式复制原型。
 - [ ] 移动端/目标浏览器/可访问性（键盘/焦点/对比度）已核。
+- [ ] 每条路由桌面+移动截图、菜单/深链台账、`route-coverage.json` 已齐；哈希不重复、无旧图。
 - [ ] 截图/console/network 证据齐；设计缺口已回写，不在实现里静默改交互。
 
 ## 常见合理化与反驳

@@ -1,51 +1,40 @@
 # 规则重锚（产品轨）
 
-> **定位**：长会话防丢规则——只重锚**身份 + 当前工作 + 当前步约束**，**禁止**借此通读全书 / 全本 `AGENTS.md` §0 / 全部技能模板。  
-> **不是**：定时复读百科；**是**：过一段后确认「我是谁、在跑哪步、此刻必读/禁读/红线标签」。  
-> **单一出处**：心跳格式与触发只认本文；`AGENTS.md` / 执行契约只引用。
+> **定位**：只重锚身份 + **开局卡标签** + 当前步；禁止通读全书。  
+> **硬约束正文**：`rules/core/cold-start.md`。心跳格式只认本文。
 
-## 1. 身份卡（我是谁）
+## 1. 身份卡
 
 | 项 | 值 |
 | --- | --- |
 | 包 | 产品规范 |
-| 入口 | 本包 `AGENTS.md`；一次会话只跑**一个**包 workflow |
-| 多包 | 根 `AGENTS.md`「已启用包」路由；歧义口令先查 `wf/AGENTS.md` **意图→包** |
+| 开局卡 | `rules/core/cold-start.md` |
+| 入口 | 本包 `AGENTS.md`（口令表）；一次会话一个包 workflow |
 | 产物根 | `{workroot}/`；档案 `product-profile.md` |
 
-## 2. 当前步：必读 / 禁读（重锚时）
+## 2. 重锚必读（按序）
 
-**必读（按序，够用即停）**：
+1. `cold-start.md` + `activeContext` 进行中 `rule_card` + **偏好/洞见/坑 ≤3 行**（无则跳过）  
+2. workflow **当前 step 块**  
+3. `read-index.md` **当前行**  
+4. 当前 agent + 产物/证据  
 
-1. `activeContext.md` 本包 `### 进行中` 的 `rule_card`（有则；无则本心跳后补写）+ 本包 `### 生效中的偏好` 中范围=项目/包（≤3 行）  
-2. 命中 `workflows/*.yaml` **当前 step 块**（当前 `- name:` 至下一个）  
-3. `rules/read-index.md` **当前行**（本行即 `rule_anchor`）  
-4. 当前 `agents/*.yaml` + 当前关键产物/证据  
+**禁读**：他包；他 workflow 全文；整本 skills/模板；通读 `context-memory`（短读热层即可）。
 
-**禁读**：他包 `AGENTS`/规则；其它 workflow 全文；非当前索引行的 playbook/轨契约；整本skills/模板；为「熟悉感」通读 README。
+## 3. 心跳
 
-**方法层**：仅当索引「命中才读」或 step `notes` 的「技能：…」/`skills_required` 点名时再读对应节。
-
-## 3. 心跳：触发与格式
-
-**触发（任一）**：切 `workflow`/`step`；过 `hitl`/gate 前或刚过后；连续约 **5～8** 轮用户消息仍在同一步；用户说「继续/下一步」且已路由。
-
-**输出（一行，可放在简报或动手前）**：
+**触发**：切 step / 过 hitl·gate → 必做；同一步不必机械连刷。
 
 ```text
-【规则心跳】pkg=产品 | route=workflow:step | role=… | must=step块+读取索引行 | forbid=他包/他workflow全文 | redline=标签1·标签2·标签3 | rule_card=ok|refresh
+【规则心跳】pkg=产品 | route=workflow:step | role=… | must=开局卡+step块+索引行 | forbid=他包/他workflow全文 | redline=标签1·标签2·标签3 | rule_card=ok|refresh
 ```
 
-- `redline`：从**当前步**相关硬约束抽 ≤3 个短标签（如 `理解方案双确认` / `证据可回查` / `禁臆造`），不抄全文。  
-- `rule_card=refresh`：同轮写回 `activeContext` 本包进行中 `rule_card` 列（内容≈本行精简版）。`ok`＝已与卡一致无需改。  
-- 心跳 **不是** 任务收尾，**不替代**【遵守自检】；只读分析可省略，或只写 `route=readonly:analysis`。
+- `redline` 只从 **cold-start** 抽 ≤3 标签（例：`Claim`·`短读记忆`·`双确认`·`原型矩阵`·`先意图后动作`）。  
+- `intent=pending` 时禁实质动作。心跳 ≠ 遵守自检 / 收尾。
 
-## 4. 与 AGENTS §0 的关系（减肥协议）
+## 4. 与 AGENTS
 
 | 时机 | 读什么 |
 | --- | --- |
-| **新会话** / 路由未定 | `AGENTS.md` §0 硬节 + 本文 §1；口令表仅首次命中 |
-| **已路由 · 同会话中段** | **不重读** §0 全文；只做 §3 心跳；必要时重读本文 §2 + 读取索引当前行 |
-| 细则冲突 | 澄清 / 门 / 执行契约为 SSOT；心跳只点名 |
-
-宿主若整文件注入 `AGENTS.md`：仍按上表执行——中段以心跳与 `rule_card` 为准，禁止把注入全文当「每步必读」。
+| 新会话 | **cold-start** → AGENTS §3 口令（未路由）→ 本文 |
+| 已路由中段 | 心跳；不重读 AGENTS 全文 |

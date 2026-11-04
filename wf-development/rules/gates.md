@@ -11,6 +11,7 @@
 | `hitl_when:` | 标量门条件 | 条件不满足 → 跳过该门，不算违例 |
 | `gate_when:` | 门禁条件 | 条件不满足 → 跳过该 gate（步骤不跳过） |
 | `confirm_change` | 变更吸收/影响 | 出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线 |
+| `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。细则 `execution-contract.md` §1.0。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
 | `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；完整理解包作下钻链接。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进需求基线/设计/实施/拆单 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决；未签收不进设计/排期 |
@@ -31,10 +32,12 @@
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
 | `confirm_skill_changes` | capabilities/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
-| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；读验收清单/diff/证据/process/project-profile，写 `.gate/wf-development/completion.json`；只有本轮 `COMPLETE` 可称完成；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺环境/证据/检查失败 → `BLOCKED` |
+| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 只认 `rules/core/frontend-gate.md`**；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 | `gate: release-readiness` | 生产/正式发布就绪 | **checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用 |
+
+> `confirm_task_intent` 是全局开工门（`AGENTS.md` §0 第一问），不依赖 step；其余门仍只认步上声明。
 
 > **`gate_type`（步上字段）**：`machine` = 有脚本回执（读 `.gate/` JSON，verdict 可机器判定）；`checklist` = 按清单/工具核验并留证据，不假装机器可判。未标默认 `checklist`；`gate` 只表示检查点，不等于自动门。新增 gate 必须同时声明 `gate_type` 与证据来源；禁止只写 `gate:` 而无检查方法。
 
@@ -47,6 +50,10 @@
 **评审模式**：`review_required` 在 clarify/plan 判定并写入计划/任务清单；**不单独设 hitl**——用户确认计划/清单后，AI 自动执行 review（或记录免审），不再逐次问“要不要评审”。评审记录的范围必须覆盖本轮完成门 diff；范围小于 diff → 该门不得判 `COMPLETE`。
 
 **波次评审**：计划选定“每波独立评审+过门”后，每波实施完成 → 该波 diff 独立评审 → 结论通过 → 才开下一波；未通过不得把下一波标完成。最终 S5 只做集成/AC/证据/抽样复核，不得替代波次评审。
+
+**前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，前端变更必须有 `.gate/frontend/parity-matrix.md` + `route-coverage.json` + `design-qa.md` + 每路由桌面/移动截图 + console/network；缺一 → `on_fail` 回 implement 补，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按 `project-profile.md` 声明）。
+
+**方案覆盖前置（硬）**：L2+ 进入评审前必须有 `.gate/plan-coverage.md`；后端/功能行覆盖接口/字段/状态/权限/错误码/迁移→实现/测试，前端行覆盖页面/路由/字段/交互→截图；缺行或结论“需修/阻塞” → 回 implement，不得判通过。原型/方案是下限：至少达到原型标准；原型有明显缺陷时可择优修正，但必须在矩阵写偏离理由与确认。
 
 ## 3. 门档位（防过度审批）
 

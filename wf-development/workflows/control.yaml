@@ -1,10 +1,9 @@
-# 入口即止：init/sync/next/check 各自独立，不自动串跑；只有 run 才按阶段续跑。
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: control
   name: 开发计划
   version: 6
-  read_index: rules/read-index.md
-
 entry_points:
   开发计划: init
   项目计划: init
@@ -18,126 +17,105 @@ entry_points:
   当前状态: sync
   下一步: next
   阶段检查: check
-
 trigger:
-  - 开发计划
-  - 项目计划 / 项目规划
-  - 排期 / 里程碑
-  - 生成计划 / 根据文档出计划
-  - 按开发计划执行 / 继续开发计划
-  - 进度 / 当前阶段 / 下一步
-  - 阶段检查 / 开发计划检查
-
+- 开发计划
+- 项目计划 / 项目规划
+- 排期 / 里程碑
+- 生成计划 / 根据文档出计划
+- 按开发计划执行 / 继续开发计划
+- 进度 / 当前阶段 / 下一步
+- 阶段检查 / 开发计划检查
 steps:
-  - name: 初始化开发计划
-    id: init
-    agent: iterate-lead
-    hitl:
-      - name: confirm_plan
-        when: plan_needs_confirm
-      - name: confirm_iteration_close
-        when: iteration_close_needed
-    output: 开发计划（{workroot}/development-plan.md）
-    notes: >
-      本步只建/更新开发计划，不自动执行后续阶段；要推进说「按开发计划执行」。
-      技能：`skills/development-plan/SKILL.md`（先读再做）；模板 `rules/templates/10-planning/development-plan-template.md`。
-      命名：本文档=开发计划（总览/开发轨总控）；S3=任务与排期（任务清单/依赖/估算/DoR/DoD/检查点），是计划里的一个阶段。
-      路径：新项目默认 `{workroot}/development-plan.md`（建议 `{workroot}/development-plan.md`）；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`，以 `project-profile.md` §9 为准。
-      输入：PRD/原型/AC/接口/仓库/环境（能拿到多少写多少；缺口写 §2 并由用户提供/选择已有资料）。
-      无 PRD/只有想法 → 先按 `skills/product-shaping/SKILL.md` 给产品判断（问题/用户/价值/MVP/非目标/成功标准），再填 §2；不强制产品定义卡。
-      输入含 PRD/迭代方案/原型 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要/理解包（来源/目标/范围/F-R-AC/冲突/GAP/置信度）；S0 未完成理解确认不得进入 S1/S2。
-      新建：复制模板，填 §0 一页状态（计划状态/当前门/下一动作/需人工）、§2 输入/外部输入、§1 阶段表（S0 进行中，其余未开始；每阶段“技能”列必填）、§10 变更、§12 执行日志、§13 归档索引。
-      建 `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-handoff/handoff-ledger-template.md`）；按模板登记 REQ/DES/PLAN/QA/TEST/FIX/REL 节点；无跨角色交接可不建包，但台账保留。
-      L2+ 同时确认 需求台账/变更记录/待决项/决策记录/`inbound/` + `inbound/INDEX.md` 存在；无则按模板补。
-      每阶段按阶段表“技能”列加载技能；S2 技术方案按变更面加载 02A/02B/02C/02D/02E/02F，不要求全读。
-      已存在：不覆盖；读现状后转 sync，避免丢失进度。
-      L0 微改可写「不适用」；L2+ 新项目/新产品默认启用；不强制引用其它包。
-      confirm_plan：首次创建/范围·版本·里程碑实质变更时，出示阶段/范围/门/下一步请确认；确认后计划状态=已确认。
-      范围·版本实质变更或换主题（即使不发版）→ 按 `rules/doc-governance.md` §7；不确定则 `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 §7.1 关账（T2/T4 保留仍被引用的基础设计/流程图/原型）。
-      关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认覆盖最新）。
-      输出首条：route=workflow:control | step=init | stage=S0 | gate=G0 | next_action=补输入/需求分析。
-
-  - name: 按计划执行
-    id: run
-    agent: iterate-lead
-    output: 当前阶段执行结果 + 开发计划回写
-    notes: >
-      读 `{workroot}/development-plan.md` §0/§1/§12：确认计划状态、当前阶段、当前门、下一动作、需人工项。
-      计划状态非「已确认/执行中」→ 先回 init/confirm_plan；有未吸收新输入 → 先走 `workflows/intake.yaml`。
-      按当前阶段路由：S0/S1 走 `change` analyze_input（有 PRD/原型）/clarify/requirements；S2 走 `change` design；S3 走 `iterate` plan/confirm；
-      S4/S5 走 `change` implement/review/verify 或 `iterate` implement/review/gates；S6 走 `change`/`iterate` 的 deliver 步；
-      S7 走defects/测试报告（可选输入）；S8 走 `release`；S9 走 `retro`。执行到下一个 `hitl` 停止，不跳门。
-      进入/切换任务前检查工作区；有前序未提交 → 输出【基线检查】先提交/隔离/记录例外；未提交默认不得开始下一任务（例外=基线检查选项 C/D 且用户确认）；任务边界 dirty 时先停。
-      上游包未签收/退回 → 先走 `workflows/handoff.yaml` receive，不进入实施；本阶段发出包未回执 → 只能准备下一步，不得标阶段完成。
-      多波次：先确认计划选“每波独立评审+过门”或“整迭代只过 S5 全量评审”；不得混用；S5 已有波次评审时做集成/AC/证据/抽样复核，不逐行重审。
-      每步结束回写：§0 计划状态/当前门/下一动作/健康度；§1 阶段状态/证据/下一步；§6/§7/§8 对应节；§12 执行日志（含 HO/回执）。
-      缺证据不得标完成；门结论写「通过/不通过/有条件通过 + 批准人/日期/条件」。
-      开发包独立运行；产品/测试**他包产物**可选，缺则一句缺口并用本包模板补，不因缺他包阻塞。
-      **不降标**：AC/产品最小判断/完成门/开发自验不可因「单人/无 QA」省略（`rules/core/lightweight.md` §0）。
-      输出首条：route=workflow:control | step=run | stage=… | gate=… | next_action=…
-
-  - name: 同步阶段与证据
-    id: sync
-    agent: iterate-lead
-    output: 更新后的开发计划
-    notes: >
-      本步只同步进度/状态，不自动进入下一阶段；要推进说「按开发计划执行」。
-      先扫 `inbound/` 未登记/变化文件与 `{workroot}/INDEX.md`：有未登记/未吸收文件 → 先走 `workflows/intake.yaml`/`materials`，不直接改计划。
-      同步 `handoff-ledger.md`：已发送未回执/退回/有条件接收逐条对账；阻断下游的项写入 §0 当前阻塞/下一动作；未回执不得把阶段标完成。
-      读开发计划 → 对照本轮实际进展更新：§0 计划状态/当前阶段/当前门/下一动作/需人工/健康度/下一步 3 件事；§1 阶段状态/产出/证据/下一步；
-      §3～§8 对应节链接/结论；§9 风险/决策；§10 变更记录；§12 执行日志（追加）。
-      计划状态：草稿/已确认/执行中/变更中/待关闭/已关闭；门结论写「通过/不通过/有条件通过 + 批准人/日期/条件」。
-      多波次：总控表带当前 Wn；门结论 `G{n}-W{k}`；S2～S5 叠写各波次，禁假完成/陈旧输入（`skills/development-plan/SKILL.md` §3.1）；波次切换须同轮改总控表+阶段表+门结论。
-      只写现行有效；不复制 PRD/方案/任务正文；证据链接必须可打开；未验证写「未验证」。
-      发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。
-      输出：当前阶段、门状态、缺口、下一步；需要用户决策的放最前。
-
-  - name: 阶段门检查
-    id: check
-    agent: reviewer-agent
-    gate: dev-plan
-    gate_type: checklist
-    gate_when: dev_plan_required
-    output: 阶段门检查结论/缺口
-    notes: >
-      技能：`skills/development-plan/SKILL.md` §5；只读检查，不改代码。
-      可运行 `python rules/tools/validate_dev_plan.py <开发计划路径>`（可用时）；核验：阶段表与当前阶段一致；每阶段“技能”列已填；本阶段输入/产出/证据齐；下一阶段输入具备；风险/变更已更新；L2+ 开发计划存在。
-      交接核验：本阶段应发/应收的 HO 是否有回执；`handoff-ledger.md` 与计划 §0/§12 是否一致；阻断下游的包是否已升级；未回执不得判阶段完成。
-      多波次（若计划含 W1/W2/波次）：计划总控表（当前阶段/门）带当前波次；门结论有 G{n}-W{k}；S2～S5 禁因某波次已过就整行「完成」且输入/证据波次不得陈旧（见 `skills/development-plan/SKILL.md` §3.1）。
-      缺口按「阶段/门/缺什么/影响/建议」列出；不替代机器门禁与测试结论。
-      不过门 → 回到对应阶段补；不得把「计划写了」当「已执行」。
-
-  - name: 下一步建议
-    id: next
-    agent: iterate-lead
-    output: 当前阶段/下一步 3 件事/建议入口
-    notes: >
-      本步只读建议，不执行阶段；要执行说「按开发计划执行」。
-      先确认 `inbound/`、`{workroot}/INDEX.md` 无未吸收输入；有 → 建议先 `workflows/intake.yaml`/`materials`。
-      读 `handoff-ledger.md`：待回执/退回/有条件接收会阻塞哪些阶段，列入“需要用户决策”最前；下一步给对应 handoff.receive/send 入口。
-      基于开发计划给出：当前阶段、已过门、下一步 3 件事（动作+产出+截止）、建议 workflow/step。
-      需要用户决策的列最前；缺口不阻塞时给降级路径。
-      不擅自启用其它包；需要跨包资料时只提示可选输入。
-
-  - name: 收尾
-    id: wrap
-    agent: iterate-lead
-    output: 【任务收尾】（计划/进度/下一步明细置第 1 点，六段压缩）
-    notes: >
-      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出六段压缩；第1点含当前阶段/门/下一步
-      只读查询不写计划；有实质进展时更新开发计划 §0/§12、 `{workroot}/INDEX.md` 与 activeContext（现状三处同拍；`sync=` 含 `triad=`）；更新 `handoff-ledger.md` 摘要与待回执/退回项。
-      版本/迭代关闭：追加 `{workroot}/work-log.md` 里程碑（索引+条目；结论/产出/遗留）；**仅**用户可见版本关闭/发版时更新根 `CHANGELOG.md`（产品语言：用户可见capabilities/破坏性/迁移·兼容/安全；禁接入/文档治理/过程项）——工作日志≠根 CHANGELOG≠开发计划执行日志。
-      按 `rules/doc-governance.md` §3～§5 扫描 `inbound/`，输出【资料收取与归档候选】；只归档用户确认的 `失效` 项，部分覆盖/增量/参考不动；未确认不移动。
-      同步按 `rules/doc-governance.md` §7～§8（仅本步关版本/结项时，非日常收尾）：先判 T1/T2/T4，T2/T4 保留仍被引用的基础设计/流程图/原型；长期基线就地更新、版本绑定的增量方案/任务清单/UAT/提测单归档、已完结临时/失败/重复列清理候选；确认后执行。
-      未提交默认不得开始下一任务（例外=基线检查选项 C/D 且用户确认）。
-      本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
-
-  - name: 拟提交
-    id: commit
-    output: 拟提交确认结果
-    agent: iterate-lead
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    tools:
-      - git
-    notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` §2；计划/索引/activeContext 与本轮更新同批提交；提交后补一行结果，不重复六段。
+- name: 初始化开发计划
+  id: init
+  must_read:
+  - rules/packets/control/init.md
+  agent: iterate-lead
+  hitl:
+  - name: confirm_plan
+    when: plan_needs_confirm
+  - name: confirm_iteration_close
+    when: iteration_close_needed
+  output: 开发计划（{workroot}/development-plan.md）
+  notes: 本步只建/更新开发计划，不自动执行后续阶段；要推进说「按开发计划执行」。 技能：`skills/development-plan/SKILL.md`（先读再做）；模板 `rules/templates/10-planning/development-plan-template.md`。
+    命名：本文档=开发计划（总览/开发轨总控）；S3=任务与排期（任务清单/依赖/估算/DoR/DoD/检查点），是计划里的一个阶段。 路径：默认 `{workroot}/development-plan.md`；需按治理分区时用 `{workroot}/00-governance/development-plan.md`；旧项目以
+    `project-profile.md` 声明为准。 输入：PRD/原型/AC/接口/仓库/环境（能拿到多少写多少；缺口写 并由用户提供/选择已有资料）。 无 PRD/只有想法 → 先按 `skills/product-shaping/SKILL.md`
+    给产品判断（问题/用户/价值/MVP/非目标/成功标准），再填 ；不强制产品定义卡。 输入含 PRD/迭代方案/原型 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要/理解包（来源/目标/范围/F-R-AC/冲突/GAP/置信度）；S0
+    未完成理解确认不得进入 S1/S2。 新建：复制模板，填 一页状态（计划状态/当前门/下一动作/需人工）、 输入/外部输入、 阶段表（S0 进行中，其余未开始；每阶段“技能”列必填）、 变更、 执行日志、 归档索引。 建 `{workroot}/handoff/handoff-ledger.md`（模板
+    `rules/templates/90-handoff/handoff-ledger-template.md`）；按模板登记 REQ/DES/PLAN/QA/TEST/FIX/REL 节点；无跨角色交接可不建包，但台账保留。 L2+ 同时确认
+    需求台账/变更记录/待决项/决策记录/`inbound/` + `inbound/INDEX.md` 存在；无则按模板补。 每阶段按阶段表“技能”列加载技能；S2 技术方案按变更面加载 02A/02B/02C/02D/02E/02F，不要求全读。
+    已存在：不覆盖；读现状后转 sync，避免丢失进度。 L0 微改可写「不适用」；L2+ 新项目/新产品默认启用；不强制引用其它包。 confirm_plan：首次创建/范围·版本·里程碑实质变更时，出示阶段/范围/门/下一步请确认；确认后计划状态=已确认。
+    范围·版本实质变更或换主题（即使不发版）→ 按 `rules/doc-governance.md` ；不确定则 `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 关账（T2/T4 保留仍被引用的基础设计/流程图/原型）。
+    关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认覆盖最新）。 输出首条：route=workflow:control | step=init
+    | stage=S0 | gate=G0 | next_action=补输入/需求分析。
+- name: 按计划执行
+  id: run
+  must_read:
+  - rules/packets/control/run.md
+  agent: iterate-lead
+  output: 当前阶段执行结果 + 开发计划回写
+  notes: 读 `{workroot}/development-plan.md` //：确认计划状态、当前阶段、当前门、下一动作、需人工项。 计划状态非「已确认/执行中」→ 先回 init/confirm_plan；有未吸收新输入 → 先走
+    `workflows/intake.yaml`。 按当前阶段路由：S0/S1 走 `change` analyze_input（有 PRD/原型）/clarify/requirements；S2 走 `change` design；S3
+    走 `iterate` plan/confirm； S4/S5 走 `change` implement/review/verify 或 `iterate` implement/review/gates；S6 走 `change`/`iterate`
+    的 deliver 步； S7 走defects/测试报告（可选输入）；S8 走 `release`；S9 走 `retro`。执行到下一个 `hitl` 停止，不跳门。 进入/切换任务前检查工作区；有前序未提交 → 输出【基线检查】先提交/隔离/记录例外；未提交默认不得开始下一任务（例外=基线检查选项
+    C/D 且用户确认）；任务边界 dirty 时先停。 上游包未签收/退回 → 先走 `workflows/handoff.yaml` receive，不进入实施；本阶段发出包未回执 → 只能准备下一步，不得标阶段完成。 多波次：先确认计划选“每波独立评审+过门”或“整迭代只过
+    S5 全量评审”；不得混用；S5 已有波次评审时做集成/AC/证据/抽样复核，不逐行重审。 每步结束回写： 计划状态/当前门/下一动作/健康度； 阶段状态/证据/下一步；// 对应节； 执行日志（含 HO/回执）。 缺证据不得标完成；门结论写「通过/不通过/有条件通过
+    + 批准人/日期/条件」。 开发包独立运行；产品/测试**他包产物**可选，缺则一句缺口并用本包模板补，不因缺他包阻塞。 **不降标**：AC/产品最小判断/完成门/开发自验不可因「单人/无 QA」省略（`rules/core/lightweight.md`
+    ）。 输出首条：route=workflow:control | step=run | stage=… | gate=… | next_action=…
+- name: 同步阶段与证据
+  id: sync
+  must_read:
+  - rules/packets/control/sync.md
+  agent: iterate-lead
+  output: 更新后的开发计划
+  notes: 本步只同步进度/状态，不自动进入下一阶段；要推进说「按开发计划执行」。 先扫 `inbound/` 未登记/变化文件与 `{workroot}/INDEX.md`：有未登记/未吸收文件 → 先走 `workflows/intake.yaml`/`materials`，不直接改计划。
+    同步 `handoff-ledger.md`：已发送未回执/退回/有条件接收逐条对账；阻断下游的项写入 当前阻塞/下一动作；未回执不得把阶段标完成。 读开发计划 → 对照本轮实际进展更新： 计划状态/当前阶段/当前门/下一动作/需人工/健康度/下一步
+    3 件事； 阶段状态/产出/证据/下一步； ～ 对应节链接/结论； 风险/决策； 变更记录； 执行日志（追加）。 计划状态：草稿/已确认/执行中/变更中/待关闭/已关闭；门结论写「通过/不通过/有条件通过 + 批准人/日期/条件」。 多波次：总控表带当前
+    Wn；门结论 `G{n}-W{k}`；S2～S5 叠写各波次，禁假完成/陈旧输入（`skills/development-plan/SKILL.md` ）；波次切换须同轮改总控表+阶段表+门结论。 只写现行有效；不复制 PRD/方案/任务正文；证据链接必须可打开；未验证写「未验证」。
+    发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。 输出：当前阶段、门状态、缺口、下一步；需要用户决策的放最前。
+- name: 阶段门检查
+  id: check
+  must_read:
+  - rules/packets/control/check.md
+  agent: reviewer-agent
+  gate: dev-plan
+  gate_type: checklist
+  gate_when: dev_plan_required
+  output: 阶段门检查结论/缺口
+  notes: 技能：`skills/development-plan/SKILL.md` ；只读检查，不改代码。 可运行 `python rules/tools/validate_dev_plan.py <开发计划路径>`（可用时）；核验：阶段表与当前阶段一致；每阶段“技能”列已填；本阶段输入/产出/证据齐；下一阶段输入具备；风险/变更已更新；L2+
+    开发计划存在。 交接核验：本阶段应发/应收的 HO 是否有回执；`handoff-ledger.md` 与计划 / 是否一致；阻断下游的包是否已升级；未回执不得判阶段完成。 多波次（若计划含 W1/W2/波次）：计划总控表（当前阶段/门）带当前波次；门结论有
+    G{n}-W{k}；S2～S5 禁因某波次已过就整行「完成」且输入/证据波次不得陈旧（见 `skills/development-plan/SKILL.md` ）。 缺口按「阶段/门/缺什么/影响/建议」列出；不替代机器门禁与测试结论。
+    不过门 → 回到对应阶段补；不得把「计划写了」当「已执行」。
+- name: 下一步建议
+  id: next
+  must_read:
+  - rules/packets/control/next.md
+  agent: iterate-lead
+  output: 当前阶段/下一步 3 件事/建议入口
+  notes: 本步只读建议，不执行阶段；要执行说「按开发计划执行」。 先确认 `inbound/`、`{workroot}/INDEX.md` 无未吸收输入；有 → 建议先 `workflows/intake.yaml`/`materials`。
+    读 `handoff-ledger.md`：待回执/退回/有条件接收会阻塞哪些阶段，列入“需要用户决策”最前；下一步给对应 handoff.receive/send 入口。 基于开发计划给出：当前阶段、已过门、下一步 3 件事（动作+产出+截止）、建议
+    workflow/step。 需要用户决策的列最前；缺口不阻塞时给降级路径。 不擅自启用其它包；需要跨包资料时只提示可选输入。
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/control/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: iterate-lead
+  output: 【任务收尾】（计划/进度/下一步明细置第 1 点，六段压缩）
+  notes: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出六段压缩；第1点含当前阶段/门/下一步 只读查询不写计划；有实质进展时更新开发计划 /、 `{workroot}/INDEX.md`
+    与 activeContext（现状三处同拍；`sync=` 含 `triad=`）；更新 `handoff-ledger.md` 摘要与待回执/退回项。 版本/迭代关闭：追加 `{workroot}/work-log.md` 里程碑（索引+条目；结论/产出/遗留）；**仅**用户可见版本关闭/发版时更新根
+    `CHANGELOG.md`（产品语言：用户可见capabilities/破坏性/迁移·兼容/安全；禁接入/文档治理/过程项）——工作日志≠根 CHANGELOG≠开发计划执行日志。 按 `rules/doc-governance.md`
+    ～ 扫描 `inbound/`，输出【资料收取与归档候选】；只归档用户确认的 `失效` 项，部分覆盖/增量/参考不动；未确认不移动。 同步按 `rules/doc-governance.md` ～（仅本步关版本/结项时，非日常收尾）：先判
+    T1/T2/T4，T2/T4 保留仍被引用的基础设计/流程图/原型；长期基线就地更新、版本绑定的增量方案/任务清单/UAT/提测单归档、已完结临时/失败/重复列清理候选；确认后执行。 未提交默认不得开始下一任务（例外=基线检查选项 C/D
+    且用户确认）。 本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。
+- name: 拟提交
+  id: commit
+  must_read:
+  - rules/packets/control/commit.md
+  output: 拟提交确认结果
+  agent: iterate-lead
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  tools:
+  - git
+  notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；计划/索引/activeContext 与本轮更新同批提交；提交后补一行结果，不重复六段。

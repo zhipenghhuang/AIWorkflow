@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "_note": "示例·非强制：按本项目原型/方案与 project-profile §9 填写真实菜单与路由；抽样不得照搬本文件业务名。",
+  "generated_at": "2026-11-04T10:30:00+08:00",
+  "base_commit": "6e4610e",
+  "app_url": "http://127.0.0.1:8000/",
+  "viewports": {
+    "desktop": "1440x900",
+    "mobile": "390x844"
+  },
+  "menus": [
+    {
+      "label": "概览",
+      "level": 1,
+      "route": "#/dashboard",
+      "visible": true,
+      "reachable": true
+    },
+    {
+      "label": "主业务",
+      "level": 1,
+      "route": "#/items",
+      "visible": true,
+      "reachable": true
+    },
+    {
+      "label": "设置",
+      "level": 1,
+      "route": "#/settings",
+      "visible": true,
+      "reachable": true
+    }
+  ],
+  "routes": [
+    {
+      "id": "r-dashboard",
+      "path": "#/dashboard",
+      "label": "概览",
+      "expected": "概览主区可见",
+      "desktop_shot": ".gate/frontend/shots/dashboard-desktop.png",
+      "mobile_shot": ".gate/frontend/shots/dashboard-mobile.png"
+    },
+    {
+      "id": "r-items-list",
+      "path": "#/items",
+      "label": "列表",
+      "expected": "列表页",
+      "desktop_shot": ".gate/frontend/shots/items-desktop.png",
+      "mobile_shot": ".gate/frontend/shots/items-mobile.png"
+    },
+    {
+      "id": "r-item-create",
+      "path": "#/items/new",
+      "label": "新建",
+      "expected": "新建表单",
+      "desktop_shot": ".gate/frontend/shots/item-create-desktop.png",
+      "mobile_shot": ".gate/frontend/shots/item-create-mobile.png"
+    },
+    {
+      "id": "r-item-detail",
+      "path": "#/items/demo-1",
+      "label": "详情",
+      "expected": "详情字段区",
+      "desktop_shot": ".gate/frontend/shots/item-detail-desktop.png",
+      "mobile_shot": ".gate/frontend/shots/item-detail-mobile.png"
+    },
+    {
+      "id": "r-settings-auth",
+      "path": "#/settings/auth",
+      "label": "授权",
+      "expected": "授权页",
+      "desktop_shot": ".gate/frontend/shots/auth-desktop.png",
+      "mobile_shot": ".gate/frontend/shots/auth-mobile.png"
+    }
+  ]
+}

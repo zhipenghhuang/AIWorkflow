@@ -104,3 +104,4 @@ description: Use when an approved requirement or design must be broken into exec
 | 「矩阵以后填」 | 跨层命中时覆盖矩阵入任务卡，否则实施预检会挡。 |
 | 「先有 AC 再补 SC」 | 未进 SC 的必须/不得/Then/字段=漏实施；confirm_backlog 前差集须为 0 或债项（DEV-IQ-12）。 |
 | 「专章抽完即可」 | 约束本写入口的跨章通用规则也须挂 SC，否则运行期必漏。 |
+| 「覆盖面写宽、AC 写窄」 | 声明覆盖的通用条款组须条条有 AC/SC 或债项（实施质量门 §4.1#10）；边界负面不得默认甩 QA（DEV-VER-12 第 3 条）。 |

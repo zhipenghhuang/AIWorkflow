@@ -474,10 +474,23 @@ elseif (-not $pyCmd) {
     $toolFindings.Add('SECRET_SKIPPED: 未找到 python，密钥扫描未执行')
 }
 
+# ---------- Step packets ----------
+$packetStatus = '跳过'
+$packetValidator = Join-Path $rulesDir 'tools/Validate-StepPackets.ps1'
+if (Test-Path -LiteralPath $packetValidator) {
+    $packetOut = & powershell -NoProfile -ExecutionPolicy Bypass -File $packetValidator -PackageRoot $Root 2>&1
+    if ($LASTEXITCODE -eq 0) { $packetStatus = 'OK' }
+    else {
+        $packetStatus = '失败'
+        foreach ($l in $packetOut) { $toolFindings.Add("PACKET: $l") }
+    }
+}
+else { $packetStatus = '缺少 Validate-StepPackets.ps1' }
+
 # ---------- 输出 ----------
 Write-Output "=== 测试规范自检（$Action · 精简版） ==="
 Write-Output "根目录：$Root"
-Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}" -f $yamlStatus, $secretStatus)
+Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}；步骤包 {2}" -f $yamlStatus, $secretStatus, $packetStatus)
 Write-Output ("[1/5] 引用可解析（扫描 {0} 处）：{1}" -f $refCount, $(if ($refFindings.Count -eq 0) { 'OK' } else { "$($refFindings.Count) 处待处理" }))
 Write-Output ("[2/5] 章节锚点（扫描 {0} 处）：{1}" -f $anchorCount, $(if ($anchorFindings.Count -eq 0) { 'OK' } else { "$($anchorFindings.Count) 处待处理" }))
 Write-Output ("[3/5] workflows→agents + 步标记词表 + 能力名：{0}" -f $(if ($wfFindings.Count -eq 0) { 'OK' } else { "$($wfFindings.Count) 处待处理" }))

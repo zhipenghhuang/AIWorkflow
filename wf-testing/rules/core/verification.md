@@ -37,13 +37,25 @@
 - `待实现`=实现缺陷，计入缺陷合计/交平台；不得当未测；范围外→不适用。
 - 报告 §4 统计 ↔ 各台账 **本轮装填**汇总；不一致先修报告/台账，不得直接写准出。
 - `writeback` 模式只核回执（单号/备注/状态/附件），不要求计划/台账存在。
+### 3.1 依据覆盖与证据
+
 - 报告 §1 准出评估 ↔ P0-Smoke/P0-HighRisk/缺口：P0-Smoke/P0-HighRisk 未过不得写“通过”；有条件通过必须有接受人/遗留项；须声明本轮 runId/构建与 suite/depth。
 - 覆盖：功能全量/专项 §3 映射无空行且含验证点列；P0 点有用例或“不适用+依据”；§4 须有深度档自检与视觉基础摘要（机器核存在性；语义深度由评审/AI 量规）。
-- 点/矩阵/批次：点结论在分析表 §2.1；§2.2 模块×面、§2.3 方法×规则无空格；计划 §3.9 批次合并通过。`test_gate.py` 2.2 已硬检 `analysis-structure`/`plan-structure`/`case-vp`/`report-structure`；语义深度仍由 `verify/checks.yaml` manual 项评审。
+- 点/矩阵/批次：点结论在分析表 §2.1；§2.2 模块×面、§2.3 方法×规则无空格、§2.4 依据覆盖无缺行；计划 §3.9 批次合并通过。`test_gate.py` 2.2 已硬检 `analysis-structure`（含 §2.4）/`plan-structure`/`case-vp`/`report-structure`；语义深度仍由 `verify/checks.yaml` manual 项评审。
 - 阻塞：摘要含已尝试≥2/恢复条件；缺数据/缺样本先造/换，不写阻塞；方案/AC 范围内未实现（菜单无入口且无接口）→待实现（实现缺陷），入口存在但 404/500/空壳→失败；均不写阻塞。
 - 回写：单号/备注/状态/附件回执；备注与状态同轮；`writeback` 模式只核回执。
-- 回执归属：report 读 `.gate/wf-testing/report.json`、execute 读 `execute.json`、writeback 读 `writeback.json`；核对 `package=测试规范` 与本轮 `gate_id`/`timestamp`。writeback 不得覆盖 report；不符=未验证。
-- P0 计划覆盖：计划 §3.7/§9.2 与 `00-稳定冒烟清单` 中的 P0 用例必须在台账中存在且为**本轮终态**（不得为未执行/未本轮验证）；缺失 = FAIL。
+- 回执归属：report 读 `.gate/wf-testing/report.json`、execute 读 `execute.json`、writeback 读 `writeback.json`；核对 `package=wf-testing` 与本轮 `gate_id`/`timestamp`。writeback 不得覆盖 report；不符=未验证。
+- P0 计划覆盖：计划 §3.7/§9.2 与 `smoke-checklist.md`（旧名 `00-稳定冒烟清单`）中的 P0 用例必须在台账中存在且为**本轮终态**（不得为未执行/未本轮验证）；缺失 = FAIL。
+
+### 3.1 依据覆盖硬核（SSOT）
+
+> AGENTS §0.0.1 / gates / YAML / verify README 只留指针；本文为细则唯一出处。准出组合门槛见 `multi-track-quality.md`。
+
+1. **映射**：分析表 §2.4 + 计划须把 PRD F/A/AC + 方案条款 + 原型页面/路由/状态/交互 + 后端接口/字段/权限/错误码 **逐条**映射到验证点/用例/Oracle/证据；缺行 = P0 阻断，不得生成或评审通过。
+2. **UI（E1/E0）**：点名页面/菜单/入口的用例须 **E1**（浏览器 MCP 优先，或内置浏览器/Playwright 实点）+ 桌面/移动截图 + 同源 Network；**E0**（纯 API / 菜单 JSON / 前端包字符串扫描）只可辅助，不得单独判 pass；浏览器不可用 → 该条 `blocked`，禁凑绿。
+3. **API**：接口用例须有 endpoint/方法/状态码/字段/错误码证据。
+4. **报告**：只认本轮用例/证据/截图/Network；用例数/通过率不能替代覆盖矩阵与证据；缺 UI/API 证据、覆盖行或 P0 结论不得 PASS/准出。
+5. **评审**：testcase-reviewer 必须核对覆盖矩阵、原型走查、API 证据；只看文档结构/用例数不得判通过。
 
 ## 4. 成本纪律
 

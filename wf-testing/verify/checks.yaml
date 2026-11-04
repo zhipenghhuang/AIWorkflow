@@ -6,7 +6,7 @@ modes:
   coverage:
     required: [coverage-map, case-vp, case-oracle, analysis-structure, plan-structure]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性；新格式分析/计划/用例验证点/Oracle 硬检
     optional: [depth-variant-date-entry]  # soft：变体/日期倒置/入口·字段齐套自检关键字
-    manual: [point-matrix-no-gap, method-matrix-no-gap, design-doc-matrix, change-impact-matrix, core-chain]  # 本批命中域对应分析表 §2.2/§2.3 行；§3.1/§6/§7.2
+    manual: [point-matrix-no-gap, method-matrix-no-gap, basis-coverage-no-gap, design-doc-matrix, change-impact-matrix, core-chain]  # 本批命中域对应分析表 §2.2/§2.3/§2.4 行；§3.1/§6/§7.2
   review:
     required: [review-record, review-structure, review-verdict]
     optional: [coverage-receipt, depth-variant-date-entry]
@@ -46,7 +46,7 @@ soft:
   - depth-date-invert-or-na      # 成对日期 → 倒置/交叉负向或「不适用+依据」
   - depth-field-entry-complete   # 点名字段/按钮/菜单 → 齐套或交付缺口条
   - weak-oracle-phrases          # 预期禁「正常/正确/成功即可」等（validate_testcase WEAK_ORACLE）
-  - ui-named-no-api-only-pass    # 点名 UI 须 L1（执行/评审人工核）
+  - ui-named-no-api-only-pass    # 点名 UI 须 E1（执行/评审人工核）
   - judgment-and-path-witness    # 工作流 §3.0 禁弱通过 + 路径旁证须记（执行人工核）
   - depth-feature-once           # §2.2 命中特征一次到位；禁事后堆条（评审人工核）
 

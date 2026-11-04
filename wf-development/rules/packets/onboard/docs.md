@@ -1,0 +1,65 @@
+# 步骤包 · onboard/docs
+
+> **运行时正文**：执行本步只读本文（+ §6 模板）。skills / 长文规则 / playbook / read-index 为维护素材，默认不打开。
+
+## 1. 元信息
+
+- **包轨**：开发轨
+- **workflow**：`onboard`
+- **step**：`docs`（文档树与归档）
+- **packet**：`rules/packets/onboard/docs.md`
+- 低风险档（L0/P0/T0）按 AGENTS 分级表可跳过未命中步骤；本包仅在执行本步时适用。
+
+## 2. 本步目标
+
+- **目标**：文档树与归档
+- **产出**：{workroot}/ 标准树 + {workroot}/INDEX.md + inbound/INDEX.md + docs/materials/INDEX.md + 根 CHANGELOG.md + {workroot}/work-log.md
+
+## 3. 本步硬约束
+
+- **继承开局卡**：本会话已读 `cold-start` 的八条硬约束仍全部生效（此处不复述，避免冲淡本步）。
+- **本步只读**：本文 +（若 §6 列出）**一个模板**；禁止通读 rules / read-index / playbook / 未嵌入 skill。
+- **完成声称**：本步有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
+- **回执**：`reads=` 必须含本 packet 路径。
+
+### 本步专有
+
+- 按 `rules/doc-governance.md` 定位工作根：默认单包 `docs/`，多包 `docs/development/`。 建工作区：`development-plan.md` / `work-log.md` / `00-governance/` / `10-requirements/` / `20-design/` / `30-architecture/ADR/` / `40-tasks/` / `50-verification/` / `60-release/` / `70-ops/` / `80-retrospectives/` / `capabilities/` / `handoff/` / `_archive/`；无内容不建空目录。 建索引：单包 `docs/INDEX.md`（即工作区索引）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 保留既有目录时在总览登记「既有项目目录」）。索引只做导航，不写阶段/门。 另建控制面：`docs/materials/INDEX.md`、`inbound/INDEX.md`、`{workroot}/handoff/handoff-ledger.md`。 可运行 `rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single|multi -Owner development` 建骨架（只建不删）。 根 `CHANGELOG.md`：有开发规范时为本项目**产品发版史**（开发维护）；无则按 `rules/templates/00-onboarding/changelog-template.md` 建空骨架；**禁止**写接入/文档树条目。 `{workroot}/work-log.md`：无则按 `rules/templates/00-onboarding/work-log-template.md` 创建；接入完成可追加一条事件=`接入/治理`。 L2+ 建治理记录：`{workroot}/
+
+## 4. 本步门
+
+- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
+
+## 5. 做法
+
+### 本步动作清单
+
+- 按 `rules/doc-governance.md` 定位工作根：默认单包 `docs/`，多包 `docs/development/`。 建工作区：`development-plan.md` / `work-log.md` / `00-governance/` / `10-requirements/` / `20-design/` / `30-architecture/ADR/` / `40-tasks/` / `50-verification/` / `60-release/` / `70-ops/` / `80-retrospectives/` / `capabilities/` / `handoff/` / `_archive/`。
+- 无内容不建空目录。 建索引：单包 `docs/INDEX.md`（即工作区索引）。
+- 多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 保留既有目录时在总览登记「既有项目目录」）。索引只做导航，不写阶段/门。 另建控制面：`docs/materials/INDEX.md`、`inbound/INDEX.md`、`{workroot}/handoff/handoff-ledger.md`。 可运行 `rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single|multi -Owner development` 建骨架（只建不删）。 根 `CHANGELOG.md`：有开发规范时为本项目**产品发版史**（开发维护）。
+- 无则按 `rules/templates/00-onboarding/changelog-template.md` 建空骨架。
+- **禁止**写接入/文档树条目。 `{workroot}/work-log.md`：无则按 `rules/templates/00-onboarding/work-log-template.md` 创建。
+- 接入完成可追加一条事件=`接入/治理`。 L2+ 建治理记录：`{workroot}/00-governance/change-log.md`、`open-items.md`、`decisions.md`。
+- `{workroot}/10-requirements/requirement-ledger.md`。 原件根 `inbound/` 全索引。
+- 新输入先入 `inbound/`。
+- 工作区平铺归位 `{workroot}/`。 根白名单：代码/构建、README、`CHANGELOG.md`、`project-profile.md`、`activeContext.md`、`wf-*`/`wf/`、`docs/`、`inbound/`。
+
+## 6. 打开/填写
+
+- 运行时正文：仅本文件（开局卡已在会话开头读过）。
+- 无强制模板：直接写 §2 产出路径产物。
+
+## 7. 完成信号
+
+- §2 产出已落盘。
+- 本步 hitl 已确认，或 when 条件跳过。
+- 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
+- wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
+
+## 8. 回执字段
+
+```text
+route=workflow:onboard | step=docs | reads=rules/packets/onboard/docs.md | skills=embedded | claim=ALLOWED|DENIED|na | next=…
+```
+
+`reads=` 必须包含 `rules/packets/onboard/docs.md`；对不上 = 未遵守读链。

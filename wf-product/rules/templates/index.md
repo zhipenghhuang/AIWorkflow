@@ -8,14 +8,14 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `00-onboarding/workspace-index-template.md` | onboard.docs | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
-| `00-onboarding/project-overview-index-template.md` | onboard.docs（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
+| `00-onboarding/workspace-index-template.md` | onboard.profile | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
+| `00-onboarding/project-overview-index-template.md` | onboard.profile（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
 | `00-onboarding/inbound-index-template.md` | onboard.materials / 文档治理 | `inbound/INDEX.md`（全量原件登记） |
-| `00-onboarding/materials-index-template.md` | materials.publish | `docs/materials/INDEX.md`（项目级） |
-| `00-onboarding/materials-version-readme-template.md` | materials.publish | `docs/materials/{ver}/README.md` |
+| `00-onboarding/materials-index-template.md` | materials.index | `docs/materials/INDEX.md`（项目级） |
+| `00-onboarding/materials-version-readme-template.md` | materials.index | `docs/materials/{ver}/README.md` |
 | `00-onboarding/product-profile-template.md` | onboard.profile | 项目根 `product-profile.md`；§3 内联产品规范要点 |
 | `00-onboarding/project-readme-template.md` | onboard.profile / 点名生成·更新 README | 按用户偏好择块拼接（非定死大纲）；已有勿整文件覆盖；规则见 `rules/core/project-readme.md` |
-| `00-onboarding/active-context-template.md` | onboard / 开工无文件时 | 项目根 `activeContext.md`（含 `### 进行中` 快照）；≤30 行 |
+| `00-onboarding/active-context-template.md` | onboard / 开工无文件时 | 项目根 `activeContext.md`（含 `### 进行中` 快照）；总览 + 进行中 ≤30 行 |
 | `00-onboarding/root-agents-pointer.md` | onboard.mount | 项目根 AGENTS 包挂载样例（偏好正文由项目自写） |
 | `00-onboarding/wf-agents-routing-template.md` | onboard.mount（多包） | `wf/AGENTS.md` 路由；只列已装包 |
 | `00-onboarding/work-log-template.md` | onboard / deliver.release / plan.publish | `{workroot}/work-log.md`：岗位里程碑（含接入/治理）；禁止改根 CHANGELOG |
@@ -43,6 +43,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `20-design/design-review-template.md` | prototype.review | 12 项评分卡 |
+| `20-design/prototype-coverage.md` | prototype.review / prd.prototype | PRD F/A/AC → 页面/路由/状态/交互/字段 → 截图证据矩阵 |
 | `20-design/prototype-spec-template.md` | prototype.context / wireframe | 小项目可合并单文件 |
 | `20-design/dev-handoff-template.md` | prototype.handoff | 设计意图/必须保留/可优化/未提供/验收对照 |
 | `20-design/prototype-engineering-checklist-template.md` | prototype.engineering | 路由/状态/响应式/a11y/打印 |

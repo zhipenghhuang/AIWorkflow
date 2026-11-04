@@ -5,11 +5,14 @@
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode execute -Scope "16-ASN" -ProjectRoot "."
+  powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode execute -Scope "<模块目录名>" -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode report -ProjectRoot "." -Strict
+.EXAMPLE
+  # 完成表述前先取口令：只有 CLAIM: ALLOWED 才能写“通过/准出”
+  powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Claim -Mode report -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
@@ -18,7 +21,8 @@ param(
     [string]$Mode = 'report',
     [string]$Scope = '',
     [switch]$Json,
-    [switch]$Strict
+    [switch]$Strict,
+    [switch]$Claim
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +48,21 @@ if (-not $python) {
 }
 
 $root = (Resolve-Path -LiteralPath $ProjectRoot).Path
+
+if ($Claim) {
+    $claimTool = Join-Path $PSScriptRoot 'tools/claim_check.py'
+    if (-not (Test-Path -LiteralPath $claimTool)) {
+        Write-Output 'CLAIM: DENIED - claim_check.py 缺失'
+        exit 1
+    }
+    $receipt = ".gate/wf-testing/$Mode.json"
+    if (-not (Test-Path -LiteralPath (Join-Path $root $receipt))) {
+        $receipt = '.gate/wf-testing/completion.json'
+    }
+    & $python.Source -B $claimTool --project-root $root --receipt $receipt --mode $Mode
+    exit $LASTEXITCODE
+}
+
 $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Scope) { $gateArgs += @('--scope', $Scope) }
 if ($Json) { $gateArgs += '--json' }
@@ -51,3 +70,4 @@ if ($Strict) { $gateArgs += '--strict' }
 
 & $python.Source -B @gateArgs
 exit $LASTEXITCODE
+

@@ -93,7 +93,7 @@
 
 ## 5. 版本与构建标识（所有文档）
 
-- **四个标识分开**：{workroot}/测试版本（如 `{版本}`）、构建/制品（tag/commit/构建号/镜像 digest）、部署版本（build-manifest/`.deploy-rev`）、文档版本（文档自身）。**提测单只写实际部署版本**，不写文档版本/commit/tag/`.deploy-rev`；测试与验收只认实际部署版本；代码 commit 是追溯。
+- **四个标识分开**：{workroot}/测试版本（如 `{ver}`）、构建/制品（tag/commit/构建号/镜像 digest）、部署版本（build-manifest/`.deploy-rev`）、文档版本（文档自身）。**提测单只写实际部署版本**，不写文档版本/commit/tag/`.deploy-rev`；测试与验收只认实际部署版本；代码 commit 是追溯。
 - **版本节奏**：按项目版本策略（A 发布候选/B 连续迭代）；{workroot}/测试只记录版本与构建，不自行升版。
 - **项目内可查**：项目/URL 必须提供版本查看方式（页脚、`/version`、`/health`、构建清单）；没有就补，不能靠文档 HEAD。
 - **文档提交不改变构建**：禁止把 HEAD、文档 commit、文档 rev 当构建版本；代码不变，文档怎么提交都不影响被测版本。

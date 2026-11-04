@@ -1,11 +1,9 @@
-# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
-# 只出任务清单：precheck → plan → wrap → commit，不进入 confirm/implement/review/gates/deliver/release_handoff/retro。
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: iterate
   name: 迭代交付
-  version: 10
-  read_index: rules/read-index.md
-
+  version: 11
 entry_points:
   按方案实施: precheck
   按这个方案做: precheck
@@ -14,168 +12,111 @@ entry_points:
   落地迭代方案: precheck
   继续迭代: precheck
   只出任务清单: precheck
-
 trigger:
-  - 按方案实施 / 按这个方案做 / 按方案做 / 实施这个方案
-  - 落地迭代方案
-  - 继续迭代
-  - 只出任务清单
-
+- 按方案实施 / 按这个方案做 / 按方案做 / 实施这个方案
+- 落地迭代方案
+- 继续迭代
+- 只出任务清单
 steps:
-  - name: 前置检查
-    id: precheck
-    agent: iterate-lead
-    output: 前置检查结果（需求签收/方案批准/清单/handoff/缺口）
-    notes: >
-      读需求基线/方案/开发计划/任务清单现状；确认需求已签收、方案已批准（L2+）。
-      输入含 PRD/迭代方案/原型/需求文档但无需求理解包，或理解包缺少 §0 Brief/本期差量表 → 先回 `workflows/change.yaml` 的 analyze_input 补齐；不得凭聊天记忆或文档标题拆单。
-      输入是交接包 → 先走 `workflows/handoff.yaml` receive 核对+回执；未签收不得拆单/实施。
-      缺失 → 一句话说明缺口，转 `workflows/change.yaml` 的 10-requirements/20-design/`review-docs`（先 `select_review_mode` 再 `confirm_spec`）补确认；不凭聊天记忆直接拆单/实施。
-      **并行迭代**：当前版本仍在测试又收到新方案 → 先判「继续当前测试 / 关闭当前 / 并行」；未关闭不得把新需求塞进当前测试版本；并行须新分支/新版本，测试环境分开或排队；关闭走 `confirm_iteration_close`（停止新范围/冻结版本线，测试与缺陷修复可继续，归档待测试完成），再开新 minor。
-      「只出任务清单」可只要求需求/方案要点，缺则一次一问；确认后进入 plan，不跳过计划依据。
-
-  - name: 读方案与拆清单
-    id: plan
-    agent: iterate-lead
-    output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
-    notes: >
-      技能：`skills/task-breakdown/SKILL.md`（先读再拆）+ `skills/cross-layer-consistency/SKILL.md`（命中权限/状态/数据基数/多表面时先填四维矩阵）；硬门 `rules/core/implementation-quality.md`；模板 `rules/templates/30-planning-tasks/task-list-template.md`。
-      输入是原始想法/无 PRD → 先按 `skills/product-shaping/SKILL.md` 给 3～5 行产品判断，再拆任务；不强制产品定义卡。
-      L2+ 先读 `{workroot}/development-plan.md`（旧项目可 `{workroot}/00-governance/development-plan.md`）；无则按 `skills/development-plan/SKILL.md` 创建/提示缺口。
-      本步只读，不改代码/配置；输入=已确认需求基线/方案 + 代码地图 + 项目档案 §8。
-      **验收清单**：每任务 AC+**SC** 对应「检查 + 证据」；L2+ 按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（含 task_id/level/process/sc_trace/cross_layer/baseline_smoke/debts）并确认后冻结；实施中新增/变更 AC 走变更记录。
-      任务开始先写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>" -ProjectRoot "."`（写 `.gate/task.json`：含 `base_commit`；中途 commit 仍计入本任务 diff）。
-      **代码地图侦察**（子代理编排 §2）：大仓或改动 ≥5 文件 → 先派只读 scout，返回「文件/函数/调用方/测试/风险」表 ≤30 行；主 agent 拆清单；小改直做。
-      拆完先自检：RP 覆盖、AC、**SC 表（未进 SC=0 或债项；字段·跨章规则；入口类型；DEV-IQ-12）**、精确文件、依赖无环、[P] 冲突、L 任务已拆、检查点齐、裁剪债项；并跑 `rules/tools/validate_tasklist.py`（[P] 文件重叠/相互依赖/并行>3 = FAIL）；再进 confirm。
-      若口令含「只出任务清单」：完成本步后直接进入 wrap 输出【任务收尾】，再到 commit 确认（跳过 confirm / implement / review / gates / deliver / release_handoff / retro）。
-      口令歧义（「落地…优化方案」无 # 又无「迭代」）→ 一问（互斥规则见 AGENTS §3）。
-      未完成任务清单禁止覆盖；不同工作先问用户；同一工作就地更新并记变更记录。
-
-  - name: 确认清单与节奏
-    id: confirm
-    when: implementation_required
-    agent: iterate-lead
-    hitl: confirm_backlog
-    hitl_when: backlog_approval_required
-    output: 已确认清单/节奏
-    notes: >
-      「继续迭代」且清单与节奏相对上次确认未变 → 跳过本 hitl，直入 implement。
-      L1 小批（≤2 任务/≤4 文件、无范围变化）默认只通知：展示任务数/RP 覆盖/依赖/风险后继续；L2+ 或清单/范围/节奏实质变化才 `confirm_backlog`。
-      清单新建、范围变更或用户要求改节奏（L2+）→ 必须 confirm_backlog（出示任务数/RP 覆盖/依赖/风险 + 节奏三选，见 rules/special/iteration-delivery.md §3）。
-      plan 步新建/更新清单 → L2+ 或实质变化才视为 backlog_approval_required=true；L1 只通知。
-      确认后冻结基线；实施中新增/删除/拆分/调序 → 记清单 §6 变更记录。
-      更新开发计划：S3 任务与排期=完成，任务清单/里程碑/依赖/风险链接。
-
-  - name: 实施与定向自验
-    id: implement
-    when: implementation_required
-    agent: implementer
-    output: 代码/配置改动 + 任务状态回写
-    notes: >
-      **动手前硬门**：来源完整性检查=0 缺漏（DEV-IQ-16）→ SC 差集=0（DEV-IQ-12）→ DEV-IQ-09【实施预检】→ 命中面 DEV-IQ-10 同批硬补；未出示预检不得改代码。修复/优化同样先过来源完整性。细则 `implementation-quality.md` §1.1/§3～§4。方法 `skills/implementation-and-selftest/SKILL.md` §0.5。
-      技能：`implementation-and-selftest`（先读再改）+ `engineering-quality` + `cross-layer-consistency`（命中时）+ 预检命中面再读 threat/perf/observability 当前节；失败时 + `debugging-and-error-recovery`；质量硬门 `implementation-quality.md`；按 SC 忠实落地禁语义替换；前端需补设计再读前端设计说明模板，否则按产品设计实现。
-      RP/AC/**SC**/预检可核对才开工；自测预期只认方案；按验收清单实施，完成当场回写清单（状态/验证摘要/提交号）；前端按 `verify/frontend/acceptance.md` 留状态/视口/console/network 截图。
-      **实施分片**（子代理编排 §2）：**≥3 个可独立任务且文件集不相交**（或清单 `[P]`≥3）→ 一组一子代理；**文件不相交可并行≤3**，同文件集串行；开跑声明 `mode=`；超时/空产物降级直做；批末定向门禁→核验→下一批；不达阈值直做。
-      高风险/大改/破坏性变更核验者≠实施者（rules/special/iteration-delivery.md §3）；评审本机可用 code-review 时优先（同 change review 步；不可用=子代理核验）。
-      改动面超出清单先停下说明；未验证不得标完成；文档冲突未关闭 OPEN 不得实现。
-      每次任务边界/长任务前先检查 `git status`：有前序未提交 → 输出【基线检查】，先提交/隔离/记录例外，不得开始下一任务。
-      改动 >20 文件或 >500 行（不含生成/锁文件）→ 暂停实现，先拆分提交或说明原因并获确认；不得继续堆。
-
-  - name: 代码评审
-    id: review
-    when: review_required
-    agent: reviewer-agent
-    tools:
-      - code-review
-      - security-scan
-      - design-review
-    output: 评审结论/缺口 + `.gate/review.md`
-    notes: >
-      **单一出处**：通用评审规则以 `workflows/change.yaml` review 为准；本步保留 iterate 多波次差异。
-      触发条件由步上 `review_required` 控制；L2+/L3、高风险/大改/破坏性或点名必走；L0 或确实低风险的 L1 单点可跳过，但须在计划/验收记录理由与风险接受人；免审不免自测/证据。
-      评审范围必须覆盖本轮完成门 diff；若门禁 diff 含未审波次，评审记录必须补覆盖，否则不得判 `COMPLETE`。
-      多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。S5 已有波次评审时做集成/AC/证据/抽样复审，不逐行重审；S5 是唯一评审时必须全量覆盖。
-      评审完成后写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账/缺口），供完成门核对；L2+ 缺评审记录或缺 SC 对账（非 na）= BLOCKED。
-      本步由 `reviewer-agent` 独立核验，核验者≠实施者；`code-review` 只是工具，不替代独立角色。
-      技能与核对口径同 `change.review`（含 `code-review` §4.0 AC+SC / 原文抽核）；本机可用 code-review 时评审全量 diff，不可用按 reviewer-agent 清单。
-      security-scan 可用时跑密钥/依赖/许可证/SAST 最小集；不可用=人工清单并记降级。
-      UI/前端变更：design-review 可用时按 Vercel Web Interface Guidelines 审；不可用按 `skills/frontend-design/SKILL.md` §9 评分卡人工核。
-      **评审分片**（子代理编排 §2）：>400 行有效 diff 或 L3 → 按维度只读扇出，编排去重；最终结论由本步 reviewer 定；小 diff 直做。
-      需修回 implement，同回合重验≤1；核验不替代门禁。
-      **证据核对**：只看本轮 diff/测试/截图证据；完成门由下一步 gates 统一运行；评审不声称完成。前端变更核对状态/视口/console/network/截图。
-
-  - name: 全量门禁与文档同步
-    id: gates
-    when: implementation_required
-    agent: verifier-agent
-    gate: completion-gate
-    gate_type: machine
-    output: .gate/wf-development/completion.json + 门禁摘要/文档同步
-    notes: >
-      按 `verify/checks.yaml` 取最小充分集；运行 `verify/Invoke-Gate.ps1 -Acceptance <任务清单> -Tasklist <任务清单>`；门自己跑关键检查并写 `.gate/wf-development/completion.json`（`-Tasklist` 同时硬拦 `[P]` 文件/依赖/并行冲突）。
-      **开发自验（硬）**：与 `change.verify` 同口径（`lightweight.md` §4.1）——无 QA/无正式测试报告时，L1+ 用户路径/业务rules/接口行为改动须出轻量报告或验收附录（含 verdict/P0/AC 走查）；跳过 deliver ≠ 跳过自验。
-      失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
-      非 `COMPLETE` → **本步结束，不得进入 deliver/commit/release_handoff**；先修复、补证据或报阻塞。
-      日志分诊（子代理编排 §2）：原始日志落盘，先脚本过滤；仅多文件语义归因才派子代理，返回摘要 ≤30 行。
-      同步任务清单状态、activeContext、 `{workroot}/INDEX.md`、开发计划 §0（阶段/焦点变时）；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=`；语义已变禁只改 activeContext。文档与实现同变更；收尾无 QA 时写【开发自验】。
-
-  - name: 提测与发布文档
-    id: deliver
-    when: has_qa_or_deploy_or_requested
-    agent: implementer
-    output: 提测单/发布说明/回滚预案（真源 06；实拷 handoff/outbound/提测|发布/）
-    notes: >
-      条件步：有 QA 交接或含部署/发版才走；无 QA 且无部署可跳过。
-      **单一出处**：按 `workflows/change.yaml` 的 `deliver` 步执行（含出站实拷；templates/自洽提测单/门结论/QA 包规则均以该步为准）；本步只保留 iterate 的触发条件与 agent。
-      未 `COMPLETE` 不得标“可提测”；已知问题不瞒报；未回执不得写“已接收”。
-
-  - name: 发布交接
-    id: release_handoff
-    when: has_deploy
-    agent: delivery-lead
-    output: 发布就绪包
-    notes: >
-      条件步：含部署/发版才走；本步不直接部署。
-      **单一出处**：按 `workflows/change.yaml` 的 `release_handoff` 步执行（就绪包/REL 包/上线检查单归属均以该步为准）；本步只保留 iterate 的触发条件与 agent。
-      口令「发布」进 `release.yaml`；不自动部署、不越过 `confirm_deploy`；更新开发计划 S8。
-
-  - name: 迭代复盘
-    id: retro
-    when: iteration_done_or_incident
-    agent: delivery-lead
-    output: 复盘（{workroot}/80-retrospectives/）
-    notes: >
-      条件步：迭代完成/发布回滚/事故/重复缺陷才走；小迭代可 3～5 条轻量复盘。
-      技能：`skills/retrospective-and-improvement/SKILL.md`（先读再做）；模板 `rules/templates/60-retro/retro-template.md`。
-      若 release 工作流已做复盘 → 本步只补迭代视角/链接，不重复同一分析。
-      更新开发计划：S9 收尾/复盘=完成，复盘/总结链接；行动项必须有负责人/截止/验收，进任务清单或 `{workroot}/80-retrospectives/改进项.md`；下次复盘先对账。
-      本步只补复盘结论/行动项/链接，不重复六段；最终收尾由 wrap 输出。
-
-  - name: 收尾
-    id: wrap
-    agent: iterate-lead
-    output: 【任务收尾】（迭代交付汇报置第 1 点）
-    notes: >
-      无文件变更则跳过后续 commit；提交前确认任务清单、`{workroot}/INDEX.md`/activeContext/开发计划 §0 已同拍；有版本关闭/发版时另确认根 `CHANGELOG.md` 与 `{workroot}/work-log.md`。
-      更新开发计划：§0 当前阶段/下一动作、§1 本阶段产出与证据/下一步 3 件事、§12 执行日志。
-      现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。
-      更新 `handoff-ledger.md`；未回执/退回/有条件接收列入收尾与 §0 当前阻塞；有未回执的必需交接不得把迭代标完成。
-      迭代/版本关闭：追加 `{workroot}/work-log.md` 里程碑；**仅**用户可见版本关闭/发版时更新根 `CHANGELOG.md`（产品发版史；禁接入/文档治理/过程项）；勿把工作日志当根 CHANGELOG，勿把 §12 抄进工作日志。
-      迭代关闭：按 `rules/doc-governance.md` §7 扫描；先判 T1/T2/T4；T2/T4 保留仍被引用的基础设计/流程图/原型，不整夹归档；失效资料 → `inbound/_archive/{yyyyMMdd}-{版本}/` + 清单；失去实施入口的增量方案/清单 → `{workroot}/_archive/{yyyyMMdd}-{版本}/`；部分/增量/参考不动；未确认不移动。
-      有代码改动读本轮 `.gate/wf-development/completion.json`；无代码改动写 `verification=not_applicable + 自检依据`。对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点含迭代交付总结
-      有门回执时运行 `verify/Test-Report.ps1 -Report <收尾文件>`；lint 不通过先修报告，不得带假完成措辞。
-      本步先出骨架与拟提交清单；有未提交文件时必须输出【提交提醒】（本任务/前序/无关统计+建议）；完整【拟提交】在下一步 commit 只展示一次；未提交默认不得开始下一任务（例外=基线检查选项 C/D 且用户确认）。
-
-  - name: 拟提交
-    id: commit
-    agent: iterate-lead
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    tools:
-      - git
-    output: 拟提交清单
-    notes: >
-      无文件变更跳过本步与 hitl。
-      【拟提交】含基线/本任务-前序-无关统计/建议拆分/分支/是否推送/CI/PR·合并意图（rules/workflow.md §2）；对照档案 §1；**默认仅本地提交，推送须单独确认**；禁擅自切主干/直推受保护分支/开合并 PR/force push。
-      代码/配置 + 任务清单 + 需求/方案 + 提测/发布文档 + {workroot}/INDEX.md`、`activeContext + 本轮 wrap 更新同批或紧随文档提交；提交后回填**发布说明（工程版）/环境部署记录**的提交 hash；**禁止**回填提测单 hash。
-      提交信息与粒度见 rules/workflow.md §2；密钥零入库。
+- name: 前置检查
+  id: precheck
+  must_read:
+  - rules/packets/iterate/precheck.md
+  agent: iterate-lead
+  output: 前置检查结果（需求签收/方案批准/清单/handoff/缺口）
+  notes: 缺理解包/未签收方案 → 回 change.analyze_input 或 requirements/design/review-docs；交接包先 receive。 禁本步 -StartTask。并行/关账见 iteration-delivery
+    + doc-governance REF。
+- name: 读方案与拆清单
+  id: plan
+  must_read:
+  - rules/packets/iterate/plan.md
+  agent: iterate-lead
+  output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
+  notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ wrap。 无 PRD 先 product-shaping REF；L2+ 读 development-plan。禁本步
+    -StartTask。
+- name: 确认清单与节奏
+  id: confirm
+  must_read:
+  - rules/packets/iterate/confirm.md
+  when: implementation_required
+  agent: iterate-lead
+  hitl: confirm_backlog
+  hitl_when: backlog_approval_required
+  output: 已确认清单/节奏
+  notes: 清单未变可跳过 hitl；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单 。
+- name: 实施与定向自验
+  id: implement
+  must_read:
+  - rules/packets/iterate/implement.md
+  when: implementation_required
+  agent: implementer
+  output: 代码/配置改动 + 任务状态回写
+  notes: -StartTask → 预检 → 按 SC 落地 → 回写清单；无 UI 时 frontend-gate 标 na。 超出清单先停；未验证不得标完成。细节同 change.implement 技能必做。
+- name: 代码评审
+  id: review
+  must_read:
+  - rules/packets/iterate/review.md
+  when: review_required
+  agent: reviewer-agent
+  tools:
+  - code-review
+  - security-scan
+  - design-review
+  output: 评审结论/缺口 + `.gate/review.md`
+  precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
+    存在且后端/功能/前端行有效；非前端/低档→无。
+  on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
+  notes: 口径同 change.review（含多波次）；写 .gate/review.md；核验者≠实施者。
+- name: 全量门禁与文档同步
+  id: gates
+  must_read:
+  - rules/packets/iterate/gates.md
+  when: implementation_required
+  agent: verifier-agent
+  gate: completion-gate
+  gate_type: machine
+  output: .gate/wf-development/completion.json + 门禁摘要/文档同步
+  notes: Invoke-Gate → Claim；非 COMPLETE 不得 deliver/commit。同步清单/plan/activeContext（triad）。 无 QA 时开发自验同 change.verify。
+- name: 提测与发布文档
+  id: deliver
+  must_read:
+  - rules/packets/iterate/deliver.md
+  when: has_qa_or_deploy_or_requested
+  agent: implementer
+  output: 提测单/发布说明/回滚预案
+  notes: 单一出处=change.deliver；未 COMPLETE 不得标可提测。
+- name: 发布交接
+  id: release_handoff
+  must_read:
+  - rules/packets/iterate/release_handoff.md
+  when: has_deploy
+  agent: delivery-lead
+  output: 发布就绪包
+  notes: 单一出处=change.release_handoff；部署走 release.yaml + confirm_deploy。
+- name: 迭代复盘
+  id: retro
+  must_read:
+  - rules/packets/iterate/retro.md
+  when: iteration_done_or_incident
+  agent: delivery-lead
+  output: 复盘（{workroot}/80-retrospectives/）
+  notes: 小迭代可轻量；行动项须负责人/截止/验收。最终六段由 wrap 出。
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/iterate/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: iterate-lead
+  output: 【任务收尾】（迭代交付汇报置第 1 点）
+  notes: 只认 closeout-skeleton；同步 plan/INDEX/台账/triad；有门则 Test-Report。 完整【拟提交】留待 commit。
+- name: 拟提交
+  id: commit
+  must_read:
+  - rules/packets/iterate/commit.md
+  agent: iterate-lead
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  tools:
+  - git
+  output: 拟提交清单
+  notes: 无变更跳过；字段见 workflow.md REF；默认仅本地提交。

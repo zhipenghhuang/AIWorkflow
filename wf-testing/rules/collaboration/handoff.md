@@ -130,33 +130,33 @@
 ### 3.2.1 提测接收 → 装填（测试侧映射）
 
 - **消费字段**：提测单 §2.6（或等价）**影响面追溯 / 回归范围** → 测试侧写入计划 §3.7 命中域 + `suite`（通常 module；发版可 full）。
-- **术语隔离**：不要求开发填写 L0/L1/L2、suite、装填等内部词；业务表述（改了哪些模块/接口/是否需回归）即可。
+- **术语隔离**：不要求开发填写 Core/Domain/Delta、suite、装填等内部词；业务表述（改了哪些模块/接口/是否需回归）即可。
 - **可选加速**：对方在 `activeContext` 同步一行影响面可加速映射，**非必填**。  
 - **无提测单**：测试仍须用主读/CR/测试分析表自建**直接+邻接+回归**影响面并写入 §3.7；**禁**因无提测单跳过邻接影响面。
 
 ## 4. 交接目录与包规范
 
-### 4.0 总目录（出站 / 入站）
+### 4.0 总目录（outbound / inbound）
 
 > **`{workroot}/handoff/`** = 出站托盘 + 入站收件箱。真源在 `{workroot}/`；出站对报告/计划等按需实拷；**缺陷有平台时禁止**为交平台而实拷详单（§3.1.1）；`handoff/inbound/` **不作**主入口。
 
 ```text
 {workroot}/handoff/
 ├─ handoff-ledger.md
-├─ 出站/
-│  ├─ 报告/ | 计划/ | defects/ | 回归/ | 澄清/ | 发布/ | 变更/ | 复盘/ | 确认/
+├─ outbound/
+│  ├─ 报告/ | 计划/ | 缺陷/ | 回归/ | 澄清/ | 发布/ | 变更/ | 复盘/ | 确认/
 │  │  ├─ {可转发实文件}.md
 │  │  └─ {HO-ID}/
 │  └─ _archive/…
-└─ 入站/
-   ├─ 报告/ | 计划/ | … | 确认/ | 待分拣/
+└─ inbound/
+   ├─ 需求/ | 设计/ | 计划/ | 提测/ | 报告/ | 回归/ | 澄清/ | 发布/ | 变更/ | 缺陷/ | 复盘/ | 确认/ | 待分拣/
    │  ├─ {投放件：格式不限}
    │  └─ {HO-ID}/
    └─ _archive/…
 ```
 
-**出站类别**：`报告`←TEST；`计划`←PLAN；`缺陷`←BUG；`回归`←FIX；`澄清`←CLAR；`发布`←REL；`变更`←CHG；`复盘`←RETRO；`确认`←DEC/OTHER。  
-**入站**：按内容归类；打开→分析→吸收→同步。与 `docs/`：主副本先原件根 `inbound/`；交接类才进 `inbound/{category}/`；同仓直读对方出站。
+**outbound 类别**：`报告`←TEST；`计划`←PLAN；`缺陷`←BUG；`回归`←FIX；`澄清`←CLAR；`发布`←REL；`变更`←CHG；`复盘`←RETRO；`确认`←DEC/OTHER。  
+**inbound**：按内容归类；打开→分析→吸收→同步。与 `docs/`：原件主副本固定 `inbound/{ver|topic}`；交接工作副本进 `handoff/inbound/{category}/`；定稿进 `docs/materials/`。同仓直读对方 outbound。
 
 ### 4.1 标准包（HO）
 
@@ -168,7 +168,7 @@
 
 ### 4.3 接收、分析与吸收（`handoff.receive` + 文档治理）
 
-硬：禁止只投放。通用材料走文档治理 + materials / `test-basis-analysis`；标准 HO 签收后仍 T9+吸收。多包同仓直读对方出站；仓外主副本 `docs/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`。正式签收才称已接收。
+硬：禁止只投放。通用材料走文档治理 + materials / `test-basis-analysis`；标准 HO 签收后仍 T9+吸收。多包同仓直读对方 outbound；仓外原件主副本 `inbound/{ver|topic}` + 工作副本 `{workroot}/handoff/inbound/{category}/`。正式签收才称已接收。
 
 **时限（正式签收）**：普通 1 工作日；阻断/提测/发布 4 小时。
 

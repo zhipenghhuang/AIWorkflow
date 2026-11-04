@@ -1,6 +1,6 @@
 # 开发规范 — 使用说明
 
-> 供人阅读；AI 入口为同目录 `AGENTS.md`。  
+> 供人阅读；**AI 新会话先读** `rules/core/cold-start.md`，口令/分级见 `AGENTS.md`。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -18,23 +18,26 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | 流程定义：`solo`（轻量单人轨）/ `intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划）/ `skill-audit`（能力技能体检） |
+| `workflows/` | 流程定义：`solo`（轻量单人轨）/ `intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划）/ `materials`（权威文档库）/ `skill-audit`（能力技能体检） |
 | `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / onboard-agent / delivery-lead / worker-agent |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（结构 `skills/<name>/SKILL.md`；编号→路径映射见 `skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
-| `rules/read-index.md` | 唯一读取入口：step → 必读文件/节 → 预算 |
+| `rules/core/cold-start.md` | **开局卡**（常驻硬约束 SSOT） |
+| `rules/core/frontend-gate.md` | 前端硬门（有 UI 必读） |
+| `rules/core/iq-checklist.md` | 实施质量勾选（implement 先勾） |
+| `rules/read-index.md` | 读取入口：step → MUST/RUN/REF |
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
 | `rules/workflow.md` | 护栏、提交门、文档落位摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 + 根 CHANGELOG / 工作日志 / 发布说明 |
-| `rules/core/` | `execution-contract.md`、`doc-quality.md`、`clarification.md`、`routing.md`、`lightweight.md`、`verification.md`、`implementation-quality.md`（DEV-IQ）、`versioning.md`、`rule-governance.md`、`maintenance.md`、`context-memory.md` |
+| `rules/core/` | `cold-start.md`、`frontend-gate.md`、`iq-checklist.md`、`execution-contract.md`、`clarification.md`、`routing.md`、`verification.md`、`implementation-quality.md`（词典）、`rule-anchor.md` 等 |
 | `rules/collaboration/` | `handoff.md`、`roles.md`、`subagents.md` |
 | `rules/defects/` | `fix-collaboration.md`、`platform-adapter.md` |
 | `rules/special/` | `iteration-delivery.md`（迭代/任务清单/DoR/DoD 参考） |
 | `rules/playbooks/` | 重阶段步骤卡：迭代/缺陷/发布 |
 | `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
-| `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 15 项清单/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
+| `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
 
 实例在项目根：`project-profile.md`、`activeContext.md`（含 `### 进行中` 快照）、根 `CHANGELOG.md`、`{workroot}/`。跨角色交接：**内容优先、包按需**——提测默认自洽提测单并实拷 `handoff/outbound/提测/`；HO 仅多文件/签收/仓外/同发发版/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。有平台已交不强制 BUG/FIX 整包。多包同仓直读对方出站。
 

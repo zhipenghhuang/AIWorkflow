@@ -1,11 +1,10 @@
-# 能力与技能体检：chain: full；能力改{workroot}/capabilities/；技能可改本包。
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: skill-audit
   name: 能力与技能体检
   version: 2
-  read_index: rules/read-index.md
-  chain: full   # 体检必须走完 scope→inventory→discover→fit→propose→apply→wrap，不能停在 scope
-
+  chain: full
 entry_points:
   体检能力: scope
   能力技能体检: scope
@@ -20,77 +19,77 @@ entry_points:
   维护技能能力: scope
   通用优化技能: scope
   通用最优技能: scope
-
 trigger:
-  - 体检能力 / 能力技能体检 / 检查技能能力 / 能力优化 / 技能优化 / 优化能力 / 优化技能 / 优化技能能力
-  - 更新能力建议 / 更新技能 / 维护技能能力
-  - 通用优化技能 / 通用最优技能
-
+- 体检能力 / 能力技能体检 / 检查技能能力 / 能力优化 / 技能优化 / 优化能力 / 优化技能 / 优化技能能力
+- 更新能力建议 / 更新技能 / 维护技能能力
+- 通用优化技能 / 通用最优技能
 steps:
-  - name: 定范围与模式
-    id: scope
-    agent: onboard-agent
-    output: 体检范围卡（模式 project/generic、范围、依据）
-    notes: >
-      读 playbook §1：含「通用/不按项目/通用最优」→ generic；无填实 `product-profile.md` → **强制 generic**；有填实 → project。
-      范围：全量｜仅能力｜仅技能｜按域。generic 默认全量。
-
-  - name: 盘点
-    id: inventory
-    agent: onboard-agent
-    output: 库存摘要（capabilities/skills/映射/缺口，含证据）
-    notes: >
-      读 `{workroot}/capabilities/00-能力清单.md`（无则记缺口）+ 包内契约/参考目录；`skills/README.md` 映射；抽查 frontmatter；禁通读全部技能正文。
-      输出【库存摘要】。可顺带跑 `rules/tools/check_skills.py <本包根> --strict`，失败记入缺口。
-
-  - name: 生态检索
-    id: discover
-    agent: onboard-agent
-    output: 生态检索表（query / 候选 / installs / 吸收动作 / 证据）
-    notes: >
-      按 `rules/playbooks/skill-audit.md` §2.1：`npx skills find <query>` 或 find-skills；先看 skills.sh 榜。
-      质量闸 ≥1K installs + 信誉源；【生态检索】只列可吸收方法｜能力候选｜维持；禁未确认 skills add 进母版。
-      无网络/CLI → 降级只读参考目录并记原因。
-
-  - name: 适配分析
-    id: fit
-    agent: onboard-agent
-    output: 适配分析表（够用/缺口/过重/冲突/重复/映射断裂/可吸收方法 + 证据）
-    notes: >
-      project：对照产品档案、P 级、缺陷平台、activeContext、近期门/降级。generic：对照主选备选与技能完整性，不写客户特例。
-      合并 inventory + discover：够用｜缺口｜过重｜冲突｜重复｜映射断裂｜可吸收方法。
-
-  - name: 出具建议
-    id: propose
-    agent: onboard-agent
-    output: "{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）"
-    notes: >
-      按 `rules/templates/00-onboarding/capability-skill-audit-report-template.md` 与 playbook §3；含「生态检索」节；P0 置顶。
-      能力拟改只针对 `{workroot}/capabilities/`；技能可改本包 `skills/`；未确认不改；可列「下一步：装配能力」。
-
-  - name: 确认并应用
-    id: apply
-    agent: onboard-agent
-    hitl: confirm_skill_changes
-    hitl_when: skill_changes_pending
-    output: 已应用变更清单 + Test-Template / check_skills 自检结果
-    notes: >
-      有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按 playbook §4 执行；否则跳过。
-      改包后**必须**跑 `rules/tools/Test-Template.ps1`；改技能另跑 `check_skills.py --strict`；失败不得声称完成；结果写入体检报告。
-
-  - name: 收尾
-    id: wrap
-    agent: onboard-agent
-    output: 【任务收尾】
-    notes: >
-      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；第1点写模式/范围/建议数/已应用数
-
-  - name: 拟提交
-    id: commit
-    agent: onboard-agent
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    output: 拟提交确认结果
-    tools:
-      - git
-    notes: 有skills/capabilities/档案改动才走；拟提交清单按 `rules/templates/90-handoff/closeout-skeleton.md` §0/§2；无变更跳过。
+- name: 定范围与模式
+  id: scope
+  must_read:
+  - rules/packets/skill-audit/scope.md
+  agent: onboard-agent
+  output: 体检范围卡（模式 project/generic、范围、依据）
+  notes: 读 playbook ：含「通用/不按项目/通用最优」→ generic；无填实 `product-profile.md` → **强制 generic**；有填实 → project。 范围：全量｜仅能力｜仅技能｜按域。generic
+    默认全量。
+- name: 盘点
+  id: inventory
+  must_read:
+  - rules/packets/skill-audit/inventory.md
+  agent: onboard-agent
+  output: 库存摘要（capabilities/skills/映射/缺口，含证据）
+  notes: 读 `{workroot}/capabilities/00-能力清单.md`（无则记缺口）+ 包内契约/参考目录；`skills/README.md` 映射；抽查 frontmatter；禁通读全部技能正文。 输出【库存摘要】。可顺带跑
+    `rules/tools/check_skills.py <本包根> --strict`，失败记入缺口。
+- name: 生态检索
+  id: discover
+  must_read:
+  - rules/packets/skill-audit/discover.md
+  agent: onboard-agent
+  output: 生态检索表（query / 候选 / installs / 吸收动作 / 证据）
+  notes: 按 `rules/playbooks/skill-audit.md` ：`npx skills find <query>` 或 find-skills；先看 skills.sh 榜。 质量闸 ≥1K installs + 信誉源；【生态检索】只列可吸收方法｜能力候选｜维持；禁未确认
+    skills add 进母版。 无网络/CLI → 降级只读参考目录并记原因。
+- name: 适配分析
+  id: fit
+  must_read:
+  - rules/packets/skill-audit/fit.md
+  agent: onboard-agent
+  output: 适配分析表（够用/缺口/过重/冲突/重复/映射断裂/可吸收方法 + 证据）
+  notes: project：对照产品档案、P 级、缺陷平台、activeContext、近期门/降级。generic：对照主选备选与技能完整性，不写客户特例。 合并 inventory + discover：够用｜缺口｜过重｜冲突｜重复｜映射断裂｜可吸收方法。
+- name: 出具建议
+  id: propose
+  must_read:
+  - rules/packets/skill-audit/propose.md
+  agent: onboard-agent
+  output: '{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）'
+  notes: 按 `rules/templates/00-onboarding/capability-skill-audit-report-template.md` 与 playbook ；含「生态检索」节；P0 置顶。 能力拟改只针对 `{workroot}/capabilities/`；技能可改本包
+    `skills/`；未确认不改；可列「下一步：装配能力」。
+- name: 确认并应用
+  id: apply
+  must_read:
+  - rules/packets/skill-audit/apply.md
+  agent: onboard-agent
+  hitl: confirm_skill_changes
+  hitl_when: skill_changes_pending
+  output: 已应用变更清单 + Test-Template / check_skills 自检结果
+  notes: 有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按 playbook 执行；否则跳过。 改包后**必须**跑 `rules/tools/Test-Template.ps1`；改技能另跑
+    `check_skills.py --strict`；失败不得声称完成；结果写入体检报告。
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/skill-audit/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: onboard-agent
+  output: 【任务收尾】
+  notes: 对照 `rules/templates/90-handoff/closeout-skeleton.md` ；第1点写模式/范围/建议数/已应用数
+- name: 拟提交
+  id: commit
+  must_read:
+  - rules/packets/skill-audit/commit.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: onboard-agent
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  output: 拟提交确认结果
+  tools:
+  - git
+  notes: 有skills/capabilities/档案改动才走；拟提交清单按 `rules/templates/90-handoff/closeout-skeleton.md` /；无变更跳过。

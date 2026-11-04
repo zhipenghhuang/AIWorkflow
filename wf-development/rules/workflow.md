@@ -17,7 +17,7 @@
 > 计划状态：草稿 / 已确认 / 执行中 / 变更中 / 待关闭 / 已关闭；首次创建或范围·版本·里程碑实质变更过 `confirm_plan`。  
 > 归档：当前文件不移动；关闭时快照到 `{workroot}/_archive/{yyyyMMdd}-{ver}/development-plan.md`，当前计划重置/新建；稳定技术真值留 `project-profile.md`/ADR。
 
-阶段：`S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测 → S5 评审/CI → S6 提测 → S7 测试/缺陷 → S8 发布 → S9 收尾/复盘`。  
+阶段：`S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测 → S5 评审/CI → S6 提测 → S7 测试/缺陷（含测试环境部署） → S8 发布 → S9 收尾/复盘`。  
 门：`G0 输入就绪 → G1 需求分析 → G2 方案批准 → G3 排期确认 → G4 开发完成 → G5 评审/CI → G6 提测就绪 → G7 测试通过 → G8 发布就绪 → G9 交付完成`。  
 规则：
 
@@ -207,7 +207,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 - 触发：有 QA 交接或含部署/发版；无 QA 且无部署可跳过。  
 - **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发自验（轻量报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
 - 产出：提测单（`rules/templates/40-delivery/qa-handoff-template.md`）——部署版本、改动点/影响面、自测结论、已知问题、**裁剪债项、沿用基线再验摘要**、回归指引、测试设计输入；发布说明+回滚预案（`rules/templates/40-delivery/release-notes-template.md`）。  
-- 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`出站/发布/`）；提测单单点滚动，发布说明一版一档。  
+- 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`handoff/outbound/发布/`）；提测单单点滚动，发布说明一版一档。  
 - 纪律：自测证据不足不交 QA；已知问题不瞒报；口头裁剪无债项不交 QA；沿用模块无基线冒烟（且未写不适用）不交 QA；开发自验 ≠ 版本准出；若同项目有测试包，提测单可作为其计划的可选输入（不强制）。
 - **提测输入**：附 `QA-AC` 验收矩阵/测试范围与数据账号；`QA-AC` 由测试执行，不要求开发在提测前全量跑完；未执行项标“待测试”，不得冒充通过。
 
@@ -259,7 +259,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 轻量测试报告 | `{workroot}/50-verification/` | `测试报告-{主题}-{yyyyMMdd}.md`（`solo.test`） |
 | 提测单 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/提测/` | `提测单-{版本}.md` |
 | 发布说明 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/发布/` | `发布说明-{版本}.md` |
-| 上线检查单/发布记录 | `{workroot}/60-release/`（真源）；按需实拷出站/发布 | `上线检查单-{版本}.md`、`发布记录-{版本}.md` |
+| 上线检查单/发布记录 | `{workroot}/60-release/`（真源）；按需实拷 `handoff/outbound/发布/` | `上线检查单-{版本}.md`、`发布记录-{版本}.md` |
 | 运维与协作（常青） | `{workroot}/70-ops/` | 切流、回归入口、Git/协作等现行说明 |
 | 复盘 | `{workroot}/80-retrospectives/`（真源）；同轮实拷 `{workroot}/handoff/outbound/复盘/` | `复盘-{版本或事件}-{yyyyMMdd}.md` |
 | 出站散文件/HO 包 | `{workroot}/handoff/outbound/{category}/`；升包另含 `{HO-ID}/` | 实拷可转发件；`00`～`04` |
@@ -270,7 +270,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见capabilities/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
 | 工作日志 | `{workroot}/work-log.md` | 开发岗位里程碑（含接入/治理）；≠根 CHANGELOG |
 
-**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新 01～07 / 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
+**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
 
 **纪律（摘要）**：按档案 §9 映射落位不强行搬迁；文件名含版本/日期；归档/清理/根白名单见 `rules/doc-governance.md` §5～§8；提交拟提交节奏见本文 §2。
 

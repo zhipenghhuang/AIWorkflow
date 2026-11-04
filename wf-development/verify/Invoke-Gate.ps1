@@ -10,6 +10,9 @@
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Mode frontend -Acceptance "{workroot}/40-tasks/任务清单.md" -ProjectRoot "."
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Acceptance "{workroot}/40-tasks/任务清单.md" -Tasklist "{workroot}/40-tasks/任务清单.md" -ProjectRoot "."
+.EXAMPLE
+  # 完成表述前先取口令：只有 CLAIM: ALLOWED 才能写“完成/通过/可提测”
+  powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Claim -ProjectRoot "."
 #>
 [CmdletBinding()]
 param(
@@ -22,7 +25,8 @@ param(
     [switch]$StartTask,
     [switch]$Json,
     [switch]$DryRun,
-    [switch]$AllowMissingAcceptance
+    [switch]$AllowMissingAcceptance,
+    [switch]$Claim
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,6 +46,24 @@ if (-not $python) {
 }
 
 $root = (Resolve-Path -LiteralPath $ProjectRoot).Path
+$env:PYTHONIOENCODING = 'utf-8'
+
+if ($Claim) {
+    $claimTool = Join-Path $PSScriptRoot 'tools/claim_check.py'
+    if (-not (Test-Path -LiteralPath $claimTool)) {
+        Write-Output 'CLAIM: DENIED - claim_check.py 缺失'
+        exit 1
+    }
+    $claimArgs = @($claimTool, '--project-root', $root, '--receipt', '.gate/wf-development/completion.json')
+    if ($PSBoundParameters.ContainsKey('Mode')) { $claimArgs += @('--mode', $Mode) }
+    & $python.Source -B @claimArgs
+    exit $LASTEXITCODE
+}
+
+if ($StartTask -and -not $TaskId) {
+    Write-Output 'TASK_ID_REQUIRED: -StartTask 需要 -TaskId "<本轮任务ID>"'
+    exit 1
+}
 
 if ($Tasklist) {
     $tasklistPath = if ([System.IO.Path]::IsPathRooted($Tasklist)) { $Tasklist } else { Join-Path $root $Tasklist }

@@ -2,7 +2,7 @@
 
 > **定位**：0→1 的机会评估与 Go / No-Go 依据；一页纸为佳（1～3 页）。  
 > **纪律**：证据可回查（来源 + 日期）；无依据写「待验证」；**禁臆造市场规模与用户反馈**。  
-> **配套**：`{workroot}/{主题}/01-需求与定义/立项书-{yyyyMMdd}.md`；通过后进入 `workflows/plan.yaml` 产品定义。
+> **配套**：`{workroot}/{ver}/10-requirements/立项书-{yyyyMMdd}.md`；通过后进入 `workflows/plan.yaml` 产品定义。
 
 ## 1. 一句话提案
 

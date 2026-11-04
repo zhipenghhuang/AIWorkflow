@@ -11,7 +11,8 @@
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`）
 - 澄清协议 → `rules/core/clarification.md`
 - 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS §3 指针与读取索引「无口令」行；附录仅校验勿当词典）
-- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 AGENTS §0 第 8 条、执行契约 §7、activeContext `rule_card`）
+- 开局卡 → `rules/core/cold-start.md`；前端硬门 → `frontend-gate.md`；实施勾选 → `iq-checklist.md`
+- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 cold-start、执行契约、activeContext `rule_card`）
 - collaboration/handoff/变更分级 → `rules/collaboration/handoff.md`；交接步骤 → `workflows/handoff.yaml`；回执/台账模板 → `rules/templates/`
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`
@@ -40,12 +41,12 @@
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-DocHygiene.ps1"
-python wf-development/rules/tools/check_skills.py 开发规范 --strict
+python wf-development/rules/tools/check_skills.py wf-development --strict
 python wf-development/rules/tools/validate_tasklist.py <清单路径>
 python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 ```
 
-> **`check_skills.py` 必须带包根**（上例 `开发规范` 或包内 `.`）；裸跑 `--strict` 会假报 `SKILL_DIR_MISSING`。
+> **`check_skills.py` 必须带包根路径**（上例 `wf-development` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-development`。
 
 自检覆盖：引用可解析 + 章节锚点 + workflows→agents + 步标记词表 + 能力名声明 + 版本单点 + YAML 语法 + 技能（含反模式/反合理化闸）；另跑文档卫生检查（见 `rules/tools/README.md`）。
 

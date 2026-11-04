@@ -8,11 +8,11 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `00-onboarding/workspace-index-template.md` | onboard.docs | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
-| `00-onboarding/project-overview-index-template.md` | onboard.docs（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
+| `00-onboarding/workspace-index-template.md` | onboard.context | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
+| `00-onboarding/project-overview-index-template.md` | onboard.context（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
 | `00-onboarding/inbound-index-template.md` | onboard.materials / 文档治理 | `inbound/INDEX.md`（全量原件登记） |
-| `00-onboarding/materials-index-template.md` | materials.publish | `docs/materials/INDEX.md`（项目级） |
-| `00-onboarding/materials-version-readme-template.md` | materials.publish | `docs/materials/{ver}/README.md` |
+| `00-onboarding/materials-index-template.md` | materials.index | `docs/materials/INDEX.md`（项目级） |
+| `00-onboarding/materials-version-readme-template.md` | materials.index | `docs/materials/{ver}/README.md` |
 | `00-onboarding/env-baseline-template.md` | onboard.baseline | 只强制 §1/§2.1/§2.2/§8；其余按需 |
 | `00-onboarding/project-readme-template.md` | onboard.baseline / 点名生成·更新 README | 按用户偏好择块拼接（非定死大纲）；已有勿整文件覆盖；规则见 `rules/core/project-readme.md` |
 | `00-onboarding/env-baseline-minimal.md` | onboard.baseline | 接入最小集；完整模板按需 |

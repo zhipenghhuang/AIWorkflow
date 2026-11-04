@@ -1,6 +1,6 @@
 # AI 测试资产体系 — 使用说明
 
-> 供人阅读；AI 入口为同目录 `AGENTS.md`。  
+> 供人阅读；**AI 新会话先读** `rules/core/cold-start.md`，口令见 `AGENTS.md`。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -35,7 +35,7 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | `testing` / `defect` / `handoff`（交接包/回执/变更通知） / `onboard` / `skill-audit`（能力技能体检） |
+| `workflows/` | `testing` / `defect` / `handoff`（交接包/回执/变更通知） / `onboard` / `materials`（权威文档库）/ `skill-audit`（能力技能体检） |
 | `agents/` | analyzer / planner / testcase / **testcase-reviewer** / orchestrator / worker / reviewer（执行核验） / bug / report / onboard |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；含 `name/description` frontmatter；`skills/README.md`） |
@@ -66,10 +66,10 @@
 | --- | --- | --- |
 | 项目根 | `env-baseline.md`、`activeContext.md`、原件根 `inbound/` | 测试计划/报告/用例/台账/脚本/证据 |
 | `{workroot}/` | `test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md`、`work-log.md` | 长期堆临时；关账搬走仍有效域主档 |
-| `{workroot}/functional/` | 功能域：`{NN}-{短名}/` + `*-functional-cases.md` + `*-functional-ledger.md` + `scripts/`；`evidence/`；`specials-index.md` | 光秃用例；接口资产 |
-| `{workroot}/api/` | 接口域：`{NN}-{短名}/` + `*-api-cases.md` + `*-api-ledger.md` + `scripts/`；`evidence/` | 与功能混淆命名 |
-| `{workroot}/exploratory/` | `{主题}-{戳}/` + `*-exploratory-cases.md` + `*-exploratory-ledger.md`；`evidence/` | 功能全量冒充 |
-| `{workroot}/random-flows/` | `coverage-ledger.md` + `{主题}-{戳}/` + `*-random-cases.md` + `*-random-ledger.md`；`evidence/` | 计划内轨道混用 |
+| `{workroot}/functional/` | 功能域：`{NN}-{短名}/` + `*-功能用例.md` + `*-功能台账.md` + `scripts/`；`evidence/`；`00-专项索引.md` | 光秃用例；接口资产 |
+| `{workroot}/api/` | 接口域：`{NN}-{短名}/` + `*-接口用例.md` + `*-接口台账.md` + `scripts/`；`evidence/` | 与功能混淆命名 |
+| `{workroot}/exploratory/` | `{主题}-{戳}/` + `*-探索式用例.md` + `*-探索式台账.md`；`evidence/` | 功能全量冒充 |
+| `{workroot}/random-flows/` | `_覆盖账本` + `{主题}-{戳}/` + `*-随机用例.md` + `*-随机台账.md`；`evidence/` | 计划内轨道混用 |
 | `{workroot}/pre-release/` | `performance/`、`security/`、`compatibility/`、`migration/`；方案/报告/证据/脚本 | 光秃方案/报告；多专项混一案 |
 | `{workroot}/changes/` | `CR-{yyyyMMdd-HHmm}-{slug}.md` | 整期方案 |
 | `{workroot}/scripts/` | 共享 executor / config | 业务域脚本（放域夹） |

@@ -136,7 +136,7 @@ provider 生态（可选）：Jira → mcp-atlassian / 官方远程 MCP；GitLab
    （无则写「无」）
 ```
 
-无成功条目 → 不输出第 2 块，改为一行说明。本块置入【任务收尾】第 1 点；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §2。
+无成功条目 → 不输出第 2 块，改为一行说明。本块置入【任务收尾】第 1 点；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §1。
 
 ## 6. 执行收尾衔接
 
@@ -258,7 +258,7 @@ resolve_fixed+关闭：#{id}
 回查：状态/指派已核对（或写明未核对项）
 ```
 
-本块置入【任务收尾】第 1 点；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §2。  
+本块置入【任务收尾】第 1 点；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §1。  
 **「完成了什么」禁简陋**：须短段写清本轮真实动作+单号，并单列「影响：」；不得只写计数空话；禁照抄历史单号或固定句。
 
 ### 7.3 拉单读取与变化识别（巡检/回归共用）

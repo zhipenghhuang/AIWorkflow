@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # Playbook · 发布与上线（就绪 → 验收 → 审批 → 部署 → verify/回滚 → 观察）
 
 > 只读本卡 + 当前步 YAML；按需读 `acceptance-and-launch` / `qa-handoff-and-release` 技能。

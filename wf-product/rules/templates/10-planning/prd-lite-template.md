@@ -5,7 +5,7 @@ status: DRAFT
 review_status: SELF_CHECKED
 gate_id: ""
 version: V0.1
-product_version: {版本}
+product_version: {ver}
 owner: {产品负责人}
 source_of_truth: false
 based_on: {需求池/受理单}

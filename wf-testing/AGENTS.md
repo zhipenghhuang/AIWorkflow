@@ -1,105 +1,48 @@
 # AGENTS.md
 
-> **用途**：测试规范 AI 入口。新会话读 §0；命中口令 → `workflows/*.yaml` 当前 step → `rules/read-index.md` 当前行 → 当前 `agents/*.yaml`。已路由同会话中段只靠 `rules/core/rule-anchor.md` 心跳，不重读本节全文。
-> **位置**：`wf-testing/`。与项目根 `AGENTS.md` 冲突时，以项目根为准；与用户指令冲突时见 §0 第 5 条（可覆盖）。
-> **template_version**：`2026.11.04.1`（单点：包内版本以本文为准；门面事件同步 doc-facade-sync + 缺陷入口/读取链修正 + 流程偏好 + 工作记忆沉淀）。
-> **架构**：Workflow + Agent + rules/gates.md · rules/read-index.md + skills / capabilities + 验证层（台账/报告/覆盖/评审/回写）；主链分析→计划→生成→**用例评审（先选自行｜AI）**→执行→报告。
-> **分层**：本包=通用测试规则；`env-baseline.md`（及同仓档案）=项目事实；根 `AGENTS.md`=挂载 + 项目自写额外要求（母版不规定偏好正文）。
+> **用途**：测试规范 AI 入口。  
+> **新会话必读顺序（硬）**：① `rules/core/cold-start.md` → ② 本文 §2 口令表（路由未定/首次）→ ③ workflow 当前 step 块（门/agent/`must_read`）→ ④ `must_read[0]`=`rules/packets/<wf>/<step>.md` → ⑤ 若包内点名则再开**一个**模板。  
+> **已路由中段**：心跳 + `rule_card` + 开局卡标签；禁止每步重读本文全文。  
+> **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
+> **template_version**：`2026.11.04.16`（步骤自包含读包；运行时只认 cold-start + packet；Claim/HITL 不变）。  
+> **主链**：分析→计划→生成→用例评审→执行→报告。  
+> **完成口径**：只认开局卡 + `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
-## 0. 开工（每任务）
+## 0. 开工
 
-1. **中文**：对话与结论用中文；写现行结论。
-2. **activeContext + 项目身份（硬短读）**：先按 `rules/doc-governance.md` §2.4 定位工作根（环境基线声明优先）；同 id 双份 → 停问。再读 `activeContext.md` **总览（必填）** + `## 测试` 的 `### 进行中`（含 `rule_card`）+ 跨包同步 + 本包 `### 生效中的偏好` 中范围=项目/包的条目（≤3 行；命中当前计划/任务再加对应行）；先按 `进行中` 报备（2～3 句），无则补建本包节。**同轮项目身份（每新会话一次）**：同仓优先 product-profile.md / project-profile.md §1（有则只读其一，产品优先）；否则 `env-baseline.md`「项目身份」+ §1 登录要点 + §2.1 设计输入行；皆无或资料不足 → `rules/core/routing.md` §5 升级并先回写。空壳/登录或设计输入不可用必须升级。总览须含一句话定位（已接入禁长期「无」）。任务开始/状态变化/阻塞/收尾更新本包进行中（只读除外，见执行契约 §1.2）。**三处同拍**：阶段/门/焦点/下一动作/准出口径语义变化时按 `rules/core/execution-contract.md` §4 规则 7 同步；语义未变可只改进行中。**门面同步**：仅当版本 bump / 迭代关闭 / 发布上线 / 对外可见事实变时按 `rules/core/doc-facade-sync.md`（禁每轮全扫 README）。收尾只改本包；多包禁改他包。
-3. **接入状态（一次判定）**：运行时有 `wf-testing onboard: done`（兼容旧 `landing=ok`）→ 禁止再预检，直跑命中 workflow；无标记且命中生成/执行/缺陷类口令 → 仅此一次按 `agents/onboard-agent.yaml` 核验，通过则写标记（删旧 `landing=ok`）静默直跑，未接入则走 `onboard.yaml` 后 resume。**与产品/开发「任意起步即预检」不同，属测试轨**（计划/状态/交接口令可不强制基线预检）。
-4. **独立判断**：不迎合；先查错误前提/逻辑跳跃/信息缺失；数字/结论与台账/报告同口径并尽量核实；用户有误直接指出；主动提醒忽略的变量、成本与偏差。**方案择优（硬）**：不适配/高风险/明显更差 → 依据+主推（可 1 备选），禁静默照做。用户按第 5 条二次坚持 → 以用户为准并记 `deviation=`。
-5. **冲突与覆盖**：默认按本包规则与红线。用户指令冲突时：①不执行冲突项；②说明风险与替代；③用户再次明确选择 → 以用户为准。收尾 `deviation=` 如实。无冲突：用户明确指令 > 项目根 `AGENTS.md` > 本文 > 当前 agent 契约 > env-baseline.md / project-profile.md 要点（若有）。**拟改与现行实现、现网或 CI 稳定口径冲突 → 先指出再改，禁静默覆盖。** 红线默认可被用户二次明确覆盖。
-6. **读取协议**：
+> **硬约束全文**：`rules/core/cold-start.md`。本节只补分级与指针。
 
-| 场景 | 读什么 |
+1. **中文**；写现行结论。  
+2. **短读**：`activeContext` 总览 + `## 测试` 进行中 + **偏好/洞见/坑 ≤3 行**（开局卡第 2 条；`context-memory.md`）；身份：档案 §1 或 `env-baseline`（每新会话一次）。  
+3. **接入**：`wf-testing onboard: done` 则跳过；生成/执行/缺陷无标记时核验一次。  
+4. **择优**：不适配 → 依据+主推；二次坚持 → `deviation=`。  
+5. **覆盖**：用户明确指令 > 根 AGENTS > 本文 > agent > 基线。  
+6. **读取**：只认开局卡读链 + 当前步骤包；workflow **只读当前 step 块**；`read-index.md`/playbook/`skills/` 为维护素材，默认不打开。  
+7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】）；开局卡第 1 条已点名，细则不改档位。  
+8. **心跳**：`rule-anchor.md`。
+
+### 0.0 事实与文档
+
+事实可核实；待确认禁升格；正式资产只写现行。术语：覆盖单元=验证点；批次=`B-Vx-xx`。
+
+### 0.1 计划门 · 三门 · 澄清
+
+门只认 YAML `hitl*` + `gates.md`（条件门 `hitl_when` 不满足则跳过）。澄清只认 `clarification.md`。依据先建模：分析表 §0 必填。  
+**分级**：T0 补丁 / T1 模块 / T2 版本 / T3 高风险（`workflow.md` §1.2）。勿与开发 L* / 产品 P* 混用。
+
+| 对象 | 默认（能脚本不 AI） |
 | --- | --- |
-| 新会话 / 同会话中段 | 读序、读取预算与只读范围只认 `rules/read-index.md` |
-| 路由未定/首条 | 本文 §2 口令表或 `rules/core/routing.md` → 再按上行走已路由；多包歧义先查 `wf/AGENTS.md` **意图→包** |
-| 有门/写 YAML | `rules/gates.md` 当前行；不通读全表 |
-| 生成/执行 | `rules/playbooks/generate.md` 或 `execute.md` + `workflow.md` 当前节 + 当前轨契约；不跨轨通读 |
-| verify/收尾 | `verify/README.md` + `rules/core/verification.md` + 计划/台账/报告 |
-| 交接/变更 | `rules/collaboration/handoff.md` 当前节 + **默认**`handoff-note-template.md`（升包才读包说明）+ 台账；变更按 C0～C3 |
-| 脚本档 | `rules/special/script-execution.md` §3/§4 + executor README；失败再按 `playbooks/execute.md` 升级 |
-| 维护/查询 | 本文 + `rules/core/maintenance.md` + 点名 |
+| 已脚本化回归 | 脚本档 |
+| 规则/用例/台账改写 | 直接编辑 |
+| 新稳定 P0 / 确定性接口 | 同轮写脚本；禁 AI 全跑再脚本双耗 |
 
-同一会话文件未变不重读；后续 delta-only；同方案无效 2 次换手段。**workflow 只读当前 step 块（当前 `- name:` 到下一个），不整文件通读。** 规则阅读不是越多越稳：读错轨/读全本会稀释约束。不得为省预算跳过门/证据/红线。宿主整文件注入本文时：中段仍只认心跳 + `rule_card`，禁止每步当全文必读。
-
-7. **执行契约**：判断模式（execute/analyze/stop）、自主边界、步骤契约、计划同步见 `rules/core/execution-contract.md`。规则是下限不是百科全书；产物/路径未列尽按契约 **§1.3** 归类落盘（禁方便堆、禁为补漏加百科）；低价值步骤可合并/省略；输出/门/证据/红线默认不可省（用户按第 5 条选择覆盖除外）；跳过与取舍写收尾【遵守自检】，不静默偏离。只读解释/对比/诊断按 `rules/core/execution-contract.md` §1.2，不强行进入交付链；用户要详细时用分析说明，不受只读简报 2～3 行限制。
-8. **规则心跳（硬）**：触发与一行格式只认 `rules/core/rule-anchor.md`；切步 / 过门前后 / 约每 5～8 轮用户消息须输出【规则心跳】并按需 `rule_card=refresh`。心跳≠收尾自检。
-
-### 0.0 事实与文档（硬规则）
-
-> **术语**：覆盖单元=验证点（同一 ID，见分析表 §2）；版本级四卷=V1 主链/V2 功能/V3 方法/V4 收口；批次=`B-Vx-xx`；T0/T1 用轻量计划（同一机制裁剪）。
-
-- 环境/构建/账号/日期/结果/缺陷号/发布窗口/审批结论等事实字段，必须来自配置、命令输出、权威文档或用户确认；未核实写「待确认」并问，禁止用默认/示例/历史值补。
-- **待探查/推断禁升格**：未满足升格条件不得写入基线真值、成功契约、PASS 终态或「实现缺陷」定性（细则 `doc-quality.md` §1 第 2.1 条；分流见 `classification.md` §0）。
-- 生成后回查关键字段；同一事实只保留一个来源；**当前有效状态**：只写当前存在的功能/流程/rules/约束；删除即移除，不追加「已删除/已废弃/不要再用」；不写历史过程、旧方案、变更原因、未采纳方案；对用户输出结论性现行状态，不复述需求与「本次改了什么」。细则见 `rules/core/doc-quality.md` §1 第9条；结构完整≠合格。
-- templates / rules / skills 可按项目实际适配：发现不匹配或更好做法 → 先出拟改/原因/影响，用户确认后改本包并登记。
-- 模板是骨架、标准是底线：按项目裁剪；不适用写不适用+理由；能靠产出文档解决的优先改产出。
-- **版本标识分离**：产品/测试版本、构建/制品、部署版本、文档版本分开；测试只认实际部署版本；文档提交不改变项目版本；项目必须暴露版本查看方式（页脚/接口/清单）。
-
-### 0.1 计划门与三门 · 澄清
-
-- **只认 YAML 步上 `hitl`/`hitl_when`/`gate_when`**；不满足跳过，专规不另造门。**计划门**：版本级首版/换代或范围·准出·缺陷策略实质变更才停，同会话同载体一次；版本级还须分析表 §2.2/§2.3 无空格 + §3.8 四卷 + §3.9 批次表，缺项=计划门不通过。
-- **门1/2/3**：analyze/plan/generate 主读路径未确认一问（唯一正式版可拟认但须写明路径）；执行范围/环境未确认才停；拟入库/交平台/新建缺陷单才停（门3=`confirm_platform`；仓库 git=`confirm_commit`）；计划驱动已确认→【已预授权执行：按计划】。**随机业务流程除外**：不设主读、跳过理解门/分析表强制，门1 仅环境/登录/入口不明（见 `tracks/random-flows.md`）。
-- **意图确认择优（硬）**：有歧义/跨角色外发/新开交付 → 先【意图理解】等确认；意图已清、计划内续跑或已脚本化回归 → 一行回执即做或免示。门=`confirm_intent`（`intent_needs_confirm`）；细则 `rules/core/clarification.md` §0。禁止含糊口令直接写交接单。
-- **澄清**：先读rules/skills/主读/代码/现网，再给「理解+建议+0～1 拍板」；总提问 ≤3（阻塞/安全/合规不受限，仍一次一问）；连续 3 轮无新信息收敛。
-- **依据先建模**：PRD/方案/原型/接口先按 `test-basis-analysis` 建需求模型；**测试分析表 §0 Brief+本期差量表必填**；九类歧义/不变量/章节回执/oracle；`confirm_understanding` 主屏出示 §0；无 §0 或未确认前禁正式生成与「功能准出」；无来源不写断言，不按现网反推；推断标 `[IMP]` 须确认。**用户版说明**：T1+ 用户可见变化同轮生成 `{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`，供用户查看与 AI 理解完整业务；不替代分析表/AC/oracle。**依赖回归**：前序依赖须含依赖版 P0-Smoke 实测，不重跑归档全量。
-- **预授权**：「直接跑完」只到任务完成，不含提交/推送/部署/交平台；意图门按 §0 择优；计划内执行视为预授权；计划外交平台仍门3。
-- **期中/缺陷分流**：新变化→CR+影响分析；A/B 就地更新、C 回计划门、D 缺陷轨；平台提交/查重/回归→`defect.yaml`；修 Bug 代码不在本包。
-
-### 0.2 硬红线（易疏忽）
-
-1. 禁臆造路由/接口/按钮；正式资产只写现行有效。
-2. 密钥/凭据不入库/不进提交；基线密码明文仅限授权测试环境；真实 PII 不入证据/平台。
-3. 子代理不 git/不交平台/不改他模块；模块档只写本模块台账/证据；拆分档 Worker 仅写 DraftPath；编排核验后结论。
-4. 先 UI 再 Network；禁猜未见 API 判失败；禁换验收载体；口径只钉本载体实现值。**用例/方案点名菜单或页面时**：须浏览器 MCP 或脚本档 UI 走完主路径再对同源 Network；禁自造「AI-API」通道、禁纯 API 冒充该条终态（仅接口轨或用例入口本就纯 API 除外）。**仅 API 绿 ≠ 该条通过**。**UI 证据等级（点名 UI / 入口齐套）**：L1=浏览器 MCP 或脚本 UI 主路径（可标 pass/fail/待实现）；L0=菜单 JSON 关键字 / 前端包字符串扫描 / 纯 API——**只可辅助，不得单独把该条标 pass**；浏览器不可用且拉起失败 → 点名 UI 条标 `blocked`（可测性），禁 L0 凑绿。旁路 API 可另记，**不得**把范围内入口缺失标「观察」。
-5. 阻塞从严且可升级：缺数据先造/换（测能消化→本地继续，禁自指派空转单）；可绕过照跑；产品问题记失败；无菜单无接口→待实现，入口在但 404/500/空壳/假成功→失败；**断言面写接口 404/405/无合法入口**（测不到该断言）→`blocked`，**禁**先记成该断言的实现 fail；blocked 四问未过不写 blocked；互异手段≥2 总尝试≤3；需外力→平台盯办（实机类型/指派，探查后匹配，不明问用户）；**到不了≠待实现**（无注入/无种子→阻塞+同轮盯办短证，见 `classification.md` §0.4）；**禁**为交平台改标失败/待实现；门禁正确/口径未钉**禁**硬开实现缺陷（见 `classification.md` §0）。
-6. 禁刷绿：不手改结果表；失败实拍进 `{workroot}/{轨}/evidence/{域}/`；准出只认本轮装填（`未本轮验证` 不计通过）；P0-Smoke/P0-HighRisk 未过不得整体通过。
-7. 能脚本不 AI：已脚本化回归走脚本档；脚本失败有界复核后定性；禁直接交平台。
-8. 计划驱动不跳轨：按 §9.2 + §3.7 装填 + §3.9 批次执行；有文件≠本轮跑；开跑展示 runId/构建+suite+批次/并行组；批次合并核验后再下一批；不跨轨通读/不静默降范围；实质变更回计划门。
-9. 依据可追溯：用例/断言指到需求/AC/rules/原型/接口；无来源先问或标“文档未声明”；冲突记失败/待确认，不按实现改预期；弱证据/改题/入口未钉/未排除测侧误用不交**实现缺陷**；交平台前探查实机字段并匹配，适配经用户确认后写入实例基线。判定与旁证见工作流 §3.0（禁弱通过·错误语义对齐；同路径可见问题须记）。交平台缺陷：十段齐且过文案 **§5.0.1b**，结构齐内容空不得交。
-10. 资料与关账：设计输入 `inbound/{ver|topic}/` + `inbound/_common/`；入站 T1～T9；S1/S2/S3 同批归档；换代 §7：**主计划/四卷/报告/测试分析表快照**；**功能/接口域主档常青留下**；materials 覆盖刷新为硬项；轨内 `_archive/` 仅下线域/重生快照/旧探索轮；交平台须回执。
-11. 体验验收：UI 减法；资产三维不退化。
-12. 域常青与增量：`{NN}-{短名}/` + `*-功能用例/功能台账` 或 `*-接口用例/接口台账`（探索/随机戳夹自描述名）；命中+邻接必审适应性；禁无分析全仓重生；禁「继续」隐式 generate；冷启动无域才首生。
-13. 准出即保障发布（SSOT `rules/special/multi-track-quality.md`）：迭代≥suite=module + 接口 depth≥standard（有接口时）+ P0/GATE/负向/计算类点结论 100% + 批次合并通过 + 已列发布前/探索须闭环；发版=功能 full + 接口 full + 发布前硬映射；仅 core 不得准出（补丁须明示）；报告必声明 runId/suite/depth/本轮实测。
-
-### 0.3 执行中（效率）
-
-- 多解先权衡；路径唯一直接做；动手前说明拟改文件；最小改动；过程只落 `.draft/`；本批未终态齐 → 禁【执行收尾】/拟提交。
-- 文件修改优先直接编辑，保持最终内容准确；仅批量或重复性操作才生成脚本；系统操作优先简单稳定方案（与「能脚本不 AI」的回归执行档不冲突：资产/规则改文件走直接编辑，已脚本化回归走脚本档）。
-- 工具点名优先；能脚本不 AI、少全量快照、按 step 读规则（成本见 `multi-agent-output.md` §1.3/§3）。
-
-### 0.4 工程红线
-
-1. 不在生产/未授权环境执行；造数仅授权测试环境；严重度按业务影响（S1–S4），拿不准问。
-2. P0-Smoke/P0-HighRisk 未过不判整体通过；准出对照计划；未测列缺口；有条件通过仅限 P0-Smoke/P0-HighRisk 全过、缺口非 P0-Smoke/P0-HighRisk 且用户接受。
-3. 子代理/并行隔离账号/数据/profile/写域；同条用例禁并行。
-
-### 0.5 自主与文档
-
-- **自主边界 SSOT**：判断模式/必须停/可自主见 `rules/core/execution-contract.md`；**默认**不可让（用户按第 5 条选择覆盖除外）：口令/门/证据/密钥/角色写域/资料形态/单包闭环/覆盖三闸/准出；可自主：拆分/划批/探查/子代理/未列尽归类（§1.3）。本处硬红线为摘要。
-- 文档只写现行；删除即移除；例外（变更/CR/复盘/日志/`{workroot}/work-log.md`）可留痕，不回流正式资产。根 `CHANGELOG.md` 仅开发维护；本包只写 `{workroot}/work-log.md`（含接入/治理/准出），**禁止**创建/修改/补链根；测试关账 ≠ 发版史；无开发包则不建根 CHANGELOG。
-
-### 0.6 验证与汇报（硬约束）
-
-1. **报告/回写只认门**：宣称准出前 `-Mode report` → `.gate/wf-testing/report.json`；无 PASS/CONDITIONAL 不得称通过/可发布；回写认 `writeback.json`。
-2. **P0/证据硬线**：P0-Smoke/P0-HighRisk 未过不得整体通过；失败/阻塞证据可打开；报告先写回执。
-3. **程序 SSOT**：数字对账、用例 A/B 评审、批末 `execute -Scope`、suite 声明见 `rules/core/verification.md` + `verify/README.md`。**gate 2.2** 硬检 `analysis-structure`/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；旧格式默认 `skip`，`-Strict` 变 FAIL。
-
-### 0.7 协作与交接（硬约束）
-
-- 细则见 `rules/collaboration/handoff.md` §3.0～§4.0；硬约束：内容优先/正文自洽；**默认择优单文档**并实拷 `handoff/outbound/{category}/`（**缺陷除外**：有平台只交平台，**禁**实拷/导出旁路）；compose 有歧义才 `confirm_intent`；HO 仅触发命中且先问后发；**缺陷**：`api`/`browser`→完整平台单即完成、零导出；无平台/`export`→确认后**本批统一一份**（禁一缺陷一目录、禁静默）；入站须分析吸收；正式签收/C2·C3/发布才须回执；C2/C3 重基线过计划门。
+**依据/E1/准出**：开局卡第 2/6 条；`verification.md` §3.1、`multi-track-quality.md`。**红线**：禁臆造；密钥/PII 不进证据；禁刷绿；P0 未过不得整体通过。**交接**：`handoff.md`。
 
 ## 1. 接入
 
 实例在项目根：`env-baseline.md`、`activeContext.md`；工作根必须有 `{workroot}/`；原件根 `inbound/` 固定在项目根（原夹不迁出）。存量全索引，按需复制或 A0～A2 吸收。占位符未换或无基线=未接入。交接 `{workroot}/handoff/outbound|inbound/{category}/` + 台账（`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。接入 `onboard.yaml` + `onboard-agent.yaml`；标准树与索引按 `rules/doc-governance.md` §2.4 建。
 
-**分级**：T0 补丁/T1 模块/T2 版本/T3 高风险；裁剪见 `rules/workflow.md` §1.2；T0/T1 可轻量，但范围/类型/轨道/执行矩阵/准出/风险必须写清；发布列车/大版本 ≥1 次功能全量。不确定先按最小充分，高风险/不可逆再高一档。
+**分级**：T0 补丁/T1 模块/T2 版本/T3 高风险；裁剪见 `rules/workflow.md` §1.2；T0/T1 可轻量，但范围/类型/轨道/执行矩阵/准出/风险必须写清；发布列车/大版本 ≥1 次功能全量。不确定先按最小充分，高风险/不可逆再高一档。**勿把开发 L* / 产品 P* 当测试 T***；计划阶段 P0～P9 ≠ 用例优先级 P0-Smoke ≠ UI 证据 E0/E1 ≠ 资产 Core/Domain/Delta。
 
 ## 2. 口令 → Workflow（命中即停）
 
@@ -126,12 +69,12 @@
 | 14 | 维护/查询 | 本文 + `rules/core/maintenance.md` | —；清理→行 17；技能优化→行 13.3 |
 | 15 | 脚本编写/脚本执行 | `testing` | generate 或 execute |
 | 16 | 资料收取/整理 | `onboard` | materials |
-| 16.1 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→wrap |
+| 16.1 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→wrap→commit |
 | 17 | 文档清理/归档巡检 | `onboard` | lifecycle |
 | 18 | 写交接单/交接包/接收/变更/重规划 | `handoff` | 默认 compose；升包才 send |
 | 19 | 提交/推送 | 当前 workflow 末步或 `handoff` | commit |
 
-**入口即止**：单步入口只执行该步到产出完成即止，并仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出；表中标「按链」的从入口执行到链末停点；“按计划执行”走全链；`workflow.chain: full`（如 onboard）例外，必须走到 verify/打标。
+**入口即止**：单步入口只执行该步到产出完成即止，并仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出；表中标「按链」的从入口执行到链末停点；“按计划执行”走全链；`testing.report` 例外——报告门后按 `next` 追加一次提交/交平台确认，不重跑执行；`workflow.chain: full`（如 onboard）例外，但仅「接入/基线/重新接入」入口走全链到 verify/打标；「资料/文档治理」入口只执行该步 + 收尾。
 **计划驱动主链**：生成测试计划→**计划/分析 A/B 评审**→计划门确认→生成用例→**多轨资产评审（放行）**→按计划执行→报告/准出。
 **版本级单点**：`{workroot}/test-plan.md`、`{workroot}/test-report.md`；全量首跑必经；缺则轻量补；发布列车/大版本 ≥1 次功能全量；补丁=P0 冒烟+影响面+已脚本化回归。
 **执行三态**：「继续」=续跑未完成；「回归/重跑」=重测既有用例（结果就地覆盖、只留最新）；缺陷平台单回归→行 5。
@@ -151,18 +94,18 @@
 
 ## 5. 收尾
 
-触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。**骨架与硬项以** `rules/templates/90-handoff/closeout-skeleton.md` §2 为准（生成/执行用【生成收尾】/【执行收尾】；专规只填第1点；缺项=未收尾）。收尾/复盘按 `rules/core/context-memory.md` §4 做沉淀判断，并写【任务收尾】的「工作记忆」行（无则「无」）。**写完整收尾前打开 §2 样例对照版式**（标题/回执/自检各一行；汇报结论说明体）；禁凭记忆粘行。浏览器退程见多Agent §2.2。门3（`confirm_platform` 交平台等）在骨架后单独确认；完整【拟提交·仓库】（`confirm_commit`）在 handoff/commit 只展示一次（第 2 点仅「待提交摘要」）。
+触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。**骨架与硬项以** `rules/templates/90-handoff/closeout-skeleton.md` §1 通用占位为准（生成/执行用【生成收尾】/【执行收尾】；专规只填第1点；缺项=未收尾）。按项目事实填 `{…}`，禁照抄他例。收尾/复盘按 `context-memory.md` §4 写「工作记忆」（无则「无」）。浏览器退程见多Agent §2.2。门3（`confirm_platform`）与【拟提交·仓库】在骨架后按 `hitl` 分门确认。
 
 ## 6. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改轨边界 → `rules/tracks/`；改多轨准出/depth/硬映射 → `rules/special/multi-track-quality.md`（再同步tracks/工作流/验证规则）；改 templates / skills / capabilities → 对应目录；改计划编排 → 测试计划模板 + `workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改读取索引 → `rules/read-index.md`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改轨边界 → `rules/tracks/`；改多轨准出/depth/硬映射 → `rules/special/multi-track-quality.md`（再同步tracks/工作流/验证规则）；改 templates / skills / capabilities → 对应目录；改计划编排 → 测试计划模板 + `workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
 
 ## 7. 多包（自动探测）
 
 `wf/`（含 ≥2 个 `wf-*`）=多包；项目根单个 `wf-*` =单包；同 id 双份/半迁停问。
 - **口令表节号**：本包 §2；产品/开发 §3（勿跨包按节号直译）。
 - **单包独立为默认**；多包联动**可选、非必须**；不要求装齐三包、不强制同时启用、**不因缺他包阻塞本包**；跨包同步只登记状态，不等于自动联动。
-- **联动=交付物字段 + 同仓直读**（提测单影响面/AC/CHG 等）→ 测试侧映射为装填；**≠** 共安装、**≠** 自动跑对方 workflow、**≠** 要求对方会写 L0/suite、**≠** 强制引用他包路径；无提测单时本包自填命中域。
+- **联动=交付物字段 + 同仓直读**（提测单影响面/AC/CHG 等）→ 测试侧映射为装填；**≠** 共安装、**≠** 自动跑对方 workflow、**≠** 要求对方会写 Core/suite、**≠** 强制引用他包路径；无提测单时本包自填命中域。
 - **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写**已装包**；不描述包的用途/装载/升级。规范包**默认不跟踪**：`.gitignore` 只写一行 `/<已装包>/`（多包 `/wf/`）；不预列未装包、不加注释。用户明确要求跟踪时才跟踪。
 - 共用原件根 `inbound/`（项目根固定；无则 onboard 建）、根 `activeContext.md`（总览 → 已启用包分节 → 跨包同步 → 运行时；单包只建本包节）。
 - 各包只改本分节、与本包相关的跨包同步一行、本包接入行；禁止整文件覆盖或改他包分节。

@@ -9,12 +9,13 @@
 | 门 | 含义 | 必须行为 |
 | --- | --- | --- |
 | `confirm_go` | 新产品立项 | 出示问题/市场/方案/MVP 假设/成本收益/风险/结论（Go/Hold/Kill）；未过不写全量 PRD |
+| `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 按 `execution-contract.md` §1.0 分级：新开交付/歧义/外发=完整六段等确认；计划内续跑/意图已清=一行回执；纯只读=一句话。未确认（完整档）不得写/执行/对外/下结论。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。≠ `confirm_intent`。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
 | `confirm_understanding` | 需求理解 + 方案要点 | 出示【理解复述】（谁/场景/问题/现有替代/代价/目标/范围/非目标/证据/假设）+【推荐方案要点】（主路径/关键rules/异常期望/验收口径/不做）+ 缺口清单；涉及换迭代/相对上版时附**本期差量要点**（增/改/删或「首版全部为增」）。用户须对理解与方案均表态；仅回 OK 未对复述/方案表态不算过；确认后才分诊/入池承诺/写正式 PRD/计划/排期 |
 | `confirm_plan` | 产品计划 | 首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**§3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期 |
 | `confirm_change` | 需求变更/产品缺陷处置/实现缺陷退回 | 出示分诊依据、影响与变更单要点（**含 §2.1 差量表** Now→Proposed）；产品缺陷须有相符证明；无单不实施 |
 | `confirm_design` | 设计方向 | IA/线框/2～3 个视觉方向/tokens；确认后才做高保真 |
-| `confirm_prototype` | 原型交接 | 原型路径/设计评审结论/交接要点；确认后才交开发 |
+| `confirm_prototype` | 原型交接 | 原型路径/设计评审结论/交接要点；**评审前必须有 `prototype-coverage.md`（覆盖矩阵硬）+ 浏览器走查证据**；浏览器不可用时记 `browser=unavailable` 并用用户走查证据过门前评审；确认后才交开发 |
 | `confirm_narrative` | 展示叙事 | 受众/目标/故事线/演示范围已成形后确认；仅叙事不明或首次对外演示时停 |
 | `confirm_materials` | 对外材料 | 一页纸/Deck/user/发布说明；数字/截图/流程与当前项目一致；仅对外发送、承诺或发布前触发 |
 | `confirm_scope` | 单需求立项范围 | 范围（MVP）/排除项/粗排期/风险 一行摘要；条件门：仅跨版本/高价值/未确认范围时停 |
@@ -22,18 +23,21 @@
 | `confirm_prd` | PRD 定稿/实质变更重审 | 评审结论为「通过（可定稿）」且用户点名定稿/进入排期时出示；**出示前**须有【完稿自检摘要】且 `-Mode prd` 非 BLOCKED；定稿前不排期；仅评审不弹门 |
 | `confirm_remark` | 缺陷平台回写 | 出示 id+结论+备注全文+附件名+状态/指派变更；备注与状态同轮；平台不支持出 export |
 | `confirm_release` | 发布 | 出示 UAT 结论、回滚预案、公告/客服/监控就绪；未过不发布；已发布仅复盘不重复确认 |
-| `confirm_commit` | 拟提交 | 【拟提交】块（文件+`.gitignore`+分支/跟踪+本次动作）；确认后提交；禁擅自切主干/force push/开合并 PR；≠收尾第 2 点「待提交摘要」 |
+| `confirm_commit` | 拟提交 | 【拟提交】块（文件+`.gitignore`+分支/跟踪+本次动作+推送目标）；**默认仅本地提交**，推送须点名并单独确认；禁擅自切主干/force push/开合并 PR；≠收尾第 2 点「待提交摘要」 |
 | `confirm_handoff` | 交接包发送 | **凡拟生成任一 HO 包必停**：出示类型/接收方/必带摘要/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「定稿门/评审门/发布门已过」代替本门。未收回执不得称「已接收」；可称「已发送」 |
 | `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，只写已装包一行（多包 `/wf/`），无注释、不预列未装包；其它项只列路径；写档案 §1、改 `.gitignore` |
 | `confirm_docs_migration` | inbound/工作文档搬迁、归档或临时清理 | 出示分类/覆盖对照/拟归档或清理清单与目标；确认后执行；不擅自删、不覆盖 |
-| `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料 |
+| `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料。**关闭=停止新范围/冻结版本线，不停止测试与缺陷修复**；测试未完又要开新迭代，优先「并行不关」，归档待测试完成 |
 | `confirm_skill_changes` | capabilities/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `gate: product-prd` | PRD 结构门（when: `prd_structure_required`） | 运行 `verify/Invoke-Gate.ps1 -Mode prd -Artifact <当前PRD>`（推荐显式路径）；BLOCKED → 不得进评审/定稿/交开发；DRAFT → 可审不可定稿；回执 `.gate/wf-product/prd.json`。light 缺追溯仅警告。P2+/P1↑/拟定稿或交开发时为真 |
 | `gate: product-review` | PRD 评审门禁（when: `ai_review_chosen`） | 仅选 B（AI）时运行 `-Mode review`；评审人≠作者；READY 后取 `gate_id`；选 A 不跑本门，须 HUMAN_APPROVED + `approved_by` + 自检摘要 + 复跑 `-Mode prd` 至 READY |
+| `gate: design-review` | 原型设计评审门禁（when: `ai_review_chosen`） | 仅选 B（AI）时运行 `-Mode design-review`；评审人≠作者、结论=通过；同目录必须有 `prototype-coverage.md`（覆盖矩阵硬；浏览器不可用时 `browser=unavailable` + 用户走查证据可过）且结论=通过；未 READY 不得交开发 |
 | `gate: uat-evidence` | UAT 门禁 | 运行 `verify/Invoke-Gate.ps1 -Mode uat`；AC 覆盖、证据、有条件通过的责任人/接受人；未 READY 不得写 UAT 通过。无 UAT 要求可写 `verdict: 不适用` + 依据/批准人，门放行但记警告 |
 | `gate: change-closure` | 变更/缺陷联动闭合 | 运行 `verify/Invoke-Gate.ps1 -Mode change`；§6 每项“已更新/不适用/待补”，待补有责任人/截止；未闭合不得关闭 |
 | `gate: writeback-receipt` | 平台回写门禁 | `Invoke-Gate.ps1 -Mode writeback -Artifact …`；单号+备注实质+状态取值+fileId/无附件；禁标题刷绿；无回执不得声称已回写 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
+
+> `confirm_task_intent` 是全局开工门（`AGENTS.md` §0 第一问），不依赖 step；其余门仍只认步上声明。
 
 > **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。
 

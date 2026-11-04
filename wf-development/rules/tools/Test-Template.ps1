@@ -41,7 +41,7 @@ $anchorCount = 0
 
 $instanceLeafs = @('project-profile.md', 'product-profile.md', 'activeContext.md', 'CHANGELOG.md', 'work-log.md', 'env-baseline.md', '提测单.md', '发布说明.md', 'INDEX.md', 'development-plan.md', 'handoff-ledger.md', '00-交接说明.md', '01-交接清单.md', '接收回执.md', 'INDEX.md', 'requirement-ledger.md')
 $instanceLeafs += @('文档索引.md', '工作日志.md', '开发计划.md', '产品计划.md', '测试计划.md', '项目档案.md', '产品档案.md', '环境基线.md', '资料索引.md', '交接台账.md', '变更记录.md', '待决项.md', '决策记录.md', '需求台账.md')
-$instanceLeafs += @('versioning.md', 'change-log.md', '改进项.md', 'requirement-pool.md', 'open-items.md', 'decisions.md', 'specials-index.md', 'coverage-ledger.md', '00-能力清单.md')
+$instanceLeafs += @('versioning.md', 'change-log.md', '改进项.md', 'requirement-pool.md', 'open-items.md', 'decisions.md', 'specials-index.md', 'coverage-ledger.md', '00-能力清单.md', 'parity-matrix.md', 'design-qa.md')
 $instanceLeafs += @('handoff-ledger.md', 'test-plan.md', 'test-report.md', 'test-analysis.md', 'smoke-checklist.md', 'product-plan.md', 'development-plan.md', 'work-log.md', 'project-profile.md', 'product-profile.md', 'env-baseline.md')
 $instancePrefixes = @('项目规范/', 'inbound/', 'inbound/项目文档/', 'inbound/原始素材/', 'docs/testing/', 'functional/', 'exploratory/', 'api/', 'pre-release/', 'docs/', 'development-plan.md', '.gate/', '{workroot}/00-governance/', '{workroot}/10-requirements/', '{workroot}/20-design/', '{workroot}/30-architecture/', '{workroot}/40-tasks/', '{workroot}/50-verification/', '04-回执/', '{workroot}/60-release/', '70-ops/', '{workroot}/80-retrospectives/', '_archive/', '历史/')
 $instancePrefixes += @('inbound/', 'docs/materials/', 'docs/development/', 'docs/product/', 'docs/testing/', 'wf-product/', 'wf-development/', 'wf-testing/', 'wf/')
@@ -471,10 +471,23 @@ elseif (-not $pyCmd) {
     $docSchemaStatus = '跳过（未找到 python）'
 }
 
+# ---------- Step packets ----------
+$packetStatus = '跳过'
+$packetValidator = Join-Path $rulesDir 'tools/Validate-StepPackets.ps1'
+if (Test-Path -LiteralPath $packetValidator) {
+    $packetOut = & powershell -NoProfile -ExecutionPolicy Bypass -File $packetValidator -PackageRoot $Root 2>&1
+    if ($LASTEXITCODE -eq 0) { $packetStatus = 'OK' }
+    else {
+        $packetStatus = '失败'
+        foreach ($l in $packetOut) { $toolFindings.Add("PACKET: $l") }
+    }
+}
+else { $packetStatus = '缺少 Validate-StepPackets.ps1' }
+
 # ---------- 输出 ----------
 Write-Output '=== 开发规范自检（精简版） ==='
 Write-Output "根目录：$Root"
-Write-Output ("[0/5] YAML/文档 schema：{0}；开发计划模板 {1}；密钥扫描 {2}" -f $yamlStatus, $docSchemaStatus, $secretStatus)
+Write-Output ("[0/5] YAML/文档 schema：{0}；开发计划模板 {1}；密钥扫描 {2}；步骤包 {3}" -f $yamlStatus, $docSchemaStatus, $secretStatus, $packetStatus)
 Write-Output ("[1/5] 引用可解析（扫描 {0} 处）：{1}" -f $refCount, $(if ($refFindings.Count -eq 0) { 'OK' } else { "$($refFindings.Count) 处待处理" }))
 Write-Output ("[2/5] 章节锚点（扫描 {0} 处）：{1}" -f $anchorCount, $(if ($anchorFindings.Count -eq 0) { 'OK' } else { "$($anchorFindings.Count) 处待处理" }))
 Write-Output ("[3/5] workflows→agents + 步标记词表 + 能力名：{0}" -f $(if ($wfFindings.Count -eq 0) { 'OK' } else { "$($wfFindings.Count) 处待处理" }))

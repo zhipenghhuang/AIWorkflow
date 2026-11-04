@@ -1,12 +1,9 @@
-# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
-# 需求/问题受理与变更（统一入口：新需求 / 变更 / 答疑 / 产品缺陷 / 开发不确定）
-# skills 绑定：各 step notes 内 `skills_required:` / `skills_optional:`；与 `skills/README`、读取索引同步。
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: change
   name: 需求/问题受理与变更
-  version: 3
-  read_index: rules/read-index.md
-
+  version: 4
 entry_points:
   需求受理: intake
   问题受理: intake
@@ -15,171 +12,116 @@ entry_points:
   需求答疑: intake
   开发不确定: intake
   测试发现产品缺陷: intake
-
 trigger:
-  - 需求 / 问题 / 缺陷（未分类；对话或文档）
-  - 需求变更 / 变更单
-  - 需求答疑 / 跟进
-  - 开发 / 测试发现产品缺陷，交产品确认
-  - 开发不确定项 / 待产品确认
-
+- 需求 / 问题 / 缺陷（未分类；对话或文档）
+- 需求变更 / 变更单
+- 需求答疑 / 跟进
+- 开发 / 测试发现产品缺陷，交产品确认
+- 开发不确定项 / 待产品确认
 steps:
-  - name: 受理与建档
-    id: intake
-    agent: pm-lead
-    hitl:
-      - name: confirm_understanding
-        when: understanding_needs_confirm
-      - name: confirm_iteration_close
-        when: iteration_close_needed
-      - name: confirm_docs_migration
-        when: docs_migration_needed
-    output: "{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md（模板 rules/templates/30-review-change/intake-disposition-template.md）"
-    notes: >
-      skills_required: change-management, customer-needs-discovery（新需求/客户反馈时）｜skills_optional: —
-      统一入口：对话、文档（md/txt/docx/pdf/链接/截图）、缺陷单、测试报告、提测单均可；
-      文档能读则读，不能读则请用户给关键段/截图，禁假装已读。
-      抽取：提出人/来源/日期、原始描述、期望、关联需求/PRD/AC、版本/环境/构建、证据、时间要求。
-      技能：`skills/change-management/SKILL.md` + `skills/customer-needs-discovery/SKILL.md`（新需求/客户反馈/需求洞察时先读）。
-      **先还原需求，再建档**：客户说的“想要 X”先还原为问题（谁/场景/代价/目标/非目标）；单个客户/领导/销售说法标样本与证据等级，不直接当市场结论。
-      澄清**按 `rules/core/clarification.md` 执行**；信息不足标「待确认/假设」，禁臆造。**未双确认不得**分诊定稿 / 写正式 PRD / 计划；仅记草稿/待确认。
-      `confirm_understanding`：按 `rules/core/clarification.md` 出示理解复述+方案要点；确认后才进入 triage/PRD/计划。
-      生成受理编号（RQ/CR/BUG-…），落受理单；同一问题去重合并，重复项指向主条目。
-      若输入含外部文档/新 PRD/原型/special/方案变更/未决确认：先按 `rules/doc-governance.md` §2～§4 输出【入站分析】（含建议档位）；确认前不改文件。确认后：主副本必留原件根 `inbound/`并索引 → 按需复制 → 按需 A0～A2 吸收（本包）；原件不迁。本包新写正式产物直接落工作区。放入≠分发他包。
-      确认采纳或换代/换主题后按 `rules/doc-governance.md` §7（不确定则 `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 §7.1 关账，T2/T4 保留仍被引用的 PRD/原型基线；跳过仅发版项）。
-      关账 materials：**必做**用最新定稿覆盖刷新关闭版 `{prev}/` 并标 superseded，再开 `{next}/`（默认 overwrite-latest；显式保留历史才升 rev）。
-      **文档抽取分片**（子代理编排 §2）：≥3 份新文档/长文档 → 只读扇出（每份返回来源/期望/证据/关联/时间 ≤30 行）；建档与分诊集中；单份直做。
-
-  - name: 分诊与定性
-    id: triage
-    agent: pm-lead
-    output: 分诊结论（写入受理单 §3）
-    notes: >
-      skills_required: change-management｜skills_optional: —
-      按技能 §2 判定树分类：新需求 / 需求变更 / 答疑 / 产品缺陷 / 实现缺陷 / 技术不确定 / 重复 / 无效。
-      分诊前确认需求理解已确认；理解与实际不符（例如把客户方案当问题）→ 先回 intake 澄清，不硬分诊。
-      产品缺陷必须给依据：PRD/设计原文 + 现网或测试证据 + 相符证明（实现符合 PRD 但口径不合理/有风险）；
-      无依据按实现缺陷或「待确认」处理，禁把实现缺陷甩成产品缺陷。
-      判定处置路径：立即修 / 下版 / 不修 / 退回开发 / 补充信息 / 进需求池 / 进 PRD。
-      结论写入受理单，不在此实施。
-
-  - name: 新需求与优先级（条件）
-    id: new_requirement
-    when: new_requirement
-    agent: pm-analyst
-    hitl: confirm_scope
-    hitl_when: scope_decision_required
-    output: "{workroot}/requirement-pool.md 更新 + 范围结论"
-    notes: >
-      条件步：分诊为**新需求**才走；已定稿基线的需求变更/defects/答疑跳过（走 assess/decide 的 confirm_change）。
-      技能：`skills/customer-needs-discovery/SKILL.md` + `skills/requirement-discovery-and-prioritization/SKILL.md`（先读）。
-      入需求池（R-xx，价值/成本/风险/优先级/版本/状态），决定本期/下期/不做；每条附来源/证据/假设；未确认的需求不排期、不承诺版本。
-      优先级依据=确认的需求+证据，不用竞品/领导偏好/单个客户替代；拿不准向上一档并说明。
-      confirm_scope：出示范围（MVP）/排除/粗排期/依赖风险；批准后进入 assess 或路线图。
-      下期需求 → 更新产品计划 §2 路线图与需求池状态，不产生本期变更单。
-
-  - name: 影响评估
-    id: assess
-    when: needs_impact_assessment
-    agent: pm-lead
-    output: 影响评估（受理单 §4；改动已定稿基线时同步 {workroot}/{ver}/30-changes/变更-{主题}-{yyyyMMdd}.md §3）
-    notes: >
-      评估：需求/范围、AC/验收、成本/排期、技术/测试风险、数据/合规/权限、回滚、依赖。
-      列出受影响产物：PRD 正文/§13 AC、原型、交付计划、产品计划 §0/§8、需求池、UAT、发布检查/GTM、通知对象。
-      改动已定稿基线 → 必须产生变更单（模板 `rules/templates/30-review-change/change-request-template.md`，**§2.1 差量表 Now→Proposed 必填**），不得只写受理单 §4。
-      结论：接受/拒绝/延后/下版/退回开发/补充信息 + 建议方案。
-      **影响面分域**（子代理编排 §2）：跨版本/高价值且 ≥3 影响域 → 只读分域评估（PRD/AC、计划/里程碑、UAT/发布、通知/客服），各返回受影响/依据/动作 ≤30 行；影响评估与变更单集中写，不并行改同一文档。
-      可选输入（不强制）：缺陷单、测试报告、提测单、开发方案/附件（任意路径/来源）；缺则不阻塞，一句话说明。
-
-  - name: 处置确认
-    id: decide
-    when: decision_required
-    agent: pm-lead
-    hitl:
-      - name: confirm_change
-        when: change_requested
-      - name: confirm_plan
-        when: plan_level_change
-    output: 处置结论（受理单 §5；改动已定稿基线时写变更单 §4）
-    notes: >
-      confirm_change：出示分诊结论/依据/影响/处置选项（立即修/下版/不修/退回开发/补充信息）与变更单要点（**含 §2.1 差量表**）；
-      产品缺陷必须给 PRD/设计对照与相符证明；实现缺陷退回也要出示依据与回执，但不产生变更单；批准后才实施。
-      confirm_plan：影响版本范围/里程碑/KPI 时叠加计划门；只改需求细节不触发。
-      纯答疑 → 受理单即答复记录，可跳过本门。
-
-  - name: 联动落地
-    id: apply
-    when: change_apply_required
-    agent: pm-lead
-    on_fail: 回 decide/受理单；拒绝/重复/实现defects/补充信息不得更新基线
-    output: 更新后的 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查 + 受理单 §6 联动清单
-    notes: >
-      **仅接受/下期/立即修且确有联动项才进入**；拒绝/重复/不修/退回开发/补充信息不进本步，只落受理单/回执与下一步。
-      按受理单 §6 逐项更新，只写现行有效；每项标「已更新/不适用/待补」，待补写责任人与截止，不得静默漏项。
-      联动清单未闭合/待补无主 → 不得关闭；闭合门在下一步 `verify` 统一跑（先更新、后对账）。
-      PRD 正文/§13 AC/§16.4 变更记录；原型/交互；交付计划范围/里程碑；产品计划 §0/§2/§7/§8/§10/§11；
-      需求池状态；UAT 验收范围；发布检查/GTM；开发/测试/运营/客服通知包。
-      若缺陷在平台且未走 defect 工作流，按 `rules/defects/platform-collaboration.md` 回写处置结论/附件；平台不可用则由用户转贴（禁猜接口）。
-      变更单与受理单互相链接；旧版归档，不堆「最终版」。
-      按 §6 判 C0～C3；默认更新变更单/PRD。`CHG` 包仅多角色冻结/签收/仓外/点名时停问建议；确认后 `handoff.send`。C2/C3 先重基线。
-      联动审计（子代理编排 §2）：≥4 份受影响文档 → 单写手完成后派 verifier-agent 只读核验（受理单 §6＋改动产物），返回未更新/旧口径/待补 ≤30 行；不并行写同一文档。
-      输出「联动变更清单」+「最新产物路径」。
-
-  - name: 重审（条件）
-    id: review
-    when: substantive_change
-    agent: reviewer-agent
-    gate: product-review
-    gate_type: machine
-    gate_when: ai_review_chosen
-    hitl:
-      - name: select_review_mode
-        when: landing_doc_review_needed
-      - name: confirm_prd
-        when: finalize_requested
-    output: 评审记录（{workroot}/{ver}/10-requirements/评审-{主题}-{yyyyMMdd}.md）
-    notes: >
-      条件步：实质变更（范围/AC/状态机/权限/数据rules/NFR/版本目标）才走；纯文字澄清跳过。
-      **先 STOP【评审方式】**（`skills/artifact-review`）：A 自行通过｜B AI 独立审；未选不得恢复定稿。
-      **选 A**：出示【完稿自检摘要】+ 变更影响/AC/追溯 → HUMAN_APPROVED → `confirm_prd`；不跑 `-Mode review`；须 `-Mode prd` 非 BLOCKED。
-      **选 B**：`skills/review-and-finalize`；先写评审记录再 `-Mode review`；未 READY 不得恢复定稿。
-      **评审分片**：大 PRD 维度扇出；评分卡只算一次。
-      confirm_prd：通过才恢复「已定稿」并回写 `status: APPROVED`；需修回 apply（≤1）。未重审不得标已定稿。
-
-  - name: 验证与关闭
-    id: verify
-    when: needs_linked_update
-    agent: pm-lead
-    gate: change-closure
-    gate_type: machine
-    output: 验证结果（受理单 §7 / UAT 更新 / 变更单 §5）
-    notes: >
-      运行 `verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）；受理单联动清单未闭合、验证结果缺失 → 不得关闭。
-      未 READY → **保持受理单打开，不得进入 wrap/commit 冒充完成**；先补联动/证据或报阻塞。
-      影响 AC/UAT/发布 → 受影响项重验（结果+证据），更新 UAT 记录与发布检查；
-      未 UAT/未发布 → 以测试报告/回归/冒烟证据关闭；确实不适用写原因。
-      开发/测试回执：处置结论、需要做什么、影响 AC、目标版本、负责人/截止。
-      退回开发 → 产品侧回执后关闭受理单，缺陷状态由开发/测试流程跟踪，禁写「已修复」；
-      下版 → 回池/路线图后关闭本期受理单；不修 → 留理由与接受人后关闭。
-      处置=补充信息/仍有待补项 → 保持打开，不关闭；未验证不得关闭。
-      关单与回执：正式签收/C2·C3/发布相关 → 须回执（检查 `handoff-ledger.md`：受影响角色是否已接收/有条件接收；未回执列待回执与升级对象，不得关单）；仅通知/同仓直读/用户代收 → 台账「已发送」+用户确认即可关闭。未回执不得称「已接收/已交接完成」。
-      关闭后更新产品计划 §0/§7/§10、activeContext；资料变更同步 `inbound/INDEX.md`。
-
-  - name: 收尾
-    id: wrap
-    agent: pm-lead
-    output: 【任务收尾】（受理/处置/缺陷等置第 1 点）
-    notes: >
-      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写。
-      更新产品计划 §0/§7/§10、activeContext、 `inbound/INDEX.md`；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未verify/待回写项明示。
-      本步先出骨架与拟提交清单，提交门在下一步。
-
-  - name: 拟提交
-    id: commit
-    output: 拟提交确认结果
-    agent: pm-lead
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    tools:
-      - git
-    notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` §3；提交后补一行结果，不重复六段。
+- name: 受理与建档
+  id: intake
+  must_read:
+  - rules/packets/change/intake.md
+  agent: pm-lead
+  hitl:
+  - name: confirm_understanding
+    when: understanding_needs_confirm
+  - name: confirm_iteration_close
+    when: iteration_close_needed
+  - name: confirm_docs_migration
+    when: docs_migration_needed
+  output: '{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md'
+  notes: 统一入口建档；先还原问题再分诊；双确认未过不入池/不写正式 PRD。 外部输入/关账见 doc-governance REF；方法只认 change-management + clarification 必做。
+- name: 分诊与定性
+  id: triage
+  must_read:
+  - rules/packets/change/triage.md
+  agent: pm-lead
+  output: 分诊结论（写入受理单 §3）
+  notes: 按技能 判定树；理解未确认先回 intake。产品缺陷须依据；无依据禁甩锅。
+- name: 新需求与优先级（条件）
+  id: new_requirement
+  must_read:
+  - rules/packets/change/new_requirement.md
+  when: new_requirement
+  agent: pm-analyst
+  hitl: confirm_scope
+  hitl_when: scope_decision_required
+  output: '{workroot}/requirement-pool.md 更新 + 范围结论'
+  notes: 仅新需求；入池须证据；confirm_scope 后进 assess/路线图。细节只认技能必做。
+- name: 影响评估
+  id: assess
+  must_read:
+  - rules/packets/change/assess.md
+  when: needs_impact_assessment
+  agent: pm-lead
+  output: 影响评估（受理单 §4；改基线时同步变更单 §3）
+  notes: 改已定稿基线须变更单且 差量表必填。方法只认 change-management 。
+- name: 处置确认
+  id: decide
+  must_read:
+  - rules/packets/change/decide.md
+  when: decision_required
+  agent: pm-lead
+  hitl:
+  - name: confirm_change
+    when: change_requested
+  - name: confirm_plan
+    when: plan_level_change
+  output: 处置结论（受理单 §5；改基线时写变更单 §4）
+  notes: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑可跳过本门。
+- name: 联动落地
+  id: apply
+  must_read:
+  - rules/packets/change/apply.md
+  when: change_apply_required
+  agent: pm-lead
+  on_fail: 回 decide/受理单；拒绝/重复/实现缺陷/补充信息不得更新基线
+  output: 更新后的 PRD/AC/原型/计划等 + 受理单 §6
+  notes: 仅接受/下期/立即修且有联动项； 逐项闭合。平台回写见 defects REF；CHG 包走 handoff。
+- name: 重审（条件）
+  id: review
+  must_read:
+  - rules/packets/change/review.md
+  when: substantive_change
+  agent: reviewer-agent
+  gate: product-review
+  gate_type: machine
+  gate_when: ai_review_chosen
+  hitl:
+  - name: select_review_mode
+    when: landing_doc_review_needed
+  - name: confirm_prd
+    when: finalize_requested
+  output: 评审记录（{workroot}/{ver}/10-requirements/评审-{主题}-{yyyyMMdd}.md）
+  notes: STOP 选 A/B；选 B 跑 -Mode review。方法只认 artifact-review / review-and-finalize 必做。
+- name: 验证与关闭
+  id: verify
+  must_read:
+  - rules/packets/change/verify.md
+  when: needs_linked_update
+  agent: pm-lead
+  gate: change-closure
+  gate_type: machine
+  output: 验证结果（受理单 §7 / UAT / 变更单 §5）
+  notes: Invoke-Gate -Mode change；未 READY 不得 wrap 冒充完成。回执未收不得称已接收。
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/change/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: pm-lead
+  output: 【任务收尾】（受理/处置/缺陷等置第 1 点）
+  notes: 只认 closeout-skeleton；含遵守自检；同步 plan/INDEX/activeContext（triad）。拟提交留 commit。
+- name: 拟提交
+  id: commit
+  must_read:
+  - rules/packets/change/commit.md
+  agent: pm-lead
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  tools:
+  - git
+  output: 拟提交确认结果
+  notes: 无变更跳过；拟提交字段见 workflow.md REF；默认仅本地提交。

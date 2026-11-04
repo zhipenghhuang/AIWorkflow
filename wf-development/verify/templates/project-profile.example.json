@@ -20,17 +20,27 @@
     "viewports": ["360x800", "768x1024", "1280x800"],
     "pages": ["/"],
     "evidenceDir": ".gate/frontend",
+    "capture": "python scripts/frontend_capture.py --config capture.json",
     "requireScreenshots": true,
+    "requireGeneratedEvidence": true,
+    "requireParity": true,
+    "requireParityMatrix": true,
+    "routeCoverage": "route-coverage.json",
+    "prototype": "inbound/V0.4/原型.html",
+    "prototypeManifest": ".gate/prototype/prototype.json",
+    "designQaItems": 20,
     "requireStates": ["loading", "empty", "error", "permission"],
     "requireConsoleClean": true,
     "requireNetworkCheck": true,
-    "requireA11y": false
+    "requireA11y": false,
+    "_capture_note": "requireGeneratedEvidence=true（L2+ 默认）：门先跑 capture，再校验 evidence.json 与截图哈希；手写证据不算。capture 参考 verify/frontend/capture_example.py"
   },
   "timeouts": {
     "build": 600,
     "lint": 300,
     "test": 600,
     "e2e": 900,
+    "capture": 900,
     "integration": 900,
     "security": 900
   }

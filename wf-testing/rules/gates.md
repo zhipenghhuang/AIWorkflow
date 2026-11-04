@@ -8,19 +8,20 @@
 | 门 | 步上声明 | 动作 |
 | --- | --- | --- |
 | 门1 | `select_mainread`（when: `mainread_unspecified` / `mainread_unspecified_for_generate` / `exploratory_mainread_missing`） | analyze/plan/generate（及探索）主读路径未确认 → STOP 一问；已选定或唯一正式版已在 §0/理解门写明待确认 → 可续；不得重问 |
+| 任务开工门 | `confirm_task_intent`（全局，不依赖 step） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。细则 `execution-contract.md` §1.0。 |
 | 意图门 | `confirm_intent`（when: `intent_needs_confirm`） | 仅歧义/外发未对齐/新开交付时出示【意图理解】并停等；意图已清跳过（可一行回执即做）。细则 `clarification.md` §0。≠ 理解门；≠ 交接门 |
 | 理解门 | `confirm_understanding`（when: `understanding_needs_confirm`） | **主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言 |
-| 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门。版本级须先过：分析表 §2.2/§2.3 无空格 + §3.8 四卷 + §3.9 批次表；缺项=计划门不通过 |
-| 门2 | `confirm_scope`（when: `scope_needs_confirm`） | 开跑前一行：主读/计划范围/环境 → 确认；同会话同载体只一次；计划驱动已确认 → 跳过并附【已预授权执行：按计划】 |
+| 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门。版本级须先过：分析表 §2.2/§2.3 无空格 + §2.4 依据覆盖无缺行 + §3.8 四卷 + §3.9 批次表；缺项=计划门不通过 |
+| 门2 | `confirm_execution_scope`（when: `scope_needs_confirm`） | 开跑前一行：主读/计划范围/环境 → 确认；同会话同载体只一次；计划驱动已确认 → 跳过并附【已预授权执行：按计划】 |
 | 门3 | `confirm_platform`（when: `standalone_generate_with_pending` / `platform_ask_required` / `platform_submit`） | 有拟入库、须问交平台/新建缺陷单/回写 → STOP（交平台用专用确认句）；**≠** git；否则跳过 |
-| git提交 | `confirm_commit` | 【拟提交·仓库】（见 `workflow.md` §4.1；≡ 产品/开发 `confirm_commit`）；≠收尾第 2 点「待提交摘要」；≠门3 |
+| git提交 | `confirm_commit` | 【拟提交·仓库】（见 `workflow.md` §4.1；≡ 产品/开发 `confirm_commit`）；**默认仅本地提交**，推送须点名并单独确认；≠收尾第 2 点「待提交摘要」；≠门3 |
 | 迁移/资料门 | `confirm_docs_migration`（when: `docs_migration_needed`） | 资料收取/分类/改名/归档、或旧结构迁移前列清单与目标；确认后执行 |
 | 备注门 | `confirm_remark`（when: `remark_writeback`） | 拟关/激/解决/标重复/补充澄清/回归写回 → 先列 id+结论+备注全文；确认后执行 |
 | 入库门 | `confirm_gitignore` | 四选一确认资产范围；规范包默认不跟踪，只写已装包一行（多包 `/wf/`），无注释、不预列未装包；其它项只列路径；写基线入库节；接入时一次 |
 | 技能变更门 | `confirm_skill_changes`（when: `skill_changes_pending`） | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
-| 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料 |
+| 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料。**关闭=停止新范围/冻结版本线，不停止测试与缺陷修复**；测试未完又要开新迭代，优先「并行不关」，归档待测试完成 |
 | 交接门 | `confirm_handoff`（when: `handoff_send_required`） | **凡拟生成任一 HO 或缺陷统一导出必停**：出示类型/接收方/必带摘要/落点（缺陷须写清「本批一份单文件或单 EXPORT 目录」）/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「报告门/计划门/批末/平台已交」代替本门。有平台交缺陷 → 本门不因「补导出」置真。未收回执不得称「已接收」；可称「已发送」 |
-| 覆盖闸 | `gate: coverage-map`（when: `functional_coverage_required`） | 功能全量/专项新生成/补生成：运行 `verify/Invoke-Gate.ps1 -Mode coverage`；§3 映射无空行且 ID 真实；§4 须含深度档自检与视觉基础行；分析表 §2.2/§2.3 无空格；不适用于其它轨 |
+| 覆盖闸 | `gate: coverage-map`（when: `functional_coverage_required`） | 功能全量/专项新生成/补生成：运行 `verify/Invoke-Gate.ps1 -Mode coverage`；§3 映射无空行且 ID 真实；§4 须含深度档自检与视觉基础行；分析表 §2.2/§2.3 无空格、§2.4 依据覆盖无缺行；不适用于其它轨 |
 | 用例评审闸 | `gate: case-review`（when: `case_review_required`） | 功能全量/专项 T1+（或点名评审）：运行 `verify/Invoke-Gate.ps1 -Mode review`；评审记录存在、结论可解析、独立性声明、阻断未清不得放行；回执 `.gate/wf-testing/review.json`；未 PASS 不得写「放行执行/评审通过」 |
 | 评审方式门 | `select_review_mode`（when: `landing_doc_review_needed`） | **STOP 二选一**：A 自行｜B AI（testcase-reviewer）；可附自定义焦点。适用面见 `landing_doc_review_needed`（计划/分析表/功能/接口/发布前/探索式）。同产物只问一次；未选不得宣称评审通过/计划可驱动/进 P2 |
 | 评审确认门 | `confirm_review`（when: `review_needs_confirm`） | 结论=需修后放行、有条件放行须接受人、或与计划 P2 入口冲突 → STOP；已放行且无未接受重要项 → 跳过 |
@@ -30,8 +31,12 @@
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 | 回写模式 | `verify/Invoke-Gate.ps1 -Mode writeback` | 同上（gate 与命令的单一出处）；未过不得声称已回写 |
 
+> `confirm_task_intent` 是全局开工门（`AGENTS.md` §0 第一问），不依赖 step；其余门仍只认步上声明。
+
 > **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。  
-> **gate 2.2**：`test_gate.py` 对新格式硬检 `analysis-structure`/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；旧格式默认 `skip`，加 `-Strict` 变 FAIL。
+> **gate 2.2**：`test_gate.py` 对新格式硬检 `analysis-structure`（含 §2.4 依据覆盖）/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；旧格式默认 `skip`，加 `-Strict` 变 FAIL。
+
+**依据覆盖前置（硬）**：`coverage-map` 前须满足 `rules/core/verification.md` §3.1；缺行=P0 阻断。
 
 ## 2. `when` / `gate_when` 词表
 
@@ -39,7 +44,7 @@
 
 `gate_when`：`functional_coverage_required`｜`case_review_required`（不满足 → 跳过该 gate，步骤不跳过）。
 
-`landing_doc_review_needed`：下列任一待审且本会话该产物尚未选定 A/B → 真：**计划**（T1+ 首版/换代/范围·准出·缺陷策略实质变）、**测试分析表**（T2/T3 或歧义≥2）、**功能/专项用例**（T1+）、**接口资产**（T1+ 生成或计划驱动/进准出）、**发布前**（T2+ 或发版准出/计划已列）、**探索式**（计划 §12 纳入且 T2+，或报告引用进准出）。用户点名「自行通过/我审」→ A 后置假；「AI 评审」→ B 后置假；T0/专项轻量追加可提示一次或默认 A。
+`landing_doc_review_needed`：下列任一待审且本会话该产物尚未选定 A/B → 真：**计划**（T1+ 首版/换代/范围·准出·缺陷策略实质变；**T0/普通 T1 轻量且用户未点名 → 假**）、**测试分析表**（T2/T3 或歧义≥2）、**功能/专项用例**（T1+）、**接口资产**（T1+ 生成或计划驱动/进准出）、**发布前**（T2+ 或发版准出/计划已列）、**探索式**（计划 §12 纳入且 T2+，或报告引用进准出）。用户点名「自行通过/我审」→ A 后置假；「AI 评审」→ B 后置假；T0 可 SELF_CHECKED。
 
 `case_review_required`：功能全量/专项且 T1/T2/T3 **且用户选 B**，或点名机检 → 真；选 A、T0 → 假（仍须 HUMAN_APPROVED）。接口/发布前/探索式：机器门可不跑，但 **A/B 或 HUMAN_APPROVED 评审记录不可省**（见多轨质量标准 §4）。
 
@@ -47,7 +52,7 @@
 
 `scope_needs_confirm`：非计划驱动、计划状态非「已确认/执行中/待关闭」或范围/环境实质变化时为真；计划驱动且 §0 为已确认/执行中/待关闭时为假。期中变更 A/B 并入后保持已确认→假；C 变更中→真（计划门）。
 
-`understanding_needs_confirm`：输入含 PRD/迭代方案/原型/接口或技术文档、存在 2 个以上实质歧义/冲突、T2/T3，或用户要求计划/用例/准出时真；已有**本轮当前范围**确认的需求理解包/测试分析表或纯信息查询/机械低风险操作时假。**计划驱动 execute**：`{workroot}/test-plan.md` §0 为已确认/执行中/待关闭，且本轮范围测试分析表可打开（或计划声明不适用+依据）→ **假**（不重复理解门；门2 仍按 `scope_needs_confirm`）。缺理解包却要宣称功能准出 → 真。
+`understanding_needs_confirm`：输入含 PRD/迭代方案/原型/接口或技术文档、存在 2 个以上实质歧义/冲突、T2/T3，或用户要求计划/用例/准出时真；已有**本轮当前范围**确认的需求理解包/测试分析表或纯信息查询/机械低风险操作时假。**T0 且范围已钉**（补丁范围/环境/准出口径本轮已写死或计划 §0 已确认）→ **默认假**。**计划驱动 execute**：`{workroot}/test-plan.md` §0 为已确认/执行中/待关闭，且本轮范围测试分析表可打开（或计划声明不适用+依据）→ **假**（不重复理解门；门2 仍按 `scope_needs_confirm`）。缺理解包却要**宣称功能准出** → **仍真**。
 
 同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复（`docs_migration_needed` 置假）。
 

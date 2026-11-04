@@ -11,8 +11,8 @@
 | `00-onboarding/workspace-index-template.md` | onboard.docs | `{workroot}/INDEX.md`（工作区导航；单包即 `docs/INDEX.md`） |
 | `00-onboarding/project-overview-index-template.md` | onboard.docs（多包 / 保留原目录） | `docs/INDEX.md`（总览；不写状态） |
 | `00-onboarding/inbound-index-template.md` | onboard.materials / 文档治理 | `inbound/INDEX.md`（全量原件登记） |
-| `00-onboarding/materials-index-template.md` | materials.publish | `docs/materials/INDEX.md`（项目级） |
-| `00-onboarding/materials-version-readme-template.md` | materials.publish | `docs/materials/{ver}/README.md` |
+| `00-onboarding/materials-index-template.md` | materials.index | `docs/materials/INDEX.md`（项目级） |
+| `00-onboarding/materials-version-readme-template.md` | materials.index | `docs/materials/{ver}/README.md` |
 | `00-onboarding/project-profile-template.md` | onboard.profile | 项目根 `project-profile.md` |
 | `00-onboarding/project-readme-template.md` | onboard.profile / 点名生成·更新 README | 按用户偏好择块拼接（非定死大纲）；已有勿整文件覆盖；规则见 `rules/core/project-readme.md` |
 | `00-onboarding/version-policy-template.md` | onboard.profile / control.init | 项目级版本口径一页（版本格式/升级/环境/tag/审批） |

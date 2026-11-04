@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # 能力与技能体检（测试轨）
 
 > **读取级别：参考**。仅 `workflows/skill-audit.yaml` 或点名体检时读；业务任务不读。  

@@ -123,4 +123,4 @@ next_action=AWAIT_CONFIRM
 （无法确认/跳过项也各一行说明）
 ```
 
-本块置入【任务收尾】第 1 点；「完成了什么」含写回结果短段（单号清单）+「影响：」，禁简陋；`汇报：` 须换行独占；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §2。
+本块置入【任务收尾】第 1 点；「完成了什么」含写回结果短段（单号清单）+「影响：」，禁简陋；`汇报（可直接复制）：` 须独立成块（六点前）；第 2～6 点按 `rules/templates/90-handoff/closeout-skeleton.md` §1。

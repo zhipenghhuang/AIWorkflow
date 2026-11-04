@@ -23,7 +23,7 @@
 | 需求 | `requirements` |
 | 设计 | `design` |
 | 计划 | `plan` |
-| 提测 | `qa` |
+| 提测 | `qa`（落盘目录名=`提测/`；category id=`qa`，二者对照勿混） |
 | 报告 | `report` |
 | 缺陷 | `bug` |
 | 回归/修复 | `fix` |

@@ -1,16 +1,9 @@
-# 读取：仅当前 step 块（当前 - name: 至下一个）；全文件仅供维护，禁止整文件通读。
-# AI 测试主流程（声明式 Workflow · 执行宿主执行）
-# - 口令可切入任一步：仅执行 → 直接 execute（勿强制 analyze）；analyze/plan/generate 主读路径未确认 → 门1（一问即止，禁重问）
-# - 无「wf-testing onboard: done」（兼容旧 landing=ok）时才按 onboard-agent 清单核验一次，打标后免检（AGENTS 开工第3点）
-# - 正式轨：功能全量/专项 · 探索式 · 随机业务流程（计划外） · 接口 · 发布前（工作流 §1.2 + rules/tracks/）
-# - 确认门只认步上 hitl（标量或列表，可带 when）；条件不满足则该门跳过，不算违例
-# - 入口即止：单步口令只执行该步 + 收尾；「按计划执行」才按链走 analyze→plan→generate→review-cases→execute→report
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: testing
   name: AI测试流程
-  version: 18
-  read_index: rules/read-index.md
-
+  version: 19
 entry_points:
   分析需求: analyze
   理解PRD: analyze
@@ -36,7 +29,6 @@ entry_points:
   执行: execute
   跑: execute
   专题: execute
-  阶段二: execute
   当前状态: status
   计划状态: status
   下一步: status
@@ -69,207 +61,136 @@ entry_points:
   准出评估: report
   用例脚本: generate
   更新脚本: generate
-
 trigger:
-  - 生成测试资产
-  - 执行测试
-  - 测试计划 / 测试报告 / 生成测试计划
-  - 本期变更 / 计划变更 / 增量变更 / 新文档更新测试计划
-  - 按计划执行 / 执行测试计划 / 按测试计划执行 / 继续测试计划
-  - 当前状态 / 下一步
-  - 执行专题
-  - 阶段二
-  - 用例脚本（编写/执行）
-  - 用例评审 / 评审用例 / 测试用例评审
-  - 探索式 / 探索测试 / 随机业务流程 / 业务随机 / 接口 / 发布前（同文件，按轨契约分产物；随机为计划外）
-
+- 生成测试资产
+- 执行测试
+- 测试计划 / 测试报告 / 生成测试计划
+- 本期变更 / 计划变更 / 增量变更 / 新文档更新测试计划
+- 按计划执行 / 执行测试计划 / 按测试计划执行 / 继续测试计划
+- 当前状态 / 下一步
+- 执行专题
+- 用例脚本（编写/执行）
+- 用例评审 / 评审用例 / 测试用例评审
+- 探索式 / 探索测试 / 随机业务流程 / 业务随机 / 接口 / 发布前（同文件，按轨契约分产物；随机为计划外）
 preflight:
-  skip_if: "activeContext wf-testing onboard: done"
+  skip_if: activeContext 中 wf-testing onboard 的值为 done
   once: 按 agents/onboard-agent.yaml 接入清单核验
-  on_fail: "onboard → write wf-testing onboard: done → resume"
-
+  on_fail: 'onboard → 写 wf-testing onboard: done → resume'
 steps:
-  - name: 当前状态与下一步
-    id: status
-    agent: test-planner
-    output: 当前阶段/门/下一动作/需人工
-    notes: >
-      只读 `{workroot}/test-plan.md` §0/§9/§16：报备计划状态、当前阶段、当前门、下一动作、需人工项、健康度。
-      「下一步」只报动作与入口，不执行；「当前状态」只读，不重写计划。
-      有未吸收新文档/变化 → 先走 `本期变更`（plan 步的期中变更逻辑），不直接改用例/脚本。
-      有未回执/退回/阻断执行的交接包 → 先走 `workflows/handoff.yaml` status/receive，不直接进入执行。
-      测试包独立运行；PRD/提测单/UAT 为可选输入，缺则按主读/基线执行，不阻塞。
-      结束对照 `rules/templates/90-handoff/closeout-skeleton.md` §2（只读可 2～3 行简报）。
-      输出首条：route=workflow:testing | step=status | phase=… | gate=… | next_action=…
-
-  - name: 分析需求
-    id: analyze
-    agent: test-analyzer
-    hitl:
-      - name: select_mainread
-        when: mainread_unspecified
-      - name: confirm_understanding
-        when: understanding_needs_confirm
-    output: "{workroot}/test-analysis.md（必出·含 §0 Brief+Delta；模板 测试分析表模板）+ {workroot}/说明-{主题}-用户版-{yyyyMMdd}.md（T1+ 用户可见变化必出；L0/无可见变化可省并记录）；T2/T3 可另出需求理解长文；旧「分析短表」文件须迁入本路径并补 §0"
-    notes: >
-      门/产出：主读判定（点名路径 > 唯一正式版 > 计划已登记 > 否则一问）；多份须主读+对照；冲突不静默选边，用户可声明冲突SSOT。仍须按模板产出**测试分析表**（**§0 Brief+本期差量表**／覆盖单元=验证点，含 Delta ID/类型/方法/归属／**§2.2 模块×面矩阵**／**§2.3 方法×规则矩阵**／§3.1 变更影响／§6 设计文档覆盖／§7.1 充分性／§7.2 核心链路／影响面／歧义／章节回执），禁跳过致无表或无 §0。有产品/开发 Delta → 引用对账。后续 plan/generate **双读原文+分析表**。
-      用户版说明：与测试分析表同轮生成或校验；优先读开发/产品已有用户版或变更摘要，缺则按 `rules/templates/10-planning/user-facing-change-notes-template.md` 生成。只写用户可见变化/业务全景/角色影响/操作变化/不变/FAQ/AI 索引；重点写测试可观察结果、角色/数据/环境、回归影响；禁 S1/G6/P0/OPEN/缺陷号/任务ID/内部路径；不替代测试分析表/AC/oracle。T1+ 且存在用户可见变化 → 必出；L0 或纯内部无可见变化 → 在分析表 §0 写「无用户可见变化」，不单独出。
-      交接包输入 → 先 `handoff.receive`；新资料 → `rules/doc-governance.md` §3（确认前不改文件）。
-      方法：`skills/test-basis-analysis`（必用）+ 按需 `test-analysis-and-plan` / `test-data-and-environment` / `ai-feature-testing`；澄清见 `rules/core/clarification.md`。
-      预期须有来源；无来源=GAP；现网不作预期。关键歧义未裁决 → 不写确定计划/用例。
-      confirm_understanding：**主屏出示 §0 Brief+差量表** + oracle/冲突·GAP 计数；确认后才 plan/generate。
-
-  - name: 测试计划
-    id: plan
-    agent: test-planner
-    hitl:
-      - name: select_mainread
-        when: mainread_unspecified
-      - name: confirm_understanding
-        when: understanding_needs_confirm
-      - name: select_review_mode
-        when: landing_doc_review_needed
-      - name: confirm_review
-        when: review_needs_confirm
-      - name: confirm_plan
-        when: plan_needs_confirm
-      - name: confirm_iteration_close
-        when: iteration_close_needed
-      - name: confirm_docs_migration
-        when: docs_migration_needed
-    notes: >
-      产出/更新 `{workroot}/test-plan.md`：只读模板 **§0+本轮待填节**（禁整模板通读）。计划是唯一编排载体（§3.2/§9/§10/§11/§12）。版本级 §3.8 固定四卷（V1 主链/V2 功能/V3 方法/V4 收口，不适用写 N/A）+ §3.9 批次/子代理表必填；T0/T1 轻量计划按同机制裁剪。
-      无测试分析表或表缺 §0 差量表（兼容旧称分析短表）→ 先回 analyze。范围/类型/编排须引用 analyze；未裁决歧义不得写成确定项。有用户版业务变化说明（如有）→ 作为业务上下文读取，帮助理解角色/流程/范围；优先级/回归边界/准出仍以分析表+原文+计划为准。
-      门：`confirm_understanding` 未过或无 §0 不得「已确认」；T1+ 实质计划 → `select_review_mode` 后按 `skills/test-artifact-review` 对计划/分析审；需修/有条件 → `confirm_review` 停；通过后才 `confirm_plan`（摘要：范围/类型/轨道/缺陷策略/准出；同会话同载体一次）。
-      交接包 → `handoff.receive`；`PLAN` 包先问后发。方法：`skills/test-analysis-and-plan`；数据/评审技能按需。
-      期中变更/关版本：CR+影响分析；A/B 就地更、C 回计划门、D 缺陷轨；关账见 `rules/doc-governance.md` §7（`confirm_iteration_close`）。
-      每次落盘更新 §0 + §16.1；更新依据=台账/证据/已批 CR，禁聊天记忆。
-    output: "{workroot}/test-plan.md（+ 版本级四卷文件，按 §3.8；T0/T1 可无）"
-
-  - name: 生成用例
-    id: generate
-    agent: testcase-agent
-    hitl:
-      - name: confirm_understanding
-        when: understanding_needs_confirm
-      - name: select_mainread
-        when: mainread_unspecified_for_generate
-      - name: confirm_platform
-        when: standalone_generate_with_pending
-    gate: coverage-map
-    gate_type: machine
-    gate_when: functional_coverage_required
-    notes: >
-      门1：主读路径未确认时 STOP（analyze/plan 已确认同主读则跳过，不重问；用例评审不触发）。联测多版本须写明主读+对照。
-      理解门：`confirm_understanding` 触发时先出示分析表 **§0 Brief+差量表** + oracle/冲突/GAP/置信度；未确认或无 §0 → 先执行 analyze 步并确认，再回本步生成。
-      生成前须已有 **测试分析表（含 §0）**（`{workroot}/test-analysis.md`；旧路径 `functional/` 下须迁入；可与本步同轮先 analyze）。**功能/专项**：双读原文+分析表 + 现行测试计划（缺/超范围先轻量补）。**探索式/接口/发布前**：独立口令可不要求完整计划，但**须至少读分析表 §0**（无表先补 §0/analyze），再按轨契约生成。**随机业务流程**：仅独立口令、禁止写入测试计划；**模仿真实用户办结主业务**；**不规定主读**（跳过主读门1/理解门/分析表强制）；固定 `口径=现网`；选池=全产品主业务办结链（主题仅收窄）；门1 仅环境/登录/入口不明。
-      **追溯红线**：每条用例至少指到一个 RQ/AC/F/R/TP/`GATE/REL/§` 或页面/接口来源；预期（oracle）必须来自需求/AC/契约/用户裁决，不能来自现网实现（不得因现网只显示“—”就把“待补配置”改通过）；无来源先问或标“文档未声明”，不得臆造；映射无空行 + 覆盖单元（验证点）至少 `GATE/AC/TP/F/R/§` + 负向/计算类 + 本批命中域对应分析表 §2.2/§2.3 行无空格 + §3.1 变更影响/§6 设计文档/§7.2 核心链路有落点 + 深度档 + 数据链路/可观测性；一个验证点可对多条用例，但结论只记一次；每条 P0/GATE 用例元数据写「Oracle 来源」，计算类写公式/输入/精度/期望值（覆盖三闸②，详版 `skills/testcase-design` §2.2/§2.4/§5）。有用户版业务变化说明（如有）→ 作为业务上下文读取，帮助理解角色/流程/用户可观察结果；oracle/追溯仍以分析表+原文+AC 为准。
-      **计划驱动生成**：按 §3.2 资产清单 + §3.7 装填逐项生成/登记——命中域功能/专项→testcase-agent + 功能「测试用例模板」；接口→「接口测试用例模板」+ `test-interface`；发布前→发布前轨；探索式→计划探索章程（§12）+「探索式用例模板」；脚本按 `rules/special/script-execution.md` §1+§2。缺资产先补，计划项不静默跳过；超范围先更新计划/计划门。
-      **域常青增量（默认）**：落盘 `{workroot}/functional|api/{NN}-{短名}/*-功能|接口用例.md`（+对应台账）；只打开 §3.7 命中域；锚点增量保 caseId + 适应性表；无域首生；旧平铺迁入。禁无分析全仓重生；禁「继续」隐式 generate。接口 depth 迭代 standard/发版 full + validate_api_testcase.py。
-      **大规模生成分片**（多Agent §1.5）：**≥3 域且**（预估≥40 条或用户点名）→ 一域一子代理，**只写** `.draft/generate/{域}.md`（专项 `.draft/S-{NN}-{主题}/`）；draft 不相交可并行≤3；编排合并+覆盖三闸；超时/空产物→降级直做并 `deviation=subagent_degraded`；开跑声明 `mode=`；**禁**并行写同一正式域文件。
-      能测尽测（命中域内）；参照影响面/变更点；探索式轨按章程而不是臆造业务步骤。
-      独立生成（不续 execute）且有拟入库 → 生成后出示拟提交清单再 confirm_platform；同会话续 execute → 门3 只在 report。
-      覆盖三闸见 testcase-agent 与 工作流 §2.1.0；功能落盘后 `validate_testcase.py` + `verify/Invoke-Gate.ps1 -Mode coverage`；接口落盘后 `validate_api_testcase.py`；无回执不得称覆盖/接口资产完成。**`gate: coverage-map` 仅功能/专项**；接口对照禁空 + depth 可执行；发布前硬映射表；探索章程目标闭环——均见 `multi-track-quality.md`（不得「软覆盖」空话代替）。
-      **生成后必衔接评审**：命中域功能/专项（T1+）落盘且覆盖闸过后，同会话续执行或「按计划执行」前必须进入 `review-cases`；本步只做完稿自检+评分卡自打，**不替代**独立评审（独立性见 testcase-reviewer）。入口即止仅生成时，收尾「下一步」写明：先用例评审再执行。
-      脚本编写/更新：按 `rules/special/script-execution.md` §2 + `rules/tools/playwright/README.md` 的脚本结构；接口确定性用例**同轮产出脚本**，不得标“待脚本化”。
-      技能：`skills/testcase-design/SKILL.md`（先读再设计用例：技法 + 漏测谱系 + 断言写法）+ `skills/ai-feature-testing/SKILL.md`（AI 功能附加）；接口轨读 `skills/test-interface/SKILL.md`。
-    output: "{workroot}/functional|api/{NN}-{短名}/*-功能|接口用例+台账 · 探索/随机戳夹自描述名 · 发布前/{专项}/*-测试方案+测试报告 · {workroot}/scripts/（执行器；按 §3.2；随机不进计划）"
-
-  - name: 用例与多轨资产评审
-    id: review-cases
-    agent: testcase-reviewer
-    hitl:
-      - name: select_review_mode
-        when: landing_doc_review_needed
-      - name: confirm_review
-        when: review_needs_confirm
-    gate: case-review
-    gate_type: machine
-    gate_when: case_review_required
-    output: >
-      单域 {workroot}/{轨}/{NN}-{短名}/{NN}-{短名}-评审-{yyyyMMdd-HHmm}.md；
-      合卷 {workroot}/{轨}/评审-{本轮范围摘要}-{yyyyMMdd-HHmm}.md；
-      计划/分析 {workroot}/评审-计划|{分析}-{戳}.md + 【任务收尾】第 1 点
-    notes: >
-      **主链一步（生成后 / 执行前）**：不重生成、不改写口径。细则 `rules/workflow.md` §2.5 + `skills/test-artifact-review` + `skills/testcase-review`。
-      **评审批次（硬）**：默认按本轮装填/同次生成成卷；同轨同主读邻接域**合卷**；功能≠接口≠发布前≠探索（跨轨不合卷）；孤立大域/高风险/点名单审可单开；T0/≤3 条可 SELF_CHECKED。同批只问一次 A/B。
-      **范围不止功能用例**（多轨质量标准 §4）：功能/专项（强制）｜接口（T1+ 或进准出）｜发布前（T2+ 或发版/计划已列）｜探索（计划纳入且 T2+ 或准出引用）｜随机仅点名。
-      **先 STOP【评审方式】**：A 自行｜B AI；可附自定义焦点。未选不得进 P2。
-      **选 A**：【自主分析摘要】+ HUMAN_APPROVED；不跑 `-Mode review`。
-      **选 B**：独立性；先【自主分析】再量规；功能 A1–A6/S1–S8+三闸；接口 I1–I6；合卷套件轴整批、单条按域抽样；分域结论可不同，未放行域禁入执行装填；需修回 generate（≤1）。
-      **计划/覆盖加查**：计划评审看分析表 §2.2/§2.3 全表无空格、§3.1/§6/§7.1/§7.2 无缺口；用例评审看本批命中域对应行无空格；§3 含验证点列；版本级 §3.8 四卷/§3.9 批次表与 §3.7/§9.2/§11.2 对齐；缺失=P0 阻断、其余重要。
-      **机器门（仅功能轨选 B）**：`case_review_required` → `-Mode review`。
-      **confirm_review**：需修/有条件放行时 STOP。
-
-  - name: 执行测试
-    id: execute
-    agent: test-orchestrator
-    precondition: 功能/专项 T1+ 已由 review-cases 放行（T0 可 SELF_CHECKED 声明）；接口/发布前/探索式按各自评审规则；未放行不得开跑
-    on_fail: 回 review-cases 补齐；不得先执行后补评审
-    gate: execute-batch
-    gate_type: machine
-    gate_when: module_batch_complete
-    hitl:
-      - name: confirm_understanding
-        when: understanding_needs_confirm
-      - name: select_mainread
-        when: exploratory_mainread_missing
-      - name: confirm_scope
-        when: scope_needs_confirm
-    output: 执行结果/≤3 行简报（末步对照 `rules/templates/90-handoff/closeout-skeleton.md` §2）
-    notes: >
-      **本步契约（硬）**：hitl 只认上方 when；方法/装填/冒烟/回归/视觉/子代理 **SSOT** = `rules/playbooks/execute.md` + `rules/workflow.md` §3 当前节 + 当前轨契约 + 命中技能（禁把整本方法抄进本 notes）。
-      **批末机器门（`module_batch_complete`）**：批次合并按计划 §3.9（文件/逐条/计数/结果/证据）后再开下一批；终态齐后 `verify/Invoke-Gate.ps1 -Mode execute -Scope "{装填域}"`；回执须含 `scope`；禁无 Scope 全仓当本批结论；准出另 `-Mode report`。
-      **装填行（必做）**：读计划 §0/§3.7/§3.9，展示 **runId/构建**+suite/depth+命中域+批次+并行组+已终态/next+**`mode=`**；开跑：装填内重置未执行、装填外→`未本轮验证`；有文件≠本轮跑；「继续」只续装填；≥2 域同轮→按 §3.9 批次/模块子代理；未列批次默认串行并记 `deviation=no_batch_plan`；超时降级见 §1.5.4；并行隔离见 §1.5.3。
-      **门**：`understanding_needs_confirm` 假（计划已确认+分析表可开，见 `rules/gates.md`）→ 跳过理解门；`scope_needs_confirm` 假 → 附【已预授权执行：按计划】；理解门为真时未确认不得开跑/判通过。
-      **评审前置（功能全量/专项 T1+）**：P2 前须评审放行（或 T0 SELF_CHECKED 声明）；未放行先 `review-cases`。
-      **计划驱动**：按计划 §9.2 阶段 + §3.9 批次执行（不含随机业务流程）；本步是阶段入口，按批次循环至本阶段装填全部终态或停轮；每批合并核验后跑 `execute -Scope`，全阶段完成才【执行收尾】，不得只跑第一批；停止/恢复见计划 §6；细节见 execute playbook。
-      **随机业务流程（独立口令）**：不进计划装填；**不规定主读**（跳过主读/理解门/分析表强制）；`口径=现网`；模仿真人 UI 办结主业务；门1 仅环境/登录/入口不明；详见轨契约与 `test-execution-and-exploration` §4.1。
-      **红线摘要**：能脚本不 AI；P0-Smoke 未过不进正式装填全库；禁静默降范围；失败证据可打开；判 blocked 前四问（playbook）。
-      技能：`test-execution-and-exploration` + `test-data-and-environment`；AI 功能另 `ai-feature-testing`；接口/发布前另读对应技能与轨契约。
-
-  - name: 输出报告
-    id: report
-    agent: report-agent
-    next: handoff   # 报告门通过后只追加一次提交/交平台确认，不重跑执行
-    on_fail: 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 handoff
-    gate: report-consistency
-    gate_type: machine
-    notes: >
-      先产出报告正文与六段【任务收尾】，**门3 在 handoff 步**，在骨架后单独问；不得先阻塞报告输出。
-      报告正文写完后运行 `verify/Invoke-Gate.ps1 -Mode report`；门读计划/台账/报告，检查计数一致、P0、P0 计划覆盖、证据、覆盖缺口；未 PASS/CONDITIONAL 不得写“整体通过/可准出”，且**本步停**——先修数据/证据或报阻塞。
-      门通过 → 按 `next: handoff` 追加一次提交/交平台确认（只此一次）；门未过不得进入 handoff。
-      门回执在 `.gate/wf-testing/report.json`；把 `verdict/gate/counts/p0/unverified` 回填报告 §0 后再复跑一次（回执必须与最终门一致）。非 PASS 禁用“全部通过/可发布”。
-      `writeback` 只写 `.gate/wf-testing/writeback.json`，不得覆盖 report 回执。
-      全部阶段结束对照 `rules/templates/90-handoff/closeout-skeleton.md` §2；阶段中途 ≤3 行简报。
-      失败/待实现汇总与交平台建议并入第 1 点；是否交平台在下一步（handoff）只问一次（禁用例级刷屏）。
-      对账工具优先（多Agent §1.5）：台账计数/证据可打开先用脚本；仅证据充分性/语义归因派核验子代理，返回差异清单 ≤30 行。
-      版本级/全量/计划驱动：对照计划 §9.2 计划 vs 实际、§3.9 批次/并行、§10 回归、§11 缺陷、§12 探索、§5 准出 → 出「准出评估」并更新 `{workroot}/test-report.md`（模板 `rules/templates/40-report-review/test-report-template.md`；报告 §2 计划对照、§3 类型覆盖、§4 统计/批次并行、§5 defects/回归/探索式、§6 覆盖缺口/§6.1 门槛证据、§7 准出；滚动就地更新只留最新口径）。
-      **需求覆盖**：报告对照**测试分析表**覆盖单元/验证点/§2.2/§2.3 矩阵/§3.1 变更影响/§6 设计文档/§7.2 核心链路/追溯，列出卷结论（V1～V4）/点级结论/用例结论分开、RQ/AC/TP→验证点→用例覆盖、矩阵空格/设计/影响/核心链路缺口/批次合并/歧义关闭/遗留、无来源预期与 GAP；P0/GATE/负向/计算类未结论显式列缺口，不以“已执行”替代“已覆盖”。
-      同步回写计划 §0（计划状态=待关闭/已关闭、当前门=准出、下一动作）、§16.1 执行日志、§16.2 归档索引；关闭时按 §16.2 生成快照，不移动当前计划。
-      现状三处同拍：`activeContext` + 计划 §0 + 导航层（报告准出摘要；有 `{workroot}/INDEX.md`则同步）；`sync=` 含 `triad=aligned|deferred:<原因>`（执行契约 §4 规则 7）；语义已变禁只改 activeContext。
-      **最优默认**：报告门 PASS/CONDITIONAL 后交付自洽 `test-report.md`；**不**默认打 TEST 包。命中多文件证据/正式签收/仓外/点名 → 停问建议 TEST 包；确认后 `handoff.send`。未命中不机械每问。报告门未过不得建议「可准出」包。未收回执不得写“已接收/已准出”。
-      版本关闭：按 `rules/doc-governance.md` §7；**主计划/四卷/报告/测试分析表快照**→`{workroot}/_archive/{yyyyMMdd}-{ver}/`；**功能/接口域主档常青留下**（不因关账整轨搬走）；轨内 `_archive/` **仅**下线域/重生快照/旧探索轮——**禁**写成「功能→functional/_archive/」把整轨现行主档归档；探索式/发布前按轨契约；失效原件只改 `inbound/INDEX.md` 状态；仍被引用的设计输入/测试数据/稳定冒烟清单保留；未确认不移动。
-      关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认 overwrite-latest；显式保留历史才升 rev）。
-      更新 `{workroot}/work-log.md`（仅本文件）：索引+里程碑——报告门 PASS/CONDITIONAL → `报告完成`；有准出 → `轮次/准出`；版本关闭归档 → `版本关闭`（结论含准出口径；链到报告/计划）。无文件则按模板建。
-      **不是**根 `CHANGELOG.md`、报告正文、计划 §16.1（过程仍写 §16.1/台账）。准出/报告可供开发发版核对，**不**写入根；版本关闭 ≠ 根发版史。
-      **禁止**创建/修改/补链项目根 `CHANGELOG.md`；无开发包则不建根。
-      同步按 `rules/doc-governance.md` §7～§8（仅本步关版本时，非日常收尾）：先判 T1/T2/T4；长期/固定项（环境基线/P0 冒烟/可复用脚本）与仍被引用的设计输入/测试数据保留；版本绑定资产按上表分轨归档；已完结临时/失败/重复（含已完结 `.draft/`）列清理候选；确认后执行。
-      special/小批追加一节或仅收尾。可选：装配 report-render（`capabilities/00-contract.md`）时渲染执行明细；准出评估仍以 `{workroot}/test-report.md` 为准。
-      独立生成已在 generate 过门3 → 本步不重复确认。
-    output: "{workroot}/test-report.md + 【任务收尾】（执行/生成明细置第 1 点）"
-
-  - name: 收尾与提交确认
-    id: handoff
-    agent: report-agent
-    hitl:
-      - name: confirm_platform
-        when: platform_ask_required
-      - name: confirm_commit
-        when: has_pending_commit
-    output: 提交/交平台确认结果
-    notes: >
-      报告与六段骨架已输出（第4点含待你确认表）；此处只在骨架后问一次：交平台/新建缺陷单走 `confirm_platform`，仓库 git 走 `confirm_commit`/【拟提交·仓库】；两者按各自 when 触发，不互相替代。
-      交平台/回写前运行 `verify/Invoke-Gate.ps1 -Mode writeback`（写 `.gate/wf-testing/writeback.json`）；无回执不得声称已回写；无权限 → 一问补适配或本批统一导出（确认前零落盘）；交平台成功 → 零导出。
-      计划 §11 为「发现即提交」的缺陷不重复问；按模块批末/阶段末/收尾确认的批次，按对应清单确认后执行；缺陷提交批次与计划 §3.9 执行批次对齐；未确认则结束。
-      本轮用过浏览器 MCP → 按 `rules/special/multi-agent-output.md` §2.2 全链终局退程（本套 Chrome）；退程结果写入收尾「运行态：」行；退程失败或仍在运行 → 第 4 点问关闭/保持，禁静默残留。
+- name: 当前状态与下一步
+  id: status
+  must_read:
+  - rules/packets/testing/status.md
+  agent: test-planner
+  output: 当前阶段/门/下一动作/需人工
+  notes: 只读 test-plan //；「下一步」只报不执行。未吸收文档→plan；未回执交接→handoff。 只读可 2～3 行简报；首条含 route/step/phase/gate/next_action。
+- name: 分析需求
+  id: analyze
+  must_read:
+  - rules/packets/testing/analyze.md
+  agent: test-analyzer
+  hitl:
+  - name: select_mainread
+    when: mainread_unspecified
+  - name: confirm_understanding
+    when: understanding_needs_confirm
+  output: '{workroot}/test-analysis.md（§0 Brief+Delta 必填）+ 用户版说明（T1+ 可见变化）'
+  notes: 主读一问即止； 必填；confirm_understanding 主屏=。方法只认 test-basis-analysis 必做。 用户版/交接/入站见技能与 doc-governance REF。
+- name: 测试计划
+  id: plan
+  must_read:
+  - rules/packets/testing/plan.md
+  agent: test-planner
+  hitl:
+  - name: select_mainread
+    when: mainread_unspecified
+  - name: confirm_understanding
+    when: understanding_needs_confirm
+  - name: select_review_mode
+    when: landing_doc_review_needed
+  - name: confirm_review
+    when: review_needs_confirm
+  - name: confirm_plan
+    when: plan_needs_confirm
+  - name: confirm_iteration_close
+    when: iteration_close_needed
+  - name: confirm_docs_migration
+    when: docs_migration_needed
+  output: '{workroot}/test-plan.md（+ 版本级四卷按 §3.8；T0/T1 可无）'
+  notes: 无分析表或缺 → 先 analyze。版本级四卷+批次表；T0/T1 轻量。when 假则跳过对应门。 依据覆盖见 verification ；方法只认 test-analysis-and-plan 必做。
+- name: 生成用例
+  id: generate
+  must_read:
+  - rules/packets/testing/generate.md
+  agent: testcase-agent
+  gate: coverage-map
+  gate_type: machine
+  gate_when: functional_coverage_required
+  hitl:
+  - name: confirm_understanding
+    when: understanding_needs_confirm
+  - name: select_mainread
+    when: mainread_unspecified_for_generate
+  - name: confirm_platform
+    when: standalone_generate_with_pending
+  output: '{workroot}/functional|api|… 用例/台账/脚本（按轨）'
+  notes: 须有分析表；功能双读原文+表；覆盖闸仅功能/专项。生成后 T1+ 须衔接收 review-cases。 细则只认 testcase-design / multi-track-quality / script-execution
+    REF。
+- name: 用例与多轨资产评审
+  id: review-cases
+  must_read:
+  - rules/packets/testing/review-cases.md
+  agent: testcase-reviewer
+  gate: case-review
+  gate_type: machine
+  gate_when: case_review_required
+  hitl:
+  - name: select_review_mode
+    when: landing_doc_review_needed
+  - name: confirm_review
+    when: review_needs_confirm
+  output: 评审记录（单域或合卷路径见 templates）
+  notes: STOP 选 A/B；不重生成。功能选 B 跑 -Mode review。方法只认 testcase-review / artifact-review 必做。
+- name: 执行测试
+  id: execute
+  must_read:
+  - rules/packets/testing/execute.md
+  agent: test-orchestrator
+  precondition: 功能/专项 T1+ 已由 review-cases 放行（T0 可 SELF_CHECKED）；未放行不得开跑
+  on_fail: 回 review-cases 补齐；不得先执行后补评审
+  gate: execute-batch
+  gate_type: machine
+  gate_when: module_batch_complete
+  hitl:
+  - name: confirm_understanding
+    when: understanding_needs_confirm
+  - name: select_mainread
+    when: exploratory_mainread_missing
+  - name: confirm_execution_scope
+    when: scope_needs_confirm
+  output: 执行结果/≤3 行简报
+  notes: 计划驱动按 / 装填；批末 execute -Scope；能脚本不 AI；P0-Smoke 未过不进正式全库。 SSOT=execute playbook + 当前轨 + 技能必做；禁把整本方法抄回本 notes。
+- name: 输出报告
+  id: report
+  must_read:
+  - rules/packets/testing/report.md
+  agent: report-agent
+  next: handoff
+  on_fail: 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 handoff
+  gate: report-consistency
+  gate_type: machine
+  output: '{workroot}/test-report.md + 【任务收尾】'
+  notes: 先正文再 -Mode report；未 PASS/CONDITIONAL 不得写整体通过。同步 plan/台账/activeContext（triad）。 关账/materials/禁改根 CHANGELOG 见 doc-governance
+    REF；门3 在 handoff。
+- name: 收尾与提交确认
+  id: handoff
+  must_read:
+  - rules/packets/testing/handoff.md
+  agent: report-agent
+  hitl:
+  - name: confirm_platform
+    when: platform_ask_required
+  - name: confirm_commit
+    when: has_pending_commit
+  output: 提交/交平台确认结果
+  notes: 骨架后问平台/git；回写前 -Claim -Mode writeback。浏览器退程见 multi-agent-output 。

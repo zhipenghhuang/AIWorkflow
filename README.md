@@ -7,7 +7,7 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.03.23-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.04.16-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -225,9 +225,9 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 五步执行模型：
 
-1. **路由** — 多包先定包；新会话读包内 `AGENTS.md` **§0 硬节** → 命中 workflow；首条输出 `route=… | step=… | reads=…`；纯解释走 `readonly:analysis`（**禁止通读 §0～§3 全文**）
-2. **加载** — 新会话：§0 → 当前 step 块 → 读取索引当前行 → 当前 agent → 命中skills/playbook。**同会话中段**：【规则心跳】重锚（见各包 `rules/core/rule-anchor.md`），不重读 §0 全文
-3. **执行** — 步内方法由 AI 自主；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门/约每 5～8 轮须心跳
+1. **路由** — 多包先定包；新会话读包内开局卡 → `AGENTS.md` 口令表 → 命中 workflow；首条输出 `route=… | step=… | reads=…`；纯解释走 `readonly:analysis`
+2. **加载** — 开局卡 → 当前 YAML step 块（门/`must_read`）→ `rules/packets/<workflow>/<step>.md`（本步唯一正文）→ 若包内点名再开一个模板。**同会话中段**：【规则心跳】重锚（`rules/core/rule-anchor.md`），不重读开局卡全文
+3. **执行** — 步内方法以步骤包为准；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门须心跳
 4. **验证** — `verify/Invoke-Gate.ps1`；只有门能授予 `COMPLETE` / `PASS` / `READY`
 5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`
 
@@ -238,10 +238,9 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | --- | --- |
 | Workflow | `workflows/*.yaml` |
 | Agent 契约 | `agents/*.yaml` |
-| 规则 / 门 / 读取索引 / 重锚 | `rules/gates.md` · `rules/read-index.md` · `rules/core/rule-anchor.md` |
+| 开局卡 / 门 / 步骤包 / 重锚 | `rules/core/cold-start.md` · `rules/gates.md` · `rules/packets/` · `rules/core/rule-anchor.md` |
 | 协作交接 | `rules/collaboration/` + `workflows/handoff.yaml` |
-| Stage playbook | `rules/playbooks/*.md` |
-| 专业技能 | `skills/<name>/SKILL.md` |
+| 专业技能（维护素材；运行时已嵌入步骤包） | `skills/<name>/SKILL.md` |
 | 能力层 | 包内契约+参考目录；实例真源 `{工作根}/capabilities/` |
 | 验证层 | `verify/`（运行态 → 项目根 `.gate/`） |
 | 文档治理 | `rules/doc-governance.md` + `rules/templates/` |

@@ -5,21 +5,25 @@ description: Use when implementing or verifying a change. Enforce implement pref
 
 # 实现与自测（技能 · 随包生效）
 
-> 用于：implement / verify 步；本技能=通用工程方法与自测标准。  
-> **按端加载子技能**：页面/路由/组件/表单/交互 → `skills/frontend-implementation/SKILL.md`；API/服务/数据/任务/集成 → `skills/backend-implementation/SKILL.md`；全栈两端都读。  
-> **工程质量条**：所有 implement 步同时加载 `skills/engineering-quality/SKILL.md` §1/§2/§3/§4；本技能只写实现方法，不重复质量条。  
-> 子技能不替代本技能：小步、最小改动、调试、自测、证据仍按本技能执行。
+> 用于：implement / verify；通用工程方法与自测。  
+> **勾选**：先 `rules/core/iq-checklist.md`；词典 `implementation-quality.md`（按节）。  
+> **按端**：UI → `frontend-implementation`（+ `frontend-gate`）；API/数据 → `backend-implementation`；全栈两端都读。  
+> **质量条**：`engineering-quality` §1～§4。
 
-## 0. 实现前确认
+## 0. 必做
 
-- 读任务卡：AC、精确文件/接口、测试先行、回滚/开关、DoD、**实施预检**行（无则本步补）。
-- 读对应设计：02（+02B/02C/02D/02E/02F 如涉及）；命中权限/状态/数据基数/多表面时加读 `skills/cross-layer-consistency/SKILL.md`。
-- **实施质量门**：`rules/core/implementation-quality.md` DEV-IQ-01～04、**09～10、12**（SC 先于代码；**执行忠实一次做对**；预检；重要面硬补；冲突 OPEN）。验证只证明忠实，不补理解。
-- **先抽方案条款（差集=0）**：把「必须/应/允许/不得/…/Then」及**字段清单/枚举/可空/跨章通用校验**逐条抽成 `SC-xx`（实施质量门 §4.1）；未进 SC 且无债项 → 不开工。触发链钉真实写入口+入口类型。
-- **编码只跟 SC**：按未完成 SC 落地；禁语义替换（§4.2）；半字段/半状态/缺首建=未完成。
-- 明确“怎么证明它对”：失败测试/探针/验收命令；**预期只认 SC/AC**，不认现网实现；无测点写理由。
-- 先找同仓库既有正确写法（另一写入口/另一消费方/既有回归用例）；复用前核与 SC 动词一致，不把「查询补齐」冒充「生成时写入」。
-- 文档冲突或「表 vs 注」打架 → 停，登记 OPEN，不静默选边（DEV-IQ-04）。
+1. 读任务卡 AC/SC/DoD；SC 差集=0（未进 SC 且无债项 → 不开工）。  
+2. 输出【实施预检】（DEV-IQ-09）；命中面同批硬补（DEV-IQ-10）。  
+3. 编码只跟 SC；禁语义替换；预期只认 SC/AC（禁刷绿）。  
+4. 有 UI → 遵守 `frontend-gate`；有原型 → 已加载 product-doc-analysis。  
+5. 完成前：自测证据 +（L2+）plan-coverage；`-Claim` 仅在 ALLOWED 后写完成。  
+6. 回执 `skills=implementation-and-selftest`（+ 端技能名）。
+
+## 0.1 实现前确认
+
+- 命中权限/状态/数据基数/多表面 → `cross-layer-consistency`。  
+- 文档冲突 → OPEN，禁静默选边（DEV-IQ-04）。  
+- 复用既有写法须与 SC 动词一致。
 
 ## 0.5 实施预检（自主 · 强制 · DEV-IQ-09/10）
 
@@ -117,4 +121,5 @@ description: Use when implementing or verifying a change. Enforce implement pref
 | 「预检太慢，先写主路径」 | DEV-IQ-09/10/12 先于代码；重要面硬补与字段/枚举不可口头延期。 |
 | 「只差一点，先合再说」 | 差一点也要证据；半实现≠完成；完成门不认口头。 |
 | 「拒绝太严，截断/套近邻也能用」 | DEV-IQ-12 禁语义替换；方案写拒绝/未支持就必须拒绝或明示不可用。 |
+| 「批量 200 空 data / 附件有 token 就算安全」 | 写路径/安全敏感硬补：混合分条或整批失败定位；正式态内容门禁；细则实施质量门 §3.1/§4.2。 |
 | 「QA/验证会扫到」 | 验证是兜底；理解与落地错误须在编码前消掉。 |

@@ -5,7 +5,7 @@ Usage: python validate_handoff.py <package-dir>
 Exit 0 = OK; 1 = errors; 2 = usage/path error.
 
 Checks:
-- required files: 00-交接说明.md, 01-交接清单.md, 04-回执/接收回执.md
+- required files: 00-交接说明.md, 01-交接清单.md（04 回执发送阶段可缺，签收后必须补）
 - 00 has the required metadata fields and sections
 - 01 has a manifest table with 包内路径 and at least one row
 - every 02-文档/03-证据/04-回执 path mentioned in 01 exists
@@ -20,7 +20,6 @@ from pathlib import Path
 REQUIRED = [
     "00-交接说明.md",
     "01-交接清单.md",
-    "04-回执/接收回执.md",
 ]
 META = ["交接 ID", "类型", "发起方", "接收方", "版本", "状态", "日期", "回执截止"]
 SECTIONS = ["接收方要做的事", "验收/完成标准", "回执要求"]
@@ -59,20 +58,23 @@ def main() -> int:
         return 2
 
     errors: list[str] = []
+    warnings: list[str] = []
     for rel in REQUIRED:
         if not (root / rel).is_file():
             errors.append(f"MISSING_FILE: {rel}")
+    if not (root / "04-回执/接收回执.md").is_file():
+        warnings.append("WARN_NO_RECEIPT: 04-回执/接收回执.md 尚未生成（发送阶段可接受；签收后必须补齐）")
 
     brief = root / "00-交接说明.md"
     text = brief.read_text(encoding="utf-8") if brief.is_file() else ""
     for key in META:
-        if not re.search(rf"\|\s*{re.escape(key)}\s*\|", text):
+        # 允许字段名后带说明（如「发起方 / 负责人」），但字段必须唯一存在。
+        if not re.search(rf"\|\s*{re.escape(key)}(?:\s*/[^|]*)?\s*\|", text):
             errors.append(f"MISSING_META: 00-交接说明.md: {key}")
     for sec in SECTIONS:
         if not re.search(rf"^#+\s*.*{re.escape(sec)}", text, flags=re.M):
             errors.append(f"MISSING_SECTION: 00-交接说明.md: {sec}")
 
-    warnings: list[str] = []
     if ID_RE.match(root.name):
         parts = root.name.split("-")
         # HO-yyyyMMdd-NN-TYPE-FROM2TO → TYPE at index 3 when NN has no extra dashes

@@ -38,6 +38,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from frontend_parity import validate as validate_frontend_parity  # noqa: E402
+from plan_coverage import validate as validate_plan_coverage  # noqa: E402
+
 try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
 except Exception:
@@ -56,10 +60,12 @@ GATE_MEDIA_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"
 FRONTEND_GLOBS = (
     ".tsx", ".jsx", ".vue", ".svelte", ".css", ".scss", ".less", ".html", ".htm",
     "/pages/", "/components/", "/views/", "/app/", "/templates/", "/layouts/",
+    "static/", "/static/", "public/", "/public/", "frontend/", "/frontend/",
+    "assets/", "/assets/", "workbench/",
 )
 API_GLOBS = ("/api/", "controller", ".proto", "openapi", "swagger")
 DB_GLOBS = ("/migrations/", ".sql")
-AUTH_GLOBS = ("/auth/", "/login/", "/payment/", "/pay/", "/security/", "/permission/", "/role/")
+AUTH_GLOBS = ("/auth/", "/login/", "/payment/", "/pay/", "/security/", "/permission/", "/role/", "auth.", "login.")
 DOC_EXTS = (".md", ".txt")
 EXCLUDE_PARTS = {
     ".git", ".gate", "node_modules", "__pycache__", ".venv", "venv", "dist", "build",
@@ -69,9 +75,20 @@ PATHISH = re.compile(r"(?:[A-Za-z]:[\\/]|\.{0,2}/|[\w.-]+\.(?:png|jpe?g|webp|gif
 COMMANDISH = re.compile(r"^(?:npm|npx|node|python|py|pytest|go|cargo|mvn|gradle|dotnet|git|powershell|pwsh|bash|sh)\b", re.I)
 
 
-def clear_expired_gate_media(project_root: Path) -> int:
-    """Remove stale screenshots on StartTask. Keep JSON receipts and design-qa.md."""
+def clear_expired_gate_media(project_root: Path, task_id: str = "") -> int:
+    """Archive stale screenshots on StartTask (never delete evidence).
+
+    Deleting media broke traceability: docs kept citing .gate/frontend/*.png that
+    had been removed by a later task start. Archive keeps history and lets the
+    current run use a clean folder.
+    """
     removed = 0
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    archive_root = project_root / ".gate" / "archive" / (task_id or stamp)
+    stale_names = {
+        "completion.json", "review.md", "plan-coverage.md",
+        "parity-matrix.md", "route-coverage.json", "design-qa.md",
+    }
     targets = [
         project_root / ".gate" / "frontend",
         project_root / ".gate" / PACKAGE_NAME,
@@ -79,13 +96,19 @@ def clear_expired_gate_media(project_root: Path) -> int:
     for folder in targets:
         if not folder.is_dir():
             continue
-        for path in folder.iterdir():
-            if path.is_file() and path.suffix.lower() in GATE_MEDIA_SUFFIXES:
-                try:
-                    path.unlink()
-                    removed += 1
-                except OSError:
-                    pass
+        iterator = folder.rglob("*") if folder.name == "frontend" else folder.iterdir()
+        for path in iterator:
+            if not path.is_file():
+                continue
+            if path.suffix.lower() not in GATE_MEDIA_SUFFIXES and path.name not in stale_names:
+                continue
+            dest = archive_root / path.relative_to(project_root)
+            try:
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                path.replace(dest)
+                removed += 1
+            except OSError:
+                pass
     return removed
 
 
@@ -191,14 +214,18 @@ def changed_files(project_root: Path, package_root: Path, base_commit: str = "")
     return out
 
 
-def classify(files: list[str]) -> tuple[str, list[str]]:
+def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[str]]:
     if not files:
         return "L0", ["none"]
     types: list[str] = []
     lower = [f.lower() for f in files]
     if all(f.endswith(DOC_EXTS) for f in lower):
         types.append("docs")
-    if any(any(g in f for g in FRONTEND_GLOBS) for f in lower):
+    frontend_globs = FRONTEND_GLOBS
+    if frontend_hint:
+        # 普通 .js/.ts 可能是后端；仅在项目档案声明了 frontend 时按前端处理。
+        frontend_globs = FRONTEND_GLOBS + (".js", ".ts")
+    if any(any(g in f for g in frontend_globs) for f in lower):
         types.append("frontend")
     if any(any(g in f for g in API_GLOBS) for f in lower):
         types.append("api")
@@ -295,12 +322,35 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
         if not (has_ac and has_check):
             i += 1
             continue
+
+        def col(*names: str) -> int | None:
+            for idx, cell in enumerate(cells):
+                low = cell.lower()
+                if any(name.lower() in low for name in names):
+                    return idx
+            return None
+
+        i_id = col("AC", "验收", "编号")
+        i_judge = col("判定", "结果", "状态")
+        i_check = col("检查", "验证", "方法")
+        i_evidence = col("证据")
+        i_id = 0 if i_id is None else i_id
+        i_check = 2 if i_check is None else i_check
+        i_evidence = 3 if i_evidence is None else i_evidence
         j = i + 2
         while j < len(lines) and lines[j].strip().startswith("|"):
             vals = [c.strip() for c in lines[j].strip().strip("|").split("|")]
-            if len(vals) >= 4 and vals[0]:
-                rows.append({"id": vals[0], "statement": vals[1], "check": vals[2],
-                             "evidence": vals[3], "result": vals[4] if len(vals) > 4 else ""})
+            if vals and vals[i_id]:
+                def at(idx: int | None) -> str:
+                    return vals[idx] if idx is not None and idx < len(vals) else ""
+                judge = at(i_judge)
+                rows.append({
+                    "id": at(i_id),
+                    "statement": judge or at(i_check),
+                    "check": at(i_check),
+                    "evidence": at(i_evidence),
+                    "result": judge,
+                })
             j += 1
         i = j
 
@@ -328,9 +378,9 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
         if mm:
             process[key] = mm.group(1).strip()
     scope: list[str] = []
-    mm = re.search(r"改动范围[^\n:：]*[:：]\s*([^\n]+)", text)
-    if mm:
-        scope = [x.strip().strip("`") for x in re.split(r"[;,；、]", mm.group(1)) if x.strip()]
+    for mm in re.finditer(r"改动范围[^\n:：]*[:：]\s*([^\n]+)", text):
+        scope += [x.strip().strip("`") for x in re.split(r"[;,；、]", mm.group(1)) if x.strip()]
+    scope = list(dict.fromkeys(scope))
     return {"items": rows, "task_id": task_id, "level": level, "process": process, "scope_files": scope}
 
 
@@ -352,7 +402,7 @@ def check_acceptance(items: list[dict[str, str]], project_root: Path) -> dict[st
                 missing.append(f"{item.get('id', '?')}: 缺少 {key}")
                 break
         result = (item.get("result") or "").strip()
-        if result and any(x in result for x in ("未通过", "未验证", "待定", "TODO", "未完成")):
+        if result and any(x in result.upper() for x in ("未通过", "不通过", "未验证", "待定", "TODO", "未完成", "FAIL", "BLOCKED")):
             missing.append(f"{item_id}: 判定未通过/未验证（{result}）")
         for token in _evidence_tokens(item.get("evidence", "")):
             if token in ("无", "—", "-", "TBD", "待补", "见日志"):
@@ -519,6 +569,10 @@ def load_profile(project_root: Path) -> tuple[dict[str, Any], str]:
 
 
 def resolve_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str) -> str | None:
+    if key == "capture":
+        frontend = profile.get("frontend")
+        if isinstance(frontend, dict) and frontend.get("capture"):
+            return str(frontend["capture"])
     if profile.get(key):
         return str(profile[key])
     mapping = {
@@ -605,8 +659,38 @@ def _parse_iso_mtime(iso: str) -> float:
         return 0.0
 
 
+def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
+    """Verify the prototype was decoded this round (source hash bound manifest)."""
+    fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
+    raw = str(fe.get("prototype") or "").strip()
+    if not raw:
+        return {"id": "prototype-manifest", "status": "warn", "detail": "未配置 frontend.prototype"}
+    proto = resolve_path(project_root, raw)
+    if not proto.is_file():
+        return {"id": "prototype-manifest", "status": "blocked", "detail": f"原型不存在: {raw}"}
+    manifest_path = resolve_path(
+        project_root, str(fe.get("prototypeManifest") or ".gate/prototype/prototype.json")
+    )
+    if not manifest_path.is_file():
+        return {"id": "prototype-manifest", "status": "blocked",
+                "detail": "缺少 prototype.json：先跑 rules/tools/extract_prototype_modules.py <原型> .gate/prototype"}
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    except Exception as exc:
+        return {"id": "prototype-manifest", "status": "blocked", "detail": f"prototype.json 不可解析: {exc}"}
+    digest = hashlib.sha256(proto.read_bytes()).hexdigest()
+    recorded = str(manifest.get("source_sha256") or "").lower()
+    modules = manifest.get("modules") or []
+    if recorded != digest:
+        return {"id": "prototype-manifest", "status": "blocked",
+                "detail": "prototype.json 的 source_sha256 与当前原型不一致（原型换了/未重新解码）"}
+    return {"id": "prototype-manifest", "status": "pass",
+            "detail": f"modules={len(modules)} sha={digest[:12]}"}
+
+
 def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
-                      acceptance_mtime: float, task_started_at: str = "") -> dict[str, Any]:
+                      acceptance_mtime: float, task_started_at: str = "",
+                      base_commit: str = "", require_generated: bool = False) -> dict[str, Any]:
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
@@ -641,7 +725,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         except Exception:
             problems.append("playwright-results.json 不可解析")
 
-    required = list(range(1, 16)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 10, 15]
+    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 10, 15, 16, 17, 18, 19]
     if not qa.is_file():
         problems.append("missing design-qa.md")
     else:
@@ -654,7 +738,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             if not cells or not cells[0].isdigit():
                 continue
             n = int(cells[0])
-            if 1 <= n <= 15:
+            if 1 <= n <= 20:
                 rows[n] = (cells[2] if len(cells) > 2 else "", cells[3] if len(cells) > 3 else "")
         missing_rows = [n for n in required if n not in rows]
         if missing_rows:
@@ -706,9 +790,30 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
                         val = data.get(key)
                         if isinstance(val, list) and val:
                             problems.append(f"{rp.name}: {key} 非空")
+
+    require_parity = bool(fe.get("requireParity", level_rank(level) >= 1))
+    if require_parity:
+        parity_problems, parity_stats = validate_frontend_parity(
+            evidence_dir, since=floor, base_commit=base_commit,
+            require_matrix=bool(fe.get("requireParityMatrix", True)),
+            require_generated=require_generated,
+        )
+        problems.extend(parity_problems)
+        if not parity_problems:
+            problems_detail = (f"parity routes={parity_stats.get('routes')} "
+                               f"menus={parity_stats.get('menus')} "
+                               f"deep_links={parity_stats.get('deep_links')}")
+        else:
+            problems_detail = ""
+    else:
+        problems_detail = ""
+
     if problems:
         return {"id": "frontend-evidence", "status": "blocked", "detail": problems}
-    return {"id": "frontend-evidence", "status": "pass", "detail": f"{len(images)} screenshots + design-qa.md"}
+    detail = f"{len(images)} screenshots + design-qa.md"
+    if problems_detail:
+        detail += " + " + problems_detail
+    return {"id": "frontend-evidence", "status": "pass", "detail": detail}
 
 
 def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:
@@ -748,7 +853,7 @@ def main() -> int:
             return 2
         task_file = project_root / ".gate" / "task.json"
         task_file.parent.mkdir(parents=True, exist_ok=True)
-        cleared = clear_expired_gate_media(project_root)
+        cleared = clear_expired_gate_media(project_root, args.start_task)
         base_commit = git(project_root, "rev-parse", "HEAD") or ""
         payload = {
             "task_id": args.start_task,
@@ -758,7 +863,7 @@ def main() -> int:
         task_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         print(
             f"task started: {args.start_task} base={base_commit or 'nogit'} "
-            f"cleared_media={cleared} -> {task_file}"
+            f"archived_media={cleared} -> {task_file}"
         )
         return 0
 
@@ -781,7 +886,8 @@ def main() -> int:
             return 2
 
     files = changed_files(project_root, package_root, base_commit=base_commit)
-    level, types = classify(files)
+    profile, profile_error = load_profile(project_root)
+    level, types = classify(files, frontend_hint=bool(profile.get("frontend")))
     if args.mode == "frontend":
         types = sorted(set(types + ["frontend"]))
         level = max_level(level, "L1")
@@ -804,7 +910,6 @@ def main() -> int:
     if args.allow_missing_acceptance and level_rank(level) >= 1:
         acc["missing"].append("--allow-missing-acceptance 仅允许 L0；L1+ 必须提供验收清单")
 
-    profile, profile_error = load_profile(project_root)
     scripts = package_json_scripts(project_root)
     timeouts = profile.get("timeouts", {}) if isinstance(profile.get("timeouts"), dict) else {}
     checks: list[dict[str, Any]] = []
@@ -832,11 +937,34 @@ def main() -> int:
                 checks.append({"id": e2e_id, "status": "dry-run", "command": e2e})
             else:
                 checks.append(run_cmd_check(e2e_id, e2e, project_root, int(timeouts.get("e2e", 900))))
-                checks.append(frontend_evidence(project_root, profile, level, acceptance_mtime, task_started))
+                fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
+                require_generated = bool(fe.get("requireGeneratedEvidence", level_rank(level) >= 2))
+                capture = resolve_cmd(profile, scripts, "capture")
+                if capture:
+                    checks.append(run_cmd_check("frontend-capture", capture, project_root,
+                                                int(timeouts.get("capture", 900))))
+                elif require_generated and level_rank(level) >= 2:
+                    checks.append({
+                        "id": "frontend-capture",
+                        "status": "blocked",
+                        "detail": "未配置 frontend.capture：L2+ 前端证据必须由 gate 调用的 capture 命令生成（参考 verify/frontend/capture_example.py）；手写 route-coverage/截图不作为证据",
+                    })
+                else:
+                    checks.append({"id": "frontend-capture", "status": "warn",
+                                   "detail": "未配置 frontend.capture，仅校验手写证据（L1 允许）"})
+                checks.append(prototype_manifest(project_root, profile))
+                checks.append(frontend_evidence(project_root, profile, level, acceptance_mtime,
+                                                task_started, base_commit, require_generated))
         if level_rank(level) >= 2:
             integration = resolve_cmd(profile, scripts, "integration")
             if integration:
                 checks.append(run_cmd_check("integration", integration, project_root, int(timeouts.get("integration", 900))))
+            problems, stats = validate_plan_coverage(project_root, level, files)
+            checks.append({
+                "id": "plan-coverage",
+                "status": "blocked" if problems else "pass",
+                "detail": "; ".join(problems[:5]) or f"{stats.get('rows', 0)} rows",
+            })
         if level_rank(level) >= 3:
             security = resolve_cmd(profile, scripts, "security")
             if security:

@@ -72,7 +72,7 @@
 ### 3.1 产品发出（**先择优单文档 · 升包另闸**）
 
 > **默认**：先判意图（澄清 §0）→ 有歧义则完整【意图理解】确认；意图已清则一行回执 → 五问→形态或专模 → 落盘；**不**建 HO。含糊口令禁止直接成文。  
-> **落盘**：专模真源仍写 `{workroot}/{版本}/…`；同轮**实拷**到 `{workroot}/handoff/outbound/{category}/`。无对等专模可直接落对应出站类别。  
+> **落盘**：专模真源仍写 `{workroot}/{ver}/…`；同轮**实拷**到 `{workroot}/handoff/outbound/{category}/`。无对等专模可直接落对应出站类别。  
 > **升包**：命中触发 + 用户确认【拟发包】的**类型/接收方/必带摘要**（`confirm_handoff`）后才落盘到 `handoff/outbound/{category}/{HO-ID}/`；仅说「要包/生成/交接包」不算确认。
 
 | 时机 | 类型 | 接收方 | 最小必带（包内） | 前置 |
@@ -113,20 +113,20 @@
 
 ## 4. 交接目录与包规范
 
-### 4.0 总目录（出站 / 入站）
+### 4.0 总目录（outbound / inbound）
 
-> **`{workroot}/handoff/`** = 出站托盘 + 入站收件箱。真源在 `{workroot}/{版本}/…`；出站**始终实拷**；`handoff/inbound/` **不再**作主入口。
+> **`{workroot}/handoff/`** = 出站托盘 + 入站收件箱。真源在 `{workroot}/{ver}/…`；出站**始终实拷**；`handoff/inbound/` **不再**作主入口。
 
 ```text
 {workroot}/handoff/
 ├─ handoff-ledger.md
-├─ 出站/
-│  ├─ 需求/ | 设计/ | 计划/ | 验收/ | 发布/ | 变更/ | defects/ | 复盘/ | 确认/
+├─ outbound/
+│  ├─ 需求/ | 设计/ | 计划/ | 验收/ | 发布/ | 变更/ | 缺陷/ | 复盘/ | 确认/
 │  │  ├─ {可转发实文件}.md
 │  │  └─ {HO-ID}/                 # 仅升包（00～04）
 │  └─ _archive/…
-└─ 入站/
-   ├─ 需求/ | 设计/ | … | 确认/ | 待分拣/
+└─ inbound/
+   ├─ 需求/ | 设计/ | 计划/ | 提测/ | 报告/ | 验收/ | 发布/ | 变更/ | 缺陷/ | 复盘/ | 确认/ | 待分拣/
    │  ├─ {投放件：格式不限}
    │  └─ {HO-ID}/                 # 仅对方真给标准包时
    └─ _archive/…
@@ -134,16 +134,16 @@
 
 **出站类别**：`需求`←REQ；`设计`←DES；`计划`←PLAN；`验收`←UAT；`发布`←REL；`变更`←CHG；`缺陷`←BUG；`复盘`←RETRO；`确认`←DEC/OTHER 等。  
 **入站**：按内容归类（非 HO 亦收）；须打开→T1～T9 分析→A0～A2 吸收并同步。  
-**与 `docs/`**：外来主副本先原件根 `inbound/`；分析后交接类才进 `inbound/{category}/`；其它按文档治理进 `inbound/`/工作区。同仓直读对方出站，不强制拷入站。
+**与 `docs/`**：外来原件主副本固定 `inbound/{ver|topic}`；交接件工作副本进 `{workroot}/handoff/inbound/{category}/`；定稿进 `docs/materials/`。同仓直读对方 outbound，不强制拷入站。
 
 ### 4.1 标准包（HO）
 
-路径：`{workroot}/handoff/outbound/{category}/{HO-ID}/`（`00`～`04` 同前）。确认后才生成；平台已回写不强制 BUG 整包；ID/多收/快照/安全规则同前（快照真源在 `{workroot}/{版本}/`；禁要求对方再拷入站）。
+路径：`{workroot}/handoff/outbound/{category}/{HO-ID}/`（`00`～`04` 同前）。确认后才生成；平台已回写不强制 BUG 整包；ID/多收/快照/安全规则同前（快照真源在 `{workroot}/{ver}/`；禁要求对方再拷入站）。
 
 ### 4.2 生成步骤（`handoff.send`）
 
 0. 先问【拟发包】→ 未确认零写盘。  
-1. 冻结来源；选定 `出站/{类别}`。  
+1. 冻结来源；选定 `outbound/{category}`。  
 2. 选类型与接收方；缺必带不发送。  
 3. 写入 `handoff/outbound/{category}/{HO-ID}/`；刷新出站散文件实拷。  
 4. 写 `00`/`01`/`04`；`validate_handoff.py` 指向该包路径。  
@@ -153,7 +153,7 @@
 
 ### 4.3 接收、分析与吸收（`handoff.receive` + 文档治理）
 
-硬：入站禁止只投放。打开→分析→吸收→同步。通用材料走文档治理 + change/materials；标准 HO 本步签收后仍 T9+吸收。多包同仓直读对方出站；仓外主副本在 `docs/`，工作副本在 `{workroot}/handoff/inbound/{类别}/`。正式签收才回执称已接收。
+硬：入站禁止只投放。打开→分析→吸收→同步。通用材料走文档治理 + change/materials；标准 HO 本步签收后仍 T9+吸收。多包同仓直读对方 outbound；仓外原件主副本在 `inbound/{ver|topic}`，工作副本在 `{workroot}/handoff/inbound/{category}/`。正式签收才回执称已接收。
 
 **时限（正式签收）**：普通 1 工作日；阻断/提测/发布 4 小时。
 

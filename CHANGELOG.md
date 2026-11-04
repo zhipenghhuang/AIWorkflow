@@ -7,12 +7,147 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.11.04.1` | 更新 | 工作记忆沉淀 + 流程偏好 |
-| 开发规范 | `2026.11.04.1` | 更新 | 工作记忆沉淀 |
-| 测试规范 | `2026.11.04.1` | 更新 | 工作记忆沉淀 + 流程偏好 |
-| 母版仓 | `2026.11.04.1` | 更新 | 取三包最高 |
+| 产品规范 | `2026.11.04.16` | 更新 | 全 workflow 步骤自包含读包 |
+| 开发规范 | `2026.11.04.16` | 更新 | 同上 |
+| 测试规范 | `2026.11.04.16` | 更新 | 同上 |
+| 母版仓 | `2026.11.04.16` | 更新 | 取三包最高 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
+
+## [2026.11.04.16] - 2026-11-04
+
+### Changed
+
+- **运行时读链**：`cold-start` → YAML 当前 step → `rules/packets/<wf>/<step>.md`（+ 可选一个模板）；禁止通读 rules / read-index / playbook / 未嵌入 skill。
+- **步骤包**：三包全 workflow 全 step 自包含八节骨架；YAML `must_read[0]` 对齐 packet；技能必做嵌入包内。
+- **维护面**：`read-index.md` / `playbooks/` 标维护素材；`Validate-StepPackets` 接入三包自检；`build_step_packets.py` 重生。
+- **未改**：HITL / Claim / 风险分级 / verify 机器口径。
+
+## [2026.11.04.15] - 2026-11-04
+
+### Changed
+
+- **读链**：三包开局卡「查规则唯一路径」；主链 workflow 显式 `skills`/`must_read`，notes≤3 行指针。
+- **开发**：`change`/`iterate` 实施步挂 `frontend-gate`；`iterate.deliver` 挂提测模板；implementer 薄 must。
+- **产品**：`change.yaml` v4 抽干 notes；read-index 主链以技能必做为准，playbook 降 REF。
+- **测试**：`testing.yaml` v19 抽干 notes；方法回技能/execute playbook/轨契约。
+- **未改**：HITL 门名与 when、Claim 机器口径、closeout 骨架字段、风险分级。
+
+## [2026.11.04.14] - 2026-11-04
+
+### Changed
+
+- **三包收尾骨架**：删除「黄金样例」假项目长文；只保留 `{占位}` 通用骨架 + 填空纪律；明确模板是下限非剧本、按项目事实填、禁照抄。
+- **指针对齐**：AGENTS / read-index / workflows / playbooks 从 §2.1 黄金样例改为 §1；工作总结改为 §2。
+- **契约**：三包 `execution-contract` 增「模板是下限不是剧本」。
+- **未改**：`check_compliance` 机读字段、Claim/HITL 门禁。
+
+## [2026.11.04.13] - 2026-11-04
+
+### Changed
+
+- **开局卡（三包）**：补「短读跟随（偏好/洞见/坑≤3）」；完成分层（中途 Claim / 收尾遵守自检）；回执加 `intent`/`memory`；动作前分析强调禁无增量长文；心跳勿机械连刷；冲突优先级一句。
+- **对齐**：`rule-anchor` / AGENTS 短读 / `read-index` 定位 / `context-memory` §6 与开局卡同口径；契约 §1.0.2 增「禁止仪式空转」（档位不降级）。
+- **开发**：`iq-checklist` 明确 DEV-IQ-15 仅二次同类问题或点名复盘才改规则。
+- **未改**：`gates.md` 门名与 HITL、Claim 机器口径、双确认/澄清档位。
+
+## [2026.11.04.12] - 2026-11-04
+
+### Changed
+
+- **开局卡（三包）**：第 1 条恢复可见名 `confirm_task_intent` / 【需求与意图理解】 / 【动作前分析】，并写明「档位只认 `execution-contract.md` §1.0，本卡不改门」；本步命令增加「任何任务开工」一行。
+- **未改**：`gates.md`、`execution-contract.md` §1.0、Claim、澄清/双确认/HITL 语义与档位。
+
+## [2026.11.04.11] - 2026-11-04
+
+### Changed
+
+- **开局卡（三包）**：新增 `rules/core/cold-start.md` 为常驻硬约束 SSOT；新会话先读开局卡，再读口令表/当前 step；心跳 `redline` 只从开局卡抽标签。
+- **开发前端硬门**：新增 `rules/core/frontend-gate.md` + `iq-checklist.md`；AGENTS/IQ/gates 重复前端散文改为指针；IQ 标为参考词典。
+- **读索引**：开发包改为 MUST/RUN/REF；产品/测试读序改为 cold-start 优先。
+- **技能必做区**：`product-doc-analysis` / `implementation-and-selftest` / `frontend-implementation` 顶部增加必做/禁做。
+- **AGENTS 瘦身**：§0 改为指针+分级；保留 §0.x 锚点兼容引用；版本 `2026.11.04.11`。
+- **自检**：三包 `Test-Template` / `ValidateTemplateRefs` + `check_skills.py --strict` 全绿。
+
+## [2026.11.04.10] - 2026-11-04
+
+### Changed
+
+- **入口冷启动卡**：三包 `AGENTS.md` §0 压缩为可执行短卡；确认门分级（新开/续跑/脚本回归/只读）、动作前分析分档、读链/心跳收口（切步/过门必做）；无计划档允许 `triad=na`。
+- **读索引减肥**：重步核心必读 ≤4 + 命中才读；产品 `prototype.review` 覆盖矩阵与浏览器走查升必读；虚字段 `skills_required` 改 notes「技能：」。
+- **路径与术语正确性**：产品展示落点统一 `50-showcase`；开发出站统一 `handoff/outbound/`；测试冒烟现名 `smoke-checklist.md`；接口脚本 `{workroot}/api/{NN}-{短名}/scripts/`；UI 证据 **E0/E1**；资产层 **Core/Domain/Delta**；用户版可省口径改 **T0**。
+- **开发执行**：StartTask 仅 implement/build/fix 动手前；iterate 主流程归 playbook/YAML，special 只留 DoR/DoD；前端抽样只认本轮 coverage/原型矩阵；example JSON 去业务域名。
+- **测试机检**：lite 计划显式识别，不再标 `legacy`；依据覆盖 SSOT 收拢 `verification.md` §3.1；能脚本决策表；T0 理解门/评审门默认可跳过（准出仍硬）。
+- **产品降级**：浏览器不可用可 `browser=unavailable` + 用户走查；覆盖矩阵仍硬。
+- **三包规则链审计**：入口/step/`read-index`/门分支对齐；交接目录统一 `outbound|inbound`；收尾自查统一 `check_compliance.py`（开发另有 Test-Report 包装）。
+- **门禁正确性**：产品/开发/测试 Claim 与结构门同步强化（既有项保留）。
+- **通用化**：母版去项目专属写死，改档案/原型占位。
+
+## [2026.11.04.8] - 2026-11-04
+
+### Added
+
+- **三包开工门**：新增 `confirm_task_intent`；任何任务先输出【需求与意图理解】并确认，未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。
+- **动作前分析**：执行契约 §1.0.2；写/改、命令/测试、过门、对外、提交/推送/部署、下结论前先给【动作前分析】六项；禁止先做后补。
+- **三包同步**：`AGENTS.md` §0 第一问 + `gates.md` 全局门 + `execution-contract.md` §1.0 + `clarification.md` §0 + `read-index.md` 读序。
+
+## [2026.11.04.7] - 2026-11-04
+
+### Changed
+
+- **开发规范**：完成口令 + capture 前置证据 + 证据归档 + 执行证据链 + 全栈方案覆盖 + 前端硬门。
+- **测试规范**：完成口令 + 收尾格式统一 + 校验器强化 + 依据覆盖 + 原型/API 证据 + 评审硬核。
+- **产品规范**：完成口令 + 收尾格式统一 + 原型/PRD 覆盖 + 真实浏览器走查 + 评审硬核 + design-review 机器门。
+
+## [2026.11.04.6] - 2026-11-04
+
+### Added
+
+- **产品规范**：原型/PRD 覆盖矩阵 + 真实浏览器走查 + 评审员硬核；`prototype-coverage.md`；新增 `-Mode design-review` 机器门（评审通过 + 覆盖矩阵通过才 READY）。
+- **测试规范**：依据覆盖矩阵（PRD/方案/原型/API）+ UI/API 证据 + 评审员硬核；测试分析表新增 §2.4 依据覆盖，`test_gate.py` 硬检表结构/验证点映射；纯用例数不得判通过。
+
+### Changed
+
+- **不新增 ID**：在既有 DEV-IQ-10/12、DEV-VER-12 上补横切写契约，避免规则堆积。
+- **implementation-quality**：§3.1 写路径/状态/安全敏感硬补批量混合结果与上传正式态内容门禁；§4.1#9～10 跨章含批量/上传 + 覆盖声明对齐；§4.2/§3.3/§4.3 反模式与编码纪律对齐。
+- **verification §2.1**：新增第 3 条「横切写契约 DEV-AC 必留」；纠正 QA「异常」易被误读为「边界一律甩 QA」。
+- **薄指针**：task-breakdown / implementation-and-selftest / product-doc-analysis + rule-governance eval 23～25 + 任务清单模板拆单核对。
+
+## [2026.11.04.5] - 2026-11-04
+
+### Added
+- **全栈方案覆盖（DEV-IQ-21）**：L2+ 必须有 .gate/plan-coverage.md；后端/功能逐条覆盖方案→接口/字段/状态/权限/错误码/迁移→实现/测试，前端逐条覆盖页面/路由/字段/交互→截图；门内 plan_coverage.py 校验，缺行/结论需修=BLOCKED。
+- **原型/方案下限**：至少达到原型标准；原型有明显缺陷可择优修正，但必须写偏离理由/影响/确认。
+
+- **执行证据链（AGENTS §0.0.1）**：续跑/接管必须核对源需求/方案/原型关键页与字段，不得只信 `activeContext`/旧评审/旧截图；技能加载留痕；前端交付物缺一 `UNVERIFIED`；评审不得替代完成门；S5 必须抽全部一级/二级菜单、账号管理/用户授权、登记/新建/详情深链；发现跳步立即回退状态补做。
+- **续跑/接管（execution-contract §2）**：新增硬规则与「继承基线核对」要求。
+- **前端评审前置（gates/change/iterate）**：`review` 进入前必须有 `parity-matrix.md`、`route-coverage.json`、`design-qa.md`、每路由桌面/移动截图、console/network；缺一 `on_fail` 回 implement。
+- **关键页抽检（design-qa §2.1）**：合同详情两列字段网格/累计金额区、登记回票双栏页、用户授权“选择用户→角色→保存”、一级菜单、深链直达。
+- **reviewer-agent 硬核**：前端变更必须核对上述交付物；续跑必须核对源基线；评审不替代 completion-gate。
+
+## [2026.11.04.3] - 2026-11-04
+
+### Changed
+
+- **三包收尾骨架**：`汇报（可直接复制）` 独立成块（六点前），与第 1 点执行明细分开；六点逐行、点内字段一行一个；第 2 点 7 子字段；第 4 点决策列表保留归属/可转发产品；第 6 点含当前/下一步/优先级/建议/不建议/完成标志；附录保留资料补强/工作记忆/运行态。每包新增 §2.1 黄金样例 + §2.2 模板。
+- **校验器**：`check_compliance.py` 增六点顺序、汇报块、第 1/2/4/6 点固定子字段、附录检查；`report_lint.py` 增 `--format-only` 与同套版式检查；`sync=` 明确 `triad=` + `facade=`。
+- **同步**：三包 `AGENTS.md` 收尾指针指向 §2.1、开发/测试把输出骨架列入框架固定；`read-index`、产品/测试 `workflow.md`、`verify/README.md`、缺陷模板、测试发布前轨同步新标签；`change-management` 技能示例改为汇报独立块；开发 `Test-Template.ps1` 将 `parity-matrix.md`/`design-qa.md` 视为运行时实例产物，避免误报。
+
+## [2026.11.04.2] - 2026-11-04
+
+### Added
+
+- **前端交付物套装（DEV-IQ-17）**：L1+ 前端必须有 `parity-matrix.md` + `route-coverage.json` + 每条路由桌面/移动截图 + `design-qa.md` + console/network + 独立评审；缺一 `UNVERIFIED`。
+- **门内校验**：新增 `verify/tools/frontend_parity.py` 与 `verify/frontend/route-coverage.example.json`；`gate.py` 在 L1+ 前端自动校验路由/菜单/深链覆盖、截图存在/新鲜/哈希唯一、console/failed=0、矩阵占位与未完成判据。
+- **缺陷族/根因/冻结（DEV-IQ-18/19/20）**：用户报一个前端缺陷先做同波次全量审计；404/403/空白/旧页面先查路由/模块版本/缓存/auth/network 再改；用户说停/冻结即停手并出冻结记录。
+- **证据保真与评审独立（DEV-VER-14/15/16）**：全量测试单实例串行、日志含命令/起止/耗时/退出码/测试数；截图/报告带 base_commit/路由/视口/哈希，重复哈希无效；复审必须实际复跑最小断言，不能拿实施方自述关闭阻断。
+
+### Changed
+
+- `rules/core/implementation-quality.md` §1.1 扩为“解码→矩阵→路由/菜单/深链台账→逐路由截图→缺陷族审计→根因先行”。
+- `rules/core/verification.md` §3/§5/§7 与 `verify/README.md` §4.1 同步新交付物、20 项 design-qa、逐路由证据与串行测试。
+- `rules/gates.md` completion-gate、`verify/checks.yaml`、`verify/frontend/design-qa.md`、`verify/frontend/acceptance.md`、`rules/templates/20-design/frontend-prototype-parity-template.md`、`skills/frontend-implementation/SKILL.md`、`rules/read-index.md`、`AGENTS.md` §0.3/§0.4 同步。
+- `-StartTask` 递归清理 `.gate/frontend/` 旧媒体，避免旧截图跨轮复用。
 
 ## [2026.11.04.1] - 2026-11-04
 

@@ -7,7 +7,8 @@
 
 | 对象 | 上限（估算 tokens） |
 | --- | ---: |
-| `AGENTS.md` §0 硬节（每任务常驻） | ≤ 5,500 |
+| `cold-start.md`（每任务常驻） | ≤ 1,200 |
+| `AGENTS.md` §0 + 指针 | ≤ 2,500 |
 | `AGENTS.md` 全文（含口令表） | 不计入每任务预算；口令表仅路由未定/首次命中时读 |
 | 常驻/必读规则 | ≤ 3,000 |
 | 参考手册/playbook | ≤ 10,000（头部标 `读取级别：参考`，只读当前节） |
@@ -15,7 +16,7 @@
 | 模板 | 不设 token 上限 |
 | 单步读取总量 | ≤ 8,000 |
 
-**读法**：新会话精读 `AGENTS` **§0 硬节**一次（非通读全文）；中段只认心跳 + `rule_card` + 读取索引当前行。门/verify/澄清/文档治理等禁止整份当每步必读——命中 step 只读当前节（计入单步 ≤8k）。参考手册只读当前 step 节；技能命中才读；模板只读当前一份。§0 超预算优先并入 SSOT 指针，勿在口令表重复硬规则。
+**读法**：新会话精读 `cold-start.md`；中段只认心跳 + `rule_card` + read-index 当前行。口令表仅路由需要时读。参考/技能/模板按命中读当前节或一份。
 
 ## 2. 单一出处
 
@@ -23,6 +24,20 @@
 - 高频重复（需求先确认、AC 可判定、评审独立、平台回写确认）必须合并。
 - 阻断路径统一 `必须/禁止/不得`；`可/建议/按需` 只用于非阻断能力。
 - 新增前先问：能否合并？能否脚本检查？能否删旧规则？三者都否才新增。
+
+## 2.0 补强闸门（防堆积 · 硬）
+
+```text
+发现缺口 / 反复失误
+  → Q1 现有 cold-start / 短硬卡 / gates / skill 必做 / verify 是否已覆盖？
+       是 → 改那一处（增强）→ 删其它副本 → 跑 eval/自检
+  → Q2 能否用脚本/门检查代替长文？ → 是则加机检，不写新散文
+  → Q3 是否同一错误反复（有证据）？ → 否：只记洞见，不入库
+  → Q4 完全未覆盖？ → 才新开：优先扩现有 owner；须单一职责、预算内、有载体、有降级；并删除被替代正文
+```
+
+- workflow step `notes`：**≤3 行指针**；方法进 skills / must_read；禁止 notes 复述门/完成口径全文。
+- `playbooks/`：内容须已进入 read-index 或 skill 后才可删文件；业务步默认不读 playbook。
 
 ## 2.1 自适应规则写法（防过拟合）
 
@@ -48,7 +63,7 @@
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-DocHygiene.ps1"
-python "wf-product/rules/tools/validate_workflow.py" "产品规范"
+python "wf-product/rules/tools/validate_workflow.py" "wf-product"
 ```
 
 检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、读取索引挂载、孤立模板。

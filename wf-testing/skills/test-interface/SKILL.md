@@ -28,7 +28,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 - 确定性接口用例 → **同轮产出脚本**（`executor --mode=api`），回归 0 token。
 - AI 只做：契约探查、语义/业务规则判定、脚本生成/维护、失败复核；**不逐步点击 UI 替代接口调用**。
-- 脚本放 `{workroot}/api/脚本/`；`tags: ['interface','smoke'|'regression']`；`suites` 固定；**P0 接口冒烟**登记 `{workroot}/smoke-checklist.md`，其余按 tags 选型。
+- 脚本放 `{workroot}/api/{NN}-{短名}/scripts/`；`tags: ['interface','smoke'|'regression']`；`suites` 固定；**P0 接口冒烟**登记 `{workroot}/smoke-checklist.md`，其余按 tags 选型。
 
 ## 3. 接口缺陷谱系（照单排查）
 

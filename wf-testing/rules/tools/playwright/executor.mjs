@@ -9,7 +9,7 @@
  *
  * 用法（在项目根执行）：
  *   node {workroot}/scripts/executor.mjs --plan={workroot}/scripts/01-xxx.script.mjs [选项]          # 默认 ui（浏览器）
- *   node {workroot}/scripts/executor.mjs --mode=api --plan={workroot}/api/脚本/01-xxx.mjs     # api（接口轨 · 无浏览器）
+ *   node {workroot}/scripts/executor.mjs --mode=api --plan={workroot}/api/{NN}-{短名}/scripts/01-xxx.mjs     # api（接口轨 · 无浏览器）
  *
  * 选项：
  *   --mode=ui|api       ui=浏览器回放（默认）；api=纯接口回放（接口轨，不启浏览器）

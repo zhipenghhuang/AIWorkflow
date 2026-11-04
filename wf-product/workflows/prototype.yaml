@@ -1,11 +1,9 @@
-# 页面原型设计（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）
-# 入口即止：设计评审只到 review；画原型才按链执行到下一个门。
+# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
+# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
 workflow:
   id: prototype
   name: 页面原型设计
   version: 5
-  read_index: rules/read-index.md
-
 entry_points:
   画原型: context
   页面原型: context
@@ -19,129 +17,118 @@ entry_points:
   UI走查: usability
   设计走查: usability
   开发交接: handoff
-
 trigger:
-  - 画原型 / 页面原型 / 原型设计 / 设计简报 / 设计策略 / 线框图
-  - UI 设计 / 界面设计 / 高保真原型
-  - 设计评审 / UI 走查 / 设计走查
-
+- 画原型 / 页面原型 / 原型设计 / 设计简报 / 设计策略 / 线框图
+- UI 设计 / 界面设计 / 高保真原型
+- 设计评审 / UI 走查 / 设计走查
 steps:
-  - name: 项目情境与参考基准
-    id: context
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/设计情境-{主题}.md（含设计简报/项目适配/交付等级）"
-    notes: >
-      读 PRD/产品计划/UAT/现有系统截图/品牌/约束；写清用户/任务/环境/设备/数据量/权限/术语/合规。
-      PRD 缺失 → 一句话说明缺口，按用户输入/产品档案继续，不阻塞；禁把猜测写成 PRD 结论。
-      设计策略/项目适配：产品定位、与现有系统的关系、要借什么/不借什么、明确不做什么；差异化只在产品定位需要时写。
-      2～3 个竞品/同类系统/设计规范参考（链接+日期）；优先引用已有 `竞品分析`/`竞品对标` 的借·改编行；无则本步补参考并写借/不借。
-      关键任务：补 1 张主用户旅程（步骤/情绪/痛点/机会）或写「单页工具不适用」；设计原则 3～5 条；交付等级=概念/线框/高保真/可交接。
-      覆盖目标：PRD F/A/AC → 页面/路由/状态；未读主读/情境资料不得开画。
-      技能：`skills/prototype-and-interaction/SKILL.md` §0；竞品借鉴命中时加 `competitive-intelligence-and-learning` §5；能力 design-intelligence/browser-mcp 可选。
-
-  - name: 信息架构与页面清单
-    id: ia
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/IA-{主题}.md"
-    notes: >
-      技能：`skills/prototype-and-interaction/SKILL.md`（先读再做）。
-      站点地图/导航/页面清单/关键流程/角色与权限；每页写目标、入口、主操作、出口；
-      明确本期做/不做；桌面/移动适配策略；覆盖矩阵初稿（PRD F/A/AC → 页面/路由）。
-
-  - name: 低保真线框
-    id: wireframe
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/wireframe-{页面}.html 或 原型说明 §线框"
-    notes: >
-      先结构后视觉：导航/标题/筛选/内容/操作/反馈区；一屏一个主任务。
-      每页覆盖空/加载/失败/成功/禁用/无权限状态；交互与文案就地标注。
-      可用 `rules/templates/20-design/prototype-scaffold.html` 起步（离线、无依赖）。
-
-  - name: 视觉方向与设计系统
-    id: visual
-    output: 视觉稿/设计 tokens/标注（{workroot}/{ver}/20-design/）
-    agent: ux-designer
-    hitl: confirm_design
-    notes: >
-      技能：`skills/ui-visual-design-system/SKILL.md`。
-      设计系统策略：复用现有品牌/系统；无则选一套主系统，不混搭；tokens 单一来源。
-      2～3 个视觉方向（气质/配色/字体/适用场景），写清为什么适合本产品，推荐 1 个并说明理由；
-      产出 design tokens（颜色/字体/间距/圆角/阴影/组件）。
-      confirm_design：出示 IA/线框/视觉方向/tokens 请确认；确认后才做高保真。
-      能力（可选）：design-intelligence / ui-generation / frontend-design；未装 = 按包内技能。
-
-  - name: 高保真可点击原型
-    id: hi-fi
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/prototype/index.html + design-tokens.css"
-    notes: >
-      静态 HTML/CSS（可少量 JS），浏览器直接打开；覆盖核心流程、状态、响应式、无障碍基础。
-      数据模型/seed/重置；导航/历史/返回/未保存提醒；每页状态矩阵逐项落地；单据类 A4 打印/导出。
-      原型/PRD 版本元数据（页面 title/meta 或说明文件）。
-      不做生产级后端；无设计师时以“清晰、一致、可用”为准，不冒充品牌级视觉。
-      **分页构建**（子代理编排 §2）：≥8 页 → 中心先定 IA/tokens/组件/页面契约；一页或一小批一子代理，只写 `原型/pages/{page}.html`；pages 不相交可并行≤3；**禁止并行写 `prototype/index.html`**；超时降级直做；编排组装 index；verifier 一致性/无障碍；<8 页单 agent；声明 `mode=`。
-      技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`；能力 ui-generation 可选增强，未装不影响。
-
-  - name: 工程化与可访问性
-    id: engineering
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/工程化检查-{主题}.md"
-    notes: >
-      导航/路由/历史/返回/未保存提醒；数据模型/seed/重置；状态矩阵逐页核对。
-      响应式断点 + 手机完整流程；单据类 A4 打印/导出与打印门槛。
-      WCAG 2.2 AA：键盘/焦点/对比度/ARIA/语义/label/alt，留证据（截图/检查结果）。
-      页面多时先用脚本/清单核状态矩阵与链接；仅语义/一致性判断派 verifier-agent，返回缺口 ≤30 行。
-      原型/PRD 版本元数据；缺项列阻断，修完再评审。
-
-  - name: 设计评审
-    id: review
-    agent: reviewer-agent
-    hitl: select_review_mode
-    hitl_when: landing_doc_review_needed
-    output: "{workroot}/{ver}/20-design/设计评审-{主题}.md"
-    notes: >
-      **先选评审方式**（`skills/artifact-review`）：A 自行通过｜B AI 独立审（派 `reviewer-agent` 或异上下文，禁作者自卖自夸）。交开发前必问。
-      选 A：ux-designer 出示 12 项评分卡自检 → reviewer-agent 核对 → 用户确认 HUMAN_APPROVED（批准人≠作者）。
-      选 B：按 `skills/ui-visual-design-system` 清单 + `rules/templates/20-design/design-review-template.md` 独立审：IA/一致性/状态/交互/文案/响应式/无障碍/视觉；12 项评分卡；阻断/重要/建议；需修回 hi-fi（≤1）。
-      **评审分片**（≥8 页）：维度扇出；评分卡只算一次。能力 design-review 可选；未装按清单。
-
-  - name: 可用性走查
-    id: usability
-    agent: ux-designer
-    output: "{workroot}/{ver}/20-design/可用性走查-{主题}.md"
-    notes: >
-      3～5 个关键任务走查：任务完成/步数/卡点/错误；Nielsen 10 启发式；
-      记录问题/严重度/建议；需修回 hi-fi（同回合≤1）。
-      无真实用户时标注“内部走查”，不冒充用户测试结论。
-
-  - name: 开发交接
-    id: handoff
-    agent: ux-designer
-    hitl: confirm_prototype
-    output: "{workroot}/{ver}/20-design/开发交接-{主题}.md"
-    notes: >
-      按 `rules/templates/20-design/dev-handoff-template.md` 产 `开发交接-{主题}.md`：组件/状态/交互/动效/tokens/响应式/无障碍证据/验收对照；覆盖矩阵与版本元数据；
-      评审通过后默认交付自洽开发handoff/设计结论（真源版本目录 + 实拷 `handoff/outbound/设计/`）；`DES` 包仅多文件/签收/仓外/点名时停问建议，确认后走 `workflows/handoff.yaml` 的 `send`（落 `出站/设计/{HO-ID}/`）；**不得在本步直接写 HO 包**。
-      必须写清设计意图、必须保留、可优化、未提供、需开发决策；开发补充/差异化设计不得静默改主流程。
-      回链 PRD §14 追溯矩阵「原型/页面」列；标注“原型≠生产代码”。
-      confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。
-      PRD §14 追溯矩阵「原型/页面」列回填；拟提交按 `rules/workflow.md` §3。
-
-  - name: 收尾
-    id: wrap
-    agent: ux-designer
-    output: 【任务收尾】（原型/评审/交接明细置第 1 点）
-    notes: >
-      对照 `rules/templates/90-handoff/closeout-skeleton.md` §2 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写；
-      更新产品计划 §0/§7/§10、activeContext、 `inbound/INDEX.md`（有实质进展时）；现状三处同拍（执行契约 §4 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。
-      本步先出骨架与拟提交清单，提交门在下一步。
-
-  - name: 拟提交
-    id: commit
-    output: 拟提交确认结果
-    agent: ux-designer
-    hitl: confirm_commit
-    hitl_when: has_pending_commit
-    tools:
-      - git
-    notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` §3；提交后补一行结果，不重复六段。
+- name: 项目情境与参考基准
+  id: context
+  must_read:
+  - rules/packets/prototype/context.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/设计情境-{主题}.md（含设计简报/项目适配/交付等级）'
+  notes: 读 PRD/产品计划/UAT/现有系统截图/品牌/约束；写清用户/任务/环境/设备/数据量/权限/术语/合规。 PRD 缺失 → 一句话说明缺口，按用户输入/产品档案继续，不阻塞；禁把猜测写成 PRD 结论。 设计策略/项目适配：产品定位、与现有系统的关系、要借什么/不借什么、明确不做什么；差异化只在产品定位需要时写。
+    2～3 个竞品/同类系统/设计规范参考（链接+日期）；优先引用已有 `竞品分析`/`竞品对标` 的借·改编行；无则本步补参考并写借/不借。 关键任务：补 1 张主用户旅程（步骤/情绪/痛点/机会）或写「单页工具不适用」；设计原则 3～5
+    条；交付等级=概念/线框/高保真/可交接。 覆盖目标：PRD F/A/AC → 页面/路由/状态；未读主读/情境资料不得开画。 技能：`skills/prototype-and-interaction/SKILL.md` ；竞品借鉴命中时加
+    `competitive-intelligence-and-learning` ；能力 design-intelligence/browser-mcp 可选。
+- name: 信息架构与页面清单
+  id: ia
+  must_read:
+  - rules/packets/prototype/ia.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/IA-{主题}.md'
+  notes: 技能：`skills/prototype-and-interaction/SKILL.md`（先读再做）。 站点地图/导航/页面清单/关键流程/角色与权限；每页写目标、入口、主操作、出口； 明确本期做/不做；桌面/移动适配策略；覆盖矩阵初稿（PRD
+    F/A/AC → 页面/路由）。
+- name: 低保真线框
+  id: wireframe
+  must_read:
+  - rules/packets/prototype/wireframe.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/wireframe-{页面}.html 或 原型说明 §线框'
+  notes: 先结构后视觉：导航/标题/筛选/内容/操作/反馈区；一屏一个主任务。 每页覆盖空/加载/失败/成功/禁用/无权限状态；交互与文案就地标注。 可用 `rules/templates/20-design/prototype-scaffold.html`
+    起步（离线、无依赖）。
+- name: 视觉方向与设计系统
+  id: visual
+  must_read:
+  - rules/packets/prototype/visual.md
+  output: 视觉稿/设计 tokens/标注（{workroot}/{ver}/20-design/）
+  agent: ux-designer
+  hitl: confirm_design
+  notes: 技能：`skills/ui-visual-design-system/SKILL.md`。 设计系统策略：复用现有品牌/系统；无则选一套主系统，不混搭；tokens 单一来源。 2～3 个视觉方向（气质/配色/字体/适用场景），写清为什么适合本产品，推荐
+    1 个并说明理由； 产出 design tokens（颜色/字体/间距/圆角/阴影/组件）。 confirm_design：出示 IA/线框/视觉方向/tokens 请确认；确认后才做高保真。 能力（可选）：design-intelligence
+    / ui-generation / frontend-design；未装 = 按包内技能。
+- name: 高保真可点击原型
+  id: hi-fi
+  must_read:
+  - rules/packets/prototype/hi-fi.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/prototype/index.html + design-tokens.css'
+  notes: 静态 HTML/CSS（可少量 JS），浏览器直接打开；覆盖核心流程、状态、响应式、无障碍基础。 数据模型/seed/重置；导航/历史/返回/未保存提醒；每页状态矩阵逐项落地；单据类 A4 打印/导出。 原型/PRD 版本元数据（页面
+    title/meta 或说明文件）。 不做生产级后端；无设计师时以“清晰、一致、可用”为准，不冒充品牌级视觉。 **分页构建**（子代理编排 ）：≥8 页 → 中心先定 IA/tokens/组件/页面契约；一页或一小批一子代理，只写 `原型/pages/{page}.html`；pages
+    不相交可并行≤3；**禁止并行写 `prototype/index.html`**；超时降级直做；编排组装 index；verifier 一致性/无障碍；<8 页单 agent；声明 `mode=`。 技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`；能力
+    ui-generation 可选增强，未装不影响。
+- name: 工程化与可访问性
+  id: engineering
+  must_read:
+  - rules/packets/prototype/engineering.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/工程化检查-{主题}.md'
+  notes: 导航/路由/历史/返回/未保存提醒；数据模型/seed/重置；状态矩阵逐页核对。 响应式断点 + 手机完整流程；单据类 A4 打印/导出与打印门槛。 WCAG 2.2 AA：键盘/焦点/对比度/ARIA/语义/label/alt，留证据（截图/检查结果）。
+    页面多时先用脚本/清单核状态矩阵与链接；仅语义/一致性判断派 verifier-agent，返回缺口 ≤30 行。 原型/PRD 版本元数据；缺项列阻断，修完再评审。
+- name: 设计评审
+  id: review
+  must_read:
+  - rules/packets/prototype/review.md
+  agent: reviewer-agent
+  hitl: select_review_mode
+  hitl_when: landing_doc_review_needed
+  gate: design-review
+  gate_type: machine
+  gate_when: ai_review_chosen
+  output: '{workroot}/{ver}/20-design/设计评审-{主题}.md + prototype-coverage.md'
+  notes: '**先选评审方式**（`skills/artifact-review`）：A 自行通过｜B AI 独立审（派 `reviewer-agent` 或异上下文，禁作者自卖自夸）。交开发前必问。 **原型实走（硬）**：必须用浏览器
+    MCP（优先）或内置浏览器/Playwright 打开原型，逐页点击 IA/菜单/关键任务/空错权限/移动端，桌面+移动截图；不得只读 HTML/文档或只看截图目录。产出 `prototype-coverage.md`（PRD F/A/AC→页面/路由/状态/交互/字段→原型实现→截图），缺行不得通过。
+    选 A：ux-designer 出示 12 项评分卡自检 → reviewer-agent 核对 → 用户确认 HUMAN_APPROVED（批准人≠作者）。 选 B：按 `skills/ui-visual-design-system`
+    清单 + `rules/templates/20-design/design-review-template.md` 独立审：IA/一致性/状态/交互/文案/响应式/无障碍/视觉；12 项评分卡；阻断/重要/建议；需修回 hi-fi（≤1）。评审员必须核对覆盖矩阵与截图。
+    原型/PRD 是下限；原型有明显缺陷可择优修正，但必须写偏离理由/影响/确认，重大偏离先 `OPEN-*`。 **评审分片**（≥8 页）：维度扇出；评分卡只算一次。能力 design-review 可选；未装按清单。'
+- name: 可用性走查
+  id: usability
+  must_read:
+  - rules/packets/prototype/usability.md
+  agent: ux-designer
+  output: '{workroot}/{ver}/20-design/可用性走查-{主题}.md'
+  notes: 3～5 个关键任务走查：任务完成/步数/卡点/错误；Nielsen 10 启发式； 记录问题/严重度/建议；需修回 hi-fi（同回合≤1）。 无真实用户时标注“内部走查”，不冒充用户测试结论。
+- name: 开发交接
+  id: handoff
+  must_read:
+  - rules/packets/prototype/handoff.md
+  agent: ux-designer
+  precondition: prototype.review 已通过；选 B 时 design-review 已 READY；或有用户明确豁免与依据
+  on_fail: 回 review 补评审/覆盖矩阵/截图；未过不得交开发
+  hitl: confirm_prototype
+  output: '{workroot}/{ver}/20-design/开发交接-{主题}.md'
+  notes: 按 `rules/templates/20-design/dev-handoff-template.md` 产 `开发交接-{主题}.md`：组件/状态/交互/动效/tokens/响应式/无障碍证据/验收对照；覆盖矩阵与版本元数据；
+    评审通过后默认交付自洽开发交接文档（真源版本目录 + 实拷 `handoff/outbound/设计/`）；`DES` 包仅多文件/签收/仓外/点名时停问建议，确认后走 `workflows/handoff.yaml` 的 `send`（落
+    `handoff/outbound/设计/{HO-ID}/`）；**不得在本步直接写 HO 包**。 必须写清设计意图、必须保留、可优化、未提供、需开发决策；开发补充/差异化设计不得静默改主流程。 回链 PRD 追溯矩阵「原型/页面」列；标注“原型≠生产代码”。
+    confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。 PRD 追溯矩阵「原型/页面」列回填；拟提交按 `rules/workflow.md` 。
+- name: 收尾
+  id: wrap
+  must_read:
+  - rules/packets/prototype/wrap.md
+  - rules/templates/90-handoff/closeout-skeleton.md
+  agent: ux-designer
+  output: 【任务收尾】（原型/评审/交接明细置第 1 点）
+  notes: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写； 更新产品计划 //、activeContext、 `{workroot}/INDEX.md`（有实质进展时）；现状三处同拍（执行契约
+    规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。 本步先出骨架与拟提交清单，提交门在下一步。
+- name: 拟提交
+  id: commit
+  must_read:
+  - rules/packets/prototype/commit.md
+  output: 拟提交确认结果
+  agent: ux-designer
+  hitl: confirm_commit
+  hitl_when: has_pending_commit
+  tools:
+  - git
+  notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；提交后补一行结果，不重复六段。

@@ -1,8 +1,15 @@
+---
+reviewer: "{评审者}"
+author: "{原型作者}"
+verdict: "{通过/需修}"
+---
+
 # {主题} 设计评审
 
 > **用途**：原型交接前的设计评审留痕（`confirm_prototype` 依据）。  
 > **落点**：`{workroot}/{ver}/20-design/设计评审-{主题}.md`。  
-> **纪律**：只评不改；12 项评分卡；阻断项必须 2 分；需修回 hi-fi；同回合重审 ≤1 次。
+> **纪律**：只评不改；12 项评分卡；阻断项必须 2 分；需修回 hi-fi；同回合重审 ≤1 次。  
+> **机器门**：frontmatter `reviewer/author/verdict` 必填，`reviewer ≠ author`，`verdict=通过`；同目录必须有 `prototype-coverage.md` 且结论=通过；机器门以 frontmatter 为准。
 
 ## 1. 评审对象
 
@@ -12,6 +19,7 @@
 | 版本/主题 | `{…}` |
 | 评审时间 | `{yyyy-MM-dd HH:mm}` |
 | 评审者 | `{AI 设计评审（+人）}` |
+| 原型作者 | `{原型作者}` |
 | 依据 | `原型说明-{主题}.md`、PRD `{…}`、设计情境 |
 
 ## 2. 评分卡（0～2 分/项）

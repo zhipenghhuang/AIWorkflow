@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # Playbook · 测试资产生成（分析 → 轻量计划 → 用例/脚本）
 
 > 只读本卡 + 当前步 YAML + 当前轨契约；**不要通读 `workflow.md` 全本**。
@@ -13,7 +15,7 @@
 | generate 功能 | `workflow.md` §2 头+§2.1.0 + **`test-case-template.md`** + 本卡 + 计划 §3.2/§3.7 + **测试分析表** + **命中域现行用例** + `skills/testcase-design`（§2.2 深度/§2.4/§5） | 脚本执行 §1/§2；提测单影响面（若有） | 接口/发布前契约（非本轨）；`_archive`；勿代替 review-cases |
 | generate 接口 | `tracks/api.md` + `skills/test-interface` + **`api-test-case-template.md`** + **命中接口域现行资产** + 分析表 §0 | 脚本执行 §2；depth=full 时全维；落盘后 `validate_api_testcase.py` | 功能 `test-case-template.md`；功能用例全量；未点名全仓重生 |
 | generate 探索式 | `tracks/exploratory.md` + **`exploratory-case-template.md`**（步骤四列+章程映射）+ 分析表 §0 | 计划 §12 | 功能覆盖三闸；功能用例模板 |
-| generate 随机业务流程 | `tracks/random-flows.md` + **`random-flow-case-template.md`**（用户旅程+办结+去重窗+分流） | 账本最近 N 轮；有则基线菜单地图/`00-稳定冒烟清单`（办结候选） | 计划 §3/§9；主读/分析表作判定；探索式菜谱；功能三闸 |
+| generate 随机业务流程 | `tracks/random-flows.md` + **`random-flow-case-template.md`**（用户旅程+办结+去重窗+分流） | 账本最近 N 轮；有则基线菜单地图/`smoke-checklist.md`（办结候选） | 计划 §3/§9；主读/分析表作判定；探索式菜谱；功能三闸 |
 | generate 发布前 | `tracks/pre-release.md` + 专项技能 | 工具 README | 功能覆盖三闸（不适用） |
 | review-cases | `workflow.md` §2.5 + `skills/testcase-review` + 评审记录模板 + 被审用例/映射/**测试分析表**/需求模型 | coverage 回执；可选 `qa-skills` 能力 | 执行专规；生成者自评 |
 
@@ -53,7 +55,7 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 - 探索式/随机业务流程/接口/发布前按各自契约，不套功能三闸；随机业务流程禁止写入测试计划。
 - 大规模生成：≥3 模块且（预估≥40 条或用户点名）→ 分片写 `.draft`（不相交可并行≤3）；编排合并；超时/空产物→降级直做（多Agent §1.5.4）；**禁**并行写同一正式域文件；开跑声明 `mode=`。
 - 生成写手不得自审自放行；T1+ 功能未过评审闸不得进 P2。
-- 旧 `{NN}` 包视为 L1，不强制重编号。
+- 旧 `{NN}` 包视为 Domain，不强制重编号。
 
 ## 5. 资产文档形态（AI 实操 · 与市面 change-scoped / project-wide 对齐）
 
@@ -63,7 +65,7 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 | **新迭代** | change-scoped | 打开命中域 `*-功能|接口用例.md` 增量（增改淘 rerun）；无夹才新建；旧平铺迁入 |
 | **执行选例** | 读计划 §0 suite + §3.7 装填域 | 只跑装填行列出的域/条；Core 无条件；有文件≠本轮跑 |
 
-**分类（写入用例/矩阵）**：按优先级 P0-Smoke / P0-HighRisk / P1-Core / P2-Low；按类型 功能/接口/探索/发布前；按层 L0 Core / L1 域常青 / L2 本版增量。  
+**分类（写入用例/矩阵）**：按优先级 P0-Smoke / P0-HighRisk / P1-Core / P2-Low；按类型 功能/接口/探索/发布前；按层 Core / Domain（域常青） / Delta（本版增量）。  
 **必用技能链**：`test-basis-analysis`（建模）→ `test-analysis-and-plan`（计划/装填）→ `testcase-design`（技法+深度）→ `testcase-review`（放行）→ 执行选 `test-execution-and-exploration`（+ 接口/性能等按轨）。  
 **充分性底线**：命中 `testcase-design` §2.2 特征行须有映射与可观测预期（一次到位）；影响面逐邻接点落。禁堆场景清单冒充深度；oracle/判定与工作流 §3.0 同向。
 

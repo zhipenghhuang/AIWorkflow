@@ -14,8 +14,10 @@ Usage:
 Exit: 0 = PASS, 1 = CONDITIONAL/FAIL/BLOCKED, 2 = usage.
 
 Scope（步后门）:
-  - execute：应带 --scope（如 16-ASN 或 functional/16）；缺则尝试从 activeContext/计划 §0 推断；仍无则 BLOCKED。
+  - execute：应带 --scope（模块目录名或 functional/16）；缺则尝试从 activeContext/计划 §0 推断；仍无则 BLOCKED。
   - report：忽略 --scope，扫各轨现行台账；计数只认本轮装填（排除「未本轮验证」）。
+  - writeback：凭据取缺陷文案/台账/回写回执；handoff 接收回执不算。
+  - review：评审对象必须是用例/资产，且结论唯一、可解析。
 """
 from __future__ import annotations
 
@@ -48,7 +50,7 @@ def default_project_root(package_root: Path) -> Path:
 
 
 def declared_workroot(project_root: Path):
-    for name in ("project-profile.md", "env-baseline.md"):
+    for name in ("env-baseline.md", "project-profile.md"):
         f = project_root / name
         if not f.is_file():
             continue
@@ -151,6 +153,8 @@ def get_cell(row: list[str], headers: list[str], name: str) -> str:
     try:
         i = headers.index(name)
     except ValueError:
+        i = next((j for j, h in enumerate(headers) if h.startswith(name)), -1)
+    if i < 0:
         return ""
     return row[i].strip() if i < len(row) else ""
 
@@ -251,6 +255,56 @@ def parse_analysis(test_root: Path) -> dict[str, Any]:
                 elif not has_matrix_marker(val):
                     issues.append(f"§2.3「{row[0]}」第{j}列未写 有/N/A+依据")
 
+    # §2.4 basis coverage (PRD / plan / prototype / API)
+    block24 = subsection(text, "2.4")
+    t24 = pick_table(block24, ["依据ID", "来源", "验证点ID", "结论"])
+    if not t24:
+        issues.append("§2.4 依据覆盖表缺失或表头不可读（需 依据ID/来源/页面/接口/验证点ID/结论）")
+    else:
+        headers, rows = t24
+        ui_row = False
+        api_row = False
+        for row in rows:
+            if not row or not row[0] or row[0] in ("依据ID", "—"):
+                continue
+            basis_id = row[0].strip()
+            source = get_cell(row, headers, "来源")
+            page = get_cell(row, headers, "页面/路由/状态")
+            api = get_cell(row, headers, "接口/字段/权限/错误码")
+            vp = get_cell(row, headers, "验证点ID")
+            verdict = get_cell(row, headers, "结论")
+            joined = " ".join(row)
+            if "原型" in joined or "页面" in joined or "路由" in joined:
+                ui_row = True
+            if "接口" in joined or "api" in joined.lower() or "endpoint" in joined.lower():
+                api_row = True
+            if is_blank_cell(source):
+                issues.append(f"§2.4「{basis_id}」缺来源（PRD F/A/AC / 方案 § / 原型页面/路由 / 接口）")
+            if is_blank_cell(verdict):
+                issues.append(f"§2.4「{basis_id}」缺结论（已覆盖/N/A+依据）")
+            elif verdict.startswith("N/A") or verdict.startswith("不适用"):
+                if "依据" not in joined and len(verdict) < 6:
+                    issues.append(f"§2.4「{basis_id}」N/A 未写业务依据")
+            elif not verdict.startswith("已覆盖"):
+                issues.append(f"§2.4「{basis_id}」结论不可判定：{verdict}")
+            else:
+                if is_blank_cell(vp):
+                    issues.append(f"§2.4「{basis_id}」已覆盖但缺验证点ID")
+                else:
+                    refs = [x.strip("` ") for x in re.split(r"[/,，、;\s]+", vp) if x.strip("` ")]
+                    for ref in refs:
+                        if ref.startswith(("N/A", "不适用", "—")):
+                            continue
+                        if ids and ref not in ids:
+                            issues.append(f"§2.4「{basis_id}」验证点ID {ref} 不在 §2 验证点表")
+            if verdict.startswith("已覆盖") and is_blank_cell(page) and is_blank_cell(api):
+                issues.append(f"§2.4「{basis_id}」页面/路由/状态 与 接口/字段/权限/错误码 至少填一处")
+        basis_text = re.sub(r"^#{2,3}\s*2\.4[^\n]*\n?", "", text, flags=re.M).replace(block24, "")
+        if "原型" in basis_text and not ui_row:
+            issues.append("§2.4 分析含原型依据，但覆盖表没有 原型/页面/路由 行")
+        if ("接口" in basis_text or "API" in basis_text) and not api_row:
+            issues.append("§2.4 分析含接口/API 依据，但覆盖表没有 接口/字段/权限/错误码 行")
+
     # §3.1 change impact
     block31 = subsection(text, "3.1")
     t31 = pick_table(block31, ["变更点 ID", "回归点"])
@@ -314,12 +368,33 @@ def parse_analysis(test_root: Path) -> dict[str, Any]:
     return {"path": str(p), "issues": issues, "legacy": False, "ids": ids}
 
 
+def _is_lite_plan(text: str) -> bool:
+    head = text[:2500]
+    if re.search(r"plan_tier\s*=\s*lite", head, re.I):
+        return True
+    if re.search(r"轻量版\s*[·・.]\s*T0\s*/\s*T1|测试计划（轻量版", head):
+        return True
+    if "轻量版" in head and re.search(r"\bT0\b|\bT1\b", head):
+        return True
+    return False
+
+
 def parse_plan_structure(plan: Path) -> dict[str, Any]:
     text = read(plan)
-    is_new = bool(re.search(r"^#{2,3}\s*3\.8(?:\s|$)", text, re.M)) or "版本级四卷" in text
-    if not is_new:
-        return {"issues": [], "legacy": True}
-    issues: list[str] = []
+    is_version = bool(re.search(r"^#{2,3}\s*3\.8(?:\s|$)", text, re.M)) or "版本级四卷" in text
+    is_lite = _is_lite_plan(text)
+
+    # Lite (T0/T1): minimal matrix/exit/risk — never label as legacy.
+    if is_lite and not is_version:
+        issues: list[str] = []
+        if not re.search(r"执行矩阵|装填|准出|风险", text):
+            issues.append("轻量计划缺执行矩阵/准出/风险最小集（须写清范围·类型·轨道·准出·风险）")
+        return {"issues": issues, "legacy": False, "tier": "lite"}
+
+    if not is_version:
+        return {"issues": [], "legacy": True, "tier": "legacy"}
+
+    issues = []
     block37 = subsection(text, "3.7")
     t37 = pick_table(block37, ["模块/流程", "批次"])
     if not t37:
@@ -398,7 +473,7 @@ def parse_plan_structure(plan: Path) -> dict[str, Any]:
                         issues.append(f"§3.9 {pg} 共享隔离 token「{token}」：{seen[token]} / {item['batch']}，须串行")
                     else:
                         seen[token] = item["batch"]
-    return {"issues": issues, "legacy": False}
+    return {"issues": issues, "legacy": False, "tier": "version"}
 
 
 def parse_report_structure(text: str) -> dict[str, Any]:
@@ -450,14 +525,14 @@ def infer_scope(project_root: Path) -> str:
         if not p.is_file():
             continue
         text = read(p)
-        # functional/16-ASN… or 16-ASN发货
+        # functional/16-模块名… 或计划里的 16-模块名 / 模块：16-模块名
         m = re.search(r"(?:functional|功能测试)[/\\](\d{2}-[^\s`|/]+)", text)
         if m:
             return m.group(1).rstrip("*/）)")
-        m = re.search(r"\bM(\d{2})\b", text)
+        m = re.search(r"(?:模块|module)\s*[:：]\s*([A-Za-z0-9]{1,6}-[^\s`|/]+)", text, re.I)
         if m:
-            return m.group(1)  # e.g. 16 matches …/16-…
-        m = re.search(r"开跑\s*\*?\*?M?(\d{2})", text)
+            return m.group(1)
+        m = re.search(r"\b([A-Za-z]{0,4}\d{2}-[^\s`|/]+)", text)
         if m:
             return m.group(1)
     return ""
@@ -496,11 +571,11 @@ def parse_report_verdict(text: str) -> tuple[str, str]:
         return "", "准出评估未选择唯一结论"
     if "有条件" in raw or "CONDITIONAL" in raw.upper():
         return "CONDITIONAL", ""
-    if re.search(r"不通过(?!项)|未通过|部分通过|\bFAIL\b", raw, re.I):
+    if re.search(r"不通过(?!项)|不准出|未通过|部分通过|\bFAIL\b", raw, re.I):
         return "FAIL", ""
     if "阻塞" in raw or "未验证" in raw or "BLOCKED" in raw.upper():
         return "BLOCKED", ""
-    if "通过" in raw or re.search(r"\bPASS\b", raw, re.I):
+    if "可准出" in raw or "通过" in raw or re.search(r"\bPASS\b", raw, re.I):
         return "PASS", ""
     return "", "准出评估不可识别"
 
@@ -789,6 +864,7 @@ def parse_review(path: Path) -> dict[str, Any]:
     text = read(path)
     issues: list[str] = []
     secs = sections(text)
+    placeholders = re.findall(r"\{[^{}\n]+\}", text)
 
     required_heads = ("评审对象", "依据", "结论")
     for head in required_heads:
@@ -796,27 +872,29 @@ def parse_review(path: Path) -> dict[str, Any]:
             issues.append(f"缺少章节含「{head}」")
 
     conclusion = ""
-    for key, block in secs.items():
-        if "结论" in key and "处理" not in key:
-            if re.search(r"放行执行", block):
-                conclusion = "放行执行"
-            elif re.search(r"有条件放行", block):
-                conclusion = "有条件放行"
-            elif re.search(r"需修后放行", block):
-                conclusion = "需修后放行"
-            break
-    if not conclusion:
-        # fallback：整批结论 / 结论 行
-        if re.search(r"(整批)?结论[：:\*\s]{0,12}放行执行", text):
-            conclusion = "放行执行"
-        elif re.search(r"(整批)?结论[：:\*\s]{0,12}有条件放行", text):
-            conclusion = "有条件放行"
-        elif re.search(r"(整批)?结论[：:\*\s]{0,12}需修后放行", text):
-            conclusion = "需修后放行"
-        else:
-            issues.append("结论不可解析（须为 放行执行/需修后放行/有条件放行）")
+    conclusion_line = next(
+        (ln for ln in text.splitlines()
+         if re.search(r"(整批)?结论\s*[：:]", ln.replace("*", "").replace("`", ""))
+         and "处理" not in ln),
+        "",
+    )
+    labelled = conclusion_line.replace("**", "").replace("`", "")
+    hits = [name for name, needle in (
+        ("放行执行", "放行执行"),
+        ("需修后放行", "需修后放行"),
+        ("有条件放行", "有条件放行"),
+    ) if needle in labelled]
+    if len(hits) == 1 and not re.search(r"\{[^{}\n]+\}", labelled):
+        conclusion = hits[0]
+    elif not conclusion_line:
+        issues.append("结论不可解析（须有唯一「整批结论：…」行）")
+    else:
+        issues.append("结论未唯一（模板选项未删除或未填写）")
 
-    if not re.search(r"独立性|评审者\s*\|\s*|≠\s*生成|已隔离", text):
+    if placeholders:
+        issues.append(f"评审记录仍有 {len(placeholders)} 处模板占位符，不得作为放行证据")
+
+    if not re.search(r"(已隔离|未读生成者|≠\s*生成|独立性\s*[:：]\s*(?!\{))", text):
         issues.append("缺少独立性声明（评审者≠生成写手/已隔离）")
 
     if not re.search(r"严重度|阻断|A1|量规|评分卡", text):
@@ -843,12 +921,14 @@ def parse_review(path: Path) -> dict[str, Any]:
             issues.append("有条件放行缺少接受人")
 
     if conclusion == "需修后放行":
-        # allow PASS only if §处理/复核 all 通过 — else FAIL (not yet released)
-        fix_sec = next((b for k, b in secs.items() if "处理" in k or "复核" in k), "")
-        if fix_sec and re.search(r"通过", fix_sec) and not re.search(r"(未通过|不通过|部分通过|未过|未复核)", fix_sec):
-            conclusion = "放行执行"  # recheck closed
-        else:
+        # 复核通过必须在记录里显式写「复核结论：放行执行」；不得从处理表里猜。
+        if not re.search(r"复核结论\s*[：:]\s*放行执行", text):
             issues.append("结论=需修后放行（阻断未清，不得声称评审通过）")
+
+    # 用例评审闸只接受用例/资产评审；计划/分析评审不得替用。
+    obj = next((b for k, b in secs.items() if "评审对象" in k), "")
+    if obj and not re.search(r"用例|资产|testcase|case", obj, re.I):
+        issues.append("评审对象不是用例/资产，不能作为 case-review 放行依据")
 
     return {
         "path": str(path),
@@ -898,6 +978,9 @@ def main() -> int:
     p0_missing: list[str] = []
     reported_verdict = ""
     receipt_verdict = ""
+    conditional_accepted = False
+    writeback_receipt: Path | None = None
+    review_record_path: Path | None = None
     review_conclusion = ""
 
     # report = 准出门全仓；execute = 步后门需 scope
@@ -922,6 +1005,7 @@ def main() -> int:
             checks.append({"id": "review-record", "status": "blocked", "detail": "missing"})
         else:
             latest = records[0]
+            review_record_path = latest
             parsed = parse_review(latest)
             review_conclusion = parsed["conclusion"]
             checks.append({"id": "review-record", "status": "pass", "detail": parsed["path"]})
@@ -973,13 +1057,17 @@ def main() -> int:
             checks.append({"id": "analysis-legacy", "status": "skip", "detail": "legacy analysis; new matrices not gated"})
         if plan.is_file():
             plan_struct = parse_plan_structure(plan)
+            tier = plan_struct.get("tier") or ("legacy" if plan_struct.get("legacy") else "version")
+            ok_detail = "lite ok（无四卷要求）" if tier == "lite" else "ok"
             checks.append({
                 "id": "plan-structure",
                 "status": "fail" if plan_struct["issues"] else "pass",
-                "detail": plan_struct["issues"][:12] or "ok",
+                "detail": plan_struct["issues"][:12] or ok_detail,
             })
             if plan_struct.get("legacy"):
                 checks.append({"id": "plan-legacy", "status": "skip", "detail": "legacy plan; four volumes/batches not gated"})
+            elif tier == "lite":
+                checks.append({"id": "plan-lite", "status": "pass", "detail": "lite/T0-T1 plan; four volumes not required"})
 
         if args.mode in ("execute", "report") and not any(c.get("id") == "scope-required" for c in checks):
             all_ledgers = [p for p in test_root.rglob("*.md") if "台账" in p.name and is_current(p)] if test_root.is_dir() else []
@@ -1045,8 +1133,24 @@ def main() -> int:
                     checks.append({"id": "report-legacy", "status": "skip", "detail": "legacy report; volume/point/batch tables not gated"})
                 reported_verdict = parsed["verdict"]
                 receipt_verdict = parsed["receipt_verdict"]
+                conditional_accepted = reported_verdict == "CONDITIONAL" and bool(
+                    re.search(r"接受人|accepted_by", read(report), re.I)
+                )
                 checks.append({"id": "report-verdict", "status": "pass" if reported_verdict else "fail",
                                "detail": reported_verdict or "准出评估缺失/不可识别"})
+                if rep_struct.get("legacy"):
+                    checks.append({"id": "report-declaration", "status": "skip", "detail": "legacy report"})
+                else:
+                    rep_text = read(report)
+                    missing_decl = [name for name, pat in (
+                        ("runId", r"runId|运行ID"),
+                        ("suite", r"suite"),
+                        ("depth", r"depth"),
+                        ("本轮构建", r"本轮构建|构建"),
+                    ) if not re.search(pat, rep_text, re.I)]
+                    checks.append({"id": "report-declaration",
+                                   "status": "fail" if missing_decl else "pass",
+                                   "detail": f"缺少声明: {', '.join(missing_decl)}" if missing_decl else "ok"})
                 checks.append({"id": "p0-vs-verdict", "status": "fail" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "pass",
                                "detail": "P0-Smoke/P0-HighRisk 未过但报告写通过/有条件通过" if p0_fail and reported_verdict in ("PASS", "CONDITIONAL") else "consistent"})
                 if "## 5." in read(report):
@@ -1076,27 +1180,43 @@ def main() -> int:
             cov_detail = f"{cov_detail} (execute: soft)"
         checks.append({"id": "coverage-map", "status": "fail" if cov_issues else "pass", "detail": cov_detail})
     else:
-        receipts = [p for p in test_root.rglob("*.md") if ("回执" in p.name or "回写" in p.name) and is_current(p)] if test_root.is_dir() else []
+        receipts: list[Path] = []
+        if test_root.is_dir():
+            for p in test_root.rglob("*.md"):
+                if not is_current(p):
+                    continue
+                # handoff 的接收回执不是平台回写凭据，必须排除。
+                rel_parts = {x.lower() for x in p.parts}
+                if "handoff" in rel_parts or "04-回执" in p.parts or "inbound" in rel_parts:
+                    continue
+                if "回执" in p.name or "回写" in p.name:
+                    receipts.append(p)
+                elif "缺陷" in p.name or "BUG" in p.name.upper() or "台账" in p.name:
+                    receipts.append(p)
         if not receipts:
-            blocked.append("未找到回写回执（{workroot}/**/*回执*.md）")
+            blocked.append("未找到回写凭据（缺陷文案/台账/回写回执；handoff 接收回执不算）")
             checks.append({"id": "writeback-receipt", "status": "blocked", "detail": "missing"})
         else:
             receipt = max(receipts, key=lambda p: p.stat().st_mtime)
+            writeback_receipt = receipt
             text = read(receipt)
             issues = []
             if not re.search(r"(BUG[-_]?\d+|#\d+)", text, re.I):
-                issues.append("回执缺少平台单号")
-            if "备注" not in text:
-                issues.append("回执缺少备注")
-            if "状态" not in text:
-                issues.append("回执缺少状态")
-            if "附件" not in text:
-                issues.append("回执缺少附件回查")
-            if "已回写" in text and "待回写" not in text and not re.search(r"(noteId|备注ID|回写时间|回执)", text, re.I):
+                issues.append("回写凭据缺少平台单号")
+            if not re.search(r"备注", text):
+                issues.append("回写凭据缺少备注")
+            if not re.search(r"状态|resolution", text, re.I):
+                issues.append("回写凭据缺少状态")
+            if not re.search(r"附件|fileId|无附件", text, re.I):
+                issues.append("回写凭据缺少附件回查")
+            if "已回写" in text and "待回写" not in text and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", text, re.I):
                 issues.append("声称已回写但缺少回执/noteId/时间")
             if "待回写" in text and not re.search(r"(export|无权限|待回写|原因)", text, re.I):
                 issues.append("待回写缺少 export/无权限/原因")
-            checks.append({"id": "writeback-receipt", "status": "fail" if issues else "pass", "detail": issues or str(receipt)})
+            if "待回写" not in text and not re.search(r"(noteId|备注ID|actionId|回写时间)", text, re.I):
+                issues.append("缺少 noteId/回写时间（无法证明本轮写入）")
+            checks.append({"id": "writeback-receipt", "status": "fail" if issues else "pass",
+                           "detail": issues or str(receipt)})
 
     if args.strict:
         for c in checks:
@@ -1149,6 +1269,29 @@ def main() -> int:
         else:
             verdict = "PASS"
 
+    # 软失败只表示本批不阻断后续，不得留在 checks 里被 Claim 当成硬阻断。
+    for c in checks:
+        if c.get("status") == "fail" and c.get("id") in soft_ids:
+            c["soft"] = True
+            c["status"] = "warn"
+
+    source_hashes: dict[str, str] = {}
+    if test_root.is_dir():
+        candidates = [
+            test_root / "test-plan.md",
+            test_root / "test-analysis.md",
+            test_root / "test-report.md",
+            test_root / "smoke-checklist.md",
+        ]
+        candidates += [p for p in test_root.rglob("*.md") if "台账" in p.name and is_current(p)]
+        if writeback_receipt is not None:
+            candidates.append(writeback_receipt)
+        if review_record_path is not None:
+            candidates.append(review_record_path)
+        for p in candidates:
+            if p.is_file():
+                source_hashes[str(p)] = hashlib.sha256(p.read_bytes()).hexdigest()
+
     now_dt = datetime.now(timezone.utc).astimezone()
     now = now_dt.isoformat(timespec="seconds")
     # gate_id 只标识“输入快照”（计划/冒烟/台账），不哈希报告本身：
@@ -1161,6 +1304,8 @@ def main() -> int:
     for p in ledger_files:
         if "台账" in p.name and is_current(p):
             h.update(read(p).encode("utf-8", errors="replace"))
+    if writeback_receipt is not None and writeback_receipt.is_file():
+        h.update(read(writeback_receipt).encode("utf-8", errors="replace"))
     gate_id = f"{args.mode}-{h.hexdigest()[:12]}"
     completion = {
         "gate_version": "2.2",
@@ -1176,6 +1321,8 @@ def main() -> int:
         "reported_verdict": reported_verdict,
         "receipt_verdict": receipt_verdict,
         "review_conclusion": review_conclusion,
+        "conditional_accepted": conditional_accepted,
+        "source_hashes": source_hashes,
         "checks": checks,
         "blocked": blocked,
         "timestamp": now,

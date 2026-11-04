@@ -69,7 +69,7 @@
 
 ## 运行时（机制用 · 勿当正文）
 
-- `wf-development onboard: done`：`{已完成 / 未完成}`
+- `wf-development onboard: {{done|not_done}}`
 - 当前分支 / 版本 / 环境：`{{…；失效即删}}`
 - 当前文档索引：`{workroot}/INDEX.md`
 - `{{可选：阻塞/发布窗口等瞬时事实；失效即删}}`

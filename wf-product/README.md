@@ -1,6 +1,6 @@
 # 产品规范 — 使用说明
 
-> 供人阅读；AI 入口为同目录 `AGENTS.md`。  
+> 供人阅读；**AI 新会话先读** `rules/core/cold-start.md`，口令见 `AGENTS.md`。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -16,7 +16,7 @@
 
 | 路径 | 作用 |
 | --- | --- |
-| `workflows/` | `new-product`（0→1）· `plan`（产品计划/路线图）· `prd`（洞察/竞品分析·对标/立项/PRD/评审/需求交接）· `prototype`（设计策略/项目适配/IA/线框/视觉/高保真/评审/交接）· `showcase`（演示/介绍/用户文档）· `change`（受理与变更）· `defect`（缺陷平台）· `deliver`（排期/UAT/发布/复盘）· `handoff`（交接包/接收回执/变更通知/状态）· `onboard` · `skill-audit`（能力技能体检） |
+| `workflows/` | `new-product`（0→1）· `plan`（产品计划/路线图）· `prd`（洞察/竞品分析·对标/立项/PRD/评审/需求交接）· `prototype`（设计策略/项目适配/IA/线框/视觉/高保真/评审/交接）· `showcase`（演示/介绍/用户文档）· `change`（受理与变更）· `defect`（缺陷平台）· `deliver`（排期/UAT/发布/复盘）· `handoff`（交接包/接收回执/变更通知/状态）· `onboard` · `materials`（权威文档库）· `skill-audit`（能力技能体检） |
 | `agents/` | pm-analyst / prd-writer / pm-lead / reviewer-agent / ux-designer / onboard-agent / verifier-agent / worker-agent |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；`skills/README.md`） |

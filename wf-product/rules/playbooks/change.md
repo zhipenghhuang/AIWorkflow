@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # Playbook · 需求/问题受理与变更（含 P0～P3 分级）
 
 > 只读本卡 + 当前步 YAML；细节按指针读，**不要通读 `workflow.md` 全本**。

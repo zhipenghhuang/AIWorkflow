@@ -4,7 +4,7 @@ title: {ver} 迭代方案
 status: DRAFT
 review_status: PENDING   # PENDING / SELF_CHECKED / APPROVED / HUMAN_APPROVED
 version: V0.1
-product_version: {版本}
+product_version: {ver}
 owner: {产品负责人}
 source_of_truth: false
 based_on: {产品计划/需求池/PRD/调研}

@@ -1,3 +1,5 @@
+> **维护素材**：运行时默认不读；方法与硬约束以 `rules/packets/<workflow>/<step>.md` 为准。
+
 # Playbook · 交付与发布（排期 → 跟进 → UAT → 发布 → 复盘）
 
 > 只读本卡 + 当前步 YAML；UAT/复盘技能按步读。

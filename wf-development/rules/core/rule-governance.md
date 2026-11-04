@@ -7,9 +7,10 @@
 
 | 对象 | 上限（估算 tokens） | 说明 |
 | --- | ---: | --- |
-| `AGENTS.md` §0 硬节（每任务常驻） | ≤ 5,500（目标） | 只留最短不变量、读取协议、verify/汇报指针；超预算并入 SSOT |
-| `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅路由未定/首次命中时读；禁止每任务通读 §0～§3 |
-| 常驻/必读规则 | ≤ 3,000 | 每次任务可能读的规则；超了拆节或移 playbook |
+| `cold-start.md`（每任务常驻） | ≤ 1,200 | **开局唯一常驻正文**；超预算必须再拆命令表 |
+| `AGENTS.md` §0 + 指针 | ≤ 2,500 | 分级表+指针；硬约束不重复开局卡 |
+| `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅未路由时读 |
+| 常驻/必读规则 | ≤ 3,000 | 含 cold-start；超了拆节或移 playbook |
 | 参考手册/playbook | ≤ 10,000 | **必须**在头部标 `读取级别：参考` + 节索引；只读当前节，禁止通读 |
 | 单个 `skills/<name>/SKILL.md` | ≤ 4,500 | 技能按步加载；超了拆 `references/` 或脚本 |
 | 模板 | 不设 token 上限 | 只复制/填写，不作为规则通读 |
@@ -18,8 +19,8 @@
 估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。`Test-DocHygiene.ps1` 检查常驻规则、参考手册、AGENTS、技能；模板不报预算。
 
 **读法分级**：
-- **常驻（指针级）**：新会话精读 `AGENTS.md` **§0 硬节**一次；其后只认心跳 + `rule_card` + 读取索引**当前行**。门/verify/澄清/文档治理等**禁止**整份当每步必读——只在命中 step 读当前节（计入单步 ≤8k）。
-- **参考**：`workflow.md`、`rules/core/implementation-quality.md`、`rules/defects/fix-collaboration.md`、`rules/collaboration/handoff.md` 等长流程；只在对应 step 读当前节。
+- **常驻**：新会话精读 `cold-start.md`；其后心跳 + `rule_card` + 读取索引当前行。  
+- **参考**：`implementation-quality.md`（词典）、`workflow.md`、handoff/缺陷长文；只读当前节。`frontend-gate` / `iq-checklist` 为命中必读短卡，不算百科。
 - **技能**：命中步才读，不命中不读。
 - **模板**：只读当前要填的一份，不通读模板库。
 
@@ -29,6 +30,20 @@
 - 高频重复规则（一次一问、证据先于结论、文档现行有效、子代理边界）必须合并。
 - 阻断路径统一 `必须/禁止/不得`；`可/建议/按需/必要时` 只用于非阻断能力。
 - 新增规则前先问：能否合并到现有规则？能否用脚本检查？能否删掉旧规则？三者都否，才新增。
+
+## 2.0 补强闸门（防堆积 · 硬）
+
+```text
+发现缺口 / 反复失误
+  → Q1 现有 cold-start / 短硬卡 / gates / skill 必做 / verify 是否已覆盖？
+       是 → 改那一处（增强）→ 删其它副本 → 跑 eval/自检
+  → Q2 能否用脚本/门检查代替长文？ → 是则加机检，不写新散文
+  → Q3 是否同一错误反复（有证据）？ → 否：只记洞见，不入库
+  → Q4 完全未覆盖？ → 才新开：优先扩现有 owner；须单一职责、预算内、有载体、有降级；并删除被替代正文
+```
+
+- workflow step `notes`：**≤3 行指针**；方法进 skills / must_read；禁止 notes 复述门/完成口径全文。
+- `playbooks/`：内容须已进入 read-index 或 skill 后才可删文件；业务步默认不读 playbook。
 
 ## 2.1 自适应规则写法（防过拟合）
 
@@ -60,7 +75,7 @@
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-DocHygiene.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Template.ps1"
-python "wf-development/rules/tools/validate_workflow.py" "开发规范"
+python "wf-development/rules/tools/validate_workflow.py" "wf-development"
 ```
 
 检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、读取索引挂载、孤立模板。
@@ -90,6 +105,9 @@ python "wf-development/rules/tools/validate_workflow.py" "开发规范"
 20. 命中 §2.1「DEV 必留」的触发链 AC，仅用合成行/mock 插入/只读打开预置对象即报 COMPLETE → DEV-IQ-02 / DEV-VER-12 失败。
 21. 方案写「生成/创建/下发时」却 SC 落点只写查询补齐、或先旁路后接写入口且无债项 → DEV-IQ-01 / DEV-IQ-09 写路径失败。
 22. 口令表/`entry_points` 指向不存在的 step，或 `read-index` 缺当前 step 行 → 规则卫生检查失败。
+23. 任务声明覆盖某组通用条款/场景族，但 AC/SC 未覆盖组内「必须/不得」却标完成 → DEV-IQ-12 §4.1#10 失败。
+24. 实现批量写却对合法+非法混合返回空成功/静默漏项；或方案写危险不得进正式可下载却仅做令牌/hash 仍进正式态 → DEV-IQ-10/12 失败。
+25. 把写入口契约负面（批量混合、上传正式态门禁）仅因落在产品验收矩阵就整包划 `QA-AC` → DEV-VER-12 第 3 条失败。
 
 eval 通过才算规则改好；不通过先修rules/脚本，不加新规则。
 
