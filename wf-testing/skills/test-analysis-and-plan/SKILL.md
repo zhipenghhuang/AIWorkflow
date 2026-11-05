@@ -8,7 +8,8 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 > 用于：analyze / plan。**测试计划是执行编排的唯一载体**——计划不完整，后续执行一定失控。  
 > **分析前置（不可跳）**：analyze 先按 `skills/test-basis-analysis/SKILL.md` 建需求模型、冲突/九类歧义、不变量、显式/隐式、章节回执与 oracle，并过 `confirm_understanding`；本技能只把「已确认的可测点/风险」转成计划与编排。计划必须引用**测试分析表**/AC/TP；**理解未确认或关键歧义未裁决 → 不得「计划已确认」/不得宣称迭代功能准出。**
 
-**提测影响面 → 装填**：把提测单影响面/回归范围映射进计划 **§3.7**（命中域 + `suite=core|module|full`）；Core/Domain/Delta、suite、装填为测试内部词，不要求开发会写。有提测单优先消费其字段；无则自填命中域，不阻塞。
+**提测影响面 → 装填**：把提测单影响面/回归范围映射进计划 **§3.7**（命中域 + `suite=core|module|full`）；Core/Domain/Delta、suite、装填为测试内部词，不要求开发会写。有提测单优先消费其字段；无则自填命中域，不阻塞。  
+**变更→差量→列车**：产品/开发 Delta 或 handoff 变更通知须进分析表 §0，再映到 §3.7；**排除出本轮 ≠ 常青库空域**。速查 `rules/special/release-train-load.md`。
 
 ## 1. 分析输入（不重复建模）
 
@@ -119,3 +120,6 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 | 「先生成用例再补计划」 | 无分析表/计划门不得正式生成；范围准出先钉。 |
 | 「全类型都测一遍更稳」 | 按风险选类型与轨；堆类型≠覆盖。 |
 | 「深度以后再说」 | suite/depth/准出口径须写入计划，否则报告不可判。 |
+| 「本期不测就整版不入库」 | 计划可不装填；ACTIVE 仍须域常青或显式不适用依据（Q11）。 |
+| 「主路径绿=迭代完整」 | Q12：方案字段/门禁/入口等细节须映射；完整≠通过率。 |
+| 「探索跑完步骤就算过」 | 探索成败看发现与缺口；选题对照漏测谱系。 |

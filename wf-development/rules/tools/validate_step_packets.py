@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Validate step packets vs workflows."""
+"""Validate step packets vs workflows (state machine + skill loop)."""
 from __future__ import annotations
 
 import re
@@ -14,10 +14,11 @@ SECTIONS = [
     "## 2. 本步目标",
     "## 3. 本步硬约束",
     "## 4. 本步门",
-    "## 5. 做法",
-    "## 6. 打开/填写",
-    "## 7. 完成信号",
-    "## 8. 回执字段",
+    "## 5. 本步工作规则",
+    "## 6. 技能指向",
+    "## 7. 打开/填写",
+    "## 8. 完成信号",
+    "## 9. 回执字段",
 ]
 
 
@@ -34,6 +35,10 @@ def main() -> int:
             fail += 1
             continue
         wid = data["workflow"].get("id") or ypath.stem
+        chain = root / f"rules/packets/{wid}/_chain.md"
+        if not chain.is_file():
+            print(f"FAIL: missing chain {wid}/_chain.md")
+            fail += 1
         for step in data.get("steps") or []:
             if not isinstance(step, dict) or "id" not in step:
                 continue
@@ -49,14 +54,6 @@ def main() -> int:
                 if first != rel:
                     print(f"FAIL: {wid}/{sid} must_read[0]={first} != {rel}")
                     fail += 1
-                pkt = [
-                    str(x).replace("\\", "/")
-                    for x in mr
-                    if str(x).replace("\\", "/").startswith("rules/packets/")
-                ]
-                if len(pkt) > 1:
-                    print(f"FAIL: {wid}/{sid} duplicate packet must_read {pkt}")
-                    fail += 1
             if not path.is_file():
                 print(f"FAIL: missing packet {rel}")
                 fail += 1
@@ -66,14 +63,25 @@ def main() -> int:
                 if h not in text:
                     print(f"FAIL: {rel} missing section {h}")
                     fail += 1
-            for m in re.finditer(r"详见\s*`rules/([^`]+)`", text):
-                target = m.group(1)
-                if target.startswith("packets/"):
-                    continue
-                if target.startswith("templates/") or target.startswith("core/cold-start"):
-                    continue
-                print(f"FAIL: {rel} runtime pointer 详见 `rules/{target}`")
+            if "此处不复述" in text:
+                print(f"FAIL: {rel} thin hard-constraints")
                 fail += 1
+            if "不打开 skill 也能做完" in text or "不打开 skill" in text:
+                print(f"FAIL: {rel} implies skipping skills")
+                fail += 1
+            # skill bodies must not be embedded
+            if re.search(r"### 来自 `[^`]+` 的必做（已写入本包）", text):
+                print(f"FAIL: {rel} embeds skill body into packet")
+                fail += 1
+            if text.count("#### 0. 必做") >= 1:
+                print(f"FAIL: {rel} embeds skill #### sections")
+                fail += 1
+            if "打开 → 执行 → 回本包" not in text and "打开→执行→回" not in text:
+                # every packet should describe the skill loop in §6 area
+                if "## 6. 技能指向" in text and "本步无技能指向" not in text:
+                    if "必开" not in text and "条件开" not in text:
+                        print(f"FAIL: {rel} skill section missing loop language")
+                        fail += 1
             if "reads=" in text and rel not in text:
                 print(f"FAIL: {rel} receipt missing self path")
                 fail += 1

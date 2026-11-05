@@ -13,7 +13,7 @@
 
 | # | 产物 | 要求 |
 | ---: | --- | --- |
-| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→导航/组件/列或字段网格/交互/状态/权限；冲突裁决；完成判据须勾选 |
+| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选 |
 | 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
 | 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
@@ -30,8 +30,8 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 # 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
 # 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
-# 3) 机检
-python <包>/verify/tools/frontend_parity.py --project-root .   # L2+ 带 --require-generated
+# 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
 
 # 4) 完成口令
 powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
@@ -40,9 +40,16 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 4. 验收底线（人眼 + 门）
 
 - 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉以**原型**为准；按方案偏离须在矩阵标 `按方案`。
+- 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
+- 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
+- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations`（原型按钮/操作名）必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
+- **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
+- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
 - 至少达到原型标准，再谈择优；禁止「能跑就行」的简化单列/自创壳。
 - 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
+- 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
 - 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
+- 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 `rules/capabilities/instance-discipline.md` §6。
 
 ## 5. 禁做
 

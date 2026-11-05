@@ -1,0 +1,34 @@
+# orch · intake — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: intake
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  absorb: 只改受影响章节；保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明），变更前后与原因只记 CR/变更记录。 更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、测试/发布文档（按影响）。
+    更新：`开发计划` （计划状态/当前门/下一动作）、（受影响阶段/范围）、/、 执行日志；`{workroot}/INDEX.md`、`activeContext`。 更新 `handoff-ledger.md`：受影响交接包标 `已取代/需重发`；C1+
+    **建议**发 `CHG`（先问后发）；未正式签收场景不以缺回执阻塞日常吸收完成判定。 不新建重复文档；同一主题就地更新；不同工作先问用户。 本步只准备，不实施代码；实施走 change/iterate。 **换迭代/关版本（强制）**：新迭代文档已采纳或换主题/换代
+    → 按 `rules/doc-governance.md` ；不确定当前是否结束 → STOP `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 关账（T2/T4 保留仍被引用的基础设计/流程图/原型；分析分类/归档/清理/修链；跳过仅发版项）。用户说并行不关
+    → 只落新资料。
+  classify: 分类：PRD/需求/迭代/special/原型/设计/接口/技术/测试/验收/反馈/调研/竞品/会议/数据/原始/其他（细则 `rules/doc-governance.md` ）。 输入为 PRD/迭代方案/需求文档/原型/接口或技术文档
+    → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要（须含 Brief+本期差量增/改/删 + 来源/目标/范围/F-R-AC/冲突/GAP/置信度），再登记；不得只登记文件名。 登记：`inbound/`
+    文件给 DOC；变更给 CR；确认项关 OPEN 并写 DEC；原始资料只登记不升级基线。 关联：R/AC/OPEN/CR/T；找不到 → 标 GAP，不硬套。 歧义（新 PRD 还是确认/哪个迭代）→ 一次一问；不猜。 更新 `{workroot}/INDEX.md`/`inbound/INDEX.md`；不直接覆盖正式文档；资料改名/落位/归档按
+    `rules/doc-governance.md` 确认后执行。
+  commit: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；吸收后的文档/索引/计划同批提交；提交后补一行结果，不重复六段。
+  impact: 逐项分析：需求/AC、原型、架构/ADR、DB、API、前端、测试、任务/排期、发布/回滚、 `{workroot}/INDEX.md`。 按 `rules/collaboration/handoff.md` 判 C0～C3；C1+
+    需通知受影响角色并发 `CHG` 包；C2/C3 必须 `confirm_replan` → 重基线（需求基线/任务清单/开发计划/测试计划）→ 过 `dev-plan` 检查；禁止拆成 C0/C1 绕过。影响矩阵写入变更记录/吸收报告。
+    基于 `parse` 理解摘要与冲突/GAP 分析；不得绕开理解摘要凭文件名/标题判断影响；未裁决冲突先列待确认，不静默选一边。 跨版本/高价值且 ≥3 影响域 → 只读分域评估（每域返回受影响/依据/动作 ≤30 行）；影响矩阵与结论集中写，不并行改同一文档。
+    每项写“受影响/不受影响 + 依据/动作”；禁止沉默。 实质变更（范围/AC/优先级/架构/排期/发布）→ confirm_change：出示变更类型/影响矩阵/待更新文档/待确认项。 需求基线/AC 被替换或新增 → confirm_requirements：出示差异/范围/AC/非目标，确认后冻结；未签收不得改基线。
+    小澄清（C0/C1 无实质影响）可跳过门，更新后报告。
+  parse: 技能：`skills/product-doc-analysis/SKILL.md`（先读再做）；只读解析，不直接改基线。 输入含 PRD/迭代方案/需求文档/原型/接口/技术文档 → 产出理解摘要（含 Brief+增/改/删差量）；每条结论标
+    `[原文]`/`[推断]`/`[假设]`/`[待确认]`/`[GAP]` 并引用章节/页码/页面/组件。 重点：本期差量、目标与非目标、角色/场景、F/R/AC、状态机、权限、字段口径、异常/NFR、原型、文档间/原型/代码冲突、缺口与假设。
+    原型只作 UI/交互依据，不反推后端规则；冲突列双方原文，待用户裁决。 一次一问至无实质缺口（`rules/core/clarification.md`）；未确认不得进入 impact/absorb。 confirm_understanding：出示
+    Brief+差量表 + 来源/目标/范围/非目标/F-R-AC/冲突/GAP/置信度；用户明确确认后才继续；已确认内容不重复问。 理解摘要登记到 `{workroot}/INDEX.md`/`inbound/INDEX.md`；实质吸收可落理解包
+    ；不新建重复文档、不改基线正文。
+  report: 按 `rules/templates/10-planning/change-absorption-report-template.md` 输出：输入/分类、关联、影响矩阵、已更新、待确认、下一步。 需要开发 → 建议 `workflows/change.yaml`（局部）或
+    `iterate.yaml`（迭代）；只在文档层 → 关闭 CR/OPEN。 未确认项列最前；不擅自实施、不提交/推送。 第1点或附录须含关账/归档结果（已确认执行 / 并行不关 / 无候选 / 待确认清单）。
+  scan: 技能：`skills/change-intake/SKILL.md`（先读再做）。 输入是交接包（含 `00-交接说明.md` + `01-交接清单.md`）→ 先走 `workflows/handoff.yaml` receive
+    核对+回执；未签收不进入吸收。 扫描：`inbound/` 未登记/变化文件、`inbound/INDEX.md` 断链、`{workroot}/INDEX.md`、`git status`；不再扫 `_收件箱`。 对照 `{workroot}/INDEX.md`
+    / `需求台账/待决项/开发计划，列出“未登记/未关联”的候选；不读全量历史，不直接改基线。 多个候选 → 列清单让用户选；无新输入 → 报告“无新增”，不空转。 先按 `rules/doc-governance.md` ～（T1～T9
+    + 索引/复制/A0～A2）；**确认前不改文件**。确认后：主副本必留原件根 `inbound/`并索引 → 按需复制 → 按需吸收；未点名可仅索引。放入≠分发他包。 **文档抽取分片**（子代理编排 ）：≥3 份新文档 → 只读扇出（每份返回
+    DOC/CR/OPEN/DEC 候选＋引用位置＋覆盖关系 ≤30 行）；登记/分类/影响集中；单份直做。
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` ；第1点含【变更吸收报告】 更新 `{workroot}/INDEX.md`、`activeContext/`开发计划；未确认/待实施项明示。
+    本步先出骨架与拟提交清单；完整【拟提交】在下一步 commit 只展示一次。

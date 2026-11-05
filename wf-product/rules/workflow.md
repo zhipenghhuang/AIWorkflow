@@ -122,6 +122,7 @@
 ## 7. 子代理编排（摘要 · 单一出处 `rules/collaboration/subagents.md`）
 
 - **取档**：工具 → 直做 → 分片 → 拆分；达阈值应拆或 `deviation=subagent_skipped`；开跑声明 `mode=`。  
+- **实例**：分片每单元新开；拆分核验 fresh `verifier-agent`（禁 resume Writer）；串行下一批默认新开（见 `subagents.md` §0）。  
 - **并行**：只读扇出与文件不相交写分片可并行≤3；同一 PRD/计划/受理单/`index.html` 禁并行写。  
 - **降级**：超时/空产物/违规 → 同回合直做 + `subagent_degraded`；宿主无子代理 → `unavailable`。  
 - **回收**：返回 ≤30 行；独立核验只收产物＋验收＋证据；批末核验后再下一批。  

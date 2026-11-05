@@ -1,14 +1,17 @@
 # 步骤包 · testing/analyze
 
-> **运行时正文**：执行本步只读本文（+ §6 模板）。skills / 长文规则 / playbook / read-index 为维护素材，默认不打开。
+> **状态 = 本 step**。本文管编排与完成口径；**方法质量在 §6 指向的 skill**（打开→执行→回来）。  
+> 不要把 skill 正文嵌进本文；不要跳过必开 skill。
 
 ## 1. 元信息
 
-- **包轨**：测试轨
+- **包轨**：wf-testing
 - **workflow**：`testing`
 - **step**：`analyze`（分析需求）
 - **packet**：`rules/packets/testing/analyze.md`
-- 低风险档（L0/P0/T0）按 AGENTS 分级表可跳过未命中步骤；本包仅在执行本步时适用。
+- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **父状态机**：`rules/packets/testing/_chain.md`（进 workflow 一次）。
+- **子状态机**：`rules/packets/testing/_region-prep.md`（分析计划；进本区一次）。
 
 ## 2. 本步目标
 
@@ -17,113 +20,77 @@
 
 ## 3. 本步硬约束
 
-- **继承开局卡**：本会话已读 `cold-start` 的八条硬约束仍全部生效（此处不复述，避免冲淡本步）。
-- **本步只读**：本文 +（若 §6 列出）**一个模板**；禁止通读 rules / read-index / playbook / 未嵌入 skill。
-- **完成声称**：本步有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **回执**：`reads=` 必须含本 packet 路径。
+### 开局硬约束（本步可执行摘要）
 
-### 本步专有
+- 1. **先意图、再动作**（`confirm_task_intent`）：未确认禁生成正式用例/交平台。
+- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
+- 3. **依据先建模**：分析表 §0；无 §0 禁正式生成与功能准出。
+- 4. **状态机读链 + 技能闭环**：见本包「本步读链与防丢失」。必开 skill 须打开→执行→回步骤包（质量不降）。
+- 5. **完成分层**：`-Claim -Mode report|writeback` → 只认 `CLAIM: ALLOWED`。
+- 6. **UI 证据 E1**：实点 + 截图/Network；E0 不得单独 pass。
+- 7. **能脚本不 AI**；禁刷绿；P0 未过不得整体通过。
+- 8. **切步/出子机 → 心跳**，必带 `packet=`。
 
-- 主读一问即止； 必填；confirm_understanding 主屏=。方法只认 test-basis-analysis 必做。 用户版/交接/入站见技能与 doc-governance REF。
+### 本步读链与防丢失
+
+- **编排**：本文 §5 +（若 §7 列出）一个模板。
+- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
+- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
+- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
+
 
 ## 4. 本步门
 
 - **HITL `select_mainread`**：analyze/plan/generate（及探索）主读路径未确认 → STOP 一问；已选定或唯一正式版已在 §0/理解门写明待确认 → 可续；不得重问
 - **HITL `confirm_understanding`**：**主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言
 
-## 5. 做法
+## 5. 本步工作规则（编排）
 
-### 技能 `test-basis-analysis`
+> **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
+> **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-# 测试依据分析（技能 · 随包生效）
+- **本步必开技能（质量不降）**：`test-basis-analysis`、`test-analysis-and-plan` → 见 §6 闭环。
 
-> 用于：`testing.analyze`，以及 `plan/generate` 前的轻量分析（主读已点名也不省）。  
-> 目标：先回答“**这个需求到底要做什么、怎么算对**”，再回答“怎么测”。  
-> 边界：本技能不写测试计划、不写用例、不定测试类型取舍；输出需求模型、可测点、oracle、冲突/歧义清单与追溯种子。
+### 本步动作清单
 
-> **影响源 → 命中域**：影响面优先级 提测单（若有）→ CR → 主读 diff → 用户点名；产出命中域候选供计划 §3.7 装填，不默认全库。
+- 主读一问即止。
+- 必填。
+- confirm_understanding 主屏=。方法只认 test-basis-analysis 必做。 用户版/交接/入站见技能与 doc-governance REF。
 
-> **提测单可读性门（有提测单时）**：若出现「默认关闭、建议开测、部署方另配」、无来源裸号、模糊「相关菜单」、或「见开发任务清单」代正文 → 记为**提测依据缺口/退回项**，不得当作已就绪可测事实静默消化。
+## 6. 技能指向（打开 → 执行 → 回本包）
 
-## 1. 测试依据盘点
+> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。
 
-| 依据 | 必看 | 记录 |
-| --- | --- | --- |
-| PRD / 需求文档 | 目标、范围/非目标、F/R/AC、状态机、权限、字段、NFR、待确认、变更记录 | 路径 + 章节/页码 |
-| 迭代方案 | 本期增/改/删、相对上版变化、依赖、验收 | 与 PRD 的对应 |
-| 页面原型 / 截图 | 页面、导航、组件、字段、状态、交互、文案、权限可见性 | 页面名/画板号 |
-| 接口 / 技术文档 | 接口、字段、错误码、鉴权、时序、限制 | 版本 + 路径 |
-| 代码 / diff | 实际实现、改动面、兼容约束、历史包袱 | 分支/commit/文件:行 |
-| 历史缺陷 / 工单 | 高发模块、根因、回归锚点 | 单号 + 日期 |
-| 现网行为 | 当前口径、边界、异常表现 | 环境 + 构建 + 证据 |
+| 技能 | 级别 | 何时 | 路径 | 打开后 |
+| --- | --- | --- | --- | --- |
+| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 必做区 → 回本包 |
+| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 必做区 → 回本包 |
 
-- **主读判定（维度）**：用户路径点名 > 唯一命中正式版 > 当前计划已登记主读 > 否则列候选+建议一问。已点名 → 不重问，仍须产出分析。唯一正式版可拟认，但须在分析表 §0 / 理解门写明路径供确认。
-- 依据缺失 → 一句话说明缺口，按现有主读/基线执行；不因缺 PRD 整段不测。
-- **多份依据**：定主读与对照；联测多版本须显式「主读 + 对照」。冲突列双方原文，**默认不静默选边**；用户可声明 `冲突SSOT=指定文档|最新一期`，声明后写入 §0/§4 并按 SSOT 执行。
-- 大输入（版本级 ≥5 份或长文档）→ 按 `rules/special/multi-agent-output.md` §1.5 只读扇出，每份返回变更点/AC/影响面候选 ≤30 行，主上下文统一建模。
+- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 条件未命中 → 该行 `na` + 一句理由。
+- 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
-## 2. 需求模型（十要素 + 证据）
+## 7. 打开/填写
 
-```yaml
-requirement_model:
-  goal:            # 一句话目标 + 成功标准
-  scope:           # 范围内 + 明确非目标
-  roles: []        # 角色 → 能做什么/不能做什么/数据域
-  inputs: []       # 来源/格式/约束
-  outputs: []      # 去向/格式/消费方
-  states: []       # 状态A --事件--> 状态B；非法跃迁
-  rules: []        # 业务rules/校验/阈值/计算口径
-  exceptions: []   # 失败/空值/重复/并发/超时/降级
-  dependencies: [] # 上下游/共享数据/时序/外部系统
-  open_questions: [] # 未定义/冲突/待裁决 + 用户裁决
-```
-
-- 每条 `rules/states/exceptions` 标 `evidence`：文档章节、页面/画板、接口字段、`文件:行`、现网证据。
-- 空字段写“已核对，无此类要素”；不要留空。
-- 需求点沿用原文编号 `F-xx/R-xx/AC-xx`；没有则建 `RQ-xx/TP-xx` 并记来源，禁止重编号断链。
-- 用户裁决写入 `open_questions`，后续不得用代码/实现推翻。
-
-## 3. 五遍分析
-
-### 第一遍：结构与元信息
-
-- 文档类型/版本/状态/owner/日期/适用范围；主读与对照。
-- 变更记录：本版相对上版改了什么；旧版是否仍被引用。
-- 产出：依据清单 + 主读 + 已读/未读章节。
-
-### 第二遍：需求模型
-
-- 按十要素抽取；先名词（对象/字段）→ 动词（状态变化/动作）→ 规则（约束/阈值/来源）→ 异常（失败/边界/权限）。
-- 变更点三问：变了什么、影响谁（邻接）、回归边界在哪。有 GATE/前序依赖 → 回归边界含依赖版 P0-Smoke（禁有界对照替代）；无关跨域默认排除。
-### 技能 `test-analysis-and-plan`
-
-## 常见合理化与反驳
-
-| 合理化 | 现实 |
-| --- | --- |
-| 「先生成用例再补计划」 | 无分析表/计划门不得正式生成；范围准出先钉。 |
-| 「全类型都测一遍更稳」 | 按风险选类型与轨；堆类型≠覆盖。 |
-| 「深度以后再说」 | suite/depth/准出口径须写入计划，否则报告不可判。 |
-### 编排备忘
-
-主读一问即止； 必填；confirm_understanding 主屏=。方法只认 test-basis-analysis 必做。 用户版/交接/入站见技能与 doc-governance REF。
-
-## 6. 打开/填写
-
-- 运行时正文：仅本文件（开局卡已在会话开头读过）。
+- 本步正文：本步骤包（编排/门/完成）。
+- 父状态机（进 wf 一次）：`rules/packets/testing/_chain.md`。
+- 子状态机（进区一次）：`rules/packets/testing/_region-prep.md`。
+- 技能：按 §6 **必开/条件开** 闭环（打开→执行→回本包），质量不降。
 - 无强制模板：直接写 §2 产出路径产物。
 
-## 7. 完成信号
+## 8. 完成信号
 
-- §2 产出已落盘。
+- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
 - wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
 
-## 8. 回执字段
+## 9. 回执字段
 
 ```text
-route=workflow:testing | step=analyze | reads=rules/packets/testing/analyze.md | skills=embedded | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=analyze | packet=rules/packets/testing/analyze.md | reads=rules/packets/testing/analyze.md[+skill] | skills=test-basis-analysis,test-analysis-and-plan|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
-`reads=` 必须包含 `rules/packets/testing/analyze.md`；对不上 = 未遵守读链。
+`packet=` 必须含 `rules/packets/testing/analyze.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

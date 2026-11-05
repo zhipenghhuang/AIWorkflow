@@ -1,5 +1,6 @@
-# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
-# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
+# 编排：只读当前 step。进 wf → packets/showcase/_chain.md；进子机 → _region-*；执行 → 步骤包。
+# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
+# 富编排笔记：packets/showcase/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
 workflow:
   id: showcase
   name: 产品展示与介绍
@@ -29,8 +30,7 @@ steps:
   agent: pm-lead
   output: '{workroot}/{ver}/50-showcase/展示需求-{受众}-{yyyyMMdd}.md（模板 rules/templates/50-showcase-docs/demo-script-template.md
     §1）'
-  notes: 读 `product-profile.md` / `{workroot}/product-plan.md` / PRD / UAT / GTM / 原型； 明确受众（老板/客户/用户/技术）、目标、时长、成功标准、保密边界与不演示项。
-    技能：`skills/demo-storytelling/SKILL.md`（先读再做）；受众/目标已明确则直接续跑，不停。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 故事线与流程图
   id: story
   must_read:
@@ -39,24 +39,21 @@ steps:
   hitl: confirm_narrative
   hitl_when: narrative_needs_confirm
   output: '{workroot}/{ver}/50-showcase/故事线-{受众}.md'
-  notes: 用 Mermaid 流程图表达：背景 → 问题 → 方案 → 价值 → 证据 → 下一步； 每个节点必须对齐当前项目（PRD/原型/当前构建），不写未实现能力、不夸大。 confirm_narrative：故事线成形后出示受众/目标/故事线/演示范围请确认；条件门，仅在叙事不明或首次对外演示时停。
-    技能 demo-storytelling ；模板 。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 演示脚本
   id: demo
   must_read:
   - rules/packets/showcase/demo.md
   agent: pm-lead
   output: '{workroot}/{ver}/50-showcase/演示脚本-{受众}-{yyyyMMdd}.md'
-  notes: 场景化脚本：每场景写目标/入口/逐步点击路径/数据/预期/兜底/时长； 路径详细到菜单 → 页面 → Tab → 控件/行；优先演真实构建或原型；未实现能力不演。 准备 Q&A 与异议处理；技能 demo-storytelling
-    /。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: Demo 环境与数据
   id: environment
   must_read:
   - rules/packets/showcase/environment.md
   agent: pm-lead
   output: '{workroot}/{ver}/50-showcase/演示检查单-{yyyyMMdd}.md'
-  notes: 构建/原型版本、账号角色、seed/重置、网络、设备、录屏兜底、权限与隐私； `rules/templates/50-showcase-docs/demo-checklist-template.md` 逐项过；能力（可选）browser-mcp
-    走查，未装=手工检查。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 展示材料
   id: materials
   must_read:
@@ -64,9 +61,7 @@ steps:
   agent: ux-designer
   next: publish
   output: '{workroot}/{ver}/50-showcase/一页纸-{产品}.md · {workroot}/{ver}/50-showcase/Deck大纲-{受众}.md（按点名类型产出）'
-  notes: 一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图； Mermaid 流程图/业务架构图（不写技术架构）。 **共享事实表 + 分片**（子代理编排 ）：同时产 ≥3 类材料/文档
-    → 先定事实表（功能/版本/截图/数字/边界），再按类型分片（不同文件）；最后 verifier-agent 一致性核对；单类直做。 技能：`skills/presentation-design/SKILL.md`；能力 doc-suite
-    / presentation 可选。 **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外发送/承诺前由 `publish` 步 `confirm_materials` 确认，内部草稿不停。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 用户文档
   id: docs
   must_read:
@@ -75,9 +70,7 @@ steps:
   agent: prd-writer
   next: publish
   output: '{workroot}/user/{按点名类型}-{ver}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）'
-  notes: 点名用户手册/快速开始/FAQ/发布说明/培训材料 → `docs_requested=true`。 技能：`skills/product-docs/SKILL.md`；模板 `rules/templates/50-showcase-docs/user-manual-quickstart-template.md`、`rules/templates/50-showcase-docs/release-notes-template.md`。
-    只产被点名的文档类型，不一次生成四类；按任务组织：5 分钟快速开始 → 常用任务 → FAQ/故障 → 版本说明；截图/步骤与当前构建一致； 同时产 ≥3 类文档 → 共享事实表 + 按类型分片（不同文件，单写手/类）；verifier-agent
-    核对数字/版本/截图/边界；不并行写同一文档。 不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径；对外前由 `publish` 步确认。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 彩排与反馈
   id: dryrun
   must_read:
@@ -85,7 +78,7 @@ steps:
   when: demo_needs_dryrun
   agent: pm-lead
   output: '{workroot}/{ver}/50-showcase/反馈记录-{yyyyMMdd}.md'
-  notes: 准备演示/客户介绍/彩排 → `demo_needs_dryrun=true`。 计时演练；检查故事/路径/数据/兜底/Q&A；记录异议、问题、需求 → 按 `workflows/change.yaml` 回受理/需求池； 修正材料后再对外。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 对外确认
   id: publish
   must_read:
@@ -95,7 +88,7 @@ steps:
   hitl: confirm_materials
   hitl_when: materials_for_external
   output: 对外确认记录（清单 + 数字/截图来源 + 未实现边界 + 批准人）
-  notes: 材料/文档/演示已就绪；出示对外清单（一页纸/Deck/user/发布说明）、数字与截图来源、未实现/未发布边界， 对外前可派 verifier-agent 只读核对（数字/版本/截图/边界）；确认后才对外发送、承诺或发布；内部汇报/草稿不触发。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 收尾
   id: wrap
   must_read:
@@ -103,8 +96,7 @@ steps:
   - rules/templates/90-handoff/closeout-skeleton.md
   agent: pm-lead
   output: 【任务收尾】（展示/文档明细置第 1 点）
-  notes: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写； 更新产品计划 //、activeContext、 `{workroot}/INDEX.md`（有实质进展时）；现状三处同拍（执行契约
-    规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。 本步先出骨架与拟提交清单，提交门在下一步。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 拟提交
   id: commit
   must_read:
@@ -115,4 +107,4 @@ steps:
   hitl_when: has_pending_commit
   tools:
   - git
-  notes: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；提交后补一行结果，不重复六段。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。

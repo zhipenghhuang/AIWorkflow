@@ -1,0 +1,50 @@
+# orch · onboard — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: onboard
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  capabilities: 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。 默认静默：不输出全量工具清单、不冒烟；首次使用按契约降级（如缺陷
+    preflight）。 仅当用户点名「装配能力」时：对照契约+参考目录+现清单，确认后写入 `{workroot}/capabilities/`；刷档案 索引；安装指引见 README「宿主适配」。 例外：已配置且明显不可用、会影响预期的事项，一句话说明。禁强推、禁写回包内契约。
+  control: L2+ 新项目/新产品默认建：技能 `skills/development-plan/SKILL.md`；模板 `rules/templates/10-planning/development-plan-template.md`。
+    填一页状态/输入/阶段表（S0 进行中，其余未开始）/关联链接；已有则不覆盖，读现状后转 control sync。 存量项目（已有版本/迭代/代码）→ 按现状回填当前阶段 Sx 与门，不默认从 S0 重跑；缺口写 。 L0/L1 可写「不适用」或轻量开发卡；不强制引用其它包。
+    输入缺口写 ，由用户提供/选择已有资料，不阻塞打标。
+  docs: 按 `rules/doc-governance.md` 定位工作根：默认单包 `docs/`，多包 `docs/development/`。 建工作区：`development-plan.md` / `work-log.md`
+    / `00-governance/` / `10-requirements/` / `20-design/` / `30-architecture/ADR/` / `40-tasks/` / `50-verification/` / `60-release/`
+    / `70-ops/` / `80-retrospectives/` / `capabilities/` / `handoff/` / `_archive/`；无内容不建空目录。 建索引：单包 `docs/INDEX.md`（即工作区索引）；多包
+    `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 保留既有目录时在总览登记「既有项目目录」）。索引只做导航，不写阶段/门。 另建控制面：`docs/materials/INDEX.md`、`inbound/INDEX.md`、`{workroot}/handoff/handoff-ledger.md`。
+    可运行 `rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single|multi -Owner development` 建骨架（只建不删）。 根 `CHANGELOG.md`：有开发规范时为本项目**产品发版史**（开发维护）；无则按
+    `rules/templates/00-onboarding/changelog-template.md` 建空骨架；**禁止**写接入/文档树条目。 `{workroot}/work-log.md`：无则按 `rules/templates/00-onboarding/work-log-template.md`
+    创建；接入完成可追加一条事件=`接入/治理`。 L2+ 建治理记录：`{workroot}/00-governance/change-log.md`、`open-items.md`、`decisions.md`；`{workroot}/10-requirements/requirement-ledger.md`。
+    原件根 `inbound/` 全索引；新输入先入 `inbound/`；工作区平铺归位 `{workroot}/`。 根白名单：代码/构建、README、`CHANGELOG.md`、`project-profile.md`、`activeContext.md`、`wf-*`/`wf/`、`docs/`、`inbound/`。
+  gitignore: 四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。 默认②；写档案 、改 .gitignore；密钥/凭据/本地日志不入库；`{workroot}/INDEX.md` 与正式文档按选择入库。
+    规范包默认不跟踪：只写已装包一行（如 `/wf-development/`），多包写 `/wf/`；不预列未装包、不加注释；其它项只列路径。
+  lifecycle: 按 `rules/doc-governance.md` ～、 扫描工作文档与过程文件（本步=点名清理/巡检入口）： ① 分类：长期/固定、版本/迭代绑定、失效/替代、过程/临时； ② 判定：长期基线/项目档案就地更新；版本绑定方案/任务清单/UAT/提测单关闭时归档；部分覆盖保留；失效确认后归档；**已完结**临时/失败/重复列清理候选；用户可见版本关闭时根
+    `CHANGELOG.md` 同步发版史；里程碑关闭另在 `{workroot}/work-log.md` 记一条； ②.1 归档前做引用检查：被当前计划/技术设计/测试验收引用的方案、基础设计、流程图保留原位或标“基线”，不标失效。
+    ③ 输出【文档治理检查】：保留/更新/归档/清理/待确认；**确认前不改/不移/不删**。 有候选 → `docs_migration_needed=true`，停在本门等确认；无候选 → 报「无生命周期候选」，不改文件。 清理只删已知临时/缓存/未引用失败产物与过期运行态（`.gate/frontend`
+    旧截图、`.gate/wf-development/` 非 JSON 媒体、`.gate/logs`）；进行中 draft、现行证据、当前计划/方案/任务清单、源文件、用户文件、密钥、根 `CHANGELOG.md`、`{workroot}/work-log.md`
+    永不自动删除；不确定移 `{workroot}/_archive/_pending-cleanup/{yyyyMMdd}/` 并写清理清单。
+  materials: 扫描 `inbound/` + 项目根散落；按 `rules/doc-governance.md` ～ 分类与覆盖对照，输出【入站分析】；确认前不改索引、不改名、不移动、不归档。 确认后同批：`inbound/INDEX.md`
+    登记 → 按需 A0～A2 吸收到 `{workroot}/` → 定稿发布 `docs/materials/`。 外部输入主副本只在 `inbound/`；materials 只放定稿、正确、完整、可发送内容。 冲突/无法判断 → 停问；S1/S2/S3
+    只归档工作区旧稿；`inbound/` 不归档。 换代/关版本按 ；关账时**必做**覆盖刷新关闭版 materials→superseded 再开新版；旧目录保留，不设 `_archive`；日常发布默认 overwrite-latest。
+  migrate: 「重新接入」先扫描旧结构，按 `rules/doc-governance.md` 做覆盖对照，列迁移/改名/归档候选，经 `confirm_docs_migration` 确认后执行，不静默丢文件；docs 步不再重复确认。
+    **工作根**按 `rules/doc-governance.md` 定位；**原件根 `inbound/`** 只登记/整理，主副本不迁入 `{workroot}/`。 `keep`/`mix`/`replace` 只管原件结构（仍无
+    `_archive/`）；均允许索引/复制/吸收。原件禁止迁入 `{workroot}/`。 旧 `inbound/项目文档/{ver}/`、`inbound/原始素材/`、旧扁平前缀 → `inbound/{ver|topic}/`
+    或 `inbound/_common/`；旧工作区 `inbound/` 副本先判定，不直接当原件；材料库只收定稿。 更新 `project-profile.md` 、`{workroot}/INDEX.md`、`inbound/INDEX.md`、`docs/materials/INDEX.md`、开发计划链接、activeContext；`activeContext`
+    合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。冲突/无法判断先问一次，不覆盖。
+    迁移后核对链接，再进入 docs/control 步。
+  mount: 验收：项目根 AGENTS.md 已补入指向本包 AGENTS.md 的引导语句 （样例见 rules/templates/00-onboarding/root-agents-pointer.md；已有则追加、没有则新建）；
+    未补入则按样例写入后再继续。单包只写薄指针；多包只写指向 `wf/AGENTS.md` 的薄指针。 多包模式（项目根自动探测到两个及以上包目录）：根 `AGENTS.md` 只写薄指针（先读 `wf/AGENTS.md`）；按 `rules/templates/00-onboarding/wf-agents-routing-template.md`
+    生成/补齐 `wf/AGENTS.md`，只列已装包；已有则只补行，不覆盖；三包自动探测共享 inbound/上下文。 **分层**：母版只写入挂载段；不对根写入偏好/喜好正文（落地项目自写）。档案 为项目技术事实摘要，不是偏好容器。
+  profile: '**按实填档（硬）**：建档前有界探查仓库实情（依赖/目录/入口/构建与测试命令）；有根 `README.md` 则按**其实际结构**择要取用（不规定章节，见 `rules/core/project-readme.md`）。按
+    rules/templates/00-onboarding/project-profile-template.md 建档； 一句话定位、workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认
+    mix）、 代码地图/门禁、/ 据实填或「无」/「待确认」；**禁止**占位符未换就打「wf-development onboard: done」。 **根 README**：按用户偏好选档后写（见 `rules/core/project-readme.md`）；模板仅素材；已有不覆盖；点名生成/更新/整理时对照市面高标准给可选补强。
+    按 `rules/templates/00-onboarding/version-policy-template.md` 产 `{workroot}/60-release/versioning.md`（版本格式/升级/环境/tag/审批；不确定写「待确认」）。
+    记工作根、`inbound/` 原件根、`docs/materials/` 权威文档库。 推断并填写 `协作模式`/`流程偏好`：单包+无计划/测试/产品/交接 → 单人/轻量优先；多包或已有计划/QA/交接 → 团队/完整优先；用户可改，不额外提问。轻量优先=入口偏好，不降
+    AC/完成门/开发自验（`lightweight.md` ）。 `activeContext.md`：无则按 `rules/templates/00-onboarding/active-context-template.md` 建（**总览一句话**
+    + `## 开发` + 跨包同步 + 运行时本包行）；已有则只补/更新总览（若空）、本包分节与本包接入行，禁止整文件覆盖他包内容。总览口径对齐项目档案「一句话定位」。 认根：用户指定优先；否则按 `rules/doc-governance.md`
+    ；不确定问用户。登记后默认 `mix`；可改 keep/replace。工作根按 定位（档案声明优先，否则单包 `docs/`、多包 `docs/development/`）。 技术要点少 → 内联档案 事实摘要（勿为几行另建目录）；无对应栈写「不适用」。
+    旧结构迁移（一次性）：检测到 `项目规范/` 目录 → 一问：并入 事实摘要并删除目录（默认建议）。 产出后进入 docs 步建立文档树/索引。'
+  verify: '按 onboard-agent 接入清单核验（①～⑨，含文档树/索引///开发计划/写接入标记），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。 跑 `rules/tools/Test-Template.ps1`；BLOCKED
+    不得打标。 核验通过后写「wf-development onboard: done」；此后按 AGENTS 第 3 点（接入状态）跳过落地检查。 文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理；L2+ 缺开发计划 →
+    回 control 步补。'
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出六段压缩（须含【遵守自检】）；仅例外/待处理展开；禁逐项罗列工具

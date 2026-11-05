@@ -11,7 +11,13 @@ description: Use when a change needs functional testing, acceptance checks, expl
 > 口径：`rules/core/lightweight.md` §4～§4.1；门禁与证据见 `verify/README.md`；P0 未过不得判整体通过。
 > 不确定「是否要正式测 / 是否够自验」→ 推荐路径 + 一问确认，不静默跳过用户路径。
 
-## 0. AC 走查（硬）
+## 0. 只测已实现（硬）
+
+- 测试对象必须是已部署、可操作的行为；功能未实现/接口未接/页面缺失 → 不写“待测条件”，直接退回 `DEV` 或产品书面裁剪（见 `verification.md` §2.2）。
+- 不得把开发缺口写成 QA 用例或“条件通过”；测试无法验证不存在的能力。
+- `DEV` 清零或已裁剪+债项后，才按本技能设计/执行测试。
+
+## 0.1 AC 走查（硬）
 
 对照方案卡/需求基线/任务卡验收表：每条 AC → 通过 / 失败 / 未测+理由；未走查不得写 PASS。走查可与测试点表合并，但 AC ID 必须可对账。
 

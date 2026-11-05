@@ -31,7 +31,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | ID | 模式 | 检查 | 失败处理 |
 | --- | --- | --- | --- |
 | `analysis-structure` | coverage/execute/report | 分析表 §2 验证点、§2.2 模块×面、§2.3 方法×规则、§2.4 依据覆盖（PRD/方案/原型/接口→验证点）、§3.1 变更影响、§6 设计文档、§7.1 充分性、§7.2 核心链路：表在、无空格、状态无 `缺口/待生成` | FAIL |
-| `plan-structure` | coverage/execute/report | 计划 §3.7 有“批次”列；§3.8 V1～V4 齐；§3.9 批次表关键字段齐；同 PG 不得同模块/共享 profile·port·账号·写域，且 ≤3（UI 默认 ≤2） | FAIL |
+| `plan-structure` | coverage/execute/report | 计划 §3.7 有“批次”列；§3.8 V1～V4 齐；§3.9 批次表关键字段齐；同 PG 不得同模块；profile/port/账号默认串行，隔离列声明「独立 server/路由」时，只读可并行（可同账号/写域）；写需无共享写域且账号隔离；≤3（UI 默认 ≤2） | FAIL |
 | `case-vp` | coverage/execute/report | 用例 §3 有“验证点”列且逐行非空 | FAIL |
 | `case-oracle` | coverage/execute/report | 新格式用例每个 `###` 块含“Oracle 来源” | FAIL |
 | `report-structure` | report | 报告 §4 卷结论/点结论/批次与并行表 + §6.1 门槛证据表 | FAIL |

@@ -34,6 +34,7 @@
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
 | `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 只认 `rules/core/frontend-gate.md`**；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
+| `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 | `gate: release-readiness` | 生产/正式发布就绪 | **checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用 |
 
@@ -51,7 +52,7 @@
 
 **波次评审**：计划选定“每波独立评审+过门”后，每波实施完成 → 该波 diff 独立评审 → 结论通过 → 才开下一波；未通过不得把下一波标完成。最终 S5 只做集成/AC/证据/抽样复核，不得替代波次评审。
 
-**前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，前端变更必须有 `.gate/frontend/parity-matrix.md` + `route-coverage.json` + `design-qa.md` + 每路由桌面/移动截图 + console/network；缺一 → `on_fail` 回 implement 补，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按 `project-profile.md` 声明）。
+**前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，按 `rules/core/frontend-gate.md` §2/§4 核验；缺项、`partial/pending` 或未生成证据 → `on_fail` 回 implement，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按 `project-profile.md` 声明）。
 
 **方案覆盖前置（硬）**：L2+ 进入评审前必须有 `.gate/plan-coverage.md`；后端/功能行覆盖接口/字段/状态/权限/错误码/迁移→实现/测试，前端行覆盖页面/路由/字段/交互→截图；缺行或结论“需修/阻塞” → 回 implement，不得判通过。原型/方案是下限：至少达到原型标准；原型有明显缺陷时可择优修正，但必须在矩阵写偏离理由与确认。
 

@@ -155,9 +155,10 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 3.5 子代理
 
-> 取档/阈值/并行/降级/派工 → `rules/collaboration/subagents.md`（单一出处）。本条只留不可让边界。
+> 取档/生命周期/并行/降级/派工 → `rules/collaboration/subagents.md`（单一出处）。本条只留不可让边界。
 
 - 先工具/单上下文；达阈值应拆或声明偏差；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
+- **实例（§0）**：分片每任务新开；拆分/波末核验 fresh `reviewer-agent`（禁 resume Writer）；串行下一批默认新开；单写手整波可 1 个 writer，波末仍 fresh 核验。  
 - **`[P]` 机检**：`validate_tasklist.py` 校验文件重叠/相互依赖/并行>3；FAIL 不派工。  
 - 超时/空产物 → 降级直做；子代理禁 commit/push/开 PR/合并/改平台/改确认门；不过 `hitl`/`gate`；核验后再结论。  
 - 返回须含：任务号/文件/RP·AC 覆盖/验证命令+结果/未决项/规则回执；禁「已完成」空壳。  
@@ -200,7 +201,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 - 补充：`security-scan` 可用时跑最小安全集；变更规模过大先拆。  
 - 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账）；方法只认 `skills/code-review`（含 §4.0）；需修回 implement，同回合重验≤1。L2+ 缺评审记录或缺 SC 对账（非 na）= 完成门 BLOCKED。  
 - 三维体验：UX/DX/AX 任一净退化列需修；开发阶段检查是否残留旧数据兼容分支。
-- **S5 范围**：只评审代码/`DEV-AC`/CI/安全/回滚；产品验收矩阵的 `QA-AC/REL-AC` 未执行不阻断 S5，转入 S6/S7/S8。不得把方案验收矩阵原样拆成开发任务或 S5 阻断项；命中 DEV 必留的创建/生成触发链须在 `DEV-AC`（见 `rules/core/verification.md` §2.1）。
+- **S5 范围**：只评审代码/`DEV-AC`/CI/安全/回滚；产品验收矩阵的 `QA-AC/REL-AC` 未执行不阻断 S5，转入 S6/S7/S8。不得把方案验收矩阵原样拆成开发任务或 S5 阻断项；命中 DEV 必留的创建/生成触发链须在 `DEV-AC`（见 `rules/core/verification.md` §2.1）。**S5 附条件必须按 §2.2 分 `DEV/QA/PRODUCT`**：`DEV` 未清零或书面裁剪+债项不得进 S6，禁止把“开发没做”改写成“QA 条件/测试范围”。分流表留在 S5 报告/计划，**不写入测试提测单**。
 
 ### 4.5 提测（deliver 步）
 

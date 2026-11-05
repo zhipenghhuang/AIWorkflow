@@ -1,0 +1,43 @@
+# orch · defect — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: defect
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  analyze: 按 `skills/change-management/SKILL.md` / 与 `rules/defects/platform-collaboration.md` ： 先分来源；测试直提 → 产品独立定性；开发评估单
+    → 复核开发判定与方案选项，不重做技术设计。 对照 PRD/设计判产品缺陷 vs 实现缺陷；产品缺陷须有相符证明。 开发评估单读全文并核实现核对；缺核对 → 退回开发补齐；是否解决原问题、影响哪些 AC/范围/数据/合规/回归/回滚；
+    技术架构/实现细节不替开发评审；结论五选一： 认可方案/修改后认可/不认可方案/判定实现defects/判定非问题。 测试无资料默认实现缺陷正确；需求缺口由产品终审，不责备测试默认。 体验类不挡主路径 → 转 change，不硬开产品缺陷。
+    测试直提结论五选一：产品缺陷/实现defects/非问题/重复/信息不足。 批量时以侦察回执为输入；**五选一/处置建议/相符证明集中**，不采信子代理终态。 给出处置建议：立即修/下版/不修/退回开发/补充信息。
+  apply: '**仅在 decide 确认后执行**；纯拉取/只读分析止于 analyze，不落处置单。 **产品缺陷才更新 PRD/AC/计划/UAT**；实现defects/非问题/重复/信息不足只产缺陷处置单与回执，不进入 PRD/AC
+    更新。 即使无需联动，也至少落缺陷处置单/受理单回执；不适用项写原因。 按 `workflows/change.yaml` 的 apply 规则更新 PRD/AC/原型/交付计划/产品计划/需求池/UAT/发布检查； 已有受理单（pull
+    建档）就地更新，不重复建档；同一缺陷多轮处理只留一份现行受理单。 产品缺陷确认 → 产出 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md` （模板 `rules/templates/30-review-change/product-defect-disposition-template.md`），写清判定、依据、新口径、对开发要求、验收标准、指派对象。
+    实现defects/非问题/重复/信息不足也产出缺陷处置单（说明+下一步+指派），不要求 PRD 变更。 实质变更 → 走 review 步（产品视角：是否解决原问题/AC 影响/范围/风险；不评价技术实现细节）。 生成回写附件：缺陷处置单/受理单/变更单/评审意见/PRD
+    变更摘要（按需）；不修改代码或技术方案。 **缺陷双通道**：本步已回写平台 → **不**再强制 `BUG` 整包。无平台/`export`/用户点名「缺陷交接包」→ **先问后发**，确认后 `handoff.send` 自包含处置详单。平台附件与包内口径同源，禁重复造口径。
+    联动审计（子代理编排 ）：≥4 份受影响文档 → 单写手完成后派 verifier-agent 只读核验（受理单 ＋改动产物），返回未更新/旧口径/待补 ≤30 行。 三包独立：产品文档落本包目录，附件上传平台；不引用开发/测试包内部路径。
+    平台附件/开发评估单/新产品文档：先按 `rules/doc-governance.md` 【入站分析】（多为 T6）；确认后落 `inbound/{ver|topic}/`，同步处置结论到工作区；S1/S2/S3 同批进 `inbound/_archive/`。'
+  commit: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；提交后补一行结果，不重复六段。
+  decide: 出示每条：来源/分诊依据/相符证明、开发评估单复核结论、影响、处置选项与建议、指派对象。 产品缺陷必须给依据；实现缺陷退回也确认但不产生变更单；非问题/重复/信息不足给排除依据。 计划级影响叠加 confirm_plan；纯查看/拉取不触发本门。
+    处置后必须形成可交付给开发的结论：新口径/新文档/AC/验收标准/回归范围/目标版本。
+  preflight: '读 `rules/defects/platform-collaboration.md` 与 `product-profile.md` ；若同项目已有开发/测试包配置， 优先复用其 provider/端点/凭据来源。
+    provider=无/未填 → 问一次是否现在配置 ；不配置则降级（用户粘贴/导出文件/评估单文档或转 change）， 禁反复索要编号、禁猜接口、禁套用未声明平台路径。 平台不可用/权限不足 → 输出阻塞与已尝试，终止本 workflow（不执行
+    next: pull）；恢复后回 pull；可临时粘贴/export。'
+  pull: 按 `rules/defects/platform-collaboration.md` 拉取：默认当前产品账号被指派、未关闭； 点名「产品缺陷/待产品确认」再分拣；点名单号只拉这些单。 每条读全：标题、steps、severity/pri、status/resolution、提交人/指派、版本/环境、
+    附件、近期备注/讨论、开发评估单/方案附件、关联需求/PRD。 solutionChannel=manual 或备注读不全 → 请用户补关键备注/附件；禁只凭标题分析。 **批量侦察**（子代理编排 ）：≥5 单且读单成本高（多备注/附件/评估单）或合计
+    ≥20k token → 逐单只读扇出（一单/小批一子代理），返回来源/五选一候选/相符证明/证据缺口 ≤30 行；编排读关键单原文后集中分析。 每条落受理单；批末输出清单摘要（空清单也输出）。
+  review: '**单一出处**：通用评审/定稿规则以 `workflows/change.yaml` review 为准；本步只保留产品缺陷平台差异。 条件步：实质变更/方案影响 AC/范围/权限/数据rules/NFR/版本目标才走；纯文字澄清跳过。
+    **先 STOP【评审方式】**（`skills/artifact-review`）：A 自行通过｜B AI 独立审；未选不得恢复定稿。 **选 A**：【完稿自检摘要】+ 产品视角要点 → HUMAN_APPROVED → `confirm_prd`；不跑
+    `-Mode review`；须 `-Mode prd` 非 BLOCKED（涉及 PRD 实质变更时）。 **选 B**：先写评审记录再 `-Mode review`；产品视角（是否解决原问题、AC/范围/风险/合规）；技术实现不替开发评。
+    通过后回写平台并恢复 PRD `APPROVED`；需修回 apply（≤1）；未重审不得标已定稿。'
+  source: 逐条标来源；混批按条处理，不整批套用同一处置模板。 按 `rules/defects/platform-collaboration.md` 判断来源： 备注含「【产品缺陷·开发评估】」或附件名 `缺陷评估-BUG-…` →
+    开发评估单； 测试提交、类型=产品缺陷、标题/【提交摘要】含“产品缺陷”、备注含相符证明 → 测试直提； 其它 → 产品复核/常规缺陷。 来源决定后续处置与指派：测试直提由产品独立定性；开发评估单由产品复核开发判定与方案。 来源不清 →
+    读全备注/附件再一次判断，禁只看标题。
+  verify: '**单一出处**：通用联动/关闭规则以 `workflows/change.yaml` verify 为准；本步只保留缺陷平台差异。 运行 `verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）；受理单联动清单未闭合、验证结果缺失
+    → 不得关闭。 未 READY → **保持受理单打开，不得进入 wrap/commit 冒充完成**；先补联动/证据或报阻塞。 按 `rules/defects/platform-collaboration.md` + `rules/templates/30-review-change/defect-writeup-template.md`
+    ： 产品缺陷 → 受影响 AC/UAT 重验；开发完成新文档实施后验证；未验证不关单。 实现缺陷 → 产品侧回执后由开发/测试流程跟踪；产品侧不写「已修复」。 非问题/重复/信息不足 → 产品给依据；测试接受后关闭或转需求；未接受转产品复核。
+    下版 → 回池/路线图；不修 → 理由/接受人；退回开发 → 回执，缺陷状态由开发/测试跟踪。 验证通过后需再次回写平台（入口 writeback）更新状态/关闭；批末输出【产品缺陷协作总结】。'
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出【任务收尾】（须含【遵守自检】）；第1点含【产品缺陷协作总结】与本轮真实单号 更新产品计划 //、activeContext、
+    `{workroot}/INDEX.md`；现状三处同拍（执行契约 规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未verify/待回写项明示。
+    本步先出骨架与拟提交清单，提交门在下一步。
+  writeback: 按 `rules/templates/30-review-change/defect-writeup-template.md` /：回写前出示 id、来源、结论、备注全文、附件名、 状态/指派变更、目标版本；确认后执行。
+    运行 `verify/Invoke-Gate.ps1 -Mode writeback`；无回执/备注状态不同轮/附件未回查 → 不得声称已回写。 未配置平台/无权限 → 先回 preflight；无既有分析/结论 → 回 pull/analyze，不凭空回写；
+    只改字段未分析 → 先补分析。 备注与状态同轮；备注写分诊依据/处置结论/影响 AC/目标版本/下一步/需要谁做什么； 回写内容由编排集中生成；子代理只提供事实素材，不写平台、不改状态。 禁密钥/绝对路径/用例路径。 附件上传后回查挂载；失败重试≤1，禁删缺陷。平台不支持/无权限
+    → 出 export 包，标「待回写」。 指派：产品缺陷/实现缺陷→开发；非问题/重复/信息不足按来源→测试或开发； 补充信息/信息不足→提交人/测试/开发（按来源）。目标版本/截止写清。 回写后更新受理单 /。

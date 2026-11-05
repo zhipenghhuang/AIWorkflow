@@ -5,7 +5,7 @@
 > **主链步骤**以 `../workflows/testing.yaml` 为准。确认门只认步上 `hitl`（标量或列表，可带 when）。  
 > **计划同步/变更传播/自主边界**：见 `core/execution-contract.md` §2/§4；本文不重复。
 > **读取**：只读当前任务需要的节，不要通读；阶段/门以 YAML 为准，方法以skills/playbook 为准。
-> 本文保留产物路径、覆盖三闸与收尾骨架。多 Agent → `rules/special/multi-agent-output.md`；平台 → `rules/defects/collaboration.md`。  
+> 本文保留产物路径、覆盖三闸与收尾骨架。子代理取档/生命周期 → `rules/collaboration/subagents.md`；批流/红线/MCP/计划驱动详版 → `rules/special/multi-agent-output.md`；平台 → `rules/defects/collaboration.md`。  
 > 接入以 `../workflows/onboard.yaml` + `../agents/onboard-agent.yaml` 为准（AGENTS 开工第 3 点）。
 
 ## 1. 总则

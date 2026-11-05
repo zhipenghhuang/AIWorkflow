@@ -227,6 +227,7 @@ foreach ($sub in @('workflows', 'agents')) {
 $shorthandMap = @{
     '工作流'  = 'rules/workflow.md'
     '多Agent' = 'rules/special/multi-agent-output.md'
+    '子代理编排' = 'rules/collaboration/subagents.md'
     'AGENTS'  = 'AGENTS.md'
     '基线'    = 'env-baseline.md'
 }

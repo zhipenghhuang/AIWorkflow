@@ -7,7 +7,7 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.04.16-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.05.08-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)

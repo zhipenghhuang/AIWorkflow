@@ -1,14 +1,17 @@
 # 步骤包 · iterate/plan
 
-> **运行时正文**：执行本步只读本文（+ §6 模板）。skills / 长文规则 / playbook / read-index 为维护素材，默认不打开。
+> **状态 = 本 step**。本文管编排与完成口径；**方法质量在 §6 指向的 skill**（打开→执行→回来）。  
+> 不要把 skill 正文嵌进本文；不要跳过必开 skill。
 
 ## 1. 元信息
 
-- **包轨**：开发轨
+- **包轨**：开发
 - **workflow**：`iterate`
 - **step**：`plan`（读方案与拆清单）
 - **packet**：`rules/packets/iterate/plan.md`
-- 低风险档（L0/P0/T0）按 AGENTS 分级表可跳过未命中步骤；本包仅在执行本步时适用。
+- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **父状态机**：`rules/packets/iterate/_chain.md`（进 workflow 一次）。
+- **子状态机**：`rules/packets/iterate/_region-plan.md`（计划确认；进本区一次）。
 
 ## 2. 本步目标
 
@@ -17,115 +20,135 @@
 
 ## 3. 本步硬约束
 
-- **继承开局卡**：本会话已读 `cold-start` 的八条硬约束仍全部生效（此处不复述，避免冲淡本步）。
-- **本步只读**：本文 +（若 §6 列出）**一个模板**；禁止通读 rules / read-index / playbook / 未嵌入 skill。
-- **完成声称**：本步有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **回执**：`reads=` 必须含本 packet 路径。
+### 开局硬约束（本步可执行摘要）
 
-### 本步专有
+- 1. **先意图、再动作**（`confirm_task_intent`）：新开先【需求与意图理解】再确认；未确认禁改代码/外发/下完成结论。
+- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`rule_card`/`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
+- 3. **状态机读链（硬）**：见本包「本步读链与防丢失」。父流程可拆子机；同时只激活**一个**步骤包。
+- 4. **技能闭环（质量不降）**：步骤包 §6 标**必开**的 skill 必须打开→按必做执行→**回到步骤包**；禁止把 skill 正文嵌进步骤包替代实读；禁止跳过必开 skill。
+- 5. **完成分层**：`verify/Invoke-Gate.ps1 -Claim` → 只认 `CLAIM: ALLOWED`。无 ALLOWED 禁止写「已通过」。
+- 6. **前端硬门**：有 UI → 当前步骤包内前端硬门；无 UI 标 `na`。
+- 7. **证据先于结论；禁刷绿**；密钥零入库；最小改动；失败同方案 2 次换路径。
+- 8. **切步/出子机 → 心跳一行**，必须带 `packet=`（有子机带 `region=`）。
 
-- 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ wrap。 无 PRD 先 product-shaping REF；L2+ 读 development-plan。禁本步 -StartTask。
+### 本步读链与防丢失
+
+- **编排**：本文 §5 +（若 §7 列出）一个模板。
+- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
+- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
+- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
+
 
 ## 4. 本步门
 
 - 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
 
-## 5. 做法
+## 5. 本步工作规则（编排）
 
-### 技能 `task-breakdown`
+> **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
+> **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-## 常见合理化与反驳
+- **本步必开技能（质量不降）**：`task-breakdown` → 见 §6 闭环。
 
-| 合理化 | 现实 |
-| --- | --- |
-| 「任务越大越好控」 | 不可验证单元要拆；无 DoD/测点=未就绪。 |
-| 「估时凭感觉」 | 写依据与风险；不确定标区间并暴露假设。 |
-| 「矩阵以后填」 | 跨层命中时覆盖矩阵入任务卡，否则实施预检会挡。 |
-| 「先有 AC 再补 SC」 | 未进 SC 的必须/不得/Then/字段=漏实施；confirm_backlog 前差集须为 0 或债项（DEV-IQ-12）。 |
-| 「专章抽完即可」 | 约束本写入口的跨章通用规则也须挂 SC，否则运行期必漏。 |
-| 「覆盖面写宽、AC 写窄」 | 声明覆盖的通用条款组须条条有 AC/SC 或债项（实施质量门 §4.1#10）；边界负面不得默认甩 QA（DEV-VER-12 第 3 条）。 |
-### 技能 `cross-layer-consistency`
+- **条件技能**：`cross-layer-consistency`（命中权限/状态/数据基数/多表面） → 命中则同样走 §6 闭环。
 
-# 跨层一致性与覆盖矩阵（技能 · 随包生效）
+### 本步动作清单
 
-> 用于：L2+/L3；任何涉及权限、状态、数据基数、唯一约束、多表面（列表/详情/预览/打印/归档）或跨层（UI/API/DB）的变更与缺陷。
-> 不用于：纯文案/样式、单文件且无行为变化（L0）；不适用时一句话说明，不硬套矩阵。
-> 与相邻技能：需求用 `requirements-and-spec`；方案用 `solution-design`；数据用 `database-design`；接口用 `api-design`；实现用 `frontend-implementation`/`backend-implementation`；开发自测用 `implementation-and-selftest`；评审用 `code-review`。独立测试轨不在本技能范围。本技能只回答一件事：**同一业务事实，是否在所有层说同一种话、走同一个判定、被同一组开发自测证明。**
+- 只读不改代码。
+- 拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ wrap。 无 PRD 先 product-shaping REF。
+- L2+ 读 development-plan。禁本步 -StartTask。
 
-## 1. 先判是否命中
+### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
-- 命中任一条：角色/权限/数据域；状态/水印/可归档；附件/明细/多页/多份；唯一约束/幂等/重复提交；同一事实在 UI/API/DB/文档多处出现；缺陷现象跨层。
-- 未命中：在方案/任务卡写「不适用 + 理由」；不要用矩阵替代真正的设计。
+## 1. 何时触发
 
-## 2. 四张矩阵（L2+ 必须落；L1 命中项至少落 1 张）
+- 新增/改页面、路由、菜单、深链、表单布局、权限可见性、关键空态/错误态。
+- 用户指出任一前端缺陷 → 触发同波次**缺陷族全量审计**（不得只修单点）。
 
-### 2.1 需求追溯矩阵
+## 2. 必产物（缺一 = `UNVERIFIED`，不得 Claim 完成）
 
-| 需求点/Then | 来源 | 方案 | 任务 | 自测 | 证据 | 状态 |
-| --- | --- | --- | --- | --- | --- | --- |
-| US-xx / AC-xx | 文档路径§ | 方案§ | T-xx | 用例/命令 | 路径/输出 | 未开始/完成 |
+| # | 产物 | 要求 |
+| ---: | --- | --- |
+| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选 |
+| 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
+| 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
+| 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
+| 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
+| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行或「需修」= BLOCKED |
+| 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
 
-- 每个 `Then`、每个异常分支、每个「可补充/重新上传/重复/空列表/非法跃迁」都要有一行。
-- 每行必须有自测与证据；没有自测的 `Then` 不得标完成。
-- 自测预期来自方案/AC，不来自现网实现；自测与方案冲突时停下报告，不改预期迁就代码。
+## 3. 必命令（RUN）
 
-### 2.2 角色/权限矩阵
+```text
+# 1) 原型解码（单 HTML + base64/importmap 时）
+python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/prototype
 
-| 角色 | 能力 | 数据范围 | UI 入口 | API | 允许/拒绝 | 自测 |
-| --- | --- | --- | --- | --- | --- | --- |
-| admin/clerk/leader | 查看/新建/编辑/归档 | 全局/本人/关联 | 显示/隐藏/禁用 | 方法+路径 | 200/403/404 | 正向 + 反向 |
+# 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
+# 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
-- 每个角色至少一条「允许」和一条「拒绝」；只测管理员或只测拒绝都不算覆盖。
-- UI 可见动作必须有同权限 API；API 拒绝时 UI 不得继续展示为可操作。
-- 权限判断只允许一个服务端策略层；禁止各视图各写一套 `assert_*`。
-- 403/404 语义明确；业务冲突用 409/业务码，不用 500。
+# 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
 
-### 2.3 状态/表面矩阵
+# 4) 完成口令
+powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
+```
 
-| 状态 | 列表 | 详情 | 预览/打印 | 归档/导出 | 标签/水印 | 允许动作 |
-| --- | --- | --- | --- | --- | --- | --- |
-| draft/formal/archived | … | … | … | … | … | … |
+## 4. 验收底线（人眼 + 门）
 
-- 同一状态在列表、详情、预览、打印、归档中不得出现互相矛盾的标签/水印/可操作项。
-- 每个状态至少一条正向和一条非法跃迁；终态重入要明确。
-- 「正式」由单一谓词决定，不能一个页面看 `status`、另一个页面看 `summary.pass`。
+- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉以**原型**为准；按方案偏离须在矩阵标 `按方案`。
+- 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
+- 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
+- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations`（原型按钮/操作名）必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
+- **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
+- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
+- 至少达到原型标准，再谈择优；禁止「能跑就行」的简化单列/自创壳。
+- 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
+- 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
+- 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
+- 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 实例纪律（按需拉起、结束显式退程）。
 
-### 2.4 数据形状/写路径矩阵
+## 5. 禁做
 
-| 对象 | 0 | 1 | N | 首次写 | 第二次写 | 重复/并发 | 既有行但缓存空 | 约束/错误码 | 自测 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 附件/明细/结算单/审批 | … | … | … | … | … | … | … | … | … |
+- 只搜原始 HTML 断言「原型没有该页」（须先解码模块）。
+- 手写「通过」但无本轮 `evidence.json` / 哈希对不上。
+- MCP 不可用时不做 Playwright/内置浏览器兜底仍标完成。
 
-- 多值对象必须覆盖 0/1/N；只测「第一次成功」不算多值。
-- 唯一约束/索引就是业务规则：写清「一个槽位代表什么、谁分配下一个槽位、冲突怎么处理」。
-- 必须测：第二次写、并发写、重试、既有行但 JSON/缓存列表为空、同内容不同文件名。
-- 关系行与 JSON 旁路只能有一个事实源；否则必须写对账/修复机制并自测。
+> L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。
 
-## 3. 单一判定谓词（Single Predicate）
+## 6. 技能指向（打开 → 执行 → 回本包）
 
-1. 每个业务判定只定义一个服务端谓词/函数，例如 `is_formal(settlement)`、`can_archive(review)`、`can_view_customer(user, customer)`。
-2. 列出所有消费方：列表、详情、预览、打印、归档、导出、统计、通知；全部调用同一个谓词。
-3. 谓词名必须带范围：`trade` / `settlement` / `review` / `version`；禁止用交易级结论代替单据级结论。
-### 编排备忘
+> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。
 
-只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ wrap。 无 PRD 先 product-shaping REF；L2+ 读 development-plan。禁本步 -StartTask。
+| 技能 | 级别 | 何时 | 路径 | 打开后 |
+| --- | --- | --- | --- | --- |
+| `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 必做区 → 回本包 |
+| `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 必做区 → 回本包 |
 
-## 6. 打开/填写
+- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 条件未命中 → 该行 `na` + 一句理由。
+- 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
-- 运行时正文：仅本文件（开局卡已在会话开头读过）。
+## 7. 打开/填写
+
+- 本步正文：本步骤包（编排/门/完成）。
+- 父状态机（进 wf 一次）：`rules/packets/iterate/_chain.md`。
+- 子状态机（进区一次）：`rules/packets/iterate/_region-plan.md`。
+- 技能：按 §6 **必开/条件开** 闭环（打开→执行→回本包），质量不降。
 - 无强制模板：直接写 §2 产出路径产物。
 
-## 7. 完成信号
+## 8. 完成信号
 
-- §2 产出已落盘。
+- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
 - wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
 
-## 8. 回执字段
+## 9. 回执字段
 
 ```text
-route=workflow:iterate | step=plan | reads=rules/packets/iterate/plan.md | skills=embedded | claim=ALLOWED|DENIED|na | next=…
+route=workflow:iterate | step=plan | packet=rules/packets/iterate/plan.md | reads=rules/packets/iterate/plan.md[+skill] | skills=task-breakdown,cross-layer-consistency|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
-`reads=` 必须包含 `rules/packets/iterate/plan.md`；对不上 = 未遵守读链。
+`packet=` 必须含 `rules/packets/iterate/plan.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

@@ -1,0 +1,45 @@
+# orch · onboard — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: onboard
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  baseline: '挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 补入薄指针（追加不覆盖）；单包指向本包，多包指向 `wf/AGENTS.md`；不写包装载说明。
+    **按实填档（硬）**：建档前有界探查（预览地址/`{workroot}/`/既有计划若有）。「项目身份」写 workroot（未声明按约定）、`integration_level`（绿场默认 I3，存量必问）、`inbound_structure`（默认
+    mix）、`流程偏好`（按计划与级别推断；用户可改，不额外提问）；基线登录/设计输入/入库/浏览器能力索引节据实填；**禁止**占位符未换就打「wf-testing onboard: done」。 有根 `README.md` 则按**其实际结构**择要取用；细则见
+    `rules/core/project-readme.md`。根 README 按用户偏好选档后写（模板仅素材）；已有不覆盖；点名生成/更新/整理时对照市面高标准给可选补强。 按 `rules/doc-governance.md` 定位工作根；登记原件根
+    `inbound/INDEX.md`；权威文档库 `docs/materials/`。 建索引：单包 `docs/INDEX.md`（含工作区导航）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2
+    在总览登记既有目录）；不写阶段/门。 多包模式：根 `AGENTS.md` 只写薄指针（先读 `wf/AGENTS.md`）；按 `rules/templates/00-onboarding/wf-agents-routing-template.md`
+    生成/补齐 `wf/AGENTS.md`，只列已装包；已有则只补行，不覆盖。 接入级别：绿场默认 I3；存量/杂乱必问；I0 只写现场树+映射，I2 新写只进标准树；确认 `inbound_structure`（默认 mix）；写 `env-baseline.md`
+    的 workroot / `integration_level` / `inbound_structure`。 建本包资料副本区骨架（可先空）；禁 `项目文档/`。 `{workroot}/work-log.md`：无则按模板创建；已有跳过。接入完成可追加事件=`接入/治理`。若有
+    `{workroot}/CHANGELOG.md` 且无工作日志 → 改名候选（确认后执行）。 **禁止**创建/修改/补链根 `CHANGELOG.md`（仅开发维护）。无开发包 → 不建根；岗位史只用本包工作日志。 `env-baseline.md`：先填「项目身份」；
+    记原件根 `inbound/` + 本包副本根；资料模式默认 mix（keep 仍可复制/吸收）。 存量全索引；按需复制/A0～A2 吸收。 **禁**类型前缀扁平；**禁**再建 `项目文档/`。不建 `{workroot}/计划执行看板.md`。'
+  capabilities: 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。 默认静默：不输出全量工具清单、不冒烟；可用性以清单为准，首次使用按契约降级。
+    仅当用户点名「装配能力」时：对照契约+参考目录+现清单盘点，确认后写入 `{workroot}/capabilities/`（及按需绑定/装配笔记）；刷基线 / 索引；安装指引见 README「宿主适配」。 例外：已配置且明显不可用、会影响预期的事项，一句话说明。禁强推、禁把选型写回包内契约。
+  context: 无文件：按 `rules/templates/00-onboarding/active-context-template.md` 建（**总览一句话** + `## 测试` + 跨包同步 + 运行时本包行；总览与基线「项目身份」同口径）。
+    已有文件：只补/更新总览（若空）、`## 测试` 与运行时「测试规范接入」行；保留他包分节与他包接入行；禁止整文件套模板覆盖。
+  gitignore: 四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。 默认②；密钥/PII/真实用户数据任何情况不得入库；写后跑 `git check-ignore -v` 抽查 3 个关键路径并记录。
+    不忽略源文件、模板、当前计划/报告/用例。 规范包默认不跟踪：只写已装包一行（如 `/wf-testing/`），多包写 `/wf/`；不预列未装包、不加注释；其它项只列路径。
+  lifecycle: 按 `rules/doc-governance.md` ～、 与 `rules/workflow.md` 扫描（本步=点名清理/巡检入口）： ① 分类：长期/固定、版本/迭代绑定、失效/替代、过程/临时； ② 判定：长期就地更新；版本绑定关闭时快照/归档；部分覆盖保留；失效确认后归档；**已完结**临时/失败/重复（含已完结
+    `.draft/`）列清理候选； ②.1 归档前做引用检查：被当前计划/用例/脚本/报告引用的设计输入、测试数据、稳定冒烟清单保留原位或标“基线”，不标失效。 ③ 输出【文档治理检查】：保留/更新/归档/清理/待确认；**确认前不改/不移/不删**。
+    有候选 → `docs_migration_needed=true`，停在本门等确认；无候选 → 报「无生命周期候选」，不改文件。 关账按 `rules/doc-governance.md` ：主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；**功能/接口域主档常青留下**；轨内
+    `_archive/` 仅下线域/重生快照/旧探索轮；失效资料落 `inbound/INDEX.md 状态`。 清理只删已知临时/缓存/未引用失败产物与过期运行态（`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）；进行中
+    draft、现行证据（含仍被报告引用的失败实拍）、当前计划/报告、源文件、用户文件、密钥永不自动删除；不确定移 `{workroot}/_archive/_pending-cleanup/{yyyyMMdd}/` 并写清理清单。
+  materials: 按 `rules/doc-governance.md` ～ 执行：扫描本包资料根 + 原件根 `inbound/`（环境基线 ；keep/mix）+ 项目根（replace/用户投放）的未登记/变化文件 → 按版本/主题归属分类
+    → 与同主题旧文件做覆盖对照 （全量替代/全量覆盖/部分覆盖/增量补充/仅新增/重复/冲突）→ 输出【资料收取与归档候选】；**此时不改索引、不改名、不移动、不标记失效**。 有未登记/变化文件、拟改名/搬迁/归档候选 → `docs_migration_needed=true`，停在本门等确认；无候选才继续。
+    按 `rules/doc-governance.md` ～；确认前不改文件。确认后：索引必做 → 按需复制 → 按需 A0～A2 吸收；失效只动包内副本。存量未点名的保持仅索引。对话/根散落须先留主副本于原件根 `inbound/`。
+    部分覆盖/增量补充/参考/待确认 → 保留原文件，不归档；冲突/无法判断 → 停下问一次。归档前做引用检查：被当前计划/用例/脚本/报告引用的设计输入、测试数据、稳定冒烟清单保留原位或标“基线”，不标失效。 无候选 → 报「无未登记/失效候选」，不改文件。
+    **换迭代/关版本（强制）**：确认采纳新迭代/换主题后按 `rules/doc-governance.md` ；不确定则 `confirm_iteration_close`；确认后先按 判 T1/T2/T4，再按 关账（跳过仅发版项）；T2/T4
+    保留仍被引用的设计输入/测试数据/稳定冒烟清单/脚本，只归档被替代的用例轮次/报告/CR。不依赖关报告。 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认
+    overwrite-latest）。
+  migrate: 「重新接入」先扫描旧结构，列出迁移清单与目标，经 `confirm_docs_migration` 确认后执行，不静默丢文件；不重复问同一迁移。 建齐本包按需副本树；旧包内 `inbound/项目文档/{ver}/` →
+    `inbound/{ver}/`。原件根 `inbound/`文件**不迁入**包内；认根按文档治理 。`keep`/`mix`/`replace` 只管原树，仍可索引/复制/吸收。 错位归档纠正：根 `{workroot}/_archive/`
+    内各轨资产 → 各自轨 `_archive/`；散落失效资料 → `inbound/INDEX.md 状态`；列清单确认后执行。 `docs/materials/{ver}/05-testing/test-data/` 保持；`{workroot}/测试用例/`+`{workroot}/执行台账/`
+    → `{workroot}/functional/{NN}-{短名}/*-功能用例.md`+`*-功能台账.md`；接口同理 `*-接口用例/台账`；旧平铺下次迁入； `{workroot}/测试脚本/` → `{workroot}/scripts/`；`{workroot}/变更记录/`
+    → `{workroot}/changes/`；`{workroot}/pre-release/{专项}/` 保持，性能/安全/兼容各自独立； `{workroot}/计划执行看板.md` → 合并进 `{workroot}/test-plan.md`
+    / 后删除。 资料迁移前先按 `rules/doc-governance.md` 做覆盖对照，输出迁移/改名/归档候选；确认后执行，不静默丢文件。 若存在 `{workroot}/CHANGELOG.md`：列为迁移候选——**用户确认后**改名为
+    `{workroot}/work-log.md`（内容按工作日志模板整理索引+里程碑条；勿与根 `CHANGELOG.md` 混淆）；未确认不改名。 更新 `env-baseline.md` 、测试计划/报告、`inbound/INDEX.md`、`docs/materials/INDEX.md`、activeContext；`activeContext`
+    合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。旧路径不改则注明兼容，不强迁。
+    文件冲突/无法判断归属/三项混在一个方案 → 停下问一次，不擅自覆盖。 迁移后核对链接与引用，再进入 baseline/context。
+  verify: '按 onboard-agent 接入清单核验（①～⑦，含写「wf-testing onboard: done」；若有旧 landing=ok 删除并改写），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。 跑 `rules/tools/Invoke-TestWorkflow.ps1
+    -Action ValidateTemplateRefs`；BLOCKED 不得打标。 有挂起原口令则 resume；此后业务任务见标记直跑。'
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出六段压缩；仅例外/待处理展开；禁逐项罗列工具

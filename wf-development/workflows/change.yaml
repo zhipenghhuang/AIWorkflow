@@ -1,5 +1,6 @@
-# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
-# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
+# 编排：只读当前 step。进 wf → packets/change/_chain.md；进子机 → _region-*；执行 → 步骤包。
+# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
+# 富编排笔记：packets/change/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
 workflow:
   id: change
   name: 常规代码变更
@@ -42,8 +43,7 @@ steps:
   - name: confirm_docs_migration
     when: docs_migration_needed
   output: 需求理解包 + 验收清单草案（目标/范围/AC/非目标/假设/检查/证据）
-  notes: 按 clarification + requirements-and-spec 必做；一次一问；L0 轻量回执、L2+ 进 requirements。 有 PRD/原型 → 下一步 analyze_input；交接包先 handoff.receive。禁本步
-    -StartTask。 外部输入/关账见 doc-governance REF；分级见 AGENTS 。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 产品资料解析与理解确认
   id: analyze_input
   must_read:
@@ -53,8 +53,7 @@ steps:
   hitl: confirm_understanding
   hitl_when: understanding_needs_confirm
   output: 需求理解包（{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md；§0 Brief+Delta 必填）+ 用户版业务变化说明（L1+ 用户可见变化必出）
-  notes: 只读输入； Brief+差量表必填；DEV-AC 进开发，QA/REL-AC 转交接。 confirm_understanding 主屏=+待确认摘要；未确认不进基线/设计/实施。 细节只认 product-doc-analysis
-    必做区（含用户版说明、P/D/S）。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 需求基线
   id: requirements
   must_read:
@@ -64,7 +63,7 @@ steps:
   hitl: confirm_requirements
   hitl_when: requirements_need_confirm
   output: 需求基线（{workroot}/10-requirements/）
-  notes: 有理解包则引用不重读全文；只收 DEV-AC；GAP/冲突必须继承。 未签收不得进设计/排期；L2+ 跳过 design 时基线仍须经 review-docs。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 方案与设计
   id: design
   must_read:
@@ -74,7 +73,7 @@ steps:
   hitl: confirm_spec
   hitl_when: design_needs_spec_approval
   output: 方案/ADR（{workroot}/20-design/）
-  notes: L0 可跳过；L1 本步 confirm_spec；L2+ 落盘后进 review-docs。 子域技能（api/db/frontend/threat/…）按变更面 REF 当前节；前端补设计说明模板。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 落地文档评审
   id: review-docs
   must_read:
@@ -86,7 +85,7 @@ steps:
     when: landing_doc_review_needed
   - name: confirm_spec
   output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
-  notes: STOP 选 A/B；未选不得 implement。本步不审 diff（代码走 review）。 方法只认 design-doc-review 必做区。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 任务清单
   id: plan
   must_read:
@@ -96,7 +95,7 @@ steps:
   hitl: confirm_backlog
   hitl_when: backlog_approval_required
   output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/）
-  notes: 只读不改代码；拆 SC 后自检 + validate_tasklist.py；写入 review_required。 IQ 词典 REF；L1 小批 notify，L2+ 实质变化才 approve。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 实施
   id: implement
   must_read:
@@ -105,8 +104,7 @@ steps:
   precondition: clarify 已完成；按级别适用的 10-requirements/20-design/review-docs/plan 已完成并确认；任务 SC 已抽或已标不适用；缺一停，不跳过门直接写代码
   on_fail: 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过
   output: 代码/配置改动
-  notes: -StartTask → 预检 → 按 SC 落地 → 自测；无 UI 时 frontend-gate 标 na。 有原型加 skills product-doc-analysis + frontend-implementation；禁刷绿；subagents
-    REF。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 代码评审
   id: review
   must_read:
@@ -121,7 +119,7 @@ steps:
   precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
     存在且后端/功能/前端行有效；非前端/低档→无。
   on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md。有 UI 核 parity 产物。 免审须记理由；免审不免自测。方法只认 code-review 。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 自验与完成门
   id: verify
   must_read:
@@ -131,7 +129,7 @@ steps:
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 验证回执
-  notes: 'Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE 不得进 deliver/commit。 无 QA 时开发自验报告必齐（lightweight ）；有 UI 跑 frontend_parity。'
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 提测与发布文档
   id: deliver
   must_read:
@@ -140,8 +138,10 @@ steps:
   agent: implementer
   hitl: confirm_intent
   hitl_when: intent_needs_confirm
+  gate: s6-admission
+  gate_type: checklist
   output: 提测单/发布说明/回滚预案（{workroot}/60-release/）
-  notes: 自洽提测单真源 60-release/，同轮拷 handoff/outbound；未 COMPLETE 不得标可提测。 跳过本步≠跳过自验。附加 HO 包另走 handoff。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 发布交接
   id: release_handoff
   must_read:
@@ -149,7 +149,7 @@ steps:
   when: has_deploy
   agent: delivery-lead
   output: 发布就绪包
-  notes: 本步不直接部署；建议 REL 包经 handoff；生产部署走 release.yaml + confirm_deploy。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 收尾
   id: wrap
   must_read:
@@ -157,8 +157,7 @@ steps:
   - rules/templates/90-handoff/closeout-skeleton.md
   agent: implementer
   output: 【任务收尾】（六段 + 汇报，可整段复制）
-  notes: 只认 closeout-skeleton ～；含验证回执+遵守自检+汇报。同步 plan/INDEX/activeContext（triad）。 有门回执时跑 verify/Test-Report.ps1；完整【拟提交】留待
-    commit。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 拟提交
   id: commit
   must_read:
@@ -169,4 +168,4 @@ steps:
   tools:
   - git
   output: 拟提交清单
-  notes: 无变更则跳过 hitl；【拟提交】字段见 workflow.md REF。默认仅本地提交；禁擅自切主干/force push。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。

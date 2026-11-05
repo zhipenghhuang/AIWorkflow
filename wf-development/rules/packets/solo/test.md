@@ -1,14 +1,17 @@
 # 步骤包 · solo/test
 
-> **运行时正文**：执行本步只读本文（+ §6 模板）。skills / 长文规则 / playbook / read-index 为维护素材，默认不打开。
+> **状态 = 本 step**。本文管编排与完成口径；**方法质量在 §6 指向的 skill**（打开→执行→回来）。  
+> 不要把 skill 正文嵌进本文；不要跳过必开 skill。
 
 ## 1. 元信息
 
-- **包轨**：开发轨
+- **包轨**：开发
 - **workflow**：`solo`
 - **step**：`test`（轻量测试）
 - **packet**：`rules/packets/solo/test.md`
-- 低风险档（L0/P0/T0）按 AGENTS 分级表可跳过未命中步骤；本包仅在执行本步时适用。
+- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **父状态机**：`rules/packets/solo/_chain.md`（进 workflow 一次）。
+- **子状态机**：`rules/packets/solo/_region-build.md`（建造验证；进本区一次）。
 
 ## 2. 本步目标
 
@@ -17,103 +20,147 @@
 
 ## 3. 本步硬约束
 
-- **继承开局卡**：本会话已读 `cold-start` 的八条硬约束仍全部生效（此处不复述，避免冲淡本步）。
-- **本步只读**：本文 +（若 §6 列出）**一个模板**；禁止通读 rules / read-index / playbook / 未嵌入 skill。
-- **完成声称**：本步有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **回执**：`reads=` 必须含本 packet 路径。
+### 开局硬约束（本步可执行摘要）
 
-### 本步专有
+- 1. **先意图、再动作**（`confirm_task_intent`）：新开先【需求与意图理解】再确认；未确认禁改代码/外发/下完成结论。
+- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`rule_card`/`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
+- 3. **状态机读链（硬）**：见本包「本步读链与防丢失」。父流程可拆子机；同时只激活**一个**步骤包。
+- 4. **技能闭环（质量不降）**：步骤包 §6 标**必开**的 skill 必须打开→按必做执行→**回到步骤包**；禁止把 skill 正文嵌进步骤包替代实读；禁止跳过必开 skill。
+- 5. **完成分层**：`verify/Invoke-Gate.ps1 -Claim` → 只认 `CLAIM: ALLOWED`。无 ALLOWED 禁止写「已通过」。
+- 6. **前端硬门**：有 UI → 当前步骤包内前端硬门；无 UI 标 `na`。
+- 7. **证据先于结论；禁刷绿**；密钥零入库；最小改动；失败同方案 2 次换路径。
+- 8. **切步/出子机 → 心跳一行**，必须带 `packet=`（有子机带 `region=`）。
 
-- 技能：`skills/test-design-and-execution/SKILL.md`（先读再做）；模板 `rules/templates/40-delivery/lite-test-report-template.md`；口径 `lightweight.md` ；门禁见 `verify/README.md`。 **开发自验**（非准出）：按方案卡测试点 + **AC 走查**；最小充分集=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。 写报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发自验）；P0 未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/wf-development/completion.json`；非 COMPLETE 不得进 wrap 报完成。 无方案卡/验收表（如单独「轻量测试」入口）：只做诊断测试并出报告，不跑 completion-gate；wrap 写 `verification=not_applicable`。 纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；wrap 写 `verification=not_applicable` + 依据。
+### 本步读链与防丢失
+
+- **编排**：本文 §5 +（若 §7 列出）一个模板。
+- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
+- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
+- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
+
 
 ## 4. 本步门
 
-- **GATE `completion-gate` when=solo_gate_required**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 只认 `rules/core/frontend-gate.md`**；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
+- **GATE `completion-gate` when=solo_gate_required**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 只认本包硬约束与做法**；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
 
-## 5. 做法
+## 5. 本步工作规则（编排）
 
-### 技能 `test-design-and-execution`
+> **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
+> **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-# 轻量测试设计与执行（技能 · 随包生效）
+- **本步必开技能（质量不降）**：`test-design-and-execution` → 见 §6 闭环。
 
-> 用于：`solo.test`；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务rules/接口行为时**必用**（见 `lightweight.md` §4.1）。
-> 目标：用**最小充分集**做**开发自验**——回答「这次改动能不能用」，不是堆用例数量，也不是版本准出。
-> 边界：不替代完整测试包的测试计划/用例库/覆盖三闸/准出门；结论用语写「开发自验 / 可交付」，禁写「已准出」。
-> 口径：`rules/core/lightweight.md` §4～§4.1；门禁与证据见 `verify/README.md`；P0 未过不得判整体通过。
-> 不确定「是否要正式测 / 是否够自验」→ 推荐路径 + 一问确认，不静默跳过用户路径。
+### 本步动作清单
 
-## 0. AC 走查（硬）
+- 技能：`skills/test-design-and-execution/SKILL.md`（先读再做）。
+- 模板 `rules/templates/40-delivery/lite-test-report-template.md`。
+- 口径 `lightweight.md`。
+- 门禁见 `verify/README.md`。 **开发自验**（非准出）：按方案卡测试点 + **AC 走查**。
+- 最小充分集=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归。
+- 前端看状态/视口/console/network/截图。
+- 后端看响应/错误码/日志。
+- 数据变更看迁移前后与回滚路径。 先 UI 后 Network。
+- 不猜未见 API。
+- 失败留证。
+- 同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题。
+- 产品范围问题停下问用户，不按现网实现改预期。 写报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发自验）。
+- P0 未过 = FAIL。
+- 禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`。
+- 读 `.gate/wf-development/completion.json`。
+- 非 COMPLETE 不得进 wrap 报完成。 无方案卡/验收表（如单独「轻量测试」入口）：只做诊断测试并出报告，不跑 completion-gate。
+- wrap 写 `verification=not_applicable`。 纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate。
+- wrap 写 `verification=not_applicable` + 依据。
 
-对照方案卡/需求基线/任务卡验收表：每条 AC → 通过 / 失败 / 未测+理由；未走查不得写 PASS。走查可与测试点表合并，但 AC ID 必须可对账。
+### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
-## 1. 先建测试卡（5～10 行）
+## 1. 何时触发
 
-在方案卡的「测试策略」或测试报告开头写清：
+- 新增/改页面、路由、菜单、深链、表单布局、权限可见性、关键空态/错误态。
+- 用户指出任一前端缺陷 → 触发同波次**缺陷族全量审计**（不得只修单点）。
 
-| 项 | 内容 |
-| --- | --- |
-| 变更点 | 改了什么（文件/接口/页面/规则） |
-| 影响面 | 直接受影响 + 邻接（谁调用、谁展示、谁依赖） |
-| 风险 | 主链路阻断 / 数据 / 权限 / 资金 / 兼容 / 性能 / 安全 |
-| P0 | 不过就不能交付的 1～5 条 |
-| P1 | 重要但可带缺口交付的 |
-| 测试类型 | 功能 / 边界 / 权限 / 异常 / 回归 / 兼容 / 探索式（按风险选） |
-| 环境/数据 | 构建、URL、账号、测试数据、清理方式 |
-| 不测 | 明确不测项 + 理由 + 接受人 |
+## 2. 必产物（缺一 = `UNVERIFIED`，不得 Claim 完成）
 
-**P0 判定**
+| # | 产物 | 要求 |
+| ---: | --- | --- |
+| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选 |
+| 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
+| 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
+| 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
+| 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
+| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行或「需修」= BLOCKED |
+| 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
 
-- 主业务链走不通、数据错/丢、越权、资金错、核心页面打不开 → P0。
-- 拿不准向上一档；P0 不因「实现简单」降级。
+## 3. 必命令（RUN）
 
-## 2. 设计最小充分集
+```text
+# 1) 原型解码（单 HTML + base64/importmap 时）
+python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/prototype
 
-按顺序展开，不跳：
+# 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
+# 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
-1. **主路径**：用户从入口到结果的完整故事，至少 1 条成功。
-2. **rules/状态**：合法状态迁移抽样；有状态对象至少 1 条非法跃迁。
-3. **边界**：数字/长度/时间/金额/分页取 `min-1 / min / max / max+1` 的代表值。
-4. **权限/数据域**：跨角色/租户至少 1 条；文档未声明时做角色冒烟，不假装已覆盖。
-5. **异常/失败**：空值、重复提交、网络失败、超时、脏数据、依赖不可用。
-6. **写操作**：失败或写后回查 + 清理（可并入主条）。
-7. **UI/体验**：布局、遮挡、截断、空态/加载/错误提示、按钮状态、文案减法；截图同帧检查。
-8. **回归**：原失败用例 + 冒烟子集 + 影响面组；稳定主链路优先脚本。
+# 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
 
-**技法速用**
+# 4) 完成口令
+powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
+```
 
-- 等价类：有效/无效各取代表，不穷举同类。
-- 边界值：数字、长度、时间、金额、分页都适用。
-- 判定表：条件组合互斥时一格一用例。
-- 状态迁移：状态 × 事件矩阵；每个非法跃迁一条负向。
-- 场景法：入口 → 动作 → 观测点；主路径 + 分支变体。
-- 错误推测：按历史defects/常见漏测补，不替代前五类。
+## 4. 验收底线（人眼 + 门）
 
-**最小覆盖（与变更类型匹配）**
+- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉以**原型**为准；按方案偏离须在矩阵标 `按方案`。
+- 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
+- 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
+- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations`（原型按钮/操作名）必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
+- **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
+- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
+- 至少达到原型标准，再谈择优；禁止「能跑就行」的简化单列/自创壳。
+- 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
+- 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
+- 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
+- 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 实例纪律（按需拉起、结束显式退程）。
 
-| 变更 | 至少覆盖 |
-| --- | --- |
-| 纯文案/样式 | 受影响页面 + console 无 error |
-| 前端行为 | 主路径 + 1 边界 + 1 异常 + 受影响回归 |
-### 编排备忘
+## 5. 禁做
 
-技能：`skills/test-design-and-execution/SKILL.md`（先读再做）；模板 `rules/templates/40-delivery/lite-test-report-template.md`；口径 `lightweight.md` ；门禁见 `verify/README.md`。 **开发自验**（非准出）：按方案卡测试点 + **AC 走查**；最小充分集=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。 写报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发自验）；P0 未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/wf-development/completion.json`；非 COMPLETE 不得进 wrap 报完成。 无方案卡/验收表（如单独「轻量测试」入口）：只做诊断测试并出报告，不跑 completion-gate；wrap 写 `verification=not_applicable`。 纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；wrap 写 `verification=not_applicable` + 依据。
+- 只搜原始 HTML 断言「原型没有该页」（须先解码模块）。
+- 手写「通过」但无本轮 `evidence.json` / 哈希对不上。
+- MCP 不可用时不做 Playwright/内置浏览器兜底仍标完成。
 
-## 6. 打开/填写
+> L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。
 
-- 运行时正文：仅本文件（开局卡已在会话开头读过）。
-- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）；有 UI 另按包内前端条。
+## 6. 技能指向（打开 → 执行 → 回本包）
 
-## 7. 完成信号
+> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。
 
-- §2 产出已落盘。
+| 技能 | 级别 | 何时 | 路径 | 打开后 |
+| --- | --- | --- | --- | --- |
+| `test-design-and-execution` | **必开** | 进入本步即开（质量不降） | `skills/test-design-and-execution/SKILL.md` | 必做区 → 回本包 |
+
+- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 条件未命中 → 该行 `na` + 一句理由。
+- 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
+
+## 7. 打开/填写
+
+- 本步正文：本步骤包（编排/门/完成）。
+- 父状态机（进 wf 一次）：`rules/packets/solo/_chain.md`。
+- 子状态机（进区一次）：`rules/packets/solo/_region-build.md`。
+- 技能：按 §6 **必开/条件开** 闭环（打开→执行→回本包），质量不降。
+- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）；有 UI 另按 §5 前端硬门。
+
+## 8. 完成信号
+
+- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
 - wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
 
-## 8. 回执字段
+## 9. 回执字段
 
 ```text
-route=workflow:solo | step=test | reads=rules/packets/solo/test.md | skills=embedded | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=test | packet=rules/packets/solo/test.md | reads=rules/packets/solo/test.md[+skill] | skills=test-design-and-execution|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
-`reads=` 必须包含 `rules/packets/solo/test.md`；对不上 = 未遵守读链。
+`packet=` 必须含 `rules/packets/solo/test.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

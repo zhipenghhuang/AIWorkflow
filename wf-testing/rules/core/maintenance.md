@@ -14,6 +14,7 @@
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`）
 - 澄清协议 → `rules/core/clarification.md`
 - collaboration/handoff/变更分级 → `rules/collaboration/handoff.md`；交接步骤 → `workflows/handoff.yaml`；回执/台账模板 → `rules/templates/`
+- 子代理取档/生命周期 → `rules/collaboration/subagents.md`；批流/准确度/MCP/计划驱动详版 → `rules/special/multi-agent-output.md`
 - 轨边界 → `rules/tracks/`
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`

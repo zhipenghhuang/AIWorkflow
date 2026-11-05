@@ -77,7 +77,8 @@ def _check_image(problems: list[str], evidence_dir: Path, rel: Any, label: str,
 
 
 def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = "",
-             require_matrix: bool = True, require_generated: bool = False) -> tuple[list[str], dict[str, Any]]:
+             require_matrix: bool = True, require_generated: bool = False,
+             require_matrix_routes: bool = False) -> tuple[list[str], dict[str, Any]]:
     ev = Path(evidence_dir)
     problems: list[str] = []
     stats: dict[str, Any] = {"routes": 0, "menus": 0, "deep_links": 0, "screenshots": 0}
@@ -294,6 +295,54 @@ def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = ""
                          if line.strip().startswith("- [ ]")]
             if unchecked:
                 problems.append(f"parity-matrix.md 仍有未完成判据: {len(unchecked)} 项")
+            unfinished = {
+                "partial", "pending", "待验收", "待验证", "待补", "待验", "待确认", "部分",
+            }
+            for line in text.splitlines():
+                stripped = line.strip()
+                if not stripped.startswith("|"):
+                    continue
+                cells = {cell.strip().lower() for cell in stripped.strip("|").split("|")}
+                hit = cells & unfinished
+                if hit:
+                    problems.append(
+                        f"parity-matrix.md 存在未完成状态: {'/'.join(sorted(hit))}"
+                    )
+                    break
+
+            headings = [line.strip() for line in text.splitlines()
+                        if line.lstrip().startswith("#")]
+            matrix_skip = {str(item).strip() for item in (data.get("matrix_skip") or [])}
+            if require_matrix_routes:
+                for route in routes:
+                    route_name = str(route.get("route") or "").strip()
+                    matrix_route = str(route.get("matrix_route") or route_name).strip()
+                    if not route_name or route_name in matrix_skip:
+                        continue
+                    if not any(matrix_route in heading for heading in headings):
+                        problems.append(
+                            f"parity-matrix.md 缺少路由区块: {matrix_route}（需 ### 标题含路由）"
+                        )
+            for route in routes:
+                route_name = str(route.get("route") or "").strip()
+                matrix_route = str(route.get("matrix_route") or route_name).strip()
+                operations = route.get("operations")
+                if not route_name or not isinstance(operations, list) or not operations:
+                    continue
+                section: list[str] = []
+                active = False
+                for line in text.splitlines():
+                    if line.lstrip().startswith("#"):
+                        active = matrix_route in line
+                    if active:
+                        section.append(line)
+                body = "\n".join(section)
+                for operation in operations:
+                    name = str(operation).strip()
+                    if name and name not in body:
+                        problems.append(
+                            f"parity-matrix.md 路由 {matrix_route} 缺少操作: {name}"
+                        )
 
     return problems, stats
 
@@ -304,6 +353,8 @@ def main() -> int:
     parser.add_argument("--since", default="", help="task started_at / acceptance mtime (ISO)")
     parser.add_argument("--base-commit", default="")
     parser.add_argument("--no-matrix", action="store_true")
+    parser.add_argument("--require-matrix-routes", action="store_true",
+                        help="要求 route-coverage 的每条路由在 parity-matrix 有 ### 区块标题")
     parser.add_argument("--require-generated", action="store_true",
                         help="要求 evidence.json（由 capture 生成）；L2+ 门禁默认开启")
     parser.add_argument("--json", action="store_true")
@@ -311,7 +362,8 @@ def main() -> int:
 
     problems, stats = validate(Path(args.evidence_dir), parse_ts(args.since),
                                args.base_commit, not args.no_matrix,
-                               require_generated=args.require_generated)
+                               require_generated=args.require_generated,
+                               require_matrix_routes=args.require_matrix_routes)
     if args.json:
         print(json.dumps({"ok": not problems, "problems": problems, "stats": stats},
                          ensure_ascii=False, indent=2))

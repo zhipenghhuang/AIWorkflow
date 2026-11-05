@@ -1,5 +1,6 @@
-# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
-# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
+# 编排：只读当前 step。进 wf → packets/change/_chain.md；进子机 → _region-*；执行 → 步骤包。
+# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
+# 富编排笔记：packets/change/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
 workflow:
   id: change
   name: 需求/问题受理与变更
@@ -32,14 +33,14 @@ steps:
   - name: confirm_docs_migration
     when: docs_migration_needed
   output: '{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md'
-  notes: 统一入口建档；先还原问题再分诊；双确认未过不入池/不写正式 PRD。 外部输入/关账见 doc-governance REF；方法只认 change-management + clarification 必做。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 分诊与定性
   id: triage
   must_read:
   - rules/packets/change/triage.md
   agent: pm-lead
   output: 分诊结论（写入受理单 §3）
-  notes: 按技能 判定树；理解未确认先回 intake。产品缺陷须依据；无依据禁甩锅。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 新需求与优先级（条件）
   id: new_requirement
   must_read:
@@ -49,7 +50,7 @@ steps:
   hitl: confirm_scope
   hitl_when: scope_decision_required
   output: '{workroot}/requirement-pool.md 更新 + 范围结论'
-  notes: 仅新需求；入池须证据；confirm_scope 后进 assess/路线图。细节只认技能必做。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 影响评估
   id: assess
   must_read:
@@ -57,7 +58,7 @@ steps:
   when: needs_impact_assessment
   agent: pm-lead
   output: 影响评估（受理单 §4；改基线时同步变更单 §3）
-  notes: 改已定稿基线须变更单且 差量表必填。方法只认 change-management 。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 处置确认
   id: decide
   must_read:
@@ -70,7 +71,7 @@ steps:
   - name: confirm_plan
     when: plan_level_change
   output: 处置结论（受理单 §5；改基线时写变更单 §4）
-  notes: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑可跳过本门。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 联动落地
   id: apply
   must_read:
@@ -79,7 +80,7 @@ steps:
   agent: pm-lead
   on_fail: 回 decide/受理单；拒绝/重复/实现缺陷/补充信息不得更新基线
   output: 更新后的 PRD/AC/原型/计划等 + 受理单 §6
-  notes: 仅接受/下期/立即修且有联动项； 逐项闭合。平台回写见 defects REF；CHG 包走 handoff。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 重审（条件）
   id: review
   must_read:
@@ -95,7 +96,7 @@ steps:
   - name: confirm_prd
     when: finalize_requested
   output: 评审记录（{workroot}/{ver}/10-requirements/评审-{主题}-{yyyyMMdd}.md）
-  notes: STOP 选 A/B；选 B 跑 -Mode review。方法只认 artifact-review / review-and-finalize 必做。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 验证与关闭
   id: verify
   must_read:
@@ -105,7 +106,7 @@ steps:
   gate: change-closure
   gate_type: machine
   output: 验证结果（受理单 §7 / UAT / 变更单 §5）
-  notes: Invoke-Gate -Mode change；未 READY 不得 wrap 冒充完成。回执未收不得称已接收。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 收尾
   id: wrap
   must_read:
@@ -113,7 +114,7 @@ steps:
   - rules/templates/90-handoff/closeout-skeleton.md
   agent: pm-lead
   output: 【任务收尾】（受理/处置/缺陷等置第 1 点）
-  notes: 只认 closeout-skeleton；含遵守自检；同步 plan/INDEX/activeContext（triad）。拟提交留 commit。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
 - name: 拟提交
   id: commit
   must_read:
@@ -124,4 +125,4 @@ steps:
   tools:
   - git
   output: 拟提交确认结果
-  notes: 无变更跳过；拟提交字段见 workflow.md REF；默认仅本地提交。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。

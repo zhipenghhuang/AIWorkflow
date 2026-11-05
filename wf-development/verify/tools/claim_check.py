@@ -30,7 +30,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ALLOWED_VERDICTS = {"COMPLETE", "READY", "PASS", "PASSED", "通过"}
-BAD_CHECK_STATUS = {"fail", "failed", "blocked", "error"}
+BAD_CHECK_STATUS = {
+    "fail", "failed", "blocked", "error",
+    "partial", "pending", "待验收", "待验证", "待补", "待验", "待确认",
+}
 SKIP_DIR_PREFIXES = (
     ".gate/", "docs/", "inbound/", "var/", "node_modules/", ".git/",
     "wf-product/", "wf-development/", "wf-testing/", "wf/",

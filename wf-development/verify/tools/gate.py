@@ -797,6 +797,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             evidence_dir, since=floor, base_commit=base_commit,
             require_matrix=bool(fe.get("requireParityMatrix", True)),
             require_generated=require_generated,
+            require_matrix_routes=bool(fe.get("requireMatrixRoutes", False)),
         )
         problems.extend(parity_problems)
         if not parity_problems:

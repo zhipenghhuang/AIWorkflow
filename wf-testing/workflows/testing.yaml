@@ -1,5 +1,6 @@
-# 读取：仅当前 step 块。运行时 must_read[0]=rules/packets/<wf>/<step>.md（自包含）。
-# 禁通读规则目录；方法已嵌入步骤包。维护素材：skills/、rules/core 长文、playbooks/、read-index。
+# 编排：只读当前 step。进 wf → packets/testing/_chain.md；进子机 → _region-*；执行 → 步骤包。
+# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
+# 富编排笔记：packets/testing/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
 workflow:
   id: testing
   name: AI测试流程
@@ -83,7 +84,7 @@ steps:
   - rules/packets/testing/status.md
   agent: test-planner
   output: 当前阶段/门/下一动作/需人工
-  notes: 只读 test-plan //；「下一步」只报不执行。未吸收文档→plan；未回执交接→handoff。 只读可 2～3 行简报；首条含 route/step/phase/gate/next_action。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 分析需求
   id: analyze
   must_read:
@@ -95,7 +96,7 @@ steps:
   - name: confirm_understanding
     when: understanding_needs_confirm
   output: '{workroot}/test-analysis.md（§0 Brief+Delta 必填）+ 用户版说明（T1+ 可见变化）'
-  notes: 主读一问即止； 必填；confirm_understanding 主屏=。方法只认 test-basis-analysis 必做。 用户版/交接/入站见技能与 doc-governance REF。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 测试计划
   id: plan
   must_read:
@@ -117,7 +118,7 @@ steps:
   - name: confirm_docs_migration
     when: docs_migration_needed
   output: '{workroot}/test-plan.md（+ 版本级四卷按 §3.8；T0/T1 可无）'
-  notes: 无分析表或缺 → 先 analyze。版本级四卷+批次表；T0/T1 轻量。when 假则跳过对应门。 依据覆盖见 verification ；方法只认 test-analysis-and-plan 必做。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 生成用例
   id: generate
   must_read:
@@ -134,8 +135,7 @@ steps:
   - name: confirm_platform
     when: standalone_generate_with_pending
   output: '{workroot}/functional|api|… 用例/台账/脚本（按轨）'
-  notes: 须有分析表；功能双读原文+表；覆盖闸仅功能/专项。生成后 T1+ 须衔接收 review-cases。 细则只认 testcase-design / multi-track-quality / script-execution
-    REF。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 用例与多轨资产评审
   id: review-cases
   must_read:
@@ -150,7 +150,7 @@ steps:
   - name: confirm_review
     when: review_needs_confirm
   output: 评审记录（单域或合卷路径见 templates）
-  notes: STOP 选 A/B；不重生成。功能选 B 跑 -Mode review。方法只认 testcase-review / artifact-review 必做。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 执行测试
   id: execute
   must_read:
@@ -169,7 +169,7 @@ steps:
   - name: confirm_execution_scope
     when: scope_needs_confirm
   output: 执行结果/≤3 行简报
-  notes: 计划驱动按 / 装填；批末 execute -Scope；能脚本不 AI；P0-Smoke 未过不进正式全库。 SSOT=execute playbook + 当前轨 + 技能必做；禁把整本方法抄回本 notes。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 输出报告
   id: report
   must_read:
@@ -180,8 +180,7 @@ steps:
   gate: report-consistency
   gate_type: machine
   output: '{workroot}/test-report.md + 【任务收尾】'
-  notes: 先正文再 -Mode report；未 PASS/CONDITIONAL 不得写整体通过。同步 plan/台账/activeContext（triad）。 关账/materials/禁改根 CHANGELOG 见 doc-governance
-    REF；门3 在 handoff。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 收尾与提交确认
   id: handoff
   must_read:
@@ -193,4 +192,4 @@ steps:
   - name: confirm_commit
     when: has_pending_commit
   output: 提交/交平台确认结果
-  notes: 骨架后问平台/git；回写前 -Claim -Mode writeback。浏览器退程见 multi-agent-output 。
+  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。

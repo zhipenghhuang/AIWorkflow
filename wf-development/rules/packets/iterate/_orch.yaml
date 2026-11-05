@@ -1,0 +1,18 @@
+# orch · iterate — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: iterate
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  commit: 无变更跳过；字段见 workflow.md REF；默认仅本地提交。
+  confirm: 清单未变可跳过 hitl；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单 。
+  deliver: 单一出处=change.deliver；未 COMPLETE 不得标可提测。
+  gates: Invoke-Gate → Claim；非 COMPLETE 不得 deliver/commit。同步清单/plan/activeContext（triad）。 无 QA 时开发自验同 change.verify。
+  implement: -StartTask → 预检 → 按 SC 落地 → 回写清单；无 UI 时 frontend-gate 标 na。 超出清单先停；未验证不得标完成。细节同 change.implement 技能必做。
+  plan: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ wrap。 无 PRD 先 product-shaping REF；L2+ 读 development-plan。禁本步
+    -StartTask。
+  precheck: 缺理解包/未签收方案 → 回 change.analyze_input 或 requirements/design/review-docs；交接包先 receive。 禁本步 -StartTask。并行/关账见 iteration-delivery
+    + doc-governance REF。
+  release_handoff: 单一出处=change.release_handoff；部署走 release.yaml + confirm_deploy。
+  retro: 小迭代可轻量；行动项须负责人/截止/验收。最终六段由 wrap 出。
+  review: 口径同 change.review（含多波次）；写 .gate/review.md；核验者≠实施者。
+  wrap: 只认 closeout-skeleton；同步 plan/INDEX/台账/triad；有门则 Test-Report。 完整【拟提交】留待 commit。

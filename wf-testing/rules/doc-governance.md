@@ -153,7 +153,7 @@ docs/materials/
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
 | `{workroot}/test-plan.md`（+ V1～V4 卷）、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 主计划/四卷/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
-| `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档 |
+| `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`） |
 | `{workroot}/changes/` | 绑定 | CR 关闭归档 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
 | `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；报告/计划等按需实拷；**缺陷有平台时禁止**为交单实拷详单（见 `handoff.md` §3.1.1）；关版本同批归档；台账常青 |

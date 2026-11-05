@@ -1,0 +1,16 @@
+# orch · materials — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: materials
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  commit: 材料库/索引/README 同批提交；默认仅本地提交，推送单独确认；无变更跳过。
+  index: README 写版本、范围、包含/不包含、阅读顺序、来源、缺失/待补、本次是否覆盖刷新。 INDEX 登记所有文件：版本/域/文档/来源（IN-xxxx、docs/... 或 generated）/状态/更新时间；刷新 `last_published_at`。
+    状态只写 `current / superseded`；默认覆盖同 ver；仅显式保留历史时升 `rev` 或 `{ver}-r2`。 **门（materials-validate）**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；
+    链接自包含，只发 `{ver}/` 不缺文件；测试数据默认不外发；旧版本状态正确。 待补项列明，不把“已生成”说成“已完整”。
+  select: 先按 `rules/doc-governance.md` 定位工作根，再读 `{workroot}/INDEX.md`、`{workroot}` 当前定稿与 `docs/materials/INDEX.md`。 版本取项目/迭代版本；缺则问一次，不硬造。默认只收定稿、正确、完整、可独立阅读的文档；
+    草稿/过程/证据/密钥/PII/未授权第三方文档不进库。05-testing。 **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升 rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。
+    换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（见 `doc-governance.md` ）。 外发前按现有 `confirm_handoff` / `confirm_intent` 确认，不新造门。
+  sync: 从 `{workroot}` 选当前定稿，按域**覆盖复制**到 `docs/materials/{ver}/`；从 `inbound/` 选权威正确外部输入， 按域放入同一版本；不按 inputs/deliverables 分栏，来源写
+    `docs/materials/INDEX.md`。 每个 `{ver}/` 自包含；不建外挂 `_common/`；不设 `_archive/`；旧版本目录保留。 默认就地覆盖已有文件；仅显式保留历史时写入 `{ver}-r2` 或升
+    rev，不覆盖旧目录。 不直接编辑材料库正文；需要改先改 `{workroot}` 再重新发布（默认仍覆盖同 ver）。
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出六段压缩； 写清版本、路径、包含/排除、校验结论、待确认；外发/交接仍按 `handoff` 台账/回执。

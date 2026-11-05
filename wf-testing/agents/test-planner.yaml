@@ -6,7 +6,7 @@ reads:
   - rules/read-index.md（testing.plan 当前行）
   - rules/playbooks/generate.md
   - 当前 step 的主读/测试分析表/测试计划模板（轻量或完整）/上版报告/稳定冒烟
-  - 执行形态/批次：`rules/special/multi-agent-output.md` §1.1/§1.5（只读取档与并行隔离节）
+  - 执行形态/批次：`rules/collaboration/subagents.md` §1～§3；并行隔离详版 `rules/special/multi-agent-output.md` §1.1/§1.5
   - 计划类能力契约（按需）
 
 must:

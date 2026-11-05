@@ -1,0 +1,75 @@
+# 可选样例：复制到业务仓 `.github/workflows/` 后改命令与 secrets。
+# 对齐 wf-testing：Core=smoke · Domain/module=regression · full=发版人工/tag。
+# 母版仓本身不跑业务测；勿原样当作本仓 CI。
+# 参考：GitHub Actions 分支保护认具名 job；贵套与 PR 分事件；artifacts if: always()。
+
+name: test-gates
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+  schedule:
+    - cron: "0 2 * * *" # 定时回归（UTC）；按项目改
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "core | module | full"
+        required: true
+        default: "module"
+
+jobs:
+  smoke:
+    name: smoke-core
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run P0 smoke
+        # 换成项目脚本，例如：npm run test:smoke / pytest -m smoke
+        run: echo "TODO: map to {workroot}/smoke-checklist + P0-Smoke scripts"
+      - name: Upload smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-evidence
+          path: |
+            **/test-results/**
+            **/playwright-report/**
+          if-no-files-found: ignore
+
+  regression:
+    name: regression-module
+    needs: smoke
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run module / standard depth
+        run: echo "TODO: run plan §3.7 loaded domains (suite=module / api depth=standard)"
+      - name: Upload regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-evidence
+          path: |
+            **/test-results/**
+            **/reports/**
+          if-no-files-found: ignore
+
+  release-full:
+    name: release-full
+    needs: smoke
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.suite == 'full'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run full + pre-release gates
+        run: echo "TODO: suite=full + api depth=full + pre-release risk tier"

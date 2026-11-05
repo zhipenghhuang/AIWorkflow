@@ -1,10 +1,10 @@
 # AGENTS.md
 
 > **用途**：测试规范 AI 入口。  
-> **新会话必读顺序（硬）**：① `rules/core/cold-start.md` → ② 本文 §2 口令表（路由未定/首次）→ ③ workflow 当前 step 块（门/agent/`must_read`）→ ④ `must_read[0]`=`rules/packets/<wf>/<step>.md` → ⑤ 若包内点名则再开**一个**模板。  
-> **已路由中段**：心跳 + `rule_card` + 开局卡标签；禁止每步重读本文全文。  
+> **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ _chain → ④ _region-*（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
+> **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.04.16`（步骤自包含读包；运行时只认 cold-start + packet；Claim/HITL 不变）。  
+> **template_version**：`2026.11.05.08`（Q12 细节完整+漏测谱系；探索/随机找缺陷优先；去冗余）。  
 > **主链**：分析→计划→生成→用例评审→执行→报告。  
 > **完成口径**：只认开局卡 + `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -17,7 +17,7 @@
 3. **接入**：`wf-testing onboard: done` 则跳过；生成/执行/缺陷无标记时核验一次。  
 4. **择优**：不适配 → 依据+主推；二次坚持 → `deviation=`。  
 5. **覆盖**：用户明确指令 > 根 AGENTS > 本文 > agent > 基线。  
-6. **读取**：只认开局卡读链 + 当前步骤包；workflow **只读当前 step 块**；`read-index.md`/playbook/`skills/` 为维护素材，默认不打开。  
+6. **读取**：分级读链（开局卡 §4）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】）；开局卡第 1 条已点名，细则不改档位。  
 8. **心跳**：`rule-anchor.md`。
 
@@ -98,7 +98,7 @@
 
 ## 6. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改轨边界 → `rules/tracks/`；改多轨准出/depth/硬映射 → `rules/special/multi-track-quality.md`（再同步tracks/工作流/验证规则）；改 templates / skills / capabilities → 对应目录；改计划编排 → 测试计划模板 + `workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理取档/生命周期 → `rules/collaboration/subagents.md`（批流/红线/MCP 详版仍 `rules/special/multi-agent-output.md`）；改轨边界 → `rules/tracks/`；改多轨准出/depth/硬映射 → `rules/special/multi-track-quality.md`（再同步tracks/工作流/验证规则）；改 templates / skills / capabilities → 对应目录；改计划编排 → 测试计划模板 + `workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
 
 ## 7. 多包（自动探测）
 

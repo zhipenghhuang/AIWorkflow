@@ -23,12 +23,12 @@
 | change.analyze_input | change 当前块 · `product-doc-analysis` · 理解包模板 §0 · 输入文档/原型 | 解码原型（如有）· 差量表 · 用户版说明 | 代码地图 |
 | change.requirements | `requirements-and-spec` · 需求基线模板 · 理解包 | 写 AC；跨层命中则矩阵 | PRD 原文 |
 | change.design | `solution-design` · 方案模板 | 出方案/ADR；跨层命中则矩阵 | api/db/frontend 子技能当前节 |
-| change.plan / iterate.plan | `task-breakdown` · 任务清单模板 · **iq-checklist.md** | 拆 SC；校验清单 | `implementation-quality.md` 词典；subagents |
+| change.plan / iterate.plan | `task-breakdown` · 任务清单模板 · **iq-checklist.md** · `versioning.md` §2.1 | 先确认/继承版本模式（A/B，已固定项目沿用并标注）；拆 SC；校验清单 | `implementation-quality.md` 词典；subagents |
 | change.implement / iterate.implement / solo.build | `implementation-and-selftest` §0.5 · 任务卡 SC · **iq-checklist.md**；（有 UI）**frontend-gate.md** | 【实施预检】→ 编码 → 自测指回 SC；（有 UI）矩阵+capture+parity；（有原型）skills=product-doc-analysis+frontend-implementation | IQ 全文、engineering-quality 全文、子技能 |
 | change.review-docs | `design-doc-review` · doc-reviewer · 被审文档 | 文档评审结论 | solution-design 节 |
 | change.review / iterate.review | `code-review` §4.0 · reviewer · diff；（有 UI）evidence.json / parity | 核对 AC+SC+前端产物；不得只看测试绿 | security-scan |
 | change.verify / iterate.gates / solo.test | `verify/README.md` · `checks.yaml` · 验收清单 | `Invoke-Gate` → `-Claim`；（有 UI）`frontend_parity` | verification 长附录、旧截图 |
-| change.deliver / iterate.deliver | `qa-handoff-and-release` · 提测模板 | 提测单与债项对齐；有代码则核 completion.json | versioning §3～§7 |
+| change.deliver / iterate.deliver | `qa-handoff-and-release` · 提测模板 · `verification.md` §2.2 | 提测单与债项/DEV-QA-PRODUCT 分流对齐；过 `s6-admission`；有代码则核 completion.json | versioning §3～§7 |
 | change.release_handoff / iterate.release_handoff / release.* | 对应 workflow 块 · `qa-handoff`/`acceptance` 当前节 | 按门 HITL | 上线检查单 |
 | */wrap · */commit | `closeout-skeleton.md` §0～§1 · `workflow.md` §2（commit 时） | 完整收尾；commit 出示拟提交 | context-memory §4 |
 | solo.frame / solo.plan | solo 当前块 · `lightweight.md` 当前节 · 对应技能 | 轻量卡/方案卡 | 全量 PRD |

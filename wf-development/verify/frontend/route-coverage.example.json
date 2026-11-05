@@ -1,13 +1,18 @@
 {
   "schema": 1,
-  "_note": "示例·非强制：按本项目原型/方案与 project-profile §9 填写真实菜单与路由；抽样不得照搬本文件业务名。",
-  "generated_at": "2026-11-04T10:30:00+08:00",
+  "_note": "示例·非强制：按本项目原型/方案与 project-profile 填写真实菜单与路由；截图路径相对 frontend.evidenceDir。",
+  "generated_at": "2026-11-05T10:30:00+08:00",
   "base_commit": "6e4610e",
   "app_url": "http://127.0.0.1:8000/",
   "viewports": {
     "desktop": "1440x900",
     "mobile": "390x844"
   },
+  "console": {
+    "errors": 0,
+    "failed_requests": 0
+  },
+  "matrix_skip": [],
   "menus": [
     {
       "label": "概览",
@@ -33,44 +38,69 @@
   ],
   "routes": [
     {
-      "id": "r-dashboard",
-      "path": "#/dashboard",
-      "label": "概览",
-      "expected": "概览主区可见",
-      "desktop_shot": ".gate/frontend/shots/dashboard-desktop.png",
-      "mobile_shot": ".gate/frontend/shots/dashboard-mobile.png"
+      "route": "#/dashboard",
+      "page": "概览",
+      "status": "pass",
+      "desktop": "shots/dashboard-desktop.png",
+      "mobile": "shots/dashboard-mobile.png",
+      "console_errors": 0,
+      "failed_requests": 0,
+      "operations": ["导出"]
     },
     {
-      "id": "r-items-list",
-      "path": "#/items",
-      "label": "列表",
-      "expected": "列表页",
-      "desktop_shot": ".gate/frontend/shots/items-desktop.png",
-      "mobile_shot": ".gate/frontend/shots/items-mobile.png"
+      "route": "#/items",
+      "page": "列表",
+      "status": "pass",
+      "desktop": "shots/items-desktop.png",
+      "mobile": "shots/items-mobile.png",
+      "console_errors": 0,
+      "failed_requests": 0,
+      "operations": ["查询", "新建"]
     },
     {
-      "id": "r-item-create",
-      "path": "#/items/new",
-      "label": "新建",
-      "expected": "新建表单",
-      "desktop_shot": ".gate/frontend/shots/item-create-desktop.png",
-      "mobile_shot": ".gate/frontend/shots/item-create-mobile.png"
+      "route": "#/items/new",
+      "page": "新建",
+      "status": "pass",
+      "desktop": "shots/item-create-desktop.png",
+      "mobile": "shots/item-create-mobile.png",
+      "console_errors": 0,
+      "failed_requests": 0,
+      "operations": ["保存草稿", "提交"]
     },
     {
-      "id": "r-item-detail",
-      "path": "#/items/demo-1",
-      "label": "详情",
-      "expected": "详情字段区",
-      "desktop_shot": ".gate/frontend/shots/item-detail-desktop.png",
-      "mobile_shot": ".gate/frontend/shots/item-detail-mobile.png"
+      "route": "#/items/demo-1",
+      "matrix_route": "#/items/:id",
+      "page": "详情",
+      "status": "pass",
+      "desktop": "shots/item-detail-desktop.png",
+      "mobile": "shots/item-detail-mobile.png",
+      "console_errors": 0,
+      "failed_requests": 0,
+      "operations": ["编辑", "返回"]
     },
     {
-      "id": "r-settings-auth",
-      "path": "#/settings/auth",
-      "label": "授权",
-      "expected": "授权页",
-      "desktop_shot": ".gate/frontend/shots/auth-desktop.png",
-      "mobile_shot": ".gate/frontend/shots/auth-mobile.png"
+      "route": "#/settings/auth",
+      "page": "授权",
+      "status": "pass",
+      "desktop": "shots/auth-desktop.png",
+      "mobile": "shots/auth-mobile.png",
+      "console_errors": 0,
+      "failed_requests": 0,
+      "operations": ["保存"]
+    }
+  ],
+  "deep_links": [
+    {
+      "route": "#/items/new",
+      "status": "pass"
+    },
+    {
+      "route": "#/items/demo-1",
+      "status": "pass"
+    },
+    {
+      "route": "#/settings/auth",
+      "status": "pass"
     }
   ]
 }

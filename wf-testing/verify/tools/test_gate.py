@@ -465,9 +465,15 @@ def parse_plan_structure(plan: Path) -> dict[str, Any]:
                     issues.append(f"§3.9 {item['batch']} UI 隔离未写 profile/port：{item['iso'] or '空'}")
             seen: dict[str, str] = {}
             for item in items:
+                independent_mcp = bool(re.search(r"独立\s*(server|实例|会话)|tab\s*路由|请求级路由|pageId|独占", item["iso"], re.I))
+                readonly_parallel = independent_mcp and bool(re.search(r"只读|read[- ]?only", item["iso"], re.I))
                 for token in re.split(r"[\/、,，;；]+", item["iso"]):
                     token = token.strip()
                     if not token or token in ("—", "-", "串行", "SERIAL", "不适用"):
+                        continue
+                    if independent_mcp and re.search(r"profile|port|browser|独立\s*(server|实例|会话)|tab\s*路由|请求级路由|pageId|独占|只读|read[- ]?only|:\d+|^9\d{3}$", token, re.I):
+                        continue
+                    if readonly_parallel and re.search(r"account|账号|写域|write|db|库", token, re.I):
                         continue
                     if token in seen:
                         issues.append(f"§3.9 {pg} 共享隔离 token「{token}」：{seen[token]} / {item['batch']}，须串行")

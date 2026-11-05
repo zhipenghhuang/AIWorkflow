@@ -1,0 +1,28 @@
+# orch · handoff — packet rebuild source (not runtime must_read)
+# YAML step.notes may be thin; rich orchestration lives here.
+workflow: handoff
+purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
+steps:
+  change_receive: 读变更包 00/01/02；按 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。 先做影响分析：需求/AC、原型/设计、架构/DB/API/前端、任务/排期、测试/发布、依赖。 更新需求基线/方案/ADR/任务清单/开发计划；C0
+    就地更新并答复；C1 更新并回执；C2/C3 重基线并过门，必要时反向发 `CHG`。 更新 `handoff-ledger.md`、开发计划 //////、 `{workroot}/INDEX.md`、activeContext；填写回执。
+    与现有方案/代码冲突 → 列冲突，不静默选一边；未裁决前不实施。
+  change_send: 先按 change/intake 完成变更分析；本步只负责“通知包”。 按 判 C0～C3；C2/C3 先过确认门。 **CHG 包同样先问后发**：确认后才生成 HO。 必带：变更单、更新后需求/方案/接口、影响矩阵、必做事项/截止、兼容/回滚、生效版本。
+    多包同仓直读，禁止转发。
+  commit: 无文件变更跳过；拟提交清单按 `rules/workflow.md` ；提交后补一行结果，不重复六段。
+  compose: '**默认入口**。先读协作 ～ 与 `handoff-note-template.md`（择优写法，非填空卷）。 **意图择优**：先判 `intent_needs_confirm`（澄清 ）。真 → 完整【意图理解】停等确认再落盘；假（意图已清）→
+    一行【意图】回执后直写。禁止含糊「交接」直接成文。 **必做**：落笔前五问 → 选形态 A知会/B确认一页纸/C决策简报/D专模；禁止整表粘贴模板。 产品确认环境/演示 → 优先 B；勿摊工程风险考卷。 **落盘**：专模真源写生命周期目录，同轮实拷
+    `{workroot}/handoff/outbound/{category}/`；无专模直接写出站对应类。**不**建 HO。 回执默认否；正文禁内部路径代结论、禁印意图码/回执元数据。 口令含「交接包」未命中触发 → 仍本步。用户明确要包且命中
+    → 转 `send`。'
+  receive: '**硬**：打开→T1～T9 分析→A0～A2 吸收→同步；禁止只投放。`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。 单文档/任意夹：直接读；标准包：00→01→02→03。 定位：多包同仓
+    → 直读对方 `…/handoff/outbound/…`，不强制拷入站；仓外 → 主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`（内容分类；非 HO 亦收）。 核对/吸收后按类型更新基线/计划；正式签收才回执三选一。更新台账（已吸收/已接收等）、计划
+    //、索引、activeContext。'
+  replan: 按 `rules/collaboration/handoff.md` 触发（需求/方案/依赖/门禁/CI/产能/发布窗口）执行；先冻结当前基线快照，再做影响矩阵。 选一个动作并写理由：保持+加缓冲｜重排｜砍范围/降级 MVP｜拆波次｜重设计｜暂停升级｜重新基线；C2/C3
+    必须过 `confirm_plan`。 同轮更新开发计划 //////、任务清单、`handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；受影响的 `QA/REL/FIX` 包标
+    `已取代` 并重发。 重规划后重过受影响门（方案/清单/完成门/发布门）；未过门不得把阶段标完成；向产品/测试发 `CHG` 包并收回执。
+  send: '**仅升包**。先读 包触发与 类别；未命中 → 改走 `compose`，不得生 HO。 **先问后发**：`confirm_handoff` 出示【拟发包】；用户确认「要包」后才写盘到 `handoff/outbound/{category}/{HO-ID}/`；未确认零发包。
+    确认后：完整包 `00/01/02/03/04`；刷新出站散文件实拷；跑 `validate_handoff.py` → 台账已发送。 回执默认仍可选；仅正式签收/C2·C3/发布要求填写。 传递：多包同仓直读出站路径；仓外文件夹或 ZIP。输出【交接包已生成】。'
+  status: 只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/development-plan.md` /；不重写计划、不发包。 报备：当前未回执 n 个、超时 n 个、退回
+    n 个、阻断下游的 HO-ID、下一步入口。 有未登记新件（`{workroot}/handoff/inbound/` 有投放但台账无记录或仍为已投放）→ 建议先 `receive`/入站分析吸收，不直接实施。 台账缺失 → 按 `rules/templates/90-handoff/handoff-ledger-template.md`
+    建，但不虚构历史。 输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` ；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项 更新开发计划 //、activeContext、 `{workroot}/INDEX.md`；未回执/退回/待补项明示。
+    本步只出骨架与拟提交清单；提交门在下一步。
