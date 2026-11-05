@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`mount`（复制与挂载确认）
 - **packet**：`rules/packets/onboard/mount.md`

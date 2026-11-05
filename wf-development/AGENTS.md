@@ -4,7 +4,7 @@
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain`（进 wf）→ ④ `_region-*`（进长链子区）→ ⑤ 步骤包 → ⑥ §6 **必开** skill 闭环（打开→执行→回包）→ ⑦ 可选 1 模板。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；**禁止**每步重读本文全文、禁止同时多 packet。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.04`（状态机分区；技能打开→执行→回包；质量不降）。  
+> **template_version**：`2026.11.05.19`（前端证据分级 A/B/C；C 级免矩阵）。  
 > **架构**：`_chain`/`_region`（路径）+ 步骤包（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认开局卡第 5 条 + `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -50,7 +50,7 @@
 
 ### 0.5 工程与执行
 
-实施勾选 `iq-checklist.md`；词典 `implementation-quality.md`。git/部署：`workflow.md` §2；`versioning.md`。默认只提交。交接：`handoff.md`。
+实施勾选 `iq-checklist.md`；词典 `implementation-quality.md`。**实施即验证**：先确认需求/AC/边界与不做，再最小改动；提交前按变更面完成本地验证（L0 至少构建+lint；有行为变化加定向测试与接口/页面走查，前端含桌面+移动），细则 `verification.md` DEV-VER-18。git/部署：`workflow.md` §2；`versioning.md`。默认只提交。交接：`handoff.md`。
 
 ## 1. 接入
 
@@ -108,3 +108,15 @@
 ## 7. 多包
 
 单包独立为默认；缺他包不阻塞。一次会话只跑一个包 workflow。歧义定包查 `wf/AGENTS.md` 意图→包。
+
+### 7.1 单包使用（辅助场景：无独立产品/测试角色时）
+
+> **主轨是团队协作**（有产品经理与测试）；本节仅用于个人/单包落地时补齐职责，不改变主轨。
+
+开发包单独落地时，产品与测试的最小职责由开发自代行，**内容全部在本包内**，不依赖其它包是否安装：
+
+- **产品**：需求/范围/AC 一页化（含「不做」）；优先级与取舍；口径不明先出评估单或评审版方案；变更留决策记录（`{workroot}/00-governance/change-log.md`）；发布前按 AC 自检。用本包 `requirements-and-spec` / `product-shaping` / `acceptance-and-launch`。
+- **测试**：按「依据分析→计划→用例→执行→报告」五件套裁剪；用例独立（等价类/边界/异常/权限/并发，不复用开发步骤）；新功能 + 受影响回归；阻断用例全过才准出；证据留档。用本包 `test-design-and-execution` / `implementation-and-selftest` / `qa-handoff-and-release`。
+- **链路**：需求/AC → 方案/评审 → 任务 → 实施（本地验证）→ 测试自代行 → 验收/发布 → 回写；产物按 `10-requirements`/`20-design`/`40-tasks`/`50-verification`/`60-release` 落位，不跳步、不重复造。
+- **有独立产品/测试时**：以对方职责为准，开发只做本地自测 + 部署冒烟。
+

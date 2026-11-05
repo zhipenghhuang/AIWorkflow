@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`gitignore`（入库策略）
 - **packet**：`rules/packets/onboard/gitignore.md`

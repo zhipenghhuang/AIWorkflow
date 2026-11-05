@@ -254,6 +254,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 技术设计（长期 SSOT） | `{workroot}/30-architecture/` | 现行 API/架构/模块说明；就地更新 |
 | 前端设计说明 | `{workroot}/20-design/` | `前端设计说明-{主题}-{yyyyMMdd}.md` |
 | 缺陷评估 | `{workroot}/00-governance/缺陷评估/` | `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md` |
+| 缺陷评审版修复方案 | `{workroot}/20-design/BUG优化修复方案/`（档案指定目录优先） | `Bug{BUG-ID}-{主题}_评审版_{yyyyMMdd}.md`（口径待产品确认、确认前不实施） |
 | 产品返回资料 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；类型写索引 |
 | 任务清单/计划 | `{workroot}/40-tasks/` | `任务清单-{ver}.md` |
 | UAT/验收 | `{workroot}/50-verification/` | `UAT-{版本}-{yyyyMMdd}.md` |
@@ -271,7 +272,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见capabilities/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
 | 工作日志 | `{workroot}/work-log.md` | 开发岗位里程碑（含接入/治理）；≠根 CHANGELOG |
 
-**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
+**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；口径待确认但实现路径清晰的评审版方案落 `{workroot}/20-design/BUG优化修复方案/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
 
 **纪律（摘要）**：按档案 §9 映射落位不强行搬迁；文件名含版本/日期；归档/清理/根白名单见 `rules/doc-governance.md` §5～§8；提交拟提交节奏见本文 §2。
 

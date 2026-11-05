@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/defect-fix/_chain.md`
 - **本区**：`intake` — 接入与分类
 - **出口**：进入下一子机 `rules/packets/defect-fix/_region-product.md`（产品协作闭环）

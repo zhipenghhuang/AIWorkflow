@@ -16,7 +16,7 @@
 | analyze（需求/测试依据建模） | `skills/test-basis-analysis/SKILL.md`（需求模型/冲突/九类歧义/oracle/TP 追溯） |
 | analyze / plan | `skills/test-analysis-and-plan/SKILL.md`（企业级计划/类型选择/执行编排/自动化分层）+ `skills/test-data-and-environment/SKILL.md`（环境/数据/账号/依赖） |
 | generate（功能/专项） | `skills/testcase-design/SKILL.md`（+ AI 功能附加：`skills/ai-feature-testing/SKILL.md`） |
-| review-cases / 计划评审（落地产物） | `skills/test-artifact-review/SKILL.md`（范围总览 + 计划/分析量规 + 选 B【自主分析】）+ `skills/testcase-review/SKILL.md`（用例细轴 A1–A6/S1–S9） |
+| review-cases / 计划评审（落地产物） | `skills/test-artifact-review/SKILL.md`（范围总览 + 计划/分析量规 + 选 B【自主分析】）+ `skills/testcase-review/SKILL.md`（用例细轴 A1–A6/S1–S10；产物 `{workroot}/reviews/`） |
 | execute（功能/探索式/计划驱动） | `skills/test-execution-and-exploration/SKILL.md`（计划编排/回归/探索）+ `skills/test-data-and-environment/SKILL.md`（数据/环境/隔离）+ `skills/ai-feature-testing/SKILL.md`（AI 非确定性执行） |
 | 接口轨 | `skills/test-interface/SKILL.md`（脚本优先 + 契约/复用；+ `rules/tracks/api.md`） |
 | 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（基础/标准/高风险级 + 工具矩阵/LLM 安全/韧性；+ `rules/tracks/pre-release.md`） |

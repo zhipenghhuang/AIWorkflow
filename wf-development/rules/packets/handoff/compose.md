@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`handoff`
 - **step**：`compose`（写交接单文档）
 - **packet**：`rules/packets/handoff/compose.md`

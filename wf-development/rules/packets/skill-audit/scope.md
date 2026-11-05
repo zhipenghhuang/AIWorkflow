@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`skill-audit`
 - **step**：`scope`（定范围与模式）
 - **packet**：`rules/packets/skill-audit/scope.md`

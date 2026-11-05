@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`intake`
 - **step**：`scan`（扫描新输入）
 - **packet**：`rules/packets/intake/scan.md`

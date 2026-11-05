@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`assess_product`（产品缺陷评估）
 - **packet**：`rules/packets/defect-fix/assess_product.md`
@@ -54,9 +54,10 @@
 
 - 按 rules/defects/fix-collaboration.md ： 写评估单前必做实现核对（代码路径与/或接口契约·响应），结论写入评估单「实现核对」。
 - 未核对不得出单。 写 缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md，落 {workroot}/00-governance/缺陷评估/。
-- 只写实现核对摘要/判定依据/问题影响/方案选项 A/B/C/推荐/影响面/待产品确认。
+- 只客观写实现核对摘要/判定依据/问题影响/方案选项 A/B/C/推荐/影响面/待产品确认。
 - 不写可编码实现细节、不拆开发任务、不排开发排期。
-- 不得与正常迭代方案 方案-{主题}-… 混用。 没有相符证明且不属于需求缺口变体 → 不判产品缺陷：按实现缺陷或 need_clarification 处理。 无平台/export/文档输入 → 评估单经 change/handoff 交付，口径与平台备注同源。
+- 不写期望回复/时限威胁/超期升级/评估单版本过程史。
+- 不得与正常迭代方案 方案-{主题}-… 混用。 口径存疑但实现路径清晰时，改出评审版修复方案（fix-collaboration §5.1 档位，落 20-design/BUG优化修复方案/），与评估单二选一、不重复出。 没有相符证明且不属于需求缺口变体 → 不判产品缺陷：按实现缺陷或 need_clarification 处理。 无平台/export/文档输入 → 评估单经 change/handoff 交付，口径与平台备注同源。
 
 ## 6. 技能指向（打开 → 执行 → 回本包）
 

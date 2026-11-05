@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`readiness`（发布就绪检查）
 - **packet**：`rules/packets/release/readiness.md`

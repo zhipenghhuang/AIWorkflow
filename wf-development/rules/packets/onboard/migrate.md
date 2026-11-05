@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`migrate`（旧项目迁移）
 - **packet**：`rules/packets/onboard/migrate.md`

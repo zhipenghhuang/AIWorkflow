@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`menu`（总结菜单）
 - **packet**：`rules/packets/defect-fix/menu.md`

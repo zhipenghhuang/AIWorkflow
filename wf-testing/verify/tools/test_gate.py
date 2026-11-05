@@ -847,23 +847,63 @@ def extract_p0_ids(*texts: str) -> set[str]:
     return ids
 
 
-def find_review_records(root: Path) -> list[Path]:
-    if not root.is_dir():
+def _reviews_index_current_files(index_path: Path) -> list[str]:
+    """Basenames listed as 现行 in reviews/INDEX.md (prefer §1 / 「现行」表)."""
+    if not index_path.is_file():
         return []
-    out: list[Path] = []
-    for p in root.rglob("*.md"):
-        if not is_current(p):
+    text = read(index_path)
+    # Prefer the 「现行」 section; fall back to whole file if heading missing.
+    sec = ""
+    for key, block in sections(text).items():
+        if "现行" in key:
+            sec = block
+            break
+    blob = sec or text
+    names: list[str] = []
+    seen: set[str] = set()
+    for m in re.finditer(r"`?([^\s|`]+\.md)`?", blob):
+        name = Path(m.group(1).replace("\\", "/")).name
+        if "-评审-" not in name:
             continue
-        name = p.name
-        # 合卷/计划：评审-*.md；单域 C 命名：{NN}-{短名}-评审-{戳}.md
-        if (
-            name.startswith("评审-")
-            or name.startswith("评审_")
-            or "-评审-" in name
-            or "用例评审" in name
-        ):
-            out.append(p)
+        if name in seen:
+            continue
+        seen.add(name)
+        names.append(name)
+    return names
+
+
+def find_review_records(root: Path) -> list[Path]:
+    """Only `{workroot}/reviews/`（不含 `_archive`）；优先 INDEX 现行行。"""
+    reviews = root / "reviews"
+    if not reviews.is_dir():
+        return []
+    indexed = _reviews_index_current_files(reviews / "INDEX.md")
+    out: list[Path] = []
+    if indexed:
+        for name in indexed:
+            p = reviews / name
+            if p.is_file() and is_current(p):
+                out.append(p)
+    else:
+        for p in reviews.iterdir():
+            if not p.is_file() or p.suffix.lower() != ".md":
+                continue
+            if p.name.upper() == "INDEX.MD":
+                continue
+            if not is_current(p):
+                continue
+            if "-评审-" in p.name:
+                out.append(p)
     return sorted(out, key=lambda p: p.stat().st_mtime, reverse=True)
+
+
+def pick_case_review_record(records: list[Path]) -> Path | None:
+    """case-review 不用计划/分析评审顶替。"""
+    caseish = [
+        p for p in records
+        if not p.name.startswith(("计划-评审", "分析-评审"))
+    ]
+    return caseish[0] if caseish else None
 
 
 def parse_review(path: Path) -> dict[str, Any]:
@@ -1006,11 +1046,14 @@ def main() -> int:
 
     if args.mode == "review":
         records = find_review_records(test_root)
-        if not records:
-            blocked.append("未找到用例评审记录（docs/testing/**/评审-*.md 或 **-评审-*.md）")
+        latest = pick_case_review_record(records)
+        if not latest:
+            blocked.append(
+                "未找到用例评审记录（须在 {workroot}/reviews/ 现行 *-评审-*.md；"
+                "优先 reviews/INDEX.md；不含 _archive；计划/分析评审不顶替）"
+            )
             checks.append({"id": "review-record", "status": "blocked", "detail": "missing"})
         else:
-            latest = records[0]
             review_record_path = latest
             parsed = parse_review(latest)
             review_conclusion = parsed["conclusion"]

@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`materials`
 - **step**：`select`（选择版本与范围）
 - **packet**：`rules/packets/materials/select.md`

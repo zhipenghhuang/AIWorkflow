@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/solo/_chain.md`
 - **本区**：`frame` — 定义与方案
 - **出口**：进入下一子机 `rules/packets/solo/_region-build.md`（建造验证）

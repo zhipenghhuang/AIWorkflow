@@ -58,7 +58,8 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `40-report-review/test-report-template.md` | testing.report | 计划对照/准出/遗留 |
-| `40-report-review/review-record-template.md` | testing.review-cases | 本轮批次/合卷；量规 + 严重度缺口 + 放行/需修 |
+| `40-report-review/review-record-template.md` | testing.review-cases | 落 `{workroot}/reviews/`；量规 + 严重度缺口 + 放行/需修 |
+| `40-report-review/reviews-index-template.md` | testing.review-cases / onboard | `{workroot}/reviews/INDEX.md`：范围键→现行；同键覆盖 |
 
 ## 90-handoff
 

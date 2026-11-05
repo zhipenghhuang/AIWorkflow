@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`retro`（复盘）
 - **packet**：`rules/packets/defect-fix/retro.md`

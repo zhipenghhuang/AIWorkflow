@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`materials`
 - **step**：`index`（版本说明、索引与校验）
 - **packet**：`rules/packets/materials/index.md`

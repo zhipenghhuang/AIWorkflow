@@ -26,11 +26,11 @@ description: Use when reviewing test cases after generation or before execution.
    - **选 A**：评审记录 + HUMAN_APPROVED；**不跑** `-Mode review`。  
    - **选 B**：评审记录 → `-Mode review` → 据门 JSON。  
 7. **结论**：整批 +（合卷时）分域；未放行域禁入执行装填。需修回 generate；同回合重审 ≤1。  
-8. **落盘**：单域 `{NN}-{短名}-评审-{戳}.md` 或合卷 `{workroot}/{轨}/评审-{摘要}-{戳}.md`。
+8. **落盘（硬）**：只写 `{workroot}/reviews/`；单域 `reviews/{轨中文}-{NN}-{短名}-评审-{戳}.md`；合卷 `reviews/{轨中文}-{摘要}-合卷-评审-{戳}.md`；回写 `reviews/INDEX.md`；同范围键再评先移旧入 `reviews/_archive/`。
 
 ## 3. 单条量规（A1–A6 · 任一条 FAIL=阻断）
 
-> 对齐 ISO/IEC/IEEE 29119-3 字段意图 + ISTQB CTFL 静态{workroot}/追溯；阈值参考行业 test-case-review-rubric。
+> 对齐 ISO/IEC/IEEE 29119-3 字段意图 + ISTQB CTFL 静态测试/追溯；阈值参考行业 test-case-review-rubric。
 
 | ID | 轴 | PASS | FAIL（阻断） |
 | --- | --- | --- | --- |
@@ -58,7 +58,7 @@ description: Use when reviewing test cases after generation or before execution.
 
 探索式/随机：探索至少「步骤四列 + 判定面 + 章程映射（计划驱动）」；随机至少「口径=现网 + 办结目标/选池 + 旅程可判定 + 去重窗/新增轴 + 发现分流（含体验）」；禁要求主读映射；空话=重要或阻断（P0 面）。
 
-## 4. 套件量规（S1–S6）
+## 4. 套件量规（S1–S10）
 
 | ID | 轴 | PASS | FAIL |
 | --- | --- | --- | --- |
@@ -116,7 +116,7 @@ description: Use when reviewing test cases after generation or before execution.
 | JohnWayneeee/casely-qa-skill（MIT） | 规格洞、TestRail-ready 字段完整 |
 | petrkindlmann/qa-skills（MIT） | 风险分层评审、策略对齐 |
 | fugazi QA ISTQB static-testing | 清单式静态检查 |
-| 行业 review-rubric（A1–A6/S1–S6） | 量规阈值与 FAIL 触发 |
+| 行业 review-rubric（A1–A6/S1–S10） | 量规阈值与 FAIL 触发 |
 | Cursor Bugbot 评审形态 | 独立上下文、严重度表、禁止作者自卖自夸 |
 
 **引用写法**：写「对齐 {ISTQB 静态测试 / ISO 29119-3 / A5 可观测}」；**禁**空写「已符合国际标准」。
@@ -127,7 +127,7 @@ description: Use when reviewing test cases after generation or before execution.
 | --- | --- | --- |
 | 时机 | 生成后 / 执行前 | 执行批内 |
 | 对象 | 用例设计质量 | jsonl↔证据↔预期 |
-| 产物 | `*-评审-*.md` / `评审-*.md` + review 门 | 批核验摘要 |
+| 产物 | `{workroot}/reviews/*-评审-*.md` + INDEX + review 门 | 批核验摘要 |
 | 改用例 | 禁（只报缺口） | 仅笔误；结论不可信可重测 |
 
 ## 10. 门与退出
@@ -141,5 +141,5 @@ description: Use when reviewing test cases after generation or before execution.
 | 合理化 | 现实 |
 | --- | --- |
 | 「条数多就是覆盖好」 | 看追溯/深度/负面/数据链路，不看条数。 |
-| 「生成模型写的应该对」 | 无来源断言=缺陷；抽查 A1–A6/S1–S6。 |
+| 「生成模型写的应该对」 | 无来源断言=缺陷；抽查 A1–A6/S1–S10。 |
 | 「评审太慢，先执行」 | 放行前执行污染准出；T0 才可 SELF_CHECKED 并声明。 |

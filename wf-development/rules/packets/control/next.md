@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`control`
 - **step**：`next`（下一步建议）
 - **packet**：`rules/packets/control/next.md`

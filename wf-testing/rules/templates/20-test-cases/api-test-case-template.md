@@ -172,7 +172,7 @@
 
 > 阻断：对照空行、猜 path、仅 2xx 当通过、确定性无脚本无理由、缺请求要点/期望；总分 ≥18/20 且无阻断方可评审通过。
 
-**评审记录**：单域 `{NN}-{短名}-评审-{yyyyMMdd-HHmm}.md`；同轮合卷 `{workroot}/api/评审-{本轮范围摘要}-{yyyyMMdd-HHmm}.md`（`工作流` §2.5）
+**评审记录**：`{workroot}/reviews/接口-{NN}-{短名}-评审-{yyyyMMdd-HHmm}.md`；合卷 `reviews/接口-{摘要}-合卷-评审-{戳}.md`；回写 `reviews/INDEX.md`（`工作流` §2.5）
 
 **文档变更记录**
 

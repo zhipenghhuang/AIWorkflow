@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`control`
 - **step**：`sync`（同步阶段与证据）
 - **packet**：`rules/packets/control/sync.md`

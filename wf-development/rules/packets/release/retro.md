@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`retro`（发布复盘）
 - **packet**：`rules/packets/release/retro.md`

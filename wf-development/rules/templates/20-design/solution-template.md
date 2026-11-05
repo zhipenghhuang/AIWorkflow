@@ -2,6 +2,7 @@
 
 > 需落盘的设计/优化/迭代方案骨架；**按规模裁剪**——不适用章节写「不适用」，小改可省 §4 流程图/§7 风险表/§9 ADR。口头探索不用本模板。  
 > **产品缺陷初次评估不用本模板**：按 `rules/templates/20-design/product-defect-assessment-template.md` 出 1～2 页评估单；产品确认后如需完整技术方案再用本模板，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`。  
+> **评审版修复方案（口径待产品确认）**：口径存疑但实现路径清晰时，用本模板裁剪——§1/§2 写原单核对与根因、§3 写 A/B/C 与推荐、§4 写实施要点（不排期）、§5/§6 写影响与待确认；落 `{workroot}/20-design/BUG优化修复方案/`（档案指定目录优先），文件名 `Bug{BUG-ID}-{主题}_评审版_{yyyyMMdd}.md`，产品确认前该单不实施。  
 > 落盘前读 `project-profile.md`（文档根/门禁/交付治理）；文件名：`方案-{主题}-{yyyyMMdd}.md`（同日多份补 `-HHmm`）；写入前核验路径。  
 > 落点：`{workroot}/20-design/`；架构级决策落 `{workroot}/30-architecture/ADR/`（模板 `adr-template.md`）。
 

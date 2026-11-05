@@ -8,11 +8,11 @@
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
 | L0 | 单文件/文案/配置，无行为/契约/权限/数据变化 | build + test（定向或全仓）+ 冒烟 | 命令+退出码；空任务窗口 = NOT_VERIFIED |
-| L1 | 多文件、普通功能、前端行为变化 | L0 + lint + E2E（前端）+ 前端十一项 QA + 路由覆盖 | 每条变更路由桌面+移动截图、route-coverage.json、console/network |
+| L1 | 多文件、普通功能、前端行为变化 | L0 + lint + E2E（前端）+ 前端十三项 QA（含交互诚实）+ 路由覆盖 | 每条变更路由桌面+移动截图、route-coverage.json、console/network |
 | L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix | 评审记录、security/rollback、parity-matrix、plan-coverage |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
-前端最低 L1；纯文案可 L0-light，仍要受影响页截图 + console 无 error。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
+前端最低 L1；纯文案可 L0-light，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 **轻量轨（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出最小充分集并实测，报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
@@ -22,7 +22,7 @@
 ## 2. 一次任务怎么跑
 
 1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十一项 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十三项含交互诚实 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
 3. 收尾：
 
@@ -48,7 +48,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 | `verify/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
 | `verify/tools/report_lint.py` | 收尾对账：回执/verdict/禁词/证据 + 六点版式、汇报块、第 2/4/6 点固定子字段、附录；`--format-only` 跳过门禁 |
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
-| `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 十一项、L2+ 二十项 |
+| `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 十三项（含交互诚实）、L2+ 二十项 |
 | `frontend/route-coverage.example.json` | 路由/菜单/深链/截图机读台账模板；复制为 `.gate/frontend/route-coverage.json` |
 | `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；L2+ 门内校验 |
 | `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、结论；L2+ 自动调用 |

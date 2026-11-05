@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`skill-audit`（能力与技能体检）
 - **用途**：入口 / 顺序 / 子机划分；**规则正文在 step packet**；**方法质量在 skill（由步骤包 §6 指向）**。
 

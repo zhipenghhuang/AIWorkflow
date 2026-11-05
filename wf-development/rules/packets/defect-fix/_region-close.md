@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/defect-fix/_chain.md`
 - **本区**：`close` — 关闭与收尾
 - **出口**：本 workflow 收尾或出口 step（wrap/commit）

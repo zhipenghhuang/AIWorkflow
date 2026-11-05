@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`materials`
 - **step**：`sync`（同步权威文档）
 - **packet**：`rules/packets/materials/sync.md`

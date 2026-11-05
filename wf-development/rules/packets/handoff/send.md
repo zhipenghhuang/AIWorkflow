@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`handoff`
 - **step**：`send`（生成交接包）
 - **packet**：`rules/packets/handoff/send.md`

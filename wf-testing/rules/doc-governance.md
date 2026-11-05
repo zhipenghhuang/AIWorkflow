@@ -83,6 +83,7 @@ docs/materials/
 
 - 测试工作区：
   - `test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md`、`work-log.md`
+  - `reviews/`（评审留痕唯一落点 + `INDEX.md`；被替代进 `reviews/_archive/`）
   - `functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/`
   - `changes/`、`scripts/`、`handoff/`、`capabilities/`、`_archive/`
 - 测试材料库写入域：`05-testing`。
@@ -153,7 +154,8 @@ docs/materials/
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
 | `{workroot}/test-plan.md`（+ V1～V4 卷）、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 主计划/四卷/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
-| `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`） |
+| `{workroot}/reviews/` | 绑定 · 现行唯一 | 全部 `*-评审-*.md` 只落此夹；`INDEX.md` 登范围键→现行路径；同键再评先移旧入 `reviews/_archive/` 再写新；关账现行+INDEX 快照进 `_archive/{yyyyMMdd}-{ver}/reviews/`；禁散落到域夹/轨根/工作根 |
+| `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`）；**不含评审记录** |
 | `{workroot}/changes/` | 绑定 | CR 关闭归档 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
 | `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；报告/计划等按需实拷；**缺陷有平台时禁止**为交单实拷详单（见 `handoff.md` §3.1.1）；关版本同批归档；台账常青 |
@@ -235,7 +237,7 @@ docs/materials/
 
 ## 8. 过程/临时清理
 
-范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、根 CHANGELOG/工作日志永不自动删。
+范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；`reviews/_archive/` 中已进版本归档的重复份；散落在域夹/轨根/工作根的旧 `*评审*`（确认后删或迁入 `reviews/_archive/`）；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、`reviews/INDEX` 现行行、根 CHANGELOG/工作日志永不自动删。
 
 何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。新任务 `-StartTask` 可清空 `.gate/frontend/` 旧媒体，不等同关账全清 `.gate`。
 

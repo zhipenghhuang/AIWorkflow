@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`iterate`
 - **step**：`gates`（全量门禁与文档同步）
 - **packet**：`rules/packets/iterate/gates.md`

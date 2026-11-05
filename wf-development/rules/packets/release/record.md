@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`record`（发布记录）
 - **packet**：`rules/packets/release/record.md`

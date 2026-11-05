@@ -47,7 +47,7 @@
 | `20-design/frontend-design-spec-template.md` | change.design（前端变更） | 页面/状态/tokens/a11y/性能/交接 |
 | `20-design/frontend-prototype-parity-template.md` | change.design / implement（前端） | 原型对齐矩阵：路由/导航/复用组件/区块/状态；冲突与 OPEN 清单 |
 | `20-design/adr-template.md` | change.design | 架构决策 |
-| `20-design/product-defect-assessment-template.md` | defect-fix.assess_product | 只写评估，不写技术方案 |
+| `20-design/product-defect-assessment-template.md` | defect-fix.assess_product | 客观评估短文；禁期望回复/时限威胁/版本过程史 |
 
 ## 30-planning-tasks
 

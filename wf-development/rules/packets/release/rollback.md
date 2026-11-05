@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`rollback`（回滚）
 - **packet**：`rules/packets/release/rollback.md`

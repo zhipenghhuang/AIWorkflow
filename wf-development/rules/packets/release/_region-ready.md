@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/release/_chain.md`
 - **本区**：`ready` — 就绪与批准
 - **出口**：进入下一子机 `rules/packets/release/_region-go.md`（部署验证）

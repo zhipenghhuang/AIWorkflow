@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`capabilities`（环境与工具检查）
 - **packet**：`rules/packets/onboard/capabilities.md`

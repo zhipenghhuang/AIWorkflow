@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`intake`
 - **step**：`report`（吸收报告）
 - **packet**：`rules/packets/intake/report.md`

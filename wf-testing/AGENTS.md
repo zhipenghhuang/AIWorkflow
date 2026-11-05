@@ -4,7 +4,7 @@
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ _chain → ④ _region-*（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.08`（Q12 细节完整+漏测谱系；探索/随机找缺陷优先；去冗余）。  
+> **template_version**：`2026.11.05.09`（评审统一 `{workroot}/reviews/` + INDEX 同键覆盖）。  
 > **主链**：分析→计划→生成→用例评审→执行→报告。  
 > **完成口径**：只认开局卡 + `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -79,7 +79,7 @@
 **版本级单点**：`{workroot}/test-plan.md`、`{workroot}/test-report.md`；全量首跑必经；缺则轻量补；发布列车/大版本 ≥1 次功能全量；补丁=P0 冒烟+影响面+已脚本化回归。
 **执行三态**：「继续」=续跑未完成；「回归/重跑」=重测既有用例（结果就地覆盖、只留最新）；缺陷平台单回归→行 5。
 **需求理解前置**：`生成用例/资产`、`测试计划`、接口/发布前定范围前必须已有 **测试分析表**（`{workroot}/test-analysis.md`；模板 `rules/templates/10-planning/test-analysis-template.md`）；无表 → 先 analyze。功能/专项 **双读原文+全表**；接口/发布前/探索式 **至少读 §0**。**按计划执行**：计划 §0 已确认且表路径可打开 → 不阻断；表缺失仅告警并建议补建，勿强制赶回 analyze。
-**用例评审前置**：功能全量/专项 T1+ 在进 P2/正式执行前必须经 `review-cases` 放行（选 B → 机器门 PASS/CONDITIONAL；选 A → HUMAN_APPROVED + 评审记录）；默认按本轮装填批次成卷（同轨同主读可合卷，跨轨不合卷）；生成写手不得自审自放行；T0 可 SELF_CHECKED 并声明。方法：`skills/testcase-review/SKILL.md` + `工作流` §2.5。
+**用例评审前置**：功能全量/专项 T1+ 在进 P2/正式执行前必须经 `review-cases` 放行（选 B → 机器门 PASS/CONDITIONAL；选 A → HUMAN_APPROVED + 评审记录）；记录只落 `{workroot}/reviews/` 并回写 INDEX（同键覆盖）；默认按本轮装填批次成卷（同轨同主读可合卷，跨轨不合卷）；生成写手不得自审自放行；T0 可 SELF_CHECKED 并声明。方法：`skills/testcase-review/SKILL.md` + `工作流` §2.5。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
 首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<读取索引行> | next_action=…`；仅无标记预检时加 `preflight=onboard`；有主读/输入时加 `input=<路径>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
 

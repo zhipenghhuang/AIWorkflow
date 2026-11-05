@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`handoff`
 - **step**：`replan`（重规划）
 - **packet**：`rules/packets/handoff/replan.md`

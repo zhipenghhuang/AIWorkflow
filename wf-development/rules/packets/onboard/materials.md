@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`materials`（资料收取与归档）
 - **packet**：`rules/packets/onboard/materials.md`

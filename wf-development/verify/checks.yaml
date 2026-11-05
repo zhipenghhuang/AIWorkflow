@@ -48,7 +48,7 @@ change_types:
       - "**/templates/**"
       - "**/layouts/**"
     min_level: L1
-    notes: 纯文案/配置可 L0-light（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端必须 parity-matrix + route-coverage + 每路由桌面/移动截图；缺一 BLOCKED。
+    notes: 纯文案/配置可 L0-light（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端按 `frontend-gate` §2.1 分级（`.gate/frontend/tier.json`）：A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity；该级缺一 BLOCKED。
   api:
     globs:
       - "**/api/**"

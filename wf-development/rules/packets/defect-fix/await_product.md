@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`await_product`（等待产品处置）
 - **packet**：`rules/packets/defect-fix/await_product.md`
@@ -54,8 +54,8 @@
 
 - STOP：本步输出后结束，不执行 wrap/后续 step。
 - 不改代码、不提交、不部署、不按自己的评估方案实施。 输出【缺陷修复处理总结】的待产品部分（评估单/附件/待决定项）+ 一行 AWAIT_PRODUCT。
-- 同批实现项/澄清项标「待下一批」，不静默丢。
-- 不输出提交菜单（未实施，无可提交代码）。 下次用户说「拉取产品回复/产品回复/产品退回/继续缺陷」→ 从 product_decision 进入。
+- 同批实现项按 fix-collaboration §4.1 并行处理（不受本单等待阻塞），澄清项照常回写。
+- 不输出提交菜单中未实施的项。 下次用户说「拉取产品回复/产品回复/产品退回/继续缺陷」→ 从 product_decision 进入。
 
 ## 6. 技能指向（打开 → 执行 → 回本包）
 

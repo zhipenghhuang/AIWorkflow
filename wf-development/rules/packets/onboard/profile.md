@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`onboard`
 - **step**：`profile`（档案与规范）
 - **packet**：`rules/packets/onboard/profile.md`

@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`handoff_product`（评估单提交产品）
 - **packet**：`rules/packets/defect-fix/handoff_product.md`

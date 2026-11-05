@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`retro`
 - **step**：`actions`（行动项）
 - **packet**：`rules/packets/retro/actions.md`

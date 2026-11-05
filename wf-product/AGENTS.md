@@ -4,7 +4,7 @@
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain` → ④ `_region-*`（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.04`（状态机分区；技能打开→执行→回包；质量不降）。  
+> **template_version**：`2026.11.05.05`（处置单客观文风；去版本过程史）。  
 > **完成口径**：只认开局卡 + `Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工

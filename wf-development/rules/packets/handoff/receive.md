@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`handoff`
 - **step**：`receive`（接收与签收）
 - **packet**：`rules/packets/handoff/receive.md`

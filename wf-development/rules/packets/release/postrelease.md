@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`postrelease`（发布后观察）
 - **packet**：`rules/packets/release/postrelease.md`

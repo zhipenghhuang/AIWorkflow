@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/iterate/_chain.md`
 - **本区**：`build` — 实施验证
 - **出口**：进入下一子机 `rules/packets/iterate/_region-ship.md`（交付收尾）

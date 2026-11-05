@@ -688,6 +688,21 @@ def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str,
             "detail": f"modules={len(modules)} sha={digest[:12]}"}
 
 
+def frontend_tier(evidence_dir: Path, fe: dict[str, Any]) -> str:
+    """读取证据分级：.gate/frontend/tier.json（A/B/C），缺省 A（兼容旧行为）。"""
+    tier_file = evidence_dir / "tier.json"
+    tier = ""
+    if tier_file.is_file():
+        try:
+            data = json.loads(tier_file.read_text(encoding="utf-8-sig")) or {}
+            tier = str(data.get("tier", "")).strip().upper()
+        except Exception:
+            tier = ""
+    if tier not in ("A", "B", "C"):
+        tier = str(fe.get("evidenceTier", "A")).strip().upper()
+    return tier if tier in ("A", "B", "C") else "A"
+
+
 def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
                       acceptance_mtime: float, task_started_at: str = "",
                       base_commit: str = "", require_generated: bool = False) -> dict[str, Any]:
@@ -695,15 +710,17 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
         return {"id": "frontend-evidence", "status": "blocked", "detail": f"missing {evidence_dir}"}
+    tier = frontend_tier(evidence_dir, fe)
     images = [p for p in evidence_dir.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp")]
     qa = evidence_dir / "design-qa.md"
     problems: list[str] = []
-    if len(images) < 2:
-        problems.append(f"only {len(images)} screenshot(s); need >=2")
+    min_images = 1 if tier == "C" else 2
+    if len(images) < min_images:
+        problems.append(f"only {len(images)} screenshot(s); need >={min_images} (tier {tier})")
     names = " ".join(p.name.lower() for p in images)
     if not any(x in names for x in ("desktop", "1280", "1440")):
         problems.append("缺少桌面截图（文件名含 desktop/1280/1440）")
-    if not any(x in names for x in ("mobile", "360", "375", "390")):
+    if tier != "C" and not any(x in names for x in ("mobile", "360", "375", "390")):
         problems.append("缺少移动截图（文件名含 mobile/360/375/390）")
     floor = max(acceptance_mtime or 0.0, _parse_iso_mtime(task_started_at))
     if floor:
@@ -725,7 +742,8 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         except Exception:
             problems.append("playwright-results.json 不可解析")
 
-    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 10, 15, 16, 17, 18, 19]
+    # L1 includes interaction-honesty rows 14/20; L2+ all 20
+    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 10, 14, 15, 16, 17, 18, 19, 20]
     if not qa.is_file():
         problems.append("missing design-qa.md")
     else:
@@ -791,7 +809,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
                         if isinstance(val, list) and val:
                             problems.append(f"{rp.name}: {key} 非空")
 
-    require_parity = bool(fe.get("requireParity", level_rank(level) >= 1))
+    require_parity = bool(fe.get("requireParity", level_rank(level) >= 1)) and tier != "C"
     if require_parity:
         parity_problems, parity_stats = validate_frontend_parity(
             evidence_dir, since=floor, base_commit=base_commit,
@@ -811,7 +829,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
 
     if problems:
         return {"id": "frontend-evidence", "status": "blocked", "detail": problems}
-    detail = f"{len(images)} screenshots + design-qa.md"
+    detail = f"tier={tier} {len(images)} screenshots + design-qa.md"
     if problems_detail:
         detail += " + " + problems_detail
     return {"id": "frontend-evidence", "status": "pass", "detail": detail}

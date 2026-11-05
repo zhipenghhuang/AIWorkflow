@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`iterate`
 - **step**：`confirm`（确认清单与节奏）
 - **packet**：`rules/packets/iterate/confirm.md`

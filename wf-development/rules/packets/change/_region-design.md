@@ -4,7 +4,7 @@
 
 ## 定位
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **父流程**：`rules/packets/change/_chain.md`
 - **本区**：`design` — 方案与计划
 - **出口**：进入下一子机 `rules/packets/change/_region-build.md`（实施与验证）

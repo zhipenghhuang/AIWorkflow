@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`handoff`
 - **step**：`change_send`（发送变更通知）
 - **packet**：`rules/packets/handoff/change_send.md`

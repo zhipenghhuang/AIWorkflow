@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`postrelease`（发布后验证）
 - **packet**：`rules/packets/defect-fix/postrelease.md`

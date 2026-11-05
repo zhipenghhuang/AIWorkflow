@@ -18,6 +18,7 @@
 | 当前任务清单 | {{路径 / —}} |
 | 当前验证/发布 | {{路径 / —}} |
 | 当前交接台账 | `{workroot}/handoff/handoff-ledger.md` |
+| 现行评审索引 | `{workroot}/reviews/INDEX.md` |
 
 ## 2. 文档清单
 

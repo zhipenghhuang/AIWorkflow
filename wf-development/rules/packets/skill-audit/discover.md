@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`skill-audit`
 - **step**：`discover`（生态检索）
 - **packet**：`rules/packets/skill-audit/discover.md`

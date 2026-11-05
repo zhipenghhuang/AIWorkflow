@@ -22,7 +22,7 @@
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料。**关闭=停止新范围/冻结版本线，不停止测试与缺陷修复**；测试未完又要开新迭代，优先「并行不关」，归档待测试完成 |
 | 交接门 | `confirm_handoff`（when: `handoff_send_required`） | **凡拟生成任一 HO 或缺陷统一导出必停**：出示类型/接收方/必带摘要/落点（缺陷须写清「本批一份单文件或单 EXPORT 目录」）/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「报告门/计划门/批末/平台已交」代替本门。有平台交缺陷 → 本门不因「补导出」置真。未收回执不得称「已接收」；可称「已发送」 |
 | 覆盖闸 | `gate: coverage-map`（when: `functional_coverage_required`） | 功能全量/专项新生成/补生成：运行 `verify/Invoke-Gate.ps1 -Mode coverage`；§3 映射无空行且 ID 真实；§4 须含深度档自检与视觉基础行；分析表 §2.2/§2.3 无空格、§2.4 依据覆盖无缺行；不适用于其它轨 |
-| 用例评审闸 | `gate: case-review`（when: `case_review_required`） | 功能全量/专项 T1+（或点名评审）：运行 `verify/Invoke-Gate.ps1 -Mode review`；评审记录存在、结论可解析、独立性声明、阻断未清不得放行；回执 `.gate/wf-testing/review.json`；未 PASS 不得写「放行执行/评审通过」 |
+| 用例评审闸 | `gate: case-review`（when: `case_review_required`） | 功能全量/专项 T1+（或点名评审）：运行 `verify/Invoke-Gate.ps1 -Mode review`；只认 `{workroot}/reviews/` 现行（优先 INDEX）；结论可解析、独立性声明、阻断未清不得放行；回执 `.gate/wf-testing/review.json`；未 PASS 不得写「放行执行/评审通过」 |
 | 评审方式门 | `select_review_mode`（when: `landing_doc_review_needed`） | **STOP 二选一**：A 自行｜B AI（testcase-reviewer）；可附自定义焦点。适用面见 `landing_doc_review_needed`（计划/分析表/功能/接口/发布前/探索式）。同产物只问一次；未选不得宣称评审通过/计划可驱动/进 P2 |
 | 评审确认门 | `confirm_review`（when: `review_needs_confirm`） | 结论=需修后放行、有条件放行须接受人、或与计划 P2 入口冲突 → STOP；已放行且无未接受重要项 → 跳过 |
 | 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | **每批一次**（不是阶段末一次合成）：本批终态齐后 `Invoke-Gate.ps1 -Mode execute -Scope "{模块}"`；只对 Scope 内台账；回执含 `scope`；禁无 Scope 全仓当本批结论。批次合并按计划 §3.9：文件在、逐条落盘、计数一致、结果合法、证据可打开；未过不得开下一批 |

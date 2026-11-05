@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`iterate`
 - **step**：`retro`（迭代复盘）
 - **packet**：`rules/packets/iterate/retro.md`

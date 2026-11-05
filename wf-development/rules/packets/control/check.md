@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`control`
 - **step**：`check`（阶段门检查）
 - **packet**：`rules/packets/control/check.md`

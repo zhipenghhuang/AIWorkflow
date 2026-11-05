@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`iterate`
 - **step**：`release_handoff`（发布交接）
 - **packet**：`rules/packets/iterate/release_handoff.md`

@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`retro`
 - **step**：`analyze`（根因分析）
 - **packet**：`rules/packets/retro/analyze.md`

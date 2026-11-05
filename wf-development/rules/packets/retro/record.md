@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`retro`
 - **step**：`record`（落盘与索引）
 - **packet**：`rules/packets/retro/record.md`

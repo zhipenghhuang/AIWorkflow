@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`release`
 - **step**：`approval`（工程部署审批）
 - **packet**：`rules/packets/release/approval.md`

@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`materials`
 - **step**：`commit`（拟提交）
 - **packet**：`rules/packets/materials/commit.md`

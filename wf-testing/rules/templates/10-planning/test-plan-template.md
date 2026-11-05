@@ -121,7 +121,7 @@
 | 卷计划 | V1 主链/V2 功能/V3 方法/V4 收口 | 按 §3.8 落盘（`test-plan-volume-template.md`） | `{待生成/已生成/N/A}` | 计划驱动 | 卷负责人 |
 | 功能全量/专项 | `{模块}` | `{workroot}/functional/{NN}-{短名}/{NN}-{短名}-功能用例.md`、`…-功能台账.md`、`{workroot}/functional/evidence/{NN}-{短名}/` | `{待生成/已生成}` | 脚本优先 / AI 补 | `{…}` |
 | 稳定冒烟 | P0-Smoke 脚本 | `{workroot}/smoke-checklist.md` | `{已盘点/待盘点}` | 脚本 | `{…}` |
-| 用例评审 | 功能/专项 | 单域 `…/{NN}-{短名}-评审-{戳}.md` 或合卷 `functional/评审-{本轮摘要}-{戳}.md` | `{待生成/已生成}` | 本轮装填批次；跨轨不合卷 | `{…}` |
+| 用例评审 | 功能/专项 | `{workroot}/reviews/功能-…-评审-{戳}.md`（合卷带 `-合卷-`；INDEX 登记） | `{待生成/已生成}` | 本轮装填批次；跨轨不合卷；同键覆盖 | `{…}` |
 | 接口 | `{接口域}` | `{workroot}/api/{NN}-{短名}/{NN}-{短名}-接口用例.md`、`…-接口台账.md`、`scripts/`、`evidence/{NN}-{短名}/` | `{待生成/已生成}` | API 脚本优先；模板=`api-test-case-template.md` | `{…}` |
 | 探索式 | `{章程范围}` | `{workroot}/exploratory/{主题}-{戳}/{主题}-{戳}-探索用例.md` + `…-探索台账.md` | `{待生成/已生成}` | 章程会话 | `{…}` |
 | 发布前 | `{性能/安全/兼容/迁移}` | `{workroot}/pre-release/{performance|security|compatibility|migration}/…`（每专项独立方案/报告/evidence，多项不混） | `{待生成/已生成}` | 项目工具 / 脚本档 | `{…}` |

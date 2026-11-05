@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`change`
 - **step**：`analyze_input`（产品资料解析与理解确认）
 - **packet**：`rules/packets/change/analyze_input.md`

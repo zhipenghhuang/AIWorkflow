@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`skill-audit`
 - **step**：`apply`（确认并应用）
 - **packet**：`rules/packets/skill-audit/apply.md`

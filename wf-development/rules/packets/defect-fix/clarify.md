@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`defect-fix`
 - **step**：`clarify`（澄清/非缺陷回写）
 - **packet**：`rules/packets/defect-fix/clarify.md`

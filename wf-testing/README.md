@@ -66,9 +66,10 @@
 | 位置 | 放什么 | 禁止 |
 | --- | --- | --- |
 | 项目根 | `env-baseline.md`、`activeContext.md`、原件根 `inbound/` | 测试计划/报告/用例/台账/脚本/证据 |
-| `{workroot}/` | `test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md`、`work-log.md` | 长期堆临时；关账搬走仍有效域主档 |
-| `{workroot}/functional/` | 功能域：`{NN}-{短名}/` + `*-功能用例.md` + `*-功能台账.md` + `scripts/`；`evidence/`；`00-专项索引.md` | 光秃用例；接口资产 |
-| `{workroot}/api/` | 接口域：`{NN}-{短名}/` + `*-接口用例.md` + `*-接口台账.md` + `scripts/`；`evidence/` | 与功能混淆命名 |
+| `{workroot}/` | `test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md`、`work-log.md` | 长期堆临时；关账搬走仍有效域主档；散落评审记录 |
+| `{workroot}/reviews/` | `INDEX.md` + 现行 `*-评审-*.md`；被替代进 `_archive/` | 域夹/轨根/工作根散落；只增不删 |
+| `{workroot}/functional/` | 功能域：`{NN}-{短名}/` + `*-功能用例.md` + `*-功能台账.md` + `scripts/`；`evidence/`；`00-专项索引.md` | 光秃用例；接口资产；评审记录 |
+| `{workroot}/api/` | 接口域：`{NN}-{短名}/` + `*-接口用例.md` + `*-接口台账.md` + `scripts/`；`evidence/` | 与功能混淆命名；评审记录 |
 | `{workroot}/exploratory/` | `{主题}-{戳}/` + `*-探索式用例.md` + `*-探索式台账.md`；`evidence/` | 功能全量冒充 |
 | `{workroot}/random-flows/` | `_覆盖账本` + `{主题}-{戳}/` + `*-随机用例.md` + `*-随机台账.md`；`evidence/` | 计划内轨道混用 |
 | `{workroot}/pre-release/` | `performance/`、`security/`、`compatibility/`、`migration/`；方案/报告/证据/脚本 | 光秃方案/报告；多专项混一案 |

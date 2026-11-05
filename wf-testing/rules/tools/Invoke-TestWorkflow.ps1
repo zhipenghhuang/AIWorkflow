@@ -71,8 +71,9 @@ function Test-InstanceRef {
     if ($leaf -match '(功能|接口|探索|随机)(用例|台账)\.md$') { return $true }
     if ($leaf -match '-测试(方案|报告)\.md$') { return $true }
     if ($leaf -match '(功能|接口|探索|随机)?(用例|台账|执行台账)\.md$') { return $true }
-    # 评审：合卷 评审-*.md；单域 *-评审-*.md
-    if ($leaf -match '^评审[-_]' -or $leaf -match '-评审-') { return $true }
+    # 评审：统一落 {workroot}/reviews/
+    if ($leaf -match '-评审-') { return $true }
+    if ($t -match '(^|/)reviews/') { return $true }
     foreach ($p in $instancePrefixes) {
         if ($t.StartsWith($p, [StringComparison]::OrdinalIgnoreCase)) { return $true }
     }

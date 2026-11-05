@@ -5,7 +5,7 @@
 
 ## 1. 元信息
 
-- **包轨**：开发
+- **包轨**：wf-development
 - **workflow**：`change`
 - **step**：`deliver`（提测与发布文档）
 - **packet**：`rules/packets/change/deliver.md`

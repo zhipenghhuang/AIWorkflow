@@ -49,17 +49,21 @@ T0/T1 不强行填完整模板；范围/类型/轨道/执行矩阵/准出/风险
 ├─ test-report.md
 ├─ smoke-checklist.md
 ├─ work-log.md
+├─ reviews/
+│   ├─ INDEX.md
+│   ├─ 功能-03-登录-评审-20261015-1430.md
+│   ├─ 功能-{摘要}-合卷-评审-20261015-1430.md
+│   ├─ 计划-评审-20261015-1430.md
+│   └─ _archive/
 ├─ functional/
 │   ├─ 03-登录/
 │   │   ├─ 03-登录-功能用例.md
 │   │   ├─ 03-登录-功能台账.md
-│   │   ├─ 03-登录-评审-20261015-1430.md
 │   │   └─ scripts/
 │   ├─ {NN}-{短名}/
 │   │   ├─ {NN}-{短名}-功能用例.md
 │   │   ├─ {NN}-{短名}-功能台账.md
 │   │   └─ scripts/
-│   ├─ 评审-{范围摘要}-20261015-1430.md
 │   ├─ S-01-某专项/
 │   │   ├─ S-01-某专项-功能用例.md
 │   │   └─ S-01-某专项-功能台账.md
@@ -118,6 +122,7 @@ T0/T1 不强行填完整模板；范围/类型/轨道/执行矩阵/准出/风险
 | 轨（常见 · 非穷尽） | 正式产物 | 过程 | 契约 |
 | --- | --- | --- | --- |
 | （跨轨） | {workroot}/test-analysis.md；准出 SSOT=rules/special/multi-track-quality.md | — | Q0～Q7 |
+| 评审留痕 | {workroot}/reviews/INDEX.md + 现行 `*-评审-*.md`（唯一落点） | reviews/_archive/（同范围被替代） | §2.5 |
 | 功能全量 | {workroot}/functional/{NN}-{短名}/{NN}-{短名}-功能用例.md + -功能台账.md；evidence/{NN}-{短名}/ | .draft/ | 覆盖三闸 |
 | 功能专项 | {workroot}/functional/S-{NN}-{主题}/…-功能用例.md + -功能台账.md | .draft/S-…/ | 同上 |
 | 探索式 | {workroot}/exploratory/{主题}-{戳}/…-探索用例.md + -探索台账.md | .draft/ | tracks/exploratory.md |
@@ -241,14 +246,16 @@ T0/T1 不强行填完整模板；范围/类型/轨道/执行矩阵/准出/风险
   | 功能 vs 接口 vs 发布前 vs 探索 | **分轨分文档**（量规不同） |
   | 孤立大域 / 高风险域 / 用户点名单审 | 可单开，不强制合卷 |
   | T0 小改 / 仅改 ≤3 条 | SELF_CHECKED 或轻量摘要；不必整本评审模板 |
-- **落盘命名（C · 自描述）**：
-  - 单域：`{workroot}/{轨}/{NN}-{短名}/{NN}-{短名}-评审-{yyyyMMdd-HHmm}.md`
-  - 合卷：`{workroot}/{轨}/评审-{本轮范围摘要}-{yyyyMMdd-HHmm}.md`（摘要≤32 字，如 `模块A+模块B+邻接`）；§1 必须列全文件路径
-  - 计划/分析：`{workroot}/评审-计划-{戳}.md` / `{workroot}/评审-分析-{戳}.md`
+- **落盘（硬 · 唯一夹）**：全部评审记录只进 `{workroot}/reviews/`；**禁**写到域夹/轨根/工作根散落。索引 `{workroot}/reviews/INDEX.md`（模板 `rules/templates/40-report-review/reviews-index-template.md`）是现行权威。  
+  - 单域：`{workroot}/reviews/{轨中文}-{NN}-{短名}-评审-{yyyyMMdd-HHmm}.md`（轨中文=`功能|接口|探索|发布前`；专项 `功能-S-{NN}-{主题}-评审-…`）  
+  - 合卷：`{workroot}/reviews/{轨中文}-{本轮范围摘要}-合卷-评审-{yyyyMMdd-HHmm}.md`（摘要≤32 字；§1 列全被审路径）  
+  - 计划/分析：`{workroot}/reviews/计划-评审-{戳}.md` / `{workroot}/reviews/分析-评审-{戳}.md`  
+- **覆盖/替代（硬）**：范围键=`{轨中文}|{单域短名或合卷摘要或计划|分析}`。同键再评 = **全量替代**：先把 INDEX 现行文件移入 `reviews/_archive/`，再写新文件并回写 INDEX（路径/结论/时间/runId）。**现行每键至多 1 份**；门与准出只认 INDEX 现行（或 `reviews/` 下非 `_archive` 且 INDEX 指向者）。  
+- **关账**：迭代绑定 → 现行评审随版本进 `{workroot}/_archive/{yyyyMMdd}-{ver}/reviews/`（含当时 INDEX 快照）；清空或重建空 INDEX 指向下一迭代。  
 - **选 B**：先【自主分析】→ 再量规；用户自定义焦点优先。  
-- **功能量规**：A1–A6 / S1–S9 + 三闸 + 评分卡≥18/20；P0 全审。接口 I1–I6；其它轨按契约。合卷时套件轴可整批一次，单条轴按域抽样。  
+- **功能量规**：A1–A6 / S1–S10 + 三闸 + 评分卡≥18/20；P0 全审。接口 I1–I6；其它轨按契约。合卷时套件轴可整批一次，单条轴按域抽样。  
 - **计划驱动**：§9.2 P2 = 冒烟全绿 + 覆盖闸 + **本轮装填对应评审已放行**（合卷或单域卷均可，禁未审域混进执行）。  
-- **机器门**：功能轨选 B → `-Mode review`；其它轨选 B 留痕即可。  
+- **机器门**：功能轨选 B → `-Mode review`；其它轨选 B 留痕即可。扫描根=`{workroot}/reviews/`（不含 `_archive`）。  
 - **HITL**：`select_review_mode` → `confirm_review`（需修时）。同批合卷只问一次 A/B。  
 - **豁免**：T0 SELF_CHECKED；**不含 P0-Smoke/P0-HighRisk** 的专项轻量追加可不整本评审。含 P0 的回补/专项 → 须过 review-cases（含 S9），**禁**仅 SELF_CHECKED 开跑。
 
