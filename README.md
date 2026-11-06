@@ -7,7 +7,7 @@
 流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.05.11-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.06.04-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -127,13 +127,13 @@ cd AIWorkflow
 
 ```bash
 # macOS / Linux（以开发规范为例；排除运行态 / 过程文件 / 缓存）
-rsync -a --exclude .draft --exclude .state --exclude .gate --exclude __pycache__ \
+rsync -a --exclude .draft --exclude .gate --exclude __pycache__ \
   wf-development /path/to/your-project/
 ```
 
 ```powershell
 # Windows：排除运行态 / 过程文件 / 缓存
-robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .state .gate __pycache__
+robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .gate __pycache__
 ```
 
 > 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`）。工作根由项目档案 §1 的 `workroot` 声明；未声明时单包用 `docs/`、多包用 `docs/{owner}/`。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 只写一行 `/<包目录>/`（多包 `/wf/`），不预列未装包、不加注释。

@@ -23,7 +23,6 @@ entry_points:
   按计划执行: execute
   执行测试计划: execute
   继续测试计划: execute
-  回归: execute
   重跑: execute
   脚本执行: execute
   跑脚本: execute
@@ -117,7 +116,7 @@ steps:
     when: iteration_close_needed
   - name: confirm_docs_migration
     when: docs_migration_needed
-  output: '{workroot}/test-plan.md（+ 版本级四卷按 §3.8；T0/T1 可无）'
+  output: '{workroot}/test-plan.md（+ 版本级四卷按 §3.8；轻量路径可无）'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/testing/_orch.yaml。
 - name: 生成用例
   id: generate
@@ -186,6 +185,8 @@ steps:
   must_read:
   - rules/packets/testing/handoff.md
   agent: report-agent
+  gate: report-consistency
+  gate_type: machine
   hitl:
   - name: confirm_platform
     when: platform_ask_required

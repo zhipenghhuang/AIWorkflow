@@ -8,7 +8,7 @@
 | ID | 不变量 |
 | --- | --- |
 | TEST-VER-01 | 报告数字必须来自台账**本轮装填**计数；台账 §1.1 与结果表本轮行一致，禁止手改通过率；`未本轮验证` 不得计入通过率。 |
-| TEST-VER-02 | P0-Smoke/P0-HighRisk 未通过不得判整体通过；“有条件通过”仅限 P0-Smoke/P0-HighRisk 全过、缺口非 P0-Smoke/P0-HighRisk 且用户接受。 |
+| TEST-VER-02 | **P0 正典写法只有 `P0-Smoke` / `P0-HighRisk`**（用例优先级刻度：P0-Smoke > P0-HighRisk > P1-Core > P2-Low）；台账/报告/用例里出现裸 `P0` 一律按 P0-Smoke 或 P0-HighRisk 之一解读，禁止自定义档位。P0-Smoke/P0-HighRisk 未通过不得判整体通过；“有条件通过”仅限 P0-Smoke/P0-HighRisk 全过、缺口非 P0-Smoke/P0-HighRisk 且用户接受。 |
 | TEST-VER-03 | 失败/阻塞/待实现（实现缺陷）必须有证据或已尝试/恢复条件；证据路径必须可打开。 |
 | TEST-VER-04 | 未测项、覆盖缺口、口径待探查、环境缺口、**未本轮验证规模**必须显式列出，不以“已执行/库内曾通过”替代“本构建已覆盖”。 |
 | TEST-VER-05 | 报告先写中文回执结论（可准出/有条件准出/不准出/阻塞），并与门 JSON 一致；非“可准出/有条件准出”禁用“全部通过/可发布”。 |
@@ -47,7 +47,7 @@
 - 回执归属：report 读 `.gate/wf-testing/report.json`、execute 读 `execute.json`、writeback 读 `writeback.json`；核对 `package=wf-testing` 与本轮 `gate_id`/`timestamp`。writeback 不得覆盖 report；不符=未验证。
 - P0 计划覆盖：计划 §3.7/§9.2 与 `smoke-checklist.md`（旧名 `00-稳定冒烟清单`）中的 P0 用例必须在台账中存在且为**本轮终态**（不得为未执行/未本轮验证）；缺失 = FAIL。
 
-### 3.1 依据覆盖硬核（SSOT）
+### 3.1.1 依据覆盖硬核（SSOT）
 
 > AGENTS §0.0.1 / gates / YAML / verify README 只留指针；本文为细则唯一出处。准出组合门槛见 `multi-track-quality.md`。
 

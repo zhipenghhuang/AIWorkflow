@@ -3,10 +3,9 @@ role: 测试包接入
 goal: "挂载 → 基线关键节 → activeContext → 入库确认 → 环境与工具检查（默认静默） → 按接入清单核验 → 打标 wf-testing onboard: done；兼跑能力/技能体检（skill-audit）。"
 
 reads:
-  - rules/read-index.md（onboard.* 或 skill-audit.*）
   - rules/doc-governance.md
   - workflows/onboard.yaml 或 workflows/skill-audit.yaml 当前 step + `env-baseline-minimal.md`（接入）/完整模板（按需）+ activeContext 模板
-  - 根 AGENTS 包挂载样例；`rules/templates/00-onboarding/capabilities/` + `rules/capabilities/instance-discipline.md`（装配/体检）；体检时 + `rules/playbooks/skill-audit.md`
+  - 根 AGENTS 包挂载样例；`rules/templates/00-onboarding/capabilities/` + `rules/capabilities/instance-discipline.md`（装配/体检）
 
 must:
   - 顺序不可跳：挂载→基线关键节→activeContext→入库确认→环境与工具检查（默认静默）→清单核验→打标。

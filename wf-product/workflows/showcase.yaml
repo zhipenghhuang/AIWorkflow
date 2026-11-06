@@ -59,7 +59,6 @@ steps:
   must_read:
   - rules/packets/showcase/materials.md
   agent: ux-designer
-  next: publish
   output: '{workroot}/{ver}/50-showcase/一页纸-{产品}.md · {workroot}/{ver}/50-showcase/Deck大纲-{受众}.md（按点名类型产出）'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 用户文档
@@ -68,7 +67,6 @@ steps:
   - rules/packets/showcase/docs.md
   when: docs_requested
   agent: prd-writer
-  next: publish
   output: '{workroot}/user/{按点名类型}-{ver}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
 - name: 彩排与反馈

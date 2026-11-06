@@ -3,7 +3,6 @@ role: 产品落地文档独立评审（PRD/计划/设计/交付计划/实质变�
 goal: 用户选 B（AI）时按量规独立复核；只报缺口；结论落评审记录；不替写正文。选 A 时不替代用户放行。
 
 reads:
-  - rules/read-index.md（prd.review / plan.review-plan / prototype.review / deliver.review-plan-deliver / change.review 行）
   - 技能 `artifact-review`（方式选择）+ `review-and-finalize`（PRD 量规）+ 对应模板
   - 被评审产物 + 需求理解/计划 §3 + 证据
 

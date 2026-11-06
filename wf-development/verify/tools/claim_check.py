@@ -22,11 +22,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
+import importlib.util
 import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ALLOWED_VERDICTS = {"COMPLETE", "READY", "PASS", "PASSED", "通过"}
@@ -110,6 +112,29 @@ def parse_iso(value: str) -> datetime | None:
     return parsed
 
 
+def current_diff_hash(root: Path, package_root: Path, base_commit: str) -> str:
+    """用 gate.py 同一算法复算工作区 diff_hash；失败返回空（不误拒）。"""
+    try:
+        gate_path = Path(__file__).resolve().parent / "gate.py"
+        spec = importlib.util.spec_from_file_location("wf_gate_for_claim", gate_path)
+        if spec is None or spec.loader is None:
+            return ""
+        gate = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gate)
+        files = gate.changed_files(root, package_root, base_commit=base_commit)
+        ref = ""
+        if base_commit and gate.git(root, "rev-parse", "--verify", f"{base_commit}^{{commit}}"):
+            ref = base_commit
+        elif gate.git(root, "rev-parse", "--verify", "HEAD"):
+            ref = "HEAD"
+        diff_text = gate.git(root, "diff", ref) if ref else ""
+        return hashlib.sha256(
+            (diff_text + "\n" + "\n".join(files)).encode("utf-8", errors="replace")
+        ).hexdigest()[:16]
+    except Exception:
+        return ""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Claim lock for workflow completion gate")
     parser.add_argument("--project-root", default=".")
@@ -137,12 +162,28 @@ def main() -> int:
         return report(problems, {}, args.json)
 
     receipt_mode = str(receipt.get("mode") or "").strip()
+    if not receipt_mode:
+        problems.append("回执缺少 mode（旧版/伪造），重跑门")
+    if not (receipt.get("checks") or []):
+        problems.append("回执无 checks（空回执/伪造），重跑门")
     if args.mode and receipt_mode and args.mode != receipt_mode:
         problems.append(f"回执 mode={receipt_mode} 与本次声明 mode={args.mode} 不一致")
+
+    receipt_hash = str(receipt.get("diff_hash") or "").strip()
+    if receipt_hash:
+        current_hash = current_diff_hash(
+            root, Path(__file__).resolve().parents[2], str(receipt.get("base_commit") or "")
+        )
+        if current_hash and current_hash != receipt_hash:
+            problems.append(
+                f"回执与当前工作区不一致（diff_hash {receipt_hash} != {current_hash}），重跑门"
+            )
 
     verdict = str(receipt.get("verdict") or receipt.get("result") or "").strip().upper()
     if verdict not in ALLOWED_VERDICTS:
         problems.append(f"verdict={verdict or '空'}，只允许 {sorted(ALLOWED_VERDICTS)}")
+    if not str(receipt.get("gate_id") or "").strip():
+        problems.append("回执缺少 gate_id（旧版/伪造），重跑门")
 
     blocked = receipt.get("blocked") or []
     if isinstance(blocked, list) and blocked:
@@ -179,6 +220,8 @@ def main() -> int:
             age_hours = (datetime.now(timezone.utc) - stamp.astimezone(timezone.utc)).total_seconds() / 3600
             if age_hours > args.max_age_hours:
                 problems.append(f"回执已过期 {age_hours:.1f}h > {args.max_age_hours}h")
+        if stamp.astimezone(timezone.utc) > datetime.now(timezone.utc) + timedelta(minutes=5):
+            problems.append("回执 timestamp 在未来（伪造/时钟异常），重跑门")
 
     # Freshness: 代码在回执之后被改动 => 回执不再代表当前工作区。
     if stamp is not None:

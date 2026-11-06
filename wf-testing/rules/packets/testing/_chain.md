@@ -8,32 +8,19 @@
 - **workflow**：`testing`（AI测试流程）
 - **用途**：入口 / 顺序 / 子机划分；**规则正文在 step packet**；**方法质量在 skill（由步骤包 §6 指向）**。
 
-## 入口
+## 隔离边界（改本链不动别链）
 
-- `分析需求` → step `analyze`
-- `理解PRD` → step `analyze`
-- `理解 PRD` → step `analyze`
-- `梳理测试依据` → step `analyze`
-- `需求建模` → step `analyze`
-- `测试计划` → step `plan`
-- `生成测试计划` → step `plan`
-- `功能测试计划` → step `plan`
-- `更新计划` → step `plan`
-- `本期变更` → step `plan`
-- `计划变更` → step `plan`
-- `增量变更` → step `plan`
-- `新文档更新测试计划` → step `plan`
-- `按测试计划执行` → step `execute`
-- `按计划执行` → step `execute`
-- `执行测试计划` → step `execute`
-- `继续测试计划` → step `execute`
-- `回归` → step `execute`
-- `重跑` → step `execute`
-- `脚本执行` → step `execute`
+- **本链专属**：`rules/packets/testing/`（本文件、`_region-*`、节点包、`_orch.yaml`）；只重生成本链：`build_step_packets.py <包> <包> --only testing`。
+- **只读共享**：`rules/core/`、`rules/gates.md`、`rules/workflow.md`、`skills/`、`rules/templates/`；改共享层会影响所有链，须跑全包自检。
+- **跨链需要时**：重新路由或 handoff；诊断确需只读对方 `_chain.md`，不打开对方节点包，读完回本链。
+
+## 推进
+
+口令只认本包 AGENTS 口令表。本链只排步骤与 `when`，不另列口令。 默认：入口步的产出与本步门完成后即停，并输出收尾骨架；不打开后续步骤包。 向后走，仅当口令是按链、继续、按计划执行，或本流程处于全链入口。 report：报告门通过后只追加一次提交或交平台确认，不回到 execute。
 
 ## 状态机（父）→ 子机
 
-长链路按**子状态机**切开：进某区先读该区 `_region-*`（一次），区内逐步推进；不要把整条父链步骤包一次读完。
+长链路按**子状态机**切开：进某区先读该区 `_region-*`（一次）。区内是否进入下一步只按上文「推进」；不要把整条父链步骤包一次读完。
 
 | 子机 | 含义 | 地图 |
 | --- | --- | --- |
@@ -57,7 +44,7 @@
 ## 执行纪律（防丢失 · 不降质）
 
 1. 同时只激活 **一个** step packet；`packet=`/`reads=` 必须指向它。
-2. 有子机：进区读 `_region-*` 一次；出区再进下一子机。
+2. 有子机：进区读 `_region-*` 一次。是否进入下一步或下一区，只按上文「推进」。
 3. 步骤包 §6 **必开技能**：打开→执行必做→**回步骤包**；跳过 = 未遵守（质量不降）。
 4. `when` 不满足 → 跳过该步（不打开其 packet）。
 5. YAML 只编排；不要通读本 YAML 其他 step。

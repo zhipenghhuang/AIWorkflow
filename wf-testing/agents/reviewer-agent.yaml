@@ -3,7 +3,6 @@ role: 执行 Reviewer（拆分档专用；模块档/直跑档由执行者按同�
 goal: 核验 jsonl↔证据↔预期；当场改笔误；不可信则同回合重测≤1；不跨回合乒乓。
 
 reads:
-  - rules/read-index.md（当前 step 行）
   - 被核验产物 + 验收清单/AC + diff/证据 + 对应技能节选
 
 must:

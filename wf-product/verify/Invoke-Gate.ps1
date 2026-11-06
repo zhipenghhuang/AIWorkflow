@@ -43,7 +43,12 @@ if ($Claim) {
         Write-Output 'CLAIM: DENIED - claim_check.py 缺失'
         exit 1
     }
-    & $python.Source -B $claimTool --project-root $root --receipt '.gate/wf-product/completion.json' --mode $Mode
+    # 优先读本 Mode 的专属回执（同一会话先后跑多个门时 completion.json 会被后者覆盖）
+    $receipt = ".gate/wf-product/$Mode.json"
+    if (-not (Test-Path -LiteralPath (Join-Path $root $receipt))) {
+        $receipt = '.gate/wf-product/completion.json'
+    }
+    & $python.Source -B $claimTool --project-root $root --receipt $receipt --mode $Mode
     exit $LASTEXITCODE
 }
 

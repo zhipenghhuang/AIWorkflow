@@ -7,7 +7,7 @@ steps:
     `requirement-discovery-and-prioritization`（入池字段）。 落盘模板 `competitive-benchmark-template.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
     ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。 用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → 可跳过门。 发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。
     能力：browser-mcp 可选；未装=用户提供链接/截图。
-  commit: 无文件变更跳过本步与 hitl；拟提交清单按 `rules/workflow.md` ；提交后补一行结果，不重复六段。
+  commit: 无文件变更跳过本步与 hitl；拟提交清单按 `rules/workflow.md`；提交后补一行结果，不重复六段。
   discover: 来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）； **先还原需求**：技能 `skills/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案；单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
     澄清**按 `rules/core/clarification.md` 执行**；正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
     **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `skills/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板
@@ -30,7 +30,7 @@ steps:
     → 全量模板。 **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing ）；`gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。BLOCKED
     → 不得进评审/定稿；DRAFT → 可审不可定稿；进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。 P0 纯文案且无结构门要求时可跳过 gate；普通 P1 进交开发前仍须非 BLOCKED。
     **证据侦察分片**（子代理编排 ）：大 PRD（≥3 来源文档）→ 只读侦察 AC/状态机/权限/NFR/异常边界；PRD 正文单写手分节推进，禁并行写。 完稿按评审清单自检，带缺口禁落盘；同路径已有 PRD → 先读并增量更新，禁静默覆盖。'
-  prioritize: 条件步：跨版本/高价值需求或点名「立项」才走；小需求直接进 PRD（不设门）。 方法按需：RICE / Kano / MoSCoW；产出：优先级 + 版本范围（MVP）+ 排除项 + 粗排期 + 依赖风险。 依据=确认的客户需求+证据+成本/风险；**模式
+  prioritize: 条件步：跨版本/高价值需求或点名「立项」才走；小需求直接进 PRD（不设门）。 方法按需：RICE Kano MoSCoW；产出：优先级 + 版本范围（MVP）+ 排除项 + 粗排期 + 依赖风险。 依据=确认的客户需求+证据+成本/风险；**模式
     S 借鉴项**须已回绑问题；**模式 P 候选项**进版本须本步或计划范围确认，不得因「竞品有」自动 Must。 不把领导偏好、单个客户直接当优先级；未确认/未验证需求不排期；取舍给建议，不替用户决定。 技能：`skills/requirement-discovery-and-prioritization/SKILL.md`（先读再做）。
     confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD；仅跨版本/高价值/点名立项链时停。
   prototype: 条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。 按 `workflows/prototype.yaml` 执行（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 →
@@ -42,6 +42,6 @@ steps:
     review`（`gate_when: ai_review_chosen`）；READY 后回填 `gate_id`、`review_status=AI_REVIEWED`/`APPROVED`；再复跑 `-Mode prd`。未 READY
     不得写“评审通过/定稿”。 **定稿前结构门（A/B 均适用）**：`confirm_prd` 前 `-Mode prd` 不得为 BLOCKED；无【完稿自检摘要】不得定稿。 **评审分片**（子代理编排 ）：大 PRD → 维度扇出；评分卡只算一次。
     产出：`评审-{主题}-{yyyyMMdd}.md`（B）或 HUMAN_APPROVED 声明（A）+【评审结论】+【完稿自检摘要】。 结论=需修 → 回 prd 修订（同回合≤1），不弹定稿门；通过且要定稿/排期 → `confirm_prd`；仅评审
-    → 收尾不弹定稿门。 批准后回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`；更新产品计划 。**未定稿不排期**。'
-  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写； 更新产品计划 //、activeContext、 `{workroot}/INDEX.md`（有实质进展时）；现状三处同拍（执行契约
+    → 收尾不弹定稿门。 批准后回写 PRD 头部 `status: APPROVED`、`source_of_truth: true`、`updated`；更新产品计划。**未定稿不排期**。'
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出【任务收尾】（须含【遵守自检】）；第1点按本步产出填写； 更新产品计划、activeContext、 `{workroot}/INDEX.md`（有实质进展时）；现状三处同拍（执行契约
     规则 7）；`sync=` 含 `triad=aligned|deferred:<原因>`；语义已变禁只改 activeContext。未验证项明示。 本步先出骨架与拟提交清单，提交门在下一步。

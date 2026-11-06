@@ -163,9 +163,10 @@
 ## 6. 遵守自检（收尾必写）
 
 ```text
-【遵守自检】route=workflow:step | mode=execute/analyze/stop | reads=... | gates=... | sync=... | skip=... | deviation=...
+【遵守自检】route=workflow:step | mode=execute/analyze/stop | packet=rules/packets/<wf>/<step>.md | skills=name=done|na,... | reads=... | gates=... | confirm=gate=approved@yyyy-MM-dd HH:mm,...|无 | sync=... | skip=... | deviation=...
 ```
 
+- `packet` 必须是本轮实际步骤包；`skills` 列必开/条件开技能结果；`confirm` 列本轮确认门 `gate=结论@时间`（无则写无）。
 - `route` 必须是实际执行入口；`reads` 列实际读过的文件；`gates` 列门 id/结果；`sync` 列更新的计划/索引/台账，**且须含** `triad=aligned|deferred:<原因>`（§4 规则 7；只读可写 `triad=na`）与 `facade=aligned|na|deferred:<原因>`（§4 规则 10）；`skip` 列跳过步骤 + 理由；`deviation` 按实际情况如实记录取舍（无则写无）。
 - 缺此项 = 未完成收尾；不得只写「已完成」。
 

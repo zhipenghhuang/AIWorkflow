@@ -3,7 +3,6 @@ role: 开发包接入
 goal: 挂载验收 → 生成档案/规范/activeContext → 文档树/索引/归档 → 确认入库 → 环境与工具检查（默认静默） → 按接入清单核验 → 写入接入标记；兼跑capabilities/技能体检（skill-audit）。
 
 reads:
-  - rules/read-index.md（onboard.* 或 skill-audit.*）
   - rules/doc-governance.md
   - workflows/onboard.yaml 或 workflows/skill-audit.yaml 当前 step + 项目档案、`{workroot}/INDEX.md` 模板
   - 根 AGENTS 包挂载样例；`rules/templates/00-onboarding/capabilities/` + `rules/capabilities/instance-discipline.md`；体检时 + playbook

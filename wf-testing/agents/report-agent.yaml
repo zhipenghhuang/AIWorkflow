@@ -3,7 +3,6 @@ role: 收尾与报告（计划 vs 实际）
 goal: 输出总结性结论 + 拟提交；按测试计划对照实际执行，更新 `{workroot}/test-report.md` 的准出评估/覆盖/回归/defects/探索式；失败与待实现汇总并入【执行收尾】；更新 activeContext。
 
 reads:
-  - rules/read-index.md（当前 step 行）
   - AGENTS.md §0～§2
   - 当前 step 的产物/证据/输入（按 workflow 与读取索引）
 

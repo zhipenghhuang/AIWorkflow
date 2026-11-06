@@ -39,7 +39,7 @@
 | --- | --- | --- |
 | `20-test-cases/test-case-template.md` | testing.generate（功能） | 模块总览+结构化详情+评分卡 |
 | `20-test-cases/api-test-case-template.md` | testing.generate/execute（接口） | 契约表+覆盖对照+用例详情+脚本清单；机检 `validate_api_testcase.py` |
-| `20-test-cases/exploratory-case-template.md` | testing.generate/execute（探索式） | 章程映射+步骤四列+判定面；同戳台账 |
+| `20-test-cases/exploratory-case-template.md` | testing.generate/execute（探索式） | 一场一句+会话记录；发现才写复现；同戳台账 |
 | `20-test-cases/random-flow-case-template.md` | testing.generate/execute（随机业务流程·计划外） | 旅程会话+去重窗+发现分流；不进准出 |
 | `20-test-cases/a11y-ux-checklist.md` | testing.report / 走查 | 结果并入报告 §11 |
 

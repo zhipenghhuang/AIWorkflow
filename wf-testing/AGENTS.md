@@ -2,9 +2,10 @@
 
 > **用途**：测试规范 AI 入口。  
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ _chain → ④ _region-*（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
+> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…`（只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.09`（评审统一 `{workroot}/reviews/` + INDEX 同键覆盖）。  
+> **template_version**：`2026.11.06.04`（执行动作连做：已知目标连做到断言面；截图钉断言/失败）。  
 > **主链**：分析→计划→生成→用例评审→执行→报告。  
 > **完成口径**：只认开局卡 + `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -15,7 +16,7 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 测试` 进行中 + **偏好/洞见/坑 ≤3 行**（开局卡第 2 条；`context-memory.md`）；身份：档案 §1 或 `env-baseline`（每新会话一次）。  
 3. **接入**：`wf-testing onboard: done` 则跳过；生成/执行/缺陷无标记时核验一次。  
-4. **择优**：不适配 → 依据+主推；二次坚持 → `deviation=`。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/cold-start.md` §1（同会话已读，不重复）。  
 5. **覆盖**：用户明确指令 > 根 AGENTS > 本文 > agent > 基线。  
 6. **读取**：分级读链（开局卡 §4）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】）；开局卡第 1 条已点名，细则不改档位。  
@@ -27,8 +28,8 @@
 
 ### 0.1 计划门 · 三门 · 澄清
 
-门只认 YAML `hitl*` + `gates.md`（条件门 `hitl_when` 不满足则跳过）。澄清只认 `clarification.md`。依据先建模：分析表 §0 必填。  
-**分级**：T0 补丁 / T1 模块 / T2 版本 / T3 高风险（`workflow.md` §1.2）。勿与开发 L* / 产品 P* 混用。
+步骤门只认 YAML `hitl*` + `gates.md`（条件门 `hitl_when` 不满足则跳过）；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step，cold-start 第 1 条）；澄清只认 `clarification.md`。依据先建模：分析表 §0 必填。  
+**路径**：T0～T3 为内部风险标签，按 `gates.md` §2「T 档推导」的事实判定（不凭感觉）；按 `workflow.md` §1.2 执行路径（默认完整，轻量需条件）。勿与开发 L* / 产品 P* 混用。
 
 | 对象 | 默认（能脚本不 AI） |
 | --- | --- |
@@ -36,13 +37,13 @@
 | 规则/用例/台账改写 | 直接编辑 |
 | 新稳定 P0 / 确定性接口 | 同轮写脚本；禁 AI 全跑再脚本双耗 |
 
-**依据/E1/准出**：开局卡第 2/6 条；`verification.md` §3.1、`multi-track-quality.md`。**红线**：禁臆造；密钥/PII 不进证据；禁刷绿；P0 未过不得整体通过。**交接**：`handoff.md`。
+**依据/E1/准出**：开局卡第 2/6 条；`verification.md` §3.1.1、`multi-track-quality.md`。**红线**：禁臆造；密钥/PII 不进证据；禁刷绿；P0 未过不得整体通过。**交接**：`handoff.md`。
 
 ## 1. 接入
 
 实例在项目根：`env-baseline.md`、`activeContext.md`；工作根必须有 `{workroot}/`；原件根 `inbound/` 固定在项目根（原夹不迁出）。存量全索引，按需复制或 A0～A2 吸收。占位符未换或无基线=未接入。交接 `{workroot}/handoff/outbound|inbound/{category}/` + 台账（`inbound/` 为原件、`handoff/inbound/` 为收件工作副本）。接入 `onboard.yaml` + `onboard-agent.yaml`；标准树与索引按 `rules/doc-governance.md` §2.4 建。
 
-**分级**：T0 补丁/T1 模块/T2 版本/T3 高风险；裁剪见 `rules/workflow.md` §1.2；T0/T1 可轻量，但范围/类型/轨道/执行矩阵/准出/风险必须写清；发布列车/大版本 ≥1 次功能全量。不确定先按最小充分，高风险/不可逆再高一档。**勿把开发 L* / 产品 P* 当测试 T***；计划阶段 P0～P9 ≠ 用例优先级 P0-Smoke ≠ UI 证据 E0/E1 ≠ 资产 Core/Domain/Delta。
+**路径**：T0 补丁/T1 模块/T2 版本/T3 高风险为内部风险标签，按 `gates.md` §2「T 档推导」的事实判定（不凭感觉）；只有补丁/单模块且不承担版本准出才轻量，其余默认完整计划；发布列车/大版本 ≥1 次功能全量；不确定按完整计划，高风险/不可逆再高一档。**勿把开发 L* / 产品 P* 当测试 T***；计划阶段 P0～P9 ≠ 用例优先级 P0-Smoke ≠ UI 证据 E0/E1 ≠ 资产 Core/Domain/Delta。
 
 ## 2. 口令 → Workflow（命中即停）
 
@@ -50,7 +51,7 @@
 
 | 优先 | 命中 | workflow | 切入 step |
 | ---: | --- | --- | --- |
-| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §4（读/写 `activeContext` 本包工作总结锚点） |
+| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §2（读/写 `activeContext` 本包工作总结锚点） |
 | 1 | 发布前测试资产/方案（性能·安全·兼容等，同义按入口判定） | `testing`（发布前轨） | generate / execute |
 | 2 | 分析需求/测试依据建模 | `testing` | analyze |
 | 3 | 测试计划/更新计划/本期变更 | `testing` | plan |
@@ -74,14 +75,15 @@
 | 18 | 写交接单/交接包/接收/变更/重规划 | `handoff` | 默认 compose；升包才 send |
 | 19 | 提交/推送 | 当前 workflow 末步或 `handoff` | commit |
 
-**入口即止**：单步入口只执行该步到产出完成即止，并仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出；表中标「按链」的从入口执行到链末停点；“按计划执行”走全链；`testing.report` 例外——报告门后按 `next` 追加一次提交/交平台确认，不重跑执行；`workflow.chain: full`（如 onboard）例外，但仅「接入/基线/重新接入」入口走全链到 verify/打标；「资料/文档治理」入口只执行该步 + 收尾。
+**入口即止**：单步入口只执行该步到产出完成即止（不含提交/推送/部署/回写），并仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出；表中标「按链」的从入口执行到链末停点；“按计划执行”走全链；`testing.report` 例外——报告门后按 `next` 追加一次提交/交平台确认，不重跑执行；`workflow.chain: full`（如 onboard）例外，但仅「接入/基线/重新接入」入口走全链到 verify/打标；「资料/文档治理」入口只执行该步 + 收尾。中段以当前 `_chain`「推进」与步骤包 §4 为准，口径与本段相同。
+**路由消歧**：裸「回归」先确认是缺陷单回归（`defect`）还是按计划重跑（`testing.execute`）。
 **计划驱动主链**：生成测试计划→**计划/分析 A/B 评审**→计划门确认→生成用例→**多轨资产评审（放行）**→按计划执行→报告/准出。
-**版本级单点**：`{workroot}/test-plan.md`、`{workroot}/test-report.md`；全量首跑必经；缺则轻量补；发布列车/大版本 ≥1 次功能全量；补丁=P0 冒烟+影响面+已脚本化回归。
+**版本级单点**：`{workroot}/test-plan.md`、`{workroot}/test-report.md`；全量首跑必经；缺则轻量补；发布列车/大版本 ≥1 次功能全量；补丁=P0 冒烟+影响面+已脚本化回归。模板按路径：轻量路径用 `test-plan-lite-template.md`，完整路径用 `test-plan-template.md`（只读 §0 + 本轮节）；不按 T 标签选。
 **执行三态**：「继续」=续跑未完成；「回归/重跑」=重测既有用例（结果就地覆盖、只留最新）；缺陷平台单回归→行 5。
 **需求理解前置**：`生成用例/资产`、`测试计划`、接口/发布前定范围前必须已有 **测试分析表**（`{workroot}/test-analysis.md`；模板 `rules/templates/10-planning/test-analysis-template.md`）；无表 → 先 analyze。功能/专项 **双读原文+全表**；接口/发布前/探索式 **至少读 §0**。**按计划执行**：计划 §0 已确认且表路径可打开 → 不阻断；表缺失仅告警并建议补建，勿强制赶回 analyze。
 **用例评审前置**：功能全量/专项 T1+ 在进 P2/正式执行前必须经 `review-cases` 放行（选 B → 机器门 PASS/CONDITIONAL；选 A → HUMAN_APPROVED + 评审记录）；记录只落 `{workroot}/reviews/` 并回写 INDEX（同键覆盖）；默认按本轮装填批次成卷（同轨同主读可合卷，跨轨不合卷）；生成写手不得自审自放行；T0 可 SELF_CHECKED 并声明。方法：`skills/testcase-review/SKILL.md` + `工作流` §2.5。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
-首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<读取索引行> | next_action=…`；仅无标记预检时加 `preflight=onboard`；有主读/输入时加 `input=<路径>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
+首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<实际读取来源> | next_action=…`；仅无标记预检时加 `preflight=onboard`；有主读/输入时加 `input=<路径>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
 
 ## 3. 实例路径
 

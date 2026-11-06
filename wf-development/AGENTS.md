@@ -2,9 +2,10 @@
 
 > **用途**：开发协作 AI 入口。  
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain`（进 wf）→ ④ `_region-*`（进长链子区）→ ⑤ 步骤包 → ⑥ §6 **必开** skill 闭环（打开→执行→回包）→ ⑦ 可选 1 模板。  
+> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…`（只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；**禁止**每步重读本文全文、禁止同时多 packet。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.19`（前端证据分级 A/B/C；C 级免矩阵）。  
+> **template_version**：`2026.11.06.03`  
 > **架构**：`_chain`/`_region`（路径）+ 步骤包（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认开局卡第 5 条 + `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -16,7 +17,7 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + 本包进行中（含 `rule_card`）+ **偏好/洞见/坑 ≤3 行**（开局卡第 2 条；写法 `context-memory.md`）；有 `project-profile.md` → §1+§2 表（每新会话一次）。L2+ 有计划才读 `development-plan.md`。  
 3. **接入**：`wf-development onboard: done` 则跳过，否则按 onboard-agent 一次判定。  
-4. **独立判断 / 择优**：不适配 → 依据+主推；用户二次坚持 → `deviation=`。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/cold-start.md` §1（同会话已读，不重复）。  
 5. **覆盖优先级**：用户明确指令 > 根 AGENTS > 本文 > agent > profile。  
 6. **读取**：分级读链（开局卡 §4）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】；只读分析）；开局卡第 1 条已点名，细则不改档位。  
@@ -26,23 +27,28 @@
 
 事实可核实；待确认禁升格；正式资产只写现行。细则 `doc-quality.md`。版本分离见 `versioning.md`。
 
-### 0.1 任务分级
+### 0.1 执行路径
 
-| 级别 | 典型 | 必走 | 可跳过 |
+> L0～L3 仅为内部风险标签，不由 AI 选档；按路径执行，**拿不准走完整链**。
+
+| 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
-| L0 | 单文件/文案/配置；无行为契约变化 | clarify→implement→verify→commit | requirements/design/review-docs/plan/review/deliver |
-| L1 | 多文件、范围收敛 | clarify→（轻量卡）→implement→（按风险 review）→verify→（有QA）deliver→commit | 全量 PRD/ADR |
-| L2 | 新功能/跨模块/接口数据 | requirements→design?→**review-docs**→plan→implement→review→verify→deliver→… | 无 |
-| L3 | 权限/资金/迁移/公共API/破坏性 | L2 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
-| 缺陷 | 平台缺陷/修复# | `defect-fix` 链 | 无平台→change |
+| 文档 | 纯文档/文案/注释 | clarify→implement→verify→commit | 需求/方案/任务/评审/测试命令（门只核 docs-links/docs-placeholders） |
+| 标准代码 | 代码/配置变更，单点/≤3 文件/≤1 模块 | clarify→implement→verify→commit | requirements/design/review-docs/plan/review（须记录理由与风险接受人） |
+| 完整交付 | >3 文件 / >1 模块 / 新功能/接口/数据 | clarify→requirements→design?→review-docs→plan→implement→review→verify→deliver→commit | 无 |
+| 高风险 | 权限/资金/迁移/公共 API/破坏性 | 完整交付 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
+| 缺陷 | 平台缺陷/修复# | `defect-fix` | 无平台→change |
+
+**不确定**：事实不足或两条路径都能解释 → 先问 1 个关键问题；不得静默降档；用户明确要求从简才可降，并记录 `deviation=`。YAML `when` 不满足可跳过相应步，但须在收尾 `skip=` 记录理由。  
+**走链**：路径表是完整任务链/能力边界；单步口令按「入口即止」只做该步；完整任务用「按链/按计划/继续」推进到下一个门/停点。不得无提示断链，也不得越过门自动跑完。
 
 ### 0.2 确认门 · 澄清
 
-门只认 YAML `hitl*` + `gates.md`；澄清只认 `clarification.md`。理解包 §0 必填。
+步骤门只认 YAML `hitl*`；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step，cold-start 第 1 条）；澄清只认 `clarification.md`。理解包 §0 必填。
 
 ### 0.3 硬红线
 
-只认开局卡八条 + 当前步骤包硬约束/做法（有 UI 遵守包内「前端硬门」；无 UI 标 na）。失败同方案 2 次换路径。
+只认开局卡硬约束 + 当前步骤包硬约束/做法（有 UI 遵守包内「前端硬门」；无 UI 标 na）。失败同方案 2 次换路径。
 
 ### 0.4 验证与汇报
 
@@ -50,7 +56,7 @@
 
 ### 0.5 工程与执行
 
-实施勾选 `iq-checklist.md`；词典 `implementation-quality.md`。**实施即验证**：先确认需求/AC/边界与不做，再最小改动；提交前按变更面完成本地验证（L0 至少构建+lint；有行为变化加定向测试与接口/页面走查，前端含桌面+移动），细则 `verification.md` DEV-VER-18。git/部署：`workflow.md` §2；`versioning.md`。默认只提交。交接：`handoff.md`。
+实施勾选 `iq-checklist.md`（**预检命中须扩 SC；单元=一条 SC；状态/KPI 单一源**）；词典 `implementation-quality.md` §3/§4。**实施即验证**：先确认需求/AC/边界与不做，再按 SC 落地（最小改动≠裁剪 Then）；提交前按变更面完成本地验证（L0 纯文档核相对链接/未认领占位；代码或配置至少 L1，按 L1 跑构建/lint/测试/冒烟），细则 `verification.md` DEV-VER-18。git/部署：`workflow.md` §2；`versioning.md`。默认只提交。交接：`handoff.md`。
 
 ## 1. 接入
 
@@ -62,11 +68,11 @@
 
 ## 3. 口令 → Workflow（命中即停）
 
-> 表内为常见示例；未命中 → `rules/core/routing.md`。首条须 `route=…|step=…|level=…|reason=…|reads=…|next_action=…`。
+> 表内为常见示例；未命中 → `rules/core/routing.md`。首条须 `route=…|step=…|level=<内部风险标签，按事实推导>|reason=…|reads=…|next_action=…`。
 
 | 优先 | 命中 | workflow | 入口 step / 默认 agent |
 | ---: | --- | --- | --- |
-| 0 | 工作总结/今日总结 | — | `closeout-skeleton.md` §1 |
+| 0 | 工作总结/今日总结 | — | `closeout-skeleton.md` §2 |
 | 1 | 缺陷修复/指派/修复#；产品回复→`product_decision` | `defect-fix` | defect-fixer |
 | 2 | 新文档/变更吸收 | `intake` | scan |
 | 3 | 按方案实施/继续迭代 | `iterate` | precheck |
@@ -91,7 +97,9 @@
 | 15 | 写交接单/交接包/接收/变更/重规划 | `handoff` | compose（默认） |
 
 **部署**：裸「部署」先判环境；test/staging≠S8；prod→`release`。提交/推送≠部署。  
-**续跑有计划**：「下一步/继续开发计划」优先 `control`。
+**续跑有计划**：「下一步/继续开发计划」优先 `control`。  
+**单步口令即停**：口令明确只做单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按 `_chain`「推进」继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
+**路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。
 
 ## 4. 维护
 

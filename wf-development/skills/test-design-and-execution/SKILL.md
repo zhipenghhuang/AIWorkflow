@@ -71,7 +71,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 | 前端行为 | 主路径 + 1 边界 + 1 异常 + 受影响回归 |
 | 后端/接口 | 主路径 + 1 边界 + 1 错误码/权限 + 受影响回归 |
 | 数据/迁移 | 上述 + 迁移前后核对 + 回滚路径 |
-| 高风险 | 停，升级完整档按 L2/L3 检查矩阵 |
+| 高风险 | 停，升级完整链按 L2/L3 检查矩阵 |
 
 ## 3. 执行
 

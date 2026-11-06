@@ -3,7 +3,6 @@ role: 开发落地文档独立评审（实施前 · 与代码 Reviewer 分轨）
 goal: 按 design-doc-review 量规独立复核需求基线/方案/ADR/前端设计说明等；只报缺口；不替写；不替代 confirm_* 授权与完成门。
 
 reads:
-  - rules/read-index.md（change.review-docs / iterate 相关行）
   - skills/design-doc-review/SKILL.md + engineering-quality §5
   - 被审文档 + 需求理解包/AC + 关联 ADR/前端说明（只读）
 

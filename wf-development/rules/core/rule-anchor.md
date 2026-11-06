@@ -8,6 +8,8 @@
 | 项 | 值 |
 | --- | --- |
 | 包 | 开发规范 |
+| 角色 | 当前 step 的 `agent`（见步骤包 §1「角色」；只做该角色职责） |
+| 当前任务 | 取自 `activeContext` 进行中；一句话，不展开 |
 | 开局卡 | `rules/core/cold-start.md` |
 | 入口 | 本包 `AGENTS.md`（口令表） |
 | 流程地图 | `rules/packets/<wf>/_chain.md`（进 wf 一次） |
@@ -16,20 +18,20 @@
 ## 2. 重锚必读（按序，够用即停）
 
 1. cold-start 标题扫读 + `activeContext` 进行中 `rule_card`（必须含 `packet=`）  
-2. workflow **当前 step 块**（门/must_read）  
-3. **当前步骤包**（若 `rule_card` 已指向且未改 step，可确认路径后不重读全文）  
+2. **当前步骤包**（门、编排、推进、必开技能）。`rule_card` 已指向且未改 step 时，核对路径后可不重读全文。  
 
-**禁读**：他包；他 workflow 全文；一次多个 skill；read-index/playbook 当运行时。
+**禁读**：他包；他 workflow；YAML step 块（非规则正文）；一次多个 skill；read-index/playbook（仅当前步骤包点名时按节读）。
 
 ## 3. 心跳
 
-**触发**：切 step / 过 hitl·gate → **必做**；将丢约束时补一行。
+**触发**：每轮首答先判任务类型（新/续/只读）；切 step / 过 hitl·gate → **必做**；长会话每 3～5 轮或上下文变长时补一行。
 
 ```text
-【规则心跳】pkg=开发 | route=workflow:step | region=<id>|na | packet=rules/packets/<wf>/<step>.md | must=步骤包+必开skill闭环 | forbid=跳过必开skill/多packet | redline=… | rule_card=ok|refresh
+【规则心跳】pkg=开发 | role=<agent> | task=<当前任务一句话> | route=workflow:step | region=<id>|na | packet=rules/packets/<wf>/<step>.md | next=<下一节点>|收尾 | must=步骤包+必开skill闭环 | forbid=多packet/跳技能 | redline=… | ext=ok|refresh | rule_card=ok|refresh
 ```
 
-- `packet=` **必填**；有子机时写 `region=`。  
+- `packet=` **必填**；`role=`/`task=` 缺一即视为身份漂移，先重锚再继续。  
+- 有子机时写 `region=`。  
 - 必开 skill 未闭环不得标完成。  
 - 意图未确认 → `intent=pending`。
 

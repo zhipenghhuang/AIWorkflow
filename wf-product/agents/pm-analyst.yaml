@@ -3,7 +3,6 @@ role: 需求洞察与优先级（含受理转入的新需求）
 goal: 来源分层收集需求 → 入需求池 → 分级排序 → 立项输出范围与风险；不臆造。
 
 reads:
-  - rules/read-index.md（prd.discover/benchmark/plan/new-product 当前行）
   - 技能 `requirement-discovery-and-prioritization` / `zero-to-one-product-definition` / `competitive-intelligence-and-learning` 当前节
   - 当前 step 的产品档案/计划/需求池/inbound/受理单
 

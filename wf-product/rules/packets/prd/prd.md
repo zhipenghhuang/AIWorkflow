@@ -5,11 +5,15 @@
 
 ## 1. 元信息
 
-- **包轨**：产品
+- **包轨**：wf-product
 - **workflow**：`prd`
 - **step**：`prd`（PRD 撰写）
 - **packet**：`rules/packets/prd/prd.md`
-- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **角色**：`prd-writer`（PRD 撰写）。按模板落盘完整 PRD；要素齐、可测、无歧义；带缺口不落盘；本步只做该角色职责；越界交回或升级。
+- **上游**：`prioritize`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
+- **后续**：`prototype`（进 `prototype` 前的 `when=has_ui_requirement`）
+- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
+- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 - **父状态机**：`rules/packets/prd/_chain.md`（进 workflow 一次）。
 - **子状态机**：`rules/packets/prd/_region-write.md`（撰写交接；进本区一次）。
 
@@ -20,31 +24,33 @@
 
 ## 3. 本步硬约束
 
-### 开局硬约束（本步可执行摘要）
+### 开局硬门（3 条；其余见 cold-start §1）
 
-- 1. **先意图、再动作**（`confirm_task_intent`）：未确认禁写正式 PRD/外发/定范围。
-- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
-- 3. **理解→方案双确认未完成 → 不得入池/写正式 PRD/定版本范围**。
-- 4. **状态机读链 + 技能闭环**：见本包「本步读链与防丢失」。必开 skill 须打开→执行→回步骤包（质量不降）。
-- 5. **完成分层**：`-Claim -Mode <…>` → 只认 `CLAIM: ALLOWED`。
-- 6. **原型硬门**：实走 + 覆盖矩阵；缺行不得过。
-- 7. **禁臆造**；AC 可观测；变更无单不实施；UAT 未过不发布。
-- 8. **切步/出子机 → 心跳**，必带 `packet=`。
+- 1. **每轮先判、再动手**：先判新任务/续跑/只读；新任务或范围变化 → 复述目标/范围/验收并确认；续跑一行确认；只读一句话；首行锚 `route/step/packet` 或 `mode=analyze`；未确认禁写、禁下结论。
+- 7. **完成只认门**：`-Claim` → `CLAIM: ALLOWED`；无 ALLOWED 禁写完成/通过/可提测。原型实走 + 覆盖矩阵；UAT 未过不发布。
+- 11. **技能闭环**：§6 必开 skill 打开→执行→回包；禁止粘贴代替。
+- 其余硬约束见 `rules/core/cold-start.md` §1（常驻；勿在步内重读全文）。
 
 ### 本步读链与防丢失
 
 - **编排**：本文 §5 +（若 §7 列出）一个模板。
-- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **方法质量**：§6 必开/条件开技能 → **逐个打开→执行→回本包**（一次 1 个）；禁止用粘贴代替实读。
 - **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
 - **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
 - **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
 
+### 本步禁止
+
+- 禁止读取本清单外的 rules / skills 正文；需要跳转只按 §6/§7 各一次。
+- 禁止跳过 §6 必开技能，或用摘要代替实读。
+- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
 
 ## 4. 本步门
 
 - **HITL `confirm_understanding`**：出示【理解复述】（谁/场景/问题/现有替代/代价/目标/范围/非目标/证据/假设）+【推荐方案要点】（主路径/关键rules/异常期望/验收口径/不做）+ 缺口清单；涉及换迭代/相对上版时附**本期差量要点**（增/改/删或「首版全部为增」）。用户须对理解与方案均表态；仅回 OK 未对复述/方案表态不算过；确认后才分诊/入池承诺/写正式 PRD/计划/排期
 - **HITL `confirm_scope`**：范围（MVP）/排除项/粗排期/风险 一行摘要；条件门：仅跨版本/高价值/未确认范围时停
 - **GATE `product-prd` when=prd_structure_required**：运行 `verify/Invoke-Gate.ps1 -Mode prd -Artifact <当前PRD>`（推荐显式路径）；BLOCKED → 不得进评审/定稿/交开发；DRAFT → 可审不可定稿；回执 `.gate/wf-product/prd.json`。light 缺追溯仅警告。P2+/P1↑/拟定稿或交开发时为真
+- **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步工作规则（编排）
 
@@ -79,7 +85,7 @@
 ## 6. 技能指向（打开 → 执行 → 回本包）
 
 > **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
-> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。
+> 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
@@ -96,7 +102,7 @@
 - 父状态机（进 wf 一次）：`rules/packets/prd/_chain.md`。
 - 子状态机（进区一次）：`rules/packets/prd/_region-write.md`。
 - 技能：按 §6 **必开/条件开** 闭环（打开→执行→回本包），质量不降。
-- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）；有 UI 另按 §5 前端硬门。
+- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）。
 
 ## 8. 完成信号
 
@@ -108,7 +114,7 @@
 ## 9. 回执字段
 
 ```text
-route=workflow:prd | step=prd | packet=rules/packets/prd/prd.md | reads=rules/packets/prd/prd.md[+skill] | skills=prd-writing,analytics-and-experimentation|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=prd | agent=prd-writer | packet=rules/packets/prd/prd.md | reads=rules/packets/prd/prd.md[+skill] | skills=prd-writing,analytics-and-experimentation|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
 `packet=` 必须含 `rules/packets/prd/prd.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

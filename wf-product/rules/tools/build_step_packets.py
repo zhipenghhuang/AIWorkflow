@@ -22,6 +22,25 @@ def _str_representer(dumper, data: str):
 
 _Dumper.add_representer(str, _str_representer)
 
+# --check：只渲染不落盘，用于检测「生成物 vs 源（workflows/*.yaml + _orch.yaml）」漂移。
+CHECK = False
+DRIFT: list[str] = []
+
+
+def emit(path: Path, body: str) -> None:
+    """Write generated body atomically; in --check mode only compare and record drift."""
+    if CHECK:
+        old = path.read_text(encoding="utf-8") if path.is_file() else None
+        if old is None:
+            DRIFT.append(f"MISSING {path}")
+        elif old.replace("\r\n", "\n") != body.replace("\r\n", "\n"):
+            DRIFT.append(f"STALE {path}")
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(body, encoding="utf-8", newline="\n")
+    tmp.replace(path)
+
 
 def load_gates_table(root: Path) -> dict[str, str]:
     p = root / "rules" / "gates.md"
@@ -330,9 +349,7 @@ def save_orch(root: Path, wid: str, steps: dict[str, str]) -> None:
         f"# orch · {wid} — packet rebuild source (not runtime must_read)\n"
         "# YAML step.notes may be thin; rich orchestration lives here.\n"
     )
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(header + dumped, encoding="utf-8", newline="\n")
-    tmp.replace(path)
+    emit(path, header + dumped)
 
 
 def _skill_text(root: Path, name: str) -> str:
@@ -498,10 +515,17 @@ def build_work_rules(
     else:
         parts.append(notes_to_howto(""))
         parts.append("")
-    if needs_frontend_gate(wid, sid, notes):
-        fg = frontend_gate_embed(root)
-        if fg:
-            parts.append(fg)
+    if needs_frontend_gate(root, wid, sid):
+        parts.append(
+            "### 前端硬门（本步含 UI · 单源）\n\n"
+            "- **必读**：`rules/core/frontend-gate.md` §1–§5（打开→按本步产出/证据执行→回包）。\n"
+            "- 无 UI → 整节标 `na` + 一句理由；有 UI 不得只看代码/测试/API 200。\n"
+            "- 证据、分级、矩阵、截图/console/network 要求只认该文件，不在本包重复。"
+        )
+    elif (root / "rules" / "core" / "frontend-gate.md").is_file():
+        parts.append(
+            "本步不嵌入前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。"
+        )
     return "\n".join(parts).strip()
 
 
@@ -513,7 +537,7 @@ def build_skill_index(skills: list[str], notes: str) -> str:
         )
     lines = [
         "> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  ",
-        "> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。",
+        "> 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。",
         "",
         "| 技能 | 级别 | 何时 | 路径 | 打开后 |",
         "| --- | --- | --- | --- | --- |",
@@ -550,6 +574,7 @@ def region_of_step(
 
 def render_region_packet(
     pack_label: str,
+    pack_key: str,
     wid: str,
     rid: str,
     title: str,
@@ -569,9 +594,9 @@ def render_region_packet(
             f"| `{sid}` | {name} | `{when}` | `rules/packets/{wid}/{sid}.md` |"
         )
     nxt = (
-        f"进入下一子机 `rules/packets/{wid}/_region-{next_region[0]}.md`（{next_region[1]}）"
+        f"下一区地图 `rules/packets/{wid}/_region-{next_region[0]}.md`（{next_region[1]}）。是否进入只按父链「推进」。"
         if next_region
-        else "本 workflow 收尾或出口 step（wrap/commit）"
+        else "链末为 wrap/commit。是否进入只按父链「推进」。"
     )
     return f"""# 子状态机 · {wid}/{rid}
 
@@ -590,7 +615,7 @@ def render_region_packet(
 
 ## 区内纪律
 
-1. 本区是闭环：按表推进；`when` 跳过则不打开该步包。
+1. {region_advance_line(pack_key)}
 2. 当前 `packet=` 必须是区内某一步；离开本区前心跳刷新到下一步/下一区。
 3. 技能只按**当前步骤包 §6** 打开→执行→回包；不在本区预读全部 skill。
 4. 不要为「看全貌」打开其他区的全部步骤包。
@@ -603,7 +628,7 @@ def render_chain_packet(
     wid: str,
     wf_name: str,
     steps: list[dict],
-    entry_points: dict | None,
+    chain_full: bool,
 ) -> str:
     rows = [
         "| # | step | 名称 | when | 子机 | 步骤包 |",
@@ -620,13 +645,6 @@ def render_chain_packet(
         rows.append(
             f"| {i} | `{sid}` | {name} | `{when}` | {reg_s} | `rules/packets/{wid}/{sid}.md` |"
         )
-    ep_lines = []
-    if isinstance(entry_points, dict) and entry_points:
-        for k, v in list(entry_points.items())[:20]:
-            ep_lines.append(f"- `{k}` → step `{v}`")
-    else:
-        ep_lines.append("- （见 workflow entry_points）")
-
     regions = regions_for(pack_key, wid)
     if regions:
         reg_lines = [
@@ -637,17 +655,23 @@ def render_chain_packet(
             reg_lines.append(
                 f"| `{rid}` | {title} | `rules/packets/{wid}/_region-{rid}.md` |"
             )
+        if pack_key == "wf-development":
+            zone_how = "区内按表向后；不要把整条父链步骤包一次读完。"
+        else:
+            zone_how = "区内是否进入下一步只按上文「推进」；不要把整条父链步骤包一次读完。"
         region_block = (
             "## 状态机（父）→ 子机\n\n"
-            "长链路按**子状态机**切开：进某区先读该区 `_region-*`（一次），"
-            "区内逐步推进；不要把整条父链步骤包一次读完。\n\n"
+            "长链路按**子状态机**切开：进某区先读该区 `_region-*`（一次）。"
+            + zone_how
+            + "\n\n"
             + "\n".join(reg_lines)
         )
     else:
-        region_block = (
-            "## 状态机\n\n"
-            "本 workflow 步骤较少，无额外子机；按阶段表逐步打开步骤包即可。\n"
-        )
+        if pack_key == "wf-development":
+            short = "本 workflow 步骤较少，无额外子机；按阶段表与「推进」打开步骤包。\n"
+        else:
+            short = "本 workflow 无额外子机。是否进入下一步只按「推进」。\n"
+        region_block = "## 状态机\n\n" + short
 
     return f"""# 流程链 · {wid}
 
@@ -659,9 +683,15 @@ def render_chain_packet(
 - **workflow**：`{wid}`（{wf_name}）
 - **用途**：入口 / 顺序 / 子机划分；**规则正文在 step packet**；**方法质量在 skill（由步骤包 §6 指向）**。
 
-## 入口
+## 隔离边界（改本链不动别链）
 
-{chr(10).join(ep_lines)}
+- **本链专属**：`rules/packets/{wid}/`（本文件、`_region-*`、节点包、`_orch.yaml`）；只重生成本链：`build_step_packets.py <包> <包> --only {wid}`。
+- **只读共享**：`rules/core/`、`rules/gates.md`、`rules/workflow.md`、`skills/`、`rules/templates/`；改共享层会影响所有链，须跑全包自检。
+- **跨链需要时**：重新路由或 handoff；诊断确需只读对方 `_chain.md`，不打开对方节点包，读完回本链。
+
+## 推进
+
+{advance_prose(pack_key, wid, chain_full)}
 
 {region_block}
 
@@ -672,36 +702,42 @@ def render_chain_packet(
 ## 执行纪律（防丢失 · 不降质）
 
 1. 同时只激活 **一个** step packet；`packet=`/`reads=` 必须指向它。
-2. 有子机：进区读 `_region-*` 一次；出区再进下一子机。
+2. 有子机：进区读 `_region-*` 一次。是否进入下一步或下一区，只按上文「推进」。
 3. 步骤包 §6 **必开技能**：打开→执行必做→**回步骤包**；跳过 = 未遵守（质量不降）。
 4. `when` 不满足 → 跳过该步（不打开其 packet）。
 5. YAML 只编排；不要通读本 YAML 其他 step。
 """
 
 
+# 步骤包内只留 3 条安全关键硬门；其余常驻 cold-start §1（避免 262 份重复副本）。
+INLINE_HARD_RULES = ("1", "7", "11")
+
+
 def cold_start_digest(root: Path) -> str:
-    """Compact 8 hard rules for packet self-containment (AI may not re-open cold-start mid-step)."""
+    """3 safety-critical rules inline; the rest stays in cold-start §1 (always-resident)."""
     p = root / "rules" / "core" / "cold-start.md"
     if not p.is_file():
         return "- （开局卡缺失：先意图确认；完成只认 CLAIM: ALLOWED；禁通读 rules。）"
     text = p.read_text(encoding="utf-8")
-    m = re.search(r"## 1\. 八条硬约束\n(.*?)(?=\n## |\Z)", text, re.S)
+    m = re.search(r"## 1\. 硬约束\n(.*?)(?=\n## |\Z)", text, re.S)
     block = m.group(1).strip() if m else ""
     lines = []
     for line in block.splitlines():
         line = line.strip()
-        if re.match(r"^\d+\.", line):
+        rm = re.match(r"^(\d+)\.\s*(.+)$", line)
+        if rm and rm.group(1) in INLINE_HARD_RULES:
+            body = rm.group(2)
             # keep numbered rule, trim long parentheticals a bit
-            if len(line) > 220:
-                line = line[:220] + "…"
-            lines.append(f"- {line}")
+            if len(body) > 220:
+                body = body[:220] + "…"
+            lines.append(f"- {rm.group(1)}. {body}")
     if not lines:
         return "- 先意图确认；本步只读步骤包；完成只认 CLAIM: ALLOWED；证据先于结论。"
     text = neutralize_pointers("\n".join(lines))
     # cold-start § refs are wrong inside packets — retarget
     text = text.replace("见 §4", "见本包「本步读链与防丢失」")
     text = text.replace("（`rule-anchor.md`）", "（心跳格式）")
-    return text
+    return text + "\n- 其余硬约束见 `rules/core/cold-start.md` §1（常驻；勿在步内重读全文）。"
 
 
 def frontend_gate_embed(root: Path) -> str | None:
@@ -728,18 +764,114 @@ def frontend_gate_embed(root: Path) -> str | None:
     if not parts:
         return None
     body = neutralize_pointers("\n\n".join(parts))
+    # 内嵌节不能与步骤包自己的 §1～§9 抢编号：降级并加“前端门”前缀。
+    body = re.sub(
+        r"^(#{2,3})\s+([0-9]+(?:\.[0-9]+)*)\.?\s*(.*)$",
+        lambda m: ("###" if m.group(1) == "##" else "####")
+        + f" 前端门 {m.group(2)}. {m.group(3)}",
+        body,
+        flags=re.M,
+    )
     return (
         "### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）\n\n"
+        + "> 本节编号仅指前端门内部；引用写「前端门 §X」。\n\n"
         + body
         + "\n\n> L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。"
     )
 
 
-def needs_frontend_gate(wid: str, sid: str, notes: str) -> bool:
-    if sid in ("implement", "verify", "review", "build", "fix", "execute"):
-        return True
-    blob = f"{wid} {sid} {notes}".lower()
-    return any(k in blob for k in ("ui", "前端", "原型", "frontend", "页面"))
+# 只有真正改界面或验收界面的步才嵌入全文。关键词（原型/页面）会把整门挂进写文档的步。
+UI_GATE_STEPS = {
+    ("change", "implement"),
+    ("change", "review"),
+    ("change", "verify"),
+    ("iterate", "implement"),
+    ("iterate", "review"),
+    ("iterate", "gates"),
+    ("solo", "build"),
+    ("solo", "test"),
+    ("defect-fix", "fix"),
+    ("defect-fix", "gates"),
+    ("release", "verify"),
+}
+
+
+def needs_frontend_gate(root: Path, wid: str, sid: str) -> bool:
+    if not (root / "rules" / "core" / "frontend-gate.md").is_file():
+        return False
+    return (wid, sid) in UI_GATE_STEPS
+
+
+def region_advance_line(pack_key: str) -> str:
+    if pack_key == "wf-development":
+        return "本区按表向后推进；单步口令在本步完成即停；`when` 不满足则不打开该步包。"
+    return (
+        "默认入口步完成即停，不因本表自动进入下一步。"
+        "仅按链、继续、按计划执行，或全链入口，才按表走向下一项。"
+        "`when` 不满足则不打开该步包。"
+    )
+
+
+def advance_prose(pack_key: str, wid: str, chain_full: bool) -> str:
+    """Runtime stop/go. Matches each package AGENTS; no new stop rule beyond AGENTS."""
+    route = "口令只认本包 AGENTS 口令表。本链只排步骤与 `when`，不另列口令。"
+    if pack_key == "wf-development":
+        parts = [
+            route,
+            "从已命中的入口步沿阶段表向后；`when` 不满足则跳过且不打开该包。",
+            "口令明确只做单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）时，本步完成即停并输出收尾骨架；其余按表向后。",
+            "本步动作清单写明跳过、停止或改走他步时，以清单为准。",
+        ]
+        if chain_full and wid == "onboard":
+            parts.append(
+                "全链入口仅：接入/重新接入/基线/装配能力，走到 verify 打标；"
+                "资料与文档治理只做该步加收尾，不连带其余接入步。"
+            )
+        elif chain_full:
+            parts.append(
+                "因此本流程不走默认即停：从入口步沿阶段表走到链末；`when` 不满足则跳过且不打开该包。"
+            )
+        return " ".join(parts)
+    parts = [
+        route,
+        "默认：入口步的产出与本步门完成后即停，并输出收尾骨架；不打开后续步骤包。",
+        "向后走，仅当口令是按链、继续、按计划执行，或本流程处于全链入口。",
+    ]
+    if chain_full and wid == "onboard":
+        if pack_key == "wf-testing":
+            parts.append(
+                "全链入口仅：接入、重新接入、基线、装配能力，走到 verify 打标。"
+                "资料与文档治理只做该步加收尾，不连带其余接入步。"
+            )
+        else:
+            parts.append(
+                "全链入口仅：接入、重新接入、生成档案、装配能力，走到 verify 打标。"
+                "资料与文档治理只做该步加收尾，不连带其余接入步。"
+            )
+    elif chain_full:
+        parts.append(
+            "因此本流程不走默认即停：从入口步沿阶段表走到链末；`when` 不满足则跳过且不打开该包。"
+        )
+    if pack_key == "wf-testing" and wid == "testing":
+        parts.append("report：报告门通过后只追加一次提交或交平台确认，不回到 execute。")
+    return " ".join(parts)
+
+
+def packet_advance(pack_key: str, wid: str, sid: str) -> str:
+    if pack_key == "wf-development":
+        return (
+            "- **推进**：本步完成后沿父链进入下一未跳过步；"
+            "口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，"
+            "以口令/清单为准，即停并输出收尾骨架。"
+        )
+    extra = ""
+    if pack_key == "wf-testing" and wid == "testing" and sid == "report":
+        extra = " 报告门通过后只追加一次提交或交平台确认，不回到 execute。"
+    return (
+        "- **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。"
+        "仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。"
+        + extra
+    )
 
 
 def hitl_names(step: dict) -> list[str]:
@@ -800,7 +932,7 @@ def extract_template(step: dict, root: Path) -> str | None:
 
 
 def sanitize_notes_for_yaml(notes: str) -> str:
-    """Drop stale file§N anchors that break Test-Template; keep prose intact."""
+    """Drop stale file§N anchors and repair residue left by earlier passes."""
     if not notes:
         return notes
     # foo.md §1.2 / foo.yaml §0 → foo.md / foo.yaml
@@ -809,8 +941,58 @@ def sanitize_notes_for_yaml(notes: str) -> str:
         r"\1",
         notes,
     )
+    # residue after anchor removal: "test-plan //" / "计划 //////、"
+    notes = re.sub(r"(?<=[\u4e00-\u9fffA-Za-z0-9_`])\s*/{2,}(?=[\s，。；、]|$)", "", notes)
+    notes = re.sub(r"(?<=[\u4e00-\u9fffA-Za-z0-9_`])\s*/(?=[\s，。；、]|$)", "", notes)
+    # dangling arrow left by deleted section name
+    notes = notes.replace("→。", "→ 停并说明缺口。")
+    notes = re.sub(r"→\s*([；，])", r"→ 停并说明缺口\1", notes)
+    notes = re.sub(r"\s+([、，。；：])", r"\1", notes)
     notes = re.sub(r"[ \t]{2,}", " ", notes)
     return notes.strip()
+
+
+def load_agent_meta(root: Path, agent_id: str | None) -> tuple[str, str]:
+    """Return (role, goal-one-line) from agents/<id>.yaml for packet identity."""
+    if not agent_id:
+        return ("", "")
+    path = root / "agents" / f"{agent_id}.yaml"
+    if not path.is_file():
+        return ("", "")
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return ("", "")
+    if not isinstance(data, dict):
+        return ("", "")
+    role = str(data.get("role") or "").strip()
+    goal = str(data.get("goal") or "").strip()
+    if len(goal) > 80:
+        cut = max(goal.rfind("；", 0, 80), goal.rfind("。", 0, 80), goal.rfind("→", 0, 80))
+        goal = goal[: cut + 1].rstrip("→；。 ") if cut >= 30 else ""
+    return (role, goal)
+
+
+def step_edges(steps: list, step: dict) -> dict:
+    """Resolve upstream / downstream / failure edge for the current step."""
+    ids = [s["id"] for s in steps if isinstance(s, dict) and "id" in s]
+    sid = step.get("id")
+    if sid not in ids:
+        return {}
+    i = ids.index(sid)
+    prev_id = ids[i - 1] if i > 0 else None
+    explicit = step.get("next")
+    next_id = explicit if isinstance(explicit, str) and explicit else (
+        ids[i + 1] if i + 1 < len(ids) else None
+    )
+    nxt = next((s for s in steps if isinstance(s, dict) and s.get("id") == next_id), {})
+    return {
+        "prev": prev_id,
+        "next": next_id,
+        "next_when": nxt.get("when"),
+        "terminal": not next_id,
+        "on_fail": step.get("on_fail"),
+    }
 
 
 def notes_to_howto(notes: str) -> str:
@@ -839,20 +1021,58 @@ def render_packet(
     skills: list[str],
     template: str | None,
     full_notes: str,
+    edges: dict | None = None,
+    agent_meta: tuple[str, str] = ("", ""),
 ) -> str:
     sid = step["id"]
     name = step.get("name") or sid
     output = step.get("output") or "（见本步产出约定）"
     when = step.get("when")
     notes = full_notes.strip() if isinstance(full_notes, str) else str(full_notes or "")
+    agent_id = str(step.get("agent") or "")
+    role, role_goal = agent_meta
+    edges = edges or {}
+    prev_id = edges.get("prev")
+    next_id = edges.get("next")
+    next_when = edges.get("next_when")
+    on_fail = edges.get("on_fail")
+    terminal = bool(edges.get("terminal"))
+
+    identity = ""
+    if agent_id:
+        role_txt = f"（{role}）" if role else ""
+        goal_txt = f"{role_goal.rstrip('。；')}；" if role_goal else ""
+        identity += f"- **角色**：`{agent_id}`{role_txt}。{goal_txt}本步只做该角色职责；越界交回或升级。\n"
+    precondition = step.get("precondition")
+    if isinstance(precondition, str) and precondition.strip():
+        identity += f"- **前置**：{precondition.strip()}\n"
+    identity += (
+        f"- **上游**：`{prev_id}`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）\n"
+        if prev_id else "- **上游**：无（链首）\n"
+    )
+    if terminal:
+        identity += "- **后续**：链末出口（完成本步即收尾，不再打开节点）\n"
+    else:
+        cond = f"（进 `{next_id}` 前的 `when={next_when}`）" if next_when else ""
+        identity += f"- **后续**：`{next_id}`{cond}\n"
+    identity += (
+        f"- **失败去向**：{on_fail}\n" if on_fail
+        else "- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。\n"
+    )
 
     risk = ""
     if when:
         risk += f"- **条件步** `when={when}`：条件不满足则跳过本步（不打开本包）。\n"
-    risk += (
-        "- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；"
-        "**必开技能与 Claim/HITL 不降**。\n"
-    )
+    if (root / "rules" / "core" / "frontend-gate.md").is_file():
+        risk += (
+            "- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；"
+            "**必开技能与 Claim/HITL 不降**。\n"
+        )
+    else:
+        risk += (
+            "- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；"
+            "**必开技能与 Claim/HITL 不降**。\n"
+        )
     risk += f"- **父状态机**：`rules/packets/{wid}/_chain.md`（进 workflow 一次）。\n"
     reg = region_of_step(pack_key, wid, sid)
     if reg:
@@ -861,14 +1081,18 @@ def render_packet(
         )
 
     hard = (
-        "### 开局硬约束（本步可执行摘要）\n\n"
+        "### 开局硬门（3 条；其余见 cold-start §1）\n\n"
         + cold_start_digest(root)
         + "\n\n### 本步读链与防丢失\n\n"
         "- **编排**：本文 §5 +（若 §7 列出）一个模板。\n"
-        "- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。\n"
+        "- **方法质量**：§6 必开/条件开技能 → **逐个打开→执行→回本包**（一次 1 个）；禁止用粘贴代替实读。\n"
         "- **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。\n"
         "- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。\n"
         "- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。\n"
+        "\n### 本步禁止\n\n"
+        "- 禁止读取本清单外的 rules / skills 正文；需要跳转只按 §6/§7 各一次。\n"
+        "- 禁止跳过 §6 必开技能，或用摘要代替实读。\n"
+        "- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。"
     )
 
     gate_lines: list[str] = []
@@ -887,6 +1111,7 @@ def render_packet(
         )
     if not gate_lines:
         gate_lines.append("- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。")
+    gate_lines.append(packet_advance(pack_key, wid, sid))
 
     work = build_work_rules(root, skills, notes, wid, sid)
     skill_idx = build_skill_index(skills, notes)
@@ -903,14 +1128,20 @@ def render_packet(
     if template:
         open_lines.append(f"- 填写模板（仅此一个）：`{template}`")
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
-        open_lines.append(
-            "- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）；有 UI 另按 §5 前端硬门。"
-        )
+        verify_line = "- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）"
+        if needs_frontend_gate(root, wid, sid):
+            verify_line += "；有 UI 另按 §5 前端硬门"
+        open_lines.append(verify_line + "。")
     if not template and not gate:
         open_lines.append("- 无强制模板：直接写 §2 产出路径产物。")
 
     rel = f"rules/packets/{wid}/{sid}.md"
     skill_names = ",".join(skills) if skills else "na"
+    done_line = (
+        "- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。"
+        if skills
+        else "- §2 产出已落盘；本步无 §6 技能指向。"
+    )
     return f"""# 步骤包 · {wid}/{sid}
 
 > **状态 = 本 step**。本文管编排与完成口径；**方法质量在 §6 指向的 skill**（打开→执行→回来）。  
@@ -922,7 +1153,7 @@ def render_packet(
 - **workflow**：`{wid}`
 - **step**：`{sid}`（{name}）
 - **packet**：`{rel}`
-{risk}
+{identity}{risk}
 ## 2. 本步目标
 
 - **目标**：{name}
@@ -950,7 +1181,7 @@ def render_packet(
 
 ## 8. 完成信号
 
-- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+{done_line}
 - 本步 hitl 已确认，或 when 条件跳过。
 - 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
 - wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
@@ -958,20 +1189,22 @@ def render_packet(
 ## 9. 回执字段
 
 ```text
-route=workflow:{wid} | step={sid} | packet={rel} | reads={rel}[+skill] | skills={skill_names}|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:{wid} | step={sid} | agent={agent_id or "na"} | packet={rel} | reads={rel}[+skill] | skills={skill_names}|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
 `packet=` 必须含 `{rel}`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。
 """
 
 
-def process_package(root: Path, pack_label: str) -> None:
+def process_package(root: Path, pack_label: str, only: set[str] | None = None) -> None:
     gates = load_gates_table(root)
     skill_dirs = list_skill_dirs(root)
     readme_rows = parse_readme_skill_rows(root)
     pack_key = root.name
     wf_dir = root / "workflows"
     for ypath in sorted(wf_dir.glob("*.yaml")):
+        if only and ypath.stem not in only:
+            continue
         raw = ypath.read_text(encoding="utf-8")
         data = yaml.safe_load(raw)
         if not isinstance(data, dict) or "workflow" not in data:
@@ -987,12 +1220,13 @@ def process_package(root: Path, pack_label: str) -> None:
         # Parent state machine + nested region machines
         chain_path = root / f"rules/packets/{wid}/_chain.md"
         chain_path.parent.mkdir(parents=True, exist_ok=True)
+        wf_meta = data.get("workflow") if isinstance(data.get("workflow"), dict) else {}
+        chain_full = str((wf_meta or {}).get("chain") or "") == "full"
         chain_body = render_chain_packet(
-            pack_label, pack_key, wid, wf_name, steps, data.get("entry_points")
+            pack_label, pack_key, wid, wf_name, steps, chain_full
         )
-        tmp_c = chain_path.with_suffix(chain_path.suffix + ".tmp")
-        tmp_c.write_text(chain_body, encoding="utf-8", newline="\n")
-        tmp_c.replace(chain_path)
+        tmp_c = chain_path
+        emit(tmp_c, chain_body)
 
         steps_by_id = {
             s["id"]: s for s in steps if isinstance(s, dict) and "id" in s
@@ -1010,11 +1244,9 @@ def process_package(root: Path, pack_label: str) -> None:
                 nxt = (regs[i + 1][0], regs[i + 1][1])
             rpath = root / f"rules/packets/{wid}/_region-{rid}.md"
             rbody = render_region_packet(
-                pack_label, wid, rid, title, sids, steps_by_id, nxt
+                pack_label, pack_key, wid, rid, title, sids, steps_by_id, nxt
             )
-            tmp_r = rpath.with_suffix(rpath.suffix + ".tmp")
-            tmp_r.write_text(rbody, encoding="utf-8", newline="\n")
-            tmp_r.replace(rpath)
+            emit(rpath, rbody)
 
         n = 0
         indexed = 0
@@ -1062,6 +1294,8 @@ def process_package(root: Path, pack_label: str) -> None:
                 skills,
                 template,
                 full_notes,
+                edges=step_edges(steps, step),
+                agent_meta=load_agent_meta(root, step.get("agent")),
             )
             body = re.sub(
                 r"`(rules/templates/[^`]+?[、,][^`]+?)`",
@@ -1069,9 +1303,7 @@ def process_package(root: Path, pack_label: str) -> None:
                 or m.group(0),
                 body,
             )
-            tmp_pkt = packet_path.with_suffix(packet_path.suffix + ".tmp")
-            tmp_pkt.write_text(body, encoding="utf-8", newline="\n")
-            tmp_pkt.replace(packet_path)
+            emit(packet_path, body)
             new_mr = [packet_rel]
             if template:
                 new_mr.append(template)
@@ -1102,21 +1334,44 @@ def process_package(root: Path, pack_label: str) -> None:
             sort_keys=False,
             width=120,
         )
-        tmp = ypath.with_suffix(ypath.suffix + ".tmp")
-        tmp.write_text(header + dumped, encoding="utf-8", newline="\n")
-        tmp.replace(ypath)
+        emit(ypath, header + dumped)
         print(
             f"OK {pack_label}/{wid}: {n} packets + _chain{print_msg_extra} ({indexed} skill-linked)"
         )
 
 
 def main() -> int:
+    global CHECK
     if len(sys.argv) < 2:
-        print("Usage: build_step_packets.py <package-root> [label]", file=sys.stderr)
+        print("Usage: build_step_packets.py <package-root> [label] [--only wf1,wf2] [--check]", file=sys.stderr)
         return 2
     root = Path(sys.argv[1]).resolve()
-    label = sys.argv[2] if len(sys.argv) > 2 else root.name
-    process_package(root, label)
+    label = root.name
+    only: set[str] | None = None
+    args = sys.argv[2:]
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg == "--check":
+            CHECK = True
+        elif arg == "--only" and i + 1 < len(args):
+            only = {x.strip() for x in args[i + 1].split(",") if x.strip()}
+            i += 2
+            continue
+        elif arg.startswith("--only="):
+            only = {x.strip() for x in arg.split("=", 1)[1].split(",") if x.strip()}
+        elif not arg.startswith("--"):
+            label = arg
+        i += 1
+    process_package(root, label, only)
+    if CHECK:
+        if DRIFT:
+            print(f"PACKETS_STALE: {len(DRIFT)} 处生成物与 workflows/_orch 源不一致")
+            for d in DRIFT[:40]:
+                print("  " + d)
+            print("修：python rules/tools/build_step_packets.py <包根> 后重跑自检。")
+            return 1
+        print("PACKETS_UP_TO_DATE")
     return 0
 
 

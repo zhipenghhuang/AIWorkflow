@@ -3,24 +3,24 @@
 workflow: handoff
 purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
 steps:
-  change_receive: 读变更包 00/01/02；按 判级别；核对 CR、影响矩阵、生效版本、回归范围。 先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。 更新 `{workroot}/changes/CR-*.md`、测试计划
-    /////、受影响用例/脚本；C2/C3 回计划门。 更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
+  change_receive: 读变更包 00/01/02；按 判级别；核对 CR、影响矩阵、生效版本、回归范围。 先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。 更新 `{workroot}/changes/CR-*.md`、测试计划、受影响用例/脚本；C2/C3
+    回计划门。 更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
   change_send: 先按 `workflows/testing.yaml` 的 plan 期中变更完成 CR/影响分析；本步只负责“通知包”。 按 `rules/collaboration/handoff.md` 判 C0/C1/C2/C3；C2/C3
     必须先过计划门。 **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，用户确认后才生成 HO 包。 必带：CR、影响矩阵、更新后的计划/用例/脚本/报告、接收方必须做的事/截止、回归范围、生效版本。 受影响角色逐个发（产品/开发）；同一变更一个包可多接收方，但回执逐个登记。
-    更新 `handoff-ledger.md`、测试计划 //、 `{workroot}/INDEX.md`、activeContext；输出【变更通知已生成】+ 回执截止。 未确认不得发；不得用口头/聊天替代变更包。
-  commit: 无文件变更跳过；拟提交清单按 AGENTS ；提交后补一行结果，不重复六段。
+    更新 `handoff-ledger.md`、测试计划、 `{workroot}/INDEX.md`、activeContext；输出【变更通知已生成】+ 回执截止。 未确认不得发；不得用口头/聊天替代变更包。
+  commit: 无文件变更跳过；拟提交清单按 AGENTS；提交后补一行结果，不重复六段。
   compose: '**默认入口**。读协作 ～ 与 `handoff-note-template.md`（择优，非填空卷）。 **意图择优**：先判 `intent_needs_confirm`（澄清 ）。真 → 完整【意图理解】停等再落盘；假
     → 一行【意图】回执后直写。禁止含糊「交接」直接成文。 五问→形态 A/B/C 或专模；禁止整表粘贴。 专模真源写 `{workroot}/`，同轮实拷 `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建
     HO；禁外印元数据。'
   receive: '**硬**：打开→分析→吸收→同步；`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。 多包同仓直读对方出站；仓外主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`。
-    按类型更新计划/分析表/准入；正式签收才回执。更新台账、计划 /、索引、activeContext。'
+    按类型更新计划/分析表/准入；正式签收才回执。更新台账、计划、索引、activeContext。'
   replan: 按 `rules/collaboration/handoff.md` 触发（需求/提测退回/P0/环境数据/S1-S2/产能/发布窗口）执行；先冻结当前基线快照，再做影响矩阵。 选一个动作并写理由：保持+加缓冲｜重排轮次｜降范围/抽样｜拆轮次｜暂停升级｜重新基线；C2/C3
-    必须过计划门。 同轮更新测试计划 //////////、`handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；受影响的 `TEST/REL` 包标 `已取代` 并重发。 重规划后重过受影响门（计划门/覆盖闸/报告门）；未过门不得准出；向产品/开发发
+    必须过计划门。 同轮更新测试计划、`handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；受影响的 `TEST/REL` 包标 `已取代` 并重发。 重规划后重过受影响门（计划门/覆盖闸/报告门）；未过门不得准出；向产品/开发发
     `CHG` 包并收回执。
   send: '**仅升包**。未命中包触发 → 改 `compose`。先问后发；写盘到 `handoff/outbound/{category}/{HO-ID}/`；刷新出站散文件。 `04` 空白≠必须填写。有平台已交 → 拒绝重复 BUG
     整包。输出【交接包已生成】。'
-  status: 只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/test-plan.md` /；不重写计划、不发包。 报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断执行的
+  status: 只读 `{workroot}/handoff/handoff-ledger.md` 与 `{workroot}/test-plan.md`；不重写计划、不发包。 报备：当前未回执 n 个、超时 n 个、退回 n 个、阻断执行的
     HO-ID、下一步入口。 有未登记新件（`{workroot}/handoff/inbound/` 有投放但台账无记录或仍为已投放）→ 建议先 `receive`/分析吸收，不直接开跑。 台账缺失 → 按 `rules/templates/90-handoff/handoff-ledger-template.md`
     建，但不虚构历史。 输出首条：route=workflow:handoff | step=status | pending=… | overdue=… | next_action=…
-  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` ；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项 更新测试计划 /、activeContext、 `{workroot}/INDEX.md`；未回执/退回/待补项明示。
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md`；第1点含 HO-ID/方向/类型/对方/包路径/状态/回执/阻断项 更新测试计划、activeContext、 `{workroot}/INDEX.md`；未回执/退回/待补项明示。
     本步只出骨架与拟提交清单；提交门在下一步。

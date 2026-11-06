@@ -10,12 +10,13 @@ owner: {产品负责人}
 source_of_truth: false
 based_on: {需求池/受理单}
 prd_level: light
+scope_change: no
 updated: {yyyy-MM-dd}
 ---
 
-# PRD（轻量版 · P0/P1）
+# PRD（轻量路径 · 单页面/≤3 AC）
 
-> 用于单页面/≤3 AC/已在计划范围内的小功能；P2/P3 用全量 `prd-template.md`。
+> 用于单页面/≤3 AC/已在计划范围内的小功能；AC/范围变化或 P2/P3 用全量 `prd-template.md`。
 > 原则：只写能开发、能验收的最小集；不省略 AC、范围排除、风险。
 > 门：`-Mode prd` 按轻量结构校验；`review_status=SELF_CHECKED` 即可，免独立评审。
 

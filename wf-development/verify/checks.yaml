@@ -7,21 +7,21 @@ version: 1
 # 未配 → project-lint / project-test / project-e2e（全仓命令，勿宣称「只跑受影响」）。
 levels:
   L0:
-    description: 单文件/文案/配置；无行为、契约、权限、数据变化
-    required: [build, test-or-targeted-test, smoke]
-    optional: [screenshot]
-    # 交叉：触及权限/状态/数据基数/唯一约束/多表面 → 升 L1+，并按 skills/cross-layer-consistency；纯文案仍可 L0（见 AGENTS §0.1 / DEV-VER 相关）
+    description: 纯文档/文案/注释；无代码、配置、行为、契约、权限、数据变化
+    required: [docs-links, docs-placeholders]
+    optional: []
+    # 交叉：触及权限/状态/数据基数/唯一约束/多表面 → 升 L1+，并按 skills/cross-layer-consistency；代码/配置至少 L1（见 AGENTS §0.1 / DEV-VER 相关）
   L1:
-    description: 多文件、普通功能、前端行为变化
+    description: 代码/配置，≤3 文件且≤1 模块，无接口/数据/权限变化（>3 文件或 >1 模块 → L2；与 rules/gates.md 的 L 档推导一致）
     required: [build, lint-or-targeted-lint, test-or-targeted-test, smoke]
     frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, evidence-integrity]
     optional: [a11y-basic, visual-diff]
   L2:
-    description: 跨模块、接口/数据变更、新功能
-    required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage]
+    description: >3 文件或 >1 模块，或接口/数据/新功能变更
+    required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage, nfr-baseline]
     frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, evidence-integrity]
     manual: [review]
-    optional: [contract-test, security-scan]
+    optional: [contract-test]
   L3:
     description: 权限/资金/迁移/公共 API/安全合规/破坏性
     required: [L2, security-scan, security-evidence, rollback-evidence, independent-review]
@@ -48,7 +48,7 @@ change_types:
       - "**/templates/**"
       - "**/layouts/**"
     min_level: L1
-    notes: 纯文案/配置可 L0-light（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端按 `frontend-gate` §2.1 分级（`.gate/frontend/tier.json`）：A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity；该级缺一 BLOCKED。
+    notes: 纯文案/文档可 L0；代码/配置至少 L1（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端按 `frontend-gate` §2.1 分级（`.gate/frontend/tier.json`）：A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity；该级缺一 BLOCKED。
   api:
     globs:
       - "**/api/**"
@@ -91,11 +91,13 @@ quality_gates:
   - important-surface # DEV-IQ-10；预检命中面须同批防护+负面自测
   - debt-register     # 裁剪/豁免须 DEBT/OPEN；acceptance.debts
   - baseline-smoke    # 沿用模块提测前冒烟；acceptance.baseline_smoke
+  - nfr-baseline      # L2+：acceptance.nfr.security / nfr.performance（done+证据 或 na+理由）；门禁校验
+  - perf-regression   # 性能敏感路径：预算/SQL 次数/首屏字节/基准或回归断言；无则债项
   - frontend-parity   # DEV-IQ-17；parity-matrix + route-coverage + 每路由截图；缺一 BLOCKED
   - evidence-integrity # DEV-VER-14/15；测试日志/截图哈希/新鲜度/base_commit
   - reviewer-independence # DEV-VER-16；复审必须实际复跑最小断言
 
-# 高价值低成本（默认）
+# 高价值低成本（默认；L1+ 适用；L0 纯文档只跑 docs-links/docs-placeholders）
 always:
   - acceptance-checklist
   - build
@@ -112,6 +114,8 @@ risk_based:
   - frontend-network
   - a11y-basic
   - independent-review
+  - security-scan      # 命中鉴权/上传/导出/公共 API/外部回调/含 PII 时必做；L3 亦为 required
+  - perf-regression    # 命中列表/导出/批量/统计聚合/首屏资源/外部调用时必做
 
 # 低价值高成本（不做/少做）
 avoid:

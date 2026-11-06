@@ -36,13 +36,17 @@
 > **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。  
 > **gate 2.2**：`test_gate.py` 对新格式硬检 `analysis-structure`（含 §2.4 依据覆盖）/`plan-structure`/`case-vp`/`case-oracle`/`report-structure`；旧格式默认 `skip`，加 `-Strict` 变 FAIL。
 
-**依据覆盖前置（硬）**：`coverage-map` 前须满足 `rules/core/verification.md` §3.1；缺行=P0 阻断。
+**依据覆盖前置（硬）**：`coverage-map` 前须满足 `rules/core/verification.md` §3.1.1；缺行=P0 阻断。
 
 ## 2. `when` / `gate_when` 词表
 
 `mainread_unspecified`｜`mainread_unspecified_for_generate`｜`exploratory_mainread_missing`｜`intent_needs_confirm`（口令/上下文无法唯一确定给谁·做什么·形态，或跨角色外发未对齐，或新开对外交付 → 真；查询/机械/脚本化已确认回归/同任务已确认/意图已写死/任务内续跑 → 假；拿不准按真。细则 `clarification.md` §0）｜`understanding_needs_confirm`｜`plan_needs_confirm`｜`scope_needs_confirm`｜`standalone_generate_with_pending`（独立生成且有拟入库/待交平台确认 → 真；同会话续 execute → 假）｜`platform_ask_required`（本轮有拟交平台/新建缺陷单/回写待确认 → 真；与 git 无关）｜`has_pending_commit`（有文件变更待提交；git 提交；≠门3）｜`remark_writeback`｜`platform_submit`（拟新建缺陷单/交平台）｜`defect_submit_required`（子类为提交/修改/回归写回/补充澄清/产品回流/新建单 → 真；列表/仅查重展示/只读巡检/无需回写 → 假）｜`docs_migration_needed`｜`handoff_send_required`（拟生成或用户点名生成任一 HO，**或**拟落盘缺陷统一导出/`export` 提交包，且本会话尚未得到用户对**本次拟发类型/接收方/摘要/落点**的确认 → 真；用户已确认该摘要未变 → 假；仅说「要/生成/交接包」未确认摘要 → 真。本轮缺陷走 `api`/`browser` 且未点名导出 → **假**（禁借本门补导出）。**不得**因计划门/门2/门3/报告门/平台已交而置假去免确认）｜`landing_doc_review_needed`｜`review_needs_confirm`｜`skill_changes_pending`（`skill-audit` 出具拟改 skills / capabilities表/装配项且用户尚未确认；无拟变更或已确认/拒绝后为假）｜`iteration_close_needed`（探测到下一期方案/换主题/版本升级且当前迭代是否结束不明确；已确认结束或明确并行不关后为假）。
 
-`gate_when`：`functional_coverage_required`｜`case_review_required`（不满足 → 跳过该 gate，步骤不跳过）。
+`gate_when`：`functional_coverage_required`｜`case_review_required`｜`module_batch_complete`。任一不满足 → 跳过对应 gate，步骤不跳过。
+
+`functional_coverage_required`：功能全量/专项新生成，或本轮新增/变更功能用例 → 真；纯接口/发布前/探索式、仅回归重跑 → 假（按各轨覆盖门）。
+
+`module_batch_complete`：本批计划内步骤已执行完、本批台账终态齐（无「未执行」）、证据可打开，且达到 `rules/templates/10-planning/test-plan-template.md` §3.9 的批次合并条件；不是「整个模块/全仓跑完」。判定以当前 `execute` 批与台账 Scope 为准。
 
 `landing_doc_review_needed`：下列任一待审且本会话该产物尚未选定 A/B → 真：**计划**（T1+ 首版/换代/范围·准出·缺陷策略实质变；**T0/普通 T1 轻量且用户未点名 → 假**）、**测试分析表**（T2/T3 或歧义≥2）、**功能/专项用例**（T1+）、**接口资产**（T1+ 生成或计划驱动/进准出）、**发布前**（T2+ 或发版准出/计划已列）、**探索式**（计划 §12 纳入且 T2+，或报告引用进准出）。用户点名「自行通过/我审」→ A 后置假；「AI 评审」→ B 后置假；T0 可 SELF_CHECKED。
 
@@ -55,6 +59,8 @@
 `understanding_needs_confirm`：输入含 PRD/迭代方案/原型/接口或技术文档、存在 2 个以上实质歧义/冲突、T2/T3，或用户要求计划/用例/准出时真；已有**本轮当前范围**确认的需求理解包/测试分析表或纯信息查询/机械低风险操作时假。**T0 且范围已钉**（补丁范围/环境/准出口径本轮已写死或计划 §0 已确认）→ **默认假**。**计划驱动 execute**：`{workroot}/test-plan.md` §0 为已确认/执行中/待关闭，且本轮范围测试分析表可打开（或计划声明不适用+依据）→ **假**（不重复理解门；门2 仍按 `scope_needs_confirm`）。缺理解包却要**宣称功能准出** → **仍真**。
 
 同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复（`docs_migration_needed` 置假）。
+
+**T 档推导（按事实，不靠自评）**：T0 补丁/单模块且不承担版本准出、无新增功能面；T1 单模块新增或变更，且本轮单独出准出结论；T2 版本级/多模块/发布列车；T3 高风险（权限/资金/不可逆/合规）或需跨版本回归。两条都能解释时取高一档；`route` 的 `level=` 须给事实依据（模块数、是否承担版本准出、是否新增功能面），不得只写档位。档位只决定门与深度（`case_review_required`/`landing_doc_review_needed` 等），不替代用户判定。
 
 ## 3. 门档位（防过度审批）
 

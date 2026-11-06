@@ -2,9 +2,10 @@
 
 > **用途**：产品协作 AI 入口。  
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain` → ④ `_region-*`（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
+> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…`（只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.05.05`（处置单客观文风；去版本过程史）。  
+> **template_version**：`2026.11.06.03`  
 > **完成口径**：只认开局卡 + `Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -14,26 +15,31 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 产品` 进行中 + **偏好/洞见/坑 ≤3 行**（开局卡第 2 条；`context-memory.md`）；有 `product-profile.md`→§1（每新会话一次）。涉计划读 `product-plan.md` §0·§10。  
 3. **接入**：`wf-product onboard: done` 则跳过，否则 onboard-agent 一次判定。  
-4. **择优**：不适配 → 依据+主推；二次坚持 → `deviation=`。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/cold-start.md` §1（同会话已读，不重复）。  
 5. **覆盖**：用户明确指令 > 根 AGENTS > 本文 > agent > profile。  
 6. **读取**：分级读链（开局卡 §4）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】）+ 理解→方案双确认；开局卡第 1 条已点名，细则不改档位。  
 8. **心跳**：`rule-anchor.md`。
 
-### 0.1 确认门 · 澄清 · 任务分级
+### 0.1 确认门 · 澄清 · 执行路径
 
-门只认 YAML `hitl*` + `gates.md`；澄清/`clarification.md`（理解→方案双确认硬）。
+门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step，cold-start 第 1 条）；澄清只认 `clarification.md`（理解→方案双确认硬）。
 
-| 级别 | 典型 | 必走 | 可跳过 |
+> P0～P3 为内部风险标签，按 `gates.md` §2「P 档推导」的事实判定（不凭感觉），**拿不准走全量**；档位不替代用户确认。
+
+| 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
-| P0 | 文案/配置；无 AC 变化 | intake→triage→（联动 apply→verify） | 全量 PRD/独立评审 |
-| P1 | 小范围/少 AC，已在计划 | 同上 | 全量 PRD |
-| P2 | 跨模块/AC/状态/权限 | 全链 | 无 |
-| P3 | 0→1/战略 | new-product+plan+PRD | 无 |
+| 轻量受理 | 纯文案/配置，无 AC/范围变化 | intake→triage→就地更新→verify/关闭 | 全量 PRD、独立评审 |
+| 标准产品 | AC/范围/状态/权限变化，或计划内小需求 | intake→triage→理解双确认→PRD→评审→交付 | 独立评审（P1 普通可作者自检；P1↑/P2+ 不可省）；PRD 可轻量，门不降 |
+| 新版本/0→1 | 新产品/新版本/战略 | new-product→plan→PRD→原型→交付→发布 | 无 |
+| 高风险 | 权限/资金/数据/合规/不可逆 | 标准产品 + 专项/独立评审/发布门 | 无 |
+
+**不确定**：事实不足或两条路径都能解释 → 先问 1 个关键问题；不得静默降档；用户明确要求从简才可降，并记录 `deviation=`。YAML `when` 不满足可跳过相应步，但须在收尾 `skip=` 记录理由。  
+**走链**：路径表是完整任务链/能力边界；单步口令按「入口即止」只做该步；完整任务用「按链/按计划/继续」推进到下一个门/停点。不得无提示断链，也不得越过门自动跑完。
 
 ### 0.2 硬红线
 
-1. 禁臆造。 2. AC=条件+动作+观测。 3. 无变更单不实施。 4. 未过设计评审不交开发；UAT 未过不发布。 5. 回写须 `confirm_remark`。 6～8. 见开局卡。 9. inbound/子代理/体验：UX/DX/AX 不净退化。细则 `gates.md` / playbook。  
+**产品特有红线**：回写须 `confirm_remark`；inbound/子代理/体验 UX/DX/AX 不净退化。其余硬红线见开局卡 §1（不重复）。细则 `gates.md` / playbook。  
 **原型**：开局卡第 6 条 + `prototype-coverage.md`。**交接**：`handoff.md`。**验证**：`-Claim` + `verify/README.md`。
 
 ## 1. 接入
@@ -51,8 +57,8 @@
 
 | 优先 | 命中 | workflow | 默认 agent 链 |
 | ---: | --- | --- | --- |
-| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §3（读/写 `activeContext` 本包工作总结锚点） |
-| 1 | 需求/问题/缺陷（未分类；对话/文档/链接/截图） | `change` | pm-lead（按分级条件链至下一门/关单） |
+| 0 | 工作总结/输出工作总结/今日工作总结/今日总结 | — | 直接按 `rules/templates/90-handoff/closeout-skeleton.md` §2（读/写 `activeContext` 本包工作总结锚点） |
+| 1 | 需求/问题/缺陷（未分类；对话/文档/链接/截图） | `change` | pm-lead（默认入口即止；按链/继续至下一门/关单） |
 | 2 | 启动新产品 / 新项目/从0到1/产品立项 | `new-product` | pm-analyst（discover→go→define，按链执行到下一个门） |
 | 3 | 产品计划/产品规划/路线图/版本规划 | `plan` | pm-analyst→pm-lead（goals→roadmap→scope→review-plan→publish，按链执行到下一个门） |
 | 4 | 收集需求/需求洞察/需求池 | `prd` | discover |
@@ -86,11 +92,12 @@
 | 26 | 交接状态 | `handoff` | status |
 | 27 | 变更通知/同步变更/重规划 | `handoff` | change_* / replan |
 
-**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口走 `chain: full` 到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。
+**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停（不含提交/推送/部署/回写）；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口走 `chain: full` 到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。中段以当前 `_chain`「推进」与步骤包 §4 为准，口径与本段相同。
+**路由消歧**：裸「产品缺陷」未带平台/单号/对话限定时先问或按 `change` 受理；明确平台/单号 → `defect`。
 **单条 vs 批量**：单条需求/问题/缺陷→`change`；平台缺陷→`defect`；批量洞察/需求池盘点→`prd` discover；**竞品分析/学习竞品**→`prd` discover（模式 S）；**竞品对标/功能差距**→`prd` benchmark（模式 P）；0→1→`new-product`（含模式 S）。分不清先 `change` 受理再分诊。
 **需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（`rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
-首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<读取索引行> | next_action=…`；有输入加 `input=<路径>`；`change` 加 `type=<初判>`；`defect` 加 `scope=<范围>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
+首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<实际读取来源> | next_action=…`；有输入加 `input=<路径>`；`change` 加 `type=<初判>`；`defect` 加 `scope=<范围>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
 
 ## 4. 维护
 

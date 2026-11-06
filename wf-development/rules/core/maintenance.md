@@ -25,7 +25,7 @@
 - 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好；改触发矩阵先改前者）
 - 子代理编排 → `rules/collaboration/subagents.md`（单一出处），workflow/agent 只留指针
 - 读取索引 → `rules/read-index.md`（改 step/reads 后同步）
-- 轻量档（solo）→ `rules/core/lightweight.md`；步骤 → `workflows/solo.yaml`
+- solo 路径 → `rules/core/lightweight.md`；步骤 → `workflows/solo.yaml`
 
 ## 1.1 体检 vs 装配 vs 维护
 
@@ -42,13 +42,16 @@
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-DocHygiene.ps1"
 python wf-development/rules/tools/check_skills.py wf-development --strict
+python wf-development/rules/tools/validate_semantics.py wf-development
 python wf-development/rules/tools/validate_tasklist.py <清单路径>
 python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 ```
 
 > **`check_skills.py` 必须带包根路径**（上例 `wf-development` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-development`。
 
-自检覆盖：引用可解析 + 章节锚点 + workflows→agents + 步标记词表 + 能力名声明 + 版本单点 + YAML 语法 + 技能（含反模式/反合理化闸）；另跑文档卫生检查（见 `rules/tools/README.md`）。
+自检覆盖：引用可解析 + 章节锚点 + workflows→agents + 步标记词表 + 能力名声明 + 版本单点 + YAML 语法 + 技能（含反模式/反合理化闸）+ 语义（双入口/残句/角色边标识/预算/不可达步）；另跑文档卫生检查（见 `rules/tools/README.md`）。
+
+> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows/_orch 漂移」检查。
 
 ## 3. 质量度量
 

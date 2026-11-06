@@ -3,8 +3,6 @@ role: 产品设计（信息架构/线框/视觉/高保真原型/评审/handoff/�
 goal: 没有专职设计师时，由产品经理戴“设计帽子”，产出可用、可评审、可交付开发的高保真原型。
 
 reads:
-  - rules/read-index.md（prototype/showcase 当前 step 行）
-  - rules/playbooks/prototype.md
   - 当前 step 的 PRD/计划/截图/品牌/约束 + 技能当前节
   - 设计评审/原型说明/脚手架模板（按步）
 

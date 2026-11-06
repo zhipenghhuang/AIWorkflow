@@ -66,20 +66,37 @@ if (Test-Path -LiteralPath $ctx) {
 }
 
 $rulesDir = Join-Path $Root 'rules'
+# 存量预算基线（可选）：rules/tools/doc-budget-baseline.json = { "相对路径": 允许上限 }。
+# 基线内的文件只在「超出基线」时告警（只减不增）；未登记文件一律按阈值。
+$budgetBaseline = @{}
+$baselinePath = Join-Path $rulesDir 'tools/doc-budget-baseline.json'
+if (Test-Path -LiteralPath $baselinePath) {
+    try {
+        $raw = [System.IO.File]::ReadAllText($baselinePath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+        foreach ($p in $raw.PSObject.Properties) { $budgetBaseline[$p.Name] = [int]$p.Value }
+    } catch { $warnings.Add("BUDGET_BASELINE_UNREADABLE: doc-budget-baseline.json") }
+}
 $rules = @()
 if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -Filter *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/](模板|playbooks|tools)[\\/]' }) }
 foreach ($f in $rules) {
     $n = Get-Lines $f.FullName
     $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($f.FullName, [System.Text.Encoding]::UTF8))
-    $isTemplate = $f.Name -match '模板'
+    $isTemplate = $f.FullName -match '[\\/]templates[\\/]'
     $isReference = Test-ReferenceDoc $f.FullName
+    $relKey = $f.FullName.Substring($Root.Length).TrimStart('\', '/').Replace('\', '/')
+    if ($budgetBaseline.ContainsKey($relKey)) {
+        if ($tok -gt $budgetBaseline[$relKey]) {
+            $warnings.Add("RULE_TOKEN_GROWTH: $($f.Name) ~$tok tokens (>baseline $($budgetBaseline[$relKey]); 只减不增，新增内容改指针)")
+        }
+        continue
+    }
     if (-not $isTemplate -and -not $isReference -and $tok -gt 3000) {
         $warnings.Add("RULE_TOKEN_BUDGET: $($f.Name) ~$tok tokens (>3000; split or move detail to playbook)")
     }
     if ($isReference -and $tok -gt 10000) {
         $warnings.Add("REFERENCE_TOO_LONG: $($f.Name) ~$tok tokens (>10000; split reference)")
     }
-    if ($n -gt 240 -and -not $isReference) {
+    if ($n -gt 240 -and -not $isReference -and -not $isTemplate) {
         $head = (Get-Content -LiteralPath $f.FullName -Encoding UTF8 -TotalCount 5) -join "`n"
         if ($head -notmatch 'longform') { $warnings.Add("RULE_LONG: $($f.Name) $n lines (>240; add longform or split)") }
     }
@@ -101,12 +118,6 @@ if (Test-Path -LiteralPath $skillsDir) {
 }
 
 $wfDir = Join-Path $Root 'workflows'
-if (Test-Path -LiteralPath $wfDir) {
-    foreach ($f in Get-ChildItem -LiteralPath $wfDir -File -Filter *.yaml) {
-        $t = Get-Content -LiteralPath $f.FullName -Raw -Encoding UTF8
-        if ($t -notmatch 'read_index:') { $warnings.Add("WF_NO_READ_INDEX: $($f.Name)") }
-    }
-}
 
 $readIndexPath = Join-Path $Root 'rules/read-index.md'
 if (Test-Path -LiteralPath $readIndexPath) {

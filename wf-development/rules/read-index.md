@@ -1,6 +1,6 @@
 # 读取索引（维护用 · 非运行时必读）
 
-> **维护目录**：运行时读链只认 `cold-start` + 当前 YAML step + `rules/packets/<wf>/<step>.md`（+ 可选一个模板）。  
+> **维护目录**：运行时读链只认 `cold-start` + `_chain`/`_region`（进 workflow/子区一次）+ 当前步骤包 + 命中 skill；read-index/playbook 仅当前步骤包点名时按节读。  
 > 本文不再作为 AI 执行必读；改步骤规则以 packets 为准，可用 `rules/tools/build_step_packets.py` 重生。  
 > 下列表格仅供维护者对照历史 MUST/RUN/REF 与口令定位。
 
@@ -8,7 +8,7 @@
 
 | MUST | RUN | REF |
 | --- | --- | --- |
-| cold-start（新会话/切步心跳时）· workflow 当前 step 块 · 当前 agent · 当前产物/证据 | 心跳（切步/过门） | 他包 AGENTS、他 workflow 全文、全本 skills/模板 |
+| cold-start（新会话/切步心跳时）· workflow 当前 step 块 · 当前产物/证据（`agents/<id>.yaml` 仅派工/改角色时） | 心跳（切步/过门） | 他包 AGENTS、他 workflow 全文、全本 skills/模板 |
 
 定位（不计入 MUST）：`doc-governance.md` §2.4；`activeContext` 总览+进行中+**偏好/洞见/坑≤3**；`project-profile.md` §1+§2。
 
@@ -16,7 +16,7 @@
 
 | step | MUST | RUN | REF |
 | --- | --- | --- | --- |
-| 工作总结口令 | `closeout-skeleton.md` §1 · activeContext 工作总结锚点 | 写锚点区间 | git 日志 |
+| 工作总结口令 | `closeout-skeleton.md` §2 · activeContext 工作总结锚点 | 写锚点区间 | git 日志 |
 | 无口令/意图不明 | `routing.md` §0～§6 · profile §1/§7/§8 | 首条 `reason=` | 附录 |
 | control.init/run/sync/check/next | control 当前块 · `development-plan` 技能当前节 · 计划现状 | 同步计划状态 | 计划模板；有原型 +product-doc-analysis |
 | change.clarify | change 当前块 · `clarification.md` 当前节 | 意图确认回执 | requirements 技能 |

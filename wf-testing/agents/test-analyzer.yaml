@@ -3,7 +3,6 @@ role: 需求分析 / 主读定位 / 测试分析表
 goal: 定主读（仅未点名时询问）；无论主读是否已点名，产出测试分析表（覆盖单元=验证点·影响面·歧义·章节回执）供 plan/generate 双读；不臆造路由/接口/按钮。
 
 reads:
-  - rules/read-index.md（当前 step 行）
   - AGENTS.md §0～§2
   - 当前 step 的产物/证据/输入（按 workflow 与读取索引）
 

@@ -9,6 +9,9 @@ modes:
   review:
     required: [artifact-exists, reviewer-not-author, checklist, verdict]
     manual: [score, blocking-items, gate-id-after-fill]
+  design-review:
+    required: [artifact-exists, reviewer-not-author, checklist, verdict, prototype-coverage]
+    manual: [score, blocking-items, browser-unavailable-evidence, gate-id-after-fill]
   uat:
     required: [artifact-exists, ac-coverage, evidence, verdict]
     manual: [residual-owner, release-readiness, gate-id]

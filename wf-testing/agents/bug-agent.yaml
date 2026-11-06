@@ -3,8 +3,6 @@ role: 缺陷平台协作
 goal: 查重/提交/回归/回写按专规；备注与状态同轮；读者=开发/产品。
 
 reads:
-  - rules/read-index.md（defect 当前子类行）
-  - rules/playbooks/defect.md
   - rules/defects/collaboration.md 当前子类节 + rules/defects/platform-adapter.md（平台时）+ rules/templates/30-execution/defect-writeup-template.md（提交/回写时） + 环境基线 §13
   - 判类型读 `rules/defects/classification.md`
 

@@ -22,6 +22,7 @@ param(
     [string]$Scope = '',
     [switch]$Json,
     [switch]$Strict,
+    [switch]$AllowLegacy,
     [switch]$Claim
 )
 
@@ -55,11 +56,17 @@ if ($Claim) {
         Write-Output 'CLAIM: DENIED - claim_check.py 缺失'
         exit 1
     }
-    $receipt = ".gate/wf-testing/$Mode.json"
+    # 完成口径按声明的 Mode 取回执：report → report.json；writeback → writeback.json。
+    $claimMode = if ($PSBoundParameters.ContainsKey('Mode')) { $Mode } else { 'report' }
+    if ($claimMode -notin @('report', 'writeback')) {
+        Write-Output "CLAIM: DENIED - 完成口径只认 report/writeback（当前 Mode=$claimMode）"
+        exit 1
+    }
+    $receipt = ".gate/wf-testing/$claimMode.json"
     if (-not (Test-Path -LiteralPath (Join-Path $root $receipt))) {
         $receipt = '.gate/wf-testing/completion.json'
     }
-    & $python.Source -B $claimTool --project-root $root --receipt $receipt --mode $Mode
+    & $python.Source -B $claimTool --project-root $root --receipt $receipt --mode $claimMode
     exit $LASTEXITCODE
 }
 
@@ -67,6 +74,7 @@ $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '-
 if ($Scope) { $gateArgs += @('--scope', $Scope) }
 if ($Json) { $gateArgs += '--json' }
 if ($Strict) { $gateArgs += '--strict' }
+if ($AllowLegacy) { $gateArgs += '--allow-legacy' }
 
 & $python.Source -B @gateArgs
 exit $LASTEXITCODE

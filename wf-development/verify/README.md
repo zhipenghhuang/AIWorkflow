@@ -7,12 +7,12 @@
 
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
-| L0 | 单文件/文案/配置，无行为/契约/权限/数据变化 | build + test（定向或全仓）+ 冒烟 | 命令+退出码；空任务窗口 = NOT_VERIFIED |
-| L1 | 多文件、普通功能、前端行为变化 | L0 + lint + E2E（前端）+ 前端十三项 QA（含交互诚实）+ 路由覆盖 | 每条变更路由桌面+移动截图、route-coverage.json、console/network |
-| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix | 评审记录、security/rollback、parity-matrix、plan-coverage |
+| L0 | 纯文档/文案/注释，无代码/配置/行为/契约/权限/数据变化 | `docs-links` + `docs-placeholders` | 链接/占位检查结果；空任务窗口 = NOT_VERIFIED |
+| L1 | 多文件、普通功能、代码或配置变更、前端行为变化 | build + lint（定向或全仓）+ test（定向或全仓）+ 冒烟 + E2E（前端）+ 前端十三项 QA（含交互诚实）+ 路由覆盖 | 命令+退出码；每条变更路由桌面+移动截图、route-coverage.json、console/network |
+| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、plan-coverage、`nfr.security`/`nfr.performance` |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
-前端最低 L1；纯文案可 L0-light，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
+前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 **轻量轨（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出最小充分集并实测，报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
@@ -22,6 +22,8 @@
 ## 2. 一次任务怎么跑
 
 1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
+   > **L2+ 非功能**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）；缺省或空写 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
+   > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、test、smoke 中已配置的命令；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`。
 2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十三项含交互诚实 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
 3. 收尾：
@@ -41,10 +43,10 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 
 | 文件 | 作用 |
 | --- | --- |
-| `checks.yaml` | 人读的策略：变更类型 → 最低检查集 |
-| `templates/project-profile.example.json` | 项目命令/前端 URL/视口的可选配置；复制为 `.gate/project-profile.json` |
+| `checks.yaml` | 人读的策略：变更类型 → 最低检查集（含 L2+ `nfr-baseline`） |
+| `templates/project-profile.example.json` | 项目命令/前端 URL/视口的可选配置（含可选 `perf` 性能基准命令）；复制为 `.gate/project-profile.json` |
 | `Invoke-Gate.ps1` | 唯一入口；调用 `tools/gate.py` |
-| `tools/gate.py` | 变更分级、验收清单解析、检查执行、`completion.json` |
+| `tools/gate.py` | 变更分级、验收清单解析、nfr 校验、检查执行、`completion.json` |
 | `verify/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
 | `verify/tools/report_lint.py` | 收尾对账：回执/verdict/禁词/证据 + 六点版式、汇报块、第 2/4/6 点固定子字段、附录；`--format-only` 跳过门禁 |
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
@@ -83,6 +85,7 @@ python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/front
 ## 5. 成本纪律
 
 - 配了 `*_scoped` → 定向；未配 → 全仓 `project-*`（诚实标 id）。全量回归仍留给发布/L3。
+- 配了 `perf`/`security` 命令 → L2+ 必跑；失败即 BLOCKED，不降级为“人工看过”。
 - 全量测试单实例串行，日志落 `.gate/logs/`；中断/并发/超时 = 未验证，不得用旧数字补报告。
 - 截图桌面+移动各 1/页；JPEG/WebP；不默认 HTML/trace/video；同一截图哈希不得跨路由复用。
 - 门按本轮 `base_commit`+验收重跑；不复用旧回执；早于任务开始的截图 → BLOCKED；`-StartTask` 会递归清理 `.gate/frontend/` 旧媒体。

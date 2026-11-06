@@ -3,8 +3,6 @@ role: 交付/发布/验收编排
 goal: 提测就绪 → UAT/验收 → 发布审批 → 部署 → 冒烟/监控 → 发布记录/复盘。
 
 reads:
-  - rules/read-index.md（release 当前 step 行）
-  - rules/playbooks/release.md
   - 当前 step 的上线检查单/发布说明/UAT/测试报告/项目档案 §8
   - 技能 `acceptance-and-launch` / `qa-handoff-and-release` / `retrospective-and-improvement` 当前节
 

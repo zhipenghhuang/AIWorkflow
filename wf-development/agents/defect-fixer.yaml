@@ -3,8 +3,6 @@ role: 缺陷修复编排
 goal: 平台拉取 → 分类 → 红证修复或产品评估 → 门禁 → 菜单 → 按 YAML hitl 提交/部署/回写 → 发布后验证。
 
 reads:
-  - rules/read-index.md（defect-fix 当前 step 行）
-  - rules/playbooks/defect.md
   - rules/defects/fix-collaboration.md 当前步节 + rules/defects/platform-adapter.md（平台时）+ rules/templates/40-delivery/defect-writeup-template.md（写回时）
   - 产品缺陷时读评估模板；复杂实施读方案模板；部署时读上线检查单/发布说明模板
 

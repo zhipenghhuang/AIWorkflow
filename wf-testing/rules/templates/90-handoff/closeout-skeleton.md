@@ -9,11 +9,12 @@
 ```text
 【任务收尾】
 【验证回执】结论={可准出|有条件准出|不准出|阻塞|未验证|不适用} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 未验证={n|列表|无}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | reads={≤5 或 +n} | gates={id=verdict} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无} | exec_mode={脚本|直跑|模块子代理|拆分|na} | pg={PG-xx|na} | econ={脚本优先;同页簇;造数一次|na}
 ```
 
 - 有报告门 → 与 `.gate/wf-testing/report.json` 一致（`PASS/CONDITIONAL/FAIL/BLOCKED`）；无门 → `不适用` + 依据，不伪造。  
 - 标题按场景可换【生成收尾】/【执行收尾】。无计划 `triad=na`；未触门面 `facade=na`。  
+- **execute 收尾**：`exec_mode=` / `pg=` 必填（无并行写 `pg=na`）；`econ=` 写本批经济要点或 `na`+理由。非执行步三者可 `na`。  
 - `python verify/tools/check_compliance.py --report <本文件>`。
 
 ## 0.5 表达（可复制块）
@@ -27,7 +28,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 未验证={…}
-【遵守自检】route={…} | mode={…} | reads={…} | gates={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
+【遵守自检】route={…} | mode={…} | packet={…} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…} | exec_mode={…} | pg={…} | econ={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，通过率：{P%}，{通过}/{总数}，败{a}/阻{b}/待实现{c}）：{覆盖；主链路；失败/阻塞影响；未测不得写「无阻断」}
@@ -90,12 +91,15 @@
 - **{产品}·{版本} 测试** —— 完成度: {进度一句}
   - **{计划短名}**（{确认态}）：{静态范围/顺序/准入；禁写今日进度}
   - 【今日工作总结】{yyyy-MM-dd}｜{产品}·{版本}｜测试
-    - #{id} [功能|接口|探索] **{名}**（{结论}，{通}/{总数}，败{a}/阻{b}）：{覆盖与发现}｜验证：{…}
-    - 新发现问题：
+    - **测试内容：{测试名}**
+      - #{id} [功能|接口|探索] **{名}**（{结论}，{通}/{总数}，败{a}/阻{b}）：{覆盖与发现}｜验证：{…}
+    - **新发现问题**
       - #{号} **{短标题}**：{一句}
+    - **已关闭**
+      - #{号} **{短标题}**：{回归结论/依据}
 ```
 
-计划内功能+接口+探索同一轨平铺；仅缺陷回归/计划外随机可另轨。
+同一测试内容内功能/接口/探索平铺；多条测试内容并列多个组。结果组按实际增减（新发现问题/已关闭/仍失败·激活/待澄清），无内容的组整组省略；缺陷回归/计划外随机仍可另轨（另起总标题）。
 
 ## 3. 输出分级
 

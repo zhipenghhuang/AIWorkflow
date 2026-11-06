@@ -305,6 +305,26 @@ def parse_analysis(test_root: Path) -> dict[str, Any]:
         if ("接口" in basis_text or "API" in basis_text) and not api_row:
             issues.append("§2.4 分析含接口/API 依据，但覆盖表没有 接口/字段/权限/错误码 行")
 
+    # §2.5 detail coverage (UI/interaction/state consistency)
+    block25 = subsection(text, "2.5")
+    t25 = pick_table(block25, ["细节维", "适用", "验证点ID"])
+    if not t25:
+        issues.append("§2.5 细节设计覆盖表缺失或表头不可读")
+    else:
+        headers, rows = t25
+        for row in rows:
+            if not row or not row[0] or row[0] in ("细节维", "—"):
+                continue
+            apply = get_cell(row, headers, "适用")
+            vp = get_cell(row, headers, "验证点ID")
+            gap = get_cell(row, headers, "缺口/理由")
+            if apply not in ("是", "否"):
+                issues.append(f"§2.5「{row[0]}」适用未填 是/否")
+            elif apply == "是" and is_blank_cell(vp):
+                issues.append(f"§2.5「{row[0]}」适用但缺验证点ID")
+            elif apply == "否" and is_blank_cell(gap):
+                issues.append(f"§2.5「{row[0]}」不适用但缺依据")
+
     # §3.1 change impact
     block31 = subsection(text, "3.1")
     t31 = pick_table(block31, ["变更点 ID", "回归点"])
@@ -379,10 +399,24 @@ def _is_lite_plan(text: str) -> bool:
     return False
 
 
+def _is_release_plan(text: str) -> bool:
+    """轻量计划不得声明版本准出；版本/发布必须用完整计划。"""
+    head = text[:2500]
+    return bool(re.search(r"版本准出\s*[=:：]\s*(是|yes|true)", head, re.I))
+
+
 def parse_plan_structure(plan: Path) -> dict[str, Any]:
     text = read(plan)
     is_version = bool(re.search(r"^#{2,3}\s*3\.8(?:\s|$)", text, re.M)) or "版本级四卷" in text
     is_lite = _is_lite_plan(text)
+
+    # 轻量不得冒充版本级：声明版本准出或带版本级四卷 → 必须完整计划。
+    if is_lite and (_is_release_plan(text) or is_version):
+        return {
+            "issues": ["轻量计划不得声明版本准出=是或包含版本级四卷；版本/发布请用完整计划"],
+            "legacy": False,
+            "tier": "lite",
+        }
 
     # Lite (T0/T1): minimal matrix/exit/risk — never label as legacy.
     if is_lite and not is_version:
@@ -760,6 +794,7 @@ def parse_coverage(root: Path, scope: str | None = None, valid_vp_ids: set[str] 
     seen = 0
     files = 0
     legacy_cases = 0
+    referenced: set[str] = set()
     base = root / "functional"
     if not base.is_dir():
         base = root / "功能测试"
@@ -800,6 +835,10 @@ def parse_coverage(root: Path, scope: str | None = None, valid_vp_ids: set[str] 
                     vp_issues.append(f"{p.relative_to(root)}: 用例「{row[0]}」缺验证点")
                 elif valid_vp_ids and vp not in valid_vp_ids:
                     vp_issues.append(f"{p.relative_to(root)}: 用例「{row[0]}」验证点「{vp}」不在分析表 §2")
+                for ref in re.split(r"[/,，、;；\s]+", vp):
+                    ref = ref.strip("` ")
+                    if ref and ref not in ("—", "待补"):
+                        referenced.add(ref)
         else:
             legacy_cases += 1
         if vp_idx is not None:
@@ -833,7 +872,51 @@ def parse_coverage(root: Path, scope: str | None = None, valid_vp_ids: set[str] 
             issues.append(f"{p.relative_to(root)}: §4 缺少「深度档自检」（映射无空≠深度够）")
         if not re.search(r"视觉基础|视觉/UI|无\s*UI", summary_src):
             issues.append(f"{p.relative_to(root)}: §4 缺少「视觉基础」行（或明示无 UI）")
-    return {"issues": issues, "missing": missing, "vp_issues": vp_issues, "oracle_issues": oracle_issues, "seen": seen, "files": files, "legacy_cases": legacy_cases}
+    return {"issues": issues, "missing": missing, "vp_issues": vp_issues, "oracle_issues": oracle_issues, "seen": seen, "files": files, "legacy_cases": legacy_cases, "referenced": referenced}
+
+
+def parse_vp_meta(test_root: Path) -> dict[str, dict[str, str]]:
+    """§2 验证点的优先级/类型/处置，用于覆盖率对账。"""
+    p = find_analysis(test_root)
+    if p is None:
+        return {}
+    text = read(p)
+    if not (re.search(r"^#{2,3}\s*2\.2(?:\s|$)", text, re.M) or "模块×面" in text):
+        return {}
+    block2 = h2_section(text, "2.")
+    t2 = pick_table(block2, ["单元ID", "方法", "归属"])
+    if not t2:
+        return {}
+    headers, rows = t2
+    out: dict[str, dict[str, str]] = {}
+    for row in rows:
+        if not row or not row[0] or row[0] in ("单元ID", "—"):
+            continue
+        out[row[0].strip()] = {
+            "pri": get_cell(row, headers, "优先级"),
+            "typ": get_cell(row, headers, "类型"),
+            "disp": get_cell(row, headers, "处置"),
+        }
+    return out
+
+
+def parse_vp_conclusions(test_root: Path) -> dict[str, str]:
+    """§2.1 执行期回填的验证点结论。"""
+    p = find_analysis(test_root)
+    if p is None:
+        return {}
+    text = read(p)
+    block21 = subsection(text, "2.1")
+    t = pick_table(block21, ["单元ID", "结论"])
+    if not t:
+        return {}
+    headers, rows = t
+    out: dict[str, str] = {}
+    for row in rows:
+        if not row or not row[0] or row[0] in ("单元ID", "—"):
+            continue
+        out[row[0].strip()] = get_cell(row, headers, "结论")
+    return out
 
 
 def extract_p0_ids(*texts: str) -> set[str]:
@@ -1001,8 +1084,11 @@ def main() -> int:
     ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage", "review"], default="report")
     ap.add_argument("--scope", default="", help="步后门范围（execute 推荐）；report 忽略。例: 16-ASN 或 functional/16")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--strict", action="store_true", help="旧格式 analysis/plan/case/report 也按 FAIL 处理（新项目建议开启）")
+    ap.add_argument("--strict", action="store_true", default=True, help="旧格式 analysis/plan/case/report 按 FAIL 处理（默认开启）")
+    ap.add_argument("--allow-legacy", action="store_true", help="兼容旧格式（仅迁移期显式使用）")
     args = ap.parse_args()
+    if args.allow_legacy:
+        args.strict = False
 
     package_root = Path(args.package_root).resolve()
     project_root = Path(args.project_root).resolve() if args.project_root else default_project_root(package_root)
@@ -1094,6 +1180,22 @@ def main() -> int:
             else:
                 checks.append({"id": "plan-exists", "status": "pass", "detail": str(plan)})
 
+        if args.mode == "execute":
+            rec = pick_case_review_record(find_review_records(test_root))
+            if not rec:
+                blocked.append("execute 前缺少用例评审记录（reviews/ 现行 *-评审-*.md）")
+                checks.append({"id": "execute-review", "status": "blocked", "detail": "missing"})
+            else:
+                parsed_rev = parse_review(rec)
+                released = parsed_rev["conclusion"] in ("放行执行", "有条件放行") and not parsed_rev["issues"]
+                checks.append({
+                    "id": "execute-review",
+                    "status": "pass" if released else "fail",
+                    "detail": f"{parsed_rev['path']}：{parsed_rev['conclusion'] or '无结论'}",
+                })
+                if not released:
+                    blocked.append("用例评审未放行，不得执行")
+
         # New-format analysis/plan gates. Legacy files are skipped (visible in checks),
         # so existing instances keep running until migrated; new templates are hard-gated.
         analysis = parse_analysis(test_root)
@@ -1103,7 +1205,11 @@ def main() -> int:
             "detail": analysis["issues"][:12] or analysis.get("path") or "ok",
         })
         if analysis.get("legacy"):
-            checks.append({"id": "analysis-legacy", "status": "skip", "detail": "legacy analysis; new matrices not gated"})
+            if args.allow_legacy:
+                checks.append({"id": "analysis-legacy", "status": "skip", "detail": "legacy allowed"})
+            else:
+                checks.append({"id": "analysis-legacy", "status": "fail",
+                               "detail": "旧格式分析（缺 §2.2/§2.5）；迁移或显式 --allow-legacy"})
         if plan.is_file():
             plan_struct = parse_plan_structure(plan)
             tier = plan_struct.get("tier") or ("legacy" if plan_struct.get("legacy") else "version")
@@ -1178,8 +1284,33 @@ def main() -> int:
                 rep_struct = parse_report_structure(read(report))
                 checks.append({"id": "report-structure", "status": "fail" if rep_struct["issues"] else "pass",
                                "detail": rep_struct["issues"][:10] or "ok"})
+                rep_text = read(report)
+                has_trace = bool(re.search(r"^##\s*10\.", rep_text, re.M)) and "追溯" in rep_text
+                checks.append({"id": "report-trace", "status": "pass" if has_trace else "fail",
+                               "detail": "§10 追溯矩阵" if has_trace else "缺 §10 追溯矩阵（PRD F/A/AC → 用例 → 结果 → 缺陷）"})
+                if re.search(r"UI|视觉|无障碍|页面", rep_text):
+                    sec8 = re.search(r"^##\s*8\..*?(?=\n## |\Z)", rep_text, re.S | re.M)
+                    paths = re.findall(r"`([^`\n]+\.(?:png|jpe?g|webp|json|log|zip))`", sec8.group(0) if sec8 else "")
+                    found = False
+                    for rel in paths[:20]:
+                        for base in (project_root, test_root):
+                            cand = base / rel
+                            if cand.is_file() and cand.stat().st_size > 0:
+                                found = True
+                                break
+                        if found:
+                            break
+                    checks.append({
+                        "id": "ui-evidence",
+                        "status": "pass" if found else "fail",
+                        "detail": f"UI 证据附件 {len(paths)} 条" if found else "UI 报告缺可打开的证据附件（§8）",
+                    })
                 if rep_struct.get("legacy"):
-                    checks.append({"id": "report-legacy", "status": "skip", "detail": "legacy report; volume/point/batch tables not gated"})
+                    if args.allow_legacy:
+                        checks.append({"id": "report-legacy", "status": "skip", "detail": "legacy allowed"})
+                    else:
+                        checks.append({"id": "report-legacy", "status": "fail",
+                                       "detail": "旧格式报告；迁移或显式 --allow-legacy"})
                 reported_verdict = parsed["verdict"]
                 receipt_verdict = parsed["receipt_verdict"]
                 conditional_accepted = reported_verdict == "CONDITIONAL" and bool(
@@ -1224,6 +1355,37 @@ def main() -> int:
             cov_issues += cov["missing"]
             if cov["files"] > 0 and cov["seen"] == 0:
                 cov_issues.append("功能测试资产缺少设计点覆盖映射（覆盖三闸）")
+            if not analysis.get("legacy"):
+                vp_meta = parse_vp_meta(test_root)
+                referenced = cov.get("referenced", set())
+                uncovered = [
+                    (vid, m) for vid, m in vp_meta.items()
+                    if "不测" not in (m.get("disp") or "") and vid not in referenced
+                ]
+                if uncovered:
+                    hard = [
+                        u for u in uncovered
+                        if (u[1].get("pri") or "").startswith("P0")
+                        or "GATE" in u[0]
+                        or "负向" in (u[1].get("typ") or "")
+                    ]
+                    cov_issues.append(
+                        f"未覆盖验证点 {len(uncovered)} 个"
+                        + (f"（P0/GATE/负向 {len(hard)}）" if hard else "")
+                        + "：" + "、".join(v for v, _ in uncovered[:8])
+                    )
+                if args.mode == "report":
+                    concl = parse_vp_conclusions(test_root)
+                    missing_concl = [
+                        vid for vid, m in vp_meta.items()
+                        if ("P0" in (m.get("pri") or "") or "GATE" in vid or "负向" in (m.get("typ") or ""))
+                        and not (concl.get(vid) or "").strip()
+                    ]
+                    if missing_concl:
+                        cov_issues.append(
+                            f"§2.1 缺验证点结论 {len(missing_concl)} 个（P0/GATE/负向）："
+                            + "、".join(missing_concl[:8])
+                        )
         cov_detail: Any = cov_issues[:10] if cov_issues else "ok"
         if args.mode == "execute":
             cov_detail = f"{cov_detail} (execute: soft)"

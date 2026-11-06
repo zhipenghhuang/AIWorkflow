@@ -10,7 +10,7 @@
 【任务收尾】
 【验证回执】结论={通过|部分通过|阻塞|未验证} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 未验证={n|列表|无}
 【开发自验】verdict={PASS|CONDITIONAL|FAIL|N/A} | AC走查={齐|缺口} | 报告={路径或方案卡节/无} | 说明={一句；禁写准出}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | reads={≤5 或 +n} | gates={id=verdict} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
 ```
 
 - 回执须与 `.gate/wf-development/completion.json` 一致；无回执不得写「完成/通过」。中文结论 ↔ `COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED`。  
@@ -33,7 +33,7 @@
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 未验证={…}
 【开发自验】verdict={…} | AC走查={…} | 报告={…} | 说明={…}
-【遵守自检】route={…} | mode={…} | reads={…} | gates={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
+【遵守自检】route={…} | mode={…} | packet={…} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，{完成}/{总数}，{P%}）：{覆盖面；主链路；遗留/风险；未验证不得写「无阻断」}
@@ -63,7 +63,7 @@
    默认（不回复即执行）：{仅非阻塞 D 等可默认项|无}
    回复：{编号=选项|全部按建议|无}
    可转发产品：{…|无}
-5. 还存在什么问题或风险：
+5. 还存在什么问题或风险（含主动发现：问题+依据+建议+是否阻塞）：
    {遗留风险|无}
 6. 当前进度与下一步：
    当前：{阶段/门（代号+中文）/健康度/阻塞/完成门 x/y/下一门}
@@ -96,12 +96,15 @@
 - **{产品}·{版本} 开发** —— 完成度: {P%}，{进度一句}
   - **{计划短名}**（{确认态}）：{静态范围/设计/验收简介；禁写下一步}
   - 【今日工作总结】{yyyy-MM-dd}｜{产品}·{版本}｜开发
-    - #{id} [{类别}] **{标题}**：{工作}｜实现：{…}｜文件：{…}｜验证：{…}
-    - 新发现问题：
+    - **开发内容**
+      - #{id} **{标题}**：{工作}｜实现：{…}｜文件：{…}｜验证：{…}
+    - **缺陷修复处理总结**（{n} 项）
+      - #{id} [{类别}] **{标题}**：{问题}｜修复：{…}｜文件：{…}｜验证：{…}
+    - **新发现问题**
       - #{号} **{短标题}**：{一句}
 ```
 
-只汇总区间增量；【今日】下直接分点，禁中间导语层。
+只汇总区间增量；【今日】下按内容分组，组内直接分点，无内容的组整组省略。有缺陷时须先出「缺陷修复处理总结」组标题，不得从缺陷条直接起；产品缺陷行按 `rules/defects/fix-collaboration.md` §4.3 字段（判定｜评估单｜产品结论｜对齐）。
 
 ## 3. 输出分级
 

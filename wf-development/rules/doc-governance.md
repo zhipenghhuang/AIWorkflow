@@ -245,6 +245,10 @@ docs/materials/
 
 何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。新任务 `-StartTask` 可清空 `.gate/frontend/` 旧媒体，不等同关账全清 `.gate`。
 
+**保留窗口**：`.draft/` 完结即删，>7 天未改列候选；`.gate/logs` >7 天；`.gate/frontend` 只保留当前任务（新任务 `-StartTask` 清旧媒体）；`.gate/*.json` 保留当前 + 最近 5 个任务；更早的在点名清理或关账时归档 `_archive/gate/{yyyyMMdd}/`（需确认，`clean_temp.py` 不自动删 JSON）。
+
+**一键清理**：`python rules/tools/clean_temp.py --project-root .`（默认 dry-run；`--apply` 才删；`--reset-frontend` 清当前前端媒体；只动缓存/过期临时，不碰源文件、证据 JSON、`_archive`）。
+
 **材料库旧版本不自动清理**；要删必须用户确认。
 
 ## 9. 输出骨架

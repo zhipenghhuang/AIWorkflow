@@ -2,6 +2,7 @@
 # 确认后冻结；实施中新增/变更 AC 走变更记录。
 # 规范包只读：勿写入 wf-development/verify/。
 # 实施质量（DEV-IQ）：有行为须 implement_preflight；取重时 sc_trace/cross_layer/baseline_smoke/debts 不可空；见 implementation-quality.md §8
+# 非功能（L2+）：nfr.security / nfr.performance 必填（done+证据 或 na+理由）；见 verification.md DEV-VER-19
 task_id: DEV-{yyyyMMdd}-{NNN}
 title: "{主题}"
 level: L2            # L0/L1/L2/L3；L2+ 必须有 process.review
@@ -30,6 +31,13 @@ sc_trace: "{workroot}/40-tasks/任务清单-….md#SC"   # 或 inline 表路径�
 cross_layer: done   # done | na | missing — 权限/状态/基数/多表面命中须 done
 baseline_smoke: na  # done | na | missing — 增量沿用基线时须 done
 debts: []           # ["DEBT-01"] 或 []；裁剪/豁免须非空 ID 列表或显式无
+# 非功能影响与证据（L2+ 必填；值为 done: <路径/命令/指标> 或 na: <理由>）
+# 安全基线见 threat-modeling §3.1，性能预算见 performance-and-capacity §2.1
+nfr:
+  security: "done: .gate/security/baseline.md（越权负例 2 条；依赖审计无高危）"
+  performance: "done: .gate/perf/bench.md（列表 p95 120ms；23 SQL；首屏 554KB）"
+  # 不适用示例：security: "na: 纯文案/样式调整，无鉴权、数据、上传或外部调用变化"
+  # 不适用示例：performance: "na: 无运行时路径（纯文档）"
 scope_files: []                      # L2+ 建议填：允许改动的代码路径/文件
 non_goals:
   - "{明确不做}"

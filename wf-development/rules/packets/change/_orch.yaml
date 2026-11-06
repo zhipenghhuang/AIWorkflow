@@ -3,19 +3,21 @@
 workflow: change
 purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
 steps:
-  analyze_input: 只读输入； Brief+差量表必填；DEV-AC 进开发，QA/REL-AC 转交接。 confirm_understanding 主屏=+待确认摘要；未确认不进基线/设计/实施。 细节只认 product-doc-analysis
-    必做区（含用户版说明、P/D/S）。
+  analyze_input: 只读输入； Brief+差量表必填；DEV-AC 进开发，QA/REL-AC 转交接。 confirm_understanding 主屏=理解包 §0（Brief+差量表）+(P/D/S) 用户版+待确认摘要；未确认不进基线/设计/实施。
+    细节只认 product-doc-analysis 必做区（含用户版说明、P/D/S）。
   clarify: 按 clarification + requirements-and-spec 必做；一次一问；L0 轻量回执、L2+ 进 requirements。 有 PRD/原型 → 下一步 analyze_input；交接包先 handoff.receive。禁本步
-    -StartTask。 外部输入/关账见 doc-governance REF；分级见 AGENTS 。
-  commit: 无变更则跳过 hitl；【拟提交】字段见 workflow.md REF。默认仅本地提交；禁擅自切主干/force push。
-  deliver: 自洽提测单真源 60-release/，同轮拷 handoff/outbound；未 COMPLETE 不得标可提测。 跳过本步≠跳过自验。附加 HO 包另走 handoff。
-  design: L0 可跳过；L1 本步 confirm_spec；L2+ 落盘后进 review-docs。 子域技能（api/db/frontend/threat/…）按变更面 REF 当前节；前端补设计说明模板。
-  implement: -StartTask → 预检 → 按 SC 落地 → 自测；无 UI 时 frontend-gate 标 na。 有原型加 skills product-doc-analysis + frontend-implementation；禁刷绿；subagents
-    REF。
-  plan: 只读不改代码；拆 SC 后自检 + validate_tasklist.py；写入 review_required。 IQ 词典 REF；L1 小批 notify，L2+ 实质变化才 approve。
-  release_handoff: 本步不直接部署；建议 REL 包经 handoff；生产部署走 release.yaml + confirm_deploy。
+    -StartTask。 外部输入/关账见 `rules/doc-governance.md`；分级见 AGENTS。
+  commit: 无变更则跳过 hitl；【拟提交】字段见 `rules/workflow.md`。默认仅本地提交；禁擅自切主干/force push。
+  deliver: 自洽提测单真源 60-release，同轮拷 handoff/outbound；未 COMPLETE 不得标可提测。 跳过本步≠跳过自验。附加 HO 包另走 handoff。
+  design: L0 可跳过；L1 本步 confirm_spec；L2+ 落盘后进 review-docs。 子域技能（api/db/frontend/threat/…）按变更面读对应技能当前节；前端补设计说明模板。
+  implement: -StartTask → 勾选 iq-checklist → 预检（命中须扩 SC/债项）→ 按 SC 逐条自证落地（单元=一条 SC）→ 自测；无 UI 时 frontend-gate 标 na。 有原型加 skills
+    product-doc-analysis + frontend-implementation；禁刷绿/主路径先合；子代理按 `rules/collaboration/subagents.md`。
+  plan: 只读不改代码；拆 SC 后自检 + validate_tasklist.py；写入 review_required。 IQ 词典见 `rules/core/implementation-quality.md`；L1 小批 notify，L2+
+    实质变化才 approve。
+  release_handoff: 本步不直接部署；建议 REL 包经 handoff；生产部署重新路由 `release`（说「发布」→ readiness），本步只出就绪包，不部署、不改生产。
   requirements: 有理解包则引用不重读全文；只收 DEV-AC；GAP/冲突必须继承。 未签收不得进设计/排期；L2+ 跳过 design 时基线仍须经 review-docs。
-  review: 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md。有 UI 核 parity 产物。 免审须记理由；免审不免自测。方法只认 code-review 。
+  review: 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md。有 UI 核 parity 产物。 免审须记理由；免审不免自测。方法只认 code-review。
   review-docs: STOP 选 A/B；未选不得 implement。本步不审 diff（代码走 review）。 方法只认 design-doc-review 必做区。
-  verify: 'Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE 不得进 deliver/commit。 无 QA 时开发自验报告必齐（lightweight ）；有 UI 跑 frontend_parity。'
+  verify: 'Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE 不得进 deliver/commit。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有
+    UI 跑 frontend_parity。'
   wrap: 只认 closeout-skeleton ～；含验证回执+遵守自检+汇报。同步 plan/INDEX/activeContext（triad）。 有门回执时跑 verify/Test-Report.ps1；完整【拟提交】留待 commit。

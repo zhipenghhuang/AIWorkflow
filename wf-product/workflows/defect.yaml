@@ -10,7 +10,6 @@ entry_points:
   我的产品缺陷: preflight
   缺陷平台产品缺陷: preflight
   禅道产品缺陷: preflight
-  产品缺陷: preflight
   产品缺陷评审: preflight
   开发评估单评审: preflight
   产品缺陷处置: preflight

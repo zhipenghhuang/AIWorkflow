@@ -9,7 +9,11 @@
 - **workflow**：`handoff`
 - **step**：`receive`（接收与签收）
 - **packet**：`rules/packets/handoff/receive.md`
-- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **角色**：`test-planner`（测试计划（企业级计划 + 执行编排唯一载体））。从主读与测试分析表产出完整可执行的 `{workroot}/test-plan.md`；本步只做该角色职责；越界交回或升级。
+- **上游**：`send`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
+- **后续**：`change_send`
+- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
+- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 - **父状态机**：`rules/packets/handoff/_chain.md`（进 workflow 一次）。
 
 ## 2. 本步目标
@@ -19,30 +23,32 @@
 
 ## 3. 本步硬约束
 
-### 开局硬约束（本步可执行摘要）
+### 开局硬门（3 条；其余见 cold-start §1）
 
-- 1. **先意图、再动作**（`confirm_task_intent`）：未确认禁生成正式用例/交平台。
-- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
-- 3. **依据先建模**：分析表 §0；无 §0 禁正式生成与功能准出。
-- 4. **状态机读链 + 技能闭环**：见本包「本步读链与防丢失」。必开 skill 须打开→执行→回步骤包（质量不降）。
-- 5. **完成分层**：`-Claim -Mode report|writeback` → 只认 `CLAIM: ALLOWED`。
-- 6. **UI 证据 E1**：实点 + 截图/Network；E0 不得单独 pass。
-- 7. **能脚本不 AI**；禁刷绿；P0 未过不得整体通过。
-- 8. **切步/出子机 → 心跳**，必带 `packet=`。
+- 1. **每轮先判、再动手**：先判新任务/续跑/只读；新任务或范围变化 → 复述目标/范围/验收并确认；续跑一行确认；只读一句话；首行锚 `route/step/packet` 或 `mode=analyze`；未确认禁写、禁下结论。
+- 7. **完成只认门**：`-Claim` → `CLAIM: ALLOWED`；无 ALLOWED 禁写完成/通过/可提测。P0 未过不得整体通过；UI 证据 E1 实点+截图/Network。
+- 11. **技能闭环**：§6 必开 skill 打开→执行→回包；禁止粘贴代替。
+- 其余硬约束见 `rules/core/cold-start.md` §1（常驻；勿在步内重读全文）。
 
 ### 本步读链与防丢失
 
 - **编排**：本文 §5 +（若 §7 列出）一个模板。
-- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **方法质量**：§6 必开/条件开技能 → **逐个打开→执行→回本包**（一次 1 个）；禁止用粘贴代替实读。
 - **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
 - **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
 - **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
 
+### 本步禁止
+
+- 禁止读取本清单外的 rules / skills 正文；需要跳转只按 §6/§7 各一次。
+- 禁止跳过 §6 必开技能，或用摘要代替实读。
+- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
 
 ## 4. 本步门
 
 - **HITL `confirm_understanding`**：**主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言
 - **HITL `confirm_plan`**：版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门。版本级须先过：分析表 §2.2/§2.3 无空格 + §2.4 依据覆盖无缺行 + §3.8 四卷 + §3.9 批次表；缺项=计划门不通过
+- **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步工作规则（编排）
 
@@ -54,7 +60,7 @@
 - **硬**：打开→分析→吸收→同步。
 - `inbound/` 为原件、`handoff/inbound/` 为收件工作副本。 多包同仓直读对方出站。
 - 仓外主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`。 按类型更新计划/分析表/准入。
-- 正式签收才回执。更新台账、计划 /、索引、activeContext。
+- 正式签收才回执。更新台账、计划、索引、activeContext。
 
 ## 6. 技能指向（打开 → 执行 → 回本包）
 
@@ -70,7 +76,7 @@
 
 ## 8. 完成信号
 
-- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已落盘；本步无 §6 技能指向。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
 - wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
@@ -78,7 +84,7 @@
 ## 9. 回执字段
 
 ```text
-route=workflow:handoff | step=receive | packet=rules/packets/handoff/receive.md | reads=rules/packets/handoff/receive.md[+skill] | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=receive | agent=test-planner | packet=rules/packets/handoff/receive.md | reads=rules/packets/handoff/receive.md[+skill] | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
 `packet=` 必须含 `rules/packets/handoff/receive.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

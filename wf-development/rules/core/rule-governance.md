@@ -14,12 +14,12 @@
 | 参考手册/playbook | ≤ 10,000 | **必须**在头部标 `读取级别：参考` + 节索引；只读当前节，禁止通读 |
 | 单个 `skills/<name>/SKILL.md` | ≤ 4,500 | 技能按步加载；超了拆 `references/` 或脚本 |
 | 模板 | 不设 token 上限 | 只复制/填写，不作为规则通读 |
-| 单步读取总量 | ≤ 8,000 | 核心 ≤3～4 来源（命中才读）；复杂可至 5；AGENTS §0 + workflow step + 当前 agent + 命中skills/playbook 节 + 产物 |
+| 单步读取总量 | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000 | 核心 ≤3～4 来源（命中才读）；重步默认允许；超 12,000 才拆包或把技能拆 `references/`。预算是指示线，不是砍质量的借口 |
 
 估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。`Test-DocHygiene.ps1` 检查常驻规则、参考手册、AGENTS、技能；模板不报预算。
 
 **读法分级**：
-- **常驻**：新会话精读 `cold-start.md`；其后心跳 + `rule_card` + 读取索引当前行。  
+- **常驻**：新会话精读 `cold-start.md`；其后心跳 + `rule_card` + 当前步骤包（`packet=`）。read-index/playbook 仅当前步骤包点名时按节读。  
 - **参考**：`implementation-quality.md`（词典）、`workflow.md`、handoff/缺陷长文；只读当前节。`frontend-gate` / `iq-checklist` 为命中必读短卡，不算百科。
 - **技能**：命中步才读，不命中不读。
 - **模板**：只读当前要填的一份，不通读模板库。
@@ -43,7 +43,7 @@
 ```
 
 - workflow step `notes`：**≤3 行指针**；方法进 skills / must_read；禁止 notes 复述门/完成口径全文。
-- `playbooks/`：内容须已进入 read-index 或 skill 后才可删文件；业务步默认不读 playbook。
+- `playbooks/`：内容须已进入 read-index 或 skill 后才可删文件；业务步默认不读，仅当前步骤包点名时按节读。
 
 ## 2.1 自适应规则写法（防过拟合）
 

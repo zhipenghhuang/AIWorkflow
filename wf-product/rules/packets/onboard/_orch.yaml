@@ -5,6 +5,7 @@ purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持�
 steps:
   capabilities: 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。 默认静默：不输出全量工具清单、不冒烟；首次使用按契约降级。
     仅当用户点名「装配能力」时：对照契约+参考目录+现清单，确认后写入 `{workroot}/capabilities/`；刷档案 索引；安装指引见 README「宿主适配」。 禁强推、禁写回包内契约。
+  commit: 无文件变更跳过；接入改动（根 AGENTS/.gitignore/档案/文档树）默认本地提交；推送须单独确认，不部署。
   gitignore: 四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。 默认②；密钥/PII/真实用户数据任何情况不得入库；写后跑 `git check-ignore -v` 抽查 3 个关键路径并记录。
     不忽略源文件、模板、当前 PRD/计划/原型。 规范包默认不跟踪：只写已装包一行（如 `/wf-product/`），多包写 `/wf/`；不预列未装包、不加注释；其它项只列路径。
   lifecycle: 按 `rules/doc-governance.md` ～、 扫描工作文档与过程文件（本步=点名清理/巡检入口）： ① 分类：长期/固定、版本/迭代绑定、失效/替代、过程/临时； ② 判定：主档/长期真值就地更新；版本绑定目录关闭时归档；部分覆盖保留；失效确认后归档；**已完结**临时/失败/重复列清理候选；
@@ -14,12 +15,12 @@ steps:
   materials: 按 `rules/doc-governance.md` ～：入站意图分析（T1～T9）+ 覆盖对照 → 输出【入站分析】；确认前不改文件。 有候选 → `docs_migration_needed=true`，停本门；无候选继续。
     确认后：原件留/落入原件根 `inbound/`并**全量可查索引** → 仅对确认需要的文件复制进 `inbound/` → 按 A0～A2 吸收 → 失效只动包内副本/工作区旧稿。存量默认仅索引，不强制全复制。对话/根散落须先留主副本于原件根
     `inbound/`。 部分覆盖/增量/参考保留；冲突停下问。无候选 → 报「无未登记/失效候选」。归档前做引用检查：被当前产品计划/PRD/原型/交付/UAT 引用的文档保留原位或标“基线”，不标失效。 **换迭代/关版本（强制）**：确认采纳新迭代/换主题后按
-    `rules/doc-governance.md` ；不确定则 `confirm_iteration_close`；确认后先按 判 T1/T2/T4，再按 关账（跳过仅发版项）；T2/T4 保留仍被引用的 PRD/原型基线，只归档被替代增量与旧稿。不依赖发版。
+    `rules/doc-governance.md`；不确定则 `confirm_iteration_close`；确认后先按 判 T1/T2/T4，再按 关账（跳过仅发版项）；T2/T4 保留仍被引用的 PRD/原型基线，只归档被替代增量与旧稿。不依赖发版。
     关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认 overwrite-latest）。
   migrate: 「重新接入」= 按现行文档治理规则迁移；先扫描旧结构，按 `rules/doc-governance.md` 做覆盖对照，列迁移/改名/归档候选，经 `confirm_docs_migration` 确认后执行，不静默丢文件。
     映射：`{workroot}/输入/`、`inbound/项目文档/{ver}/`、旧扁平前缀文件、`inbound/反馈|调研|竞品|数据/` → `inbound/{ver|topic}/` 或 `_common/`（保持原文件名；类型写索引；**不要**项目文档层、**不要**强制类型前缀扁平）；
-    旧工作区/资料副本先判定：原件进 `inbound/`，定稿进 `docs/materials/`，过程稿进工作区；建立/更新 `{workroot}/INDEX.md`、原件登记 `inbound/INDEX.md`；更新计划 、路径引用、activeContext；`activeContext`
-    合并节 `### 洞见 / 偏好 / 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。 冲突/无法判断先问一次，不覆盖；迁移后核对链接，再进入
+    旧工作区/资料副本先判定：原件进 `inbound/`，定稿进 `docs/materials/`，过程稿进工作区；建立/更新 `{workroot}/INDEX.md`、原件登记 `inbound/INDEX.md`；更新计划、路径引用、activeContext；`activeContext`
+    合并节 `### 洞见 偏好 易踩坑` → 按 `rules/core/context-memory.md` 拆为 `### 生效中的偏好` + `### 洞见与易踩坑`，逐条补范围/期限/来源并删过期项；不新增空节。 冲突/无法判断先问一次，不覆盖；迁移后核对链接，再进入
     mount/profile。 若存在 `{workroot}/CHANGELOG.md`：列为迁移候选——**用户确认后**改名为 `{workroot}/work-log.md`（内容按工作日志模板整理索引+里程碑条；勿与根 `CHANGELOG.md`
     混淆）；未确认不改名。 共用原件根 `inbound/`：认根=用户指定优先，否则判定表，不定则问。原夹文件不迁出。`keep`/`mix`/`replace` 只管原树；仍可索引/复制/吸收。中途存量全索引，按需复制或 A0～A2。
   mount: 验收：项目根 AGENTS.md 已补入指向本包 AGENTS.md 的引导语句 （样例见 `rules/templates/00-onboarding/root-agents-pointer.md`；已有则追加、没有则新建）；
@@ -35,7 +36,7 @@ steps:
     `confirm_docs_migration` 确认后执行；未确认不改。 **禁止**创建/修改/补链项目根 `CHANGELOG.md`（仅开发维护）。无开发包 → 不建根 CHANGELOG；岗位史只用本包工作日志。用户点名要项目发版史
     → 建议接入开发包或由其指定写手；本包默认不替建。 按 `rules/doc-governance.md` 定位工作根；登记原件根 `inbound/INDEX.md`；权威文档库 `docs/materials/`。 建 `docs/materials/INDEX.md`
     骨架；外部输入先入 `inbound/`。 建索引：单包 `docs/INDEX.md`（含工作区导航）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 在总览登记既有目录）；不写阶段/门。
-    产品档案 增记工作根 / `inbound/` 原件根 / `docs/materials/` 权威文档库。 对外用户文档固定 `{workroot}/user/`，不混入 `inbound/`。'
+    产品档案 增记工作根 `inbound/` 原件根 `docs/materials/` 权威文档库。 对外用户文档固定 `{workroot}/user/`，不混入 `inbound/`。'
   verify: '按 onboard-agent 接入清单核验（①～⑥，含写接入标记），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。 跑 `rules/tools/Test-Template.ps1`；BLOCKED 不得打标。
     核验通过后写「wf-product onboard: done」；此后按 AGENTS 第 3 点（接入状态）跳过落地检查。 文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理。'
   wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 输出六段压缩（每段一行，须含【遵守自检】）；仅例外/待处理展开；禁逐项罗列工具

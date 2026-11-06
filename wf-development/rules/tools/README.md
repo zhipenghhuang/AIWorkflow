@@ -10,6 +10,8 @@
 | `extract_prototype_modules.py` | 解码单 HTML 原型中的 `data:`/base64 模块并枚举路由/导航/组件 | `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner development`；按档案 `workroot`，未声明按约定；搬迁仍需确认） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner development` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） | `python rules/tools/check_secrets.py .` |
+| `validate_semantics.py` | 语义自检：双入口/残句/角色边/跨链/预算/§1 规则数 | `python rules/tools/validate_semantics.py .` |
+| `clean_temp.py` | 临时/脏文件清理（默认 dry-run，只动缓存与过期临时） | `python rules/tools/clean_temp.py --project-root . [--apply]` |
 
 - `Test-Template.ps1` 会调用 `validate_workflow.py`（需要 Python + PyYAML）；找不到 Python 时显示“跳过”，不假装通过。  
 - 改包后跑自检；任务清单写完先跑 `validate_tasklist.py`，开发计划写完先跑 `validate_dev_plan.py` 再确认。  

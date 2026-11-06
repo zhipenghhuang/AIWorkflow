@@ -155,7 +155,9 @@ docs/materials/
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
 | `{workroot}/test-plan.md`（+ V1～V4 卷）、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 主计划/四卷/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
 | `{workroot}/reviews/` | 绑定 · 现行唯一 | 全部 `*-评审-*.md` 只落此夹；`INDEX.md` 登范围键→现行路径；同键再评先移旧入 `reviews/_archive/` 再写新；关账现行+INDEX 快照进 `_archive/{yyyyMMdd}-{ver}/reviews/`；禁散落到域夹/轨根/工作根 |
-| `{workroot}/functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/` | 轨主档 | 主档常青；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`）；**不含评审记录** |
+| `{workroot}/functional/`、`api/` | 域主档常青 | Domain 跨版本保留；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`）；**不含评审记录** |
+| `{workroot}/exploratory/`、`random-flows/` | 轨目录常青 · 戳夹分轮 | 常青的是轨纪律与选题/去重方法；**单轮戳夹非常青 Domain**；旧轮进各自 `_archive/`；禁按功能域整版库对齐（见多轨 Q13） |
+| `{workroot}/pre-release/` | 方案常青 · 报告分轮 | `*-测试方案.md` 常青；旧报告/停用包进专项 `_archive/`；**不含评审记录** |
 | `{workroot}/changes/` | 绑定 | CR 关闭归档 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
 | `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；报告/计划等按需实拷；**缺陷有平台时禁止**为交单实拷详单（见 `handoff.md` §3.1.1）；关版本同批归档；台账常青 |
@@ -240,6 +242,10 @@ docs/materials/
 范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；`reviews/_archive/` 中已进版本归档的重复份；散落在域夹/轨根/工作根的旧 `*评审*`（确认后删或迁入 `reviews/_archive/`）；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、`reviews/INDEX` 现行行、根 CHANGELOG/工作日志永不自动删。
 
 何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。新任务 `-StartTask` 可清空 `.gate/frontend/` 旧媒体，不等同关账全清 `.gate`。
+
+**保留窗口**：`.draft/` 完结即删，>7 天未改列候选；`.gate/logs` >7 天；`.gate/frontend` 只保留当前任务（新任务 `-StartTask` 清旧媒体）；`.gate/*.json` 保留当前 + 最近 5 个任务；更早的在点名清理或关账时归档 `_archive/gate/{yyyyMMdd}/`（需确认，`clean_temp.py` 不自动删 JSON）。
+
+**一键清理**：`python rules/tools/clean_temp.py --project-root .`（默认 dry-run；`--apply` 才删；`--reset-frontend` 清当前前端媒体；只动缓存/过期临时，不碰源文件、证据 JSON、`_archive`）。
 
 **材料库旧版本不自动清理**；要删必须用户确认。
 

@@ -10,7 +10,7 @@ steps:
     **目标必须是生产/正式环境**；test/staging 部署不触发本门，版本按项目策略。生产版本必须是正式版（无 prerelease）；rc/QA 批次直接上生产 → NO-GO。 若项目已有业务发布决策（其它流程/产品包/用户确认）且
     UAT 已过 → 本步只确认工程就绪，不重复业务决策；没有 → 本门覆盖业务+工程范围。 未批准不得部署；禁止从脏工作区/未提交代码部署；有条件批准须列明条件与监控措施；发布内容/窗口/回滚变更 → 重新确认。输出 `release_approved=true/false`
     供 deploy 判断。
-  commit: 发布记录/发布说明/复盘/计划回写同批提交；拟提交清单按 `rules/workflow.md` ；默认仅本地提交，推送/打 tag 单独确认。
+  commit: 发布记录/发布说明/复盘/计划回写同批提交；拟提交清单按 `rules/workflow.md`；默认仅本地提交，推送/打 tag 单独确认。
   deploy: 技能：`skills/acceptance-and-launch/SKILL.md`（先读再执行）。 按项目档案 发布方式/命令执行；部署前记录版本/构建/配置/数据快照/健康基线。 **仅生产/正式环境**；test/staging
     部署不走本步，记录归 S7/`{workroot}/60-release/`。 按发布说明步骤逐步执行，每步可核对；失败即停，按回滚预案处置，不继续后续步骤。 部署成功后先跑主链路冒烟，再跑关键回归；不要先跑全量。 发布说明/发布记录纳入拟提交（如尚未提交）；密钥零入库。
   postrelease: 条件步：部署成功才走；技能：`skills/acceptance-and-launch/SKILL.md`。 按观察期看日志/指标/告警/关键业务；异常按分级处置。 观察期结束出结论：成功/带风险成功/回滚；遗留项进
@@ -37,6 +37,6 @@ steps:
     回滚不是失败掩盖：进入 postrelease/retro，更新发布说明结论。
   verify: 技能：`skills/acceptance-and-launch/SKILL.md`（先读再验证）。 按发布说明「线上验证要点」逐条核；对照发布前基线看错误率/延迟/吞吐/业务指标。 指标/日志先脚本或现成面板取摘要；仅跨系统语义归因才派子代理，返回
     ≤30 行。 异常分级：可观察/需修复/需回滚；回滚触发条件成立 → 立即转 rollback，不恋战。 记录实际步骤/结果/证据；更新发布记录草稿。
-  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 更新发布记录/发布说明、`{workroot}/INDEX.md`/activeContext/开发计划 ；现状三处同拍（执行契约
+  wrap: 对照 `rules/templates/90-handoff/closeout-skeleton.md` 更新发布记录/发布说明、`{workroot}/INDEX.md`/activeContext/开发计划；现状三处同拍（执行契约
     规则 7）；按 `rules/core/doc-facade-sync.md` 轻量对齐根 README/档案对外句（禁全扫）；`sync=` 含 `triad=` 与 `facade=`；语义已变禁只改 activeContext。未verify/未观察/遗留项明示。
     发布产生的记录（CHANGELOG/发布说明/发布记录/工作日志）必须纳入拟提交；不得留在脏工作区。

@@ -28,7 +28,7 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ALLOWED_VERDICTS = {"COMPLETE", "READY", "PASS", "PASSED", "通过"}
@@ -132,6 +132,8 @@ def main() -> int:
     verdict = str(receipt.get("verdict") or receipt.get("result") or "").strip().upper()
     if verdict not in ALLOWED_VERDICTS:
         problems.append(f"verdict={verdict or '空'}，只允许 {sorted(ALLOWED_VERDICTS)}")
+    if not str(receipt.get("gate_id") or "").strip():
+        problems.append("回执缺少 gate_id（旧版/伪造），重跑门")
 
     blocked = receipt.get("blocked") or []
     if isinstance(blocked, list) and blocked:
@@ -153,6 +155,8 @@ def main() -> int:
             age_hours = (datetime.now(timezone.utc) - stamp.astimezone(timezone.utc)).total_seconds() / 3600
             if age_hours > args.max_age_hours:
                 problems.append(f"回执已过期 {age_hours:.1f}h > {args.max_age_hours}h")
+        if stamp.astimezone(timezone.utc) > datetime.now(timezone.utc) + timedelta(minutes=5):
+            problems.append("回执 timestamp 在未来（伪造/时钟异常），重跑门")
 
         # 产物在回执后改动 => gate_id 的内容哈希对不上。
         artifact = str(receipt.get("artifact") or "").strip()

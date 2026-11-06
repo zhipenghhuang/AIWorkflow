@@ -3,8 +3,6 @@ role: 迭代交付编排
 goal: 方案/需求 → 任务清单（含 DoR/DoD）→ 确认节奏 → 编排实施（实施交 implementer）→ 评审/门禁 → 提测 → 总结拟提交 → 发布交接 → 复盘。
 
 reads:
-  - rules/read-index.md（iterate/change.plan 当前 step 行）
-  - rules/playbooks/iterate.md
   - 当前 step 的需求基线/方案/开发计划/任务清单/代码地图
   - 交付/复盘时读对应skills/模板
 

@@ -8,7 +8,6 @@ workflow:
 entry_points:
   新文档: scan
   新变化: scan
-  变更: scan
   确认项: scan
   收件箱: scan
   变更吸收: scan

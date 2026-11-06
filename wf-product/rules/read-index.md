@@ -1,12 +1,12 @@
 # 读取索引（维护用 · 非运行时必读）
 
-> **维护目录**：运行时读链只认 `cold-start` + 当前 YAML step + `rules/packets/<wf>/<step>.md`（+ 可选一个模板）。  
+> **维护目录**：运行时读链只认 `cold-start` + `_chain`/`_region`（进 workflow/子区一次）+ 当前步骤包 + 命中 skill；read-index/playbook 仅当前步骤包点名时按节读。  
 > 本文不再作为 AI 执行必读；改步骤规则以 packets 为准，可用 `rules/tools/build_step_packets.py` 重生。  
 > 下列表格仅供维护者对照历史 MUST/RUN/REF 与口令定位。
 
 ## 默认行（所有 step）
 
-- **核心必读（≤4 来源）**：`cold-start.md`（新会话/心跳）· 命中 workflow 当前 step 块 · 当前 agent · 当前产物/证据。
+- **核心必读（≤4 来源）**：`cold-start.md`（新会话/心跳）· 命中 workflow 当前 step 块 · 当前产物/证据（`agents/<id>.yaml` 仅派工/改角色时）。
 - **定位（不计入必读）**：工作根、接入级别、索引口径只认 `rules/doc-governance.md` §2.4/§2.5；入口/材料包看 `{workroot}/INDEX.md`；跨会话快照看项目根 `activeContext.md` 总览 + 本包 `### 进行中` + **偏好/洞见/坑≤3**（开局卡第 2 条；写法 `context-memory.md`）；项目身份见 `product-profile.md` §1（`AGENTS.md` §0 已列）。
 - **命中才读**：本索引对应行「可选」列；方法层 skills / playbook / 模板按 step 命中再读。
 - 不读：其它 workflow、全部 agents、全部模板、全本规则。
@@ -20,7 +20,7 @@
 
 | step | 必读（核心 + 命中才读） | 可选 | 预算 |
 | --- | --- | --- | ---: |
-| 工作总结口令（无 workflow） | `rules/templates/90-handoff/closeout-skeleton.md` §3（含围栏外 `范围：from～to`）+ 项目根 `activeContext.md` 本包「工作总结锚点」 | 产品计划/工作日志（仅区间内） | 6k |
+| 工作总结口令（无 workflow） | `rules/templates/90-handoff/closeout-skeleton.md` §2（含围栏外 `范围：from～to`）+ 项目根 `activeContext.md` 本包「工作总结锚点」 | 产品计划/工作日志（仅区间内） | 6k |
 | 无口令/意图不明 | `rules/core/routing.md` §0～§6（五元组/意图类/状态/首条/资料不足升级）+ product-profile.md相关节 | 附录校验、产品计划 §0、需求池 | 5k |
 | plan.goals / roadmap / scope / publish / next | `workflows/plan.yaml` 当前 step 块 + 产品计划模板（含 §3.0）+ `rules/core/clarification.md` §1～§5 + 技能（迭代=`requirement-discovery-and-prioritization` / 0→1=`zero-to-one-product-definition`）；`next` 以计划 §0 为主 | 迭代变更摘要模板、需求池/上期复盘/客户需求简报、`analytics-and-experimentation`、`work-log-template.md`、`doc-quality.md` §2 计划行 | 8k |
 | new-product.discover / go | `workflows/new-product.yaml` 当前 step 块 + `rules/core/clarification.md` §1～§5 + 技能 `zero-to-one-product-definition` + 立项书模板 | `customer-needs-discovery`、`competitive-intelligence-and-learning`（模式 S）、竞品分析模板、访谈指南/洞察综合、竞品/市场资料 | 8k |

@@ -124,7 +124,7 @@ steps:
   id: verify
   must_read:
   - rules/packets/change/verify.md
-  when: code_changed_or_requested
+  when: work_changed_or_requested
   agent: verifier-agent
   gate: completion-gate
   gate_type: machine

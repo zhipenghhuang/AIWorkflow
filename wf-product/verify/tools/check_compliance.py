@@ -137,15 +137,38 @@ def _check_sections(text: str, errors: list[str]) -> None:
             errors.append(f"附录缺少「{label}」")
 
 
-def _check_self_check(text: str, errors: list[str]) -> None:
+_EXEC_MODES = {"脚本", "直跑", "模块子代理", "拆分", "na", "无"}
+
+
+def _is_testing_execute(body: str) -> bool:
+    """True when receipt is for wf-testing execute step (economy fields required)."""
+    packet = ""
+    mp = re.search(r"packet=([^|]+)", body)
+    if mp:
+        packet = mp.group(1).strip()
+    if "packets/testing/execute" in packet.replace("\\", "/"):
+        return True
+    route = ""
+    mr = re.search(r"route=([^|]+)", body)
+    if mr:
+        route = mr.group(1).strip().lower()
+    return bool(re.search(r"(?:^|[/:])testing(?:$|[/:])", route)) and bool(
+        re.search(r"(?:^|[/:])execute(?:$|[/:])", route)
+    )
+
+
+def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None:
     m = re.search(r"【遵守自检】([^\n]+)", text)
     if not m:
         errors.append("缺少【遵守自检】")
         return
     body = m.group(1)
-    for key in ("route=", "mode=", "reads=", "gates=", "sync=", "skip=", "deviation="):
+    for key in ("route=", "mode=", "packet=", "skills=", "reads=", "gates=", "confirm=", "sync=", "skip=", "deviation="):
         if key not in body:
             errors.append(f"【遵守自检】缺少 {key}")
+    mp = re.search(r"packet=([^|]+)", body)
+    if mp and "rules/packets/" not in mp.group(1) and mp.group(1).strip() not in ("na", "无"):
+        errors.append("【遵守自检】packet= 须指向 rules/packets/...")
     mm = re.search(r"mode=([a-z]+)", body)
     if mm and mm.group(1) not in MODES:
         errors.append(f"mode={mm.group(1)} 不在 execute/analyze/stop")
@@ -156,6 +179,30 @@ def _check_self_check(text: str, errors: list[str]) -> None:
             errors.append("【遵守自检】sync= 须含 triad=aligned|na|deferred:<原因>")
         if "facade=" not in sync_body:
             errors.append("【遵守自检】sync= 须含 facade=aligned|na|deferred:<原因>")
+
+    # Economy receipt: required for testing/execute; optional elsewhere (warn if half-filled).
+    has_exec_mode = "exec_mode=" in body
+    has_pg = "pg=" in body
+    has_econ = "econ=" in body
+    if _is_testing_execute(body):
+        if not has_exec_mode:
+            errors.append("【遵守自检】testing/execute 须含 exec_mode=")
+        if not has_pg:
+            errors.append("【遵守自检】testing/execute 须含 pg=（无并行写 pg=na）")
+        if not has_econ:
+            warnings.append("【遵守自检】testing/execute 建议含 econ=（脚本优先;同页簇;造数一次 或 na）")
+        em = re.search(r"exec_mode=([^|]+)", body)
+        if em:
+            val = em.group(1).strip()
+            # allow compound like 脚本（本批）— take first token
+            token = re.split(r"[;；,\s（(]", val, maxsplit=1)[0].strip()
+            if token and token not in _EXEC_MODES:
+                warnings.append(
+                    f"exec_mode={token} 非标准枚举（脚本|直跑|模块子代理|拆分|na）；若有意请留 deviation="
+                )
+    elif has_exec_mode or has_pg or has_econ:
+        if not (has_exec_mode and has_pg):
+            warnings.append("【遵守自检】出现部分经济字段时建议成对写 exec_mode= 与 pg=")
 
 
 def main() -> int:
@@ -176,7 +223,7 @@ def main() -> int:
     _check_header_lines(text, errors)
     _check_report_lead(text, errors, warnings)
     _check_sections(text, errors)
-    _check_self_check(text, errors)
+    _check_self_check(text, errors, warnings)
 
     for e in errors:
         print(f"ERROR_COMPLIANCE: {e}")

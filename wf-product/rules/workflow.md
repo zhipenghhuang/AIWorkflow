@@ -27,7 +27,7 @@
 ## 2. 产物与过程（相对项目根）
 
 ```text
-{workroot}/                         # 产品工作区唯一根；原件根 inbound/、权威文档库 docs/materials/ 不属本树
+{workroot}/                         # 产品工作区根；inbound/ 与 docs/materials/ 固定项目根（单包时 docs/materials 在工作根内，按项目级管理）
 ├─ product-plan.md                # 总领单点：总控表 + 路线图 + 本期执行
 ├─ requirement-pool.md            # 滚动单点（去重/分级/状态）
 ├─ work-log.md                    # 岗位里程碑侧记（非根 CHANGELOG）

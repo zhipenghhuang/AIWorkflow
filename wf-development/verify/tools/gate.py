@@ -239,7 +239,7 @@ def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[s
     level = "L0"
     if "auth_payment" in types or "db" in types:
         level = "L3"
-    elif "api" in types or len(files) > 10:
+    elif "api" in types or len(files) > 3:
         level = "L2"
     elif "frontend" in types or "code" in types:
         level = "L1"
@@ -268,7 +268,7 @@ def find_acceptance(project_root: Path, explicit: str | None) -> Path | None:
 
 
 def parse_acceptance(path: Path | None) -> dict[str, Any]:
-    empty = {"items": [], "task_id": "", "level": "", "process": {}, "scope_files": []}
+    empty = {"items": [], "task_id": "", "level": "", "process": {}, "nfr": None, "scope_files": []}
     if path is None:
         return empty
     text = path.read_text(encoding="utf-8-sig", errors="replace")
@@ -300,6 +300,7 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
             "task_id": str(data.get("task_id") or ""),
             "level": str(data.get("level") or ""),
             "process": data.get("process") if isinstance(data.get("process"), dict) else {},
+            "nfr": data.get("nfr") if isinstance(data.get("nfr"), dict) else None,
             "scope_files": [str(x) for x in data.get("scope_files", [])] if isinstance(data.get("scope_files"), list) else [],
         }
 
@@ -381,7 +382,8 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
     for mm in re.finditer(r"改动范围[^\n:：]*[:：]\s*([^\n]+)", text):
         scope += [x.strip().strip("`") for x in re.split(r"[;,；、]", mm.group(1)) if x.strip()]
     scope = list(dict.fromkeys(scope))
-    return {"items": rows, "task_id": task_id, "level": level, "process": process, "scope_files": scope}
+    return {"items": rows, "task_id": task_id, "level": level, "process": process,
+            "nfr": None, "scope_files": scope}
 
 
 def _evidence_tokens(raw: str) -> list[str]:
@@ -507,6 +509,52 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
     else:
         warnings.append("未声明改动范围（scope_files/改动范围）")
     return {"missing": missing, "warnings": warnings}
+
+
+NFR_PATH_RE = re.compile(r"[^\s()（）,，;；]+\.(?:md|json|log|txt|ya?ml|png|jpe?g|csv|html?)", re.I)
+NFR_METRIC_RE = re.compile(r"(p\d{2}|ms\b|SQL|KB|MB|GB|%|QPS|TPS|耗时|字节)", re.I)
+
+
+def check_nfr(meta: dict[str, Any], level: str, project_root: Path) -> dict[str, Any]:
+    """L2+ 非功能影响与证据：nfr.security / nfr.performance（DEV-VER-19）。
+
+    值必须是 `done: <证据>`（存在的路径、可复跑命令或可量化指标）或
+    `na: <理由>`；缺省、空写、无依据的 done 均视为缺口。
+    """
+    missing: list[str] = []
+    declared: dict[str, str] = {}
+    if level_rank(level) < 2:
+        return {"missing": missing, "declared": declared}
+    nfr = meta.get("nfr")
+    if not isinstance(nfr, dict):
+        return {"missing": ["L2+ 缺少 nfr（安全/性能影响结论；done 或 na+理由）"],
+                "declared": declared}
+    for key, label in (("security", "安全"), ("performance", "性能")):
+        raw = str(nfr.get(key) or "").strip()
+        if not raw:
+            missing.append(f"L2+ 缺少 nfr.{key}（{label}：done+证据 或 na+理由）")
+            continue
+        status_m = re.match(r"^(done|na)\b\s*[:：]?\s*(.*)$", raw, re.I)
+        if not status_m:
+            missing.append(f"nfr.{key} 格式无效（应为 done: … 或 na: …）")
+            continue
+        status, body = status_m.group(1).lower(), status_m.group(2).strip()
+        declared[key] = status
+        if status == "na":
+            if len(body) < 4:
+                missing.append(f"nfr.{key}=na 需一句理由")
+            continue
+        if not body:
+            missing.append(f"nfr.{key}=done 需证据（路径/命令/指标）")
+            continue
+        paths = NFR_PATH_RE.findall(body)
+        if paths:
+            if not any(resolve_path(project_root, p).exists() for p in paths):
+                missing.append(f"nfr.{key} 证据不存在：{paths[0]}")
+            continue
+        if not COMMANDISH.match(body) and not NFR_METRIC_RE.search(body):
+            missing.append(f"nfr.{key}=done 需可复核证据（路径/命令/指标）")
+    return {"missing": missing, "declared": declared}
 
 
 def strip_code(text: str) -> str:
@@ -711,9 +759,27 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
     if not evidence_dir.is_dir():
         return {"id": "frontend-evidence", "status": "blocked", "detail": f"missing {evidence_dir}"}
     tier = frontend_tier(evidence_dir, fe)
+    if tier == "C":
+        routes = []
+        route_file = evidence_dir / "route-coverage.json"
+        if route_file.is_file():
+            try:
+                data = json.loads(route_file.read_text(encoding="utf-8-sig"))
+                routes = data if isinstance(data, list) else (data.get("routes") or [])
+            except Exception:
+                routes = []
+        if level_rank(level) >= 2 or len(routes) > 1:
+            tier = "A"
+            problems_tier = "tier=C 与 L2+/多路由不符，按 A 校验"
+        else:
+            problems_tier = ""
+    else:
+        problems_tier = ""
     images = [p for p in evidence_dir.rglob("*") if p.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp")]
     qa = evidence_dir / "design-qa.md"
     problems: list[str] = []
+    if problems_tier:
+        problems.append(problems_tier)
     min_images = 1 if tier == "C" else 2
     if len(images) < min_images:
         problems.append(f"only {len(images)} screenshot(s); need >={min_images} (tier {tier})")
@@ -794,7 +860,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             if bad:
                 problems.append(f"design-qa.md 存在不通过项 {bad} 但结论未列条件")
 
-        if fe.get("requireConsoleClean") or fe.get("requireNetworkCheck"):
+        if tier != "C" or fe.get("requireConsoleClean") or fe.get("requireNetworkCheck"):
             reports = list(evidence_dir.glob("*report*.json")) + list(evidence_dir.glob("*console*.json")) + list(evidence_dir.glob("*network*.json"))
             if not reports:
                 problems.append("缺少 console/network 报告 JSON")
@@ -918,6 +984,7 @@ def main() -> int:
 
     acc = check_acceptance(meta["items"], project_root)
     process = check_process(meta, level, project_root, files)
+    nfr = check_nfr(meta, level, project_root)
     docs_only = bool(files) and all(f.lower().endswith(DOC_EXTS) for f in files)
     acceptance_unusable = acceptance_path is None or not meta["items"]
     if level_rank(level) >= 1 and not args.allow_missing_acceptance:
@@ -984,12 +1051,25 @@ def main() -> int:
                 "status": "blocked" if problems else "pass",
                 "detail": "; ".join(problems[:5]) or f"{stats.get('rows', 0)} rows",
             })
-        if level_rank(level) >= 3:
+            # 企业级基线：项目声明 perf/security 命令时，L2+ 一律执行；L3 仍须安全证据。
+            # dry-run 只列出命令，不执行（避免误触发压测/扫描）。
+            perf = resolve_cmd(profile, scripts, "perf")
+            if perf:
+                if args.dry_run:
+                    checks.append({"id": "perf", "status": "dry-run", "command": perf})
+                else:
+                    checks.append(run_cmd_check("perf", perf, project_root, int(timeouts.get("perf", 900))))
             security = resolve_cmd(profile, scripts, "security")
             if security:
-                checks.append(run_cmd_check("security", security, project_root, int(timeouts.get("security", 900))))
-            elif not process.get("security"):
-                checks.append({"id": "security", "status": "blocked", "detail": "L3 需要 security 命令或 process.security 证据"})
+                if args.dry_run:
+                    checks.append({"id": "security", "status": "dry-run", "command": security})
+                else:
+                    checks.append(run_cmd_check("security", security, project_root, int(timeouts.get("security", 900))))
+            elif level_rank(level) >= 3:
+                process_meta = meta.get("process") if isinstance(meta.get("process"), dict) else {}
+                if not process_meta.get("security"):
+                    checks.append({"id": "security", "status": "blocked",
+                                   "detail": "L3 需要 security 命令或 process.security 证据"})
 
     evidence_missing = check_evidence(meta["items"], project_root) if meta["items"] else []
     if evidence_missing:
@@ -1008,7 +1088,7 @@ def main() -> int:
         if not files:
             verdict = "NOT_VERIFIED"
             reasons.append("没有可验证的改动；空 diff 不代表完成")
-        elif failed or blocked or acc["missing"] or process["missing"] or profile_error:
+        elif failed or blocked or acc["missing"] or process["missing"] or nfr["missing"] or profile_error:
             verdict = "BLOCKED"
         elif skipped:
             verdict = "PARTIAL"
@@ -1020,6 +1100,8 @@ def main() -> int:
             reasons += acc["missing"][:5]
         if process["missing"]:
             reasons += process["missing"][:5]
+        if nfr["missing"]:
+            reasons += nfr["missing"][:5]
         if profile_error:
             reasons.append(profile_error)
         if failed:
@@ -1033,7 +1115,7 @@ def main() -> int:
     commit = git(project_root, "rev-parse", "--short", "HEAD")
     gate_id = f"{commit or 'nogit'}-{diff_hash}"
     completion = {
-        "gate_version": "2.1",
+        "gate_version": "2.2",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "gate_id": gate_id,
@@ -1048,6 +1130,7 @@ def main() -> int:
         "acceptance": {"path": str(acceptance_path) if acceptance_path else None,
                        "mtime": acceptance_mtime, **acc},
         "process": {"missing": process["missing"], "warnings": process["warnings"]},
+        "nfr": nfr,
         "checks": checks,
         "blocked": reasons,
         "timestamp": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
@@ -1062,6 +1145,9 @@ def main() -> int:
         print(f"verdict: {verdict}")
         print(f"level: {level} | types: {', '.join(types)} | changed: {len(files)} file(s)")
         print(f"acceptance: {acc['covered']}/{acc['total']} covered")
+        if level_rank(level) >= 2:
+            declared = ", ".join(f"{k}={v}" for k, v in nfr["declared"].items()) or "missing"
+            print(f"nfr: {declared}")
         print(f"checks: {sum(1 for c in checks if c.get('status') == 'pass')}/{len(checks)} pass")
         for c in checks:
             extra = c.get("command") or c.get("detail") or ""

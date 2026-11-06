@@ -5,7 +5,6 @@ goal: >
   功能/接口/探索/发布前资产；只报缺口与放行建议；不替写口径。
 
 reads:
-  - rules/read-index.md（testing.review-cases / review-plan 行）
   - skills/test-artifact-review/SKILL.md + skills/testcase-review/SKILL.md + rules/templates/40-report-review/review-record-template.md
   - 被评产物：计划 / 测试分析表·需求模型 / 用例·§3 映射 / 接口·探索·发布前资产 + 覆盖闸回执（若有）
   - 大范围可按 rules/special/multi-agent-output.md §1.5 维度只读扇出

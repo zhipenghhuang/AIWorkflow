@@ -64,6 +64,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
 - 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
 - **交互诚实（硬）**：`design-qa` #3/#14/#20 须按条文验收（加载诚实、空态分因、禁用原因+下一步、主 CTA 与阻断一致、筛选展示≡请求）；空勾「状态齐」不算通过。
+- **实施纪律（编码时，非事后补勾）**：状态词/KPI 单一映射源跨表面引用；有阻断先不可用再可点；方案点名的明细/下钻/证据入口须可发现（≠仅汇总/JSON）。细则 `iq-checklist.md` + `frontend-implementation` §2。
 - 新用受限 Web/平台 API → 目标环境冒烟或 polyfill；console error 阻断本门。
 - 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
 - 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 `rules/capabilities/instance-discipline.md` §6。

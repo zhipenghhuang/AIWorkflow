@@ -3,13 +3,13 @@
 workflow: change
 purpose: 编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。
 steps:
-  apply: 仅接受/下期/立即修且有联动项； 逐项闭合。平台回写见 defects REF；CHG 包走 handoff。
-  assess: 改已定稿基线须变更单且 差量表必填。方法只认 change-management 。
-  commit: 无变更跳过；拟提交字段见 workflow.md REF；默认仅本地提交。
+  apply: 仅接受/下期/立即修且有联动项；逐项闭合并写受理单 §6。平台回写见 `rules/defects/` 适配；CHG 包走 handoff。
+  assess: 改已定稿基线须变更单且差量表必填。方法只认 change-management。
+  commit: 无变更跳过；拟提交字段见 `rules/workflow.md`；默认仅本地提交。
   decide: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑可跳过本门。
-  intake: 统一入口建档；先还原问题再分诊；双确认未过不入池/不写正式 PRD。 外部输入/关账见 doc-governance REF；方法只认 change-management + clarification 必做。
+  intake: 统一入口建档；先还原问题再分诊；双确认未过不入池/不写正式 PRD。 外部输入/关账见 `rules/doc-governance.md`；方法只认 change-management + clarification 必做。
   new_requirement: 仅新需求；入池须证据；confirm_scope 后进 assess/路线图。细节只认技能必做。
-  review: STOP 选 A/B；选 B 跑 -Mode review。方法只认 artifact-review / review-and-finalize 必做。
-  triage: 按技能 判定树；理解未确认先回 intake。产品缺陷须依据；无依据禁甩锅。
+  review: STOP 选 A/B；选 B 跑 -Mode review。方法只认 artifact-review review-and-finalize 必做。
+  triage: 按技能判定树；理解未确认先回 intake。产品缺陷须依据；无依据禁甩锅。
   verify: Invoke-Gate -Mode change；未 READY 不得 wrap 冒充完成。回执未收不得称已接收。
   wrap: 只认 closeout-skeleton；含遵守自检；同步 plan/INDEX/activeContext（triad）。拟提交留 commit。

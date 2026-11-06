@@ -85,6 +85,15 @@ def main() -> int:
             if "reads=" in text and rel not in text:
                 print(f"FAIL: {rel} receipt missing self path")
                 fail += 1
+            # 编排笔记/动作清单里不得留未展开缩写与未填占位（AI 无法解析）
+            for pat, why in (
+                (r"\bREF[。；，）]", "未展开缩写 REF（改写成真实路径）"),
+                (r"[=＝]\s*[。；]", "占位符未填（形如 `xx=。`）"),
+                (r"按装填", "残句（应为「按计划 §x 装填」）"),
+            ):
+                if re.search(pat, text):
+                    print(f"FAIL: {rel} {why}")
+                    fail += 1
     print(f"SUMMARY fail={fail}")
     return 1 if fail else 0
 

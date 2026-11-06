@@ -9,8 +9,12 @@
 - **workflow**：`iterate`
 - **step**：`implement`（实施与定向自验）
 - **packet**：`rules/packets/iterate/implement.md`
+- **角色**：`implementer`（常规实现）。需求/方案对齐 → 最小改动实现 → 自测/门禁 → 提测文档 → 提交；架构级先方案批准；本步只做该角色职责；越界交回或升级。
+- **上游**：`confirm`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
+- **后续**：`review`（进 `review` 前的 `when=review_required`）
+- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件步** `when=implementation_required`：条件不满足则跳过本步（不打开本包）。
-- **轻量档**：L0/P0/T0 且本步无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
+- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 - **父状态机**：`rules/packets/iterate/_chain.md`（进 workflow 一次）。
 - **子状态机**：`rules/packets/iterate/_region-build.md`（实施验证；进本区一次）。
 
@@ -21,29 +25,31 @@
 
 ## 3. 本步硬约束
 
-### 开局硬约束（本步可执行摘要）
+### 开局硬门（3 条；其余见 cold-start §1）
 
-- 1. **先意图、再动作**（`confirm_task_intent`）：新开先【需求与意图理解】再确认；未确认禁改代码/外发/下完成结论。
-- 2. **短读跟随 + 一手源**：`activeContext` + 进行中（`rule_card`/`packet=`/`region=`）+ 偏好/洞见/坑 ≤3。
-- 3. **状态机读链（硬）**：见本包「本步读链与防丢失」。父流程可拆子机；同时只激活**一个**步骤包。
-- 4. **技能闭环（质量不降）**：步骤包 §6 标**必开**的 skill 必须打开→按必做执行→**回到步骤包**；禁止把 skill 正文嵌进步骤包替代实读；禁止跳过必开 skill。
-- 5. **完成分层**：`verify/Invoke-Gate.ps1 -Claim` → 只认 `CLAIM: ALLOWED`。无 ALLOWED 禁止写「已通过」。
-- 6. **前端硬门**：有 UI → 当前步骤包内前端硬门；无 UI 标 `na`。
-- 7. **证据先于结论；禁刷绿**；密钥零入库；最小改动；失败同方案 2 次换路径。
-- 8. **切步/出子机 → 心跳一行**，必须带 `packet=`（有子机带 `region=`）。
+- 1. **每轮先判、再动手**：先判新任务/续跑/只读；新任务或范围变化 → 复述目标/范围/验收并确认；续跑一行确认；只读一句话；首行锚 `route/step/packet` 或 `mode=analyze`；未确认禁写、禁下结论。
+- 7. **完成只认门**：`-Claim` → `CLAIM: ALLOWED`；无 ALLOWED 禁写完成/通过/可提测。有 UI → 当前包内前端硬门；无 UI 标 `na`。
+- 11. **技能闭环**：§6 必开 skill 打开→执行→回包；禁止粘贴代替。
+- 其余硬约束见 `rules/core/cold-start.md` §1（常驻；勿在步内重读全文）。
 
 ### 本步读链与防丢失
 
 - **编排**：本文 §5 +（若 §7 列出）一个模板。
-- **方法质量**：§6 必开/条件开技能 → **打开→执行→回本包**（同时 1 个 skill）；禁止用粘贴代替实读。
+- **方法质量**：§6 必开/条件开技能 → **逐个打开→执行→回本包**（一次 1 个）；禁止用粘贴代替实读。
 - **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。
 - **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
 - **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。
 
+### 本步禁止
+
+- 禁止读取本清单外的 rules / skills 正文；需要跳转只按 §6/§7 各一次。
+- 禁止跳过 §6 必开技能，或用摘要代替实读。
+- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
 
 ## 4. 本步门
 
 - 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
+- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步工作规则（编排）
 
@@ -54,88 +60,20 @@
 
 ### 本步动作清单
 
-- -StartTask → 预检 → 按 SC 落地 → 回写清单。
+- -StartTask → 勾选 iq-checklist → 预检（命中须扩 SC）→ 按 SC 逐条自证落地 → 回写清单。
 - 无 UI 时 frontend-gate 标 na。 超出清单先停。
 - 未验证不得标完成。细节同 change.implement 技能必做。
 
-### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
+### 前端硬门（本步含 UI · 单源）
 
-## 1. 何时触发
-
-- 新增/改页面、路由、菜单、深链、表单布局、权限可见性、关键空态/错误态。
-- 用户指出任一前端缺陷 → 触发同波次**缺陷族全量审计**（不得只修单点）。
-- 吸收**补测/完善/体验**类方案开工前，或同批 UI 缺陷 ≥5 → **编码前**先做交互诚实族审计（入口/主 CTA/灰显原因/筛选同构/空态分因/术语；见 DEV-IQ-18），再改代码。
-
-## 2. 必产物（按 §2.1 分级；该级缺一 = `UNVERIFIED`，不得 Claim 完成）
-
-| # | 产物 | 要求 |
-| ---: | --- | --- |
-| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选 |
-| 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
-| 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
-| 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
-| 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
-| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行或「需修」= BLOCKED |
-| 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
-
-### 2.1 证据分级（按变更风险裁剪，避免一律重证据）
-
-开工时在 `.gate/frontend/tier.json` 写 `{"tier":"A|B|C","reason":"…","routes":["/路径"]}`；未写按 **A**。分级决定产物范围，**不变的是**：console/network 无阻断错误、截图晚于本轮源码变更、结论可复核。
-
-| 级别 | 适用 | 必产物 |
-| --- | --- | --- |
-| **A 关键** | S1/崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + 独立评审 |
-| **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network |
-| **C 轻量** | 纯文案/列名/单位/排序/灰显/颜色等呈现调整，无行为变化 | **受影响路由 1 张桌面截图** + 文案/状态核对表（可并入 design-qa）+ console error=0；不要求移动截图与 parity-matrix |
-
-- **缺陷族审计**：A 级仍须同波次族审计；B/C 级做**同类路径静态扫描**（同模型/同谓词/同状态表面）+ 受影响路由验证，不要求全站矩阵重拍。
-- **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
-- **机检**：`gate.py` 读取 `tier.json`；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验。
-
-## 3. 必命令（RUN）
-
-```text
-# 1) 原型解码（单 HTML + base64/importmap 时）
-python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/prototype
-
-# 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
-# 产出 evidence.json + 桌面/移动图；ready!=true 不得过
-
-# 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
-python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
-
-# 4) 完成口令
-powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
-```
-
-## 4. 验收底线（人眼 + 门）
-
-- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉以**原型**为准；按方案偏离须在矩阵标 `按方案`。
-- 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
-- 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
-- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations`（原型按钮/操作名）必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
-- **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
-- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
-- 至少达到原型标准，再谈择优；禁止「能跑就行」的简化单列/自创壳。
-- 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
-- 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
-- **交互诚实（硬）**：`design-qa` #3/#14/#20 须按条文验收（加载诚实、空态分因、禁用原因+下一步、主 CTA 与阻断一致、筛选展示≡请求）；空勾「状态齐」不算通过。
-- 新用受限 Web/平台 API → 目标环境冒烟或 polyfill；console error 阻断本门。
-- 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
-- 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 实例纪律（按需拉起、结束显式退程）。
-
-## 5. 禁做
-
-- 只搜原始 HTML 断言「原型没有该页」（须先解码模块）。
-- 手写「通过」但无本轮 `evidence.json` / 哈希对不上。
-- MCP 不可用时不做 Playwright/内置浏览器兜底仍标完成。
-
-> L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。
+- **必读**：`rules/core/frontend-gate.md` §1–§5（打开→按本步产出/证据执行→回包）。
+- 无 UI → 整节标 `na` + 一句理由；有 UI 不得只看代码/测试/API 200。
+- 证据、分级、矩阵、截图/console/network 要求只认该文件，不在本包重复。
 
 ## 6. 技能指向（打开 → 执行 → 回本包）
 
 > **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
-> 同时只打开 **1** 个 skill；打开期间 `reads=` 可暂加该 skill 路径，闭环结束后以本 packet 为准。
+> 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
@@ -164,7 +102,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 9. 回执字段
 
 ```text
-route=workflow:iterate | step=implement | packet=rules/packets/iterate/implement.md | reads=rules/packets/iterate/implement.md[+skill] | skills=implementation-and-selftest,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:iterate | step=implement | agent=implementer | packet=rules/packets/iterate/implement.md | reads=rules/packets/iterate/implement.md[+skill] | skills=implementation-and-selftest,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
 
 `packet=` 必须含 `rules/packets/iterate/implement.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

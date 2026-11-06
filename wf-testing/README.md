@@ -8,11 +8,11 @@
 **AI Workflow 包（测试轨）**：主链见 `workflows/testing.yaml`——需求/测试依据分析（需求模型/oracle/追溯）→ **测试计划（唯一编排载体）** → 生成 → **用例评审（独立量规/机器门）** → 按计划执行 → 报告（口令可切入任一步）；内置专业技能（`skills/`：随包生效、按步自动加载，含 `testcase-review`）+ 可选能力层（`capabilities/` 注册表：本机可用即自动使用、不可用降级）。版本级单点：`{workroot}/test-plan.md`（主计划；V1～V4 卷文件从属）、`{workroot}/test-report.md`（计划对照/准出评估/遗留风险）。  
 **依据建模**：PRD/迭代方案/原型/接口/代码 diff 先按 `skills/test-basis-analysis/SKILL.md` 建需求模型，落跨轨共用 **`{workroot}/test-analysis.md`（§0 Brief+本期差量表置顶）**/冲突/九类歧义/oracle/TP 追溯；**§2 覆盖单元即验证点**（类型/方法/归属/oracle），§2.1 记点级结论。同轮生成**用户版业务变化说明**（`{workroot}/说明-{主题}-用户版-{yyyyMMdd}.md`；T1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。有产品/开发 Delta 则引用对账。功能/专项双读全表；接口/发布前/探索式至少读 §0。确认门主屏出示 §0 后才写计划/用例；预期无来源不写断言。版本级固定四卷（V1 主链/V2 功能/V3 方法/V4 收口；模板 `test-plan-volume-template.md`），主计划仍是唯一编排入口。  
 正式并列轨：功能全量/专项、探索式、接口、发布前、缺陷；**计划驱动模式**按测试计划把各轨串成一条执行链（功能→接口→探索式→非功能→回归→缺陷闭环→报告）。  
-**接口域**：独立模板 `rules/templates/20-test-cases/api-test-case-template.md`（契约+对照+用例+脚本清单）+ `validate_api_testcase.py`；禁套功能用例模板。探索式模板含步骤四列与章程映射；随机模板为旅程会话+去重窗+发现分流（均比功能轻、须可判定）。  
-口令映射 workflow；条件 `hitl`/`hitl_when`、覆盖三闸、冒烟前置与阻断面、证据红线默认按规则（用户二次明确选择覆盖除外，见 `AGENTS.md` §0 第 5 条）；子代理取档/生命周期按 `rules/collaboration/subagents.md`（决策树详 `multi-agent-output.md` §1.5）；声明 `mode=`（脚本→续跑单模块直跑→同轮≥2 模块子代理→单模块大/高风险拆分）；分片/核验新开、禁 resume Writer；只读/draft/隔离套可并行≤3，同 MCP 实例需独立会话/路由或独占实例；超时降级直做。  
+**接口域**：独立模板 `rules/templates/20-test-cases/api-test-case-template.md`（契约+对照+用例+脚本清单）+ `validate_api_testcase.py`；禁套功能用例模板。探索式（细节/体验深挖·P4）一场一句章程；T1+ 准出强制（Q14）；随机为旅程办结+去重窗+发现分流（均不替代功能/接口覆盖）。  
+口令映射 workflow；条件 `hitl`/`hitl_when`、覆盖三闸、冒烟前置与阻断面、证据红线默认按规则（用户二次明确选择覆盖除外，见 `AGENTS.md` §0 第 5 条）；子代理取档/生命周期按 `rules/collaboration/subagents.md`（决策树详 `multi-agent-output.md` §1.5）；声明 `exec_mode=`（脚本→续跑单模块直跑→同轮≥2 模块子代理→单模块大/高风险拆分；并行补 `pg=`）；分片/核验新开、禁 resume Writer；只读/draft/隔离套可并行≤3，同 MCP 实例需独立会话/路由或独占实例；超时降级直做。  
 首次无 `wf-testing onboard: done`（兼容旧 `landing=ok`）时自动按接入清单核验并打标一次；之后直跑。  
 **独立实施**：本包可单独落地，不要求开发/产品包同时安装或默认联动；跨包输入是可选的——有则按用户指定路径读入，无则按现有主读/基线执行，最多一句提示，不阻塞、不反复追问。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；不需要额外协作目录或合同文件，本包仍独立执行。  
-**成本策略**：**域常青分层库** + **变更装填**（suite=`core|module|full`）+ **多轨质量标准**（`rules/special/multi-track-quality.md`：Q11 库≠列车；**Q12 方案细节完整映射**；发现问题优先于通过率）。漏测谱系 `rules/special/defect-findings-spectrum.md`；装填速查 `release-train-load.md`；可选 GHA 样例 `extras/github-actions-test-gates.example.yml`。禁日常通读全库。功能 P0 / 接口适用维脚本化；发布前工具测量。**完整覆盖**=验证点/细节映射无空 + P0/GATE/负向/计算类点有结论；**完整执行**=按 suite/depth 装填。探索/随机以可复现发现与缺口衡量。禁无分析全仓重生；禁「继续」隐式 generate；禁以「本期不测」整版空库；禁为刷绿砍负向。  
+**成本策略**：**域常青分层库**（功能/接口）+ **变更装填**（suite=`core|module|full`）+ **多轨质量标准**（`rules/special/multi-track-quality.md`：Q11 库≠列车；**Q12 方案细节完整映射**；**Q13 探索常青≠Domain**）。漏测谱系 `rules/special/defect-findings-spectrum.md`；装填速查 `release-train-load.md`。禁日常通读全库。功能 P0 / 接口适用维脚本化；发布前工具测量。**完整覆盖**=验证点/细节映射无空 + P0/GATE/负向/计算类点有结论；**完整执行**=按 suite/depth 装填。探索/随机以可复现发现与缺口衡量，章程按 §0×本项目缺陷簇×谱系**每轮重选**（戳夹分轮，非域库复跑）。禁无分析全仓重生；禁「继续」隐式 generate；禁以「本期不测」整版空库；禁为刷绿砍负向。  
 **新版本入口**：计划 §3.7 逐模块/流程标「P0 冒烟/P0 待脚本/迭代功能/接口确定性/一次性/淘汰」；P0 冒烟脚本登记 `{workroot}/smoke-checklist.md`，再按矩阵执行。  
 **额外发现**：AI 执行中同时记录用例之外的 UI/布局/显示/文案/冗余标签/console/network/UX 异常，进报告 §5.4；不静默忽略。  
 **体验纪律**：验收 UI 减法（冗余文案/标签、删后仍可理解）与 UX/DX/AX 三维；测试资产同样不得净退化；详见 `AGENTS.md` §0.2-11、`rules/templates/20-test-cases/a11y-ux-checklist.md` §2.1。  
@@ -48,7 +48,6 @@
 | `rules/collaboration/` | `handoff.md`、`roles.md`、`subagents.md`（取档/生命周期短口径） |
 | `rules/defects/` | `collaboration.md`、`classification.md`、`platform-adapter.md` |
 | `rules/special/` | `multi-track-quality.md`、`release-train-load.md`、`defect-findings-spectrum.md`、`multi-agent-output.md`、`script-execution.md` |
-| `extras/` | 可选实例样例（如 `github-actions-test-gates.example.yml`）；非主链必读 |
 | `rules/tracks/` | `api.md`、`exploratory.md`、`random-flows.md`、`pre-release.md`（按口令点读） |
 | `rules/playbooks/` | 重阶段步骤卡：生成/执行/缺陷 |
 | `rules/templates/` | 按生命周期分 6 组：`00-onboarding` / `10-planning` / `20-test-cases` / `30-execution` / `40-report-review` / `90-handoff`；先看 `rules/templates/index.md` |
@@ -70,7 +69,7 @@
 | `{workroot}/reviews/` | `INDEX.md` + 现行 `*-评审-*.md`；被替代进 `_archive/` | 域夹/轨根/工作根散落；只增不删 |
 | `{workroot}/functional/` | 功能域：`{NN}-{短名}/` + `*-功能用例.md` + `*-功能台账.md` + `scripts/`；`evidence/`；`00-专项索引.md` | 光秃用例；接口资产；评审记录 |
 | `{workroot}/api/` | 接口域：`{NN}-{短名}/` + `*-接口用例.md` + `*-接口台账.md` + `scripts/`；`evidence/` | 与功能混淆命名；评审记录 |
-| `{workroot}/exploratory/` | `{主题}-{戳}/` + `*-探索式用例.md` + `*-探索式台账.md`；`evidence/` | 功能全量冒充 |
+| `{workroot}/exploratory/` | `{主题}-{戳}/` + `*-探索用例.md` + `*-探索台账.md`；`evidence/`（方法常青·戳夹分轮） | 功能全量冒充；把戳夹当 Domain 常青库 |
 | `{workroot}/random-flows/` | `_覆盖账本` + `{主题}-{戳}/` + `*-随机用例.md` + `*-随机台账.md`；`evidence/` | 计划内轨道混用 |
 | `{workroot}/pre-release/` | `performance/`、`security/`、`compatibility/`、`migration/`；方案/报告/证据/脚本 | 光秃方案/报告；多专项混一案 |
 | `{workroot}/changes/` | `CR-{yyyyMMdd-HHmm}-{slug}.md` | 整期方案 |
@@ -97,7 +96,7 @@
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `verify/` | 收批/报告/回写时读；运行态写 `.gate/wf-testing/` |
 
-> 读取预算（目标，非硬上限）：核心必读 ≤3～4（AGENTS 当前节 + 当前 step YAML 块 + 当前 agent/当前关键产物）；方法层按读取索引「命中才读」；总量 ≤8k；复杂步可至 5 并在收尾 `reads=` 说明；不得为省预算跳过门/证据/红线。规则不是越多越稳，读全本会稀释当前 step 约束。
+> 读取预算（目标，非硬上限）：核心必读 ≤3～4（AGENTS 当前节 + 当前 step YAML 块 + 当前 agent/当前关键产物）；方法层按读取索引「命中才读」；总量目标 ≤8k，含 1 个必开技能的步骤实测可至 ~10k（技能正文是最大项），超出在收尾 `reads=` 说明，不为凑预算跳过必开技能/门/证据；不得为省预算跳过门/证据/红线。规则不是越多越稳，读全本会稀释当前 step 约束。
 
 ## 3. 上手（快速开始）
 

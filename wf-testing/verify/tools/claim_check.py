@@ -27,7 +27,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ALLOWED_VERDICTS = {"COMPLETE", "READY", "PASS", "PASSED", "通过", "CONDITIONAL"}
@@ -131,6 +131,8 @@ def main() -> int:
     verdict = str(receipt.get("verdict") or receipt.get("result") or "").strip().upper()
     if verdict not in ALLOWED_VERDICTS:
         problems.append(f"verdict={verdict or '空'}，只允许 {sorted(ALLOWED_VERDICTS)}")
+    if not str(receipt.get("gate_id") or "").strip():
+        problems.append("回执缺少 gate_id（旧版/伪造），重跑门")
     if verdict == "CONDITIONAL" and not receipt.get("conditional_accepted"):
         problems.append("CONDITIONAL 无接受人/条件确认，不得写“有条件通过/准出”")
 
@@ -157,6 +159,8 @@ def main() -> int:
             age_hours = (datetime.now(timezone.utc) - stamp.astimezone(timezone.utc)).total_seconds() / 3600
             if age_hours > args.max_age_hours:
                 problems.append(f"回执已过期 {age_hours:.1f}h > {args.max_age_hours}h")
+        if stamp.astimezone(timezone.utc) > datetime.now(timezone.utc) + timedelta(minutes=5):
+            problems.append("回执 timestamp 在未来（伪造/时钟异常），重跑门")
 
         # 测试计划/分析/报告/台账在回执后改动 => 回执不再代表当前结论。
         stale_sources: list[str] = []

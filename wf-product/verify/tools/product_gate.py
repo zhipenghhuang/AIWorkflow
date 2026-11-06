@@ -242,6 +242,8 @@ def check_prd(package_root: Path, path: Path) -> dict[str, Any]:
     level = (fm.get("prd_level") or ("light" if "轻量" in text[:300] else "full")).lower()
     if level not in ("light", "full"):
         level = "full"
+    if level == "light" and str(fm.get("scope_change", "")).strip().lower() in ("yes", "true", "是", "1"):
+        issues.append("轻量 PRD 不得声明 scope_change=yes；AC/范围变化请用全量 PRD")
     for key in ("doc_id", "title", "status", "version", "owner", "source_of_truth", "updated"):
         if not fm.get(key):
             issues.append(f"frontmatter 缺少 {key}")

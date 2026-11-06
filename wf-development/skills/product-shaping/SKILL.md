@@ -7,7 +7,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 
 > 用于：`solo.frame`、`solo.plan` 前段；也可在 `change.clarify` 遇到「只有一个想法、没有 PRD」时按需加载。
 > 目标：先判断**值不值得做、做多大**，再进入方案；不把一句「我想要 X」直接变成代码。
-> 边界：本技能不写技术架构、不写完整 PRD、不做市场调研；技术方案归 `solution-design`，完整 PRD 归产品包或 `requirements-and-spec` 的完整档。
+> 边界：本技能不写技术架构、不写完整 PRD、不做市场调研；技术方案归 `solution-design`，完整 PRD 归产品包或 `requirements-and-spec` 的完整链。
 > 口径：`rules/core/lightweight.md` §0 / §3.1；**免盘问 ≠ 免验收字段**。
 
 ## 1. 适用 / 不适用
@@ -48,7 +48,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 
 ## 3.0 产品最小硬门槛（任何档；实施前）
 
-进入方案确认 / 写代码前必须齐（快档写在方案卡 §0/§1；标准档可在产品定义卡）：
+进入方案确认 / 写代码前必须齐（写在方案卡 §0/§1；需要产品定义卡时放同页或附录）：
 
 | 字段 | 最低要求 | 不合格 |
 | --- | --- | --- |
@@ -58,7 +58,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 | 非目标 | ≥1 条明确不做 | 空白或「以后再说」无边界 |
 | AC | ≥1 条可被完成门读取 | 「按我说的做」无检查点 |
 
-拿不准用户要「只做方案」还是「直接做」→ 一问确认；拿不准是否升级完整档 → 按 `lightweight.md` §2 推荐升级并一问。
+拿不准用户要「只做方案」还是「直接做」→ 一问确认；拿不准是否升级完整链 → 按 `lightweight.md` §2 推荐升级并一问。
 
 ## 3. 产品定义卡（一页）
 

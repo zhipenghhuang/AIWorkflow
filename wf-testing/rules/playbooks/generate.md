@@ -14,7 +14,7 @@
 | plan（版本级） | 完整测试计划模板 + 本卡 + **测试分析表** + `skills/test-analysis-and-plan` | 输入清点扇出 | 执行/缺陷全本 |
 | generate 功能 | `workflow.md` §2 头+§2.1.0 + **`test-case-template.md`** + 本卡 + 计划 §3.2/§3.7 + **测试分析表** + **命中域现行用例** + `skills/testcase-design`（§2.2 深度/§2.4/§5） | 脚本执行 §1/§2；提测单影响面（若有） | 接口/发布前契约（非本轨）；`_archive`；勿代替 review-cases |
 | generate 接口 | `tracks/api.md` + `skills/test-interface` + **`api-test-case-template.md`** + **命中接口域现行资产** + 分析表 §0 | 脚本执行 §2；depth=full 时全维；落盘后 `validate_api_testcase.py` | 功能 `test-case-template.md`；功能用例全量；未点名全仓重生 |
-| generate 探索式 | `tracks/exploratory.md` + **`exploratory-case-template.md`**（步骤四列+章程映射）+ 分析表 §0 | 计划 §12 | 功能覆盖三闸；功能用例模板 |
+| generate 探索式 | `tracks/exploratory.md` + **`exploratory-case-template.md`**（一场一句+会话记录）+ 分析表 §0 | 计划 §12 | 功能覆盖三闸；功能用例模板 |
 | generate 随机业务流程 | `tracks/random-flows.md` + **`random-flow-case-template.md`**（用户旅程+办结+去重窗+分流） | 账本最近 N 轮；有则基线菜单地图/`smoke-checklist.md`（办结候选） | 计划 §3/§9；主读/分析表作判定；探索式菜谱；功能三闸 |
 | generate 发布前 | `tracks/pre-release.md` + 专项技能 | 工具 README | 功能覆盖三闸（不适用） |
 | review-cases | `workflow.md` §2.5 + `skills/testcase-review` + 评审记录模板 + 被审用例/映射/**测试分析表**/需求模型 | coverage 回执；可选 `qa-skills` 能力 | 执行专规；生成者自评 |
@@ -39,7 +39,7 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 5. **用例质量（生成自检）**：
    - **功能**：独立可执行、前置三件套、步骤四列；§1 总览可导航；评分卡 ≥18/20；`validate_testcase.py`。
    - **接口**：契约表+对照禁空+请求要点+判定三要素；评分卡 ≥18/20；`validate_api_testcase.py`；禁套功能模板。
-   - **探索式/随机**：对照各自模板；探索：步骤四列+判定面+章程映射（计划驱动）；随机：`口径=现网`+办结目标+主业务选池+旅程可判定+去重窗对照+发现分流（含体验；无占比硬门槛；不设主读）。
+   - **探索式/随机**：对照各自模板；探索：一场一句+会话四记+发现可复现或写无；随机：`口径=现网`+办结目标+选池+旅程可判定+去重窗+分流。两轨都不顶替功能覆盖三闸。
    - **自检不替代独立评审**。
 6. **脚本判定**：P0-Smoke/核心闭环 → 同轮脚本；接口按 depth（迭代 `standard`=适用维全可脚本；发版 `full`；补丁才 `core` 仅高风险维）→ 同轮 API 脚本；其余默认 AI；一次性不脚本。
 7. **review-cases**：T1+ 功能强制；接口 T1+ 或进准出强制（量规见 `testcase-review` §3.1）；探索计划纳入且 T2+ 强制。放行后才进 execute/P2。需修 → 回 generate → 重审≤1。T0 可 SELF_CHECKED。
@@ -53,7 +53,7 @@ T0/T1 不强行填完整模板；但范围、类型、轨道、**装填矩阵**�
 - 每条用例可追溯到 RQ/AC/F/R/TP/`GATE/REL/§` 或页面/接口来源；预期不按现网反推；P0/GATE 无对应用例=覆盖缺口。
 - 主读已点名不免除测试分析表；小任务不豁免覆盖闸（功能命中域/专项）；禁只读原文跳过分析表。
 - 探索式/随机业务流程/接口/发布前按各自契约，不套功能三闸；随机业务流程禁止写入测试计划。
-- 大规模生成：≥3 模块且（预估≥40 条或用户点名）→ 分片写 `.draft`（不相交可并行≤3）；编排合并；超时/空产物→降级直做（多Agent §1.5.4）；**禁**并行写同一正式域文件；开跑声明 `mode=`。
+- 大规模生成：≥3 模块且（预估≥40 条或用户点名）→ 分片写 `.draft`（不相交可并行≤3）；编排合并；超时/空产物→降级直做（多Agent §1.5.4）；**禁**并行写同一正式域文件；开跑声明 `exec_mode=`。
 - 生成写手不得自审自放行；T1+ 功能未过评审闸不得进 P2。
 - 旧 `{NN}` 包视为 Domain，不强制重编号。
 

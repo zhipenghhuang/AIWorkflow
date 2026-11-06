@@ -9,7 +9,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={可定稿|草稿|阻塞|不适用} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 待确认={n|列表|无}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | reads={≤5 或 +n} | gates={id=verdict} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
 ```
 
 - 有门产物 → 回执与 `.gate/wf-product/{mode}.json` 一致（`READY/DRAFT/BLOCKED`）；无门 → `结论=不适用` + 自检依据，**不伪造**门回执。  
@@ -27,7 +27,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 待确认={…}
-【遵守自检】route={…} | mode={…} | reads={…} | gates={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
+【遵守自检】route={…} | mode={…} | packet={…} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，{完成}/{总数}，{说明}）：{覆盖面；目标/验收；未决；未验证不得写「无阻断」}
@@ -89,8 +89,11 @@
 - **{产品}·{版本} 产品** —— 完成度: {P%}，{进度一句}
   - **{计划短名}**（{确认态}）：{静态简介；禁下一步}
   - 【今日工作总结】{yyyy-MM-dd}｜{产品}·{ver}｜产品
-    - #{id} **{标题}**：{完整说明}
+    - **产品内容**
+      - #{id} **{标题}**：{完整说明}
 ```
+
+只汇总区间增量；【今日】下按内容分组，组内直接分点，无内容的组整组省略。
 
 ## 3. 输出分级
 

@@ -4,20 +4,20 @@
 version: 1
 modes:
   coverage:
-    required: [coverage-map, case-vp, case-oracle, analysis-structure, plan-structure]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性；新格式分析/计划/用例验证点/Oracle 硬检
-    optional: [depth-variant-date-entry]  # soft：变体/日期倒置/入口·字段齐套自检关键字
+    required: [coverage-map, case-vp, case-oracle, analysis-structure, plan-structure]  # 含 §3 映射 + §4 深度档自检/视觉基础存在性；新格式分析/计划/用例验证点/Oracle 硬检；验证点全覆盖 + §2.1 结论（report）
+    optional: [depth-variant-date-entry, ui-evidence]  # soft：变体/日期倒置/入口·字段齐套自检关键字
     manual: [point-matrix-no-gap, method-matrix-no-gap, basis-coverage-no-gap, design-doc-matrix, change-impact-matrix, core-chain]  # 本批命中域对应分析表 §2.2/§2.3/§2.4 行；§3.1/§6/§7.2
   review:
     required: [review-record, review-structure, review-verdict]
     optional: [coverage-receipt, depth-variant-date-entry]
     manual: [a1-a6-sampling, s1-s9-suite, scorecard-rerun, independent-context, weak-oracle-pass, plan-four-volumes, batch-table, point-verdict, design-doc-matrix, change-impact-matrix, core-chain]
   execute:
-    required: [plan-exists, analysis-structure, plan-structure, case-vp, case-oracle, ledger-counts, evidence-exists, blocked-reasons, p0-status]
-    optional: [coverage-map, p0-missing, ui-evidence-for-named-ui]
-    manual: [delivery-gap-not-observation, batch-merge, parallel-isolation, result-self-check, batch-spotcheck]  # 范围内入口缺失禁标观察；§3.9 合并/隔离；落账前四问/批末抽样
+    required: [plan-exists, analysis-structure, plan-structure, execute-review, case-vp, case-oracle, ledger-counts, evidence-exists, blocked-reasons, p0-status]
+    optional: [coverage-map, p0-missing, ui-evidence-for-named-ui, script-channel-when-listed]  # soft：清单=已脚本化则应有本批脚本产物或 deviation=
+    manual: [delivery-gap-not-observation, batch-merge, parallel-isolation, result-self-check, batch-spotcheck, exec-economy-receipt]  # 范围内入口缺失禁标观察；§3.9 合并/隔离；落账前四问/批末抽样；开跑/收尾 exec_mode+pg+econ 与技能§2 一致
   report:
-    required: [plan-exists, analysis-structure, plan-structure, case-vp, case-oracle, ledger-counts, report-counts, report-structure, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
-    optional: [depth-variant-date-entry]
+    required: [plan-exists, analysis-structure, plan-structure, case-vp, case-oracle, ledger-counts, report-counts, report-structure, report-trace, p0-status, p0-missing, report-verdict, evidence-exists, coverage-map]
+    optional: [depth-variant-date-entry, ui-evidence]
     manual: [writeback-receipt, delivery-gap-closed-or-listed, point-vs-case-counts, batch-parallel-stats, matrix-gap-closed, design-impact-core-gap]
   writeback:
     required: [writeback-receipt]
@@ -49,6 +49,8 @@ soft:
   - ui-named-no-api-only-pass    # 点名 UI 须 E1（执行/评审人工核）
   - judgment-and-path-witness    # 工作流 §3.0 禁弱通过 + 路径旁证须记（执行人工核）
   - depth-feature-once           # §2.2 命中特征一次到位；禁事后堆条（评审人工核）
+  - script-channel-when-listed   # 清单=已脚本化 → 本批脚本产物或 deviation=（执行人工/可选机检）
+  - exec-economy-receipt         # 开跑/收尾 exec_mode+pg(+econ) 与技能 §2 一致（execute 收尾机检硬项）
 
 # 低价值高成本（不做/少做）
 avoid:

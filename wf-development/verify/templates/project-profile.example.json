@@ -15,6 +15,8 @@
   "smoke": "npm run test:smoke",
   "integration": "npm run test:integration",
   "security": "",
+  "perf": "",
+  "_perf_note": "性能基准/回归命令（可选）；配置后 L2+ 门内必跑，失败=BLOCKED。示例：python scripts/perf_regression.py 或 k6 run perf/smoke.js",
   "frontend": {
     "baseUrl": "http://localhost:3000",
     "viewports": ["360x800", "768x1024", "1280x800"],
@@ -42,6 +44,7 @@
     "e2e": 900,
     "capture": 900,
     "integration": 900,
-    "security": 900
+    "security": 900,
+    "perf": 900
   }
 }
