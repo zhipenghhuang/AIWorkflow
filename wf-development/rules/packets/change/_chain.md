@@ -37,7 +37,7 @@
 | 2 | `analyze_input` | 产品资料解析与理解确认 | `has_product_docs_or_prototypes` | `_region-align` | `rules/packets/change/analyze_input.md` |
 | 3 | `requirements` | 需求基线 | `new_feature_or_scope_change_or_requested` | `_region-align` | `rules/packets/change/requirements.md` |
 | 4 | `design` | 方案与设计 | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `_region-design` | `rules/packets/change/design.md` |
-| 5 | `review-docs` | 落地文档评审 | `landing_doc_review_required` | `_region-design` | `rules/packets/change/review-docs.md` |
+| 5 | `review-docs` | 落地文档评审 | `do_landing_doc_review` | `_region-design` | `rules/packets/change/review-docs.md` |
 | 6 | `plan` | 任务清单 | `multi_file_or_new_feature_or_requested` | `_region-design` | `rules/packets/change/plan.md` |
 | 7 | `implement` | 实施 | `—` | `_region-build` | `rules/packets/change/implement.md` |
 | 8 | `review` | 代码评审 | `review_required` | `_region-build` | `rules/packets/change/review.md` |

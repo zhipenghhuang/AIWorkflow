@@ -64,6 +64,7 @@ steps:
   id: release
   must_read:
   - rules/packets/deliver/release.md
+  - rules/templates/60-retro/retro-template.md
   agent: pm-lead
   on_fail: 不发布；回 UAT/审批或报阻塞，不得用“已发布”措辞
   gate: uat-evidence

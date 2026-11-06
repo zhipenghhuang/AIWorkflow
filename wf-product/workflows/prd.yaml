@@ -67,6 +67,7 @@ steps:
   id: prd
   must_read:
   - rules/packets/prd/prd.md
+  - rules/templates/10-planning/iteration-plan-template.md
   agent: prd-writer
   gate: product-prd
   gate_type: machine

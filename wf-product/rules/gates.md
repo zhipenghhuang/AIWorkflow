@@ -1,7 +1,7 @@
 # 门（产品轨）
 
-> 单一出处：门语义、`when` 词表、门档位。步骤顺序与是否触发以 `../workflows/*.yaml` 为准；**只认步上 `hitl`/`hitl_when`/`gate_when`**，专规不另造门。
-> 读取时机：当前步有门时只读本表对应一行；写/改 YAML 时才读全表。不要每次开工通读。
+> 单一出处：门语义、`when` 词表、门档位。步骤顺序与是否触发以 `../workflows/*.yaml` 为准；**只认步上 `when` / `hitl` / `hitl_when` / `gate_when`**，专规不另造门。
+> 读取时机：当前步有门时只读词表对应 token；写/改 YAML 时才读全表。不要每次开工通读。
 > 质量审计/评分卡参考见 `special/quality-gate.md`；它不是额外确认门，执行仍只认步上 `hitl`/`hitl_when`/`gate_when`。
 
 ## 1. 门语义
@@ -43,9 +43,48 @@
 
 ## 2. `when` 词表
 
-`has_pending_commit` 有文件变更待提交｜`has_uat` 本轮有 UAT/验收要求（发布门必须核）｜`change_requested` 改动已定稿基线或产品缺陷/问题处置需确认（不含纯新需求入池）｜`intent_needs_confirm` 口令/上下文对「给谁·做什么·交付形态」**无法唯一确定**，或跨角色外发handoff/确认文且本任务未对齐，或新开对外交付主题 → 真；纯查询/机械、同任务已确认未变、本句已写死意图、已对齐任务内续跑 → 假；拿不准按真。细则 `clarification.md` §0｜`understanding_needs_confirm` 输入为模糊/单点需求、含外部文档或原型、存在实质冲突、方案有取舍、或 P1↑/P2/P3/点名写 PRD/计划/收集需求时需确认**理解+方案要点**；已有**当前任务**理解与方案双确认记录/已确认受理单（含方案要点）、或信息完整的缺陷单/答疑且已能复述且无新方案取舍时假｜`plan_needs_confirm` 首次计划或范围·指标·版本实质变更｜`new_requirement_or_scope_change` 新需求/范围变化｜`new_requirement` 分诊为新需求（不含已定稿基线的需求变更）｜`scope_decision_required` 跨版本/高价值/点名立项，需单需求范围确认｜`scope_unconfirmed` 无已确认产品计划且无已批准的单需求范围｜`landing_doc_review_needed` 落地文档（PRD P2+、产品计划首版或实质变更、设计评审/设计交接、交付计划、实质变更重审、或用户点名评审）待选评审方式且本会话尚未选定；P0/普通 P1 light 且用户未点名时可假；**P1↑ 默认提示 A / SELF_CHECKED，不强制独立审；P2+ 必问 A/B**｜`ai_review_chosen` 用户已选 B（AI 独立评审）｜`prd_structure_required` 本步为写/改 PRD 且级别为 P2+/P1↑，或用户点名定稿/交开发/拟置 APPROVED，或普通 P1 将交开发；P0 纯文案无结构变更为假｜`finalize_requested` 评审通过且用户点名定稿/进入排期（仅评审不触发）｜`has_ui_requirement` 有页面/界面需求或点名画原型｜`narrative_needs_confirm` 受众/目标/演示范围不明或首次对外演示｜`materials_for_external` 材料/文档将对外发送、承诺或发布｜`demo_needs_dryrun` 准备演示/客户介绍/彩排｜`docs_requested` 点名用户手册/快速开始/FAQ/发布说明/培训材料｜`needs_impact_assessment` 变更/缺陷/新需求需影响评估｜`needs_linked_update` 需联动回写与回执（除纯答疑外均为真）｜`decision_required` 需处置确认（P2+/P3、改已定稿基线、产品缺陷、影响版本/里程碑/KPI；P0/P1 且不改基线=false）｜`change_apply_required` 处置结论为接受/下期/立即修且确有联动项（拒绝/重复/不修/退回开发/补充信息=false）｜`go_decision_go` 立项结论=Go（Hold/Kill=false）｜`substantive_change` 实质变更需重审｜`plan_level_change` 影响版本范围/里程碑/KPI｜`release_decision_needed` 未发布或发布内容/窗口变更｜`remark_writeback` 有拟回写缺陷平台的备注/附件/状态/指派｜`handoff_send_required`（拟生成或用户点名生成任一 HO 交接包（常用类型为示例，含 OTHER/项目扩展）且本包本会话尚未得到用户对**本次拟发包的类型/接收方/摘要**的确认 → 真；用户已看到【拟发包】并明确确认该摘要未变 → 假；仅说「要/生成/交接包/确认发包」但未确认具体摘要 → 真。**不得**因其它门已过而置假）｜`handoff_change_substantive` 交接包内变更达到 C2/C3 或改动已定稿基线｜`prd_ready_for_handoff` PRD 已 `APPROVED` 且 PRD 门 READY，本轮 `confirm_prd` 定稿/进入排期，且台账无同版本 `REQ` 已发送/已接收记录；仅评审不触发｜`docs_migration_needed` 有未登记资料、拟改名/搬迁/归档、工作文档归档或临时文件清理、或旧结构迁移｜`skill_changes_pending`（`skill-audit` 出具拟改 skills / capabilities表/装配项且用户尚未确认；无拟变更或已确认/拒绝后为假）｜`iteration_close_needed`（探测到下一期方案/换主题/版本升级且当前迭代是否结束不明确；已确认结束或明确并行不关后为假）。
+**求值卡（硬）**：外部事实优先；模型自评不确定 → **按触发（真）**；不得用「先问用户」代替 when 求值（路径/档位不确定才先问）。`when` 假 → 跳过整步；`hitl_when` / `hitl[].when` 假 → 只跳过该门；`gate_when` 假 → 只跳过该闸。跳过须写 `skip=` / `when_eval=`。
 
-条件不满足则跳过该门；未写 `when` 视为无条件。`gate_when: ai_review_chosen` 不满足 → 跳过该 gate（步骤可走 A 路径）。同一确认点只问一次；固定骨架不得省略。
+| token | 为真 | 为假 |
+| --- | --- | --- |
+| `has_pending_commit` | 有文件变更待提交 | 未命中该条件 |
+| `has_uat` | 本轮有 UAT/验收要求（发布门必须核） | 未命中该条件 |
+| `change_requested` | 改动已定稿基线或产品缺陷/问题处置需确认（不含纯新需求入池） | 未命中该条件 |
+| `intent_needs_confirm` | 口令/上下文对「给谁·做什么·交付形态」**无法唯一确定**，或跨角色外发handoff/确认文且本任务未对齐，或新开对外交付主题 → 真 | 纯查询/机械、同任务已确认未变、本句已写死意图、已对齐任务内续跑 → 假；拿不准按真。细则 `clarification.md` §0 |
+| `understanding_needs_confirm` | 输入为模糊/单点需求、含外部文档或原型、存在实质冲突、方案有取舍、或 P1↑/P2/P3/点名写 PRD/计划/收集需求时需确认**理解+方案要点**；已有**当前任务**理解与方案双确认记录/已确认受理单（含方案要点）、或信息完整的缺陷单/答疑且已能复述且无新方案取舍时假 | 未命中该条件 |
+| `plan_needs_confirm` | 首次计划或范围·指标·版本实质变更 | 未命中该条件 |
+| `new_requirement_or_scope_change` | 新需求/范围变化 | 未命中该条件 |
+| `new_requirement` | 分诊为新需求（不含已定稿基线的需求变更） | 未命中该条件 |
+| `scope_decision_required` | 跨版本/高价值/点名立项，需单需求范围确认 | 未命中该条件 |
+| `scope_unconfirmed` | 无已确认产品计划且无已批准的单需求范围 | 未命中该条件 |
+| `landing_doc_review_needed` | 落地文档（PRD P2+、产品计划首版或实质变更、设计评审/设计交接、交付计划、实质变更重审、或用户点名评审）待选评审方式且本会话尚未选定；P0/普通 P1 light 且用户未点名时可假；**P1↑ 默认提示 A / SELF_CHECKED，不强制独立审；P2+ 必问 A/B** | 未命中该条件 |
+| `ai_review_chosen` | 用户已选 B（AI 独立评审） | 未命中该条件 |
+| `prd_structure_required` | 本步为写/改 PRD 且级别为 P2+/P1↑，或用户点名定稿/交开发/拟置 APPROVED，或普通 P1 将交开发；P0 纯文案无结构变更为假 | 未命中该条件 |
+| `finalize_requested` | 评审通过且用户点名定稿/进入排期（仅评审不触发） | 未命中该条件 |
+| `has_ui_requirement` | 有页面/界面需求或点名画原型 | 未命中该条件 |
+| `narrative_needs_confirm` | 受众/目标/演示范围不明或首次对外演示 | 未命中该条件 |
+| `materials_for_external` | 材料/文档将对外发送、承诺或发布 | 未命中该条件 |
+| `demo_needs_dryrun` | 准备演示/客户介绍/彩排 | 未命中该条件 |
+| `docs_requested` | 点名用户手册/快速开始/FAQ/发布说明/培训材料 | 未命中该条件 |
+| `needs_impact_assessment` | 变更/缺陷/新需求需影响评估 | 未命中该条件 |
+| `needs_linked_update` | 需联动回写与回执（除纯答疑外均为真） | 未命中该条件 |
+| `decision_required` | 需处置确认（P2+/P3、改已定稿基线、产品缺陷、影响版本/里程碑/KPI；P0/P1 且不改基线=false） | 未命中该条件 |
+| `change_apply_required` | 处置结论为接受/下期/立即修且确有联动项（拒绝/重复/不修/退回开发/补充信息=false） | 未命中该条件 |
+| `go_decision_go` | 立项结论=Go（Hold/Kill=false） | 未命中该条件 |
+| `substantive_change` | 实质变更需重审 | 未命中该条件 |
+| `plan_level_change` | 影响版本范围/里程碑/KPI | 未命中该条件 |
+| `release_decision_needed` | 未发布或发布内容/窗口变更 | 未命中该条件 |
+| `remark_writeback` | 有拟回写缺陷平台的备注/附件/状态/指派 | 未命中该条件 |
+| `handoff_send_required` | 拟生成/点名 HO 且未确认类型/接收方/摘要（仅说「要交接包」未确认摘要仍真；不得因它门已过置假） | 用户已确认该摘要未变 |
+| `handoff_change_substantive` | 交接包内变更达 C2/C3 或改定稿基线 | 低于该阈值 |
+| `prd_ready_for_handoff` | PRD 已 APPROVED 且门 READY，本轮定稿/进排期，台账无同版本 REQ 已发/已收；仅评审不触发 | 未定稿或已发过 |
+| `docs_migration_needed` | 有未登记资料、拟改名/搬迁/归档、工作文档清理或旧结构迁移 | 无此类动作或已确认 |
+| `skill_changes_pending` | skill-audit 拟改 skills/capabilities 且未确认 | 无拟改或已确认/拒绝 |
+| `iteration_close_needed` | 探测到下一期/换主题/升级且是否关本期不明 | 已确认结束或并行不关 |
+
+未写 `when` 视为无条件。`gate_when: ai_review_chosen` 不满足 → 跳过该 gate（步骤可走 A 路径）。同一确认点只问一次；固定骨架不得省略。
+
+**易混**：`new_requirement`（change 分诊新需求入池）≠ `new_requirement_or_scope_change`（prd prioritize）；`substantive_change`（需重审）≠ `plan_level_change`（版本/里程碑/KPI）≠ `handoff_change_substantive`（交接包内 C2/C3 或改定稿基线）。
 
 **P 档推导（按事实，不靠自评）**：P0 纯文案/配置且不改 AC/范围；P1 单点功能或规则、≤1 模块、不改状态/权限/资金/数据主规则；P1↑ 命中权限/资金/隐私/不可逆数据/主数据规则（正文同 P1，自检与结构门按 P2）；P2 新功能/新版本/跨模块，或改已定稿基线，或影响 KPI/里程碑；P3 0→1/新产品/战略。两条都能解释时取高一档；`route` 的 `level=` 须给事实依据（改了哪些 AC、是否触权限或数据、是否改已定稿基线），不得只写档位。档位只决定门与深度，不替代用户判定：本轨 `select_review_mode`/`confirm_*` 仍由用户拍板。
 

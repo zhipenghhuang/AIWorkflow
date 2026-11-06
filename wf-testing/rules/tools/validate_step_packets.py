@@ -94,6 +94,19 @@ def main() -> int:
                 if re.search(pat, text):
                     print(f"FAIL: {rel} {why}")
                     fail += 1
+            # 自足性硬检：不得留空指针；不得把本步规则外指到大手册/他步。
+            for bad, why in (
+                ("本包对应节", "空指针（无对应标题）"),
+                ("文档治理（本步动作已写清", "空指针（文档治理被中性化）"),
+                ("本包实施预检", "空指针（实施预检被中性化）"),
+                ("派子代理时按本包 §5 子代理纪律", "空指针（子代理纪律无对应节）"),
+            ):
+                if bad in text:
+                    print(f"FAIL: {rel} {why}: {bad}")
+                    fail += 1
+            for m in re.finditer(r"`(rules/(?!packets/|templates/|tools/)[^`]+)`", text):
+                print(f"FAIL: {rel} external rule ref: {m.group(1)}（写进本包规则卡，勿外指）")
+                fail += 1
     print(f"SUMMARY fail={fail}")
     return 1 if fail else 0
 

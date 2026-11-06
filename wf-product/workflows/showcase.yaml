@@ -51,6 +51,7 @@ steps:
   id: environment
   must_read:
   - rules/packets/showcase/environment.md
+  - rules/templates/50-showcase-docs/demo-checklist-template.md
   agent: pm-lead
   output: '{workroot}/{ver}/50-showcase/演示检查单-{yyyyMMdd}.md'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/showcase/_orch.yaml。
@@ -65,6 +66,8 @@ steps:
   id: docs
   must_read:
   - rules/packets/showcase/docs.md
+  - rules/templates/50-showcase-docs/user-manual-quickstart-template.md
+  - rules/templates/50-showcase-docs/release-notes-template.md
   when: docs_requested
   agent: prd-writer
   output: '{workroot}/user/{按点名类型}-{ver}.md（快速开始/用户手册/FAQ/发布说明/培训材料；未点名默认用户手册）'

@@ -1,7 +1,7 @@
 # 门（开发轨）
 
-> 单一出处：`hitl` / `gate` / `when` 语义与词表。步骤顺序以 `../workflows/*.yaml` 为准；**只认步上 `hitl`/`hitl_when`/`gate_when`**，专规不另造门。
-> 读取时机：当前步有门时只读对应行；写/改 YAML 时才读全表。
+> 单一出处：`hitl` / `gate` / `when` 语义与词表。步骤顺序以 `../workflows/*.yaml` 为准；**只认步上 `when` / `hitl` / `hitl_when` / `gate_when`**，专规不另造门。
+> 读取时机：当前步有门时只读词表对应 token；写/改 YAML 时才读全表。
 
 ## 1. 门与 gate
 
@@ -11,7 +11,7 @@
 | `hitl_when:` | 标量门条件 | 条件不满足 → 跳过该门，不算违例 |
 | `gate_when:` | 门禁条件 | 条件不满足 → 跳过该 gate（步骤不跳过） |
 | `confirm_change` | 变更吸收/影响 | 出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线 |
-| `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。细则 `execution-contract.md` §1.0。 |
+| `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。**缺陷/批量入口（指派给我、我的待修、修复#N、#N）不豁免本门**；仅用户明说「一次性/直接跑完/中途不停」可免等待（理解仍须先输出）。细则 `execution-contract.md` §1.0。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
 | `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；完整理解包作下钻链接。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进需求基线/设计/实施/拆单 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决；未签收不进设计/排期 |
@@ -44,9 +44,57 @@
 
 ## 2. 步骤条件 `when` 词表
 
-`c2_or_c3`（本轮变更分级为 C2 范围/里程碑/资源或 C3 战略/架构/合规/破坏性 → 真）｜`has_code_change`（本轮代码/配置 diff 非空，不含生成物 → 真）｜`dev_plan_required`（L2+ 或 `{workroot}/development-plan.md` 已存在 → 真；L0/L1 且无计划 → 假）｜`release_failed_or_direct_rollback`（入口=回滚 或 发布失败/触发回滚条件）｜`new_feature_or_scope_change_or_requested`｜`new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested`｜`multi_file_or_new_feature_or_requested`｜`has_qa_or_deploy_or_requested`｜`has_deploy`｜`has_uat`｜`release_failed`｜`release_ready`｜`release_ready_and_acceptance_passed`｜`release_approved`｜`has_deployed`｜`iteration_done_or_incident`｜`recurring_defect_or_incident`｜`incident_or_major_release`｜`docs_migration_needed`｜`requirements_need_confirm`｜`new_product_or_unclear_idea`（轻量档输入是新想法/新产品/方向不清 → 真）｜`solo_gate_required`（轻量档本轮有方案卡/验收表且已 StartTask → 真；单独测试/纯文档 → 假）｜`intent_needs_confirm`｜`understanding_needs_confirm`｜`has_product_docs_or_prototypes`｜`change_is_substantive`｜`backlog_approval_required`｜`plan_needs_confirm`｜`has_pending_commit`｜`work_changed_or_requested`（本轮有代码/配置/文档改动，或用户点名要验证 → 真；只读不动 → 假）｜`implementation_required`｜`landing_doc_review_needed`（L2+ 新产出需求基线/方案/ADR/前端设计说明，或点名文档评审，且本会话尚未选定 A/B；L0 无新文档=false）｜`landing_doc_review_required`（L2+ 有新增/变更需求基线、方案、ADR、前端设计说明，或用户点名文档评审；不依赖是否已选 A/B；L0/无新文档=false。用于 review-docs 步自身的 when；模式选择仍用 landing_doc_review_needed）｜`design_needs_spec_approval`（L1 有新方案/ADR/前端设计且未进入 review-docs → 真；L0 或 L2+ 由 review-docs 接管 → 假）｜`review_required`（有实施且 L2+/L3、高风险/大改/破坏性/新功能/点名代码评审 → 真；L0 单文件或确实低风险的 L1 单点 → 假；免审须在计划/验收记录理由与风险接受人，免审不免自测；多波次必须先选“每波审”或“只 S5 全量审”，不得混用）｜`product_defect`｜`product_decision_received`｜`product_decision_requires_alignment`｜`need_clarification`｜`menu_includes_commit`｜`menu_includes_writeback`｜`menu_includes_deploy`｜`not_awaiting_product`（本轮 await_product 或 product_decision 输出 AWAIT_PRODUCT 时为假，否则为真）｜`handoff_send_required`（拟生成或用户点名生成任一 HO 交接包（常用类型为示例，含 OTHER/项目扩展）且本包本会话尚未得到用户对**本次拟发包的类型/接收方/摘要**的确认 → 真；用户已看到【拟发包】并明确确认该摘要未变 → 假；仅说「要/生成/交接包/确认发包」但未确认具体摘要 → 真。**不得**因其它门已过而置假）｜`handoff_change_substantive`（交接包内变更达到 C2/C3 或改动已定稿基线）｜`skill_changes_pending`（`skill-audit` 出具拟改 skills / capabilities表/装配项且用户尚未确认；无拟变更或已确认/拒绝后为假）｜`iteration_close_needed`（探测到下一期方案/换主题/版本升级，且当前迭代是否结束不明确，或用户未明确「关这期/下一期」；已确认结束或明确并行不关后为假）。
+**求值卡（硬）**：外部事实优先；模型自评不确定 → **按触发（真）**；不得用「先问用户」代替 when 求值（路径/档位不确定才先问，见 AGENTS §0.1）。`when` 假 → 跳过整步及其 hitl；`hitl_when` / `hitl[].when` 假 → 只跳过该门；`gate_when` 假 → 只跳过该闸。跳过须写 `skip=` / `when_eval=`。
 
-同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复。条件不满足 → 跳过该步（及其 hitl）；不确定按触发处理。`release_failed` = 部署失败或发布验证失败/触发回滚条件；`release_ready` = 上线检查单结论 GO；`release_ready_and_acceptance_passed` = 上线检查单 GO 且 UAT/验收通过或不需要；`release_approved` = `confirm_deploy` 已批准；`implementation_required` = 非「只出任务清单」且清单已确认；`backlog_approval_required` = L2+，或清单/范围/节奏实质变化；L1 小批只通知不审批。`has_product_docs_or_prototypes` = 输入含外部 PRD/迭代方案/需求文档/页面原型/截图/接口或技术文档；`understanding_needs_confirm` = 有外部文档/原型、存在 2 个以上实质歧义或冲突、L2+，或用户要求方案/排期/估算；已有**当前任务**理解确认记录则假，纯信息查询/机械低风险操作不触发。`intent_needs_confirm` = 口令/上下文对「给谁·做什么·交付形态」**无法唯一确定**，或跨角色外发handoff/确认文且本任务未对齐过该意图，或新开对外交付主题 → 真；纯查询/机械低风险、同任务意图已确认未变、本句已写死意图、或已对齐任务内的实施续跑（含改代码）→ 假。拿不准按真。细则 `clarification.md` §0。
+| token | 为真 | 为假 |
+| --- | --- | --- |
+| `c2_or_c3` | 本轮变更分级 C2（范围/里程碑/资源）或 C3（战略/架构/合规/破坏性） | 未达 C2 |
+| `has_code_change` | 本轮代码/配置 diff 非空（不含生成物） | 纯文档/无 diff |
+| `dev_plan_required` | L2+ 或已有 `development-plan.md` | L0/L1 且无计划 |
+| `release_failed_or_direct_rollback` | 入口=回滚，或部署/发布验证失败触发回滚 | 正常发布路径 |
+| `new_feature_or_scope_change_or_requested` | 新功能/范围变化，或点名做 requirements | 无新功能/范围且未点名 |
+| `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | 新功能/架构/破坏性/高风险，或点名做 design | 未命中且未点名 |
+| `multi_file_or_new_feature_or_requested` | 多文件或新功能，或点名做 plan | 单点且未点名 |
+| `has_qa_or_deploy_or_requested` | 本轮有提测/QA/部署交付，或点名 deliver | 无交付且未点名 |
+| `has_deploy` | 本轮有正式部署/交接意向或点名部署 | 无部署意向 |
+| `has_deployed` | 本轮部署步骤已成功执行 | 尚未成功部署 |
+| `has_uat` | 本轮有 UAT/业务验收要求 | 无 UAT 要求 |
+| `release_ready_and_acceptance_passed` | 上线检查单 GO，且 UAT 通过或不需要 | 未 GO 或验收未过 |
+| `release_approved` | `confirm_deploy` 已批准 | 未批准 |
+| `iteration_done_or_incident` | 迭代收尾或事故复盘入口 | 否 |
+| `recurring_defect_or_incident` | 复发缺陷或事故需复盘 | 否 |
+| `incident_or_major_release` | 事故或重大发版需复盘 | 否 |
+| `docs_migration_needed` | 将搬迁/归档/清理且清单未确认 | 已确认或无搬迁 |
+| `requirements_need_confirm` | 需求基线实质变且未确认 | 已确认或无实质变 |
+| `new_product_or_unclear_idea` | 轻量档：新想法/新产品/方向不清 | 小改/需求已清 |
+| `solo_gate_required` | 轻量档：有方案卡/验收表且已 StartTask | 单独测试/纯文档 |
+| `intent_needs_confirm` | 给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付 | 查询/机械/同任务已确认/意图写死/任务内续跑；拿不准按真 |
+| `understanding_needs_confirm` | 外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算 | 当前任务已理解确认；纯查询/机械低风险 |
+| `has_product_docs_or_prototypes` | 输入含 PRD/迭代方案/需求/原型/截图/接口或技术文档 | 无此类输入 |
+| `change_is_substantive` | 改已定稿 AC/范围/对外承诺（未达 C2 也可真） | 纯答疑/文案/无基线改动 |
+| `backlog_approval_required` | L2+，或清单/范围/节奏实质变化 | L1 小批只通知 |
+| `plan_needs_confirm` | 计划/范围/节奏实质变且未确认 | 已确认未变 |
+| `has_pending_commit` | 有文件变更待提交 | 无待提交 |
+| `work_changed_or_requested` | 本轮有代码/配置/文档改动，或点名验证 | 只读不动 |
+| `implementation_required` | 非「只出任务清单」且清单已确认 | 只出清单或未确认 |
+| `need_select_review_mode` | L2+ 新产出落地文档或点名文档评审，且本会话未选 A/B | L0 无新文档；已选 A/B |
+| `do_landing_doc_review` | L2+ 有新增/变更落地文档或点名文档评审（不依赖是否已选 A/B） | L0/无新文档 |
+| `design_needs_spec_approval` | L1 有新方案/ADR/前端设计且未进 review-docs | L0；或 L2+ 由 review-docs 接管 |
+| `review_required` | 有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或点名） | L0 单文件或确实低风险 L1 单点（免审须记理由；免审不免自测） |
+| `product_defect` | triage 判定为产品缺陷 | 工程缺陷或其他 |
+| `product_decision_received` | 已收到产品处置结论 | 仍在等产品 |
+| `product_decision_requires_alignment` | 产品结论需再对齐范围/方案 | 结论可直接实施或关闭 |
+| `need_clarification` | 缺陷信息不足须澄清 | 可实施 |
+| `menu_includes_commit` | 本轮菜单含提交 | 不含 |
+| `menu_includes_writeback` | 本轮菜单含平台回写 | 不含 |
+| `menu_includes_deploy` | 本轮菜单含部署 | 不含 |
+| `not_awaiting_product` | 非 await_product / 非 AWAIT_PRODUCT 输出 | 正在等产品 |
+| `handoff_send_required` | 拟生成/点名 HO 且未确认类型/接收方/摘要 | 已确认该摘要未变 |
+| `handoff_change_substantive` | 交接包内达 C2/C3 或改定稿基线 | 低于该阈值 |
+| `skill_changes_pending` | skill-audit 拟改未确认 | 无拟改或已确认/拒绝 |
+| `iteration_close_needed` | 探测到下一期/换主题/升级且是否关本期不明 | 已确认结束或并行不关 |
+
+同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复。
 
 **L 档推导（按事实，不靠自评）**：L0 纯文档/文案/注释；L1 代码/配置且 ≤3 文件、≤1 模块、无接口/数据/权限变化；L2 新功能/接口/数据，或 >3 文件，或 >1 模块；L3 权限/资金/迁移/公共 API/破坏性。`route` 的 `level=` 必须给事实依据（文件数/模块数/是否改接口或数据）；两条路径都能解释时取高一档。
 
@@ -54,7 +102,7 @@
 
 **波次评审**：计划选定“每波独立评审+过门”后，每波实施完成 → 该波 diff 独立评审 → 结论通过 → 才开下一波；未通过不得把下一波标完成。最终 S5 只做集成/AC/证据/抽样复核，不得替代波次评审。
 
-**前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，按 `rules/core/frontend-gate.md` §2/§4 核验；缺项、`partial/pending` 或未生成证据 → `on_fail` 回 implement，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按 `project-profile.md` 声明）。
+**前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，按当前步骤包内「前端硬门」核验；缺项、`partial/pending` 或未生成证据 → `on_fail` 回 implement，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按档案声明）。
 
 **方案覆盖前置（硬）**：L2+ 进入评审前必须有 `.gate/plan-coverage.md`；后端/功能行覆盖接口/字段/状态/权限/错误码/迁移→实现/测试，前端行覆盖页面/路由/字段/交互→截图；缺行或结论“需修/阻塞” → 回 implement，不得判通过。原型/方案是下限：至少达到原型标准；原型有明显缺陷时可择优修正，但必须在矩阵写偏离理由与确认。
 

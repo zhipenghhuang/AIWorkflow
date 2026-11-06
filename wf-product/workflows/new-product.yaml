@@ -17,6 +17,7 @@ steps:
   id: discover
   must_read:
   - rules/packets/new-product/discover.md
+  - rules/templates/10-planning/business-case-template.md
   agent: pm-analyst
   hitl: confirm_understanding
   hitl_when: understanding_needs_confirm
@@ -60,6 +61,8 @@ steps:
   id: launch
   must_read:
   - rules/packets/new-product/launch.md
+  - rules/templates/40-delivery/gtm-template.md
+  - rules/templates/60-retro/retro-template.md
   when: go_decision_go
   agent: pm-lead
   gate: uat-evidence

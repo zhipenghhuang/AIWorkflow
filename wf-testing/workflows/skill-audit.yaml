@@ -57,6 +57,7 @@ steps:
   id: propose
   must_read:
   - rules/packets/skill-audit/propose.md
+  - rules/templates/00-onboarding/capability-skill-audit-report-template.md
   agent: onboard-agent
   output: '{workroot}/changes/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。

@@ -78,11 +78,11 @@ steps:
   id: review-docs
   must_read:
   - rules/packets/change/review-docs.md
-  when: landing_doc_review_required
+  when: do_landing_doc_review
   agent: doc-reviewer
   hitl:
   - name: select_review_mode
-    when: landing_doc_review_needed
+    when: need_select_review_mode
   - name: confirm_spec
   output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。
@@ -154,7 +154,6 @@ steps:
   id: wrap
   must_read:
   - rules/packets/change/wrap.md
-  - rules/templates/90-handoff/closeout-skeleton.md
   agent: implementer
   output: 【任务收尾】（六段 + 汇报，可整段复制）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/change/_orch.yaml。

@@ -13,7 +13,8 @@
 | `templates/` | 模板库（按步引用，见 `templates/index.md`） | 引用它的链 |
 | `tools/` | 生成器与自检 | 维护 |
 | `capabilities/` `collaboration/` `defects/` `playbooks/` `special/` | 按需参考，不常驻 | 引用它的链 |
-| `doc-governance.md` `path-aliases.md` `read-index.md` | 文档治理 / 路径别名 / 维护索引 | 全包 |
+| `doc-governance.md` `path-aliases.md` | 文档治理 / 路径别名 | 点名时 |
+| `read-index.md` | 维护索引（非运行时） | 改规则对照用 |
 
 ## 2. 三类改动
 

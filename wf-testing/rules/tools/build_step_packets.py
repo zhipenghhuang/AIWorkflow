@@ -262,30 +262,84 @@ def resolve_skills_for_step(
     return found
 
 
+# 外部规则 → 自足短句。只替换「外围规则」；核心步骤规则由 STEP_CARDS 内联。
+INLINE_RULES = (
+    (
+        r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
+        "澄清：先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
+    ),
+    (
+        r"`?(?:rules/core/)?iq-checklist\.md`?",
+        "实施预检：先勾 AC/SC/DoD；未进 SC 且无债项不开工；命中面先扩 SC",
+    ),
+    (
+        r"(?:子代理按\s*)?`?rules/collaboration/subagents\.md`?(?:\s*§[\d.]+)?",
+        "子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物",
+    ),
+    (
+        r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
+        "交接：内容优先、包按需；未回执不得称已接收",
+    ),
+    (
+        r"`?rules/doc-governance\.md`?(?:\s*§[\d.]+)?",
+        "本包 §5 文档治理规则",
+    ),
+    (
+        r"`?rules/workflow\.md`?(?:\s*§[\d.]+)?",
+        "提交：默认仅本地提交；推送单独确认；禁 force push/切主干",
+    ),
+    (
+        r"`?rules/core/verification\.md`?(?:\s*§[\d.]+)?",
+        "完成：只认 CLAIM: ALLOWED；状态 COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED",
+    ),
+    (
+        r"`?rules/core/lightweight\.md`?(?:\s*§[\d.]+)?",
+        "轻量：纯文档可裁剪；必开技能/Claim/HITL 不降",
+    ),
+    (r"`?rules/core/project-readme\.md`?", "README：只写现行入口/运行/目录"),
+    (r"`?rules/core/context-memory\.md`?", "工作记忆：偏好/洞见/坑 ≤3 行"),
+    (
+        r"`?rules/playbooks/skill-audit\.md`?",
+        "技能体检：盘点→适配→拟变更→确认→复检",
+    ),
+    (
+        r"`?rules/defects/[^`\s]+\.md`?(?:\s*§[\d.]+)?",
+        "缺陷：先红证/根因；不修表象；回写带证据",
+    ),
+    (r"`?rules/gates\.md`?(?:\s*§[\d.]+)?", "门：见本包 §4"),
+    (r"`?rules/read-index\.md`?", "禁止 read-index"),
+)
+
+
+def expand_inline_rules(text: str) -> str:
+    """Replace peripheral rule refs with a self-contained sentence (no doc hop)."""
+    for pattern, replacement in INLINE_RULES:
+        text = re.sub(pattern, replacement, text)
+    return text
+
+
 def neutralize_pointers(text: str) -> str:
-    """Retarget file-hopping phrases inside embedded rule snippets (not skill bodies)."""
-    text = re.sub(r"详见\s*`rules/[^`]+`", "（条款见本步骤包对应节）", text)
-    text = re.sub(r"先读\s*`rules/[^`]+`", "先按本包 §3/§5 执行", text)
-    text = re.sub(r"只认\s*`rules/[^`]+`", "只认本包硬约束与做法", text)
+    """Inline peripheral rules; keep templates/skills as first-class packet sections."""
+    text = expand_inline_rules(text)
     text = re.sub(r"遵守\s*`frontend-gate`", "遵守本包「前端硬门」节（有 UI）", text)
+    text = re.sub(r"`?rules/core/frontend-gate\.md`?", "本包前端硬门", text)
     text = re.sub(r"`frontend-gate`", "本包前端硬门", text)
-    text = re.sub(r"frontend-gate\.md", "本包前端硬门", text)
+    text = re.sub(r"`?frontend-gate\.md`?", "本包前端硬门", text)
+    text = re.sub(
+        r"`?rules/core/implementation-quality\.md`?(?:\s*§[\d.]+)?",
+        "本包 §5 实施预检卡",
+        text,
+    )
     text = re.sub(
         r"\*{0,2}命中则加载\*{0,2}[：:][^\n]*",
         "命中面：按本包 §6 条件开技能闭环（打开→执行→回包）",
         text,
     )
-    text = re.sub(r"实施质量门\s*§[\d.]+", "本包实施预检清单", text)
-    text = re.sub(r"按实施质量门[^\n；。]*", "按本包实施预检清单", text)
+    text = re.sub(r"实施质量门\s*§[\d.]+", "本包 §5 实施预检卡", text)
+    text = re.sub(r"按实施质量门[^\n；。]*", "按本包 §5 实施预检卡", text)
     text = re.sub(
-        r"`rules/core/clarification\.md`[^。；\n]*",
-        "澄清纪律（一次一问、候选答案、未确认不升格）",
-        text,
-    )
-    # Keep skill path cues; do NOT rewrite into «已嵌入/勿另开» (quality lives in real skill open).
-    text = re.sub(
-        r"按\s*`skills/([a-z0-9-]+)/SKILL\.md`",
-        r"按 `skills/\1/SKILL.md` 必做区（§6 闭环）",
+        r"`?implementation-quality\.md`?(?:\s*§[\d.]+)?",
+        "本包 §5 实施预检卡",
         text,
     )
     text = re.sub(
@@ -298,15 +352,23 @@ def neutralize_pointers(text: str) -> str:
         "打开 product-doc-analysis 走 §6 闭环",
         text,
     )
-    text = re.sub(r"`execution-contract\.md`(?:\s*§[\d.]+)?", "开局卡/包内分级与动作前分析约定", text)
-    text = re.sub(r"`context-memory\.md`", "工作记忆写法", text)
+    text = re.sub(
+        r"`execution-contract\.md`(?:\s*§[\d.]+)?",
+        "开局卡分级与动作前分析约定",
+        text,
+    )
     text = re.sub(r"`rule-anchor\.md`", "规则心跳一行格式", text)
-    text = re.sub(r"写法只认工作记忆写法", "写法见工作记忆约定", text)
     text = re.sub(
         r"`rules/capabilities/instance-discipline\.md`\s*§[\d.]+",
         "实例纪律（按需拉起、结束显式退程）",
         text,
     )
+    # Skills → §6（本包技能表）；模板保留真实路径，由 §7 列出。
+    text = re.sub(r"`skills/([a-z0-9-]+)/SKILL\.md`", r"§6 `\1`", text)
+    text = re.sub(r"`skills/README\.md`", "技能体检：盘点→适配→拟变更→确认→复检", text)
+    text = re.sub(r"`workflows/[^`]+`", "本 workflow", text)
+    text = re.sub(r"技能[：:]\s*§6", "技能见 §6", text)
+    text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
     return text
 
 
@@ -372,7 +434,172 @@ CONDITIONAL_SKILLS = {
     "cross-layer-consistency": "命中权限/状态/数据基数/多表面",
     "threat-modeling": "安全/威胁面变更",
     "performance-and-capacity": "性能/容量面变更",
+    "analytics-and-experimentation": "有指标/埋点/实验",
 }
+
+
+COMMIT_CARD = """### 本步规则卡：拟提交块（必填 · 字段已在本包）
+
+```text
+【拟提交】
+- 文件：{本批清单}
+- .gitignore 现状：{一句}
+- 当前分支：{名}；跟踪远程：{origin/xxx 或无}
+- 本次动作：{仅提交（默认） / 提交+推送}；推送目标：{remote+分支 或 不推送}
+- 基线：{干净 / 含前序 N 文件（清单与处理） / 含无关文件（排除）}
+- 未提交统计：本任务 {n} / 前序 {m} / 无关 {k}
+- 建议拆分：{单批 / 按任务拆 N 批}
+- 目标落点：{与档案「修复落点分支/命名规则」相符 / 差异}
+- 推送前检查：{CI/测试结果；未跑写「未跑」}
+- PR/MR：{不开 / 拟开（目标分支）/ 档案要求必须开}
+- 合并：{不执行；合并须点名或档案授权}
+请确认：1) 是否提交本批；2) 如需推送，请明确「提交+推送」及目标分支。
+```
+
+- 默认仅本地提交；推送须单独确认；禁 force push、擅自切主干、擅自开/合并 PR。
+- 无文件变更 → 跳过 `confirm_commit` 与提交；不得硬造提交。"""
+
+WRAP_CARD = """### 本步规则卡：六点收尾（缺项=未收尾 · 形状已在本包）
+
+```text
+【任务收尾】（测试生成/执行可用【生成收尾】/【执行收尾】）
+1. 完成了什么：影响：…
+2. 改了哪些文件：文件：…；未提交：…；建议动作：…；待提交摘要：…；git：…；.gitignore：…；文档归档：…
+3. 如何验证：结论=…；校验=…；检查=…；未验证/待确认=…
+4. 假设与未决项：假设：…；待你确认：…（无则「待你确认：无」）
+5. 还存在什么问题或风险：…
+6. 当前进度与下一步：当前：…；下一步：…；优先级：…；建议：…；不建议：…；完成标志：…
+汇报（可直接复制）：**结论态短名**（…）
+【遵守自检】route=… | mode=… | packet=… | skills=… | reads=… | gates=… | confirm=… | sync=…（triad=…；facade=…） | skip=… | deviation=…
+附：运行与沉淀 · 资料补强：… | 工作记忆：… | 运行态：…
+```
+
+- 有门回执时跑 `verify/Test-Report.ps1 -Report <收尾文件>`；无门用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`（有该工具时）。
+- 同步 plan/INDEX/activeContext（triad）；完整【拟提交】留待 commit。"""
+
+TEST_PLAN_CARD = """### 本步规则卡：计划模板与必填节
+
+- 模板（完整路径）：`rules/templates/10-planning/test-plan-template.md`；只读 §0 + 本轮待填节（§3.7 执行矩阵 / §3.8 四卷 / §3.9 批次表 / §5 准出 / §9 编排），**不要整文件通读**。
+- 轻量路径：`rules/templates/10-planning/test-plan-lite-template.md` §3/§8；仅补丁/单模块且不承担版本准出才用。
+- 前置：先有测试分析表；无表 → 先 analyze，不写计划。
+- 版本级：四卷 V1～V4 + 批次表；计划门核分析表 §2.2/§2.3/§2.4 无空格、§3.8 四卷、§3.9 批次表。
+- 模板按路径选，不按 T 标签；不适用写 N/A + 依据。
+- 迭代关账：确认结束当前迭代后，主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；「并行不关」只落新资料。"""
+
+LIFECYCLE_CARD = """### 本步规则卡：文档治理扫描
+
+- 分类：长期/固定 → 就地更新；版本/迭代绑定 → 关闭时快照/归档；失效/替代 → 确认后归档；过程/临时（含已完结 .draft/）→ 清理候选。
+- 归档前引用检查：被当前计划/用例/脚本/报告引用的输入/数据/冒烟清单保留原位或标「基线」。
+- 确认前不改/不移/不删；有候选 → `docs_migration_needed=true`，停门等确认。
+- 关账：主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；清理只删已知临时/缓存/未引用失败产物。
+- 失效资料在 `inbound/INDEX.md` 状态列标记；不确定移 `{workroot}/_archive/_pending-cleanup/{yyyyMMdd}/` 并写清单。"""
+
+DOC_GOV_CARD = """### 本步规则卡：文档治理
+
+- 外部输入先入站：落 `inbound/{ver|topic}/` 或 `_common/`；登记 `inbound/INDEX.md`；确认后才改名/归档；不把原件迁出 inbound。
+- 迭代关账：确认结束当前迭代后，主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；「并行不关」只落新资料，不归档现行主档。
+- 清理只删已知临时/缓存/未引用失败产物；不确定移 `_archive/_pending-cleanup/{yyyyMMdd}/` 并写清单。"""
+
+IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测
+
+- 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。
+- 实施预检（写代码前）：权限/状态/数据基数/多表面/失败路径/交互诚实/运行时 API 逐面判定；命中 → 先扩 SC/债项，再改码。有 UI 且含禁用/灰显/空列表/加载/筛选/主按钮 → 交互诚实默认命中；多表面同一状态/KPI → 跨层默认命中。
+- 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
+- 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」。
+- 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
+
+CLARIFY_CARD = """### 本步规则卡：外部输入与关账
+
+- 外部输入先入站：落 `inbound/{ver|topic}/` 或 `_common/`；登记 `inbound/INDEX.md`；确认后才改名/归档；不把原件迁出 inbound。
+- 迭代关账：确认结束当前迭代后，主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；「并行不关」只落新资料，不归档现行主档。
+- 交接包先 `handoff.receive`；本步不 `-StartTask`。"""
+
+WRITEBACK_CARD = """### 本步规则卡：平台回写
+
+- 先出【回写拟稿】：单号 + 结论 + 备注全文 + 状态/指派/resolvedBuild + 附件名；用户确认后才写。
+- 备注须实质（现象/根因/修复/验证），禁只写「已修复/已处理」；未验证只写「待验证」。
+- 平台不支持附件 → 出 export，不假装已回写。"""
+
+
+def step_card(pack_key: str, wid: str, sid: str) -> str:
+    """Step-local rule card: commit/wrap all chains; key steps explicit."""
+    if sid == "commit":
+        return COMMIT_CARD
+    if sid == "wrap":
+        return WRAP_CARD
+    return STEP_CARDS.get((pack_key, wid, sid), "")
+
+
+STEP_CARDS: dict[tuple[str, str, str], str] = {
+    ("wf-testing", "testing", "plan"): TEST_PLAN_CARD,
+    ("wf-testing", "onboard", "lifecycle"): LIFECYCLE_CARD,
+    ("wf-development", "change", "implement"): IMPLEMENT_CARD,
+    ("wf-development", "iterate", "implement"): IMPLEMENT_CARD,
+    ("wf-development", "solo", "build"): IMPLEMENT_CARD,
+    ("wf-development", "change", "clarify"): CLARIFY_CARD,
+    ("wf-product", "change", "apply"): WRITEBACK_CARD,
+    ("wf-product", "defect", "apply"): WRITEBACK_CARD,
+    ("wf-product", "defect", "writeback"): WRITEBACK_CARD,
+}
+
+TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
+    ("wf-testing", "testing", "plan"): "rules/templates/10-planning/test-plan-template.md",
+}
+
+
+def load_when_table(root: Path) -> dict[str, str]:
+    """Parse gates.md when tables/paragraphs into token→true-condition."""
+    p = root / "rules" / "gates.md"
+    out: dict[str, str] = {}
+    if not p.is_file():
+        return out
+    text = p.read_text(encoding="utf-8")
+    for line in text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        token = cells[0].strip("` ")
+        if not re.fullmatch(r"[a-z][a-z0-9_]+", token):
+            continue
+        true = cells[1].strip()
+        if not true or set(true) <= {"-"} or "见下" in true:
+            continue
+        out.setdefault(token, true)
+    for m in re.finditer(r"^`?([a-z][a-z0-9_]+)`?[：:]\s*(.+)$", text, re.M):
+        token = m.group(1)
+        definition = m.group(2).strip()
+        if not definition:
+            continue
+        previous = out.get(token, "")
+        if not previous or "见下" in previous or len(definition) > len(previous):
+            out[token] = definition
+    return out
+
+
+def when_line(token: str, when_map: dict[str, str], kind: str, action: str) -> str:
+    true = when_map.get(token)
+    if true:
+        true = re.sub(r"[。；;]\s*$", "", true)
+        true = re.sub(r"\s*→\s*(真|假)[。；;]?$", "", true)
+        return f"- **条件判定 `{kind}:{token}`**：{true}；满足→真，否则{action}。"
+    return f"- **条件判定 `{kind}:{token}`**：词表未定义 → 按触发（真），不得跳过。"
+
+
+def hitl_pairs(step: dict) -> list[tuple[str, str]]:
+    raw = step.get("hitl")
+    pairs: list[tuple[str, str]] = []
+    default_when = str(step.get("hitl_when") or "")
+    if isinstance(raw, str):
+        pairs.append((raw, default_when))
+    elif isinstance(raw, list):
+        for item in raw:
+            if isinstance(item, str):
+                pairs.append((item, default_when))
+            elif isinstance(item, dict) and item.get("name"):
+                pairs.append((str(item["name"]), str(item.get("when") or default_when)))
+    return [(n, w) for n, w in pairs if n]
 
 
 # Nested state-machine regions for long workflows (id, title, step_ids)
@@ -486,6 +713,8 @@ def build_work_rules(
     notes: str,
     wid: str,
     sid: str,
+    card: str = "",
+    extra_card: str = "",
 ) -> str:
     """Step orchestration rules only — do NOT paste skill bodies (quality lives in skills)."""
     parts: list[str] = []
@@ -509,22 +738,31 @@ def build_work_rules(
                 + "、".join(f"`{s}`（{CONDITIONAL_SKILLS[s]}）" for s in cond)
                 + " → 命中则同样走 §6 闭环。\n"
             )
-    if notes.strip():
+    if card:
+        parts.append(card)
+        parts.append("")
+    elif notes.strip():
         parts.append(notes_to_howto(notes))
         parts.append("")
     else:
         parts.append(notes_to_howto(""))
         parts.append("")
+    if extra_card:
+        parts.append(extra_card)
+        parts.append("")
     if needs_frontend_gate(root, wid, sid):
-        parts.append(
-            "### 前端硬门（本步含 UI · 单源）\n\n"
-            "- **必读**：`rules/core/frontend-gate.md` §1–§5（打开→按本步产出/证据执行→回包）。\n"
-            "- 无 UI → 整节标 `na` + 一句理由；有 UI 不得只看代码/测试/API 200。\n"
-            "- 证据、分级、矩阵、截图/console/network 要求只认该文件，不在本包重复。"
-        )
+        embedded = frontend_gate_embed(root)
+        if embedded:
+            parts.append(embedded)
+        else:
+            parts.append(
+                "### 前端硬门（本步含 UI）\n\n"
+                "- 有 UI：按本包前端硬门执行；无 UI → 整节 `na` + 一句理由。\n"
+                "- 不得只看代码/测试/API 200 代替界面证据。"
+            )
     elif (root / "rules" / "core" / "frontend-gate.md").is_file():
         parts.append(
-            "本步不嵌入前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。"
+            "本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。"
         )
     return "\n".join(parts).strip()
 
@@ -709,17 +947,20 @@ def render_chain_packet(
 """
 
 
-# 步骤包内只留 3 条安全关键硬门；其余常驻 cold-start §1（避免 262 份重复副本）。
-INLINE_HARD_RULES = ("1", "7", "11")
+# 每步独立完整：把 cold-start §1 硬约束全文摘要写入步骤包（跨步重复 OK；勿靠跳转拼齐）。
+INLINE_HARD_RULES = tuple(str(i) for i in range(1, 15))
 
 
 def cold_start_digest(root: Path) -> str:
-    """3 safety-critical rules inline; the rest stays in cold-start §1 (always-resident)."""
+    """Embed cold-start §1 into each step packet (duplication across steps is intentional)."""
     p = root / "rules" / "core" / "cold-start.md"
     if not p.is_file():
-        return "- （开局卡缺失：先意图确认；完成只认 CLAIM: ALLOWED；禁通读 rules。）"
+        return "- （开局卡缺失：先意图确认；完成只认 CLAIM: ALLOWED；禁通读全书。）"
     text = p.read_text(encoding="utf-8")
-    m = re.search(r"## 1\. 硬约束\n(.*?)(?=\n## |\Z)", text, re.S)
+    # Prefer the short invariants (§1.1) for packets; full text stays in §1 (session start).
+    m = re.search(r"## 1\.1[^\n]*\n(.*?)(?=\n## |\Z)", text, re.S)
+    if not m:
+        m = re.search(r"## 1\. 硬约束\n(.*?)(?=\n## |\Z)", text, re.S)
     block = m.group(1).strip() if m else ""
     lines = []
     for line in block.splitlines():
@@ -727,17 +968,20 @@ def cold_start_digest(root: Path) -> str:
         rm = re.match(r"^(\d+)\.\s*(.+)$", line)
         if rm and rm.group(1) in INLINE_HARD_RULES:
             body = rm.group(2)
-            # keep numbered rule, trim long parentheticals a bit
             if len(body) > 220:
                 body = body[:220] + "…"
             lines.append(f"- {rm.group(1)}. {body}")
     if not lines:
         return "- 先意图确认；本步只读步骤包；完成只认 CLAIM: ALLOWED；证据先于结论。"
     text = neutralize_pointers("\n".join(lines))
-    # cold-start § refs are wrong inside packets — retarget
-    text = text.replace("见 §4", "见本包「本步读链与防丢失」")
+    text = text.replace("见 §4", "见本包「本步操作面」")
     text = text.replace("（`rule-anchor.md`）", "（心跳格式）")
-    return text + "\n- 其余硬约束见 `rules/core/cold-start.md` §1（常驻；勿在步内重读全文）。"
+    # Inside a step packet, 「本文」易被当成步骤包；读链主语改回开局卡。
+    text = re.sub(r"(\*\*读链\*\*：)本文 →", r"\1开局卡 →", text)
+    return (
+        text
+        + "\n- **效力**：以上为执行摘要（全文见开局卡 §1）；开局已读则中段不重开全文，**每步仍须逐条遵守**；与开局卡重复不影响。"
+    )
 
 
 def frontend_gate_embed(root: Path) -> str | None:
@@ -996,7 +1240,7 @@ def step_edges(steps: list, step: dict) -> dict:
 
 
 def notes_to_howto(notes: str) -> str:
-    notes = notes.strip()
+    notes = neutralize_pointers(notes.strip())
     if not notes:
         return "按 §2 产出落盘；结果须可验证；有门则先过门。"
     # split into bullets on ；。or numbered cues
@@ -1023,8 +1267,12 @@ def render_packet(
     full_notes: str,
     edges: dict | None = None,
     agent_meta: tuple[str, str] = ("", ""),
+    when_map: dict[str, str] | None = None,
+    templates: list[str] | None = None,
 ) -> str:
     sid = step["id"]
+    when_map = when_map or {}
+    templates = templates or ([template] if template else [])
     name = step.get("name") or sid
     output = step.get("output") or "（见本步产出约定）"
     when = step.get("when")
@@ -1062,7 +1310,7 @@ def render_packet(
 
     risk = ""
     if when:
-        risk += f"- **条件步** `when={when}`：条件不满足则跳过本步（不打开本包）。\n"
+        risk += when_line(str(when), when_map, "when", "跳过本步（不打开本包）") + "\n"
     if (root / "rules" / "core" / "frontend-gate.md").is_file():
         risk += (
             "- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；"
@@ -1073,32 +1321,34 @@ def render_packet(
             "- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；"
             "**必开技能与 Claim/HITL 不降**。\n"
         )
-    risk += f"- **父状态机**：`rules/packets/{wid}/_chain.md`（进 workflow 一次）。\n"
+    risk += f"- **父状态机**：进 wf 时读 `_chain` 一次；**中段勿重读**。\n"
     reg = region_of_step(pack_key, wid, sid)
     if reg:
         risk += (
-            f"- **子状态机**：`rules/packets/{wid}/_region-{reg[0]}.md`（{reg[1]}；进本区一次）。\n"
+            f"- **子状态机**：进「{reg[1]}」区时读 `_region-{reg[0]}` 一次；**中段勿重读**。\n"
         )
 
     hard = (
-        "### 开局硬门（3 条；其余见 cold-start §1）\n\n"
+        "### 全局硬约束（本包已带齐 · 每步都遵守）\n\n"
         + cold_start_digest(root)
-        + "\n\n### 本步读链与防丢失\n\n"
-        "- **编排**：本文 §5 +（若 §7 列出）一个模板。\n"
-        "- **方法质量**：§6 必开/条件开技能 → **逐个打开→执行→回本包**（一次 1 个）；禁止用粘贴代替实读。\n"
-        "- **禁止**：通读 rules / 多 step packet / 预读本 workflow 全部 skill。\n"
+        + "\n\n### 本步操作面（本链本步独立完整）\n\n"
+        "- **读这些就能干完本步**：本文（全局摘要 + §4 门 + §5 编排）+ §6 表内 skill（一次 1 个闭环）"
+        "+（若 §7 列出）至多 1 模板。\n"
+        "- **不靠跳转拼流程**：本步所需规则已写在本文；他步/他链可有相同条文，互不依赖。\n"
         "- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。\n"
-        "- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步/出子机前心跳刷新。\n"
+        "- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步前心跳刷新。\n"
         "\n### 本步禁止\n\n"
-        "- 禁止读取本清单外的 rules / skills 正文；需要跳转只按 §6/§7 各一次。\n"
+        "- 禁止用 read-index / 他步 packet /「详见别处 rules」拼本步流程。\n"
         "- 禁止跳过 §6 必开技能，或用摘要代替实读。\n"
         "- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。"
     )
 
     gate_lines: list[str] = []
-    for hn in hitl_names(step):
-        desc = gates.get(hn) or "出示确认块后等待用户。"
+    for hn, hw in hitl_pairs(step):
+        desc = neutralize_pointers(gates.get(hn) or "出示确认块后等待用户。")
         gate_lines.append(f"- **HITL `{hn}`**：{desc}")
+        if hw:
+            gate_lines.append(when_line(str(hw), when_map, "hitl", "跳过该门"))
     gate = step.get("gate")
     if gate:
         gw = step.get("gate_when")
@@ -1109,31 +1359,44 @@ def render_packet(
             + (f" when={gw}" if gw else "")
             + f"**：{desc}"
         )
+        if gw:
+            gate_lines.append(when_line(str(gw), when_map, "gate", "跳过该闸（步骤不跳过）"))
     if not gate_lines:
         gate_lines.append("- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。")
     gate_lines.append(packet_advance(pack_key, wid, sid))
 
-    work = build_work_rules(root, skills, notes, wid, sid)
+    card = step_card(pack_key, wid, sid)
+    extra_card = ""
+    if not card and (
+        "doc-governance" in notes
+        or any("doc-governance" in (gates.get(hn) or "") for hn, _ in hitl_pairs(step))
+    ):
+        extra_card = DOC_GOV_CARD
+    work = build_work_rules(
+        root, skills, notes, wid, sid, card=card, extra_card=extra_card
+    )
     skill_idx = build_skill_index(skills, notes)
 
     open_lines = [
-        "- 本步正文：本步骤包（编排/门/完成）。",
-        f"- 父状态机（进 wf 一次）：`rules/packets/{wid}/_chain.md`。",
+        "- **本步完整面**：本步骤包（§3 全局摘要 + §4 门 + §5 规则卡/编排）"
+        "+ §6 必开/条件开 skill（一次 1 个）+ 本步输入。",
     ]
-    if reg:
+    uniq_tpl = list(dict.fromkeys(t for t in templates if t))
+    if uniq_tpl:
         open_lines.append(
-            f"- 子状态机（进区一次）：`rules/packets/{wid}/_region-{reg[0]}.md`。"
+            "- **填写模板（仅此一份）**：`" + "`；`".join(uniq_tpl)
+            + "`；只读本步用到的节，禁止整文件通读。"
         )
-    open_lines.append("- 技能：按 §6 **必开/条件开** 闭环（打开→执行→回本包），质量不降。")
-    if template:
-        open_lines.append(f"- 填写模板（仅此一个）：`{template}`")
+    else:
+        open_lines.append(
+            "- **无强制模板**：§5 规则卡已给出输出形状；直接落 §2 产出。"
+        )
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
-        verify_line = "- 验证：`verify/Invoke-Gate.ps1`（完成声称加 `-Claim`）"
+        verify_line = "- 验证命令：`verify/Invoke-Gate.ps1`（声称完成加 `-Claim`）"
         if needs_frontend_gate(root, wid, sid):
-            verify_line += "；有 UI 另按 §5 前端硬门"
+            verify_line += "；有 UI 遵 §5 前端硬门（已内嵌）"
         open_lines.append(verify_line + "。")
-    if not template and not gate:
-        open_lines.append("- 无强制模板：直接写 §2 产出路径产物。")
+    open_lines.append("- 本步不再读 read-index / 他步 packet / 大手册；模板与 skill 只读指定节。")
 
     rel = f"rules/packets/{wid}/{sid}.md"
     skill_names = ",".join(skills) if skills else "na"
@@ -1144,8 +1407,8 @@ def render_packet(
     )
     return f"""# 步骤包 · {wid}/{sid}
 
-> **状态 = 本 step**。本文管编排与完成口径；**方法质量在 §6 指向的 skill**（打开→执行→回来）。  
-> 不要把 skill 正文嵌进本文；不要跳过必开 skill。
+> **状态 = 本 step（独立完整）**。全局硬约束见 §3（每步遵守）；本步门/编排/完成见本文；**方法在 §6 skill**（打开→执行→回来）。  
+> 与开局卡/他步条文重复 OK；不要跳转拼流程；不要跳过必开 skill。
 
 ## 1. 元信息
 
@@ -1198,6 +1461,7 @@ route=workflow:{wid} | step={sid} | agent={agent_id or "na"} | packet={rel} | re
 
 def process_package(root: Path, pack_label: str, only: set[str] | None = None) -> None:
     gates = load_gates_table(root)
+    when_map = load_when_table(root)
     skill_dirs = list_skill_dirs(root)
     readme_rows = parse_readme_skill_rows(root)
     pack_key = root.name
@@ -1272,15 +1536,18 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             # template from full notes before thinning yaml
             step_for_tpl = dict(step)
             step_for_tpl["notes"] = full_notes
-            template = extract_template(step_for_tpl, root)
-            if sid == "wrap" and not template:
-                for rel in (
-                    "rules/templates/90-handoff/closeout-skeleton.md",
-                    "rules/templates/closeout-skeleton.md",
-                ):
-                    if (root / rel).is_file():
-                        template = rel
-                        break
+            template = TEMPLATE_OVERRIDES.get((pack_key, wid, sid)) or extract_template(
+                step_for_tpl, root
+            )
+            # commit/wrap 的正文已由 §5 规则卡内联；不再把 8KB/29KB 模板作为必读跳转。
+            if sid in ("commit", "wrap"):
+                template = None
+            templates = list(
+                dict.fromkeys(
+                    ([template] if template else [])
+                    + re.findall(r"rules/templates/[^\s`，。；]+?\.md", full_notes)
+                )
+            )
             packet_rel = f"rules/packets/{wid}/{sid}.md"
             packet_path = root / packet_rel
             packet_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1296,6 +1563,8 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
                 full_notes,
                 edges=step_edges(steps, step),
                 agent_meta=load_agent_meta(root, step.get("agent")),
+                when_map=when_map,
+                templates=templates,
             )
             body = re.sub(
                 r"`(rules/templates/[^`]+?[、,][^`]+?)`",
@@ -1305,8 +1574,9 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             )
             emit(packet_path, body)
             new_mr = [packet_rel]
-            if template:
-                new_mr.append(template)
+            for t in templates:
+                if t not in new_mr:
+                    new_mr.append(t)
             step["must_read"] = new_mr
             step.pop("skills", None)
             # YAML stays thin orchestration — rich notes persist in _orch.yaml

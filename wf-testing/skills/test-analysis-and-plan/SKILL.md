@@ -29,7 +29,7 @@ description: Use when analyzing a test basis or writing a test plan. Produce cha
 
 ## 2. 计划：企业级测试计划（§0～§18；核心 §1～§16）
 
-按 `rules/templates/10-planning/test-plan-template.md` 填，不跳节：
+按 `rules/templates/10-planning/test-plan-template.md` 的 **§0 + 本轮待填节** 填写（测试计划包 §7 指定）；**不要整文件通读**；轻量路径用 `test-plan-lite-template.md` §3/§8：
 
 0. 一页状态（计划状态/当前阶段/当前门/下一动作/需人工/健康度/阻塞）
 1. 测试对象与构建（版本/主读/环境/计划版本/负责人）

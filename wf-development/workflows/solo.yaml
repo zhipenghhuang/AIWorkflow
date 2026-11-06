@@ -34,6 +34,7 @@ steps:
   id: plan
   must_read:
   - rules/packets/solo/plan.md
+  - rules/templates/30-planning-tasks/solution-card-template.md
   agent: implementer
   hitl: confirm_spec
   output: 方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
@@ -51,6 +52,7 @@ steps:
   id: test
   must_read:
   - rules/packets/solo/test.md
+  - rules/templates/40-delivery/lite-test-report-template.md
   agent: verifier-agent
   gate: completion-gate
   gate_type: machine

@@ -24,7 +24,7 @@
 
 ## 3. 心跳
 
-**触发**：每轮首答先判任务类型（新/续/只读）；切 step / 过 hitl·gate → **必做**；长会话每 3～5 轮或上下文变长时补一行。
+**触发**：每轮首答先判任务类型（新/续/只读）；切 step / 过 hitl·gate → **必做**；长会话每 3～5 轮或上下文变长时补一行。**单回合长任务**（同一回复内连续执行、无中间轮次）在进入新子机、或连续 >20 分钟无用户可见输出时，先发一行可见进展再继续。
 
 ```text
 【规则心跳】pkg=开发 | role=<agent> | task=<当前任务一句话> | route=workflow:step | region=<id>|na | packet=rules/packets/<wf>/<step>.md | next=<下一节点>|收尾 | must=步骤包+必开skill闭环 | forbid=多packet/跳技能 | redline=… | ext=ok|refresh | rule_card=ok|refresh

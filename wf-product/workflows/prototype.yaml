@@ -70,6 +70,7 @@ steps:
   id: review
   must_read:
   - rules/packets/prototype/review.md
+  - rules/templates/20-design/design-review-template.md
   agent: reviewer-agent
   hitl: select_review_mode
   hitl_when: landing_doc_review_needed
@@ -89,6 +90,7 @@ steps:
   id: handoff
   must_read:
   - rules/packets/prototype/handoff.md
+  - rules/templates/20-design/dev-handoff-template.md
   agent: ux-designer
   precondition: prototype.review 已通过；选 B 时 design-review 已 READY；或有用户明确豁免与依据
   on_fail: 回 review 补评审/覆盖矩阵/截图；未过不得交开发

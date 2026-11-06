@@ -14,7 +14,7 @@
 | step | 名称 | when | 步骤包 |
 | --- | --- | --- | --- |
 | `design` | 方案与设计 | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `rules/packets/change/design.md` |
-| `review-docs` | 落地文档评审 | `landing_doc_review_required` | `rules/packets/change/review-docs.md` |
+| `review-docs` | 落地文档评审 | `do_landing_doc_review` | `rules/packets/change/review-docs.md` |
 | `plan` | 任务清单 | `multi_file_or_new_feature_or_requested` | `rules/packets/change/plan.md` |
 
 ## 区内纪律

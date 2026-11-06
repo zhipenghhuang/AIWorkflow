@@ -50,6 +50,8 @@ steps:
   id: mount
   must_read:
   - rules/packets/onboard/mount.md
+  - rules/templates/00-onboarding/root-agents-pointer.md
+  - rules/templates/00-onboarding/wf-agents-routing-template.md
   agent: onboard-agent
   output: 项目根 AGENTS.md 包挂载段（已存在则追加，不覆盖）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。
@@ -57,6 +59,8 @@ steps:
   id: profile
   must_read:
   - rules/packets/onboard/profile.md
+  - rules/templates/00-onboarding/active-context-template.md
+  - rules/templates/00-onboarding/work-log-template.md
   agent: onboard-agent
   output: product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板 rules/templates/）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。

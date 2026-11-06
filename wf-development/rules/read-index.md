@@ -1,7 +1,7 @@
-# 读取索引（维护用 · 非运行时必读）
+# 读取索引（维护用 · 非运行时）
 
-> **维护目录**：运行时读链只认 `cold-start` + `_chain`/`_region`（进 workflow/子区一次）+ 当前步骤包 + 命中 skill；read-index/playbook 仅当前步骤包点名时按节读。  
-> 本文不再作为 AI 执行必读；改步骤规则以 packets 为准，可用 `rules/tools/build_step_packets.py` 重生。  
+> **运行时读链**：全局卡 → `_chain`/`_region`（一次）→ 当前步骤包（§3 全局摘要 + §5 规则卡 + §6/§7）→ skill/模板指定节。  
+> 本文只供维护者对照旧读链；业务执行不读本文。改步骤规则以 packets 为准。
 > 下列表格仅供维护者对照历史 MUST/RUN/REF 与口令定位。
 
 ## 默认（所有 step）

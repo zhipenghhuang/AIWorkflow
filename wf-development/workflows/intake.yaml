@@ -70,6 +70,7 @@ steps:
   id: report
   must_read:
   - rules/packets/intake/report.md
+  - rules/templates/10-planning/change-absorption-report-template.md
   agent: iterate-lead
   output: 【变更吸收报告】
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/intake/_orch.yaml。

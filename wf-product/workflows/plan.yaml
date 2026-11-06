@@ -46,6 +46,7 @@ steps:
   id: scope
   must_read:
   - rules/packets/plan/scope.md
+  - rules/templates/10-planning/iteration-change-summary-template.md
   agent: pm-lead
   hitl: confirm_plan
   hitl_when: plan_needs_confirm
@@ -64,6 +65,8 @@ steps:
   id: publish
   must_read:
   - rules/packets/plan/publish.md
+  - rules/templates/10-planning/iteration-plan-template.md
+  - rules/templates/90-handoff/handoff-ledger-template.md
   agent: pm-lead
   hitl:
   - name: confirm_iteration_close

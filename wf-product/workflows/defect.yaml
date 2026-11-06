@@ -76,6 +76,7 @@ steps:
   id: apply
   must_read:
   - rules/packets/defect/apply.md
+  - rules/templates/30-review-change/product-defect-disposition-template.md
   agent: pm-lead
   on_fail: 回 decide；非产品缺陷只产处置单，不改 PRD/AC/计划
   output: 受理单 §6 + 变更单/最新 PRD/AC/计划/UAT + 缺陷处置单 + 附件清单
@@ -100,6 +101,7 @@ steps:
   id: writeback
   must_read:
   - rules/packets/defect/writeback.md
+  - rules/templates/30-review-change/defect-writeup-template.md
   when: remark_writeback
   agent: pm-lead
   gate: writeback-receipt
@@ -113,6 +115,7 @@ steps:
   id: verify
   must_read:
   - rules/packets/defect/verify.md
+  - rules/templates/30-review-change/defect-writeup-template.md
   when: needs_linked_update
   agent: pm-lead
   gate: change-closure

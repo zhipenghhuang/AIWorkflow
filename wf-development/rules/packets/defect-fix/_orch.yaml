@@ -42,7 +42,9 @@ steps:
   postrelease: 条件步：本轮含部署才走。按发布说明跑主链路冒烟与关键回归；观察日志/指标/告警。 触发回滚条件 → 按发布说明回滚，不恋战；更新 {workroot}/60-release/发布记录-{版本}.md、发布说明、`{workroot}/INDEX.md`、`activeContext`。
     失败/回滚不重复回写已回写项；需要时转 retro。
   preflight: '读项目档案 provider。若为「无」或未配置： route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；终止本 workflow（不执行
-    next: pull）； 禁止向用户索要编号、禁止空转拉平台。 **勿在本步 `-StartTask`**；有代码修复时在 `fix` 动手前冻结任务窗口。'
+    next: pull）； 禁止向用户索要编号、禁止空转拉平台。 **勿在本步 `-StartTask`**；有代码修复时在 `fix` 动手前冻结任务窗口。 **开工门（硬）**：进入本 workflow 先按 `confirm_task_intent`
+    输出【需求与意图理解】（目标/范围/验收/不做/假设/风险）并等确认；未确认不得进入 pull、不得改测试或业务代码；批量入口（指派给我/我的待修）不豁免。确认后 pull 首条回执须含【清单摘要】，triage 须先出【分类表】再进
+    fix。'
   product_decision: 入口直达（拉取产品回复/产品回复/产品退回/继续缺陷）视为本步条件成立； 未读产品回复/附件前不得进 fix；平台仍无产品回复/仍指派产品 → 输出 AWAIT_PRODUCT，不重复 handoff。
     按 rules/defects/fix-collaboration.md 读全单：状态/解决码/指派人/全部备注/附件/新产品文档/关联需求。 归类：认可方案/修改后认可/判定实现defects/判定非问题/要求补充信息。 仅“回派”无备注/附件说明
     → 视为未确认，输出 AWAIT_PRODUCT 请产品补结论。 认可或修改后认可或改判实现 → implementation_required + product_decision_requires_alignment； 要求补充/非问题

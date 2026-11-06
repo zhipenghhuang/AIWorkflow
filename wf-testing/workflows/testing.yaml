@@ -100,6 +100,7 @@ steps:
   id: plan
   must_read:
   - rules/packets/testing/plan.md
+  - rules/templates/10-planning/test-plan-template.md
   agent: test-planner
   hitl:
   - name: select_mainread

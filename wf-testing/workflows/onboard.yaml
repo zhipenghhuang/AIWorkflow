@@ -50,6 +50,8 @@ steps:
   id: baseline
   must_read:
   - rules/packets/onboard/baseline.md
+  - rules/templates/00-onboarding/root-agents-pointer.md
+  - rules/templates/00-onboarding/wf-agents-routing-template.md
   agent: onboard-agent
   output: env-baseline.md（§1/§2.1/§2.2/§8）· {workroot}/work-log.md（如无）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。
@@ -78,6 +80,7 @@ steps:
   id: context
   must_read:
   - rules/packets/onboard/context.md
+  - rules/templates/00-onboarding/active-context-template.md
   agent: onboard-agent
   output: activeContext.md
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。

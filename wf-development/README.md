@@ -26,7 +26,7 @@
 | `rules/core/cold-start.md` | **开局卡**（常驻硬约束 SSOT） |
 | `rules/core/frontend-gate.md` | 前端硬门（有 UI 必读） |
 | `rules/core/iq-checklist.md` | 实施质量勾选（implement 先勾） |
-| `rules/read-index.md` | 读取入口：step → MUST/RUN/REF |
+| `rules/read-index.md` | **维护用**索引（step→历史 MUST/RUN/REF）；运行时勿读 |
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
 | `rules/workflow.md` | 护栏、提交门、文档落位摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 + 根 CHANGELOG / 工作日志 / 发布说明 |
@@ -48,7 +48,7 @@
 | 入口 | `AGENTS.md` | 新会话读 **§0 硬节**；中段按 `rules/core/rule-anchor.md` 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
-| 常驻规则 | `rules/gates.md`、`rules/core/verification.md`、`rules/core/clarification.md`、`rules/read-index.md`、`rules/doc-governance.md` | 只读当前相关节 |
+| 运行时读链 | `cold-start`（开局）→ `_chain`/`_region`（进链一次）→ **当前步骤包**（含全局摘要，独立完整）→ §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
 | 参考手册 | `rules/workflow.md`、`rules/defects/fix-collaboration.md`、`rules/collaboration/handoff.md`（标 `读取级别：参考`） | 只读当前 step/阶段节，禁止通读 |
 | 技能 | `skills/<name>/SKILL.md` | 命中步才读；不命中不读 |
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |

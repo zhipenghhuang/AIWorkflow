@@ -42,6 +42,8 @@ steps:
   id: mount
   must_read:
   - rules/packets/onboard/mount.md
+  - rules/templates/00-onboarding/root-agents-pointer.md
+  - rules/templates/00-onboarding/wf-agents-routing-template.md
   agent: onboard-agent
   output: 项目根 AGENTS.md 包挂载段（已存在则追加，不覆盖）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。
@@ -49,6 +51,9 @@ steps:
   id: profile
   must_read:
   - rules/packets/onboard/profile.md
+  - rules/templates/00-onboarding/project-profile-template.md
+  - rules/templates/00-onboarding/version-policy-template.md
+  - rules/templates/00-onboarding/active-context-template.md
   agent: onboard-agent
   output: project-profile.md（含 §7 技术要点事实摘要 / §8 交付治理 / §9 文档归档）· activeContext.md
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。
@@ -65,6 +70,8 @@ steps:
   id: docs
   must_read:
   - rules/packets/onboard/docs.md
+  - rules/templates/00-onboarding/changelog-template.md
+  - rules/templates/00-onboarding/work-log-template.md
   agent: onboard-agent
   output: '{workroot}/ 标准树 + {workroot}/INDEX.md + inbound/INDEX.md + docs/materials/INDEX.md + 根 CHANGELOG.md + {workroot}/work-log.md'
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。
@@ -93,6 +100,7 @@ steps:
   id: control
   must_read:
   - rules/packets/onboard/control.md
+  - rules/templates/10-planning/development-plan-template.md
   agent: onboard-agent
   output: 开发计划（{workroot}/development-plan.md）
   notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/onboard/_orch.yaml。

@@ -22,6 +22,7 @@ steps:
   id: readiness
   must_read:
   - rules/packets/release/readiness.md
+  - rules/templates/40-delivery/go-live-checklist-template.md
   agent: delivery-lead
   gate: release-readiness
   gate_type: checklist
@@ -31,6 +32,7 @@ steps:
   id: acceptance
   must_read:
   - rules/packets/release/acceptance.md
+  - rules/templates/40-delivery/uat-acceptance-template.md
   when: has_uat
   agent: delivery-lead
   hitl: confirm_acceptance
@@ -102,6 +104,7 @@ steps:
   id: retro
   must_read:
   - rules/packets/release/retro.md
+  - rules/templates/60-retro/retro-template.md
   when: incident_or_major_release
   agent: delivery-lead
   output: 复盘（{workroot}/80-retrospectives/）

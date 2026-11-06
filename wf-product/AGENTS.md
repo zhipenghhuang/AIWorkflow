@@ -3,9 +3,9 @@
 > **用途**：产品协作 AI 入口。  
 > **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain` → ④ `_region-*`（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…`（只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：心跳（必带 `packet=`）+ `rule_card`；禁止同时多 packet。  
+> **已路由中段**：心跳（必带 `packet=`）+ 当前步骤包（含全局硬约束摘要，每步遵守）；禁止同时多 packet、禁止 `read-index`；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.06.03`  
+> **template_version**：`2026.11.06.05`  
 > **完成口径**：只认开局卡 + `Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -39,8 +39,7 @@
 
 ### 0.2 硬红线
 
-**产品特有红线**：回写须 `confirm_remark`；inbound/子代理/体验 UX/DX/AX 不净退化。其余硬红线见开局卡 §1（不重复）。细则 `gates.md` / playbook。  
-**原型**：开局卡第 6 条 + `prototype-coverage.md`。**交接**：`handoff.md`。**验证**：`-Claim` + `verify/README.md`。
+**产品特有红线**：回写须 `confirm_remark`；inbound/子代理/体验 UX/DX/AX 不净退化。其余见开局卡 §1。原型/交接/验证细则随当前步骤包点名再读。
 
 ## 1. 接入
 

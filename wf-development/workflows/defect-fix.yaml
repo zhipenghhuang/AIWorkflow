@@ -60,6 +60,7 @@ steps:
   id: handoff_product
   must_read:
   - rules/packets/defect-fix/handoff_product.md
+  - rules/templates/40-delivery/defect-writeup-template.md
   when: product_defect
   agent: defect-fixer
   tools:
@@ -97,6 +98,7 @@ steps:
   id: fix
   must_read:
   - rules/packets/defect-fix/fix.md
+  - rules/templates/20-design/solution-template.md
   when: implementation_required
   agent: defect-fixer
   output: 修复/方案/验证结果
@@ -105,6 +107,7 @@ steps:
   id: clarify
   must_read:
   - rules/packets/defect-fix/clarify.md
+  - rules/templates/40-delivery/defect-writeup-template.md
   when: need_clarification
   agent: defect-fixer
   tools:
@@ -139,6 +142,8 @@ steps:
   id: close
   must_read:
   - rules/packets/defect-fix/close.md
+  - rules/templates/40-delivery/release-notes-template.md
+  - rules/templates/40-delivery/go-live-checklist-template.md
   when: implementation_required
   agent: defect-fixer
   precondition: gates 已 COMPLETE，或本批无代码/配置改动
@@ -167,6 +172,7 @@ steps:
   id: retro
   must_read:
   - rules/packets/defect-fix/retro.md
+  - rules/templates/60-retro/retro-template.md
   when: recurring_defect_or_incident
   agent: defect-fixer
   output: 复盘（{workroot}/80-retrospectives/）

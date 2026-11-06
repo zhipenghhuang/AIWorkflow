@@ -40,7 +40,7 @@
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；含 `name/description` frontmatter；`skills/README.md`） |
 | `AGENTS.md` | AI 入口（接入 + 口令 → workflow；版本单点） |
-| `rules/read-index.md` | 唯一读取入口：step → 必读文件/节 → 预算 |
+| `rules/read-index.md` | **维护用**索引（step→历史 MUST/RUN/REF）；运行时勿读 |
 | `rules/gates.md` | 门/`when`/`gate_when` 语义、门档位；含 coverage-map / case-review / report-consistency / writeback-receipt |
 | `rules/workflow.md` | 产物路径、覆盖三闸、收尾摘要（只读当前节） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 |
@@ -90,7 +90,7 @@
 | 入口 | `AGENTS.md` | 新会话读 **§0 硬节**；中段按 `rules/core/rule-anchor.md` 心跳；口令表（§2）仅路由未定/首次命中时读；禁止通读全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
-| 常驻规则 | `rules/gates.md`、`rules/core/verification.md`、`rules/core/clarification.md`、`rules/read-index.md`、`rules/doc-governance.md` | 只读当前相关节 |
+| 运行时读链 | `cold-start`（开局）→ `_chain`/`_region`（进链一次）→ **当前步骤包**（含全局摘要，独立完整）→ §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
 | 参考手册 | `rules/workflow.md`、`rules/collaboration/subagents.md`、`rules/special/multi-agent-output.md`、`rules/defects/collaboration.md`、`rules/special/script-execution.md`、`rules/collaboration/handoff.md`（标 `读取级别：参考`） | 只读当前 step/阶段节，禁止通读 |
 | 技能 | `skills/<name>/SKILL.md` | 命中步才读；不命中不读 |
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |

@@ -31,6 +31,8 @@ steps:
   id: init
   must_read:
   - rules/packets/control/init.md
+  - rules/templates/10-planning/development-plan-template.md
+  - rules/templates/90-handoff/handoff-ledger-template.md
   agent: iterate-lead
   hitl:
   - name: confirm_plan
