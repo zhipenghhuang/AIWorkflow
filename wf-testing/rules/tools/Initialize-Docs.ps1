@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     初始化项目文档骨架（只建目录/索引，不移动、不删除任何文件）。
@@ -69,7 +69,8 @@ $workDirs = switch ($Owner) {
         @('00-governance', 'user', 'capabilities', 'handoff', '_archive')
     }
     'testing' {
-        @('functional', 'api', 'exploratory', 'random-flows', 'pre-release', 'changes', 'scripts', 'capabilities', 'handoff', '_archive')
+        # 常青根；迭代产物在 {ver}/ 开计划时再建，不预建空轨夹
+        @('scripts', 'capabilities', 'handoff', '_archive')
     }
 }
 
@@ -105,11 +106,12 @@ $wsIndexTpl = @'
 
 | 项 | 路径 |
 | --- | --- |
-| 当前计划 | `__PLAN__` |
-| 当前需求基线 | — |
-| 当前方案/设计 | — |
-| 当前任务清单 | — |
-| 当前验证/发布 | — |
+| 当前迭代 | `__WORKROOT__/{ver}/`（取基线当前版本/主题） |
+| 当前计划 | `__WORKROOT__/{ver}/test-plan.md` |
+| 测试分析 | `__WORKROOT__/{ver}/test-analysis.md` |
+| 执行记录 | `__WORKROOT__/{ver}/functional|api/{NN}-{短名}-执行记录.md` |
+| 回归锚点 | `__WORKROOT__/smoke-checklist.md` |
+| 当前报告 | `__WORKROOT__/{ver}/test-report.md` |
 | 当前交接台账 | `__WORKROOT__/handoff/handoff-ledger.md` |
 
 ## 2. 文档清单

@@ -1,7 +1,9 @@
 # 门面与对外事实同步（测试）
 
+> **读取级别：参考**（事件触发时读；收尾不再强制 `facade=` 字段）。
+
 > **定位**：根 `README.md` 与基线/档案中**对外可见句**的事件触发同步。  
-> **不替代**：状态「三处同拍」（计划 §0 ↔ 导航 INDEX ↔ `activeContext`）仍只认 `execution-contract.md` §4 规则 7；关账/materials 仍认 `doc-governance.md` §7。  
+> **不替代**：状态「三处同拍」（计划 §0 ↔ 导航 INDEX ↔ `activeContext`）只认 `global-rules.md` §8；事件级同步矩阵见 `execution-contract.md` §4（参考）；关账/materials 仍认 `doc-governance.md` §7。  
 > **禁每轮全扫**：未命中下表触发 → 不打开、不对账根 README；日常身份短读仍只读档案/基线。  
 > **写法**：轻量改已有对应句；结构大动走 `project-readme.md` 偏好确认。实例面禁写工作流包用途/装载/升级（见 `AGENTS.md` 多包·实例面）。  
 > **根 CHANGELOG**：本包**不写**。
@@ -31,7 +33,7 @@
 \*纯状态跳变不改基线地图。  
 †README 仍写已关闭版本为「当前」或测试入口已断 → 必须改；否则可 `facade=na`。
 
-**对外可见事实（判定）**：会出现在根 README 或对外「怎么验」路径上的现行值；内部用例草稿、缺陷讨论、仅 AI 工作流路径不算。
+**对外可见事实（判定）**：会出现在根 README 或对外「怎么验」路径上的现行值；内部场景草稿、缺陷讨论、仅 AI 工作流路径不算。
 
 ## 3. 执行顺序与预算
 
@@ -40,6 +42,6 @@
 3. 无根 README 或无可改测试句 → `facade=na`。  
 4. 推迟 → `facade=deferred:<原因>`；必触发未做且未 defer → 不得称同步完成。
 
-## 4. 收尾 `sync=`
+## 4. 收尾表述
 
-`facade=aligned` | `facade=na` | `facade=deferred:<原因>`（与 `triad=` 并列）。未命中触发 → `facade=na`（不必读本文件全文）。
+有门面变化时在收尾第 6 点写一句（已同步 / 无门面变化 / 推迟+原因）。未命中触发 → 写「无门面变化」。**不另造** `facade=` / `triad=` 字段。

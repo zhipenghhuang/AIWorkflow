@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   测试轨完成门。调用 verify/tools/test_gate.py，输出项目根 .gate/wf-testing/。
@@ -17,12 +17,11 @@
 [CmdletBinding()]
 param(
     [string]$ProjectRoot = (Get-Location).Path,
-    [ValidateSet('execute', 'report', 'writeback', 'coverage', 'review')]
+    [ValidateSet('execute', 'report', 'writeback', 'coverage')]
     [string]$Mode = 'report',
     [string]$Scope = '',
     [switch]$Json,
     [switch]$Strict,
-    [switch]$AllowLegacy,
     [switch]$Claim
 )
 
@@ -74,7 +73,6 @@ $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '-
 if ($Scope) { $gateArgs += @('--scope', $Scope) }
 if ($Json) { $gateArgs += '--json' }
 if ($Strict) { $gateArgs += '--strict' }
-if ($AllowLegacy) { $gateArgs += '--allow-legacy' }
 
 & $python.Source -B @gateArgs
 exit $LASTEXITCODE

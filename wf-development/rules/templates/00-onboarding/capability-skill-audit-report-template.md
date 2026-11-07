@@ -32,7 +32,7 @@
 
 ## 3. 建议卡
 
-（按 `rules/playbooks/skill-audit.md` §3；P0 在前）
+（按 `rules/special/skill-audit.md` §3；P0 在前）
 
 ## 4. 拟变更清单（待确认）
 

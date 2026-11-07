@@ -5,7 +5,7 @@ description: Use when testing LLM, RAG, agent, classifier, generation, or other 
 
 # AI 功能测试（技能 · 随包生效）
 
-> 用于：LLM/RAG/Agent/分类/生成/抽取类功能的 analyze / plan / generate / execute / report。  
+> 用于：LLM/RAG/Agent/分类/生成/抽取类功能的 plan / execute / report。  
 > 定位：AI 输出没有唯一答案，但**验收必须有可判定的 oracle、通过阈值和可复跑证据**。  
 > 不替代：确定性功能仍按 `skills/test-basis-analysis/SKILL.md`、`skills/testcase-design/SKILL.md` 执行；安全面同时加载 `skills/test-performance-security-compatibility/SKILL.md`。  
 > 不适用：无模型/无生成行为的确定性功能；走常规用例设计，不硬套评测集。

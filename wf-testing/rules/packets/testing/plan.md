@@ -1,125 +1,97 @@
-# 步骤包 · testing/plan
+# 步骤卡 · testing/plan
 
-> **状态 = 本 step（独立完整）**。全局硬约束见 §3（每步遵守）；本步门/编排/完成见本文；**方法在 §6 skill**（打开→执行→回来）。  
-> 与开局卡/他步条文重复 OK；不要跳转拼流程；不要跳过必开 skill。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
-- **包轨**：wf-testing
-- **workflow**：`testing`
-- **step**：`plan`（测试计划）
+- **workflow / step**：`testing` / `plan`（分析并生成测试计划）
 - **packet**：`rules/packets/testing/plan.md`
-- **角色**：`test-planner`（测试计划（企业级计划 + 执行编排唯一载体））。从主读与测试分析表产出完整可执行的 `{workroot}/test-plan.md`；本步只做该角色职责；越界交回或升级。
-- **上游**：`analyze`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
-- **后续**：`generate`
+- **角色**：`test-planner`（测试分析 / 测试计划（总排））。先完整分析主读（来源/AC/设计点/意图/风险/Oracle），再产出可执行的 {workroot}/{ver}/test-plan.md；本步只做该角色职责；越界交回或升级。
+- **上游**：无（链首）
+- **后续**：`execute`
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
-- **父状态机**：进 wf 时读 `_chain` 一次；**中段勿重读**。
-- **子状态机**：进「分析计划」区时读 `_region-prep` 一次；**中段勿重读**。
 
 ## 2. 本步目标
 
-- **目标**：测试计划
-- **产出**：{workroot}/test-plan.md（+ 版本级四卷按 §3.8；轻量路径可无）
+- **目标**：分析并生成测试计划
+- **产出**：{workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排）
 
-## 3. 本步硬约束
+## 3. 本步硬约束（全局规则 + 本步边界）
 
-### 全局硬约束（本包已带齐 · 每步都遵守）
+> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
-- 1. 先判后动；未确认禁写/禁结论；批量不豁免。
-- 2. 先查事实；仍不明一次一问（附候选/推荐）。
-- 3. 核前提/来源/变量/成本；不迎合；用户有误直接指出。
-- 4. 劣解先说依据+主推；用户坚持记 `deviation=`。
-- 5. 先权衡；失败 2 次换路径。
-- 6. 改前说文件；最小改动；超范围先停。
-- 7. 完成只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`；P0 未过不得整体通过；UI 证据 E1 实点+截图/Network。
-- 8. 收尾六点；只读 2～3 行；主动发现 ≤3。
-- 9. 只写现行；删除即移除；不写历史/旧方案。
-- 10. 读链：开局卡 → `_chain` → 当前包 → §6 skill → 模板 ≤1；同时只 1 包。
-- 11. §6 必开 skill 打开→执行→回包；禁粘贴代替。
-- 12. 切步/过门心跳带 `packet=`/`role=`/`task=`；长任务先报进展。
-- 13. 用户当轮指令优先；与硬门冲突先说明再二选一。
-- 14. 证据先于结论；禁刷绿；密钥零入库。
-- **效力**：以上为执行摘要（全文见开局卡 §1）；开局已读则中段不重开全文，**每步仍须逐条遵守**；与开局卡重复不影响。
+### 本步边界
 
-### 本步操作面（本链本步独立完整）
-
-- **读这些就能干完本步**：本文（全局摘要 + §4 门 + §5 编排）+ §6 表内 skill（一次 1 个闭环）+（若 §7 列出）至多 1 模板。
-- **不靠跳转拼流程**：本步所需规则已写在本文；他步/他链可有相同条文，互不依赖。
-- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步前心跳刷新。
-
-### 本步禁止
-
-- 禁止用 read-index / 他步 packet /「详见别处 rules」拼本步流程。
-- 禁止跳过 §6 必开技能，或用摘要代替实读。
-- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
 
-- **HITL `select_mainread`**：主读路径未确认 → STOP 一问；已选定或唯一正式版已在 §0/理解门写明待确认 → 可续；不得重问
-- **条件判定 `hitl:mainread_unspecified`**：analyze/plan/generate/探索 execute 主读路径未确认；满足→真，否则跳过该门。
-- **HITL `confirm_understanding`**：**主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言
-- **条件判定 `hitl:understanding_needs_confirm`**：输入含 PRD/迭代方案/原型/接口或技术文档、存在 2 个以上实质歧义/冲突、T2/T3，或用户要求计划/用例/准出时真；已有**本轮当前范围**确认的需求理解包/测试分析表或纯信息查询/机械低风险操作时假。**T0 且范围已钉**（补丁范围/环境/准出口径本轮已写死或计划 §0 已确认）→ **默认假**。**计划驱动 execute**：`{workroot}/test-plan.md` §0 为已确认/执行中/待关闭，且本轮范围测试分析表可打开（或计划声明不适用+依据）→ **假**（不重复理解门；门2 仍按 `scope_needs_confirm`）。缺理解包却要**宣称功能准出** → **仍真**；满足→真，否则跳过该门。
-- **HITL `select_review_mode`**：**STOP 二选一**：A 自行｜B AI（testcase-reviewer）；可附自定义焦点。适用面见 `landing_doc_review_needed`（计划/分析表/功能/接口/发布前/探索式）。同产物只问一次；未选不得宣称评审通过/计划可驱动/进 P2
-- **条件判定 `hitl:landing_doc_review_needed`**：下列任一待审且本会话该产物尚未选定 A/B → 真：**计划**（T1+ 首版/换代/范围·准出·缺陷策略实质变；**T0/普通 T1 轻量且用户未点名 → 假**）、**测试分析表**（T2/T3 或歧义≥2）、**功能/专项用例**（T1+）、**接口资产**（T1+ 生成或计划驱动/进准出）、**发布前**（T2+ 或发版准出/计划已列）、**探索式**（计划 §12 纳入且 T2+，或报告引用进准出）。用户点名「自行通过/我审」→ A 后置假；「AI 评审」→ B 后置假；T0 可 SELF_CHECKED；满足→真，否则跳过该门。
-- **HITL `confirm_review`**：结论=需修后放行、有条件放行须接受人、或与计划 P2 入口冲突 → STOP；已放行且无未接受重要项 → 跳过
-- **条件判定 `hitl:review_needs_confirm`**：评审结论为需修后放行、有条件放行（重要遗留需接受人）、或计划 §9.2 P2 要求评审通过但记录未放行时为真；结论=放行执行且无未接受重要项时为假；满足→真，否则跳过该门。
-- **HITL `confirm_plan`**：版本级首版/换代或范围·准出·缺陷提交策略实质变更 → STOP 一行摘要确认；同会话同载体只一次；专项轻量不设门。版本级须先过：分析表 §2.2/§2.3 无空格 + §2.4 依据覆盖无缺行 + §3.8 四卷 + §3.9 批次表；缺项=计划门不通过
-- **条件判定 `hitl:plan_needs_confirm`**：版本级首版/换代，或范围·准出·缺陷策略实质变更；满足→真，否则跳过该门。
-- **HITL `confirm_iteration_close`**：出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认后按 本包 §5 文档治理规则 关账；选「并行不关」则只落新资料。**关闭=停止新范围/冻结版本线，不停止测试与缺陷修复**；测试未完又要开新迭代，优先「并行不关」，归档待测试完成
+- **HITL `select_mainread`**：主读路径未确认 → STOP 一问；已点名/唯一正式版已在依据清单写明 → 可续，不重问。
+- **条件判定 `hitl:mainread_unspecified`**：plan/探索 execute 主读未确认；满足→真，否则跳过该门。
+- **HITL `confirm_understanding`**：**主屏**：分析 §0 摘要、来源盘点计数、AC/设计点覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。
+- **条件判定 `hitl:understanding_needs_confirm`**：输入含 PRD/方案/原型/接口，存在 2 个以上实质歧义/冲突，T2/T3，或用户要求计划/准出且未确认分析；满足→真，否则跳过该门。
+- **HITL `confirm_plan`**：版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出。同会话同载体只一次；补丁/单模块轻量可不设门。
+- **条件判定 `hitl:plan_needs_confirm`**：版本级首版/换代，或范围/准出/缺陷策略实质变化；满足→真，否则跳过该门。
+- **HITL `confirm_iteration_close`**：出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/版本升级且是否关本期不明确；满足→真，否则跳过该门。
-- **HITL `confirm_docs_migration`**：资料收取/分类/改名/归档、或旧结构迁移前列清单与目标；确认后执行
-- **条件判定 `hitl:docs_migration_needed`**：本步将搬迁/归档/清理 inbound 或工作文档且尚未确认清单；满足→真，否则跳过该门。
+- **HITL `confirm_docs_migration`**：资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。
+- **条件判定 `hitl:docs_migration_needed`**：本步将搬迁/归档/清理 inbound 或工作文档且未确认清单；满足→真，否则跳过该门。
+- **GATE `coverage-map` when=analysis_coverage_required**：运行对应 verify；未过不得宣称完成。
+- **条件判定 `gate:analysis_coverage_required`**：本轮创建/更新分析或计划；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
-## 5. 本步工作规则（编排）
+## 5. 本步动作
 
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-- **本步必开技能（质量不降）**：`test-analysis-and-plan`、`test-data-and-environment` → 见 §6 闭环。
+- **本步必开技能（质量不降）**：`test-basis-analysis`、`test-analysis-and-plan`、`test-data-and-environment` → 见 §6 闭环。
 
-### 本步规则卡：计划模板与必填节
+### 本步规则卡：先分析，再计划
 
-- 模板（完整路径）：`rules/templates/10-planning/test-plan-template.md`；只读 §0 + 本轮待填节（§3.7 执行矩阵 / §3.8 四卷 / §3.9 批次表 / §5 准出 / §9 编排），**不要整文件通读**。
-- 轻量路径：`rules/templates/10-planning/test-plan-lite-template.md` §3/§8；仅补丁/单模块且不承担版本准出才用。
-- 前置：先有测试分析表；无表 → 先 analyze，不写计划。
-- 版本级：四卷 V1～V4 + 批次表；计划门核分析表 §2.2/§2.3/§2.4 无空格、§3.8 四卷、§3.9 批次表。
-- 模板按路径选，不按 T 标签；不适用写 N/A + 依据。
-- 迭代关账：确认结束当前迭代后，主计划/四卷/报告/CR/交接落 `{workroot}/_archive/`；「并行不关」只落新资料。
+- 模板（本步两份都填）：`rules/templates/10-planning/test-analysis-template.md`（分析，必做）＋ `rules/templates/10-planning/test-plan-template.md`（总排）。
+- **分析多源**：写分析时至少读主读 + 1 个互补源（原型/接口/代码/现网/历史缺陷）；不能只看单一文档。
+- **分析必做**：来源盘点/章节回执/依据覆盖/AC 设计点账本；每条有意图或 N/A+依据+接受人；每个 AC/设计点有落点；覆盖矩阵（模块×13 面）、方法矩阵、D01–D13 + S6/S7/S11、风险、影响面（直接/邻接/上游/下游/共享数据/事件/回归）、核心链路无未接受空格。
+- **环境基线**：先读 `env-baseline.md` 命中节；计划 §2.2 写命中节/差异/核验，不复制整本；缺基线先接入。
+- **执行双读预告**：分析是原文索引，不替代；后续执行须打开原文对应段并另读 ≥1 互补源，禁只读分析。
+- **优先级**：P0 门禁/阻断必须全过；P1 核心必须执行并出结论；P2 常规必须执行并出结论或 N/A+依据+接受人。P0/P1/P2 都是覆盖义务，不是免测开关。
+- **计划只做总排**：范围、分析引用/计数、影响面/核心链路摘要、类型/轨道、轮次/批次、探索、准入准出、缺陷策略、状态/日志；不重复分析大表。
+- **命令入口**：用户说「根据 XX 迭代生成测试计划」时，本步内完成分析 + 计划；不要求再单独说「分析需求」。
+- **计划门**：主屏展示分析关键结论 + 计划摘要；分析未确认不写计划，计划未确认不执行。
+- 执行时按计划展开全部在范围 P0/P1/P2 意图；场景在执行时生成并写执行记录，不预生成全量用例。
+- 方法质量按 §6 必开技能闭环；本卡写门槛，技能写做法。
 
-## 6. 技能指向（打开 → 执行 → 回本包）
+## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 必做区 → 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 必做区 → 回本包 |
+| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L12-L122（必做+处置/判定/反合理化）→ 回本包 |
+| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L11-L92（必做+处置/判定/反合理化）→ 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
-## 7. 打开/填写
+## 7. 模板与证据
 
-- **本步完整面**：本步骤包（§3 全局摘要 + §4 门 + §5 规则卡/编排）+ §6 必开/条件开 skill（一次 1 个）+ 本步输入。
-- **填写模板（仅此一份）**：`rules/templates/10-planning/test-plan-template.md`；只读本步用到的节，禁止整文件通读。
-- 本步不再读 read-index / 他步 packet / 大手册；模板与 skill 只读指定节。
+- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；各只读本步用到的节，禁止整文件通读；分析模板先于计划模板。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
-## 8. 完成信号
+## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
-- wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
+- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
+- 失败：停在本步补齐或升级；不得静默跳过。
 
-## 9. 回执字段
+## 9. 回执
 
 ```text
-route=workflow:testing | step=plan | agent=test-planner | packet=rules/packets/testing/plan.md | reads=rules/packets/testing/plan.md[+skill] | skills=test-analysis-and-plan,test-data-and-environment|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=plan | agent=test-planner | packet=rules/packets/testing/plan.md | global=ok | skills=test-basis-analysis,test-analysis-and-plan,test-data-and-environment|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
-
-`packet=` 必须含 `rules/packets/testing/plan.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

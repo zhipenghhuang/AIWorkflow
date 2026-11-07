@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     测试规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力契约） ④ AGENTS.md 版本单点存在；密钥扫描（check_secrets.py）。
@@ -47,12 +47,9 @@ $instanceLeafs = @(
     'activeContext.md', 'env-baseline.md', 'CHANGELOG.md', 'work-log.md',
     'test-plan.md', 'test-report.md', 'test-analysis.md', 'handoff-ledger.md',
     '00-交接说明.md', '01-交接清单.md', '接收回执.md', 'INDEX.md',
-    # 实例产物叶名后缀（工作流 §1.3.0 C 命名）；兼容旧平铺/短名
-    '用例.md', '台账.md', '方案.md', '报告.md',
-    '测试用例.md', '执行台账.md', '接口用例.md', '接口台账.md',
-    '功能用例.md', '功能台账.md', '探索用例.md', '探索台账.md',
-    '随机用例.md', '随机台账.md', '测试方案.md', 'test-report.md',
-    '00-发布前索引.md', '00-专项索引.md', '00-smoke-checklist.md'
+    # 实例产物
+    '测试方案.md', 'test-report.md',
+    '00-发布前索引.md', '00-专项索引.md', '00-smoke-checklist.md', 'smoke-checklist.md', '_覆盖账本.md'
 )
 $instanceLeafs += @('文档索引.md', '工作日志.md', '开发计划.md', '产品计划.md', '测试计划.md', '项目档案.md', '产品档案.md', '环境基线.md', '资料索引.md', '交接台账.md', '变更记录.md', '待决项.md', '决策记录.md', '需求台账.md')
 $instanceLeafs += @('计划执行看板.md', 'versioning.md', 'change-log.md', '改进项.md', 'requirement-pool.md', 'open-items.md', 'decisions.md', 'specials-index.md', 'coverage-ledger.md', '00-能力清单.md')
@@ -67,13 +64,9 @@ function Test-InstanceRef {
     if ($t -match '[|<>*?\"]') { return $true }
     $leaf = Split-Path $t -Leaf
     if ($instanceLeafs -contains $leaf) { return $true }
-    # C 命名：16-ASN-功能用例.md / 性能-测试方案.md 等
-    if ($leaf -match '(功能|接口|探索|随机)(用例|台账)\.md$') { return $true }
+    # C 命名：01-支付-执行记录.md / 性能-测试方案.md 等
+    if ($leaf -match '-执行记录\.md$') { return $true }
     if ($leaf -match '-测试(方案|报告)\.md$') { return $true }
-    if ($leaf -match '(功能|接口|探索|随机)?(用例|台账|执行台账)\.md$') { return $true }
-    # 评审：统一落 {workroot}/reviews/
-    if ($leaf -match '-评审-') { return $true }
-    if ($t -match '(^|/)reviews/') { return $true }
     foreach ($p in $instancePrefixes) {
         if ($t.StartsWith($p, [StringComparison]::OrdinalIgnoreCase)) { return $true }
     }
@@ -328,7 +321,7 @@ else { $wfFindings.Add('WF_MISSING: workflows/') }
 $agentsPath = Join-Path $Root 'AGENTS.md'
 $agentsText = ''
 if (Test-Path -LiteralPath $agentsPath) { $agentsText = [System.IO.File]::ReadAllText($agentsPath, [System.Text.Encoding]::UTF8) }
-foreach ($declRel in @('rules/gates.md', 'rules/read-index.md', 'rules/core/maintenance.md')) {
+foreach ($declRel in @('rules/gates.md', 'rules/core/maintenance.md')) {
     $declPath = Join-Path $Root $declRel
     if (Test-Path -LiteralPath $declPath) { $agentsText += "`n" + [System.IO.File]::ReadAllText($declPath, [System.Text.Encoding]::UTF8) }
 }
@@ -489,10 +482,24 @@ if (Test-Path -LiteralPath $packetValidator) {
 }
 else { $packetStatus = '缺少 Validate-StepPackets.ps1' }
 
+# ---------- 语义自检（cold-start / global-rules / 入口去重等） ----------
+$semStatus = '跳过'
+$semValidator = Join-Path $rulesDir 'tools/validate_semantics.py'
+if ($pyCmd -and (Test-Path -LiteralPath $semValidator)) {
+    $semOut = & $pyCmd.Source -B -X utf8 $semValidator $Root 2>&1
+    if ($LASTEXITCODE -eq 0) { $semStatus = 'OK' }
+    else {
+        $semStatus = '失败'
+        foreach ($l in $semOut) { $toolFindings.Add("SEMANTICS: $l") }
+    }
+}
+elseif ($pyCmd -and -not (Test-Path -LiteralPath $semValidator)) { $semStatus = '缺少 validate_semantics.py' }
+elseif (-not $pyCmd) { $toolFindings.Add('SEMANTICS_SKIPPED: 未找到 python，语义自检未执行') }
+
 # ---------- 输出 ----------
 Write-Output "=== 测试规范自检（$Action · 精简版） ==="
 Write-Output "根目录：$Root"
-Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}；步骤包 {2}" -f $yamlStatus, $secretStatus, $packetStatus)
+Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}；步骤包 {2}；语义 {3}" -f $yamlStatus, $secretStatus, $packetStatus, $semStatus)
 Write-Output ("[1/5] 引用可解析（扫描 {0} 处）：{1}" -f $refCount, $(if ($refFindings.Count -eq 0) { 'OK' } else { "$($refFindings.Count) 处待处理" }))
 Write-Output ("[2/5] 章节锚点（扫描 {0} 处）：{1}" -f $anchorCount, $(if ($anchorFindings.Count -eq 0) { 'OK' } else { "$($anchorFindings.Count) 处待处理" }))
 Write-Output ("[3/5] workflows→agents + 步标记词表 + 能力名：{0}" -f $(if ($wfFindings.Count -eq 0) { 'OK' } else { "$($wfFindings.Count) 处待处理" }))

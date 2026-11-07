@@ -2,7 +2,7 @@
 
 > 用途：开发工作自身的总览文档（开发轨总控），从 PRD/原型输入到开发交付/上线支持；类似《测试计划》之于测试。  
 > 定位：只做**阶段、门、状态、角色、产物索引、风险、下一步**；不复制 PRD/方案/任务/测试正文，只链接。  
-> 落点：**新项目默认** `{workroot}/development-plan.md`（建议 `{workroot}/development-plan.md`）；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`。以 `project-profile.md` §9 记录的实际路径为准。  
+> 落点：**新项目默认** `{workroot}/development-plan.md`（建议 `{workroot}/development-plan.md`）；旧项目可保留 `{workroot}/00-governance/development-plan.md`。以 `project-profile.md` §9 记录的实际路径为准。  
 > 维护：每阶段转换/过门/发布/复盘必须更新；**未更新开发计划，不得声称阶段完成**。  
 > **计划状态**：`草稿 / 已确认 / 执行中 / 变更中 / 待关闭 / 已关闭`；首次创建或范围/版本实质变更须 `confirm_plan`。  
 > **命名**：本文档=开发计划（总览）；S3=任务与排期（任务清单/依赖/估算/DoR/DoD/检查点），是计划里的一个阶段，不单独叫“开发计划”。  

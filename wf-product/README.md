@@ -1,6 +1,6 @@
 # 产品规范 — 使用说明
 
-> 供人阅读；**AI 新会话先读** `rules/core/cold-start.md`，口令见 `AGENTS.md`。  
+> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -10,7 +10,7 @@
 执行宿主（任意支持 AGENTS 的 AI 编码工具，要求见本文「宿主适配」节）按 YAML 步骤执行；步内实现路径交 AI（框架固定 · 局部自主）。  
 **需求理解（产品核心职责）**：按 `skills/customer-needs-discovery/SKILL.md` + `rules/core/clarification.md` **多问清需求、完善方案要点、并做理解→方案双确认**；每轮 1 问（或 2～3 互斥选项）；技术细节先给业务向建议请确认；未双确认不得入池承诺/写正式 PRD/定版本；未确认推断标「假设」。  
 **竞品与学习**：`skills/competitive-intelligence-and-learning/SKILL.md` 两档——口令「竞品分析」=模式 S（借/改编/不借）；「竞品对标」=模式 P（矩阵→候选项）；0→1 默认 S。  
-**体验纪律**：界面减法（删无决策价值文案/标签，删后不清楚改布局）、UX/DX/AX 三维同向；详见 `AGENTS.md` §0.2 第9条、`skills/ui-visual-design-system/SKILL.md` §1.3～1.4。
+**体验纪律**：界面减法（删无决策价值文案/标签，删后不清楚改布局）、UX/DX/AX 三维同向；详见 `rules/core/global-rules.md` §12、`skills/ui-visual-design-system/SKILL.md` §1.3～1.4。
 
 ## 2. 目录
 
@@ -21,15 +21,13 @@
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；`skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令→workflow；版本单点） |
-| `rules/read-index.md` | **维护用**索引（step→历史 MUST/RUN/REF）；运行时勿读 |
 | `rules/gates.md` | 门语义、`when` 词表、门档位（autonomous/notify/approve）；含 product-review/uat-evidence/change-closure/writeback-receipt |
-| `rules/workflow.md` | 铁律、产物路径、拟提交与收尾摘要（只读当前节） |
+| `rules/workflow.md` | 参考：阶段护栏/产物路径（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 |
-| `rules/core/` | `clarification.md`、`routing.md`、`verification.md`、`rule-governance.md`、`maintenance.md`、`execution-contract.md`、`doc-quality.md`、`context-memory.md` |
+| `rules/core/` | `global-rules.md`、`cold-start.md`、`clarification.md`、`routing.md`、`verification.md`、`rule-governance.md`、`maintenance.md`、`doc-quality.md`、`context-memory.md`（参考层；运行时先读 global-rules） |
 | `rules/collaboration/` | `handoff.md`、`subagents.md`、`roles.md` |
 | `rules/defects/` | `platform-collaboration.md`、`platform-adapter.md` |
-| `rules/special/` | `quality-gate.md`（审计参考，不是额外确认门） |
-| `rules/playbooks/` | 重阶段步骤卡：变更/defects/原型/发布/skill-audit |
+| `rules/special/` | 专项方法：`quality-gate.md`（审计参考）· `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 8 组：`00-onboarding` / `10-planning` / `20-design` / `30-review-change` / `40-delivery` / `50-showcase-docs` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`（YAML 语法/schema + 引用/锚点/流程引用/步标记/能力名/版本单点）+ `validate_workflow.py` + `validate_handoff.py`（交接包完整性） |
 | `verify/` | PRD/评审/UAT/变更/回写门 `verify/Invoke-Gate.ps1`、检查矩阵、产物校验脚本；独立可复制 |
@@ -44,10 +42,10 @@
 
 | 层 | 位置 | 读法 |
 | --- | --- | --- |
-| 入口 | `AGENTS.md` | 新会话读 **§0 硬节**；中段按 `rules/core/rule-anchor.md` 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
+| 入口 | `AGENTS.md` | 新会话读 **§0 开工 + `global-rules`**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
-| 运行时读链 | `cold-start`（开局）→ `_chain`/`_region`（进链一次）→ **当前步骤包**（含全局摘要，独立完整）→ §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
+| 运行时读链 | `cold-start` → `activeContext` → `global-rules`（每步）→ `workflows/<id>.md` 链图（进链一次）→ **当前步骤卡** → §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
 | 参考手册 | `rules/workflow.md`、`rules/collaboration/handoff.md`（标 `读取级别：参考`） | 只读当前 step/阶段节，禁止通读 |
 | 技能 | `skills/<name>/SKILL.md` | 命中步才读；不命中不读 |
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
@@ -87,7 +85,7 @@
 
 有 `{workroot}/product-plan.md` 后，说 **「继续 / 按产品计划执行 / 下一步 / 当前状态」**：按 §0 总控表从当前阶段续跑；`下一步` 只报动作，`按产品计划执行` 执行到下一个门。
 
-落地通常只装本包。多包歧义定包见`wf/AGENTS.md` **意图→包**；若同项目装多个包，三包自动探测并共享inbound/上下文，不需要额外协作目录；一次会话只执行一个包的 workflow。长会话中段按 `rules/core/rule-anchor.md` 心跳，不重读 AGENTS §0 全文。
+落地通常只装本包。多包歧义定包见`wf/AGENTS.md` **意图→包**；若同项目装多个包，三包自动探测并共享inbound/上下文，不需要额外协作目录；一次会话只执行一个包的 workflow。长会话中段按 `rules/core/global-rules.md` §8 心跳，不重读 AGENTS §0 全文。
 
 ## 4. 自检
 

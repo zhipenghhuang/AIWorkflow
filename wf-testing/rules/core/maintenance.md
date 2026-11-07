@@ -1,14 +1,14 @@
 # 维护本包（测试轨）
 
 > 只在改包/自检/维护时读；业务任务不读本节。`AGENTS.md` 只留维护指针。  
-> **capabilities/技能体检**走 `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills）。
+> **capabilities/技能体检**走 `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills）。
 
 ## 1. 改哪里
 
 - 不变量/路由/读取协议 → `AGENTS.md`
-- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS §2 指针与读取索引「无口令」行；附录仅校验勿当词典）
+- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS 口令表指针；附录仅校验勿当词典）
 - 开局卡 → `rules/core/cold-start.md`
-- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 cold-start、执行契约、activeContext `rule_card`）
+- 心跳格式 → `rules/core/global-rules.md` §8（同步 activeContext 运行状态）
 - 步骤 → `workflows/`（含 `skill-audit.yaml`）
 - 角色 → `agents/`
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`）
@@ -22,10 +22,9 @@
 - 适配：templates / rules / skills 可按项目实际适配；AI 先出拟改/原因/影响，用户确认后改本包并登记；能靠产出文档解决的优先改产出
 - 技能 → `skills/`（**可就地改**；通用最优：「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例选型/绑定 → `{workroot}/capabilities/`（纪律 `rules/capabilities/instance-discipline.md`）
-- capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
+- capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
 - 计划编排 → 测试计划模板 + `rules/workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）
 - 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好）
-- 读取索引 → `rules/read-index.md`（改 step/reads 后同步）
 
 ## 1.1 体检 vs 装配 vs 维护
 
@@ -43,19 +42,19 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Invoke-TestWork
 powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Test-DocHygiene.ps1"
 python wf-testing/rules/tools/check_skills.py wf-testing --strict
 python wf-testing/rules/tools/validate_semantics.py wf-testing
-python wf-testing/rules/tools/validate_testcase.py <模块用例.md>
-python wf-testing/rules/tools/validate_api_testcase.py <接口域用例.md>
+python wf-testing/rules/tools/validate_testcase.py <功能执行记录.md>
+python wf-testing/rules/tools/validate_api_testcase.py <接口执行记录.md>
 ```
 
 > **`check_skills.py` 必须带包根路径**（上例 `wf-testing` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-testing`。
 
-自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；另跑文档卫生检查（见 `rules/tools/README.md`）。功能/接口用例机检见上两行。
+自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；另跑文档卫生检查（见 `rules/tools/README.md`）。执行记录/接口记录机检见上两行。
 
-> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`已含 YAML schema、步骤包结构与「生成物 ↔ workflows/_orch 漂移」检查。
+> 按产物机检（交接包 / PRD / 任务清单 / 执行记录 / 接口记录 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
 
 ## 3. 无障碍/UX
 
-`rules/templates/20-test-cases/a11y-ux-checklist.md`；结果并入测试报告 §11。
+`rules/templates/20-test-cases/a11y-ux-checklist.md`；结果并入执行记录/报告 §2.2（按需）。
 
 ## 4. 重排维护
 

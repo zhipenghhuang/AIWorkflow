@@ -14,11 +14,11 @@ SECTIONS = [
     "## 2. 本步目标",
     "## 3. 本步硬约束",
     "## 4. 本步门",
-    "## 5. 本步工作规则",
+    "## 5. 本步动作",
     "## 6. 技能指向",
-    "## 7. 打开/填写",
-    "## 8. 完成信号",
-    "## 9. 回执字段",
+    "## 7. 模板与证据",
+    "## 8. 完成与退出",
+    "## 9. 回执",
 ]
 
 
@@ -35,9 +35,9 @@ def main() -> int:
             fail += 1
             continue
         wid = data["workflow"].get("id") or ypath.stem
-        chain = root / f"rules/packets/{wid}/_chain.md"
+        chain = root / f"workflows/{wid}.md"
         if not chain.is_file():
-            print(f"FAIL: missing chain {wid}/_chain.md")
+            print(f"FAIL: missing chain {wid}.md")
             fail += 1
         for step in data.get("steps") or []:
             if not isinstance(step, dict) or "id" not in step:
@@ -46,14 +46,18 @@ def main() -> int:
             rel = f"rules/packets/{wid}/{sid}.md"
             path = root / rel
             mr = step.get("must_read") or []
+            first = str(mr[0]).replace("\\", "/") if mr else ""
+            if first == "rules/packets/_shared/closeout.md":
+                if not (root / first).is_file():
+                    print(f"FAIL: {wid}/{sid} missing shared closeout")
+                    fail += 1
+                continue
             if not mr:
                 print(f"FAIL: {wid}/{sid} missing must_read")
                 fail += 1
-            else:
-                first = str(mr[0]).replace("\\", "/")
-                if first != rel:
-                    print(f"FAIL: {wid}/{sid} must_read[0]={first} != {rel}")
-                    fail += 1
+            elif first != rel:
+                print(f"FAIL: {wid}/{sid} must_read[0]={first} != {rel}")
+                fail += 1
             if not path.is_file():
                 print(f"FAIL: missing packet {rel}")
                 fail += 1
@@ -104,7 +108,7 @@ def main() -> int:
                 if bad in text:
                     print(f"FAIL: {rel} {why}: {bad}")
                     fail += 1
-            for m in re.finditer(r"`(rules/(?!packets/|templates/|tools/)[^`]+)`", text):
+            for m in re.finditer(r"`(rules/(?!packets/|templates/|tools/|core/)[^`]+)`", text):
                 print(f"FAIL: {rel} external rule ref: {m.group(1)}（写进本包规则卡，勿外指）")
                 fail += 1
     print(f"SUMMARY fail={fail}")

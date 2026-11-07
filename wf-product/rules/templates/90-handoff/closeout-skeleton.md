@@ -1,19 +1,19 @@
 # 收尾骨架（产品轨）
 
 > **单一出处**：完整【任务收尾】/【今日工作总结】字段下限。专规只填第 1 点正文。  
-> **原则（硬）**：通用占位骨架，非剧本。`{…}` 按当前项目事实填；无则「无」。**禁止**照抄他项目路径/数字/短名。低价值叙述可压缩；机读字段与 1～6 标签不可省。未覆盖 → 目标+证据自主判断并 `deviation=`（`execution-contract.md`）。  
-> **读取**：`wrap`/点名收尾·总结时；中途 ≤3 行简报。
+> **原则（硬）**：通用占位骨架，非剧本。`{…}` 按当前项目事实填；无则「无」。**禁止**照抄他项目路径/数字/短名。低价值叙述可压缩；机读字段与 1～6 标签不可省。未覆盖 → 目标+证据自主判断并 `deviation=`（`global-rules.md` §10）。  
+> **读取**：`closeout`/点名收尾·总结时；中途 ≤3 行简报。
 
 ## 0. 头块（各占一行）
 
 ```text
 【任务收尾】
 【验证回执】结论={可定稿|草稿|阻塞|不适用} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 待确认={n|列表|无}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…；triad=aligned|na|deferred:<原因>；facade=aligned|na|deferred:<原因>} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | deviation={…|无}
 ```
 
 - 有门产物 → 回执与 `.gate/wf-product/{mode}.json` 一致（`READY/DRAFT/BLOCKED`）；无门 → `结论=不适用` + 自检依据，**不伪造**门回执。  
-- 无计划 `triad=na`；未触门面 `facade=na`。心跳不替代遵守自检。  
+- 无更新写 `sync=无`；心跳不替代遵守自检。  
 - `python verify/tools/check_compliance.py --report <本文件>`。
 
 ## 0.5 表达（可复制块）
@@ -27,7 +27,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 待确认={…}
-【遵守自检】route={…} | mode={…} | packet={…} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…；triad=…；facade=…} | skip={…} | deviation={…}
+【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | deviation={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，{完成}/{总数}，{说明}）：{覆盖面；目标/验收；未决；未验证不得写「无阻断」}

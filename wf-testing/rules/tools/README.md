@@ -9,10 +9,11 @@
 | `validate_workflow.py` | YAML 语法 + workflow/agent 基本 schema + step/agent/entry_points/hitl/when/gate 引用（由自检调用） |
 | `playwright/executor.mjs` | 脚本档执行器（**复制到项目** `{workroot}/scripts/`，业务无关勿改逻辑；规则 `rules/special/script-execution.md`，用法同目录 `README.md`；`--mode=api` 支持接口轨无浏览器回放） |
 | `playwright/config.template.mjs` | 脚本档适配配置模板（复制为项目 `{workroot}/scripts/case-executor.config.mjs`） |
-| `merge-ledger.mjs` | jsonl → 台账机械合并（双格式：功能台账 §1 计数+§2 行；接口台账 判定/计数/空列补摘要；人工已填不覆盖） |
+| `validate_testcase.py` | 功能执行记录机检（场景表/Oracle/证据/结果） |
+| `validate_api_testcase.py` | 接口执行记录机检（契约表/场景表/证据/结果） |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner testing`；按基线 `workroot`，未声明按约定） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner testing` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） |
-| `validate_semantics.py` | 语义自检：双入口/残句/角色边/跨链/预算/§1 规则数 | `python rules/tools/validate_semantics.py .` |
+| `validate_semantics.py` | 语义自检：开局卡结构/global-rules 节/双入口/残句/角色边/预算 | `python rules/tools/validate_semantics.py .` |
 | `clean_temp.py` | 临时/脏文件清理（默认 dry-run，只动缓存与过期临时） | `python rules/tools/clean_temp.py --project-root . [--apply]` |
 
 接入核验由 `agents/onboard-agent.yaml` 接入清单执行，**不**另跑落地脚本（脚本档按需，见接入清单 ⑥）。

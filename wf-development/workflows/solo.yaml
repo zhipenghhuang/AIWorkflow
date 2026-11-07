@@ -1,10 +1,11 @@
-# 编排：只读当前 step。进 wf → packets/solo/_chain.md；进子机 → _region-*；执行 → 步骤包。
-# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
-# 富编排笔记：packets/solo/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
+# 编排：进 wf → workflows/solo.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
+# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: solo
   name: 轻量开发（单人或小项目）
   version: 1
+  terminal: closeout
 entry_points:
   轻量开发: frame
   我有个想法: frame
@@ -29,7 +30,10 @@ steps:
   when: new_product_or_unclear_idea
   agent: implementer
   output: 产品定义卡（{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
+  notes: 技能：`skills/product-shaping/SKILL.md`（先读再做）；口径 `rules/core/lightweight.md`。 只在「新想法/新产品/方向不清」时走；小改/需求已清楚 → 跳过本步，直接
+    plan（方案卡 仍须产品最小硬门槛五字段）。 本步不单独停：产出直接进 plan，由 `confirm_spec` 一次确认；方向存在 ≥2 个互斥选择时，在方案卡里列选项与推荐，仍只停一次。 只问影响方向/范围/成功标准的问题：首轮
+    0～1 个，总 ≤3；体量/是否升级拿不准 → 推荐 + 一问确认。 产出：问题/用户与场景/现有替代/价值/成功标准/MVP/非目标/关键风险/假设；每条标 [事实]/[假设]/[待验证]； 五字段必齐。 产品定义卡一页；不写完整 PRD、不写技术方案、不做市场调研（用户点名除外）。
+    输入含 PRD/原型/文档 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要，再填本卡，不重复问已确认项。
 - name: 一页方案卡
   id: plan
   must_read:
@@ -38,7 +42,12 @@ steps:
   agent: implementer
   hitl: confirm_spec
   output: 方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
+  notes: 技能：`skills/product-shaping/SKILL.md`（产品判断）+ `skills/solution-design/SKILL.md` 当前节 + `skills/engineering-quality/SKILL.md`
+    + `skills/task-breakdown/SKILL.md`（任务拆分）；模板 `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只读/写方案卡，不改代码；把「产品行为
+    + 技术方案 + 任务 + 验收 + 测试策略 + 风险」压到一页。 必填：范围/非目标、主流程与状态/权限/异常、改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、测试点（P0/P1/类型）、风险/假设/待确认。
+    验收表必须可被 `verify/Invoke-Gate.ps1` 读取；每条 AC 有检查与证据（路径或命令）。 自检：AC 可观测；每个任务有文件与验证；P0 测试点齐；不把「应该/正常」写成验收。 需要独立代码评审/接口契约/迁移/安全
+    → 停下说明并升级 `change`/`iterate`，不硬走 solo。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；用户确认后进 build；「只出轻量方案」→ 本步后直接 closeout，跳过
+    build/test。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
 - name: 实施与自测
   id: build
   must_read:
@@ -47,7 +56,12 @@ steps:
   precondition: plan 已确认；方案卡验收表已冻结；范围/AC 未确认不得写代码
   on_fail: 回 plan 修方案卡；范围超出先停下说明
   output: 代码/配置改动 + 自测证据
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
+  notes: '**动手前硬门**：勾选 `iq-checklist.md`；有行为变化须 DEV-IQ-09【实施预检】且**命中面先扩 SC/债项**（未扩表=预检无效，禁改码）；有方案条款时 SC 差集=0（DEV-IQ-12）；命中重要面
+    → DEV-IQ-10 同批硬补（轻量不降硬补）。方法 `implementation-and-selftest`；细则 `implementation-quality.md`/§4.3。 技能：`implementation-and-selftest`（先读再改）+
+    `engineering-quality`；预检命中面再读对应技能当前节；失败时 + `debugging-and-error-recovery`。 动手前写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask
+    -TaskId "<任务ID>" -ProjectRoot "."`（仅本步；frame/plan 不计窗口）。 按方案卡验收表+预检扩出的 SC 实施；**可验证单元=一条 SC**（自证后再下一条；页面能开≠单元完成）；前端按 `verify/frontend/acceptance.md`
+    留状态/视口/console/network 截图。 可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。 需独立评审/多波次/跨模块 → 升级 `change`/`iterate`；本步不冒充已评审。
+    实施完更新方案卡「执行记录」与任务状态，准备 test。'
 - name: 轻量测试
   id: test
   must_read:
@@ -57,25 +71,22 @@ steps:
   gate: completion-gate
   gate_type: machine
   gate_when: solo_gate_required
-  on_fail: 回 build 修复；P0 未过不得进 wrap，修后重跑原用例 + 冒烟 + 影响面
+  on_fail: 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面
   output: 轻量测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
-- name: 收尾
-  id: wrap
+  notes: 技能：`skills/test-design-and-execution/SKILL.md`（先读再做）；模板 `rules/templates/40-delivery/lite-test-report-template.md`；口径
+    `lightweight.md`；门禁见 `verify/README.md`。 **开发自验**（非准出）：按方案卡测试点 + **AC 走查**；覆盖集（按风险完整，不是只跑一条）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+
+    受影响回归；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例 + 冒烟 + 影响面」，2
+    次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。 写报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发自验）；P0 未过 = FAIL；禁写「已准出」。
+    运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/wf-development/completion.json`；非 COMPLETE
+    不得进 closeout 报完成。 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/检查/结果/证据/缺口），不跑 completion-gate；closeout 写 `verification=not_applicable`。
+    纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；closeout 写 `verification=not_applicable` + 依据。
+- name: 收尾与提交
+  id: closeout
   must_read:
-  - rules/packets/solo/wrap.md
-  - rules/templates/90-handoff/closeout-skeleton.md
+  - rules/packets/_shared/closeout.md
   agent: implementer
-  output: 【任务收尾】（六段 + 汇报，可整段复制）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
-- name: 拟提交
-  id: commit
-  must_read:
-  - rules/packets/solo/commit.md
-  output: 拟提交确认结果
-  agent: implementer
-  hitl: confirm_commit
-  hitl_when: has_pending_commit
-  tools:
-  - git
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/solo/_orch.yaml。
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
+  output: 任务收尾 + 拟提交确认
+  notes: 收尾与提交；共享终端；状态=done。

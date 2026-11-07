@@ -110,7 +110,7 @@ description: Use when a requirement, question, product defect, or new requiremen
 ```text
 【任务收尾】
 【验证回执】结论={可定稿|草稿|阻塞|不适用} | 校验={...} | 检查={通过}/{总数} | 待确认={...}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | reads={...} | gates={...} | sync={...；triad=...；facade=...} | skip={...} | deviation={...}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | reads={...} | gates={...} | sync={...} | skip={...} | deviation={...}
 
 汇报（可直接复制）：
 **{受理编号/主题}**（{已关闭|待验证|待回写}，{已更新}/{受影响}，{说明}）：{四要素一段；不写路径/编号/待确认指针}。

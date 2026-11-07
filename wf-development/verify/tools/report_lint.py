@@ -151,16 +151,12 @@ def check_self_check(text: str, errors: list[str]) -> None:
         errors.append("缺少【遵守自检】行（route/mode/reads/gates/sync/skip/deviation）")
         return
     body = sc.group(1)
-    for key in ("route=", "mode=", "reads=", "gates=", "sync=", "skip=", "deviation="):
+    for key in ("route=", "mode=", "reads=", "gates=", "global=", "sync=", "skip=", "deviation="):
         if key not in body:
             errors.append(f"【遵守自检】缺少 {key}")
     sync_match = re.search(r"sync=([^|]+)", body)
     if sync_match:
         sync_body = sync_match.group(1)
-        if "triad=" not in sync_body:
-            errors.append("【遵守自检】sync= 须含 triad=aligned|na|deferred:<原因>")
-        if "facade=" not in sync_body:
-            errors.append("【遵守自检】sync= 须含 facade=aligned|na|deferred:<原因>")
 
 
 def main() -> int:

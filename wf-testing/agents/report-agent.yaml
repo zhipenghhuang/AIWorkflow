@@ -1,6 +1,6 @@
 id: report-agent
 role: 收尾与报告（计划 vs 实际）
-goal: 输出总结性结论 + 拟提交；按测试计划对照实际执行，更新 `{workroot}/test-report.md` 的准出评估/覆盖/回归/defects/探索式；失败与待实现汇总并入【执行收尾】；更新 activeContext。
+goal: 输出总结性结论 + 拟提交；按测试计划对照实际执行，更新 `{workroot}/{ver}/test-report.md` 的准出评估/覆盖/回归/defects/探索式；失败与待实现汇总并入【执行收尾】；更新 activeContext。
 
 reads:
   - AGENTS.md §0～§2
@@ -19,7 +19,7 @@ must:
   - '**suite 声明（必填）**：报告正文写本轮 suite=core|module|full + 装填域；迭代准出须≥module；发版/完整项目须 full；仅 core 不得写可准出/可发版（补丁口径须明示）。'
   - '**稳定冒烟**：报告写 P0-Smoke 覆盖/通过率/失败漂移；对照 §3.7 装填完成度，不写空泛「全量复用率」。'
   - '**额外发现**：报告 §5.4 汇总用例之外的 UI/布局/显示/文案/console/network/UX 发现及处置；不静默。'
-  - '**准出评估**：对照计划 §5 → 通过｜有条件通过｜不通过（一句依据）；更新 `{workroot}/test-report.md`（滚动就地更新，只留最新口径）；special/小批追加一节或仅收尾。'
+  - '**准出评估**：对照计划 §5 → 通过｜有条件通过｜不通过（一句依据）；更新 `{workroot}/{ver}/test-report.md`（滚动就地更新，只留最新口径）；special/小批追加一节或仅收尾。'
   - 失败/待实现（实现缺陷）写入【执行收尾】汇报段正文或第 5/6 点（含交平台建议）；汇报=台账结论说明体一整段，禁子 bullet；提交确认节奏见 `rules/defects/collaboration.md` §6.1。
   - 未确认不 commit、不交平台。
   - 完整任务查 git / .gitignore 并写入收尾第 2 点。

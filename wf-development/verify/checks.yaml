@@ -29,7 +29,7 @@ levels:
     optional: [migration-rehearsal, load-test]
 
 post_gate:
-  - report-lint   # iterate/change/defect-fix wrap 后由 verify/Test-Report.ps1；不属于 implementation gate
+  - report-lint   # iterate/change/defect-fix closeout 后由 verify/Test-Report.ps1；不属于 implementation gate
 
 change_types:
   frontend:

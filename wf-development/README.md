@@ -1,6 +1,6 @@
-# 开发规范 — 使用说明
+﻿# 开发规范 — 使用说明
 
-> 供人阅读；**AI 新会话先读** `rules/core/cold-start.md`，口令/分级见 `AGENTS.md`。  
+> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -12,7 +12,7 @@
 **轻量单人轨**：个人小项目/单一想法默认走 `workflows/solo.yaml`：产品定义（按需）→ 一页方案卡 → 一次方案确认 → 实施 → AI 实测（开发自验）→ 完成门 → 收尾；不再分快/标准/完整档，>3 文件或 >1 模块、权限/资金/数据/迁移/安全等自动升级完整链。轻量=裁文档厚度，**不**降 AC/完成门/自验；拿不准升级。细则见 `rules/core/lightweight.md`。  
 **独立落地**：本包可单独使用；不要求安装产品/测试包。缺他包产物时一句缺口并用本包模板补（产品最小硬门槛 + 开发自验），**不因「个人/无 QA」降标**。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；本包仍独立执行自己的 workflow；开发自验 ≠ 版本准出。  
 **产品缺陷流转**：开发判定产品缺陷 → 出评估单 → **有平台则以平台回写+指派为主**（不强制再打 BUG 交接包）；无平台/点名交接包 → 先问后发自包含评估包。产品确认后回流开发。三包独立；多包同仓直读不转发。  
-**全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`AGENTS.md` §0.3-7/8；细则 `skills/engineering-quality` §1.1～1.2、`skills/frontend-design` §5.1）。
+**全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`rules/core/global-rules.md` §5/§12；细则 `skills/engineering-quality` §1.1～1.2、`skills/frontend-design` §5.1）。
 
 ## 2. 目录
 
@@ -23,18 +23,16 @@
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（结构 `skills/<name>/SKILL.md`；编号→路径映射见 `skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
-| `rules/core/cold-start.md` | **开局卡**（常驻硬约束 SSOT） |
+| `rules/core/cold-start.md` | **开局卡**（启动/续跑/回执） |
 | `rules/core/frontend-gate.md` | 前端硬门（有 UI 必读） |
 | `rules/core/iq-checklist.md` | 实施质量勾选（implement 先勾） |
-| `rules/read-index.md` | **维护用**索引（step→历史 MUST/RUN/REF）；运行时勿读 |
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
-| `rules/workflow.md` | 护栏、提交门、文档落位摘要（只读当前节） |
+| `rules/workflow.md` | 参考：护栏/提交门/文档落位（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 + 根 CHANGELOG / 工作日志 / 发布说明 |
-| `rules/core/` | `cold-start.md`、`frontend-gate.md`、`iq-checklist.md`、`execution-contract.md`、`clarification.md`、`routing.md`、`verification.md`、`implementation-quality.md`（词典）、`rule-anchor.md` 等 |
+| `rules/core/` | `global-rules.md`、`cold-start.md`、`frontend-gate.md`、`iq-checklist.md`、`clarification.md`、`routing.md`、`verification.md`、`implementation-quality.md`（词典）等 |
 | `rules/collaboration/` | `handoff.md`、`roles.md`、`subagents.md` |
 | `rules/defects/` | `fix-collaboration.md`、`platform-adapter.md` |
-| `rules/special/` | `iteration-delivery.md`（迭代/任务清单/DoR/DoD 参考） |
-| `rules/playbooks/` | 重阶段步骤卡：迭代/缺陷/发布 |
+| `rules/special/` | 专项方法：`iteration-delivery.md` · `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
 | `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
@@ -45,10 +43,10 @@
 
 | 层 | 位置 | 读法 |
 | --- | --- | --- |
-| 入口 | `AGENTS.md` | 新会话读 **§0 硬节**；中段按 `rules/core/rule-anchor.md` 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
+| 入口 | `AGENTS.md` | 新会话读 **§0 开工 + `global-rules`**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
-| 运行时读链 | `cold-start`（开局）→ `_chain`/`_region`（进链一次）→ **当前步骤包**（含全局摘要，独立完整）→ §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
+| 运行时读链 | `cold-start` → `activeContext` → `global-rules`（每步）→ `workflows/<id>.md` 链图（进链一次）→ **当前步骤卡** → §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
 | 参考手册 | `rules/workflow.md`、`rules/defects/fix-collaboration.md`、`rules/collaboration/handoff.md`（标 `读取级别：参考`） | 只读当前 step/阶段节，禁止通读 |
 | 技能 | `skills/<name>/SKILL.md` | 命中步才读；不命中不读 |
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
@@ -66,13 +64,13 @@
 4. 之后任务**不再**例行落地自检，直接路由执行。  
 5. 新文档/变化/确认项：直接把文件发给 AI，或说「这是新一期方案/这个未决项定了/新增需求…」→ `workflows/intake.yaml`：收件→分类→覆盖对照→影响分析→局部更新→变更吸收报告；你只确认实质变更与资料归档。整理现有资料说「资料收取 / 资料整理 / 资料归档 / 资料巡检」；检查工作文档/临时文件说「文档巡检 / 清理临时文件」。  
 6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-planning/development-plan-template.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称。  
-6.1 日常推进：说 **「按开发计划执行 / 下一步 / 当前状态」** → `control` 的 run/next；读计划 §0，按当前阶段路由到 change/iterate/release/retro，执行到下一个门停止；每步回写计划与执行日志。  
+6.1 日常推进：说 **「按开发计划执行」** → `control/run` 只切包（更新 `activeContext` 后打开目标 `change`/`iterate`/`release`/`retro` 步骤卡，不在 run 内写代码）；目标步到下一门停止。说「进度 / 当前状态」→ `sync`；「下一步」→ `next`。每步回写计划与执行日志。  
 7. 新功能/迭代：说「按方案实施」或「只出任务清单」→ 任务清单按 `rules/templates/30-planning-tasks/task-list-template.md` 落 `{workroot}/40-tasks/`；确认后实施。  
 8. 发布：说「发布/上线」→ `workflows/release.yaml`；发布前必须过上线检查单与审批。测试/预发部署不算 S8（A 模式 `rc.N`；B 模式 `0.3.x` QA 批次）；版本口径见 `rules/core/versioning.md`。  
 9. 复盘：说「复盘/事故复盘」→ `workflows/retro.yaml`。
 10. 交接：**内容优先、包按需**。提测默认只交提测单；说「生成交接包…」或命中多文件/签收/仓外/同发发版时先问再 send。接收走 receive。多包同仓直读。
 
-落地通常只装本包。多包歧义定包见`wf/AGENTS.md` **意图→包**；若同项目装多个包，三包自动探测并共享inbound/上下文，不需要额外协作目录；一次会话只执行一个包的 workflow。长会话中段按 `rules/core/rule-anchor.md` 心跳，不重读 AGENTS §0 全文。
+落地通常只装本包。多包歧义定包见`wf/AGENTS.md` **意图→包**；若同项目装多个包，三包自动探测并共享inbound/上下文，不需要额外协作目录；一次会话只执行一个包的 workflow。长会话中段按 `rules/core/global-rules.md` §8 心跳，不重读 AGENTS §0 全文。
 
 ## 4. 自检
 
@@ -110,3 +108,4 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 - **原件**：`inbound/INDEX.md` 全量登记；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档。  
 - **版本记录**：根 `CHANGELOG.md`＝仅开发维护的产品发版史（用户可见能力/破坏性/迁移·兼容/安全；禁过程项）；`{workroot}/work-log.md`＝岗位里程碑；发布说明一版一档。  
 - 细则与命名/根目录白名单见 `rules/workflow.md` §5、`rules/doc-governance.md`。
+

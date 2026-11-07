@@ -49,7 +49,7 @@
 | A 故障处置 | 对象=现象/缺陷；要根因或修复 | 有缺陷 ID/平台 → `defect-fix`；否则 `change`（先复现/红证） |
 | B 文档吸收 | 新外部资料要入库/影响分析/改基线 | `intake` |
 | C 文档理解 | 已有产品文档/原型，要理解包/冲突表，暂不实施 | `change.analyze_input` |
-| D 计划编排 | 要生成/同步/推进开发计划，或问进度/阶段 | `control`（init/sync/next/run） |
+| D 计划编排 | 要生成/同步/推进开发计划，或问进度/阶段 | `control`（init/sync/next/run）；**`run` 只切包**→同轮改 `activeContext` 后只打开目标步骤卡，不在 run 内实施 |
 | E 按案实施 | 已有方案/清单，要落地或拆任务执行 | `iterate.precheck` |
 | F 功能变更 | 要增删改行为/接口/配置；非纯 bug | 轻量单人 → `solo`；正式/多包/L2+ → `change.clarify`（有文档先 C） |
 | G 方案设计 | 只要架构/接口/数据方案，或点名出方案 | `change.design`（「只出方案」到 review-docs 后收） |

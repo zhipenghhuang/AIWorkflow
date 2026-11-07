@@ -13,11 +13,12 @@ description: Use when implementing or verifying a change. Enforce implement pref
 ## 0. 必做
 
 1. 先勾选 `rules/core/iq-checklist.md`；读任务卡 AC/SC/DoD；SC 差集=0（未进 SC 且无债项 → 不开工）。  
-2. 输出【实施预检】（DEV-IQ-09）；**命中面须先扩成 SC/债项 ID**，否则预检无效、禁改码；命中面同批硬补（DEV-IQ-10）。  
-3. 编码只跟 SC；**单元 = 一条 SC**；禁语义替换；预期只认 SC/AC（禁刷绿）。  
-4. 有 UI → 遵守 `frontend-gate`；有原型 → 已加载 product-doc-analysis；状态/KPI **单一映射源**；有阻断则先不可用再可点。  
-5. 完成前：自测证据 +（L2+）plan-coverage；`-Claim` 仅在 ALLOWED 后写完成。  
-6. 回执 `skills=implementation-and-selftest`（+ 端技能名）。
+2. **原文回指 + 多源合看**（DEV-IQ-22）：SC 的 `来源§` 可打开，AC 经基线/追溯行回指；每条 SC 编码前只读该来源对应段（理解包/方案是索引，不是原文）；分析、原文、原型、接口、现有代码/数据合看，不以单一来源定实现（原型只定 UI/交互）。不一致先分因：漏读/改写 → 停工回原文；原文过时/死边界/示例数据不适用 → 按实际择优并记偏离（依据/影响/替代验证，不改需求语义）；判不了且影响验收/风险 → 一次一问（附推荐）。  
+3. 输出【实施预检】（DEV-IQ-09）；**命中面须先扩成 SC/债项 ID**，否则预检无效、禁改码；命中面同批硬补（DEV-IQ-10）。  
+4. 编码只跟 SC；**单元 = 一条 SC**；禁语义替换；预期只认 SC/AC（禁刷绿）。  
+5. 有 UI → 遵守 `frontend-gate`；有原型 → 已加载 product-doc-analysis；状态/KPI **单一映射源**；有阻断则先不可用再可点。  
+6. 完成前：自测证据 + 原文回指抽查（P0/高风险逐条）+（L2+）plan-coverage；`-Claim` 仅在 ALLOWED 后写完成。  
+7. 回执 `skills=implementation-and-selftest`（+ 端技能名）。
 
 ## 0.1 实现前确认
 
@@ -59,7 +60,7 @@ description: Use when implementing or verifying a change. Enforce implement pref
 3. **二分**：日志/断点/替换/注释把范围对半切，直到锁定。
 4. **修因**：修根因不修表象；禁「加个 try 先绕过」。
 5. **回归**：按修复路径+影响面验证；留证据。
-- 方案无效 **2** 次：换假设或换手段，禁同命令空重跑（`AGENTS.md` §0.3-7）。
+- 方案无效 **2** 次：换假设或换手段，禁同命令空重跑（`rules/core/global-rules.md` §5）。
 
 ## 4. 自测标准（提交前过）
 

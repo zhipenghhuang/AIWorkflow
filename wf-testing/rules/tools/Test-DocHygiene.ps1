@@ -1,4 +1,4 @@
-﻿# Doc hygiene / read budget check (warnings, no file changes)
+# Doc hygiene / read budget check (warnings, no file changes)
 # Usage: powershell -ExecutionPolicy Bypass -File rules/tools/Test-DocHygiene.ps1
 param(
     [string]$Root = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
@@ -27,7 +27,7 @@ function Test-ReferenceDoc([string]$path) {
 }
 
 if (-not (Test-Path -LiteralPath (Join-Path $Root 'AGENTS.md'))) { $errors.Add("MISSING_CORE: AGENTS.md") }
-foreach ($rel in @('rules/gates.md', 'rules/read-index.md', 'rules/doc-governance.md')) {
+foreach ($rel in @('rules/gates.md', 'rules/doc-governance.md')) {
     if (-not (Test-Path -LiteralPath (Join-Path $Root $rel))) { $errors.Add("MISSING_CORE: $rel") }
 }
 foreach ($rel in @('workflows', 'rules')) {
@@ -77,7 +77,7 @@ if (Test-Path -LiteralPath $baselinePath) {
     } catch { $warnings.Add("BUDGET_BASELINE_UNREADABLE: doc-budget-baseline.json") }
 }
 $rules = @()
-if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -Filter *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/](模板|playbooks|tools)[\\/]' }) }
+if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -Filter *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/](模板|special|tools)[\\/]' }) }
 foreach ($f in $rules) {
     $n = Get-Lines $f.FullName
     $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($f.FullName, [System.Text.Encoding]::UTF8))
@@ -91,7 +91,7 @@ foreach ($f in $rules) {
         continue
     }
     if (-not $isTemplate -and -not $isReference -and $tok -gt 3000) {
-        $warnings.Add("RULE_TOKEN_BUDGET: $($f.Name) ~$tok tokens (>3000; split or move detail to playbook)")
+        $warnings.Add("RULE_TOKEN_BUDGET: $($f.Name) ~$tok tokens (>3000; split or move detail to skills/special)")
     }
     if ($isReference -and $tok -gt 10000) {
         $warnings.Add("REFERENCE_TOO_LONG: $($f.Name) ~$tok tokens (>10000; split reference)")
@@ -118,14 +118,6 @@ if (Test-Path -LiteralPath $skillsDir) {
 }
 
 $wfDir = Join-Path $Root 'workflows'
-
-$readIndexPath = Join-Path $Root 'rules/read-index.md'
-if (Test-Path -LiteralPath $readIndexPath) {
-    $readIndex = Get-Content -LiteralPath $readIndexPath -Raw -Encoding UTF8
-    foreach ($f in Get-ChildItem -LiteralPath $wfDir -File -Filter *.yaml -ErrorAction SilentlyContinue) {
-        if ($readIndex -notmatch [regex]::Escape($f.BaseName)) { $warnings.Add("READ_INDEX_NO_WORKFLOW: $($f.BaseName)") }
-    }
-}
 
 $tplDir = Join-Path $Root 'rules/templates'
 $tplIndex = Join-Path $Root 'rules/templates/index.md'

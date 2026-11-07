@@ -1,105 +1,54 @@
-# 步骤包 · defect-fix/fix
+# 步骤卡 · defect-fix/fix
 
-> **状态 = 本 step（独立完整）**。全局硬约束见 §3（每步遵守）；本步门/编排/完成见本文；**方法在 §6 skill**（打开→执行→回来）。  
-> 与开局卡/他步条文重复 OK；不要跳转拼流程；不要跳过必开 skill。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
-- **包轨**：wf-development
-- **workflow**：`defect-fix`
-- **step**：`fix`（红证与修复）
+- **workflow / step**：`defect-fix` / `fix`（红证与修复）
 - **packet**：`rules/packets/defect-fix/fix.md`
 - **角色**：`defect-fixer`（缺陷修复编排）。平台拉取 → 分类 → 红证修复或产品评估 → 门禁 → 菜单 → 按 YAML hitl 提交/部署/回写 → 发布后验证；本步只做该角色职责；越界交回或升级。
-- **上游**：`align`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
+- **上游**：`align`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`clarify`（进 `clarify` 前的 `when=need_clarification`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:implementation_required`**：非「只出任务清单」且清单已确认；满足→真，否则跳过本步（不打开本包）。
 - **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
-- **父状态机**：进 wf 时读 `_chain` 一次；**中段勿重读**。
-- **子状态机**：进「修复与门禁」区时读 `_region-fix` 一次；**中段勿重读**。
 
 ## 2. 本步目标
 
 - **目标**：红证与修复
 - **产出**：修复/方案/验证结果
 
-## 3. 本步硬约束
+## 3. 本步硬约束（全局规则 + 本步边界）
 
-### 全局硬约束（本包已带齐 · 每步都遵守）
+> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
-- 1. 先判后动；未确认禁写/禁结论；批量不豁免。
-- 2. 先查事实；仍不明一次一问（附候选/推荐）。
-- 3. 核前提/来源/变量/成本；不迎合；用户有误直接指出。
-- 4. 劣解先说依据+主推；用户坚持记 `deviation=`。
-- 5. 先权衡；失败 2 次换路径。
-- 6. 改前说文件；最小改动；超范围先停。
-- 7. 完成只认 `-Claim` → `CLAIM: ALLOWED`；无 ALLOWED 不写完成/通过/可提测。有 UI 按本包前端硬门；无 UI 标 `na`。
-- 8. 收尾六点；只读 2～3 行；主动发现 ≤3。
-- 9. 只写现行；删除即移除；不写历史/旧方案。
-- 10. 读链：开局卡 → `_chain` → 当前包 → §6 skill → 模板 ≤1；同时只 1 包。
-- 11. §6 必开 skill 打开→执行→回包；禁粘贴代替。
-- 12. 切步/过门心跳带 `packet=`/`role=`/`task=`；长任务先报进展。
-- 13. 用户当轮指令优先；与硬门冲突先说明再二选一。
-- 14. 证据先于结论；禁刷绿；密钥零入库。
-- **效力**：以上为执行摘要（全文见开局卡 §1）；开局已读则中段不重开全文，**每步仍须逐条遵守**；与开局卡重复不影响。
+### 本步边界
 
-### 本步操作面（本链本步独立完整）
-
-- **读这些就能干完本步**：本文（全局摘要 + §4 门 + §5 编排）+ §6 表内 skill（一次 1 个闭环）+（若 §7 列出）至多 1 模板。
-- **不靠跳转拼流程**：本步所需规则已写在本文；他步/他链可有相同条文，互不依赖。
-- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步前心跳刷新。
-
-### 本步禁止
-
-- 禁止用 read-index / 他步 packet /「详见别处 rules」拼本步流程。
-- 禁止跳过 §6 必开技能，或用摘要代替实读。
-- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
 
 - 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
 - **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
-## 5. 本步工作规则（编排）
+## 5. 本步动作
 
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-- **本步必开技能（质量不降）**：`debugging-and-error-recovery` → 见 §6 闭环。
+- **本步必开技能（质量不降）**：`debugging-and-error-recovery`、`implementation-and-selftest` → 见 §6 闭环。
 
 - **条件技能**：`cross-layer-consistency`（命中权限/状态/数据基数/多表面） → 命中则同样走 §6 闭环。
 
-### 本步动作清单
+### 本步规则卡：实施预检与自测
 
-- **前置**：本批 triage【分类表】已输出。
-- 未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行。
-- 待产品行不扩写。开跑声明 mode=（同文件集→单写手）。 修前红证。
-- 无根因不修。
-- 复现与写回按原单口径对齐、引用原单信息（协作。
-- 红绿与换路径细则见 AGENTS ）。 **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码。
-- 矩阵与判定只认 本包 §5 实施预检卡 ～，不另造表。 **动手前**：先 `verify/Invoke-Gate.ps1 -StartTask -TaskId "BUG-<id>" -ProjectRoot "."`（冻结 `base_commit`。
-- 截图须晚于 `started_at`/验收清单）→ 来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→ 短【实施预检】（DEV-IQ-09。
-- **命中须先扩 SC/债项**）。
-- 命中重要面同批硬补（DEV-IQ-10）。
-- 勾选 实施预检：先勾 AC/SC/DoD。
-- 未进 SC 且无债项不开工。
-- 命中面先扩 SC。
-- 单元=一条 SC。
-- 方法 §6 `implementation-and-selftest`。 按 §6 `cross-layer-consistency` 做同类路径扫描：同模型其他写入口、同谓词其他消费方、同权限端点/菜单、同状态其他表面。
-- 逐条判「同defects/已正确/不适用」，原单+同类路径各补一条回归。
-- 记录根因层/规则缺口。 **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）。
-- 禁止只关单号。 实现缺陷→按 修。
-- 产品已认可/修改后认可→按新产品文档/评估单实施（/）。
-- 产品改判实现缺陷→按产品说明修，备注引用产品结论。 复杂实施再按 rules/templates/20-design/solution-template.md 展开，文件名 方案-BUG-{id}-{主题}-{yyyyMMdd}.md。
-- 简单修复不强制完整方案，但须更新受影响文档/任务清单。 **修复分片**（子代理编排 ）：≥3 单且文件不重叠 → 一组一子代理（worker-agent。
-- 默认串行。
-- 同文件集合并组）。
-- 不达阈值直做。
-- 子代理禁 commit/push/改平台，返回 ≤30 行可直填备注的事实素材（缺陷：先红证/根因。
-- 不修表象。
-- 回写带证据 ）。 高风险/大改/破坏性缺陷：核验者≠实施者（派 reviewer-agent 独立核验，只给原单＋diff＋红绿命令。
-- 核验不替代门禁），并写 `.gate/review.md` 供完成门核对。
+- 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。
+- 原文回指 + 多源合看（DEV-IQ-22）：SC 带来源文件+章节/画板，AC 经基线/追溯行回指；每条 SC 编码前只读来源对应段，分析/原文/原型/接口/现有代码合看（原型只定 UI/交互）。漏读/改写 → 停工回原文；原文过时/死边界/示例数据不适用 → 按实际择优并记偏离（不改需求语义）；判不了且影响验收/风险 → 一次一问（附推荐）。
+- 实施预检（写代码前）：权限/状态/数据基数/多表面/失败路径/交互诚实/运行时 API 逐面判定；命中 → 先扩 SC/债项，再改码。有 UI 且含禁用/灰显/空列表/加载/筛选/主按钮 → 交互诚实默认命中；多表面同一状态/KPI → 跨层默认命中。
+- 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
+- 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」；完成前按来源回指抽查 P0/高风险。
+- 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。
 
 ### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
@@ -178,38 +127,35 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 > L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。
 
-## 6. 技能指向（打开 → 执行 → 回本包）
+## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 必做区 → 回本包 |
-| `debugging-and-error-recovery` | **必开** | 进入本步即开（质量不降） | `skills/debugging-and-error-recovery/SKILL.md` | 必做区 → 回本包 |
+| `debugging-and-error-recovery` | **必开** | 进入本步即开（质量不降） | `skills/debugging-and-error-recovery/SKILL.md` | 只读 L12-L90（硬门槛+方法+反合理化）→ 回本包 |
+| `implementation-and-selftest` | **必开** | 进入本步即开（质量不降） | `skills/implementation-and-selftest/SKILL.md` | 只读 L13-L133（必做+处置/判定/反合理化）→ 回本包 |
+| `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 只读 L12-L127（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
-## 7. 打开/填写
+## 7. 模板与证据
 
-- **本步完整面**：本步骤包（§3 全局摘要 + §4 门 + §5 规则卡/编排）+ §6 必开/条件开 skill（一次 1 个）+ 本步输入。
 - **填写模板（仅此一份）**：`rules/templates/20-design/solution-template.md`；只读本步用到的节，禁止整文件通读。
-- 验证命令：`verify/Invoke-Gate.ps1`（声称完成加 `-Claim`）；有 UI 遵 §5 前端硬门（已内嵌）。
-- 本步不再读 read-index / 他步 packet / 大手册；模板与 skill 只读指定节。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）；有 UI 遵 §5 前端硬门（已内嵌）。
 
-## 8. 完成信号
+## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
-- wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
+- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
+- 失败：停在本步补齐或升级；不得静默跳过。
 
-## 9. 回执字段
+## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=fix | agent=defect-fixer | packet=rules/packets/defect-fix/fix.md | reads=rules/packets/defect-fix/fix.md[+skill] | skills=cross-layer-consistency,debugging-and-error-recovery|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=fix | agent=defect-fixer | packet=rules/packets/defect-fix/fix.md | global=ok | skills=debugging-and-error-recovery,implementation-and-selftest,cross-layer-consistency|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
-
-`packet=` 必须含 `rules/packets/defect-fix/fix.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

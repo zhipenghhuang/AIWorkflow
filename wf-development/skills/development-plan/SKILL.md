@@ -6,7 +6,7 @@ description: Use when a development project or feature starts or needs a status 
 # 开发计划（技能 · 随包生效）
 
 > 用于：新项目/新产品开发、L2+ 功能/迭代、阶段检查、进度/下一步同步。  
-> 产出：`{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `docs/{workroot}/00-governance/development-plan.md`；模板 `rules/templates/10-planning/development-plan-template.md`）。  
+> 产出：`{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`；模板 `rules/templates/10-planning/development-plan-template.md`）。  
 > 定位：**开发工作自己的控制面**，类似《测试计划》之于测试；只管阶段、门、状态、产物索引、风险、下一步，不复制正文。  
 > **命名约定**：本文档叫《开发计划》（总览全文，类似《测试计划》）；流程里的 S3 叫**任务与排期**（任务清单/依赖/估算/DoR/DoD/检查点）。二者分开命名：**开发计划是总览，S3 是其中一个阶段**。  
 > 参考方法（改写适配，非逐字复制）：GitHub Spec Kit（plan/40-tasks/converge）、Addy Osmani `planning-and-task-breakdown` 与 Definition of Done、Superpowers `writing-plans`/`executing-plans`、BMAD 的按规模裁剪与 durable context、Google Engineering Practices 的 code review、GitHub flow 的 PR/CI 节奏。
@@ -79,13 +79,14 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 ## 4. 执行步骤
 
 1. **初始化**：复制模板到 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`）；填一页状态、输入、阶段表；当前阶段=S0；首次计划过 `confirm_plan`。  
-2. **每阶段开始**：读开发计划 → 确认当前阶段/输入 → 加载对应skills/规则 → 执行。  
-3. **每阶段结束**：产出文档/代码/证据 → 更新阶段表（状态/产出/证据/下一步）→ 过门 → 进入下一阶段。  
-4. **门检查**：缺证据/缺文档/未验证 → 不得标完成；写阻塞与下一步。  
-5. **发布/复盘**：更新发布记录/复盘链接；关闭或归档。  
-6. **波次切换**（若启用）：本波次 S2～S5（及约定的门）收口并写入 `G{n}-W{k}` → 更新 §0 到下一波次起点 → §1 S2～S5 改为该波次「进行中/未开始」并叠写历史波次，**禁止**只改 §0 不改阶段表。
+2. **按计划执行（切包）**：读 §0 → 按阶段选定唯一目标 `workflow/step`（选路见 `control/run` 步骤卡）→ 同轮更新 `activeContext` → **关闭** `control/run` → 只打开目标步骤卡；目标步的必开技能/原文回指/前端硬门/完成门全数生效。  
+3. **禁在 control/run 内实施**：不写代码/方案/任务/理解包正文；不代跑 capture/parity/Claim。  
+4. **每阶段结束**：目标步产出/证据齐 → 回写阶段表（状态/产出/证据/下一步）→ 过门；用户说「进度」做 `sync`，或再说「按开发计划执行」进下一阶段。  
+5. **门检查**：缺证据/缺文档/未验证 → 不得标完成；写阻塞与下一步。  
+6. **发布/复盘**：更新发布记录/复盘链接；关闭或归档。  
+7. **波次切换**（若启用）：本波次 S2～S5（及约定的门）收口并写入 `G{n}-W{k}` → 更新 §0 到下一波次起点 → §1 S2～S5 改为该波次「进行中/未开始」并叠写历史波次，**禁止**只改 §0 不改阶段表。
 
-**AI 行为**：先读开发计划，报备“当前阶段 + 波次（若有）+ 下一步”；不按聊天记忆猜进度；每步结束更新开发计划；不复制 PRD/方案/任务正文，只放链接。
+**AI 行为**：先读开发计划，报备“当前阶段 + 波次（若有）+ 目标步”；不按聊天记忆猜进度；切包后只读目标步骤卡；每步结束更新开发计划；不复制 PRD/方案/任务正文，只放链接。
 
 ## 5. 门检查清单
 
@@ -102,7 +103,7 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 ## 6. 防过期
 
 - 只在阶段转换、过门、发布、复盘、**波次切换**、**实质进入下一阶段**时更新 §0/阶段表，不做日报长文。  
-- **「不做日报」≠ 可跳过同拍**：`activeContext` 已写下一阶段/缺陷回归，而 §0 仍停上一阶段「待接收」= 违规；须同轮改 §0（索引入口同步，索引不写状态），正式门未签则写「进行中（正式门待补）」。细则见 `rules/core/execution-contract.md` §4 规则 7。  
+- **「不做日报」≠ 可跳过同拍**：`activeContext` 已写下一阶段/缺陷回归，而 §0 仍停上一阶段「待接收」= 违规；须同轮改 §0（索引入口同步，索引不写状态），正式门未签则写「进行中（正式门待补）」。细则见 `rules/core/global-rules.md` §8；事件矩阵见 `rules/core/execution-contract.md` §4。  
 - 一页状态 + 阶段表 + 索引是主视图；细节进链接。  
 - 每次更新写日期；旧版本不覆盖，必要时归档。  
 - 发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。  
@@ -155,3 +156,4 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 | 「计划可以后补」 | L2+ 无计划则阶段/门/下一动作失真；先建再跑。 |
 | 「阶段表技能列可空」 | 每阶段至少挂一个技能；空列=加载失败。 |
 | 「状态只改 activeContext」 | 计划 §0 / 索引 / 进行中三处同拍。 |
+| 「按计划执行时在 control/run 里直接改代码」 | run 只切包；实施质量在目标步骤卡。 |

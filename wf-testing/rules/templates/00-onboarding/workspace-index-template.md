@@ -2,7 +2,7 @@
 
 > 落盘：`{workroot}/INDEX.md`。单包 workroot=`docs`，即 `docs/INDEX.md`（同时是项目总览入口）；多包 `docs/testing/INDEX.md`。
 > 纯导航：当前入口、文档清单、版本/材料包、归档、缺失；**不写阶段/门/状态**。
-> 状态权威＝计划 §0（`test-plan.md`）；热快照＝`activeContext.md`。索引只指路，不复制正文。
+> 状态权威＝`{ver}/test-plan.md` §0；热快照＝`activeContext.md`。索引只指路，不复制正文。
 
 # 文档索引 — {{项目}} · testing
 
@@ -12,13 +12,15 @@
 
 | 项 | 路径 |
 | --- | --- |
-| 当前计划 | `test-plan.md` |
+| 当前迭代 | `{workroot}/{ver}/` |
+| 当前计划 | `{ver}/test-plan.md` |
+| 测试分析 | `{ver}/test-analysis.md` |
 | 当前需求基线 | {{路径 / —}} |
 | 当前方案/设计 | {{路径 / —}} |
-| 当前任务清单 | {{路径 / —}} |
-| 当前验证/发布 | {{路径 / —}} |
+| 执行记录 | `{ver}/functional|api/{NN}-{短名}-执行记录.md` |
+| 回归锚点 | `smoke-checklist.md` |
+| 当前报告 | `{ver}/test-report.md` |
 | 当前交接台账 | `{workroot}/handoff/handoff-ledger.md` |
-| 现行评审索引 | `{workroot}/reviews/INDEX.md` |
 
 ## 2. 文档清单
 

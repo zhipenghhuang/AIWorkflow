@@ -1,11 +1,12 @@
-# 编排：只读当前 step。进 wf → packets/skill-audit/_chain.md；进子机 → _region-*；执行 → 步骤包。
-# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
-# 富编排笔记：packets/skill-audit/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
+# 编排：进 wf → workflows/skill-audit.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
+# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: skill-audit
   name: 能力与技能体检
   version: 2
   chain: full
+  terminal: closeout
 entry_points:
   体检能力: scope
   能力技能体检: scope
@@ -31,28 +32,31 @@ steps:
   - rules/packets/skill-audit/scope.md
   agent: onboard-agent
   output: 体检范围卡（模式 project/generic、范围、依据）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  notes: 读 `rules/special/skill-audit.md`：含「通用/不按项目/通用最优」→ generic；无填实基线且无 `{workroot}/capabilities/00-能力清单.md` → **强制 generic**；有填实清单或基线
+    → project。 范围：全量｜仅能力｜仅技能｜按轨。generic 默认全量。
 - name: 盘点
   id: inventory
   must_read:
   - rules/packets/skill-audit/inventory.md
   agent: onboard-agent
   output: 库存摘要（capabilities/skills/映射/缺口，含证据）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  notes: 读 `{workroot}/capabilities/00-能力清单.md`（无则记缺口）+ 包内契约/参考目录；`skills/README.md` 映射；抽查本范围 SKILL frontmatter；禁通读全部技能正文。
+    输出【库存摘要】。可顺带跑 `rules/tools/check_skills.py <本包根> --strict`，失败记入缺口。
 - name: 生态检索
   id: discover
   must_read:
   - rules/packets/skill-audit/discover.md
   agent: onboard-agent
   output: 生态检索表（query / 候选 / installs / 吸收动作 / 证据）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  notes: 按 `rules/special/skill-audit.md`：`npx skills find <query>` 或 find-skills；先看 skills.sh 榜。 质量闸 ≥1K installs + 信誉源；【生态检索】只列可吸收方法｜能力候选｜维持；禁未确认
+    skills add 进母版；禁外部生成器绕过分析表/oracle。 无网络/CLI → 降级只读参考目录并记原因。
 - name: 适配分析
   id: fit
   must_read:
   - rules/packets/skill-audit/fit.md
   agent: onboard-agent
   output: 适配分析表（够用/缺口/过重/冲突/重复/映射断裂/可吸收方法 + 证据）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  notes: project：对照环境基线、T 级、轨道、计划缺口、近期门/降级。generic：对照主选备选与技能完整性，不写环境特例。 合并 inventory + discover：够用｜缺口｜过重｜冲突｜重复｜映射断裂｜可吸收方法。
 - name: 出具建议
   id: propose
   must_read:
@@ -60,7 +64,8 @@ steps:
   - rules/templates/00-onboarding/capability-skill-audit-report-template.md
   agent: onboard-agent
   output: '{workroot}/changes/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区）'
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  notes: 按 `rules/templates/00-onboarding/capability-skill-audit-report-template.md` 与 `rules/special/skill-audit.md`；含「生态检索」节；P0
+    置顶。 能力拟改只针对 `{workroot}/capabilities/`；技能可改本包 `skills/`；未确认不改；可列「下一步：装配能力」。
 - name: 确认并应用
   id: apply
   must_read:
@@ -69,24 +74,15 @@ steps:
   hitl: confirm_skill_changes
   hitl_when: skill_changes_pending
   output: 已应用变更清单 + ValidateTemplateRefs / check_skills 自检结果
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
-- name: 收尾
-  id: wrap
+  notes: 有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按 `rules/special/skill-audit.md` 执行；否则跳过。 改包后**必须**跑 `rules/tools/Invoke-TestWorkflow.ps1
+    -Action ValidateTemplateRefs`；改技能另跑 `check_skills.py --strict`；失败不得声称完成；结果写入体检报告。
+- name: 收尾与提交
+  id: closeout
   must_read:
-  - rules/packets/skill-audit/wrap.md
-  - rules/templates/90-handoff/closeout-skeleton.md
+  - rules/packets/_shared/closeout.md
   agent: onboard-agent
-  output: 【任务收尾】
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
-- name: 拟提交
-  id: commit
-  must_read:
-  - rules/packets/skill-audit/commit.md
-  - rules/templates/90-handoff/closeout-skeleton.md
-  agent: onboard-agent
-  hitl: confirm_commit
-  hitl_when: has_pending_commit
-  output: 拟提交确认结果
-  tools:
-  - git
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/skill-audit/_orch.yaml。
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
+  output: 任务收尾 + 拟提交确认
+  notes: 收尾与提交；共享终端；状态=done。

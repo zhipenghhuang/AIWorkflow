@@ -1,5 +1,7 @@
 # 规则治理（开发轨）
 
+> **读取级别：参考**（维护/改规则时读；运行时规则以 `global-rules.md` 为准）。
+
 > 目的：防止规则越写越多、互相冲突、没有执行载体。维护/改规则时读；业务任务不读。
 > 原则：**规则不是越多越稳；一条规则一个 owner；能被脚本检查的，不写成长文。**
 
@@ -7,11 +9,12 @@
 
 | 对象 | 上限（估算 tokens） | 说明 |
 | --- | ---: | --- |
-| `cold-start.md`（每任务常驻） | ≤ 1,200 | **开局唯一常驻正文**；超预算必须再拆命令表 |
-| `AGENTS.md` §0 + 指针 | ≤ 2,500 | 分级表+指针；硬约束不重复开局卡 |
+| `cold-start.md`（开局一次） | ≤ 1,200 | 只放启动/续跑/回执 |
+| `global-rules.md`（会话常驻） | ≤ 6,000 | 全局规则唯一出处；新会话读一次，切步不重读全文 |
+| `AGENTS.md` §0 + 指针 | ≤ 2,500 | 分级表+指针；硬约束不重复 global-rules |
 | `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅未路由时读 |
-| 常驻/必读规则 | ≤ 3,000 | 含 cold-start；超了拆节或移 playbook |
-| 参考手册/playbook | ≤ 10,000 | **必须**在头部标 `读取级别：参考` + 节索引；只读当前节，禁止通读 |
+| 常驻/必读规则 | ≤ 8,000 | 含 global-rules + cold-start；超了拆节或移 skills/special |
+| 参考手册 / `rules/special/` | ≤ 10,000 | 头部标 `读取级别：参考` 或 `按需` + 节索引；只读当前节 |
 | 单个 `skills/<name>/SKILL.md` | ≤ 4,500 | 技能按步加载；超了拆 `references/` 或脚本 |
 | 模板 | 不设 token 上限 | 只复制/填写，不作为规则通读 |
 | 单步读取总量 | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000 | 核心 ≤3～4 来源（命中才读）；重步默认允许；超 12,000 才拆包或把技能拆 `references/`。预算是指示线，不是砍质量的借口 |
@@ -19,7 +22,7 @@
 估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。`Test-DocHygiene.ps1` 检查常驻规则、参考手册、AGENTS、技能；模板不报预算。
 
 **读法分级**：
-- **常驻**：新会话精读 `cold-start.md`；其后心跳 + `rule_card` + 当前步骤包（`packet=`）。read-index/playbook 仅当前步骤包点名时按节读。  
+- **常驻**：新会话精读 `cold-start.md` + `global-rules.md`；切步只读当前步骤包（`packet=`）；其后心跳 + 运行状态。`special` 仅点名时按节读。  
 - **参考**：`implementation-quality.md`（词典）、`workflow.md`、handoff/缺陷长文；只读当前节。`frontend-gate` / `iq-checklist` 为命中必读短卡，不算百科。
 - **技能**：命中步才读，不命中不读。
 - **模板**：只读当前要填的一份，不通读模板库。
@@ -35,7 +38,7 @@
 
 ```text
 发现缺口 / 反复失误
-  → Q1 现有 cold-start / 短硬卡 / gates / skill 必做 / verify 是否已覆盖？
+  → Q1 现有 global-rules / cold-start / gates / skill 必做 / verify 是否已覆盖？
        是 → 改那一处（增强）→ 删其它副本 → 跑 eval/自检
   → Q2 能否用脚本/门检查代替长文？ → 是则加机检，不写新散文
   → Q3 是否同一错误反复（有证据）？ → 否：只记洞见，不入库
@@ -43,7 +46,7 @@
 ```
 
 - workflow step `notes`：**≤3 行指针**；方法进 skills / must_read；禁止 notes 复述门/完成口径全文。
-- `playbooks/`：内容须已进入 read-index 或 skill 后才可删文件；业务步默认不读，仅当前步骤包点名时按节读。
+- 能力体检方法：`rules/special/skill-audit.md`（仅 skill-audit 链点名读）。
 
 ## 2.1 自适应规则写法（防过拟合）
 
@@ -104,7 +107,7 @@ python "wf-development/rules/tools/validate_workflow.py" "wf-development"
 19. 预检命中重要面却只做主路径、无同批防护/负面自测/债项 → DEV-IQ-10 失败。
 20. 命中 §2.1「DEV 必留」的触发链 AC，仅用合成行/mock 插入/只读打开预置对象即报 COMPLETE → DEV-IQ-02 / DEV-VER-12 失败。
 21. 方案写「生成/创建/下发时」却 SC 落点只写查询补齐、或先旁路后接写入口且无债项 → DEV-IQ-01 / DEV-IQ-09 写路径失败。
-22. 口令表/`entry_points` 指向不存在的 step，或 `read-index` 缺当前 step 行 → 规则卫生检查失败。
+22. 口令表/`entry_points` 指向不存在的 step，或链图缺当前状态 → 规则卫生检查失败。
 23. 任务声明覆盖某组通用条款/场景族，但 AC/SC 未覆盖组内「必须/不得」却标完成 → DEV-IQ-12 §4.1#10 失败。
 24. 实现批量写却对合法+非法混合返回空成功/静默漏项；或方案写危险不得进正式可下载却仅做令牌/hash 仍进正式态 → DEV-IQ-10/12 失败。
 25. 把写入口契约负面（批量混合、上传正式态门禁）仅因落在产品验收矩阵就整包划 `QA-AC` → DEV-VER-12 第 3 条失败。

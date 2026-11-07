@@ -19,8 +19,8 @@
 | `00-onboarding/active-context-template.md` | onboard / 开工无文件时 | 项目根 `activeContext.md`（含 `### 进行中` 快照） |
 | `00-onboarding/root-agents-pointer.md` | onboard.mount | 项目根 AGENTS 包挂载样例（偏好正文由项目自写） |
 | `00-onboarding/wf-agents-routing-template.md` | onboard.mount（多包） | `wf/AGENTS.md` 路由；只列已装包 |
-| `00-onboarding/changelog-template.md` | onboard.docs / control.wrap / release.record | 项目根 `CHANGELOG.md`：产品发版史（用户可见capabilities/破坏性/迁移/安全；开发维护） |
-| `00-onboarding/work-log-template.md` | onboard.docs / control.wrap / release.record | `{workroot}/work-log.md`：岗位里程碑（含接入/治理）；不写进根 CHANGELOG |
+| `00-onboarding/changelog-template.md` | onboard.docs / control.closeout / release.record | 项目根 `CHANGELOG.md`：产品发版史（用户可见capabilities/破坏性/迁移/安全；开发维护） |
+| `00-onboarding/work-log-template.md` | onboard.docs / control.closeout / release.record | `{workroot}/work-log.md`：岗位里程碑（含接入/治理）；不写进根 CHANGELOG |
 | `00-onboarding/capability-skill-audit-report-template.md` | skill-audit.propose | `{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md`（工作产物，不进资料区） |
 | `00-onboarding/capabilities/00-capability-inventory.md` | onboard.capabilities | 实例 SSOT 模板：复制到 `{workroot}/capabilities/00-能力清单.md`；绑定按需 `{workroot}/capabilities/绑定/{slot}.md` |
 
@@ -80,9 +80,9 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `90-handoff/closeout-skeleton.md` | wrap / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
+| `90-handoff/closeout-skeleton.md` | closeout / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
 | `90-handoff/handoff-note-template.md` | **handoff.compose（默认）** | **择优写法**（五问→A/B/C/D）；非填空卷；禁整表套用、禁外印元数据 |
 | `90-handoff/handoff-package-brief-template.md` | handoff.send（仅升包） | `{workroot}/handoff/outbound/{category}/{HO-ID}/00-交接说明.md` |
 | `90-handoff/handoff-checklist-template.md` | handoff.send | `01-交接清单.md`（包内文件/版本/必读） |
 | `90-handoff/receipt-template.md` | handoff.receive / 正式签收时 | `04-回执/接收回执.md`（默认不强制填写） |
-| `90-handoff/handoff-ledger-template.md` | handoff.status / 交接初始化 | `{workroot}/handoff/handoff-ledger.md`（唯一登记；含单文档发出） |
+| `90-handoff/handoff-ledger-template.md` | 交接初始化 / 状态只读 | `{workroot}/handoff/handoff-ledger.md`（唯一登记；含单文档发出） |

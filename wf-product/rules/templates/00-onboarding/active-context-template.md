@@ -23,8 +23,10 @@
 | 未提交文件 | `{数量 + 关键文件；无则写「无」}` |
 | 下一步口令 | `{下一句要对 AI 说的话；无则写「无」}` |
 | 待确认事项 | `{需要用户拍板的事项；无则写「无」}` |
-| rule_card | `{pkg=产品 route=workflow:step must=step块+读取索引行 forbid=他包/他workflow全文 redline=≤3标签；无任务写「无」。心跳 refresh 时更新}` |
-
+| workflow / state | `{{<workflow> / <state>；无则「无」}}` |
+| packet | `{{rules/packets/<wf>/<step>.md；无则「无」}}` |
+| gate | `{{回执路径/结果；未运行「-」}}` |
+| updated | `{{ISO8601；无则空}}` |
 ### 当前焦点
 
 {2～3 句：在做什么 / 卡点 / 下一步}

@@ -1,30 +1,17 @@
 #!/usr/bin/env python3
-"""Validate a module test-case document (index + structured cases).
+"""Validate a functional execution record (intent-v1).
 
-Usage: python validate_testcase.py <module-testcase.md> [--legacy]
+Usage: python validate_testcase.py <record.md>
 
-`--legacy`：把“模板化空话/场景空话”降为 WARN，用于审计历史资产；
-新生成/新修改用例默认严格（ERROR），避免“结构对齐但不可执行”。
+Checks:
+- record_format=intent-v1 or 场景与结果
+- §0 记录信息 / §1 场景与结果 / §3 意图结论与本轮统计
+- scene table headers: SC, INT/AC, 场景, 步骤, 预期/Oracle, 结果, 证据
+- every row: valid status; intent id; non-empty scene/oracle/steps
+- fail/block/pending: evidence present
+- high-risk rows: evidence on pass, key depth hints? (manual)
 
-Checks (errors):
-- required sections 0-5
-- module overview table has required columns
-- overview IDs and detail IDs match
-- every detail case has preconditions / data / steps / expected / cleanup / evidence / traceability
-- step table has 位置/操作/数据/中间预期
-- expected table has 可观测判定面/失败判定
-- at least one P0-Smoke case
-
-Warnings:
-- no F-/A-/AC- traceability IDs in overview
-- fewer than 3 steps / more than 10 steps
-- weak expected-oracle phrasing (正常/正确/成功即可/…)
-- depth-selfcheck missing variant/date/entry keywords when section 4 present
-
-Errors (filler / non-executable phrasing):
-- banned step/location boilerplate that blocks follow-along execution
-
-Exit 0 = pass (warnings allowed); 1 = errors; 2 = usage.
+Exit 0 = pass; 1 = errors; 2 = usage.
 """
 from __future__ import annotations
 
@@ -32,200 +19,107 @@ import re
 import sys
 from pathlib import Path
 
-CASE_ID = re.compile(r"\b([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\b")
-CASE_HEADING = re.compile(r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s+(.+)$", re.M)
-REQUIRED_SECTIONS = [
-    "## 0. 模块信息",
-    "## 1. 模块用例总览",
-    "## 2. 用例详情",
-    "## 3. 设计点覆盖映射",
-    "## 4. 覆盖摘要",
-    "## 5. 评审与变更",
-]
-# High-signal empty steps that previously led to freelanced execute paths.
-BANNED_FILLERS = [
-    "以模块文档头部入口为准",
-    "本步结果可在页面核对",
-    "禁臆造未验证路由",
-    # 2026-10 实际资产审计新增：这些短语会让用例“看起来结构化、实际不可跟做”
-    "按场景数据",
-    "同业务详情/列表/弹层",
-    "展示值可记录并与手算/前置对照",
-    "提交结果可回查（成功提示或状态更新）",
-    "样本见前置",
-]
-GENERIC_SCENARIO = "在模块入口验证「"
-# High-signal weak oracle words in 预期 / 失败判定 (warn; review may escalate).
-WEAK_ORACLE = [
-    "正常",
-    "正确",
-    "好看",
-    "成功即可",
-    "功能正常",
-    "返回正常",
-    "页面正常",
-    "本步结果可在页面核对",
-    "展示值可记录并与手算/前置对照",
-]
+STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
+FAIL = {"失败", "阻塞", "待实现"}
+INT_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
 
 
-def section(text: str, start: str, end: str | None) -> str:
-    i = text.find(start)
-    if i < 0:
-        return ""
-    i += len(start)
-    j = text.find(end, i) if end else -1
-    return text[i:j] if j >= 0 else text[i:]
-
-
-def numbered_rows(block: str) -> int:
-    """只数表格里的编号数据行，不把正文编号/预期表混进步骤数。"""
-    return sum(1 for ln in block.splitlines() if re.match(r"^\|\s*\d+\s*\|", ln))
-
-
-def table_headers(block: str) -> list[list[str]]:
-    headers: list[list[str]] = []
+def tables(block: str):
     lines = block.splitlines()
-    for i, line in enumerate(lines[:-1]):
-        if not line.strip().startswith("|"):
-            continue
+    out = []
+    i = 0
+    while i < len(lines) - 1:
+        line = lines[i].strip()
         nxt = lines[i + 1].strip()
-        if not re.match(r"^\|[\s:|-]+\|$", nxt):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        headers.append(cells)
-    return headers
+        if line.startswith("|") and re.match(r"^\|[\s:|-]+\|$", nxt):
+            headers = [c.strip() for c in line.strip().strip("|").split("|")]
+            rows = []
+            j = i + 2
+            while j < len(lines) and lines[j].strip().startswith("|"):
+                rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
+                j += 1
+            out.append((headers, rows))
+            i = j
+        else:
+            i += 1
+    return out
 
 
-def has_cols(headers: list[list[str]], cols: list[str]) -> bool:
-    return any(all(any(col in cell for cell in h) for col in cols) for h in headers)
+def cell(row, headers, name):
+    try:
+        i = headers.index(name)
+    except ValueError:
+        i = next((j for j, h in enumerate(headers) if h.startswith(name)), -1)
+    return row[i].strip() if 0 <= i < len(row) else ""
 
 
 def main() -> int:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    legacy = "--legacy" in sys.argv
-    if not args:
-        print("USAGE: validate_testcase.py <module-testcase.md> [--legacy]")
+    if len(sys.argv) < 2:
+        print("Usage: validate_testcase.py <record.md>", file=sys.stderr)
         return 2
-    path = Path(args[0])
-    if not path.exists():
-        print(f"FILE_NOT_FOUND: {path}")
+    p = Path(sys.argv[1])
+    if not p.is_file():
+        print(f"ERROR: file not found {p}", file=sys.stderr)
         return 2
-    text = path.read_text(encoding="utf-8")
+    text = p.read_text(encoding="utf-8-sig", errors="replace")
     errors: list[str] = []
-    warnings: list[str] = []
+    warns: list[str] = []
 
-    for s in REQUIRED_SECTIONS:
-        if s not in text:
-            errors.append(f"MISSING_SECTION: {s}")
+    if not (re.search(r"record_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I) or "场景与结果" in text):
+        errors.append("缺 record_format=intent-v1 / 场景与结果")
+    for h in ("## 0. 记录信息", "## 1. 场景与结果"):
+        if h not in text:
+            errors.append(f"缺章节 {h}")
+    if not any(h in text for h in ("## 3. 意图结论", "## 3. 本轮结论")):
+        errors.append("缺章节 ## 3. 意图结论与本轮统计")
 
-    overview = section(text, "## 1. 模块用例总览", "## 2. 用例详情")
-    details = section(text, "## 2. 用例详情", "## 3. 设计点覆盖映射")
-    if overview:
-        h = table_headers(overview)
-        required = ["用例 ID", "标题", "优先级", "类型", "关联需求", "步骤数", "脚本", "最近结果"]
-        if not has_cols(h, required):
-            errors.append("OVERVIEW_COLUMNS: 需要 用例ID/标题/优先级/类型/关联需求AC/步骤数/脚本/最近结果")
-        if "P0-Smoke" not in overview:
-            errors.append("NO_P0_SMOKE: 模块总览至少 1 条 P0-Smoke")
-        if not re.search(r"(F-\d+|A-\d+|AC-\d+)", overview):
-            warnings.append("TRACEABILITY_IDS: 总览未见 F-/A-/AC- 编号（可先用设计点过渡）")
+    block = text.split("## 1. 场景与结果", 1)[1] if "## 1. 场景与结果" in text else text
+    block = block.split("## 2.", 1)[0]
+    table = None
+    for headers, rows in tables(block):
+        if "SC" in headers and "结果" in " ".join(headers):
+            table = (headers, rows)
+            break
+    if not table:
+        errors.append("§1 未找到场景表（需 SC/INT/场景/步骤/预期/Oracle/结果/证据）")
+    else:
+        headers, rows = table
+        seen = 0
+        for row in rows:
+            if not row or not row[0] or row[0] in ("SC", "—", "---"):
+                continue
+            seen += 1
+            sc = row[0]
+            status = cell(row, headers, "结果")
+            ev = cell(row, headers, "证据")
+            intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
+            scene = cell(row, headers, "场景")
+            steps = cell(row, headers, "步骤")
+            oracle = cell(row, headers, "预期/Oracle")
+            if status not in STATUSES:
+                errors.append(f"{sc}: 结果不可识别 {status or '空'}")
+            if not INT_RE.search(intent):
+                errors.append(f"{sc}: 缺 INT-* 意图")
+            for name, val in (("场景", scene), ("步骤", steps), ("Oracle", oracle)):
+                if not val or val in ("—", "-", "…"):
+                    errors.append(f"{sc}: 缺 {name}")
+            if steps and steps not in ("—", "-"):
+                n = len(re.findall(r"\d+\s*[.、)]", steps)) or steps.count("→") + 1
+                if n < 2:
+                    warns.append(f"{sc}: 步骤过少（建议 3～7 步）")
+                if n > 10:
+                    warns.append(f"{sc}: 步骤过多（建议 3～7 步）")
+            if status in FAIL and (not ev or ev in ("—", "-", "无")):
+                errors.append(f"{sc}: {status} 缺证据")
+        if seen == 0:
+            errors.append("§1 场景表无数据行")
 
-    overview_ids = set(re.findall(r"^\|\s*([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s*\|", overview, re.M))
-    detail_ids = {m.group(1) for m in CASE_HEADING.finditer(details)}
-
-    if not detail_ids:
-        errors.append("NO_CASES: §2 未找到 `### {ID} {标题}` 用例")
-    for cid in sorted(detail_ids - overview_ids):
-        errors.append(f"CASE_NOT_IN_OVERVIEW: {cid}")
-    for cid in sorted(overview_ids - detail_ids):
-        errors.append(f"CASE_NOT_IN_DETAILS: {cid}")
-
-    # split detail blocks
-    matches = list(CASE_HEADING.finditer(details))
-    for idx, m in enumerate(matches):
-        cid = m.group(1)
-        start = m.start()
-        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(details)
-        block = details[start:end]
-        for label in ["**前置条件**", "**测试数据**", "**清理", "**证据要求**", "**追溯**"]:
-            if label not in block:
-                errors.append(f"{cid}: MISSING {label}")
-        if "验证点" in text:
-            om = re.search(r"Oracle\s*来源\s*[|：:]\s*([^|\n]+)", block)
-            oval = om.group(1).strip() if om else ""
-            if not om or oval in ("", "—", "待补", "无"):
-                errors.append(f"{cid}: MISSING_ORACLE: 新格式用例需写有效「Oracle 来源」（分析表单元ID/AC/主读）")
-        if "**步骤" not in block:
-            errors.append(f"{cid}: MISSING **步骤**")
-            continue
-        if "**预期" not in block:
-            errors.append(f"{cid}: MISSING **预期**")
-        h = table_headers(block)
-        if not has_cols(h, ["位置", "操作", "数据", "中间预期"]):
-            errors.append(f"{cid}: STEP_TABLE 需要 位置/操作/数据/中间预期")
-        if not has_cols(h, ["判定面", "失败判定"]):
-            errors.append(f"{cid}: EXPECTED_TABLE 需要 可观测判定面/失败判定")
-        step_block = section(block, "**步骤", "**预期")
-        exp_block = section(block, "**预期", "**清理")
-        step_rows = numbered_rows(step_block)
-        exp_rows = numbered_rows(exp_block)
-        if step_rows < 3:
-            warnings.append(f"{cid}: 步骤少于 3 步（确认是否过粗）")
-        if step_rows > 10:
-            warnings.append(f"{cid}: 步骤超过 10 步（考虑拆条）")
-        if exp_rows == 0:
-            errors.append(f"{cid}: EXPECTED_ROWS: 预期表没有编号判定行")
-        elif exp_rows < step_rows and "合并" not in block:
-            warnings.append(
-                f"{cid}: EXPECTED_ROWS: 预期 {exp_rows} 行 < 步骤 {step_rows} 行；"
-                "须逐步同号，或写明哪些步骤合并判定"
-            )
-        for phrase in BANNED_FILLERS:
-            if phrase in block:
-                msg = f"{cid}: FILLER_STEP: 含空话「{phrase}」——须写清场景载体入口/动作"
-                (warnings if legacy else errors).append(msg)
-        # Soft: whole-cell “执行批量” without a named business action nearby
-        if re.search(r"\|\s*执行批量\s*\|", block) and not re.search(
-            r"(分配|审批|关闭|提交|确认|导入|导出|催办|移交)", block
-        ):
-            errors.append(f"{cid}: FILLER_STEP: 「执行批量」未点名业务动作（分配/审批等）")
-        if GENERIC_SCENARIO in block:
-            warnings.append(
-                f"{cid}: GENERIC_SCENARIO: 一句话场景仍是「在模块入口验证…」模板句，"
-                "建议写谁在什么场景做什么（不单独阻断，但评审应修）"
-            )
-        exp_and_fail = exp_block if exp_block else block
-        for phrase in WEAK_ORACLE:
-            if phrase in exp_and_fail:
-                warnings.append(
-                    f"{cid}: WEAK_ORACLE: 预期/失败判定含弱词「{phrase}」——"
-                    "须改为可观测字段/状态/文案（评审 A5）"
-                )
-                break
-
-    # Soft depth self-check hints (section 4); does not replace semantic review.
-    summary4 = section(text, "## 4. 覆盖摘要", "## 5. 评审与变更")
-    if summary4 and "深度档" in summary4:
-        soft_needles = ("变体", "倒置", "交叉", "入口齐套", "字段齐套", "不适用")
-        if not any(n in summary4 for n in soft_needles):
-            warnings.append(
-                "DEPTH_SOFT: §4 深度档自检未见变体/日期倒置/入口或字段齐套/"
-                "不适用关键字——对照 testcase-design §2.2 补记或写不适用依据"
-            )
-
-    if not re.search(r"## 5\. 评审与变更", text):
-        errors.append("MISSING_SECTION: ## 5. 评审与变更")
-
-    for w in warnings:
+    for w in warns:
         print(f"WARN: {w}")
-    if errors:
-        for e in errors:
-            print(f"ERROR: {e}")
-        print(f"TESTCASE_VALIDATION_FAILED: {len(errors)} error(s), {len(warnings)} warning(s)")
-        return 1
-    print(f"TESTCASE_VALIDATION_OK: {len(detail_ids)} case(s), {len(warnings)} warning(s)")
-    return 0
+    for e in errors:
+        print(f"ERROR: {e}")
+    print(f"SUMMARY errors={len(errors)} warnings={len(warns)}")
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

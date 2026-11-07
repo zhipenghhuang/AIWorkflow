@@ -17,7 +17,7 @@ description: Use when reviewing product landing documents (PRD, product plan, it
 【评审方式】产物={路径/短名}｜级别={P0～P3}
 请二选一：
 A. 自行评审通过 — 你过目后放行；AI 只留结构自检摘要，review_status=HUMAN_APPROVED
-B. AI 独立评审 — 另起评审身份按量规审；产出评审记录；review_status=AI_REVIEWED（通过后仍可再定稿）
+B. AI 独立评审 — 另起评审身份按量规审；产出评审记录；通过后 `review_status=APPROVED` 并回填 `gate_id`（由 `-Mode review` 回执）
 （回复 A 或 B；默认可写建议，但不得自选执行）
 ```
 

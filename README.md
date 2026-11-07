@@ -4,10 +4,10 @@
 
 **把产品 · 开发 · 测试，写成 AI 可执行的工作流。**
 
-流程版本化在仓库里：口令即路由，确认门等人拍板，产物落到约定位置。
+口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.06.05-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.07.15-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -44,7 +44,7 @@
 | | |
 | --- | --- |
 | **声明式工作流** | `trigger → steps → agent`；条件步、确认门、质量闸可审查 |
-| **多 Agent 协作** | 角色契约按当前步加载；重阶段再读 playbook |
+| **多 Agent 协作** | 角色契约按当前步加载；方法按步骤打开对应 skill |
 | **人工确认门** | 该停就停：需求 / PRD / 方案 / 清单 / 提交 / 发布 / 回滚 / 验收 |
 | **完成只认门** | Agent 只提候选；`verify/` 门读清单 / diff / 证据后才授予完成态 |
 | **能力可插拔** | 外部工具已装即用，未装降级；技能随包命中必用 |
@@ -72,38 +72,15 @@ flowchart LR
 | 每个项目都要重新解释一遍规范 | 整包复制即用；规则与实例分离，换项目只填档案 |
 | 外部工具不一定装得齐 | 实例 `capabilities/` 清单：已配即用，未配降级，不阻塞 |
 | 产物散落在聊天与桌面 | 文档治理：标准树、索引、归档、根目录白名单 |
-| 规范越写越多、互相矛盾 | 单一出处；包自检检查引用、锚点、YAML 与版本单点 |
-
-</details>
-
----
-
-## 三套独立包
-
-选一条轨即可上手；不必一次装全。数量以各包目录与自检为准。
-
-| 包 | 定位 | 上手 |
-| --- | --- | --- |
-| **[产品规范](./wf-product/README.md)** | 0→1 与迭代：需求 · 竞品 · PRD · 原型 · UAT · 发布 | [说明](./wf-product/README.md) · [入口](./wf-product/AGENTS.md) |
-| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 验证 → 提测 → 发布；含轻量单人轨 | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
-| **[测试规范](./wf-testing/README.md)** | 计划驱动：分析 → 计划 → 生成 → 执行 → 报告 | [说明](./wf-testing/README.md) · [入口](./wf-testing/AGENTS.md) |
-
-<details>
-<summary><strong>产品 · 开发 · 测试 · 摘要</strong></summary>
-
-**产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard` · `materials`（另含 `skill-audit`）。产物落在 `docs/product/`（单包 `docs/`）。
-
-**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批。轻量 `solo`＝一页方案卡 → 确认 → 实施 → 自验 → 完成门。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
-
-**测试**：`docs/testing/test-plan.md` 为版本级编排。主链 `testing` · `defect` · `handoff` · `onboard` · `materials`（另含 `skill-audit`）。R0 冒烟 → R1 正式 → R2+ 回归；稳定主链路优先 Playwright；**能脚本不 AI**。P0 未过不得判整体通过。
-
-**单包优先**：只强制本包工作根（`docs/` 平铺；多包 `docs/{owner}/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护（无开发包则不建）；产/测写 `work-log.md`（发布决策可含对外摘要供开发落笔）。多包发版软序见开发文档治理。原件根固定 `inbound/`；权威文档库项目级 `docs/materials/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
+| 规范越写越多、互相矛盾 | 单一出处；包自检检查引用、锚点、YAML、语义与版本单点 |
 
 </details>
 
 ---
 
 ## 快速开始
+
+约 3 步：复制包 → 挂载入口 → 对 AI 说口令。成功标志见第 4 步。
 
 ### 环境要求
 
@@ -127,13 +104,13 @@ cd AIWorkflow
 
 ```bash
 # macOS / Linux（以开发规范为例；排除运行态 / 过程文件 / 缓存）
-rsync -a --exclude .draft --exclude .gate --exclude __pycache__ \
+rsync -a --exclude .draft --exclude .state --exclude .gate --exclude __pycache__ \
   wf-development /path/to/your-project/
 ```
 
 ```powershell
 # Windows：排除运行态 / 过程文件 / 缓存
-robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .gate __pycache__
+robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .state .gate __pycache__
 ```
 
 > 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`）。工作根由项目档案 §1 的 `workroot` 声明；未声明时单包用 `docs/`、多包用 `docs/{owner}/`。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 只写一行 `/<包目录>/`（多包 `/wf/`），不预列未装包、不加注释。
@@ -153,11 +130,10 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 细则以该文件为准；该文件不存在时按普通项目继续，不编造包规。
 ```
 
-挂载样例见各包 `root-agents-pointer.md`；多包路由模板见 `wf-agents-routing-template.md`。
+挂载样例：各包 `rules/templates/00-onboarding/root-agents-pointer.md`。  
+多包路由模板：各包 `rules/templates/00-onboarding/wf-agents-routing-template.md`。
 
 ### 4. 让 AI 接入，然后开跑
-
-对 AI 说：
 
 ```text
 接入开发规范
@@ -171,7 +147,32 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 也可以直接说：`轻量开发` · `写 PRD` · `生成测试计划` · `按方案实施` ……
 
-成功标志：AI 首条输出含 `route=… | step=…`，并开始按包内 workflow 推进（遇确认门会停下等你拍板）。
+**成功标志**：AI 首条输出含 `route=… | step=… | global=ok`，并开始按包内 workflow 推进（遇确认门会停下等你拍板）。
+
+---
+
+## 三套独立包
+
+选一条轨即可上手；不必一次装全。数量以各包目录与自检为准。
+
+| 包 | 定位 | 上手 |
+| --- | --- | --- |
+| **[产品规范](./wf-product/README.md)** | 0→1 与迭代：需求 · 竞品 · PRD · 原型 · UAT · 发布 | [说明](./wf-product/README.md) · [入口](./wf-product/AGENTS.md) |
+| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 验证 → 提测 → 发布；含轻量单人轨 | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
+| **[测试规范](./wf-testing/README.md)** | 分析驱动：分析 → 计划总排 → 执行记录 → 报告/锚点 | [说明](./wf-testing/README.md) · [入口](./wf-testing/AGENTS.md) |
+
+<details>
+<summary><strong>产品 · 开发 · 测试 · 摘要</strong></summary>
+
+**产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard` · `materials` · `skill-audit`。产物落在 `docs/product/`（单包 `docs/`）。
+
+**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批。轻量 `solo`＝一页方案卡 → 确认 → 实施 → 自验 → 完成门。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
+
+**测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行时对照原文对应段 + ≥1 互补源（分析只作索引）；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
+
+**单包优先**：只强制本包工作根（`docs/` 平铺；多包 `docs/{owner}/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护（无开发包则不建）；产/测写 `work-log.md`。多包发版软序见开发文档治理。原件根固定 `inbound/`；权威文档库项目级 `docs/materials/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
+
+</details>
 
 ---
 
@@ -191,7 +192,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 测试 | `生成测试计划` / `按测试计划执行` | 计划门 → 分轨执行 → 报告 |
 | 测试 | `测试报告` / `提交缺陷` / `回归验证` | 准出 · 查重提交 · 回归 |
 | 三包 | `生成交接包` / `装配能力` / `体检能力` | 交接 / 装工具 / 就地优化技能·能力 |
-| 三包 | `导出项目文档` / `生成资料库` / `发资料` | 把 `{workroot}/` 定稿整理进 `docs/materials/{ver}/`，生成可整包发送的完整项目文档集 |
+| 三包 | `导出项目文档` / `生成资料库` / `发资料` | 把 `{workroot}/` 定稿整理进 `docs/materials/{ver}/` |
 
 更完整口令表见各包 `AGENTS.md`（产品/开发 §3，测试 §2）。口语未命中时，按各自 `rules/core/routing.md` 做意图判定。
 
@@ -206,7 +207,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 产品侧缺陷评估、PRD 不符、平台产品单回写 | **产品** | `defect` |
 | 改代码/方案实施/提测/代码评审/开发计划 | **开发** | |
 | 修 Bug、指派开发、复现红证、产品回复后回流 | **开发** | `defect-fix` |
-| 测试计划/用例/按计划执行/准出报告 | **测试** | |
+| 测试计划/按计划执行/准出报告 | **测试** | |
 | 交平台缺陷、测试查重、测试回归 | **测试** | `defect` |
 | 「发布」= 业务能否上线 / UAT 结论 | **产品** | `confirm_release` |
 | 「发布」= 部署/回滚/生产变更 | **开发** | `confirm_deploy` |
@@ -223,24 +224,26 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 ## 它如何工作
 
-五步执行模型：
+五步执行模型（`template_version` 见各包 `AGENTS.md`；母版取最高）：
 
-1. **路由** — 多包先定包；新会话读包内开局卡 → `AGENTS.md` 口令表 → 命中 workflow；首条输出 `route=… | step=… | reads=…`；纯解释走 `readonly:analysis`
-2. **加载** — 开局卡 → 当前 YAML step 块（门/`must_read`）→ `rules/packets/<workflow>/<step>.md`（本步唯一正文）→ 若包内点名再开一个模板。**同会话中段**：【规则心跳】重锚（`rules/core/rule-anchor.md`），不重读开局卡全文
+1. **路由** — 多包先定包；`AGENTS.md` 口令表 → 命中 workflow；首条输出 `route=… | step=… | global=ok | reads=…`；纯解释走 `readonly:analysis`
+2. **加载** — 开局卡（新会话一次；**不再回指 AGENTS**）→ `activeContext`（状态）→ `rules/core/global-rules.md`（每步读）→ `workflows/<id>.md` 链图（进链一次）→ `rules/packets/<id>/<step>.md`（本步唯一正文）→ §6 技能必做节 → 至多 1 个模板。**中段**：一行锚（`global-rules.md` §8）+ 运行状态，不重读开局卡全文
 3. **执行** — 步内方法以步骤包为准；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门须心跳
 4. **验证** — `verify/Invoke-Gate.ps1`；只有门能授予 `COMPLETE` / `PASS` / `READY`
 5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`
+
+> **每步全局规则**：唯一文件 `rules/core/global-rules.md`；每步先读并逐条过，首行锚带 `global=ok`（偏离 `global=dev:<原因>`）。步骤卡只留指针，不复制正文。澄清**方法**在 `clarification.md`（参考层，按需读）；开工确认档位与动作前分析以 `global-rules.md` 为准。`check_lean.py` 与语义自检守卫该机制。
 
 <details>
 <summary><strong>分层落点</strong></summary>
 
 | 层 | 落点 |
 | --- | --- |
-| Workflow | `workflows/*.yaml` |
-| Agent 契约 | `agents/*.yaml` |
-| 开局卡 / 门 / 步骤包 / 重锚 | `rules/core/cold-start.md` · `rules/gates.md` · `rules/packets/` · `rules/core/rule-anchor.md` |
+| Workflow | `workflows/*.yaml` + `workflows/<id>.md` 链图 |
+| Agent 契约 | `agents/*.yaml`（派工/改角色时读） |
+| 开局卡 / 全局规则 / 门 / 步骤卡 | `rules/core/cold-start.md` · `rules/core/global-rules.md` · `rules/gates.md` · `rules/packets/` |
 | 协作交接 | `rules/collaboration/` + `workflows/handoff.yaml` |
-| 专业技能（维护素材；运行时已嵌入步骤包） | `skills/<name>/SKILL.md` |
+| 专业技能（运行时按步骤卡 §6 打开） | `skills/<name>/SKILL.md` |
 | 能力层 | 包内契约+参考目录；实例真源 `{工作根}/capabilities/` |
 | 验证层 | `verify/`（运行态 → 项目根 `.gate/`） |
 | 文档治理 | `rules/doc-governance.md` + `rules/templates/` |
@@ -255,7 +258,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 ## 确认门与质量闸
 
-确认门只认 workflow 步骤上的 `hitl`；条件不满足会自动跳过。开跑前按各包 `rules/core/clarification.md`：先分析，再给「我的理解 + 建议 + 需要你拍板（0～1 个）」；总提问 ≤3。
+确认门只认 workflow 步骤上的 `hitl`；条件不满足会自动跳过。开工判定与动作前分析见各包 `rules/core/global-rules.md`：先自主查证，再给「理解 + 建议 + 需要你拍板（0～1 个）」；总提问 ≤3。澄清方法细则按需读 `clarification.md`。
 
 | 包 | 关键确认门 |
 | --- | --- |
@@ -279,11 +282,11 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 ```text
 AIWorkflow/
 ├─ wf-product/          # 产品轨母版
-├─ wf-development/          # 开发轨母版（含轻量单人轨）
+├─ wf-development/      # 开发轨母版（含轻量单人轨）
 ├─ wf-testing/          # 测试轨母版
-├─ CHANGELOG.md       # 母版仓产品发版史
-├─ THIRD_PARTY.md     # 第三方方法与来源
-├─ LICENSE            # MIT
+├─ CHANGELOG.md         # 母版仓产品发版史
+├─ THIRD_PARTY.md       # 第三方方法与来源
+├─ LICENSE              # MIT
 └─ README.md
 ```
 
@@ -293,11 +296,14 @@ AIWorkflow/
 {包}/
 ├─ AGENTS.md             # AI 入口（版本单点）
 ├─ README.md             # 给人看的上手说明
-├─ workflows/*.yaml
+├─ workflows/*.yaml      # 状态机
+├─ workflows/<id>.md     # 链图（进链读一次）
 ├─ agents/*.yaml
 ├─ skills/<name>/SKILL.md
 ├─ capabilities/00-contract.md · reference.md
-├─ rules/                 # 门 · 读取索引 · 核心/协作/模板/tools …
+├─ rules/                 # 门 · 全局规则 · 协作/模板/tools …
+│  ├─ core/cold-start.md · global-rules.md
+│  └─ packets/<id>/<step>.md
 └─ verify/                 # checks.yaml、完成门；运行态 → .gate/
 ```
 
@@ -310,7 +316,7 @@ AIWorkflow/
 | --- | --- |
 | 开发轨 | `docs/development/`（单包 `docs/`）：`00-governance` · `10-requirements` · `20-design` · `30-architecture/ADR` · `40-tasks` · `50-verification` · `60-release` · `70-ops` · `80-retrospectives`；`capabilities/` · `handoff/` · `_archive/` 不编号 |
 | 产品版本目录 | `docs/product/{ver}/`（单包 `docs/{ver}/`）：`10-requirements` · `20-design` · `30-changes` · `40-delivery` · `50-showcase` · `90-retrospectives`；`00-governance/` · `user/` · `capabilities/` 不编号 |
-| 测试轨 | `docs/testing/`（单包 `docs/`）：`test-plan.md` · `test-analysis.md` · `test-report.md` · `smoke-checklist.md` · `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`；`capabilities/` |
+| 测试轨 | `{workroot}/` 常青（`smoke-checklist`/`scripts`/`capabilities`/`handoff`）+ `{ver}/` 本期（分析/计划/报告 + 轨内平铺执行/探索/随机/发布前记录） |
 | 原件根 | `inbound/` + `INDEX.md`（全量外部输入；不归档/不迁出） |
 | 权威文档库 | `docs/materials/{ver}/`（项目级；00-overview～07-appendix；README + INDEX；自包含；不归档） |
 | 交接 | `{workroot}/handoff/outbound\|inbound/{category}/` + `handoff-ledger.md`（升包含 `{HO-ID}/`） |
@@ -329,7 +335,7 @@ AIWorkflow/
 - **按风险分级** — 低风险少文档，高风险才全链。
 - **规则与实例分离** — 通用规范在包内；项目档案与业务产物在实例侧。
 - **技能随包，能力跟实例** — 技能给方法；能力选型/绑定在 `{工作根}/capabilities/`，包内仅契约与参考目录。
-- **单一出处** — `template_version` 只写在各包 `AGENTS.md`；根 README 不缀版本号为权威源（徽章仅导航提示，真源仍看各包）。
+- **单一出处** — `template_version` 只写在各包 `AGENTS.md`；根 README 徽章仅导航提示，真源仍看各包。
 - **文档现行有效** — 只写当前存在的功能与规则。
 - **内容优先 · 包按需** — 默认自洽主文档；升包才 `{HO-ID}`。
 - **宿主无关** — 包内只写能力名，不写宿主名和本地路径。
@@ -382,7 +388,7 @@ AIWorkflow/
 <details>
 <summary><strong>自检与完成门（维护 / 贡献时）</strong></summary>
 
-改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。执行契约见各包 `rules/core/execution-contract.md`；外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
+改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。`Test-Template` / `Invoke-TestWorkflow` 已挂语义检查（开局卡 + `global-rules`）；外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-Template.ps1"
@@ -391,6 +397,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Invoke-TestWork
 python wf-product/rules/tools/check_skills.py wf-product --strict
 python wf-development/rules/tools/check_skills.py wf-development --strict
 python wf-testing/rules/tools/check_skills.py wf-testing --strict
+python scripts/check_lean.py
 ```
 
 完成门示例：
@@ -401,7 +408,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mo
 powershell -ExecutionPolicy Bypass -File "wf-product/verify/Invoke-Gate.ps1" -Mode prd -ProjectRoot "."
 ```
 
-单项校验（PRD / 任务清单 / 用例 / 交接包等）见各包 `rules/tools/`。
+单项校验（PRD / 任务清单 / 执行记录 / 交接包等）见各包 `rules/tools/`。
 
 </details>
 
@@ -428,12 +435,12 @@ powershell -ExecutionPolicy Bypass -File "wf-product/verify/Invoke-Gate.ps1" -Mo
 
 1. **改动范围**（哪个包 / 哪一层：workflow · agent · 规则 · 技能 · 模板）
 2. **验证方式**（跑了哪些自检 / 完成门）
-3. 若改了规则或路径，是否同步了读取索引与包 README
+3. 若改了规则或路径，是否同步了包 README 与根 README
 
 <details>
 <summary><strong>维护约定</strong></summary>
 
-- 改步骤 → `workflows/`；改角色 → `agents/`；改红线 / 输出 → `rules/`；改方法 → `skills/`；改槽位契约/参考目录 → 包内 `capabilities/`；改项目选型/绑定 → 实例 `{工作根}/capabilities/`
+- 改步骤 → `workflows/` + 重生步骤卡；改角色 → `agents/`；改红线 / 输出 → `rules/`；改方法 → `skills/`；改槽位契约/参考目录 → 包内 `capabilities/`；改项目选型/绑定 → 实例 `{工作根}/capabilities/`
 - 落地：「体检能力」技能改包内 `skills/`，能力改实例 `capabilities/`；契约通用改进回母版
 - 维护通用母版时：改动先落本仓再同步；实例 `capabilities/` 不在包内，不被包同步覆盖
 - 分支：仅维护 `main`

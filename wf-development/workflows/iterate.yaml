@@ -1,10 +1,11 @@
-# 编排：只读当前 step。进 wf → packets/iterate/_chain.md；进子机 → _region-*；执行 → 步骤包。
-# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
-# 富编排笔记：packets/iterate/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
+# 编排：进 wf → workflows/iterate.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
+# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: iterate
   name: 迭代交付
   version: 11
+  terminal: closeout
 entry_points:
   按方案实施: precheck
   按这个方案做: precheck
@@ -25,14 +26,17 @@ steps:
   - rules/packets/iterate/precheck.md
   agent: iterate-lead
   output: 前置检查结果（需求签收/方案批准/清单/handoff/缺口）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 缺理解包/未签收方案 → 回 change.analyze_input 或 requirements/design/review-docs；交接包先 receive。 禁本步 -StartTask。并行/关账见 iteration-delivery
+    + `rules/doc-governance.md`。
 - name: 读方案与拆清单
   id: plan
   must_read:
   - rules/packets/iterate/plan.md
+  - rules/templates/30-planning-tasks/task-list-template.md
   agent: iterate-lead
   output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ closeout。 无 PRD 先 `skills/product-shaping`；L2+ 读 development-plan。禁本步
+    -StartTask。
 - name: 确认清单与节奏
   id: confirm
   must_read:
@@ -42,7 +46,7 @@ steps:
   hitl: confirm_backlog
   hitl_when: backlog_approval_required
   output: 已确认清单/节奏
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 清单未变可跳过 hitl；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单。
 - name: 实施与定向自验
   id: implement
   must_read:
@@ -50,7 +54,8 @@ steps:
   when: implementation_required
   agent: implementer
   output: 代码/配置改动 + 任务状态回写
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: -StartTask → 勾选 iq-checklist → 预检（命中须扩 SC）→ 按 SC 逐条自证落地 → 回写清单；无 UI 时 frontend-gate 标 na。 超出清单先停；未验证不得标完成。细节同 change.implement
+    技能必做。
 - name: 代码评审
   id: review
   must_read:
@@ -65,7 +70,7 @@ steps:
   precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
     存在且后端/功能/前端行有效；非前端/低档→无。
   on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa。
 - name: 全量门禁与文档同步
   id: gates
   must_read:
@@ -75,17 +80,19 @@ steps:
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 门禁摘要/文档同步
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: Invoke-Gate → Claim；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无 UI 标 na）。
 - name: 提测与发布文档
   id: deliver
   must_read:
   - rules/packets/iterate/deliver.md
+  - rules/templates/40-delivery/qa-handoff-template.md
   when: has_qa_or_deploy_or_requested
   agent: implementer
   gate: s6-admission
   gate_type: checklist
   output: 提测单/发布说明/回滚预案
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 未 COMPLETE 不得标可提测。出提测单/发布说明/回滚预案（模板 `rules/templates/40-delivery/qa-handoff-template.md`）；必开 §6 `qa-handoff-and-release`；有意图确认时走
+    `confirm_intent`。
 - name: 发布交接
   id: release_handoff
   must_read:
@@ -93,7 +100,7 @@ steps:
   when: has_deploy
   agent: delivery-lead
   output: 发布就绪包
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  notes: 组装发布就绪包；必开 §6 `qa-handoff-and-release`；生产部署走 `release` 流程 readiness 起 + `confirm_deploy`。
 - name: 迭代复盘
   id: retro
   must_read:
@@ -101,22 +108,14 @@ steps:
   when: iteration_done_or_incident
   agent: delivery-lead
   output: 复盘（{workroot}/80-retrospectives/）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
-- name: 收尾
-  id: wrap
+  notes: 小迭代可轻量；行动项须负责人/截止/验收。最终六段由 closeout 出。
+- name: 收尾与提交
+  id: closeout
   must_read:
-  - rules/packets/iterate/wrap.md
+  - rules/packets/_shared/closeout.md
   agent: iterate-lead
-  output: 【任务收尾】（迭代交付汇报置第 1 点）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
-- name: 拟提交
-  id: commit
-  must_read:
-  - rules/packets/iterate/commit.md
-  agent: iterate-lead
-  hitl: confirm_commit
-  hitl_when: has_pending_commit
-  tools:
-  - git
-  output: 拟提交清单
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/iterate/_orch.yaml。
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
+  output: 任务收尾 + 拟提交确认
+  notes: 收尾与提交；共享终端；状态=done。

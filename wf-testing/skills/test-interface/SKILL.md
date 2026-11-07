@@ -1,75 +1,62 @@
 ---
 name: test-interface
-description: Use for API and contract testing. Prefer script-first execution, contract coverage, negative/authorization checks, and reusable regression assets over repeated AI UI clicking. 中文触发：接口测试、API 测试、契约测试、负向用例、鉴权、脚本化、回归资产。
+description: Use for API and contract testing. Prefer script-first execution, contract inventory, applicable-dimension coverage, negative/authorization checks, and one execution record per API domain. 中文触发：接口测试、API、契约、鉴权、幂等、脚本化、执行记录。
 ---
 
 # 接口测试（技能 · 随包生效）
 
-> 产物/维度/脚本默认以 `rules/tracks/api.md` 为准；**文档骨架**以 `rules/templates/20-test-cases/api-test-case-template.md` 为准；本技能=找 bug 的手感与提效方式。  
-> **禁**用功能 `test-case-template.md` 顶替接口域文档。
+> 产物/维度/脚本以 `rules/tracks/api.md` 为准；文档骨架 `rules/templates/20-test-cases/api-test-case-template.md`（执行记录）。  
+> 原则：**脚本优先、契约先行、判定三要素、写后回查**；不预写全量接口用例，执行时按意图/契约生成场景并记录。
 
-> **生成维 vs 执行维 · 域常青**：覆盖对照禁空；depth 见 `rules/special/multi-track-quality.md`——迭代默认 `standard`（命中接口全部适用维可执行+脚本）、发版 `full`、仅补丁才 `core`（高风险维）。已有资产打开命中域增量更新（保 ID）；无域才首生；跨版本主档常青留下。
+## 0. 必做
 
-## 0. 生成落盘（不可让）
+1. 读主读/OpenAPI/Network + 计划 §2 接口意图；禁猜 path/字段。
+2. 建契约清单：EP、方法+path、鉴权、关键参数、成功码/关键字段、错误码、来源。
+3. 定适用维：成功契约、无 token/失效、越权、参数边界、超长/Emoji、非法状态/假成功、幂等/并发、不存在、分页、排序、错误 METHOD；不适用写依据。
+4. 执行时生成场景并写 `{workroot}/{ver}/api/{NN}-{短名}-执行记录.md`；确定性同轮脚本。
+5. 跑 `python rules/tools/validate_api_testcase.py <域文件>`；ERROR 未清=未完成。
+6. 声明 depth：迭代 standard、发版 full、补丁 core；不得用“只跑高风险”冒充 standard。
 
-1. 读分析表 **§0** + 主读/Network；禁猜未见 path/字段。  
-2. 按 **接口测试用例模板** 写/改域文件：`{workroot}/api/{NN}-{短名}/{NN}-{短名}-接口用例.md`（§0～§7）。  
-3. 契约表 → 覆盖对照（每 EP×适用维禁空）→ 用例详情（请求要点 + 判定三要素）→ 脚本同轮。  
-4. 跑 `python rules/tools/validate_api_testcase.py <域文件>`；ERROR 未清 = 未完成。  
-5. §0 声明本轮 `depth`；与计划/报告一致。
+## 1. 契约阅读
 
-## 1. 契约阅读法
+- 必填/类型/格式/枚举/范围/长度/默认/错误码；未声明=风险点，标试/问/不适用。
+- 契约版本；breaking change（删字段/改类型/改语义/新必填）单独标记并更新场景/脚本。
+- path/方法/字段以原文或本轮实测为准；冲突标明以何为准。
 
-- 从 OpenAPI/设计文档/Network 提取：必填、类型与格式、枚举、范围、长度、默认值、错误码表。
-- 每个「未声明」都是风险点：声明下一步动作（试/问/标不适用）。
-- 记录契约版本；breaking change（删字段/改类型/改语义/新必填）单独标记。
+## 2. 脚本优先
 
-## 2. 脚本优先（默认）
+- 确定性接口 → 同轮脚本（`executor --mode=api`）；回归 0 token。
+- AI 只做契约探查、语义判定、脚本生成/维护、失败复核；不逐步点 UI 替代接口。
+- 脚本放域内 `scripts/`；P0 接口冒烟登记 `smoke-checklist.md`；失败有界复核 1 次再定性。
 
-- 确定性接口用例 → **同轮产出脚本**（`executor --mode=api`），回归 0 token。
-- AI 只做：契约探查、语义/业务规则判定、脚本生成/维护、失败复核；**不逐步点击 UI 替代接口调用**。
-- 脚本放 `{workroot}/api/{NN}-{短名}/scripts/`；`tags: ['interface','smoke'|'regression']`；`suites` 固定；**P0 接口冒烟**登记 `{workroot}/smoke-checklist.md`，其余按 tags 选型。
+## 3. 判定与证据
 
-## 3. 接口缺陷谱系（照单排查）
+- 三要素：HTTP 状态码 + 业务码/信号 + 关键字段；仅 2xx 不算通过；假成功/200 空壳=失败。
+- 写条写后回查（列表/详情）；无 token/越权用隔离上下文；请求摘要不含密钥；证据含响应码/字段/脚本 jsonl。
+- 错误语义对齐：预期业务阻断时实际须同类门禁/阻断码；入口错配/指纹过期/参数门禁错类不算“符合预期”。
 
-参数校验缺口（非法/空/停用引用）｜越权与 IDOR（换主体访问）｜幂等缺失（重放）｜终态重入｜超长与 Emoji 截断/乱码｜分页边界与排序注入｜错误码语义错（假成功 / 200 空壳）｜浮点与精度｜时区｜大字段与响应膨胀｜HTTP 方法与内容类型误用。
+## 4. 缺陷谱系
 
-## 4. 三层写法
+参数校验缺口｜越权/IDOR｜幂等缺失/重放｜终态重入｜超长/Emoji 截断｜分页/排序注入｜错误码语义错/假成功｜精度/时区｜大字段/响应膨胀｜METHOD/Content-Type 误用。
 
-正常契约（成功码 + 关键字段断言）→ 异常输入（4xx 且无脏写）→ 对抗（越权/重放/注入）。  
-判定三要素：状态码 + 业务信号 + 关键字段值——**仅 2xx 不得记通过**。
+## 5. 资产与复用
 
-## 5. 隔离与数据
+- 按域/契约维护执行记录 + 脚本；新版本只更新受影响 EP；旧轮归档 `api/_archive/`，不整包装进根 `_archive/`。
+- 失败分诊：产品/契约漂移/脚本漂移/环境数据；脚本漂移修脚本，契约漂移更新记录与脚本。
+- 未覆盖维度/限制写清；mock 结论不得冒充真实链路。
 
-- 无 token/越权条用隔离上下文；写条**写后回查**（列表/详情）。
-- 造数走 `api`（快、可核对）；UI 仅保留主路径。
-- 清数/幂等用 `runStamp`/业务前缀；不污染后续用例。
+## 6. DoD
 
-## 6. 工具（选装 · 未装降级）
+- 契约清单有来源；适用维无空白；depth 已声明。
+- 判定三要素 + 写后回查 + 脚本/理由；证据可打开。
+- 失败分类；未覆盖/限制写清；报告与记录一致。
 
-- `api-client`：OpenAPI/Postman/Apifox 导入，契约初稿 → 实测校正。
-- `api-fuzz`（schemathesis）：生成负向候选 → **人工对照判定**，禁自动判过。
-- `contract-test`（Pact/Specmatic）：消费方契约；breaking change 阻断。
-- `mock-server`：依赖未交付/异常注入；mock 结论不得冒充真实链路。
-- 接口脚本默认走 `executor --mode=api`；CI 可按 `--tag=interface`/`--suite=…` 复跑。
-
-## 7. 资产复用
-
-- 按模块/契约版本维护脚本；新版本只更新受影响 endpoint；旧轮留档仅用户确认/版本关闭 → `{workroot}/api/_archive/{yyyyMMdd}-{版本或批次}/`，**禁**整包装进根 `{workroot}/_archive/`。
-- 失败先区分：产品缺陷 / 契约漂移 / 脚本漂移 / 环境数据；脚本漂移修脚本，契约漂移更新用例与脚本。
-
-## 8. DoD
-
-- 域文件过模板结构 + `validate_api_testcase.py`；对照无空；depth 已声明。
-- 契约覆盖成功/失败/边界/鉴权/幂等/兼容；breaking change 阻断。
-- 判定含状态码+业务信号+关键字段；写条有写后回查；确定性用例已脚本化。
-- 脚本可复跑、可复用、有清理；证据含请求/响应/断言/日志（无密钥）。
-- 失败已分类；未覆盖项/限制写清；不拿 mock 结论冒充真实链路。
-
-## 常见合理化与反驳
+## 7. 常见合理化与反驳
 
 | 合理化 | 现实 |
 | --- | --- |
-| 「UI 过了接口就不用测」 | 有接口须按 depth；契约/错误码/幂等独立覆盖。 |
-| 「先手点再补脚本」 | 能脚本不 AI；稳定契约优先自动化。 |
-| 「现网响应当预期」 | oracle 来自契约/需求，不按实现改预期。 |
+| “UI 过了接口就不用测” | 有接口须按 depth；契约/错误码/幂等独立覆盖。 |
+| “先手点再补脚本” | 能脚本不 AI；稳定契约优先自动化。 |
+| “现网响应当预期” | Oracle 来自契约/需求，不按实现改预期。 |
+| “2xx 就算通过” | 状态码+业务信号+关键字段；假成功=失败。 |
+| “覆盖对照做成全维矩阵才完整” | 按适用维；不适用写依据；不要求全维空表。 |

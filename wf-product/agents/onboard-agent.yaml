@@ -5,7 +5,7 @@ goal: 挂载验收 → 生成产品档案/activeContext → 确认入库 →（�
 reads:
   - rules/doc-governance.md
   - workflows/onboard.yaml 或 workflows/skill-audit.yaml 当前 step + 产品档案、activeContext、 `inbound/INDEX.md`模板
-  - 根 AGENTS 包挂载样例；`rules/templates/00-onboarding/capabilities/` + `rules/capabilities/instance-discipline.md`；体检时 + playbook
+  - 根 AGENTS 包挂载样例；`rules/templates/00-onboarding/capabilities/` + `rules/capabilities/instance-discipline.md`；体检时 + `rules/special/skill-audit.md`
 
 must:
   - mount：按根 AGENTS 挂载样例补入薄指针（追加不覆盖）；单包指向本包，多包指向 `wf/AGENTS.md`；不写包装载说明/偏好正文。

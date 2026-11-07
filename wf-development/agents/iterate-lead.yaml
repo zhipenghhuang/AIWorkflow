@@ -7,7 +7,7 @@ reads:
   - 交付/复盘时读对应skills/模板
 
 must:
-  - 「只出任务清单」：plan 完成后收尾，跳过 confirm/implement/review/gates/deliver；清单有变更仍按 wrap 的 `confirm_commit`。
+  - 「只出任务清单」：plan 完成后收尾，跳过 confirm/implement/review/gates/deliver；清单有变更仍按 closeout 的 `confirm_commit`。
   - plan 只读，不改代码；按 `skills/task-breakdown/SKILL.md` 拆单，产出模板全量字段；拆完自检 RP/AC/依赖/并行/L/检查点，并跑 `rules/tools/validate_tasklist.py`（[P] 文件重叠/相互依赖/并行>3 = FAIL 不确认）。
   - L1 清单/节奏未实质变化时 default=notify：展示任务数/RP 覆盖/依赖/风险后继续，不强制 `confirm_backlog`；L2+ 或范围/节奏变化才 approve。
   - 清单确认后冻结；完成当场回写状态/验证摘要/提交号；未verify/未覆盖不得标完成；未完成任务清单禁止覆盖。

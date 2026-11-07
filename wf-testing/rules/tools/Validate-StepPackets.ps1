@@ -21,13 +21,13 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host "Validate-StepPackets: FAILED" -ForegroundColor Red
   exit 1
 }
-# 生成物漂移：packets 必须与 workflows/*.yaml + _orch.yaml 源一致（只渲染不落盘）
+# 生成物漂移：packets 必须与 workflows/*.yaml 源一致（只渲染不落盘）
 $builder = Join-Path $PSScriptRoot "build_step_packets.py"
 if (Test-Path -LiteralPath $builder) {
   $buildOut = & $pyCmd.Source -B -X utf8 $builder $root --check 2>&1
   if ($LASTEXITCODE -ne 0) {
     $buildOut | Select-Object -Last 12 | ForEach-Object { Write-Host $_ }
-    Write-Host "Validate-StepPackets: FAILED（生成物与 workflows/_orch 源不一致）" -ForegroundColor Red
+    Write-Host "Validate-StepPackets: FAILED（生成物与 workflows 源不一致）" -ForegroundColor Red
     exit 1
   }
 }

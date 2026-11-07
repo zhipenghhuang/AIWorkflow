@@ -1,24 +1,16 @@
 #!/usr/bin/env python3
-"""Validate an API/interface domain test-case document.
+"""Validate an API execution record (intent-v1).
 
-Usage: python validate_api_testcase.py <api-testcase.md> [--legacy]
+Usage: python validate_api_testcase.py <api-record.md>
 
-Checks (errors):
-- required sections 0-7 (headings)
-- overview has case IDs; detail headings match
-- contract table present
-- coverage sections: no empty dimension cells (「｜」only / blank after dim)
-- each case has 前置 / 请求要点 / 期望 / 清理 / 追溯
-- expect table has 判定面 + 失败判定 (or 期望值)
-- banned fillers that block follow-along / fake-pass
+Checks:
+- record_format=intent-v1 / 场景与结果
+- §0 记录信息 / §1 契约清单 / §2 场景与结果 / §4 意图结论与本轮统计
+- contract table: EP, method+path, success code/fields, source
+- scene table: SC, EP, INT/AC, 维度, 请求, 预期, 结果, 证据
+- fail/block/pending evidence; depth declared; only 2xx not considered pass (manual)
 
-Warnings:
-- no P0-Smoke
-- depth not declared in §0
-- fewer than 2 expect rows
-- script section missing rows while cases claim 是
-
-Exit 0 = pass (warnings OK); 1 = errors; 2 = usage.
+Exit 0 = pass; 1 = errors; 2 = usage.
 """
 from __future__ import annotations
 
@@ -26,236 +18,121 @@ import re
 import sys
 from pathlib import Path
 
-CASE_HEADING = re.compile(
-    r"^###\s+([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s+(.+)$", re.M
-)
-REQUIRED_SECTIONS = [
-    "## 0. 域信息",
-    "## 1. 用例总览",
-    "## 2. 契约表",
-    "## 3. 覆盖对照",
-    "## 4. 用例详情",
-    "## 5. 脚本清单",
-    "## 6. 覆盖摘要",
-    "## 7. 评审",
-]
-# Allow slight title variants
-SECTION_ALIASES = {
-    "## 0. 域信息": ["## 0. 域信息", "## 0. 模块信息"],
-    "## 7. 评审": ["## 7. 评审与变更", "## 7. 评审"],
-}
-
-BANNED_FILLERS = [
-    "调用接口成功",
-    "返回正常",
-    "接口正常",
-    "按场景数据",
-    "本步结果可在页面核对",
-    "仅 2xx 即通过",
-]
+STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
+FAIL = {"失败", "阻塞", "待实现"}
+INT_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
 
 
-def section(text: str, start: str, end: str | None) -> str:
-    i = text.find(start)
-    if i < 0:
-        return ""
-    i += len(start)
-    j = text.find(end, i) if end else -1
-    return text[i:j] if j >= 0 else text[i:]
-
-
-def find_section_start(text: str, canonical: str) -> str | None:
-    for alias in SECTION_ALIASES.get(canonical, [canonical]):
-        if alias in text:
-            return alias
-    # prefix match on ## N.
-    m = re.search(
-        r"^##\s*" + re.escape(canonical.split(".", 1)[0].replace("## ", "")) + r"\.",
-        text,
-        re.M,
-    )
-    if m:
-        # find full line
-        line_start = text.rfind("\n", 0, m.start()) + 1
-        line_end = text.find("\n", m.start())
-        return text[line_start:line_end] if line_end > 0 else text[line_start:]
-    return canonical if canonical in text else None
-
-
-def has_required_sections(text: str) -> list[str]:
-    missing = []
-    for s in REQUIRED_SECTIONS:
-        aliases = SECTION_ALIASES.get(s, [s])
-        if any(a in text for a in aliases):
-            continue
-        m = re.match(r"##\s*(\d+)\.", s)
-        n = m.group(1) if m else None
-        if n and re.search(rf"^##\s*{n}\.", text, re.M):
-            continue
-        missing.append(f"MISSING_SECTION: {s}")
-    return missing
-
-
-def table_headers(block: str) -> list[list[str]]:
-    headers: list[list[str]] = []
+def tables(block: str):
     lines = block.splitlines()
-    for i, line in enumerate(lines[:-1]):
-        if not line.strip().startswith("|"):
-            continue
+    out = []
+    i = 0
+    while i < len(lines) - 1:
+        line = lines[i].strip()
         nxt = lines[i + 1].strip()
-        if not re.match(r"^\|[\s:|-]+\|$", nxt):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        headers.append(cells)
-    return headers
+        if line.startswith("|") and re.match(r"^\|[\s:|-]+\|$", nxt):
+            headers = [c.strip() for c in line.strip().strip("|").split("|")]
+            rows = []
+            j = i + 2
+            while j < len(lines) and lines[j].strip().startswith("|"):
+                rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
+                j += 1
+            out.append((headers, rows))
+            i = j
+        else:
+            i += 1
+    return out
 
 
-def has_cols(headers: list[list[str]], cols: list[str]) -> bool:
-    return any(all(any(col in cell for cell in h) for col in cols) for h in headers)
-
-
-def numbered_rows(block: str) -> int:
-    return sum(1 for ln in block.splitlines() if re.match(r"^\|\s*\d+\s*\|", ln))
-
-
-def coverage_empty_cells(block: str) -> list[str]:
-    """Flag dimension rows whose second cell is empty or only placeholder braces."""
-    errs: list[str] = []
-    for ln in block.splitlines():
-        if not ln.strip().startswith("|"):
-            continue
-        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
-        if len(cells) < 2:
-            continue
-        dim, val = cells[0], cells[1]
-        if dim in ("维度", "") or set(dim) <= set("-: "):
-            continue
-        if val == "" or val in {"—", "-", "…", "{…}", "`{…}`"}:
-            errs.append(f"COVERAGE_EMPTY: 「{dim}」对照为空")
-    return errs
+def cell(row, headers, name):
+    try:
+        i = headers.index(name)
+    except ValueError:
+        i = next((j for j, h in enumerate(headers) if h.startswith(name)), -1)
+    return row[i].strip() if 0 <= i < len(row) else ""
 
 
 def main() -> int:
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    legacy = "--legacy" in sys.argv
-    if not args:
-        print("USAGE: validate_api_testcase.py <api-testcase.md> [--legacy]")
+    if len(sys.argv) < 2:
+        print("Usage: validate_api_testcase.py <record.md>", file=sys.stderr)
         return 2
-    path = Path(args[0])
-    if not path.exists():
-        print(f"FILE_NOT_FOUND: {path}")
+    p = Path(sys.argv[1])
+    if not p.is_file():
+        print(f"ERROR: file not found {p}", file=sys.stderr)
         return 2
-    text = path.read_text(encoding="utf-8")
+    text = p.read_text(encoding="utf-8-sig", errors="replace")
     errors: list[str] = []
-    warnings: list[str] = []
+    warns: list[str] = []
 
-    errors.extend(has_required_sections(text))
+    if not (re.search(r"record_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I) or "场景与结果" in text):
+        errors.append("缺 record_format=intent-v1 / 场景与结果")
+    for h in ("## 0. 记录信息", "## 1. 契约清单", "## 2. 场景与结果"):
+        if h not in text:
+            errors.append(f"缺章节 {h}")
+    if not any(h in text for h in ("## 4. 意图结论", "## 4. 本轮结论")):
+        errors.append("缺章节 ## 4. 意图结论与本轮统计")
+    if not re.search(r"depth\s*[：:]|\bdepth\b", text[:5000], re.I):
+        warns.append("未声明 depth（core/standard/full）")
 
-    # Locate sections by number
-    def sec_n(n: int, next_n: int | None) -> str:
-        m = re.search(rf"^##\s*{n}\.", text, re.M)
-        if not m:
-            return ""
-        start = m.start()
-        if next_n is None:
-            return text[start:]
-        m2 = re.search(rf"^##\s*{next_n}\.", text[start + 1 :], re.M)
-        if not m2:
-            return text[start:]
-        return text[start : start + 1 + m2.start()]
-
-    overview = sec_n(1, 2)
-    contract = sec_n(2, 3)
-    coverage = sec_n(3, 4)
-    details = sec_n(4, 5)
-    scripts = sec_n(5, 6)
-    meta0 = sec_n(0, 1)
-
-    if contract and "方法" not in contract and "path" not in contract.lower():
-        errors.append("CONTRACT: §2 契约表缺少方法/path 列意向")
-    if coverage:
-        for e in coverage_empty_cells(coverage):
-            (warnings if legacy else errors).append(e)
+    block1 = text.split("## 1. 契约清单", 1)[1].split("## 2.", 1)[0] if "## 1. 契约清单" in text else ""
+    t1 = None
+    for headers, rows in tables(block1):
+        if "EP" in headers and "方法" in " ".join(headers):
+            t1 = (headers, rows)
+            break
+    if not t1:
+        errors.append("§1 契约表缺失（需 EP/方法 + path/成功码/来源）")
     else:
-        errors.append("MISSING_SECTION: ## 3. 覆盖对照")
+        headers, rows = t1
+        for row in rows:
+            if not row or not row[0] or row[0] in ("EP", "—"):
+                continue
+            for name in ("方法 + path", "成功码", "来源"):
+                if not cell(row, headers, name):
+                    errors.append(f"契约 {row[0]} 缺 {name}")
 
-    if overview and "P0-Smoke" not in overview and "P0" not in overview:
-        warnings.append("NO_P0: 总览未见 P0-Smoke/P0（接口冒烟建议 ≥1）")
-    if meta0 and not re.search(r"depth|Depth", meta0, re.I):
-        warnings.append("DEPTH: §0 未声明本轮 depth")
+    block2 = text.split("## 2. 场景与结果", 1)[1].split("## 3.", 1)[0] if "## 2. 场景与结果" in text else ""
+    table = None
+    for headers, rows in tables(block2):
+        if "SC" in headers and "结果" in " ".join(headers):
+            table = (headers, rows)
+            break
+    if not table:
+        errors.append("§2 未找到接口场景表（需 SC/EP/INT/维度/请求/预期/结果/证据）")
+    else:
+        headers, rows = table
+        seen = 0
+        for row in rows:
+            if not row or not row[0] or row[0] in ("SC", "—"):
+                continue
+            seen += 1
+            sc = row[0]
+            status = cell(row, headers, "结果")
+            ev = cell(row, headers, "证据")
+            intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
+            ep = cell(row, headers, "EP")
+            req = cell(row, headers, "请求")
+            expect = cell(row, headers, "预期")
+            if status not in STATUSES:
+                errors.append(f"{sc}: 结果不可识别 {status or '空'}")
+            if not INT_RE.search(intent):
+                errors.append(f"{sc}: 缺 INT-* 意图")
+            if not ep:
+                errors.append(f"{sc}: 缺 EP")
+            for name, val in (("请求", req), ("预期", expect)):
+                if not val or val in ("—", "-", "…"):
+                    errors.append(f"{sc}: 缺 {name}")
+            if status in FAIL and (not ev or ev in ("—", "-", "无")):
+                errors.append(f"{sc}: {status} 缺证据")
+        if seen == 0:
+            errors.append("§2 场景表无数据行")
 
-    overview_ids = set(
-        re.findall(
-            r"^\|\s*([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+)\s*\|", overview, re.M
-        )
-    )
-    detail_ids = {m.group(1) for m in CASE_HEADING.finditer(details)}
-
-    if not detail_ids:
-        errors.append("NO_CASES: §4 未找到 `### {ID} {标题}`")
-    for cid in sorted(detail_ids - overview_ids):
-        errors.append(f"CASE_NOT_IN_OVERVIEW: {cid}")
-    for cid in sorted(overview_ids - detail_ids):
-        # overview may include non-case rows; only flag if looks like case id pattern already collected
-        if re.match(r"^[A-Z].*-\d+$", cid):
-            errors.append(f"CASE_NOT_IN_DETAILS: {cid}")
-
-    matches = list(CASE_HEADING.finditer(details))
-    for idx, m in enumerate(matches):
-        cid = m.group(1)
-        start = m.start()
-        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(details)
-        block = details[start:end]
-        for label in ["**前置", "**请求要点", "**清理", "**追溯"]:
-            if label not in block:
-                errors.append(f"{cid}: MISSING {label}")
-        if "**期望" not in block and "失败判定" not in block:
-            errors.append(f"{cid}: MISSING **期望与失败判定**")
-        h = table_headers(block)
-        if h and not has_cols(h, ["判定面"]):
-            # allow 期望表 without exact header if 失败判定 present in prose table
-            if "失败判定" not in block:
-                errors.append(f"{cid}: EXPECTED_TABLE 需要判定面/失败判定")
-        exp_block = section(block, "**期望", "**写后") or section(
-            block, "**期望", "**清理"
-        )
-        if exp_block and numbered_rows(exp_block) < 2:
-            warnings.append(f"{cid}: 期望判定行 <2（建议状态码+业务信号）")
-        if re.search(r"脚本\s*\|\s*是", block) or re.search(
-            r"\*\*脚本\*\*.*是", block
-        ):
-            if cid not in scripts:
-                warnings.append(f"{cid}: 标「是」脚本但 §5 未见同 ID")
-        for phrase in BANNED_FILLERS:
-            if phrase in block:
-                msg = f"{cid}: FILLER: 「{phrase}」"
-                (warnings if legacy else errors).append(msg)
-        # fake pass: “only 2xx means pass” (not “only-2xx-without-biz-signal = fail”)
-        if re.search(
-            r"(仅\s*2xx|只要\s*2xx)\s*(即|就)?\s*(通过|判过|算过)|2xx\s*即可通过",
-            block,
-        ):
-            ctx_ok = re.search(
-                r"禁.{0,8}仅\s*2xx|仅\s*2xx.{0,12}(失败|≠|不得)", block
-            )
-            if not ctx_ok:
-                errors.append(f"{cid}: FAKE_PASS: 禁止仅 2xx 判通过")
-
-    for w in warnings:
+    for w in warns:
         print(f"WARN: {w}")
-    if errors:
-        for e in errors:
-            print(f"ERROR: {e}")
-        print(
-            f"API_TESTCASE_VALIDATION_FAILED: {len(errors)} error(s), "
-            f"{len(warnings)} warning(s)"
-        )
-        return 1
-    print(
-        f"API_TESTCASE_VALIDATION_OK: {len(detail_ids)} case(s), "
-        f"{len(warnings)} warning(s)"
-    )
-    return 0
+    for e in errors:
+        print(f"ERROR: {e}")
+    print(f"SUMMARY errors={len(errors)} warnings={len(warns)}")
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

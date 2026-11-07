@@ -45,13 +45,19 @@ def main() -> int:
         errors.append("COLD_START_MISSING: rules/core/cold-start.md")
     else:
         ctext = cold.read_text(encoding="utf-8")
-        sec = re.search(r"## 1\. 硬约束\n(.*?)(?=\n## |\Z)", ctext, re.S)
-        if not sec:
-            errors.append("COLD_START_SECTION: 缺 §1 硬约束")
-        else:
-            numbered = re.findall(r"^\d+\.\s+\*\*", sec.group(1), re.M)
-            if len(numbered) < 8:
-                errors.append(f"COLD_START_RULES: §1 仅 {len(numbered)} 条（应 ≥8）")
+        for heading in ("## 1. 新会话顺序", "## 2. 续跑", "## 3. 回执"):
+            if heading not in ctext:
+                errors.append(f"COLD_START_SECTION: 缺 {heading}")
+        if "本卡不再回指 AGENTS" not in ctext and "不再回指 AGENTS" not in ctext:
+            errors.append("COLD_START_ENTRY: 开局卡须声明入口已是 AGENTS、不再回指")
+    glob = root / "rules" / "core" / "global-rules.md"
+    if not glob.is_file():
+        errors.append("GLOBAL_RULES_MISSING: rules/core/global-rules.md")
+    else:
+        gtext = glob.read_text(encoding="utf-8")
+        for marker in ("## 1. 开工判定", "## 7. 读法与技能", "## 11. 冲突与例外"):
+            if marker not in gtext:
+                errors.append(f"GLOBAL_RULES_SECTION: 缺 {marker}")
     for y in sorted((root / "workflows").glob("*.yaml")):
         data = yaml.safe_load(y.read_text(encoding="utf-8")) or {}
         wid = (data.get("workflow") or {}).get("id") or y.stem

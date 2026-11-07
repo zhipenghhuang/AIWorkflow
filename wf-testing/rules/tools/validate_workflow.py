@@ -78,7 +78,7 @@ def main() -> int:
                 errors.append(f"AGENT_SCHEMA: {path.relative_to(root)}: {key} must be a list")
 
     decl_text: list[str] = []
-    for rel in ("AGENTS.md", "rules/gates.md", "rules/read-index.md", "rules/core/maintenance.md"):
+    for rel in ("AGENTS.md", "rules/gates.md", "rules/core/maintenance.md"):
         p = root / rel
         if p.exists():
             decl_text.append(read_text(p))

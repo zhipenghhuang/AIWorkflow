@@ -1,10 +1,11 @@
-# 编排：只读当前 step。进 wf → packets/retro/_chain.md；进子机 → _region-*；执行 → 步骤包。
-# 步骤包 §6 必开技能：打开→执行→回包（质量不降）。禁把 skill 正文嵌进步骤包。
-# 富编排笔记：packets/retro/_orch.yaml（重建用）。禁通读本 YAML 其他 step。
+# 编排：进 wf → workflows/retro.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
+# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: retro
   name: 复盘与改进
   version: 2
+  terminal: closeout
 entry_points:
   复盘: gather
   事故复盘: gather
@@ -20,14 +21,15 @@ steps:
   - rules/packets/retro/gather.md
   agent: delivery-lead
   output: 时间线/影响/证据/指标
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
+  notes: 技能：`skills/retrospective-and-improvement/SKILL.md`（先读再做）。 输入：发布记录/上线检查单、缺陷单、测试报告、日志/监控/告警、沟通记录、activeContext。 只收事实：时间线（发现→响应→止损→恢复→关闭）、影响（用户/业务/数据/资损/合规/时长）、指标（lead
+    time/cycle time/CFR/escaped defects/MTTR）。 无法确认写「未知」，不猜。
 - name: 根因分析
   id: analyze
   must_read:
   - rules/packets/retro/analyze.md
   agent: delivery-lead
   output: 直接原因/根本原因/贡献因素
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
+  notes: 5 Whys/因果链追到可改变的系统性原因；不要停在“人为疏忽”。 贡献因素：流程/工具/测试/评审/监控/文档/排期/沟通；做得好/做不好各列。 只对事不对人；结论附证据。
 - name: 行动项
   id: actions
   must_read:
@@ -35,7 +37,7 @@ steps:
   agent: delivery-lead
   hitl: confirm_actions
   output: 行动项（负责人/截止/验收）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
+  notes: 每条行动项：具体动作 + 负责人 + 截止 + 验收标准 + 跟踪位置；优先系统性缺口。 能落到rules/skills/templates/门禁的直接改；不能落地的建跟踪项。 confirm_actions：出示行动项清单与优先级，确认后落盘；未确认不宣称改进完成。
 - name: 落盘与索引
   id: record
   must_read:
@@ -43,23 +45,16 @@ steps:
   - rules/templates/60-retro/retro-template.md
   agent: delivery-lead
   output: 复盘文档（{workroot}/80-retrospectives/）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
-- name: 收尾
-  id: wrap
+  notes: 按 `rules/templates/60-retro/retro-template.md` 落 `{workroot}/80-retrospectives/复盘-{版本或事件}-{yyyyMMdd}.md`。 需要跨角色同步时**建议**是否发
+    `RETRO` 包；确认后才生成。 更新 `{workroot}/INDEX.md`、`activeContext.md`；更新开发计划 S9（复盘链接/项目关闭或下一迭代）；行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`；按
+    `rules/core/context-memory.md` 复盘沉淀（升级 清理偏好与洞见）。 下次复盘先对账上次行动项；未完成项说明原因与新截止。
+- name: 收尾与提交
+  id: closeout
   must_read:
-  - rules/packets/retro/wrap.md
-  - rules/templates/90-handoff/closeout-skeleton.md
+  - rules/packets/_shared/closeout.md
   agent: delivery-lead
-  output: 【任务收尾】（复盘结论/行动项置第 1 点）
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
-- name: 拟提交
-  id: commit
-  must_read:
-  - rules/packets/retro/commit.md
-  output: 拟提交确认结果
-  agent: delivery-lead
-  hitl: confirm_commit
-  hitl_when: has_pending_commit
-  tools:
-  - git
-  notes: 只读 must_read 步骤包（+流程链 `_chain` 进 workflow 时一次）。本字段非规则正文；编排笔记见 packets/retro/_orch.yaml。
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
+  output: 任务收尾 + 拟提交确认
+  notes: 收尾与提交；共享终端；状态=done。

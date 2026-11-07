@@ -5,12 +5,14 @@ description: Use when planning or executing tests that depend on environments, a
 
 # 测试数据与环境（技能 · 随包生效）
 
-> 用于：analyze / plan / generate / execute 中涉及环境、账号、数据、依赖的准备与核验。  
+> 用于：plan / execute 中涉及环境、账号、数据、依赖的准备与核验。  
 > 定位：**数据与环境是测试的一部分，不是开跑前的杂事**；不可复现的数据会让结论不可信。  
 > 边界：环境搭建/运维归开发/Ops；本技能定义测试侧准备、隔离、清理与证据。  
 > 不适用：纯静态检查/无需环境数据的评审；仍要记录依据与版本。
 
 ## 1. 环境基线（先核验再开跑）
+
+> 先读 `env-baseline.md` 的命中节：项目身份、§1 登录、§4 账号、§8 浏览器、§13 平台、§16 脚本；计划 §2.2 只写命中节/差异/核验，不复制整本。缺基线或占位未换 → 先接入/补基线，不猜 URL/账号/字段。
 
 - 记录：环境名/URL、版本/构建/提交、配置差异、依赖版本、证书/域名、特性开关、数据版本。
 - 可比性：与目标环境（预发/生产）的差异逐项列出；不可比项写限制，不冒充生产结论。
@@ -36,7 +38,7 @@ description: Use when planning or executing tests that depend on environments, a
 ## 3. 隔离与并行
 
 - 隔离维度：账号、租户、数据域、浏览器 profile、写域、消息队列、文件目录。
-- **隔离套登记**：并发前在计划 §7.3/§3.9 登记 `profileDir/debugPort/browserUrl/账号/写域/downloadDir`；同一隔离套只一个 writer；同一 MCP 内部并行需支持独立会话/请求级路由或每 worker 独占实例；只读可同上下文/账号，写需独立 profile/context、账号/数据/写域隔离，否则串行；隔离套数决定并行上限（默认 ≤3，UI 默认 ≤2，按资源调整）。
+- **隔离套登记**：并发前在计划 §4.3/§5.2 登记 `profileDir/debugPort/browserUrl/账号/写域/downloadDir`；同一隔离套只一个 writer；同一 MCP 内部并行需支持独立会话/请求级路由或每 worker 独占实例；只读可同上下文/账号，写需独立 profile/context、账号/数据/写域隔离，否则串行；隔离套数决定并行上限（默认 ≤3，UI 默认 ≤2，按资源调整）。
 - **浏览器资源**：性能/压测窗口不并行 UI；下载/截图写本批目录；同账号/同 profile/同 port/同写域任一交叉 → 串行。
 - 同一条用例禁并行；共享写资源串行；冲突登记（谁在用什么数据/账号）。
 - 并行前验证：两个 worker 同时跑不互踩；失败可定位到 worker。

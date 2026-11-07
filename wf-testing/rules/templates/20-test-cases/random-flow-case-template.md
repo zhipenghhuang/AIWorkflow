@@ -18,8 +18,8 @@
 | 窗内对照摘要 | `{戳夹/指纹要点；或「窗内无」}` |
 | 本轮相对窗的新增轴 | `{…}` |
 | 刻意复测 | `{否｜是+理由}` |
-| 关联台账 | `{workroot}/random-flows/{主题短名}-{yyyyMMdd-HHmm}/{主题短名}-{yyyyMMdd-HHmm}-随机台账.md` |
-| 覆盖账本 | `{workroot}/random-flows/_覆盖账本.md` |
+| 本轮记录 | `{workroot}/{ver}/random-flows/{主题短名}-{yyyyMMdd-HHmm}-随机记录.md` |
+| 覆盖账本 | `{workroot}/{ver}/random-flows/_覆盖账本.md` |
 
 ## 1. 旅程列表（RND-01…；阅读顺序＝执行顺序）
 
@@ -69,11 +69,11 @@
 | --- | --- | --- | --- | --- |
 | F-{…} | {…} | {…} | {本轮戳} | {…} |
 
-> 追加到 `{workroot}/random-flows/_覆盖账本.md`；相对窗无新增且非刻意复测 = 未收尾。
+> 追加到 `{workroot}/{ver}/random-flows/_覆盖账本.md`；相对窗无新增且非刻意复测 = 未收尾。
 
 ## 5. 收尾要求
 
 - 台账六态与证据纪律同 `rules/special/multi-agent-output.md`。
 - **必写**：办结目标对照、去重窗对照、新增轴、§3 分流、§4 账本行；禁空泛「随机通过」。
-- 结论只落本轨；**不**写入版本 `{workroot}/test-report.md` 准出章节。
+- 结论只落本轨；**不**写入版本 `{workroot}/{ver}/test-report.md` 准出章节。
 - **完稿自检**：§0 口径=现网与选池/办结字段齐｜旅程可跟做｜判定可观测｜分流表有类｜账本已追加或显式无新增+刻意复测｜无 API 旁路冒充办结。

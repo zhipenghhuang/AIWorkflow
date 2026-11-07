@@ -1,6 +1,6 @@
 # 包内专业技能（随包生效 · 无需安装/挂载）
 
-> **定位**：每一步的**专业方法与手艺**（playbook），随本包分发。命中步骤 → 步骤注记直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
+> **定位**：每一步的**专业方法与手艺**，随本包分发。命中步骤 → 步骤注记直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`skills/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `skills/` 指向本地 skills 目录（可选，不是前置条件）。  
 > **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部工具选型写入实例 `{workroot}/capabilities/`（「装配能力」）。  
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容），description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。

@@ -1,8 +1,10 @@
 # 验证与完成（开发轨）
 
+> **读取级别：参考**（核对状态语义时读；门与回执以 `verify/README.md` + `gates.md` 为准）。
+
 > **单一出处**：验收清单、证据、完成状态、报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口；`verify/checks.yaml` 是策略表。
 > **定位**：验证是**兜底与证明**——证明落地与 SC/AC 一致；**不替代** `implementation-quality.md` DEV-IQ-12 的抽全与忠实编码。理解/语义错误应在 plan/implement 消掉，不得指望本步「捞回」。
-> **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`wrap` 前；`review` 只读证据标准，不读门回执（门在 verify/gates 跑）。维护时读 `rules/core/rule-governance.md`。
+> **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`closeout` 前；`review` 只读证据标准，不读门回执（门在 verify/gates 跑）。维护时读 `rules/core/rule-governance.md`。
 
 ## 1. 不变量（带 ID）
 

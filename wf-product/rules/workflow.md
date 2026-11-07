@@ -3,8 +3,8 @@
 > **读取级别：参考**（按节读取；当前步只读步骤包 §7 指定的节；禁止通读全本）。
 
 > **步骤顺序真值是 `workflows/*.yaml`**（相对本包根）；本文保留铁律、产物路径、拟提交与收尾骨架，不另定步骤顺序。  
-> **计划同步/变更传播/自主边界**：见 `core/execution-contract.md` §2/§4；本文不重复。
-> **读取**：只读当前任务需要的节，不要通读；阶段/门以 YAML 为准，方法以skills/playbook 为准。
+> **计划同步/变更传播/自主边界**：运行时硬条见 `core/global-rules.md` §6/§8；事件级矩阵见 `core/execution-contract.md` §2/§4（参考）；本文不重复。
+> **读取**：只读当前任务需要的节，不要通读；阶段/门以 YAML 为准，方法以 skills 为准。
 > 计划与 0→1 见 `../skills/zero-to-one-product-definition/SKILL.md`；原型见 `../skills/prototype-and-interaction/SKILL.md`、`../skills/ui-visual-design-system/SKILL.md`；展示/文档见 `../skills/demo-storytelling/SKILL.md`、`../skills/product-docs/SKILL.md`、`../skills/presentation-design/SKILL.md`；交付细则见 `../skills/change-management/SKILL.md`、`../skills/uat-and-retrospective/SKILL.md`。确认门**只认**步上 `hitl`（标量用 `hitl_when`；列表各项带 `when`）。
 
 ## 1. 铁律（不可让）
@@ -117,7 +117,7 @@
 
 ## 6. 受理与变更（短指针）
 
-步骤顺序与条件链以 `workflows/change.yaml` 为准；方法见 `rules/playbooks/change.md` + `skills/change-management/SKILL.md`。P0/P1 必走 `intake→triage→apply→verify`（改基线才 decide）。关单回执：正式签收/C2·C3/发布须回执；仅通知/同仓直读/用户代收 → 已发送+用户确认可关。未verify/联动未闭合不得关闭。
+步骤顺序与条件链以 `workflows/change.yaml` 为准；方法见 `skills/change-management/SKILL.md`。P0/P1 必走 `intake→triage→apply→verify`（改基线才 decide）。关单回执：正式签收/C2·C3/发布须回执；仅通知/同仓直读/用户代收 → 已发送+用户确认可关。未verify/联动未闭合不得关闭。
 
 ## 7. 子代理编排（摘要 · 单一出处 `rules/collaboration/subagents.md`）
 

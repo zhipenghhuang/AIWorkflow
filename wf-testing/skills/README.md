@@ -1,36 +1,29 @@
 # 包内专业技能（随包生效 · 无需安装/挂载）
 
-> **定位**：每一步的**专业方法与手艺**（playbook），随本包分发。命中步骤 → 步骤注记直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
-> **目录结构**：`skills/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `skills/` 指向本地 skills 目录（可选，不是前置条件）。  
-> **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部工具/skill 选型写入实例 `{workroot}/capabilities/`（「装配能力」）；包内 `capabilities/` 仅契约与参考目录。  
-> **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容），description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。
-> **来源**：以下技能是参考 GitHub/企业实践后**改写整合**的中文随包技能，不是把 GitHub 仓库原样搬入；外部 GitHub skill 走 `capabilities/00-contract.md`（可选）。
-> **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。  
-> **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、obra/superpowers（MIT；系统化调试/验证）、fishzjp/qa-skills（MIT；需求模型/九类歧义/证据分级/可执行性）、saleem-daqa/qa-test-case-generation（MIT；负向与 UI↔API）、JohnWayneeee/casely-qa-skill（MIT）、danashby/Exploratory-Testing-Skill（MIT；FEW HICCUPPS）、gneder/qa-test-plan-skill（MIT）、petrkindlmann/qa-skills（MIT）、fugazi/test-automation-skills-agents（ISTQB 静态测试清单）、GitHub Spec Kit（MIT；clarify/analyze）、ISTQB CTFL / ISO/IEC/IEEE 29119-3、OWASP WSTG / ASVS 5.0 / Top 10 for LLM 2025、WCAG 2.2、Core Web Vitals、OpenTelemetry、NIST AI RMF、schemathesis 等工具社区经验。  
-> **规则维护取向**：优先吸收进既有深度档/§3.0 判定；禁缺一加一堆条。目标=生成一次到位 + 执行判定正确 + 路径旁证可发现。
+> **定位**：每一步的专业方法与手艺，随本包分发。命中步骤 → 步骤包 §6 直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
+> **目录结构**：`skills/<name>/SKILL.md`；随包复制、无需安装。  
+> **格式**：每份技能含 `name` / `description` frontmatter；description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行。质量标准见本文末节。  
+> **与规则的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。
 
 ## 步骤 → 技能映射
 
 | 步骤 / 轨 | 技能 |
 | --- | --- |
-| analyze（需求/测试依据建模） | `skills/test-basis-analysis/SKILL.md`（需求模型/冲突/九类歧义/oracle/TP 追溯） |
-| analyze / plan | `skills/test-analysis-and-plan/SKILL.md`（企业级计划/类型选择/执行编排/自动化分层）+ `skills/test-data-and-environment/SKILL.md`（环境/数据/账号/依赖） |
-| generate（功能/专项） | `skills/testcase-design/SKILL.md`（+ AI 功能附加：`skills/ai-feature-testing/SKILL.md`） |
-| review-cases / 计划评审（落地产物） | `skills/test-artifact-review/SKILL.md`（范围总览 + 计划/分析量规 + 选 B【自主分析】）+ `skills/testcase-review/SKILL.md`（用例细轴 A1–A6/S1–S10；产物 `{workroot}/reviews/`） |
-| execute（功能/探索式/计划驱动） | `skills/test-execution-and-exploration/SKILL.md`（计划编排/回归/探索）+ `skills/test-data-and-environment/SKILL.md`（数据/环境/隔离）+ `skills/ai-feature-testing/SKILL.md`（AI 非确定性执行） |
-| 接口轨 | `skills/test-interface/SKILL.md`（脚本优先 + 契约/复用；+ `rules/tracks/api.md`） |
-| 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（基础/标准/高风险级 + 工具矩阵/LLM 安全/韧性；+ `rules/tracks/pre-release.md`） |
-| AI/LLM/RAG/Agent 功能 | `skills/ai-feature-testing/SKILL.md`（oracle/评测集/重复阈值/红队）+ `skills/test-performance-security-compatibility/SKILL.md`（安全） |
-| report | `rules/templates/40-report-review/test-report-template.md` + `rules/workflow.md` §4（即技能） |
-| defect | `rules/defects/collaboration.md`（即技能） |
-| 脚本档 | `rules/special/script-execution.md`（即技能） |
+| plan（分析必做 + 计划总排） | `skills/test-basis-analysis/SKILL.md`（来源/AC/设计点/意图/风险/Oracle） + `skills/test-analysis-and-plan/SKILL.md`（范围/轨道/轮次/准入准出） + `skills/test-data-and-environment/SKILL.md` |
+| execute（功能/接口/探索/发布前/回归） | `skills/testcase-design/SKILL.md`（场景/深度/步骤） + `skills/test-execution-and-exploration/SKILL.md`（执行/记录/证据/回归） + `skills/test-data-and-environment/SKILL.md` + `skills/ai-feature-testing/SKILL.md`（AI 功能时） |
+| 接口轨 | `skills/test-interface/SKILL.md`（契约/适用维/脚本/执行记录；+ `rules/tracks/api.md`） |
+| 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（风险级/指标/工具/韧性；+ `rules/tracks/pre-release.md`） |
+| AI/LLM/RAG/Agent 功能 | `skills/ai-feature-testing/SKILL.md`（Oracle/评测集/重复阈值/红队） + `skills/test-performance-security-compatibility/SKILL.md`（安全） |
+| report | `rules/templates/40-report-review/test-report-template.md` + `rules/workflow.md` §4 |
+| defect | `rules/defects/collaboration.md` |
+| 脚本档 | `rules/special/script-execution.md` |
 | onboard | `agents/onboard-agent.yaml`（核验清单即技能） |
 
-**维护**：改技能 → 改本目录（确认后就地改）；技能只写方法，**禁**另立红线/门（SSOT 在 `AGENTS.md`/`rules/`）。
+**维护**：改技能 → 改本目录；技能只写方法，禁另立红线/门（SSOT 在 `AGENTS.md`/`rules/`）。
 
 ## 技能质量标准（Skill Anatomy）
 
-> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“rules/技能分离”约束。新增或大改技能按此验收。
+> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“rules/技能分离”约束。
 
 **1. Frontmatter（必填）**
 
@@ -45,32 +38,30 @@
 | 定位/适用 | 何时用、何时不用、与相邻技能边界 | 正/负触发各 ≥1 |
 | 流程 | 可执行步骤，按顺序/分支 | 每步有动作与产出 |
 | 判定 | 阈值、评分卡、分类表 | 可判定，不写“适当/尽量” |
-| 反模式 / 反合理化 | 常见错法或偷懒借口 + 纠正 | **必有其一**（可用「反模式」「反合理化」「合理化与反驳」「常见合理化」）；`check_skills.py` 硬闸 |
-| 红旗 | 可观察的违规信号 | 推荐 ≥3；与判定/DoD 重叠时可并入判定节 |
+| 反模式 / 反合理化 | 常见错法或偷懒借口 + 纠正 | **必有其一**；`check_skills.py` 硬闸 |
+| 红旗 | 可观察的违规信号 | 推荐 ≥3 |
 | verify/DoD | 证据与退出条件 | 每条可复核 |
 
 **3. 写作纪律**
 
-- **流程而非知识**：写“先做什么、怎么判定、产出什么”，不写百科。
-- **具体**：能写字段/阈值/命令就不写“检查一下”；引用本包真实路径，不造文件。
-- **单一出处**：红线/门/评分卡只引用，不复制；跨技能用名称引用。
-- **渐进披露**：主文件目标 ≤500 行、≤4500 tokens；**超长才拆** `references/`（≤500 行且节清晰则不必硬拆）。
-- **宿主/模型中立**：不写死某宿主工具名、模型版本或私有调用方式；写能力与目标。
-- **只写现行**：不记录历史过程/旧方案。业务项目禁止改项目根 CHANGELOG；过程/接入进本包工作日志。母版仓包能力变化由母版维护会话记母版根 CHANGELOG。
-- **中文优先**：方法与判定用中文；保留必要英文术语与代码/命令。
+- **流程而非知识**：写“先做什么、怎么判定、产出什么”。
+- **具体**：能写字段/阈值/命令就不写“检查一下”；引用本包真实路径。
+- **单一出处**：红线/门/评分卡只引用，不复制。
+- **渐进披露**：主文件目标 ≤500 行、≤4500 tokens；超长才拆 `references/`。
+- **宿主/模型中立**：不写死某宿主工具名、模型版本或私有调用方式。
+- **只写现行**：不记录历史过程/旧方案。
 
 **4. 修改流程**
 
 1. 改 `skills/<name>/SKILL.md`；同步本 README 映射与相关 workflow `notes`。
-2. 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`。
-3. 更新包 `AGENTS.md` `template_version`；业务项目不写项目根 CHANGELOG；母版仓可见包能力变化才记母版根 CHANGELOG；不单独给技能设版本号。
-4. 新增技能必须在本表挂到具体步骤；跨阶段技能挂到所有适用阶段。
-5. **生态吸收**：经 `skill-audit` discover（`npx skills find` / find-skills）确认后，只**方法回灌**本目录/`rules/special/script-execution.md` 或登记 `{workroot}/capabilities/`；禁止外部生成器绕过分析表/oracle。
+2. 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；改引用后跑 `Test-DocHygiene.ps1`；必跑 `check_skills.py <包根> --strict`。
+3. 更新包 `AGENTS.md` `template_version`。
+4. 新增技能必须挂到具体步骤。
 
 **5. 验收清单**
 
 - [ ] name 与目录一致；description 含 what/when/中文触发。
-- [ ] 有适用/不适用、流程、判定、反模式或反合理化、验证（红旗可并入判定）。
-- [ ] 无红线/门复制；引用路径存在；无宿主/模型硬编码。
-- [ ] ≤500 行；超长才拆 references；映射已更新。
-- [ ] `check_skills.py --strict` 通过；版本/CHANGELOG 已同步。
+- [ ] 有适用/不适用、流程、判定、反模式或反合理化、验证。
+- [ ] 无红线/门复制；引用路径存在。
+- [ ] ≤500 行；映射已更新。
+- [ ] `check_skills.py --strict` 通过。

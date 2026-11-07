@@ -1,6 +1,6 @@
 # 迭代交付
 
-> **真值分层**：步骤/门 = `workflows/iterate.yaml`；主流程/分级/读什么 = `rules/playbooks/iterate.md`；本文 = **口令 / DoR / DoD / 输出骨架**（不另写第二套步骤表）。角色见 `agents/iterate-lead.yaml`。  
+> **真值分层**：步骤/门 = `workflows/iterate.yaml`；主流程/分级 = `skills/development-plan/SKILL.md`；本文 = **口令 / DoR / DoD / 输出骨架**（不另写第二套步骤表）。角色见 `agents/iterate-lead.yaml`。  
 > 确认门只认步上 `hitl`（标量用 `hitl_when`）。  
 > 拆单方法：`skills/task-breakdown/SKILL.md`；模板：`rules/templates/30-planning-tasks/task-list-template.md`；发布/验收：`skills/acceptance-and-launch/SKILL.md`；复盘：`skills/retrospective-and-improvement/SKILL.md`。
 
@@ -9,7 +9,7 @@
 | 形态 | 范围 |
 | --- | --- |
 | 按方案实施 {路径} / 落地迭代方案 {名} | 清单→实施→验证→文档→总结→（含部署）发布交接 |
-| …只出任务清单 | 仅清单（`iterate.yaml` precheck→plan→wrap；跳过 confirm/实施/门禁/deliver；清单文件有变更时按 wrap 的 `confirm_commit`） |
+| …只出任务清单 | 仅清单（`iterate.yaml` precheck→plan→closeout；跳过 confirm/实施/门禁/deliver；清单文件有变更时按 closeout 的 `confirm_commit`） |
 | 继续迭代 {版本/主题} | 读清单续跑；清单与节奏未变则跳过 `confirm_backlog` |
 | 迭代复盘 / 版本复盘 | 转 `workflows/retro.yaml` |
 
@@ -25,7 +25,7 @@
 
 ## 3. 主流程指针
 
-顺序与确认门以 `workflows/iterate.yaml` 为准；读卡与分级以 `rules/playbooks/iterate.md` 为准。本文不复述步骤表。
+顺序与确认门以 `workflows/iterate.yaml` 为准；分级方法见 `skills/development-plan/SKILL.md`。本文不复述步骤表。
 
 ## 4. 任务清单
 

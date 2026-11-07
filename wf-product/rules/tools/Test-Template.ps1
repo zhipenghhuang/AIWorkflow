@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     产品规范包自检（精简版）：⓪ YAML 语法/基本 schema（需 python + PyYAML） ① 包内引用可解析（含 workflows/agents YAML） ② 章节锚点（`file.md`/简称 §x 标题存在；含 YAML） ③ workflows→agents 引用 + 步标记词表（hitl/when/gate）+ 能力名声明（tools/tools_allowed ⊆ 能力注册表） ④ AGENTS.md 版本单点存在；密钥扫描（check_secrets.py）。
@@ -304,7 +304,7 @@ else { $wfFindings.Add('WF_MISSING: workflows/') }
 $agentsPath = Join-Path $Root 'AGENTS.md'
 $agentsText = ''
 if (Test-Path -LiteralPath $agentsPath) { $agentsText = [System.IO.File]::ReadAllText($agentsPath, [System.Text.Encoding]::UTF8) }
-foreach ($declRel in @('rules/gates.md', 'rules/read-index.md', 'rules/core/maintenance.md')) {
+foreach ($declRel in @('rules/gates.md', 'rules/core/maintenance.md')) {
     $declPath = Join-Path $Root $declRel
     if (Test-Path -LiteralPath $declPath) { $agentsText += "`n" + [System.IO.File]::ReadAllText($declPath, [System.Text.Encoding]::UTF8) }
 }
@@ -459,10 +459,24 @@ if (Test-Path -LiteralPath $packetValidator) {
 }
 else { $packetStatus = '缺少 Validate-StepPackets.ps1' }
 
+# ---------- 语义自检（cold-start / global-rules / 入口去重等） ----------
+$semStatus = '跳过'
+$semValidator = Join-Path $rulesDir 'tools/validate_semantics.py'
+if ($pyCmd -and (Test-Path -LiteralPath $semValidator)) {
+    $semOut = & $pyCmd.Source -B -X utf8 $semValidator $Root 2>&1
+    if ($LASTEXITCODE -eq 0) { $semStatus = 'OK' }
+    else {
+        $semStatus = '失败'
+        foreach ($l in $semOut) { $toolFindings.Add("SEMANTICS: $l") }
+    }
+}
+elseif ($pyCmd -and -not (Test-Path -LiteralPath $semValidator)) { $semStatus = '缺少 validate_semantics.py' }
+elseif (-not $pyCmd) { $toolFindings.Add('SEMANTICS_SKIPPED: 未找到 python，语义自检未执行') }
+
 # ---------- 输出 ----------
 Write-Output '=== 产品规范自检（精简版） ==='
 Write-Output "根目录：$Root"
-Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}；步骤包 {2}" -f $yamlStatus, $secretStatus, $packetStatus)
+Write-Output ("[0/5] YAML 语法/schema：{0}；密钥扫描 {1}；步骤包 {2}；语义 {3}" -f $yamlStatus, $secretStatus, $packetStatus, $semStatus)
 Write-Output ("[1/5] 引用可解析（扫描 {0} 处）：{1}" -f $refCount, $(if ($refFindings.Count -eq 0) { 'OK' } else { "$($refFindings.Count) 处待处理" }))
 Write-Output ("[2/5] 章节锚点（扫描 {0} 处）：{1}" -f $anchorCount, $(if ($anchorFindings.Count -eq 0) { 'OK' } else { "$($anchorFindings.Count) 处待处理" }))
 Write-Output ("[3/5] workflows→agents + 步标记词表 + 能力名：{0}" -f $(if ($wfFindings.Count -eq 0) { 'OK' } else { "$($wfFindings.Count) 处待处理" }))

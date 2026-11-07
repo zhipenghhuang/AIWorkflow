@@ -1,5 +1,7 @@
 # 验证与定稿（产品轨）
 
+> **读取级别：参考**（核对状态语义时读；门与回执以 `verify/README.md` + `gates.md` 为准）。
+
 > **单一出处**：PRD/评审/UAT/变更/回写的完成状态与报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口。
 > **读取时机**：`prd.review`、`deliver.uat`、`change.apply`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。
 
@@ -22,7 +24,7 @@
 
 | 状态 | 条件 | 报告措辞 |
 | --- | --- | --- |
-| `READY` | 结构/追溯/独立评审/UAT/联动/回写检查通过 | 已定稿/评审通过/可发布 |
+| `READY` | 本 Mode 要求的结构/追溯/证据/回执通过（选 A 可不含独立评审；选 B 须独立评审门 READY） | 已定稿/评审通过/可发布 |
 | `DRAFT` | 结构完整但有非阻断待确认/未定稿 | 草稿/待评审；列待确认 |
 | `BLOCKED` | 缺评审/缺证据/关键 TBD 无主/断链/无回执 | 未完成/阻塞/未验证 |
 

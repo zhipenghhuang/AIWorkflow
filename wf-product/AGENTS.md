@@ -1,36 +1,36 @@
 # AGENTS.md
 
 > **用途**：产品协作 AI 入口。  
-> **新会话必读顺序（硬）**：① 开局卡 → ② 口令表（未路由）→ ③ `_chain` → ④ `_region-*`（若有）→ ⑤ 步骤包 → ⑥ §6 必开 skill 闭环 → ⑦ 可选 1 模板。  
-> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…`（只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：心跳（必带 `packet=`）+ 当前步骤包（含全局硬约束摘要，每步遵守）；禁止同时多 packet、禁止 `read-index`；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐。  
+> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §3 口令表。  
+> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
+> **已路由中段**：全局规则本会话已读则不重读全文；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.06.05`  
-> **完成口径**：只认开局卡 + `Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
+> **template_version**：`2026.11.07.10`  
+> **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
 
-> **硬约束全文**：`rules/core/cold-start.md`。本节只补分级与指针。
+> **硬约束全文**：`rules/core/global-rules.md`。本节只补分级与指针。
 
 1. **中文**；写现行结论。  
-2. **短读**：`activeContext` 总览 + `## 产品` 进行中 + **偏好/洞见/坑 ≤3 行**（开局卡第 2 条；`context-memory.md`）；有 `product-profile.md`→§1（每新会话一次）。涉计划读 `product-plan.md` §0·§10。  
+2. **短读**：`activeContext` 总览 + `## 产品` 进行中（含 workflow/state/packet） + **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；有 `product-profile.md`→§1（每新会话一次）。涉计划读 `product-plan.md` §0·§10。  
 3. **接入**：`wf-product onboard: done` 则跳过，否则 onboard-agent 一次判定。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/cold-start.md` §1（同会话已读，不重复）。  
-5. **覆盖**：用户明确指令 > 根 AGENTS > 本文 > agent > profile。  
-6. **读取**：分级读链（开局卡 §4）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
-7. **契约**：`execution-contract.md` §1.0（【需求与意图理解】+【动作前分析】）+ 理解→方案双确认；开局卡第 1 条已点名，细则不改档位。  
-8. **心跳**：`rule-anchor.md`。
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（同会话已读，不重复）。  
+5. **覆盖**：只认 `rules/core/global-rules.md` §11。  
+6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）；理解→方案双确认按域门。  
+8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 
 ### 0.1 确认门 · 澄清 · 执行路径
 
-门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step，cold-start 第 1 条）；澄清只认 `clarification.md`（理解→方案双确认硬）。
+门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step）；开工档位/读链只认 `global-rules.md`；澄清**方法**按需读 `clarification.md`（参考层；理解→方案双确认门仍硬）。
 
-> P0～P3 为内部风险标签，按 `gates.md` §2「P 档推导」的事实判定（不凭感觉），**拿不准走全量**；档位不替代用户确认。
+> P0～P3 为内部风险标签，按 `gates.md` §2「P 档推导」的事实判定（不凭感觉），**路径拿不准走全量**；档位不替代用户确认。
 
 | 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
 | 轻量受理 | 纯文案/配置，无 AC/范围变化 | intake→triage→就地更新→verify/关闭 | 全量 PRD、独立评审 |
-| 标准产品 | AC/范围/状态/权限变化，或计划内小需求 | intake→triage→理解双确认→PRD→评审→交付 | 独立评审（P1 普通可作者自检；P1↑/P2+ 不可省）；PRD 可轻量，门不降 |
+| 标准产品 | AC/范围/状态/权限变化，或计划内小需求 | intake→triage→理解双确认→PRD→评审→交付 | 独立评审（P0/普通 P1 可作者自检；P1↑ 结构门硬、默认可 A/`SELF_CHECKED`；P2+ 必问 A/B）；PRD 可轻量，门不降 |
 | 新版本/0→1 | 新产品/新版本/战略 | new-product→plan→PRD→原型→交付→发布 | 无 |
 | 高风险 | 权限/资金/数据/合规/不可逆 | 标准产品 + 专项/独立评审/发布门 | 无 |
 
@@ -39,7 +39,7 @@
 
 ### 0.2 硬红线
 
-**产品特有红线**：回写须 `confirm_remark`；inbound/子代理/体验 UX/DX/AX 不净退化。其余见开局卡 §1。原型/交接/验证细则随当前步骤包点名再读。
+**产品特有红线**：回写须 `confirm_remark`；inbound/子代理/体验 UX/DX/AX 不净退化。其余见 `rules/core/global-rules.md`。原型/交接/验证细则随当前步骤包点名再读。
 
 ## 1. 接入
 
@@ -77,8 +77,8 @@
 | 16 | 接入/档案/装配能力/生成README/更新README/整理README | `onboard` | onboard-agent；README 见 `rules/core/project-readme.md` |
 | 16.1 | 资料收取/整理 | `onboard` | materials |
 | 16.2 | 文档清理/归档巡检 | `onboard` | lifecycle |
-| 16.3 | 技能 / 能力体检或优化 | `skill-audit` | scope→…→wrap/commit |
-| 16.4 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→wrap→commit |
+| 16.3 | 技能 / 能力体检或优化 | `skill-audit` | scope→…→closeout |
+| 16.4 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→closeout |
 | 17 | 提交/推送 | 当前 workflow 末步 | 对应角色 |
 | 18 | 维护/查询 | 本文 + `rules/core/maintenance.md` | —；清理→16.2；技能→16.3 |
 | 19 | 画原型/原型设计 | `prototype` | 按链或点子步（context/wireframe/visual/hi-fi） |
@@ -88,19 +88,19 @@
 | 23 | 一页纸/对外演示材料 | `showcase` | materials |
 | 24 | 写交接单/生成交接包 | `handoff` | 默认 compose；升包才 send |
 | 25 | 接收/签收交接包 | `handoff` | receive |
-| 26 | 交接状态 | `handoff` | status |
+| 26 | 交接状态 | —（只读） | 直接读 `{workroot}/handoff/handoff-ledger.md` + `activeContext`；不启动 workflow |
 | 27 | 变更通知/同步变更/重规划 | `handoff` | change_* / replan |
 
-**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停（不含提交/推送/部署/回写）；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口走 `chain: full` 到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。中段以当前 `_chain`「推进」与步骤包 §4 为准，口径与本段相同。
+**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停（不含提交/推送/部署/回写）；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口走 `chain: full` 到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。中段以当前链图「推进」与步骤卡 §4 为准，口径与本段相同。
 **路由消歧**：裸「产品缺陷」未带平台/单号/对话限定时先问或按 `change` 受理；明确平台/单号 → `defect`。
 **单条 vs 批量**：单条需求/问题/缺陷→`change`；平台缺陷→`defect`；批量洞察/需求池盘点→`prd` discover；**竞品分析/学习竞品**→`prd` discover（模式 S）；**竞品对标/功能差距**→`prd` benchmark（模式 P）；0→1→`new-product`（含模式 S）。分不清先 `change` 受理再分诊。
-**需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（`rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。
+**需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（门硬；方法按需读 `rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。
 **无口令**：口语未命中上表 → `rules/core/routing.md`（通用意图类，非口令同义词表）。
-首条：`route=workflow:<id> | step=<id> | role=<agent> | mode=execute/analyze/stop | reason=… | reads=<实际读取来源> | next_action=…`；有输入加 `input=<路径>`；`change` 加 `type=<初判>`；`defect` 加 `scope=<范围>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
+首条：`route=workflow:<id> | step=<id> | role=<agent> | global=ok | mode=execute/analyze/stop | reason=… | reads=<实际读取来源> | next_action=…`；有输入加 `input=<路径>`；`change` 加 `type=<初判>`；`defect` 加 `scope=<范围>`。纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`。
 
 ## 4. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳/重锚 → `rules/core/rule-anchor.md`；改步骤 → `workflows/`；改角色 → `agents/`；改门/红线/输出 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤 → `workflows/`；改角色 → `agents/`；改门/红线/输出 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
 
 ## 5. 多包（自动探测）
 

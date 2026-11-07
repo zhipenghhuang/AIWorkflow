@@ -1,14 +1,14 @@
 # 维护本包（产品轨）
 
 > 只在改包/自检/维护时读；业务任务不读本节。`AGENTS.md` 只留维护指针。  
-> **capabilities/技能体检**走 `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills）。
+> **capabilities/技能体检**走 `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills）。
 
 ## 1. 改哪里
 
 - 不变量/路由/读取协议 → `AGENTS.md`
-- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS §3 指针与读取索引「无口令」行；附录仅校验勿当词典）
+- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS 口令表指针；附录仅校验勿当词典）
 - 开局卡 → `rules/core/cold-start.md`
-- 规则心跳/重锚 → `rules/core/rule-anchor.md`（同步 cold-start、执行契约、activeContext `rule_card`）
+- 心跳格式 → `rules/core/global-rules.md` §8（同步 activeContext 运行状态）
 - 步骤 → `workflows/`（含 `skill-audit.yaml`；0→1：`new-product.yaml`；计划：`plan.yaml`；受理/变更：`change.yaml`；缺陷平台：`defect.yaml`；展示：`showcase.yaml`；原型：`prototype.yaml`）
 - 角色契约（决策权）→ `rules/collaboration/roles.md`；角色 YAML IO → `agents/`
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`；缺陷平台：`rules/defects/platform-collaboration.md`）
@@ -20,10 +20,9 @@
 - 适配边界：templates / rules / skills 可按项目适配（确认后改本包并登记）；能靠产出文档解决的优先改产出
 - 技能 → `skills/`（体检能力确认后可就地改；通用最优：「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例 → `{workroot}/capabilities/`（`rules/capabilities/instance-discipline.md`）
-- capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/playbooks/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
+- capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
 - 子代理编排 → `rules/collaboration/subagents.md`（单一出处），workflow/agent 只留指针
 - 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好）
-- 读取索引 → `rules/read-index.md`（改 step/reads 后同步）
 
 ## 1.1 体检 vs 装配 vs 维护
 
@@ -48,7 +47,7 @@ python wf-product/rules/tools/validate_prd.py <PRD.md>
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；文档卫生见 `Test-DocHygiene.ps1`。
 
-> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows/_orch 漂移」检查。
+> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
 
 ## 3. 规则撰写标准
 

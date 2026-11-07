@@ -20,7 +20,7 @@ description: Use when an approved requirement or design must be broken into exec
 ## 2. 拆解流程
 
 1. **只读侦察**：读需求、方案、代码地图、现有测试与构建命令；标出未知项与待验证假设。  
-2. **提取要求点（RP）**：每个需求点编号 `R-01`，写来源与验收标准（AC）；一条 AC 必须是“条件 + 动作 + 可观测结果”。  
+2. **提取要求点（RP）**：每个需求点编号 `R-01`，写来源与验收标准（AC）；一条 AC 必须是“条件 + 动作 + 可观测结果”。来源须可打开（文件路径 + 章节/画板/锚点）。  
 2.1 **验收分层**：先标 `DEV-AC / QA-AC / REL-AC`（定义见 `rules/core/verification.md` §2.1，含 **DEV 必留**）；开发任务只承接 `DEV-AC`，`QA-AC/REL-AC` 转测试计划/UAT/交接项，不建开发实现任务；P0 创建/生成/触发链不得仅因场景号整条划出 DEV。  
 3. **建依赖图**：数据/契约 → 服务 → 接口 → 前端 → 集成 → 发布；标外部依赖（他团队、环境、审批、数据）。  
 4. **垂直切片**：每个任务尽量交付一条可演示、可测试的完整路径；禁止“所有 DB / 所有 API / 所有 UI”横向切。  
@@ -45,7 +45,7 @@ description: Use when an approved requirement or design must be broken into exec
 | 测试先行 | 先写哪个失败测试/探针；无测点写理由 |
 | 验证命令与证据 | 命令 + 预期结果 + 证据落点 |
 | 覆盖矩阵 | 命中权限/状态/数据基数/多表面时，按 `skills/cross-layer-consistency/SKILL.md` 填四维矩阵；每行有测试/证据 |
-| 方案条款 SC | 按 `rules/core/implementation-quality.md` §4（含 **DEV-IQ-12**）抽 Then/异常/第二次写/角色正反/**字段·枚举·可空**/跨章通用校验为 `SC-xx`，并填入口类型；无 SC 不开工（L0 除外）；裁剪写入债项表 |
+| 方案条款 SC | 按 `rules/core/implementation-quality.md` §4（含 **DEV-IQ-12**）抽 Then/异常/第二次写/角色正反/**字段·枚举·可空**/跨章通用校验为 `SC-xx`，并填入口类型；**每条 SC 必填 `来源=`（文件路径 + 章节/画板/锚点）**；无 SC 或缺来源回指不开工（L0 除外）；裁剪写入债项表 |
 | 回滚/开关 | 高风险任务必填；无则写“不适用” |
 | 依赖/并行 | 依赖任务号；可并行标 `[P]`；同文件不并行 |
 | 规模 | XS/S/M/L；L 必须继续拆（>5 文件或 >1 个专注时段） |
@@ -75,7 +75,7 @@ description: Use when an approved requirement or design must be broken into exec
 - [ ] 每个任务可独立验收；L 任务已拆；高风险任务已前置。  
 - [ ] `[P]` 任务不同文件、无未完成依赖。  
 - [ ] 有检查点；每个检查点有可执行验证。  
-- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；Then/异常/角色正反/第二次写/**字段清单·枚举·可空**/跨章通用校验已覆盖或债项化；触发链已标入口类型且非仅 `query-enrich`（细则 `implementation-quality.md` DEV-IQ-01/12）。  
+- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；每条 SC 有可打开的 `来源=`；Then/异常/角色正反/第二次写/**字段清单·枚举·可空**/跨章通用校验已覆盖或债项化；触发链已标入口类型且非仅 `query-enrich`（细则 `implementation-quality.md` DEV-IQ-01/12）。  
 - [ ] 命中权限/状态/数据基数/多表面时，四维矩阵已填；每个 Then/异常/角色正反/第二次写都有行。  
 - [ ] 任务清单有变更记录；未覆盖旧清单前先问用户。  
 - [ ] 运行 `python rules/tools/validate_tasklist.py <清单路径>` 通过（如可用）。

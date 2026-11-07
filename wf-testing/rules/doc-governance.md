@@ -82,17 +82,16 @@ docs/materials/
 ### 2.4 工作区（{workroot}）
 
 - 测试工作区：
-  - `test-plan.md`、`test-analysis.md`、`test-report.md`、`smoke-checklist.md`、`work-log.md`
-  - `reviews/`（评审留痕唯一落点 + `INDEX.md`；被替代进 `reviews/_archive/`）
-  - `functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/`
-  - `changes/`、`scripts/`、`handoff/`、`capabilities/`、`_archive/`
+  - **常青（根）**：`INDEX.md`、`work-log.md`、`smoke-checklist.md`、`scripts/`、`capabilities/`、`handoff/`、`_archive/`
+  - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
 - 测试材料库写入域：`05-testing`。
 
-- **编号约定**：测试轨（`functional/`、`api/`、`exploratory/`、`random-flows/`、`pre-release/`）为并列轨道，不编号、不表示执行先后；执行顺序只认测试计划 §0/§9.2。
-- **工作根**：读环境基线「项目身份」的 `workroot`；未声明按约定：单包 `docs/`，多包 `docs/{owner}/`；非标准必须在基线声明，不另建根文件。
+- **组织轴**：版本/迭代 = `{ver}/` 大夹；模块与场次默认进文件名。轨名并列、不编号、不表示执行先后；执行顺序只认 `{ver}/test-plan.md` §0/§3。
+- **建夹**：一类多份且与父夹其它文件异类 → 专夹 + 夹内平铺；轨内单份执行记录不另套模块夹。
+- **工作根**：读环境基线「项目身份」的 `workroot`；未声明按约定：单包 `docs/`，多包 `docs/{owner}/`；非标准必须在基线声明，不另建根文件。`{ver}` 取基线「当前版本/主题」或 INDEX/`activeContext` 指针。
 - 工作区可含过程稿、草稿、待确认、证据；正式文档只写现行有效。
-- 单包为 `docs/` 平铺；多包为 `docs/testing/`。
-- **工作区索引**：`{workroot}/INDEX.md`（单包即 `docs/INDEX.md`）；只做导航：当前入口、文档清单、版本/材料包、归档、缺失；**不写阶段/门/状态**（状态权威＝计划 §0）。
+- 单包为 `docs/`；多包为 `docs/testing/`。
+- **工作区索引**：`{workroot}/INDEX.md`（单包即 `docs/INDEX.md`）；只做导航：当前 `{ver}`、文档清单、材料包、归档、缺失；**不写阶段/门/状态**（状态权威＝`{ver}/test-plan.md` §0）。
 - **项目总览**：多包或保留原目录时用 `docs/INDEX.md`；链到各工作区索引、`docs/materials/INDEX.md`、`inbound/INDEX.md` 与既有目录；不写状态、不替代工作区索引；多包各包只改本包一行。
 - **共享/控制路径**：`docs/materials/`、`docs/handoff/`（单包）、`inbound/`。
 - 无内容不建空目录；模板是骨架，不是强制空树。
@@ -115,8 +114,8 @@ docs/materials/
 | 类型 | 线索 | 落点 | 本包同步 | 归档/覆盖 |
 | --- | --- | --- | --- | --- |
 | T1 全量基线替代 | 整份新 PRD/需求废止旧版 | `inbound/` 主副本；A1/A2 → `{workroot}/` | 计划、索引、台账；定稿后发布 materials | 旧工作区基线可归档；inbound 不动 |
-| T2 方案/设计变更 | 方案 diff、技术结论 | `inbound/`；正文吸收 → 对应轨或 `{workroot}/changes/` | 变更记录、计划、索引 | 失去实施入口的旧方案可归档；局部就地覆盖 |
-| T3 未决确认 | 拍板、澄清答复 | 结论 → `{workroot}/changes/open-items.md`；原件留 `inbound/` | 关闭待决、冻结范围 | 过程件不堆现行区 |
+| T2 方案/设计变更 | 方案 diff、技术结论 | `inbound/`；正文吸收 → 对应轨或 `{workroot}/{ver}/changes/` | 变更记录、计划、索引 | 失去实施入口的旧方案可归档；局部就地覆盖 |
+| T3 未决确认 | 拍板、澄清答复 | 结论 → `{workroot}/{ver}/changes/open-items.md`；原件留 `inbound/` | 关闭待决、冻结范围 | 过程件不堆现行区 |
 | T4 迭代专项/局部 | 修改方案、单模块补丁 | `inbound/`；增量 → 方案/任务 | 影响面任务、计划 | 禁两份「最终方案」并排现行 |
 | T5 范围/优先级 | 砍需求、重排期 | 计划/需求池 | 状态与范围节 | 旧通知工作区侧可归档 |
 | T6 缺陷/回流 | 产品回复、修复说明 | `inbound/`；结论 → 治理/变更/缺陷评估 | 对齐需求、设计、测试 | 旧评估可归档 |
@@ -153,12 +152,8 @@ docs/materials/
 | --- | --- | --- |
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
-| `{workroot}/test-plan.md`（+ V1～V4 卷）、`test-analysis.md`、`test-report.md`、`smoke-checklist.md` | 主档/快照 | 主计划/四卷/报告/分析关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`；冒烟清单常青 |
-| `{workroot}/reviews/` | 绑定 · 现行唯一 | 全部 `*-评审-*.md` 只落此夹；`INDEX.md` 登范围键→现行路径；同键再评先移旧入 `reviews/_archive/` 再写新；关账现行+INDEX 快照进 `_archive/{yyyyMMdd}-{ver}/reviews/`；禁散落到域夹/轨根/工作根 |
-| `{workroot}/functional/`、`api/` | 域主档常青 | Domain 跨版本保留；域下线/重生快照时归档；**ACTIVE inbound 禁整版空域**（计划可不装填，见 `special/release-train-load.md`）；**不含评审记录** |
-| `{workroot}/exploratory/`、`random-flows/` | 轨目录常青 · 戳夹分轮 | 常青的是轨纪律与选题/去重方法；**单轮戳夹非常青 Domain**；旧轮进各自 `_archive/`；禁按功能域整版库对齐（见多轨 Q13） |
-| `{workroot}/pre-release/` | 方案常青 · 报告分轮 | `*-测试方案.md` 常青；旧报告/停用包进专项 `_archive/`；**不含评审记录** |
-| `{workroot}/changes/` | 绑定 | CR 关闭归档 |
+| `{workroot}/smoke-checklist.md` | 长期 | 跨迭代 P0/高价值锚点；就地更新；不随版夹迁走 |
+| `{workroot}/{ver}/`（分析/计划/报告/轨记录/changes/evidence） | 迭代绑定 | 确认关账后**整夹**迁入 `_archive/{yyyyMMdd}-{ver}/`；P0/高价值意图须有执行记录或 N/A+依据 |
 | `{workroot}/scripts/` | 长期 | 脚本资产；不随关账删除 |
 | `{workroot}/handoff/outbound/{category}/` | 出站快照 | 真源在生命周期目录；报告/计划等按需实拷；**缺陷有平台时禁止**为交单实拷详单（见 `handoff.md` §3.1.1）；关版本同批归档；台账常青 |
 | `{workroot}/handoff/inbound/{category}/` | 收件工作副本 | 须分析吸收；非永久主副本；关版本可归档 |
@@ -186,7 +181,7 @@ docs/materials/
 | `02-design` | 产品设计、原型说明、UX、设计评审 |
 | `03-technical` | 技术方案、选型、架构、ADR、接口/数据 |
 | `04-implementation` | 实施说明、任务分解、关键配置/部署 |
-| `05-testing` | 测试计划、分析、报告、关键用例/覆盖结论 |
+| `05-testing` | 测试计划、意图/风险、报告、关键执行记录/锚点结论 |
 | `06-release` | 发布说明、上线/回滚、运维交接 |
 | `07-appendix` | 外部参考、标准、术语、权威附件 |
 
@@ -198,7 +193,7 @@ docs/materials/
 
 ## 6. 更新还是归档
 
-主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → 绑定文档归档；各轨主档、`changes/`、台账、计划主档保留。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。
+主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → `{workroot}/{ver}/` **整夹**迁入 `_archive/{yyyyMMdd}-{ver}/`；常青仅 `smoke-checklist.md` / `scripts/` / `capabilities/` / `handoff/` 台账与根索引。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。
 
 归档前做**引用检查**：被当前计划、技术设计、{workroot}/验收引用的文档不得标记失效；先修引用或保留原位。归档清单写明“替代关系/仍被谁引用”。
 
@@ -239,7 +234,7 @@ docs/materials/
 
 ## 8. 过程/临时清理
 
-范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；`reviews/_archive/` 中已进版本归档的重复份；散落在域夹/轨根/工作根的旧 `*评审*`（确认后删或迁入 `reviews/_archive/`）；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、`reviews/INDEX` 现行行、根 CHANGELOG/工作日志永不自动删。
+范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、根 CHANGELOG/工作日志永不自动删。
 
 何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。新任务 `-StartTask` 可清空 `.gate/frontend/` 旧媒体，不等同关账全清 `.gate`。
 

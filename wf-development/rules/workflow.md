@@ -4,9 +4,9 @@
 
 > **步骤顺序真值是 `workflows/*.yaml`**；本文保留护栏、阶段衔接与文档落位映射，不另立步骤表。  
 > **工作文档根**默认 `{workroot}/`；下表与文内相对路径均相对该根（对外写全路径时带 `{workroot}/` 前缀）。  
-> **计划同步/变更传播/自主边界**：见 `core/execution-contract.md` §2/§4；本文不重复。
+> **计划同步/变更传播/自主边界**：运行时硬条见 `core/global-rules.md` §6/§8；事件级矩阵见 `core/execution-contract.md` §2/§4（参考）；本文不重复。
 > **读取**：只读当前任务需要的节，不要通读；阶段顺序/门以 YAML 为准。  
-> 缺陷 → `playbooks/defect.md`；迭代 → `playbooks/iterate.md`；发布/验收 → `playbooks/release.md` + `skills/acceptance-and-launch/SKILL.md`。  
+> 缺陷 → `skills/debugging-and-error-recovery`；迭代 → `skills/development-plan`；发布/验收 → `skills/acceptance-and-launch` + `skills/qa-handoff-and-release`。  
 > 步内怎么改/怎么验 → AI 自定（`AGENTS.md` §0.5）。确认门**只认**步上 `hitl:`（标量用 `hitl_when`；列表各项带 `when`）。
 
 ## 0. 开发计划（开发控制面）
@@ -135,7 +135,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 3.2 红绿与测试诚信（defects/修复）
 
-修前留红证；**禁修复后回退补红证**；无根因不修。禁先实现后补测冒充验收；禁改断言/跳过测试/禁用告警凑绿（豁免须用户批准）。无效换路径与回根因见 `AGENTS.md` §0.3-7。
+修前留红证；**禁修复后回退补红证**；无根因不修。禁先实现后补测冒充验收；禁改断言/跳过测试/禁用告警凑绿（豁免须用户批准）。无效换路径与回根因见 `rules/core/global-rules.md` §5。
 
 ### 3.3 门禁
 
@@ -253,8 +253,8 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | ADR | `{workroot}/30-architecture/ADR/` | `ADR-{序号}-{主题}.md`（长期；被替代标状态） |
 | 技术设计（长期 SSOT） | `{workroot}/30-architecture/` | 现行 API/架构/模块说明；就地更新 |
 | 前端设计说明 | `{workroot}/20-design/` | `前端设计说明-{主题}-{yyyyMMdd}.md` |
-| 缺陷评估 | `{workroot}/00-governance/缺陷评估/` | `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md` |
-| 缺陷评审版修复方案 | `{workroot}/20-design/BUG优化修复方案/`（档案指定目录优先） | `Bug{BUG-ID}-{主题}_评审版_{yyyyMMdd}.md`（口径待产品确认、确认前不实施） |
+| 缺陷评估（→产品） | `{workroot}/00-governance/缺陷评估/` | `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md`（夹内平铺；与 change-log/open-items 隔离） |
+| 缺陷评审版修复方案（→产品） | `{workroot}/20-design/BUG优化修复方案/`（档案指定目录优先） | `Bug{BUG-ID}-{主题}_评审版_{yyyyMMdd}.md`（口径待产品确认、确认前不实施；夹内平铺，不与普通方案混堆） |
 | 产品返回资料 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；类型写索引 |
 | 任务清单/计划 | `{workroot}/40-tasks/` | `任务清单-{ver}.md` |
 | UAT/验收 | `{workroot}/50-verification/` | `UAT-{版本}-{yyyyMMdd}.md` |
@@ -272,7 +272,9 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见capabilities/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
 | 工作日志 | `{workroot}/work-log.md` | 开发岗位里程碑（含接入/治理）；≠根 CHANGELOG |
 
-**缺陷处置文档流**：评估单落 `{workroot}/00-governance/缺陷评估/`；口径待确认但实现路径清晰的评审版方案落 `{workroot}/20-design/BUG优化修复方案/`；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理）。
+**缺陷处置文档流**：判为**产品缺陷**后 → 评估单落 `{workroot}/00-governance/缺陷评估/`（交产品评审口径）；口径存疑但实现路径清晰 → 评审版方案落 `{workroot}/20-design/BUG优化修复方案/`（与评估单二选一）；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理 / `fix-collaboration.md` §5）。
+
+**建夹纪律（择要）**：一类多份或父夹已有异类文件 → **专夹 + 夹内平铺**（如缺陷评估、评审版方案、ADR）；父夹干净且仅偶发单份同类 → 可直接落父夹。禁一文件套一层空夹，也禁把交产品评审件与 change-log/普通方案混堆。
 
 **纪律（摘要）**：按档案 §9 映射落位不强行搬迁；文件名含版本/日期；归档/清理/根白名单见 `rules/doc-governance.md` §5～§8；提交拟提交节奏见本文 §2。
 

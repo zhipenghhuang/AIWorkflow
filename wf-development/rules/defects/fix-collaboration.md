@@ -61,10 +61,10 @@ preflight → pull → triage
   ├─ 实现缺陷 → fix → gates → menu → close → postrelease?
   ├─ 产品缺陷 → assess_product → handoff_product（备注+附件+指派产品）→ await_product
   │      → product_decision → align →（认可/改判实现/新方案）→ fix → gates → menu → close
-  └─ 无法确认/信息不足/无法复现/重复/设计如此/非defects/外部 → clarify → STOP（等测试补充；必要时 wrap）
+  └─ 无法确认/信息不足/无法复现/重复/设计如此/非defects/外部 → clarify → STOP（等测试补充；必要时 closeout）
 ```
 
-先读全单（原单提交信息＋历史备注/附件）再动手；复现与写回按原单口径对齐（§6）。修前红证；无根因不修；未自验通过不进可提交项、不回写。无效换路径 / 回根因见 `../AGENTS.md` §0.3-7。  
+先读全单（原单提交信息＋历史备注/附件）再动手；复现与写回按原单口径对齐（§6）。修前红证；无根因不修；未自验通过不进可提交项、不回写。无效换路径 / 回根因见 `rules/core/global-rules.md` §5。  
 **现状同拍**：缺陷批开工/阶段焦点变为测试缺陷修复时，同轮把开发计划 §0 写成 S7 进行中（G6 未签则注明正式门待补），并更新 `{workroot}/INDEX.md` 当前入口与 `activeContext`；索引不写状态，禁止只改热层。收尾 `sync=` 含 `triad=`（执行契约 §4 规则 7）。  
 **产品缺陷期间（该单）不改代码**：该单评估单提交后停，等产品结论；产品未回复不得按自己的方案实施；同批其它实现项按 §4.1 并行，不受该单阻塞。  
 **子代理**：按 `rules/collaboration/subagents.md` 取档——**≥5 单且读单成本高**或合计 ≥20k token → 逐单只读侦察（可并行≤3）；**≥3 单且文件不重叠** → 修复分片（文件不相交可并行≤3，同文件集串行）；超时/不可用降级直做并声明 `mode=`+`deviation=`；提示含 bugId/路径/红证/验收；禁 commit/push/回写；**返回 ≤30 行可直填 §6 备注**；编排核验后再写总结。高风险/大改：核验者≠实施者。  

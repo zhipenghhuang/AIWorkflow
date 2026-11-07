@@ -1,0 +1,39 @@
+# 产品计划 · `plan` 状态机
+
+> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+
+## 1. 入口与终止
+
+- **入口**：`产品计划` → `goals`；`产品规划` → `goals`；`路线图` → `roadmap`；`Roadmap` → `roadmap`；`版本规划` → `roadmap`；`下季度做什么` → `roadmap`；`下个月做什么` → `roadmap`；`排优先级（版本级）` → `roadmap`；`计划评审` → `review-plan`；`计划文档评审` → `review-plan`；`按产品计划执行` → `next`；`继续` → `next`；`下一步` → `next`；`当前状态` → `next`
+- **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+
+## 2. 状态表
+
+| # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | `goals` | `pm-analyst` | — | `confirm_understanding` | 产品计划工作稿 §1 目标/§2 指标（可并入产品计划草稿） | `roadmap` | 停在本步/升级 |
+| 2 | `roadmap` | `pm-analyst` | — | — | 产品计划工作稿 §2 路线图（Now/Next/Later + 依据/依赖/时间窗） | `scope` | 停在本步/升级 |
+| 3 | `scope` | `pm-lead` | — | `confirm_plan` | 产品计划工作稿 §3 范围/§4 里程碑（确认后同轮并入主档） | `review-plan` | 停在本步/升级 |
+| 4 | `review-plan` | `reviewer-agent` | — | `select_review_mode` | 评审记录（{workroot}/{ver}/10-requirements/评审-计划-{yyyyMMdd}.md）或 HUMAN_APPROVED 声明 | `publish` | 停在本步/升级 |
+| 5 | `publish` | `pm-lead` | — | `confirm_iteration_close`、`confirm_docs_migration` | {workroot}/product-plan.md（模板 rules/templates/10-planning/product-plan-template.md） | `next` | 停在本步/升级 |
+| 6 | `next` | `pm-lead` | — | — | 当前阶段/门/下一动作 | `closeout` | 停在本步/升级 |
+| 7 | `closeout` | `pm-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+
+## 3. 推进
+
+- 默认入口即止；仅按链/继续/按计划执行时向后推进。
+- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `skip=理由`。
+- 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
+- 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。
+- 失败：按状态表“失败/跳过”回退或停下；不静默跳过。
+
+## 4. 边界
+
+- **本链专属**：`workflows/plan.yaml` + 本图 + `rules/packets/plan/`；改本链只重生成该链。
+- **共享**：`rules/core/`、`rules/gates.md`、`skills/`、`rules/templates/`；改共享层跑全包自检。
+- 跨链：重新路由或 handoff；诊断可读对方状态图，不打开对方 packet。
+
+## 5. 终端
+
+- 所有 domain 状态结束后进入 `closeout`；`done / blocked / cancelled` 三选一，未过门不得 `done`。

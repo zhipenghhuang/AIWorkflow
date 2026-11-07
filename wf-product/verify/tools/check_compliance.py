@@ -163,22 +163,21 @@ def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None
         errors.append("缺少【遵守自检】")
         return
     body = m.group(1)
-    for key in ("route=", "mode=", "packet=", "skills=", "reads=", "gates=", "confirm=", "sync=", "skip=", "deviation="):
+    for key in ("route=", "mode=", "packet=", "global=", "skills=", "reads=", "gates=", "confirm=", "sync=", "skip=", "deviation="):
         if key not in body:
             errors.append(f"【遵守自检】缺少 {key}")
     mp = re.search(r"packet=([^|]+)", body)
     if mp and "rules/packets/" not in mp.group(1) and mp.group(1).strip() not in ("na", "无"):
         errors.append("【遵守自检】packet= 须指向 rules/packets/...")
+    mg = re.search(r"global=([^|]+)", body)
+    if mg and mg.group(1).strip() not in ("ok",) and not mg.group(1).strip().startswith("dev:"):
+        errors.append("global= 须为 ok 或 dev:<原因>")
     mm = re.search(r"mode=([a-z]+)", body)
     if mm and mm.group(1) not in MODES:
         errors.append(f"mode={mm.group(1)} 不在 execute/analyze/stop")
     sync_match = re.search(r"sync=([^|]+)", body)
     if sync_match:
         sync_body = sync_match.group(1)
-        if "triad=" not in sync_body:
-            errors.append("【遵守自检】sync= 须含 triad=aligned|na|deferred:<原因>")
-        if "facade=" not in sync_body:
-            errors.append("【遵守自检】sync= 须含 facade=aligned|na|deferred:<原因>")
 
     # Economy receipt: required for testing/execute; optional elsewhere (warn if half-filled).
     has_exec_mode = "exec_mode=" in body

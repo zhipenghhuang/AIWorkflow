@@ -1,127 +1,94 @@
-# 步骤包 · testing/execute
+# 步骤卡 · testing/execute
 
-> **状态 = 本 step（独立完整）**。全局硬约束见 §3（每步遵守）；本步门/编排/完成见本文；**方法在 §6 skill**（打开→执行→回来）。  
-> 与开局卡/他步条文重复 OK；不要跳转拼流程；不要跳过必开 skill。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
-- **包轨**：wf-testing
-- **workflow**：`testing`
-- **step**：`execute`（执行测试）
+- **workflow / step**：`testing` / `execute`（按计划执行）
 - **packet**：`rules/packets/testing/execute.md`
-- **角色**：`test-orchestrator`（计划驱动执行编排（跨轨））。按 `{workroot}/test-plan.md` §9.2 阶段 + §3.9 批次表真实执行；管理功能/接口/探索式/非功能/回归/缺陷闭环；核验落盘；本步只做该角色职责；越界交回或升级。
-- **前置**：功能/专项 T1+ 已由 review-cases 放行（T0 可 SELF_CHECKED）；未放行不得开跑
-- **上游**：`review-cases`（取其产出为本步输入；该步被 `when` 跳过时按缺口停/补齐）
+- **角色**：`test-orchestrator`（计划驱动执行编排（功能/接口/探索/发布前/回归））。按 {workroot}/{ver}/test-plan.md §3 轮次/§4 准出执行全部在范围意图与轨道；生成场景、记录结果、管理证据/缺陷/回归；本步只做该角色职责；越界交回或升级。
+- **前置**：分析表与测试计划已确认；按计划执行全部在范围意图
+- **上游**：`plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`report`
-- **失败去向**：回 review-cases 补齐；不得先执行后补评审
+- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
-- **父状态机**：进 wf 时读 `_chain` 一次；**中段勿重读**。
-- **子状态机**：进「执行报告」区时读 `_region-run` 一次；**中段勿重读**。
 
 ## 2. 本步目标
 
-- **目标**：执行测试
-- **产出**：执行结果/≤3 行简报
+- **目标**：按计划执行
+- **产出**：执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态
 
-## 3. 本步硬约束
+## 3. 本步硬约束（全局规则 + 本步边界）
 
-### 全局硬约束（本包已带齐 · 每步都遵守）
+> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
-- 1. 先判后动；未确认禁写/禁结论；批量不豁免。
-- 2. 先查事实；仍不明一次一问（附候选/推荐）。
-- 3. 核前提/来源/变量/成本；不迎合；用户有误直接指出。
-- 4. 劣解先说依据+主推；用户坚持记 `deviation=`。
-- 5. 先权衡；失败 2 次换路径。
-- 6. 改前说文件；最小改动；超范围先停。
-- 7. 完成只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`；P0 未过不得整体通过；UI 证据 E1 实点+截图/Network。
-- 8. 收尾六点；只读 2～3 行；主动发现 ≤3。
-- 9. 只写现行；删除即移除；不写历史/旧方案。
-- 10. 读链：开局卡 → `_chain` → 当前包 → §6 skill → 模板 ≤1；同时只 1 包。
-- 11. §6 必开 skill 打开→执行→回包；禁粘贴代替。
-- 12. 切步/过门心跳带 `packet=`/`role=`/`task=`；长任务先报进展。
-- 13. 用户当轮指令优先；与硬门冲突先说明再二选一。
-- 14. 证据先于结论；禁刷绿；密钥零入库。
-- **效力**：以上为执行摘要（全文见开局卡 §1）；开局已读则中段不重开全文，**每步仍须逐条遵守**；与开局卡重复不影响。
+### 本步边界
 
-### 本步操作面（本链本步独立完整）
-
-- **读这些就能干完本步**：本文（全局摘要 + §4 门 + §5 编排）+ §6 表内 skill（一次 1 个闭环）+（若 §7 列出）至多 1 模板。
-- **不靠跳转拼流程**：本步所需规则已写在本文；他步/他链可有相同条文，互不依赖。
-- **完成声称**：有完成类 gate 时，无 `CLAIM: ALLOWED` 不得写完成/通过/可提测。
-- **上下文锚**：`packet=`/`reads=` 必须含本 packet；切步前心跳刷新。
-
-### 本步禁止
-
-- 禁止用 read-index / 他步 packet /「详见别处 rules」拼本步流程。
-- 禁止跳过 §6 必开技能，或用摘要代替实读。
-- 禁止未过 §4 门或未出 §8 信号就宣称完成、推进或写「已通过」。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
 
-- **HITL `confirm_understanding`**：**主屏**：测试分析表 §0【业务与变更简报】+【本期差量表】+ 冲突/九类歧义/GAP 计数与 oracle 要点；无 §0 不过门（T0 迷你差量除外）。确认后才写计划/用例/断言
-- **条件判定 `hitl:understanding_needs_confirm`**：输入含 PRD/迭代方案/原型/接口或技术文档、存在 2 个以上实质歧义/冲突、T2/T3，或用户要求计划/用例/准出时真；已有**本轮当前范围**确认的需求理解包/测试分析表或纯信息查询/机械低风险操作时假。**T0 且范围已钉**（补丁范围/环境/准出口径本轮已写死或计划 §0 已确认）→ **默认假**。**计划驱动 execute**：`{workroot}/test-plan.md` §0 为已确认/执行中/待关闭，且本轮范围测试分析表可打开（或计划声明不适用+依据）→ **假**（不重复理解门；门2 仍按 `scope_needs_confirm`）。缺理解包却要**宣称功能准出** → **仍真**；满足→真，否则跳过该门。
-- **HITL `select_mainread`**：主读路径未确认 → STOP 一问；已选定或唯一正式版已在 §0/理解门写明待确认 → 可续；不得重问
-- **条件判定 `hitl:exploratory_mainread_missing`**：探索式 execute 且主读/章程路径未确认；满足→真，否则跳过该门。
-- **HITL `confirm_execution_scope`**：开跑前一行：主读/计划范围/环境 → 确认；同会话同载体只一次；计划驱动已确认 → 跳过并附【已预授权执行：按计划】
-- **条件判定 `hitl:scope_needs_confirm`**：非计划驱动、计划状态非「已确认/执行中/待关闭」或范围/环境实质变化时为真；计划驱动且 §0 为已确认/执行中/待关闭时为假。期中变更 A/B 并入后保持已确认→假；C 变更中→真（计划门）；满足→真，否则跳过该门。
+- **HITL `confirm_execution_scope`**：开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。
+- **条件判定 `hitl:scope_needs_confirm`**：非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化；满足→真，否则跳过该门。
 - **GATE `execute-batch` when=module_batch_complete**：运行对应 verify；未过不得宣称完成。
-- **条件判定 `gate:module_batch_complete`**：本批计划内步骤已执行完、本批台账终态齐（无「未执行」）、证据可打开，且达到 `rules/templates/10-planning/test-plan-template.md` §3.9 的批次合并条件；不是「整个模块/全仓跑完」。判定以当前 `execute` 批与台账 Scope 为准；满足→真，否则跳过该闸（步骤不跳过）。
+- **条件判定 `gate:module_batch_complete`**：本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据、P0 不外溢；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
-## 5. 本步工作规则（编排）
+## 5. 本步动作
 
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-- **本步必开技能（质量不降）**：`test-execution-and-exploration`、`test-data-and-environment` → 见 §6 闭环。
+- **本步必开技能（质量不降）**：`testcase-design`、`test-execution-and-exploration`、`test-data-and-environment` → 见 §6 闭环。
 
-- **条件技能**：`ai-feature-testing`（被测含 LLM/RAG/Agent） → 命中则同样走 §6 闭环。
+- **条件技能**：`test-interface`（计划含接口轨/执行接口批）、`test-performance-security-compatibility`（计划含发布前/性能/安全/兼容）、`ai-feature-testing`（被测含 LLM/RAG/Agent） → 命中则同样走 §6 闭环。
 
 ### 本步动作清单
 
-- 开跑前声明 exec_mode/并行组 `pg`（技能 §2）。
-- 计划驱动按计划 §3.9 批次装填。
-- 批前造数一次→Smoke→装填。
-- 已脚本化走脚本档（禁 MCP 逐条）。
-- 同页簇与动作连做（已知目标少中途全页看）。
-- 批末 `execute -Scope`。
-- P0-Smoke 未过不进全库。
-- 质量锁优先于并行。 SSOT=技能必做+当前轨。
-- 禁把整本方法抄回本 notes。
+- 按计划执行全部在范围 P0/P1/P2 意图：功能/接口/探索/发布前/回归按计划轮次与批次推进。
+- 开跑前读 `env-baseline.md` 命中节。
+- 多源对照硬门槛：逐场景打开原文对应段并另读≥1互补源，分析只作索引，禁只读分析（做法按 §6 执行技能闭环）。
+- 边执行边写执行记录（场景+原文/依据+步骤+数据+Oracle+结果+证据+缺陷+意图结论）。
+- 步骤写清位置/数据/预期，供人复核。
+- 不把步骤当预写脚本逐条点。
+- 全部 `处置=测` 意图到终态，P1/P2 不得用低优先级跳过。
+- 失败/阻塞/待实现留证并进缺陷。
+- T1+ 功能收口前 S6/S7/S11 有落点。
+- 批末更新计划 §0/§6 与执行记录结论。
 
-## 6. 技能指向（打开 → 执行 → 回本包）
+## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 只读必做区并执行 → **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 必做区 → 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 必做区 → 回本包 |
-| `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 必做区 → 回本包 |
+| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L110（必做+处置/判定/反合理化）→ 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
+| `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L62（必做+处置/判定/反合理化）→ 回本包 |
+| `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
+| `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 只读 L13-L93（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
-## 7. 打开/填写
+## 7. 模板与证据
 
-- **本步完整面**：本步骤包（§3 全局摘要 + §4 门 + §5 规则卡/编排）+ §6 必开/条件开 skill（一次 1 个）+ 本步输入。
-- **无强制模板**：§5 规则卡已给出输出形状；直接落 §2 产出。
-- 验证命令：`verify/Invoke-Gate.ps1`（声称完成加 `-Claim`）。
-- 本步不再读 read-index / 他步 packet / 大手册；模板与 skill 只读指定节。
+- **填写模板（仅此一份）**：`rules/templates/20-test-cases/test-case-template.md`；只读本步用到的节，禁止整文件通读。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
-## 8. 完成信号
+## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 若本步含完成类 gate：须 `CLAIM: ALLOWED` 后才可写完成态。
-- wrap：收尾骨架字段齐全；commit：拟提交块经 `confirm_commit`。
+- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
+- 失败：停在本步补齐或升级；不得静默跳过。
 
-## 9. 回执字段
+## 9. 回执
 
 ```text
-route=workflow:testing | step=execute | agent=test-orchestrator | packet=rules/packets/testing/execute.md | reads=rules/packets/testing/execute.md[+skill] | skills=test-execution-and-exploration,test-data-and-environment,ai-feature-testing|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=execute | agent=test-orchestrator | packet=rules/packets/testing/execute.md | global=ok | skills=testcase-design,test-execution-and-exploration,test-data-and-environment,test-interface,test-performance-security-compatibility,ai-feature-testing|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
-
-`packet=` 必须含 `rules/packets/testing/execute.md`；必开 skill 须在本步内完成闭环。对不上 = 规则上下文已断或质量未达标。

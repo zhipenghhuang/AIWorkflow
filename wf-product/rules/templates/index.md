@@ -89,9 +89,9 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `90-handoff/closeout-skeleton.md` | wrap / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
+| `90-handoff/closeout-skeleton.md` | closeout / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
 | `90-handoff/handoff-note-template.md` | **handoff.compose（默认）** | **择优写法**（五问→A/B/C/D）；非填空卷；禁整表套用、禁外印元数据 |
 | `90-handoff/handoff-package-brief-template.md` | handoff.send（仅升包） / prd.handoff / prototype.handoff | `{workroot}/handoff/outbound/{category}/{HO-ID}/00-交接说明.md` |
 | `90-handoff/handoff-checklist-template.md` | handoff.send | `01-交接清单.md`（包内文件/版本/必读） |
 | `90-handoff/receipt-template.md` | handoff.receive / 签收 | `04-回执/接收回执.md`（接受/有条件/退回） |
-| `90-handoff/handoff-ledger-template.md` | handoff.status / 交接初始化 | `{workroot}/handoff/handoff-ledger.md`（唯一登记） |
+| `90-handoff/handoff-ledger-template.md` | 交接初始化 / 状态只读 | `{workroot}/handoff/handoff-ledger.md`（唯一登记） |
