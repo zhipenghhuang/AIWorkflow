@@ -53,10 +53,14 @@
 | 变更含 LLM/RAG/Agent/提示词/模型/工具调用 | `skills/ai-application-engineering/SKILL.md` + `skills/threat-modeling/SKILL.md`（AI 安全） |
 | change / iterate：review | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` |
 | change / iterate：deliver | `skills/qa-handoff-and-release/SKILL.md` |
-| solo.frame（轻量档产品定义） | `skills/product-shaping/SKILL.md` |
-| solo.plan（一页方案卡） | `skills/product-shaping/SKILL.md` + `skills/solution-design/SKILL.md` + `skills/engineering-quality/SKILL.md` + `skills/task-breakdown/SKILL.md` |
-| solo.build（轻量实施） | `skills/implementation-and-selftest/SKILL.md`（§0.5 预检；轻量不降硬补）+ `skills/engineering-quality/SKILL.md` |
-| solo.test（轻量测试） | `skills/test-design-and-execution/SKILL.md` |
+| solo.frame（产品定义，可选） | `skills/product-shaping/SKILL.md` |
+| solo.product（产品分析） | `skills/product-shaping/SKILL.md` + `skills/product-doc-analysis/SKILL.md`（输入含文档/原型） |
+| solo.design（方案与验收） | `skills/solution-design/SKILL.md` + `skills/task-breakdown/SKILL.md` + `skills/engineering-quality/SKILL.md` |
+| solo.review_docs（落地文档评审） | `skills/design-doc-review/SKILL.md` |
+| solo.test_plan（测试分析与计划） | `skills/test-design-and-execution/SKILL.md` |
+| solo.build（完整开发与自测） | `skills/implementation-and-selftest/SKILL.md`（§0.5 预检；自包含不降硬补）+ `skills/engineering-quality/SKILL.md`；有 UI → `frontend-implementation`；有 PRD/原型 → `product-doc-analysis` |
+| solo.review（代码评审） | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` |
+| solo.test（测试与验收） | `skills/test-design-and-execution/SKILL.md` |
 | release：acceptance / readiness / deploy / verify / rollback / postrelease | `skills/acceptance-and-launch/SKILL.md` + `skills/observability-and-instrumentation/SKILL.md` |
 | retro：gather / analyze / actions | `skills/retrospective-and-improvement/SKILL.md` |
 | defect-fix 全流程 | `rules/defects/fix-collaboration.md`（本轨专规即技能）+ `skills/cross-layer-consistency/SKILL.md`（根因分层/同类路径/回归） |
@@ -65,14 +69,18 @@
 
 ## 自包含完整链（solo）
 
-> 用于无正式迭代/正式协作：产品分析 → 方案 → 完整开发 → 测试；不是只开发，也不依赖产品/测试包。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；正式协作/迭代 → 完整链。
+> 用于无正式迭代/正式协作：产品分析 → 方案 → 评审 → 完整开发 → 评审 → 测试；不是只开发，也不依赖产品/测试包。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；正式协作/迭代 → 完整链。
 
 | 步骤 | 技能 | 说明 |
 | --- | --- | --- |
-| frame | `product-shaping` | 方向不清/新产品时走；小改跳过 |
-| plan | `product-shaping` + `product-doc-analysis`（输入含文档/原型）+ `solution-design` + `engineering-quality` + `task-breakdown` | 产品分析/方案/任务/验收/测试策略 |
-| build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` | 预检→硬补→完整开发；失败时加 `debugging-and-error-recovery` |
-| test | `test-design-and-execution` | 设计→执行→报告；按风险完整；大改动/高风险全节 + 独立 verifier；P0 未过 = FAIL |
+| frame | `product-shaping` | 方向不清/新产品时走；小改跳过；产品定义卡可选 |
+| product | `product-shaping` + `product-doc-analysis`（输入含文档/原型） | 产品分析/理解；有文档/多源/高风险时先 `confirm_understanding`；不写技术/测试 |
+| design | `solution-design` + `task-breakdown` + `engineering-quality` | 方案/任务/验收；`confirm_spec`；写 review_required/do_landing_doc_review；不写产品/测试 |
+| review_docs | `design-doc-review` | 条件审方案卡/验收表/用户版；`select_review_mode`；缺口回 design |
+| test_plan | `test-design-and-execution` | 测试分析与计划；来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测 |
+| build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality`；有 UI → `frontend-implementation`；有 PRD/原型 → `product-doc-analysis` | 预检→硬补→完整开发；失败时加 `debugging-and-error-recovery` |
+| review | `code-review` + `engineering-quality` | 条件审 diff/AC/SC/前端产物；`.gate/review.md`；缺口回 build |
+| test | `test-design-and-execution` | 执行→报告；测试分析与计划见 test_plan；大改动/高风险全节 + 独立 verifier；P0 未过 = FAIL |
 
 ## 开发计划阶段 → 技能（每阶段至少一个）
 

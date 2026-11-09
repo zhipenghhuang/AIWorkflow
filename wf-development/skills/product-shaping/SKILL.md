@@ -5,7 +5,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 
 # 产品定义与收敛（技能 · 随包生效）
 
-> 用于：`solo.frame`、`solo.plan` 前段；也可在 `change.clarify` 遇到「只有一个想法、没有 PRD」时按需加载。
+> 用于：`solo.frame`、`solo.product` 前段；也可在 `change.clarify` 遇到「只有一个想法、没有 PRD」时按需加载。
 > 目标：先判断**值不值得做、做多大**，再进入方案；不把一句「我想要 X」直接变成代码。
 > 边界：本技能不写技术架构、不写完整 PRD、不做市场调研；技术方案归 `solution-design`，完整 PRD 归产品包或 `requirements-and-spec` 的完整链。
 > 口径：`rules/core/lightweight.md` §0 / §3.1；**免盘问 ≠ 免验收字段**。
@@ -101,7 +101,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 
 ## 5. 从定义到方案
 
-产品定义确认后，进入 `solo.plan` 的方案卡，只传递以下内容：
+产品定义确认后，进入 `solo.product`/`solo.design` 的方案卡，只传递以下内容：
 
 - 范围 / 非目标；
 - 主流程、状态、权限、异常；

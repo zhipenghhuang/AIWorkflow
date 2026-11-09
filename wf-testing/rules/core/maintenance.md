@@ -14,7 +14,7 @@
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`）
 - 澄清协议 → `rules/core/clarification.md`
 - collaboration/handoff/变更分级 → `rules/collaboration/handoff.md`；交接步骤 → `workflows/handoff.yaml`；回执/台账模板 → `rules/templates/`
-- 子代理取档/生命周期 → `rules/collaboration/subagents.md`；批流/准确度/MCP/计划驱动详版 → `rules/special/multi-agent-output.md`
+- 子代理派工/生命周期/执行补取档 → `rules/collaboration/subagents.md`；批流/准确度/MCP/计划驱动详版 → `rules/special/multi-agent-output.md`（按节）
 - 轨边界 → `rules/tracks/`
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`
@@ -23,7 +23,7 @@
 - 技能 → `skills/`（**可就地改**；通用最优：「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例选型/绑定 → `{workroot}/capabilities/`（纪律 `rules/capabilities/instance-discipline.md`）
 - capabilities/技能体检 → `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
-- 计划编排 → 测试计划模板 + `rules/workflow.md` §3.6 + `rules/special/multi-agent-output.md` §4（三处同步）
+- 计划 §3.1 填表 → 计划模板该节（单一真源）；计划轮次/准出编排 → 计划模板 + `rules/workflow.md` §3.6；执行期详版 → `multi-agent-output.md` §4（按节）
 - 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好）
 
 ## 1.1 体检 vs 装配 vs 维护

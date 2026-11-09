@@ -25,6 +25,27 @@ RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
 STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
 FAIL_STATUSES = {"失败", "阻塞", "待实现"}
 INT_ID_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
+# 原文锚点：章节/AC/路由/方法/互补源分隔；禁只写文档名
+SOURCE_ANCHOR_RE = re.compile(
+    r"[§#/]|AC[-_]?\w+|INT[-_]?\w+|F[-_]?\d+|R[-_]?\d+|"
+    r"\b(?:GET|POST|PUT|PATCH|DELETE)\b|原型|契约|OpenAPI|路由|第\s*\d+",
+    re.I,
+)
+# P0 证伪/反向场景标记（场景名或原文依据）
+FALSIFY_RE = re.compile(
+    r"负向|禁止|拒绝|越权|非法|无权限|未授权|证伪|反向|边界|异常|幂等|恢复|"
+    r"空值|重复提交|错误码|deny|forbidden|unauthorized|negative|invalid",
+    re.I,
+)
+NA_FALSIFY_RE = re.compile(
+    r"(?:证伪|负向|反向).{0,16}(?:N/?A|不适用)|(?:N/?A|不适用).{0,16}(?:证伪|负向|反向)",
+    re.I,
+)
+# 通过态 Oracle 过弱：无对照原文/分析的可观测断言
+WEAK_ORACLE_RE = re.compile(
+    r"^(?:通过|ok|okay|pass|正常|成功|符合预期|符合要求|无报错|没报错|看起来?对|页面正常|功能正常)[.。!！]*$",
+    re.I,
+)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -126,8 +147,81 @@ def is_p0(s: str) -> bool:
 
 
 def is_test_disp(s: str) -> bool:
+    """处置=测；「不测」不得误入必测集。"""
     s = (s or "").strip()
-    return s.startswith("测") and not s.startswith("不测")
+    if not s or s.startswith("不测"):
+        return False
+    return s.startswith("测") or s.upper().startswith("TEST")
+
+
+def source_anchored(s: str) -> bool:
+    """原文/依据须有可回指锚点（章节/AC/路由/方法或 A / B 多源）。"""
+    t = (s or "").strip()
+    if is_blank(t):
+        return False
+    if SOURCE_ANCHOR_RE.search(t):
+        return True
+    # 多源常用「主读 / 互补」
+    return ("/" in t or "／" in t or "、" in t) and len(t) >= 5
+
+
+def looks_falsify(scene: str, source: str = "", gap: str = "") -> bool:
+    blob = f"{scene} {source} {gap}"
+    return bool(FALSIFY_RE.search(blob) or NA_FALSIFY_RE.search(blob))
+
+
+def weak_oracle(s: str) -> bool:
+    """True = Oracle 不可作为通过依据（空或口头通过）。"""
+    t = (s or "").strip()
+    return is_blank(t) or bool(WEAK_ORACLE_RE.match(t))
+
+
+def conditional_acceptor_ok(text: str) -> bool:
+    """CONDITIONAL：§4 缺口表须有非空接受人行（禁全文碰巧出现「接受人」）。"""
+    block = h2(text, "4.")
+    if not block:
+        return False
+    for headers, rows in tables(block):
+        if not any("接受人" in h for h in headers):
+            continue
+        for row in rows:
+            if not row or not row[0] or row[0] in ("类型", "项", "缺口", "—"):
+                continue
+            if not is_blank(cell(row, headers, "接受人")):
+                return True
+    return False
+
+
+def _tokens(s: str) -> set[str]:
+    """轻量对账 token：INT/AC/路径/中文词块；过滤过短噪声。"""
+    raw = (s or "").strip()
+    if not raw:
+        return set()
+    parts = re.findall(r"[A-Za-z][A-Za-z0-9_-]{1,}|\d+(?:\.\d+)?|[\u4e00-\u9fff]{2,}", raw)
+    return {p.lower() for p in parts if p and p.lower() not in {"oracle", "预期", "通过", "失败", "结果"}}
+
+
+def analysis_aligned(source: str, oracle: str, meta: dict[str, str] | None) -> bool:
+    """场景原文/Oracle 与分析台账有可对账交集；无分析行则跳过。
+
+    通用词（状态/页面等）单独命中不算；须 ≥2 个交集，或至少 1 个较长/带锚点 token。
+    """
+    if not meta:
+        return True
+    scene_tok = _tokens(f"{source} {oracle}")
+    if not scene_tok:
+        return False
+    analysis_tok = _tokens(
+        f"{meta.get('source', '')} {meta.get('oracle', '')} {meta.get('unaccept', '')} {meta.get('intent', '')}"
+    )
+    if not analysis_tok:
+        return True  # 分析行空字段由 coverage 另拦；此处不叠罚
+    shared = scene_tok & analysis_tok
+    if not shared:
+        return False
+    weak = {"状态", "页面", "结果", "成功", "失败", "字段", "按钮", "列表", "详情", "接口", "数据", "用户"}
+    strong = {t for t in shared if t not in weak and (len(t) >= 3 or any(ch.isdigit() for ch in t) or "-" in t or "_" in t)}
+    return len(shared) >= 2 or bool(strong)
 
 
 def to_int(s: str) -> int:
@@ -348,6 +442,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                 "pri": cell(row, headers, "优先级"),
                 "disp": cell(row, headers, "处置"),
                 "owner": cell(row, headers, "接受人"),
+                "source": cell(row, headers, "来源"),
+                "intent": cell(row, headers, "意图"),
+                "oracle": cell(row, headers, "Oracle"),
+                "unaccept": cell(row, headers, "不可接受失败"),
             }
             for name in ("来源", "意图", "Oracle", "优先级", "处置"):
                 if is_blank(cell(row, headers, name)):
@@ -571,15 +669,50 @@ def parse_plan(path: Path) -> dict[str, Any]:
             issues.append("§2 轨道表缺失（需 轨道/纳入）")
         elif not any(row and row[0] and row[0] not in ("轨道", "—") for row in t_track[1]):
             issues.append("§2 轨道表无数据行")
-        t_round = pick_table(h2(text, "3."), ["轮次", "目标"])
+        block3 = h2(text, "3.")
+        t_round = pick_table(block3, ["轮次", "目标"])
         if not t_round:
             issues.append("§3 轮次表缺失（需 轮次/目标）")
         elif not any(row and row[0] and row[0] not in ("轮次", "—") for row in t_round[1]):
             issues.append("§3 轮次表无数据行")
+        t_batch = pick_table(block3, ["批次", "执行形态"])
+        if not t_batch:
+            issues.append("§3.1 批次表缺失（需 批次/执行形态；单模块可一行直跑+串行）")
+        else:
+            headers, rows = t_batch
+            data_rows = [row for row in rows if row and row[0] and row[0] not in ("批次", "—")]
+            if not data_rows:
+                issues.append("§3.1 批次表无数据行")
+            fanout: list[tuple[str, str, str]] = []
+            for row in data_rows:
+                mode = cell(row, headers, "执行形态")
+                if is_blank(mode):
+                    issues.append(f"§3.1「{row[0]}」缺执行形态")
+                    continue
+                pg = cell(row, headers, "并行组")
+                iso = cell(row, headers, "隔离套") or cell(row, headers, "隔离套/账号/写域")
+                if re.search(r"PG[-_]?\w*", pg or "", re.I):
+                    if is_blank(iso) or re.fullmatch(r"串行|共享|共享[·.]?串行", (iso or "").strip()):
+                        issues.append(f"§3.1「{row[0]}」有 {pg} 但隔离套不可核验（须互斥账号/profile/port/写域）")
+                # 脚本档不计入「装填模块」扇出；其余行参与 ≥2 模块默认模块子代理校验
+                if re.search(r"脚本", mode) and not re.search(r"直跑|模块子代理|拆分", mode):
+                    continue
+                mod = cell(row, headers, "模块/域") or cell(row, headers, "模块")
+                if not is_blank(mod):
+                    fanout.append((str(row[0]), mod.strip(), mode.strip()))
+            uniq_mods = {m for _, m, _ in fanout}
+            if len(uniq_mods) >= 2:
+                for bid, _mod, mode in fanout:
+                    if not re.search(r"模块子代理|拆分", mode):
+                        issues.append(
+                            f"§3.1「{bid}」同表≥2 装填模块时执行形态应为模块子代理/拆分（当前={mode}；并行组可仍串行）"
+                        )
     else:
         b3 = h2(text, "3.")
         if not b3 or not all(k in b3 for k in ("轮次", "准入", "准出")):
             issues.append("轻量计划 §3 缺轮次/准入/准出")
+        elif not re.search(r"串行|并行|直跑|模块子代理|拆分|脚本|PG-", b3):
+            issues.append("轻量计划 §3 缺批次/并行口径（至少写直跑/串行）")
     if tier != "lite":
         t_imp = pick_table(h2(text, "1."), ["类型", "范围/链路", "覆盖/回归轮次"])
         if not t_imp:
@@ -636,7 +769,7 @@ def find_records(test_root: Path, scope: str | None = None) -> list[Path]:
     return sorted(set(out))
 
 
-def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
+def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = None) -> dict[str, Any]:
     text = read(path)
     issues: list[str] = []
     counts = {s: 0 for s in STATUSES}
@@ -645,9 +778,14 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
     intent_ids: set[str] = set()
     intent_results: dict[str, str] = {}
     intent_priority: dict[str, str] = {}
+    intent_falsify: dict[str, bool] = {}
+    intent_misaligned: list[str] = []
+    orphan_intents: list[str] = []
     p0_fail: list[str] = []
     missing_evidence: list[str] = []
     blocked_bad: list[str] = []
+    analysis_ids = set((analysis or {}).get("ids") or [])
+    analysis_intents = (analysis or {}).get("intents") or {}
 
     if not (re.search(r"record_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I) or "场景与结果" in text):
         issues.append(f"{path.name}: 非执行记录格式")
@@ -672,8 +810,16 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
             seen += 1
             sc = row[0].strip()
             source = cell(row, headers, "原文/依据") or cell(row, headers, "原文/契约")
+            scene = cell(row, headers, "场景")
+            oracle = (
+                cell(row, headers, "预期/Oracle")
+                or cell(row, headers, "Oracle")
+                or cell(row, headers, "预期")
+            )
             if is_blank(source):
                 issues.append(f"{path.name}: {sc} 缺原文/依据（执行仍须对照原始文档）")
+            elif not source_anchored(source):
+                issues.append(f"{path.name}: {sc} 原文/依据过粗（须章节/AC/路由/接口或主读/互补，禁只写文档名）")
             status = cell(row, headers, "结果")
             evidence = cell(row, headers, "证据")
             pri = cell(row, headers, "优先级")
@@ -681,12 +827,20 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
             if not INT_ID_RE.search(intent):
                 issues.append(f"{path.name}: {sc} 缺 INT-* 意图")
+            if status == "通过" and weak_oracle(oracle):
+                issues.append(f"{path.name}: {sc} 通过但 Oracle 过弱/缺失（须对照原文/分析的可观测断言，禁「通过/正常」）")
             for m in INT_ID_RE.findall(intent):
                 intent_ids.add(m)
                 old = intent_results.get(m, "")
                 intent_results[m] = worst_status(old, status)
                 if is_p0(pri):
                     intent_priority[m] = "P0"
+                if looks_falsify(scene, source, oracle):
+                    intent_falsify[m] = True
+                if analysis_ids and m not in analysis_ids:
+                    orphan_intents.append(f"{sc}:{m}")
+                elif status == "通过" and m in analysis_intents and not analysis_aligned(source, oracle, analysis_intents.get(m)):
+                    intent_misaligned.append(f"{sc}:{m}")
             if status not in STATUSES:
                 issues.append(f"{path.name}: {sc} 结果不可识别：{status or '空'}")
                 continue
@@ -728,6 +882,9 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
                 continue
             status = cell(row, headers, "结论")
             pri = cell(row, headers, "优先级")
+            gap = cell(row, headers, "缺口/接受人") or cell(row, headers, "缺口") or cell(row, headers, "接受人")
+            if looks_falsify("", "", gap):
+                intent_falsify[iid] = True
             if status not in STATUSES:
                 issues.append(f"{path.name}: 意图 {iid} 结论不可识别：{status or '空'}")
                 continue
@@ -741,10 +898,12 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
     return {"path": str(path), "issues": issues, "counts": counts, "by_pri": by_pri,
             "by_pri_status": by_pri_status, "intent_ids": intent_ids,
             "intent_results": intent_results, "intent_priority": intent_priority,
+            "intent_falsify": intent_falsify,
+            "intent_misaligned": intent_misaligned, "orphan_intents": orphan_intents,
             "p0_fail": p0_fail, "missing_evidence": missing_evidence, "blocked_bad": blocked_bad}
 
 
-def aggregate(records: list[Path], test_root: Path) -> dict[str, Any]:
+def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | None = None) -> dict[str, Any]:
     counts = {s: 0 for s in STATUSES}
     by_pri = {"P0": 0, "P1": 0, "P2": 0, "其他": 0}
     by_pri_status: dict[str, dict[str, int]] = {p: {s: 0 for s in STATUSES} for p in by_pri}
@@ -752,11 +911,14 @@ def aggregate(records: list[Path], test_root: Path) -> dict[str, Any]:
     intent_ids: set[str] = set()
     intent_results: dict[str, str] = {}
     intent_priority: dict[str, str] = {}
+    intent_falsify: dict[str, bool] = {}
+    intent_misaligned: list[str] = []
+    orphan_intents: list[str] = []
     p0_fail: list[str] = []
     missing_evidence: list[str] = []
     blocked_bad: list[str] = []
     for rec in records:
-        p = parse_record(rec, test_root)
+        p = parse_record(rec, test_root, analysis)
         issues += p["issues"]
         for k in counts:
             counts[k] += p["counts"].get(k, 0)
@@ -769,11 +931,25 @@ def aggregate(records: list[Path], test_root: Path) -> dict[str, Any]:
         for iid, status in p["intent_results"].items():
             intent_results[iid] = worst_status(intent_results.get(iid, ""), status)
         intent_priority.update(p["intent_priority"])
+        for iid, flag in p.get("intent_falsify", {}).items():
+            if flag:
+                intent_falsify[iid] = True
+        intent_misaligned += p.get("intent_misaligned", [])
+        orphan_intents += p.get("orphan_intents", [])
         p0_fail += p["p0_fail"]
         missing_evidence += p["missing_evidence"]
         blocked_bad += p["blocked_bad"]
+    p0_no_falsify = sorted(
+        iid for iid, pri in intent_priority.items()
+        if pri == "P0"
+        and intent_results.get(iid) == "通过"
+        and not intent_falsify.get(iid)
+    )
     return {"counts": counts, "by_pri": by_pri, "by_pri_status": by_pri_status, "issues": issues,
             "intent_ids": intent_ids, "intent_results": intent_results, "intent_priority": intent_priority,
+            "intent_falsify": intent_falsify, "p0_no_falsify": p0_no_falsify,
+            "intent_misaligned": sorted(set(intent_misaligned)),
+            "orphan_intents": sorted(set(orphan_intents)),
             "p0_fail": p0_fail, "missing_evidence": missing_evidence, "blocked_bad": blocked_bad}
 
 
@@ -882,8 +1058,16 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         issues.append("P0 未过但报告写通过/有条件通过")
     if verdict == "PASS" and any(recs["counts"].get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
         issues.append("执行记录有失败/阻塞/待实现/未执行/未本轮验证但报告写 PASS")
-    if verdict == "CONDITIONAL" and "接受人" not in text:
-        issues.append("有条件通过缺接受人")
+    if verdict == "BLOCKED" and any(recs["counts"].get(k, 0) for k in ("失败", "待实现")):
+        issues.append("有失败/待实现但报告写 BLOCKED（失败与阻塞并存应优先 FAIL）")
+    if verdict == "CONDITIONAL" and not conditional_acceptor_ok(text):
+        issues.append("有条件通过须在报告 §4 缺口表写非空接受人（禁仅正文碰巧出现「接受人」）")
+    if verdict in ("PASS", "CONDITIONAL") and recs.get("p0_no_falsify"):
+        issues.append("P0 仅正向通过无证伪/负向（或 N/A+接受）：" + "、".join(recs["p0_no_falsify"][:6]))
+    if recs.get("orphan_intents"):
+        issues.append("执行记录 INT 不在分析台账（须先回写分析）：" + "、".join(recs["orphan_intents"][:6]))
+    if recs.get("intent_misaligned"):
+        issues.append("通过场景与分析来源/Oracle 无可对账交集：" + "、".join(recs["intent_misaligned"][:6]))
 
     stats = stats_from_report(text)
     if stats is None:
@@ -1014,9 +1198,12 @@ def main() -> int:
     recs: dict[str, Any] = {"issues": [], "counts": counts, "by_pri": by_pri,
                             "by_pri_status": {p: {s: 0 for s in STATUSES} for p in by_pri},
                             "intent_ids": set(), "intent_results": {}, "intent_priority": {},
+                            "intent_falsify": {}, "p0_no_falsify": [],
+                            "intent_misaligned": [], "orphan_intents": [],
                             "p0_fail": [], "missing_evidence": [], "blocked_bad": []}
     reported_verdict = ""
     conditional_accepted = False
+    p0_no_falsify: list[str] = []
 
     if args.mode in ("coverage", "execute", "report"):
         env_path = project_root / "env-baseline.md"
@@ -1056,22 +1243,35 @@ def main() -> int:
             blocked.append("未找到执行记录（*执行记录.md）")
             checks.append({"id": "execution-record", "status": "blocked", "detail": "missing"})
         else:
-            recs = aggregate(records, test_root)
+            recs = aggregate(records, test_root, analysis)
             checks.append({"id": "execution-record", "status": "fail" if recs["issues"] else "pass",
                            "detail": recs["issues"][:10] or f"records={len(records)}"})
             checks.append({"id": "evidence-exists", "status": "fail" if recs["missing_evidence"] else "pass",
                            "detail": recs["missing_evidence"][:10]})
             checks.append({"id": "blocked-reasons", "status": "fail" if recs["blocked_bad"] else "pass",
                            "detail": recs["blocked_bad"][:10]})
+            orphan = list(recs.get("orphan_intents") or [])
+            misaligned = list(recs.get("intent_misaligned") or [])
+            checks.append({
+                "id": "intent-analysis-link",
+                "status": "fail" if (orphan or misaligned) else "pass",
+                "detail": (orphan[:6] + misaligned[:6]) or "INT linked to analysis",
+            })
             p0_fail += recs["p0_fail"]
+            p0_no_falsify = list(recs.get("p0_no_falsify") or [])
             checks.append({"id": "p0-status", "status": "fail" if p0_fail else "pass", "detail": p0_fail[:10]})
+            checks.append({
+                "id": "p0-falsify",
+                "status": "fail" if p0_no_falsify else "pass",
+                "detail": p0_no_falsify[:10] if p0_no_falsify else "P0 has falsify/N/A",
+            })
             counts = recs["counts"]
             by_pri = recs["by_pri"]
             for rec in records:
                 source_hashes[str(rec)] = hashlib.sha256(rec.read_bytes()).hexdigest()
             if args.mode == "report":
                 required = {iid for iid, meta in analysis.get("intents", {}).items()
-                            if "测" in meta.get("disp", "")}
+                            if is_test_disp(meta.get("disp", ""))}
                 missing = sorted(required - recs["intent_ids"])
                 unterminal = sorted(iid for iid in required
                                     if not terminal_status(recs["intent_results"].get(iid, "")))
@@ -1107,7 +1307,22 @@ def main() -> int:
             reported_verdict = parsed["verdict"]
             checks.append({"id": "report-verdict", "status": "pass" if reported_verdict else "fail",
                            "detail": reported_verdict or "missing"})
-            conditional_accepted = reported_verdict == "CONDITIONAL" and "接受人" in read(report)
+            report_text = read(report)
+            conditional_accepted = (
+                reported_verdict == "CONDITIONAL" and conditional_acceptor_ok(report_text)
+            )
+            if reported_verdict == "CONDITIONAL" and not conditional_accepted:
+                checks.append({
+                    "id": "conditional-acceptor",
+                    "status": "fail",
+                    "detail": "§4 缺口表无非空接受人",
+                })
+            else:
+                checks.append({
+                    "id": "conditional-acceptor",
+                    "status": "pass",
+                    "detail": "ok" if reported_verdict != "CONDITIONAL" else "§4 acceptor present",
+                })
             source_hashes[str(report)] = hashlib.sha256(report.read_bytes()).hexdigest()
 
     if args.mode == "writeback":
@@ -1135,7 +1350,7 @@ def main() -> int:
         elif reported_verdict == "FAIL":
             verdict = "FAIL"
         elif reported_verdict == "CONDITIONAL":
-            verdict = "CONDITIONAL"
+            verdict = "CONDITIONAL" if conditional_accepted else "FAIL"
         elif any(counts.get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
             verdict = "FAIL"
         elif reported_verdict == "PASS":
@@ -1152,7 +1367,7 @@ def main() -> int:
             h.update(read(p).encode("utf-8", errors="replace"))
     now = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     completion = {
-        "gate_version": "3.1",
+        "gate_version": "3.2",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "scope": args.scope or "",

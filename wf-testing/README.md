@@ -8,7 +8,7 @@
 **AI Workflow 包（测试轨）**：分析驱动，主链 **分析 → 计划 → 执行 → 报告**。  
 - **测试分析** `{workroot}/{ver}/test-analysis.md` 必做：来源盘点、章节回执、依据覆盖、AC/设计点账本、意图台账、覆盖矩阵、方法矩阵、D01–D13 + S6/S7/S11、风险/影响面/核心链路。分析是原文索引；执行硬门槛在 execute 步骤卡（原文对应段 + ≥1 互补源，禁只读分析）。
 - **环境基线** `env-baseline.md`：环境/账号/接口/样本真值；分析、计划、执行前读命中节，计划 §2.2 写命中节/差异/核验。
-- **测试计划** `{workroot}/{ver}/test-plan.md` 是唯一总排：范围、分析引用、影响面/核心链路摘要、类型/轨道、轮次/批次、探索安排、准入准出、缺陷策略、状态/日志。计划不重复分析大表。
+- **测试计划** `{workroot}/{ver}/test-plan.md` 是唯一总排：范围、分析引用、影响面/核心链路摘要、类型/轨道、轮次/批次（§3.1 执行形态/并行/隔离，填表口径在计划模板该节）、探索安排、准入准出、缺陷策略、状态/日志。计划不重复分析大表；子代理≠并行，无隔离默认串行。
 - **执行记录** `{workroot}/{ver}/functional|api/{NN}-{短名}-执行记录.md`（轨内平铺）：§0 原文对账 + 场景 + 步骤 + 结果 + 证据 + 缺陷，另含每意图终态与原文条目关账。
 - **回归锚点** `{workroot}/smoke-checklist.md`：P0 冒烟 + 高价值场景（跨迭代常青）。
 - **报告** `{workroot}/{ver}/test-report.md`：按场景/意图/优先级/轨道汇总。
@@ -81,7 +81,7 @@ wf-testing/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
 
 本包不写死任何宿主；换宿主改实例侧（`{workroot}/capabilities/` + 基线索引），包零改动。
 
-- **最低能力**：入口自动装载、文件读写、shell、对话式确认门；浏览器自动化按需（功能/探索式）；子代理可选（大文档/分片执行）。
+- **最低能力**：入口自动装载、文件读写、shell、对话式确认门；浏览器自动化按需（功能/探索式）；子代理可选（多模块执行/大文档分片；无 Task 降级直跑）。
 - **入口挂载**：AGENTS.md 系按 `root-agents-pointer.md`；CLAUDE.md 系可用 @ 引用本包 AGENTS。
 - **MCP/Skill 配置**：只写宿主本地/用户级配置；实例选型与绑定写 `{workroot}/capabilities/`。
 - **能力（可选）**：槽位见 `capabilities/00-contract.md`；真源 `{workroot}/capabilities/00-能力清单.md`；缺失按契约降级；未接受降级每次触达出【能力缺失】块。纪律 `rules/capabilities/instance-discipline.md`。

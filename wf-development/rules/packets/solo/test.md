@@ -7,7 +7,8 @@
 - **workflow / step**：`solo` / `test`（测试与验收）
 - **packet**：`rules/packets/solo/test.md`
 - **角色**：`verifier-agent`（独立验证（开发轨））。只读核验验收清单、diff、证据与完成门结果；返回通过/需修/阻塞；不改代码、不做最终交付判断；本步只做该角色职责；越界交回或升级。
-- **上游**：`build`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **前置**：review_required=true → review 已通过（.gate/review.md 无阻断）；测试计划已产出；方案卡验收表冻结
+- **上游**：`review`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`closeout`
 - **失败去向**：回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面
 - **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
@@ -47,10 +48,13 @@
 - 门禁见 `verify/README.md`。
 - **开发测试/自验**（非准出）：按方案卡测试点 + **AC 走查**。
 - 覆盖集（按风险完整，不是只跑一条）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归。
+- 报告只写执行结果，测试分析与计划见本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`。
+- P2/回归锚点：高风险必填、纯文档 na。
 - 大改动/高风险：报告全节 + 独立 verifier + 回归/安全/回滚证据。
 - L1+ 前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）。
 - 纯文档/无行为可 `na`。
-- 前端门第 7 项的独立评审 → 升级 `change.review`。
+- 前端门第 7 项的独立评审 → 走 review 步（review_required）。
+- 有 review → 核 `.gate/review.md` 缺口闭环。
 - 前端看状态/视口/console/network/截图。
 - 后端看响应/错误码/日志。
 - 数据变更看迁移前后与回滚路径。
@@ -92,6 +96,8 @@
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
 | 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行或「需修」= BLOCKED |
 | 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
+
+> **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
@@ -155,7 +161,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-design-and-execution` | **必开** | 进入本步即开（质量不降） | `skills/test-design-and-execution/SKILL.md` | 只读 L14-L153（硬门槛+方法+反合理化）→ 回本包 |
+| `test-design-and-execution` | **必开** | 进入本步即开（质量不降） | `skills/test-design-and-execution/SKILL.md` | 只读 L14-L155（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。

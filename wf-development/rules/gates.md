@@ -13,7 +13,7 @@
 | `confirm_change` | 变更吸收/影响 | 出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线 |
 | `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。**缺陷/批量入口（指派给我、我的待修、修复#N、#N）不豁免本门**；仅用户明说「一次性/直接跑完/中途不停」可免等待（理解仍须先输出）。细则 `global-rules.md` §1。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
-| `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；完整理解包作下钻链接。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进需求基线/设计/实施/拆单 |
+| `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决；未签收不进设计/排期 |
 | `select_review_mode` | 落地文档评审方式 | **STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施。适用需求基线/方案/ADR/前端设计说明等（见 `skills/design-doc-review`） |
 | `confirm_spec` | 方案评审 | 出示范围/接口/兼容与回滚/验收；批准后才实施（可在选模式 + 可选 AI 审之后） |
@@ -50,6 +50,7 @@
 | --- | --- | --- |
 | `c2_or_c3` | 本轮变更分级 C2（范围/里程碑/资源）或 C3（战略/架构/合规/破坏性） | 未达 C2 |
 | `has_code_change` | 本轮代码/配置 diff 非空（不含生成物） | 纯文档/无 diff |
+| `plan_has_code_change` | 方案卡改动面含代码/配置/页面/接口（非纯文档） | 纯文档/文案/注释 |
 | `dev_plan_required` | L2+ 或已有 `development-plan.md` | L0/L1 且无计划 |
 | `release_failed_or_direct_rollback` | 入口=回滚，或部署/发布验证失败触发回滚 | 正常发布路径 |
 | `new_feature_or_scope_change_or_requested` | 新功能/范围变化，或点名做 requirements | 无新功能/范围且未点名 |
@@ -70,6 +71,7 @@
 | `solo_gate_required` | 自包含链：有方案卡/验收表且已 StartTask | 单独测试/纯文档 |
 | `intent_needs_confirm` | 给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付 | 查询/机械/同任务已确认/意图写死/任务内续跑；**歧义拿不准**按真 |
 | `understanding_needs_confirm` | 外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算 | 当前任务已理解确认；纯查询/机械低风险 |
+| `solo_understanding_needs_confirm` | 自包含链：输入含文档/原型/多源，或大改动/高风险 | 一句话/无文档小改 |
 | `has_product_docs_or_prototypes` | 输入含 PRD/迭代方案/需求/原型/截图/接口或技术文档 | 无此类输入 |
 | `change_is_substantive` | 改已定稿 AC/范围/对外承诺（未达 C2 也可真） | 纯答疑/文案/无基线改动 |
 | `backlog_approval_required` | L2+，或清单/范围/节奏实质变化 | L1 小批只通知 |

@@ -1,10 +1,10 @@
-# 自包含完整链（产品→开发→测试） · `solo` 状态机
+# 自包含完整链（产品→开发→评审→测试） · `solo` 状态机
 
 > 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
-- **入口**：`轻量开发` → `frame`；`自包含开发` → `frame`；`无正式迭代` → `frame`；`小改动` → `frame`；`我有个想法` → `frame`；`想法落地` → `frame`；`小项目` → `frame`；`轻量方案` → `plan`；`只出轻量方案` → `plan`；`轻量测试` → `test`
+- **入口**：`轻量开发` → `frame`；`自包含开发` → `frame`；`无正式迭代` → `frame`；`小改动` → `frame`；`我有个想法` → `frame`；`想法落地` → `frame`；`小项目` → `frame`；`产品分析` → `product`；`轻量方案` → `design`；`只出轻量方案` → `design`；`轻量测试` → `test`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
 - **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
 
@@ -12,11 +12,15 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `frame` | `implementer` | `new_product_or_unclear_idea` | — | 产品定义卡（{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md） | `plan` | 停在本步/升级 |
-| 2 | `plan` | `implementer` | — | `confirm_spec` | 方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md） | `build` | 停在本步/升级 |
-| 3 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `test` | 回 plan 修方案卡；范围超出先停下说明 |
-| 4 | `test` | `verifier-agent` | — | `gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
-| 5 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 1 | `frame` | `implementer` | `new_product_or_unclear_idea` | — | 产品定义卡（{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md） | `product` | 停在本步/问用户 |
+| 2 | `product` | `implementer` | — | `confirm_understanding` | 方案卡（产品部分：§0/§0.1/§1）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）；L1+ 用户可见时附用户版说明（{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md） | `design` | 停在本步/问用户 |
+| 3 | `design` | `implementer` | — | `confirm_spec` | 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md） | `review_docs` | 回 product 修产品分析；范围/AC 不清先停下说明 |
+| 4 | `review_docs` | `doc-reviewer` | `do_landing_doc_review` | `select_review_mode` | 评审-文档-*.md 或 HUMAN_APPROVED 声明 | `test_plan` | 回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build |
+| 5 | `test_plan` | `test-planner` | `plan_has_code_change` | — | 测试分析与计划（{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md） | `build` | 回 design 修方案卡；AC/范围不清先停下说明 |
+| 6 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `review` | 回 design 修方案卡；范围超出先停下说明 |
+| 7 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + .gate/review.md | `test` | 回 build 补前端交付物/方案覆盖；不得以代码/测试/API 200 代替，不得判通过 |
+| 8 | `test` | `verifier-agent` | — | `gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
+| 9 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/问用户 |
 
 ## 3. 推进
 

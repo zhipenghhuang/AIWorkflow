@@ -1,21 +1,22 @@
-# 步骤卡 · solo/plan
+# 步骤卡 · solo/design
 
 > 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
-- **workflow / step**：`solo` / `plan`（产品分析与方案）
-- **packet**：`rules/packets/solo/plan.md`
+- **workflow / step**：`solo` / `design`（方案与验收）
+- **packet**：`rules/packets/solo/design.md`
 - **角色**：`implementer`（常规实现）。需求/方案对齐 → 最小改动实现 → 自测/门禁 → 提测文档 → 提交；架构级先方案批准；本步只做该角色职责；越界交回或升级。
-- **上游**：`frame`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`build`
-- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
+- **前置**：product 已完成；方案卡 §0/§1 已冻结；产品/AC 未确认不得写技术方案
+- **上游**：`product`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **后续**：`review_docs`（进 `review_docs` 前的 `when=do_landing_doc_review`）
+- **失败去向**：回 product 修产品分析；范围/AC 不清先停下说明
 - **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 
-- **目标**：产品分析与方案
-- **产出**：方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
+- **目标**：方案与验收
+- **产出**：方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -36,33 +37,28 @@
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-- **本步必开技能（质量不降）**：`product-shaping`、`solution-design`、`task-breakdown`、`engineering-quality` → 见 §6 闭环。
-
-- **条件技能**：`product-doc-analysis`（输入含 PRD/原型/产品文档） → 命中则同样走 §6 闭环。
+- **本步必开技能（质量不降）**：`solution-design`、`task-breakdown`、`engineering-quality` → 见 §6 闭环。
 
 ### 本步动作清单
 
-- 技能见 §6 `product-shaping`（产品分析）+ §6 `solution-design` 当前节 + §6 `engineering-quality` + §6 `task-breakdown`（任务拆分）。
+- 技能见 §6 `solution-design` 当前节 + §6 `task-breakdown`（任务拆分）+ §6 `engineering-quality`。
 - 模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
-- 本步只读/写方案卡，不改代码。
-- 把「产品行为 + 技术方案 + 任务 + 验收 + 测试策略 + 风险」压到一页。
-- 输入含文档/原型/截图/接口文档 → 先按 §6 `product-doc-analysis` 的 §0 Brief+差量表相关节（大改动/高风险全节）产出理解摘要，并入方案卡 §0/§1。
-- 一句话输入用产品五字段+假设，不另起理解包。
-- 方案卡 §0 必填「输入与理解」（原文/一句话 + 影响面 + 未确认项）。
-- 大改动/高风险：§0/§1 全节 + 影响面/替代/非目标/AC 追溯/风险。
-- 有文档/原型 → `product-doc-analysis`。
-- 必填：范围/非目标、主流程与状态/权限/异常、改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、测试点（P0/P1/类型）、风险/假设/待确认。
+- 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。
+- 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。
 - 验收表必须可被 `verify/Invoke-Gate.ps1` 读取。
-- 每条 AC 有检查与证据（路径或命令）。
+- 每条 AC 有检查与证据。
 - 自检：AC 可观测。
 - 每个任务有文件与验证。
-- P0 测试点齐。
 - 不把「应该/正常」写成验收。
-- 需要正式评审/发布/QA/UAT/交接 → 转完整链。
+- 需要正式发布/QA/UAT/交接 → 转完整链。
+- 代码/文档评审在本链按条件执行。
 - 技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。
 - confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」。
-- 用户确认后进 build。
-- 「只出轻量方案」→ 本步后直接 closeout，跳过 build/test。
+- 确认后进 review_docs（条件）→ test_plan（代码/配置）或 build（纯文档）。
+- 「只出轻量方案」→ 本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。
+- 测试分析与计划由 test_plan 步产出。
+- 本步不写测试计划/执行结果。
+- 在方案卡 §9 写 review_required（true/false + 理由；L1+ UI/L2+/高风险/新功能 → true）和 do_landing_doc_review（true/false + 理由；L2+/高风险/新功能/落地文档 → true）。
 - 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
@@ -74,8 +70,6 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `product-shaping` | **必开** | 进入本步即开（质量不降） | `skills/product-shaping/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
-| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
 | `solution-design` | **必开** | 进入本步即开（质量不降） | `skills/solution-design/SKILL.md` | 只读 L13-L112（硬门槛+方法+反合理化）→ 回本包 |
 | `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 只读 L12-L107（硬门槛+方法+反合理化）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 只读 L13-L65（硬门槛+方法）→ 回本包 |
@@ -99,5 +93,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=plan | agent=implementer | packet=rules/packets/solo/plan.md | global=ok | skills=product-shaping,product-doc-analysis,solution-design,task-breakdown,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=design | agent=implementer | packet=rules/packets/solo/design.md | global=ok | skills=solution-design,task-breakdown,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

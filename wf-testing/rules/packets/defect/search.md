@@ -42,8 +42,9 @@
 - 回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 做快照 diff。
 - api 读不全 → browser。
 - 仍不全 → 请用户补关键备注/附件，禁只看标题分析。
-- 批量查重/快照 diff 可按单只读扇出。
-- 主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定集中。
+- 批量查重/快照 diff：达只读扇出阈值则按单扇出，未拆记 deviation。
+- 主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定/复测/回写集中。
+- 复测同账号写域禁并行。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 

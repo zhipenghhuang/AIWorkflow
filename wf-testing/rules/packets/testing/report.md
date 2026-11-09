@@ -39,6 +39,7 @@
 ### 本步动作清单
 
 - 按意图/优先级/轨道汇总：结论唯一（PASS/CONDITIONAL/FAIL/BLOCKED）。
+- 失败/待实现与阻塞并存 → 准出优先 FAIL，仅前置阻塞主导 → BLOCKED（报告模板 §0；用例态见 classification.md）。
 - 声明 runId/构建/suite/depth。
 - P0 全过。
 - 全部 P0/P1/P2 意图有终态。

@@ -5,7 +5,7 @@ description: Use when a PRD, iteration plan, requirements document, page prototy
 
 # 产品文档解析与需求理解（技能 · 随包生效）
 
-> 用于：`change.clarify` / `change.analyze_input` / `change.requirements` / `intake.parse`。  
+> 用于：`solo.product`；`change.clarify` / `change.analyze_input` / `change.requirements` / `intake.parse`。  
 > 目标：还原可开发/可测试/可追溯的理解包；先理解，后设计。  
 > 边界：不写方案/代码/任务清单；不替用户裁决冲突；不把原型反推成后端规则。
 
@@ -36,7 +36,7 @@ description: Use when a PRD, iteration plan, requirements document, page prototy
 
 - 输入缺失 → 列 GAP，不默认；不能读的文件 → 请用户给关键段/截图，禁假装已读。
 - 多份文档 → 先定**主读**（通常 PRD/迭代方案），其余为对照；冲突时列双方原文，**默认不静默选边**；用户可声明 `冲突SSOT=指定文档|最新一期`，声明后写入理解包并按 SSOT 执行。
-- 大输入（≥3 份或长文档）→ 按 `rules/collaboration/subagents.md` §2 只读扇出，每份返回“来源/目标/范围/F-R-AC/冲突/GAP ≤30 行”，主上下文统一建模。
+- 大输入（≥3 份或长文档）→ 打开 `rules/collaboration/subagents.md` **仅 §2** → 只读扇出（每份「来源/目标/范围/F-R-AC/冲突/GAP ≤30 行」）→ **回本技能**；主上下文统一建模。
 
 ### 1.1 版本级迭代方案读取（验收矩阵不是开发任务）
 
@@ -268,3 +268,8 @@ requirement_model:
 - fishzjp/qa-skills `requirement-analysis`：需求模型十要素、证据标注、冲突不改写。
 - JohnWayneeee/casely-qa-skill：规格洞（矛盾/不可测措辞/缺失错误路径）。
 - IIBA BABOK（需求分析/追溯）、ISO/IEC/IEEE 29119-3（测试依据）、C4/ADR（设计边界）。
+
+## solo.product 用法
+
+单文档/小改 → 本技能 §4 轻量路径（§0 Brief + 迷你 Delta + 目标/AC/非目标/GAP/假设/置信度）并入方案卡 §0/§1，不另起独立理解包文件；多文档/高风险 → 方案卡 §0 落完整 Brief+Delta。L1+ 用户可见 → 按 §4.2 出用户版说明（独立模板）；`confirm_understanding` 只出示 §0/差量表，`confirm_spec` 再确认方案。`change`/`intake` 仍按本文完整路径。
+

@@ -121,8 +121,12 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "iterate/release_handoff": ["qa-handoff-and-release"],
         "iterate/gates": ["test-design-and-execution"],
         "solo/frame": ["product-shaping"],
-        "solo/plan": ["product-shaping", "product-doc-analysis", "solution-design", "task-breakdown", "engineering-quality"],
-        "solo/build": ["implementation-and-selftest", "engineering-quality"],
+        "solo/product": ["product-shaping", "product-doc-analysis"],
+        "solo/design": ["solution-design", "task-breakdown", "engineering-quality"],
+        "solo/review_docs": ["design-doc-review"],
+        "solo/test_plan": ["test-design-and-execution"],
+        "solo/build": ["implementation-and-selftest", "engineering-quality", "frontend-implementation", "product-doc-analysis"],
+        "solo/review": ["code-review", "engineering-quality"],
         "solo/test": ["test-design-and-execution"],
         "control/init": ["development-plan", "product-doc-analysis"],
         "control/run": ["development-plan"],
@@ -282,7 +286,7 @@ INLINE_RULES = (
     ),
     (
         r"(?:子代理按\s*)?`?rules/collaboration/subagents\.md`?(?:\s*§[\d.]+)?",
-        "子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物",
+        "子代理：达阈值拆或记 deviation；只读扇出/写域隔离；主代理核产物；禁 git/平台/门",
     ),
     (
         r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
@@ -532,6 +536,9 @@ CONDITIONAL_SKILLS = {
     "analytics-and-experimentation": "有指标/埋点/实验",
 }
 
+# Per-step conditional skills: only this step treats the skill as 条件开.
+STEP_CONDITIONAL_SKILLS: dict[tuple[str, str, str], dict[str, str]] = {}
+
 
 COMMIT_CARD = """### 本步规则卡：拟提交块（必填 · 字段已在本包）
 
@@ -632,7 +639,7 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测
 - 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
 - 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」；完成前按来源回指抽查 P0/高风险。
 - 需要独立评审 → 转当前链的 `review` 步；solo 转 `change.review`；不在本步自称已评审。
-- 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
+- 子代理：达阈值拆或记 deviation；只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 
@@ -656,6 +663,11 @@ def step_card(pack_key: str, wid: str, sid: str) -> str:
     return STEP_CARDS.get((pack_key, wid, sid), "")
 
 
+def step_card_append(pack_key: str, wid: str, sid: str) -> str:
+    """Append-only card: keep YAML notes as 动作清单, then add short hard gates."""
+    return STEP_CARDS_APPEND.get((pack_key, wid, sid), "")
+
+
 STEP_CARDS: dict[tuple[str, str, str], str] = {
     ("wf-testing", "testing", "plan"): TEST_PLAN_CARD,
     ("wf-testing", "onboard", "lifecycle"): LIFECYCLE_CARD,
@@ -664,12 +676,16 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
     ("wf-development", "change", "implement"): IMPLEMENT_CARD,
     ("wf-development", "iterate", "implement"): IMPLEMENT_CARD,
     ("wf-development", "solo", "build"): IMPLEMENT_CARD,
-    ("wf-development", "defect-fix", "fix"): IMPLEMENT_CARD,
     ("wf-development", "control", "run"): CONTROL_RUN_CARD,
     ("wf-development", "change", "clarify"): CLARIFY_CARD,
     ("wf-product", "change", "apply"): WRITEBACK_CARD,
     ("wf-product", "defect", "apply"): WRITEBACK_CARD,
     ("wf-product", "defect", "writeback"): WRITEBACK_CARD,
+}
+
+# defect-fix/fix：保留 YAML 分片/mode 动作清单，再追加实施预检卡（勿用 STEP_CARDS 整段替换）。
+STEP_CARDS_APPEND: dict[tuple[str, str, str], str] = {
+    ("wf-development", "defect-fix", "fix"): IMPLEMENT_CARD,
 }
 
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
@@ -686,7 +702,8 @@ TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
     ("wf-development", "iterate", "plan"): "rules/templates/30-planning-tasks/task-list-template.md",
     ("wf-development", "release", "readiness"): "rules/templates/40-delivery/go-live-checklist-template.md",
     ("wf-development", "release", "record"): "rules/templates/40-delivery/release-record-template.md",
-    ("wf-development", "solo", "plan"): "rules/templates/30-planning-tasks/solution-card-template.md",
+    ("wf-development", "solo", "product"): "rules/templates/30-planning-tasks/solution-card-template.md",
+    ("wf-development", "solo", "design"): "rules/templates/30-planning-tasks/solution-card-template.md",
     ("wf-product", "prd", "benchmark"): "rules/templates/10-planning/competitive-benchmark-template.md",
     ("wf-product", "deliver", "uat"): "rules/templates/40-delivery/uat-acceptance-template.md",
     ("wf-product", "deliver", "schedule"): "rules/templates/40-delivery/delivery-plan-template.md",
@@ -862,8 +879,10 @@ def build_work_rules(
     sid: str,
     card: str = "",
     extra_card: str = "",
+    step_conditional: dict[str, str] | None = None,
 ) -> str:
     """Step orchestration rules only — do NOT paste skill bodies (quality lives in skills)."""
+    step_conditional = step_conditional or {}
     parts: list[str] = []
     parts.append(
         "> **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。\n"
@@ -871,8 +890,8 @@ def build_work_rules(
         "**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。\n"
     )
     if skills:
-        must = [s for s in skills if s not in CONDITIONAL_SKILLS]
-        cond = [s for s in skills if s in CONDITIONAL_SKILLS]
+        must = [s for s in skills if s not in CONDITIONAL_SKILLS and s not in step_conditional]
+        cond = [s for s in skills if s in CONDITIONAL_SKILLS or s in step_conditional]
         if must:
             parts.append(
                 "- **本步必开技能（质量不降）**："
@@ -882,7 +901,10 @@ def build_work_rules(
         if cond:
             parts.append(
                 "- **条件技能**："
-                + "、".join(f"`{s}`（{CONDITIONAL_SKILLS[s]}）" for s in cond)
+                + "、".join(
+                    f"`{s}`（{step_conditional.get(s) or CONDITIONAL_SKILLS[s]}）"
+                    for s in cond
+                )
                 + " → 命中则同样走 §6 闭环。\n"
             )
     if card:
@@ -978,7 +1000,13 @@ def skill_section_range(root: Path, name: str) -> tuple[int, int, str] | None:
 
 
 
-def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
+def build_skill_index(
+    root: Path,
+    skills: list[str],
+    notes: str,
+    step_conditional: dict[str, str] | None = None,
+) -> str:
+    step_conditional = step_conditional or {}
     if not skills:
         return (
             "- 本步无技能指向；按 §5 编排执行。\n"
@@ -992,7 +1020,10 @@ def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
         "| --- | --- | --- | --- | --- |",
     ]
     for sk in skills:
-        if sk in CONDITIONAL_SKILLS:
+        if sk in step_conditional:
+            level = "条件开"
+            when = step_conditional[sk]
+        elif sk in CONDITIONAL_SKILLS:
             level = "条件开"
             when = CONDITIONAL_SKILLS[sk]
         else:
@@ -1544,10 +1575,23 @@ def render_packet(
         if "implementation-quality" in notes and not any("实施预检" in e for e in extras):
             extras.append(IMPLEMENT_CARD)
     extra_card = "\n\n".join(extras)
+    if pack_key == "wf-development" and wid == "solo" and sid == "build":
+        extra_card = (
+            extra_card
+            + "\n\n### 测试输入\n- 读本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`；按 P0/P1/P2 与覆盖矩阵实施/自测。"
+        ).strip()
+    step_conditional = STEP_CONDITIONAL_SKILLS.get((pack_key, wid, sid), {})
     work = build_work_rules(
-        root, skills, notes, wid, sid, card=card, extra_card=extra_card
+        root,
+        skills,
+        notes,
+        wid,
+        sid,
+        card=card,
+        extra_card=extra_card,
+        step_conditional=step_conditional,
     )
-    skill_idx = build_skill_index(root, skills, notes)
+    skill_idx = build_skill_index(root, skills, notes, step_conditional)
 
     open_lines: list[str] = []
     uniq_tpl = list(dict.fromkeys(t for t in templates if t))

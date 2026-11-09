@@ -45,7 +45,7 @@ steps:
   - defect-platform
   output: 清单摘要/分组
   notes: 首条回执含 mode=（缺陷批加严，见 subagents）。拉取后读全单：提交信息（标题/steps/数据/环境/附件）＋历史备注/讨论＋产品评估/回复附件； **批量侦察**（子代理编排 ）：≥5 单且读单成本高（多备注/附件/评估单）或合计
-    ≥20k token → 逐单只读扇出（一单/小批一子代理），返回「分类候选/证据缺口/查重键/产品评估要点」≤30 行；编排集中读回执并读关键单原文；不可用→deviation=subagent_skipped:unavailable，仍进
+    ≥20k token → 逐单只读扇出（一单/小批一子代理），返回「分类候选/证据缺口/查重键/产品评估要点」≤30 行；达阈值未扇出→deviation=subagent_skipped:<理由>；编排集中读回执并读关键单原文；不可用→deviation=subagent_skipped:unavailable，仍进
     triage 出分类表。 同号重复修复预检；归组后进入 triage（未 triage 禁改码）。 历史预检跳过项：产品缺陷待产品确认 → 跳过标注「待产品」；已修复未再激活 → 跳过标注「已处理」； 无法确认被激活 → 重新分类处置；产品已回复/已退回
     → 直接进 product_decision。
 - name: 分类与处置
@@ -137,7 +137,8 @@ steps:
     **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改 rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。 实现缺陷→按缺陷修复协作修；产品已认可/修改后认可→按新产品文档/评估单实施；产品改判实现缺陷→按产品说明修，备注引用产品结论。
     复杂实施再按 `rules/templates/20-design/solution-template.md` 展开，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`；简单修复不强制完整方案，但须更新受影响文档/任务清单。
     L2+ / 高风险/大改/破坏性：核验者≠实施者（派 `reviewer-agent` 独立核验或走 `code-review` 技能；只给原单＋diff＋红绿命令；核验不替代门禁），并写 `.gate/review.md` 供完成门核对。
-    **修复分片**（子代理编排）：≥3 单且文件不重叠 → 一组一子代理（worker-agent；默认串行；同文件集合并组）；不达阈值直做；子代理禁 commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
+    **修复分片**（子代理编排）：≥3 单且文件不重叠 → 一组一子代理（worker-agent；文件不相交可并行≤3；同文件/同根因合并组；「同为实现缺陷」alone 不够）；达阈值未分片→deviation=subagent_skipped:<理由>；不达阈值直做；子代理禁
+    commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
 - name: 澄清/非缺陷回写
   id: clarify
   must_read:

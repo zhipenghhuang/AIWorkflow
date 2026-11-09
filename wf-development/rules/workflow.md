@@ -5,8 +5,8 @@
 > **步骤顺序真值是 `workflows/*.yaml`**；本文保留护栏、阶段衔接与文档落位映射，不另立步骤表。  
 > **工作文档根**默认 `{workroot}/`；下表与文内相对路径均相对该根（对外写全路径时带 `{workroot}/` 前缀）。  
 > **计划同步/变更传播/自主边界**：运行时硬条见 `core/global-rules.md` §6/§8；事件级矩阵见 `core/execution-contract.md` §2/§4（参考）；本文不重复。
-> **读取**：只读当前任务需要的节，不要通读；阶段顺序/门以 YAML 为准。  
-> 缺陷 → `skills/debugging-and-error-recovery`；迭代 → `skills/development-plan`；发布/验收 → `skills/acceptance-and-launch` + `skills/qa-handoff-and-release`。  
+> **运行时**：只认当前步骤卡 + §6 技能（+可选模板）；本文参考，禁通读拼流程。阶段顺序/门以 YAML 为准。  
+> **读取**：只读当前任务需要的节，不要通读。方法见当前步 §6 技能（按需打开，做完回步骤卡）。  
 > 步内怎么改/怎么验 → AI 自定（`AGENTS.md` §0.5）。确认门**只认**步上 `hitl:`（标量用 `hitl_when`；列表各项带 `when`）。
 
 ## 0. 开发计划（开发控制面）
@@ -155,14 +155,14 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 3.5 子代理
 
-> 取档/生命周期/并行/降级/派工 → `rules/collaboration/subagents.md`（单一出处）。本条只留不可让边界。
+> 运行时以当前步骤卡/技能为准；取档/生命周期/并行/降级/派工详版按需打开 `rules/collaboration/subagents.md`（单一出处，禁通读）。本条只留不可让边界。
 
 - 先工具/单上下文；达阈值应拆或声明偏差；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
-- **实例（§0）**：分片每任务新开；拆分/波末核验 fresh `reviewer-agent`（禁 resume Writer）；串行下一批默认新开；单写手整波可 1 个 writer，波末仍 fresh 核验。  
+- **实例**：分片每任务新开；拆分/波末核验 fresh `reviewer-agent`（禁 resume Writer）；串行下一批默认新开；单写手整波可 1 个 writer，波末仍 fresh 核验。  
 - **`[P]` 机检**：`validate_tasklist.py` 校验文件重叠/相互依赖/并行>3；FAIL 不派工。  
 - 超时/空产物 → 降级直做；子代理禁 commit/push/开 PR/合并/改平台/改确认门；不过 `hitl`/`gate`；核验后再结论。  
 - 返回须含：任务号/文件/RP·AC 覆盖/验证命令+结果/未决项/规则回执；禁「已完成」空壳。  
-- 高风险/大改/破坏性变更：核验者≠实施者（`agents/reviewer-agent.yaml`，只给产物＋验收＋diff）；核验不替代门禁。
+- 高风险/大改/破坏性变更：核验者≠实施者（只给产物＋验收＋diff）；核验不替代门禁。
 
 ---
 
@@ -249,7 +249,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 需求基线 | `{workroot}/10-requirements/` | `需求-{主题}-{yyyyMMdd}.md` |
 | 产品定义卡（自包含） | `{workroot}/10-requirements/` | `产品定义-{主题}-{yyyyMMdd}.md`（一页；`solo.frame`） |
 | 方案 | `{workroot}/20-design/` | `方案-{主题}-{yyyyMMdd}.md`（迭代绑定；实施入口见文档治理 §5） |
-| 方案卡（自包含） | `{workroot}/20-design/` | `方案卡-{主题}-{yyyyMMdd}.md`（`solo.plan`；含验收表/测试策略） |
+| 方案卡（自包含） | `{workroot}/20-design/` | `方案卡-{主题}-{yyyyMMdd}.md`（`solo.product`/`solo.design`；含验收表；测试见测试计划） |
 | ADR | `{workroot}/30-architecture/ADR/` | `ADR-{序号}-{主题}.md`（长期；被替代标状态） |
 | 技术设计（长期 SSOT） | `{workroot}/30-architecture/` | 现行 API/架构/模块说明；就地更新 |
 | 前端设计说明 | `{workroot}/20-design/` | `前端设计说明-{主题}-{yyyyMMdd}.md` |

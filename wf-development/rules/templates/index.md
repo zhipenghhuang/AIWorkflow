@@ -30,10 +30,10 @@
 | --- | --- | --- |
 | `10-planning/development-plan-template.md` | control.init / onboard.control | L2+ 开发计划 |
 | `10-planning/requirement-ledger-template.md` | onboard.docs / change.requirements | {workroot}/10-requirements/ |
-| `10-planning/requirement-understanding-template.md` | change.analyze_input / intake.parse | §0 Brief+Delta 门面 + 下钻理解包 |
-| `10-planning/user-facing-change-notes-template.md` | change.analyze_input | 用户可读变化说明；AI 业务全景索引；L1+ 用户可见变化必出 |
+| `10-planning/requirement-understanding-template.md` | change.analyze_input / intake.parse | §0 Brief+Delta 门面 + 下钻理解包；solo 不产独立理解包（理解摘要并入方案卡） |
+| `10-planning/user-facing-change-notes-template.md` | change.analyze_input；solo.product（L1+ 用户可见，条件） | 用户可读变化说明；AI 业务全景索引；L1+ 用户可见变化必出 |
 | `10-planning/requirement-baseline-template.md` | change.requirements | 需求/AC/NFR/非目标 |
-| `10-planning/product-definition-card-template.md` | solo.frame | 一页产品定义：问题/用户/价值/MVP/非目标/成功标准/风险 |
+| `10-planning/product-definition-card-template.md` | solo.frame（可选） | 一页产品定义：问题/用户/价值/MVP/非目标/成功标准/风险 |
 | `10-planning/change-record-template.md` | {workroot}/00-governance/ | CR 留痕 |
 | `10-planning/open-items-template.md` | {workroot}/00-governance/ | OPEN 跟踪 |
 | `10-planning/decision-record-template.md` | {workroot}/00-governance/ | DEC 留痕 |
@@ -54,7 +54,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `30-planning-tasks/task-list-template.md` | change.plan / iterate.plan | RP/AC/DoR/DoD |
-| `30-planning-tasks/solution-card-template.md` | solo.plan | 一页方案卡：产品行为/技术/任务/验收/测试/风险 |
+| `30-planning-tasks/solution-card-template.md` | solo.product / solo.design | 产品分析+方案+任务+验收+风险；测试见测试计划 |
 | `30-planning-tasks/dev-card-lite-template.md` | change.clarify / iterate.plan（L1） | 目标/AC/改动面/verify/回滚；L0 不用 |
 
 ## 40-delivery
@@ -67,7 +67,8 @@
 | `40-delivery/go-live-checklist-template.md` | release.readiness | 硬项/NO-GO |
 | `40-delivery/release-record-template.md` | release.record | 实际步骤/verify/观察 |
 | `40-delivery/uat-acceptance-template.md` | release.acceptance | 逐条 AC |
-| `40-delivery/lite-test-report-template.md` | solo.test | 开发测试报告：范围/测试点/结果/证据/defects/缺口/verdict |
+| `40-delivery/solo-test-plan-template.md` | solo.test_plan | 测试分析与计划：来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测 |
+| `40-delivery/lite-test-report-template.md` | solo.test / 无 QA 的 change.verify·iterate.gates | 开发测试报告：执行结果/证据/verdict；测试分析与计划见测试计划 |
 | `40-delivery/defect-writeup-template.md` | defect-fix.close / 缺陷处置 | 平台备注/附件/状态/指派文案骨架；**close 必读 §6.0/§6.1/§6.9/§6.10** |
 
 ## 60-retro

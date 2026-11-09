@@ -5,7 +5,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 
 # 测试设计与执行（开发自包含链 · 随包生效）
 
-> 用于：`solo.test`；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务rules/接口行为时**必用**（见 `lightweight.md` §4.1）。
+> 用于：`solo.test`；`solo.test_plan`（测试分析与计划）；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务rules/接口行为时**必用**（见 `lightweight.md` §4.1）。
 > 目标：用**按风险完整集**做**开发测试/自验**——回答「这次改动能不能用」；大改动/高风险全节，不是堆用例数量，也不是版本准出。
 > 边界：不替代完整测试包的测试计划/用例库/覆盖三闸/准出门；结论用语写「开发测试/自验 / 可交付」，禁写「已准出」。
 > 口径：`rules/core/lightweight.md` §4～§4.1；门禁与证据见 `verify/README.md`；P0 未过不得判整体通过。
@@ -23,7 +23,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 
 ## 1. 先建测试卡（5～10 行）
 
-在方案卡的「测试策略」或测试报告开头写清：
+在测试计划文件、方案卡「测试策略」或测试报告开头写清：
 
 | 项 | 内容 |
 | --- | --- |
@@ -79,6 +79,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 
 - 构建/环境可访问；账号/数据就绪；知道本次构建对应的提交。
 - 先读方案卡 AC 与测试点，按 AC 来源回指原文，并合看原型/接口/现有实现；预期来自原文/AC/契约/用户裁决，不按现网实现或派生摘要改预期。
+- **判定对账**：每条 AC/测试点落结果前打开来源对应段；验收表「判定」只认可观测结果（对照 AC Then/原文），禁「看起来正常/无报错」；入口自身失败≠前置阻塞（有界穷尽后才阻塞）。
 - 记录开始时间；截图/证据必须晚于任务开始。
 
 **顺序**
@@ -151,6 +152,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 | 「测试报告太麻烦，写收尾里」 | 至少写 verdict/P0/缺口；否则无法对账。 |
 | 「无 QA / 个人项目不用测」 | 跳过提测单 ≠ 跳过自验；L1+ 用户路径仍须最小充分集。 |
 | 「build 绿 + 自验 PASS = 已准出」 | 自验只证本轮可用；版本准出归测试包/测试负责人。 |
+| 「看起来正常就算通过」 | 须对照原文/AC 可观测断言 + 证据；禁口头通过。 |
 
 ## 8. 红旗
 
@@ -171,3 +173,8 @@ description: Use when a change needs functional testing, acceptance checks, expl
 - [ ] 报告 verdict 与结果表一致；证据路径存在；用语为开发自验。
 - [ ] 未测项显式列出，没有「应该没问题」。
 - [ ] 需要正式测试计划/用例库/准出时，已提示转测试包，不在本技能内冒充。
+
+## solo 用法
+
+`solo.test_plan` 写测试分析与计划（来源/AC 账本、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、不测、回归锚点）；`solo.test` 报告只写执行结果，不重复计划。`change`/`iterate` 仍按本技能 §1～§4 原要求。
+

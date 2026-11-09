@@ -31,8 +31,8 @@
 | **分片档** | 读：≥20k token /≥5 文件；写：**≥3 个可独立任务且文件集不相交**（含清单已标 `[P]`） | 一任务/一模块/一 bug 一子代理（§0 新开）；读可并行；写文件不相交可并行≤3；批末门禁→核验→下一批 | `.draft/{任务}/`＋正式产物 |
 | **拆分档** | 高风险/大改/破坏性/需独立核验 | Writer → 同回合 fresh `reviewer-agent`（§0）→ 编排合并 | 草稿＋正式产物 |
 
-**开跑声明（每波/每批实施开工前）**：一行 `mode=工具|直做|单写手|分片|拆分 | reason=...`；直做也写 reason；达阈值未拆记 `deviation=subagent_skipped:<理由>`。  
-**缺陷批加严**：进入 `defect-fix` 的 pull/triage/fix 波次，首条有效回执须含 `mode=`（缺则补写再继续）；宿主无子代理 → `mode=直做|单写手` + `deviation=subagent_skipped:unavailable`，**不得省略 triage 分类表**（见 `fix-collaboration.md` §4.0）。同文件集默认 `mode=单写手`。
+**开跑声明（每波/每批实施开工前）**：一行 `mode=工具|直做|单写手|分片|拆分 | reason=...`；直做也写 reason；达阈值未拆记 `deviation=subagent_skipped:<理由>`（不得静默跳过）。  
+**缺陷批加严**：进入 `defect-fix` 的 pull/triage/fix 波次，首条有效回执须含 `mode=`（缺则补写再继续）；宿主无子代理 → `mode=直做|单写手` + `deviation=subagent_skipped:unavailable`，**不得省略 triage 分类表**（见 `fix-collaboration.md` §4.0）。同文件集默认 `mode=单写手`。合并组＝同文件集或同根因（「同为实现缺陷」alone 不够）。
 
 > **单写手 ≠ 免评审**：同一文件集/整波可由本会话或 1 个 writer 子代理串行完成，但波末仍须 `reviewer-agent` 独立评审；L 任务内部拆，不因单写手合并 L。
 

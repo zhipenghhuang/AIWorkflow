@@ -3,7 +3,7 @@
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: solo
-  name: 自包含完整链（产品→开发→测试）
+  name: 自包含完整链（产品→开发→评审→测试）
   version: 1
   terminal: closeout
 entry_points:
@@ -14,11 +14,13 @@ entry_points:
   我有个想法: frame
   想法落地: frame
   小项目: frame
-  轻量方案: plan
-  只出轻量方案: plan
+  产品分析: product
+  轻量方案: design
+  只出轻量方案: design
   轻量测试: test
 trigger:
 - 轻量开发 / 自包含开发 / 无正式迭代 / 小改动 / 我有个想法 / 想法落地 / 小项目
+- 产品分析
 - 轻量方案 / 只出轻量方案
 - 轻量测试
 steps:
@@ -28,47 +30,105 @@ steps:
   - rules/packets/solo/frame.md
   when: new_product_or_unclear_idea
   agent: implementer
+  on_fail: 停在本步/问用户
   output: 产品定义卡（{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md）
   notes: 技能：`skills/product-shaping/SKILL.md`（先读再做）；口径 `rules/core/lightweight.md`。 只在「新想法/新产品/方向不清」时走；无正式迭代/正式协作 → 本链；有正式协作/迭代或产品/测试按迭代/版本正式介入
     → 完整链，不进本步。 大改动/高风险也走本链，按 `lightweight.md` 提高产品分析与测试证据。 小改/需求已清楚 → 跳过本步，直接 plan（方案卡 仍须产品最小硬门槛五字段）。 本步不单独停：产出直接进 plan，由
     `confirm_spec` 一次确认；方向存在 ≥2 个互斥选择时，在方案卡里列选项与推荐，仍只停一次。 只问影响方向/范围/成功标准的问题：首轮 0～1 个，总 ≤3；是否正式协作/正式流程拿不准 → 推荐 + 一问确认；体量/风险不换链。
     产出：问题/用户与场景/现有替代/价值/成功标准/MVP/非目标/关键风险/假设；每条标 [事实]/[假设]/[待验证]； 五字段必齐。 产品定义卡一页；不写完整 PRD、不写技术方案、不做市场调研（用户点名除外）。 输入含 PRD/原型/文档
     → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要，再填本卡，不重复问已确认项。
-- name: 产品分析与方案
-  id: plan
+- name: 产品分析
+  id: product
   must_read:
-  - rules/packets/solo/plan.md
+  - rules/packets/solo/product.md
+  - rules/templates/30-planning-tasks/solution-card-template.md
+  agent: implementer
+  hitl:
+  - name: confirm_understanding
+    when: solo_understanding_needs_confirm
+  on_fail: 停在本步/问用户
+  output: 方案卡（产品部分：§0/§0.1/§1）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）；L1+ 用户可见时附用户版说明（{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md）
+  notes: 技能：`skills/product-shaping/SKILL.md`（产品分析）+ `skills/product-doc-analysis/SKILL.md`（输入含文档/原型）；模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
+    本步只写方案卡产品部分（§0/§0.1/§1），不写技术方案/任务/测试，不改代码。 输入含文档/原型/截图/接口文档 → 按 §0 Brief+差量表相关节（大改动/高风险全节）产出理解摘要，并入 §0/§1；一句话输入用产品五字段+假设，不另起理解包。
+    §0 必填「输入与理解」；大改动/高风险：§0/§0.1/§1 全节 + 影响面/替代/非目标/AC 追溯/风险。 confirm_understanding：有文档/原型/多源或高风险时出示 §0 Brief/差量表/待确认；确认后进
+    design；不写需求基线/设计/拆单。 L1+ 用户可见 → 用户版说明 `rules/templates/10-planning/user-facing-change-notes-template.md`（参考模板，仅命中时开）；产品定义卡仅
+    frame，方案卡引用不重复。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
+- name: 方案与验收
+  id: design
+  must_read:
+  - rules/packets/solo/design.md
   - rules/templates/30-planning-tasks/solution-card-template.md
   agent: implementer
   hitl: confirm_spec
-  output: 方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
-  notes: 技能：`skills/product-shaping/SKILL.md`（产品分析）+ `skills/solution-design/SKILL.md` 当前节 + `skills/engineering-quality/SKILL.md`
-    + `skills/task-breakdown/SKILL.md`（任务拆分）；模板 `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只读/写方案卡，不改代码；把「产品行为
-    + 技术方案 + 任务 + 验收 + 测试策略 + 风险」压到一页。 输入含文档/原型/截图/接口文档 → 先按 `skills/product-doc-analysis/SKILL.md` 的 §0 Brief+差量表相关节（大改动/高风险全节）产出理解摘要，并入方案卡
-    §0/§1；一句话输入用产品五字段+假设，不另起理解包。 方案卡 §0 必填「输入与理解」（原文/一句话 + 影响面 + 未确认项）。 大改动/高风险：§0/§1 全节 + 影响面/替代/非目标/AC 追溯/风险；有文档/原型 → `product-doc-analysis`。
-    必填：范围/非目标、主流程与状态/权限/异常、改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、测试点（P0/P1/类型）、风险/假设/待确认。 验收表必须可被 `verify/Invoke-Gate.ps1`
-    读取；每条 AC 有检查与证据（路径或命令）。 自检：AC 可观测；每个任务有文件与验证；P0 测试点齐；不把「应该/正常」写成验收。 需要正式评审/发布/QA/UAT/交接 → 转完整链；技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。
-    confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；用户确认后进 build；「只出轻量方案」→ 本步后直接 closeout，跳过 build/test。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
+  precondition: product 已完成；方案卡 §0/§1 已冻结；产品/AC 未确认不得写技术方案
+  on_fail: 回 product 修产品分析；范围/AC 不清先停下说明
+  output: 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
+  notes: 技能：`skills/solution-design/SKILL.md` 当前节 + `skills/task-breakdown/SKILL.md`（任务拆分）+ `skills/engineering-quality/SKILL.md`；模板
+    `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。
+    验收表必须可被 `verify/Invoke-Gate.ps1` 读取；每条 AC 有检查与证据。 自检：AC 可观测；每个任务有文件与验证；不把「应该/正常」写成验收。 需要正式发布/QA/UAT/交接 → 转完整链；代码/文档评审在本链按条件执行；技术上的接口/迁移/安全
+    → 在本链补方案与测试证据，不因体量换链。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；确认后进 review_docs（条件）→ test_plan（代码/配置）或 build（纯文档）；「只出轻量方案」→
+    本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。 测试分析与计划由 test_plan 步产出；本步不写测试计划/执行结果。 在方案卡 §9 写 review_required（true/false
+    + 理由；L1+ UI/L2+/高风险/新功能 → true）和 do_landing_doc_review（true/false + 理由；L2+/高风险/新功能/落地文档 → true）。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
+- name: 落地文档评审
+  id: review_docs
+  must_read:
+  - rules/packets/solo/review_docs.md
+  when: do_landing_doc_review
+  agent: doc-reviewer
+  hitl:
+  - name: select_review_mode
+    when: need_select_review_mode
+  on_fail: 回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build
+  output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
+  notes: 技能：`skills/design-doc-review/SKILL.md`（只读必做区）。 STOP 选 A/B；未选不得进 test_plan/build；本步不审 diff（代码走 review）；审方案卡/验收表/用户版说明；缺口回
+    design；结论落 20-design 或 50-verification（按项目约定）。 本步触发以方案卡 §9 do_landing_doc_review 为准；L0/L1 小改可 false + 理由；L2+/高风险/新功能/落地文档
+    → true。
+- name: 测试分析与计划
+  id: test_plan
+  must_read:
+  - rules/packets/solo/test_plan.md
+  - rules/templates/40-delivery/solo-test-plan-template.md
+  agent: test-planner
+  when: plan_has_code_change
+  on_fail: 回 design 修方案卡；AC/范围不清先停下说明
+  output: 测试分析与计划（{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md）
+  notes: 技能：`skills/test-design-and-execution/SKILL.md`（测试卡/设计）；模板 `rules/templates/40-delivery/solo-test-plan-template.md`。
+    输入：方案卡 §0/§1/§4（理解/产品行为/AC）；只做测试分析与计划，不改代码。 产出：来源/AC 账本、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、不测、回归锚点。 纯文档 `plan_has_code_change=false`
+    跳过；代码/配置必产。 测试报告只写执行结果，不重复本计划。
 - name: 完整开发与自测
   id: build
   must_read:
   - rules/packets/solo/build.md
   agent: implementer
-  precondition: plan 已确认；方案卡验收表已冻结；范围/AC 未确认不得写代码
-  on_fail: 回 plan 修方案卡；范围超出先停下说明
+  precondition: design 已确认；代码/配置：测试分析与计划已产出；do_landing_doc_review=true → review_docs 已通过；方案卡验收表已冻结；范围/AC 未确认不得写代码
+  on_fail: 回 design 修方案卡；范围超出先停下说明
   output: 代码/配置改动 + 自测证据
   notes: '**动手前硬门**：勾选 `iq-checklist.md`；有行为变化须 DEV-IQ-09【实施预检】且**命中面先扩 SC/债项**（未扩表=预检无效，禁改码）；有方案条款时 SC 差集=0（DEV-IQ-12）；命中重要面
     → DEV-IQ-10 同批硬补（自包含不降硬补）。方法 `implementation-and-selftest`；细则 `implementation-quality.md`/§4.3。 技能：`implementation-and-selftest`（先读再改）+
     `engineering-quality`；预检命中面再读对应技能当前节；失败时 + `debugging-and-error-recovery`。 动手前写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask
     -TaskId "<任务ID>" -ProjectRoot "."`（仅本步；frame/plan 不计窗口）。 按方案卡验收表+预检扩出的 SC 实施；**可验证单元=一条 SC**（自证后再下一条；页面能开≠单元完成）；前端按 `verify/frontend/acceptance.md`
-    留状态/视口/console/network 截图。 可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。 需要正式评审/发布 → 转完整链；技术上的多模块/接口/数据 → 按方案拆分与补证据，不因体量换链；本步不冒充已评审。
-    实施完更新方案卡「执行记录」与任务状态，准备 test。'
+    留状态/视口/console/network 截图。 可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。 需要正式发布/QA/UAT/交接 → 转完整链；代码评审走 review 步；技术上的多模块/接口/数据
+    → 按方案拆分与补证据，不因体量换链；本步不冒充已评审。 读本轮「测试分析与计划」；实施完更新方案卡「执行记录」与任务状态，准备 test。'
+- name: 代码评审
+  id: review
+  must_read:
+  - rules/packets/solo/review.md
+  when: review_required
+  agent: reviewer-agent
+  precondition: 有 UI → .gate/frontend/parity-matrix.md/route-coverage.json/design-qa.md 存在且非空；高风险 → .gate/plan-coverage.md（如已生成）；非前端/低档
+    → 无
+  on_fail: 回 build 补前端交付物/方案覆盖；不得以代码/测试/API 200 代替，不得判通过
+  output: 评审结论/缺口 + .gate/review.md
+  notes: 技能：`skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md`。 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md；有
+    UI 核 parity 产物；免审须记理由；免审不免自测；方法只认 code-review。 本步触发以方案卡 §9 review_required 为准；L0/L1 小改可 false + 理由；L1+ UI/L2+/高风险/新功能/点名
+    → true。
 - name: 测试与验收
   id: test
   must_read:
   - rules/packets/solo/test.md
   - rules/templates/40-delivery/lite-test-report-template.md
   agent: verifier-agent
+  precondition: review_required=true → review 已通过（.gate/review.md 无阻断）；测试计划已产出；方案卡验收表冻结
   gate: completion-gate
   gate_type: machine
   gate_when: solo_gate_required
@@ -76,8 +136,9 @@ steps:
   output: 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json
   notes: 技能：`skills/test-design-and-execution/SKILL.md`（先读再做）；模板 `rules/templates/40-delivery/lite-test-report-template.md`；口径
     `lightweight.md`；门禁见 `verify/README.md`。 **开发测试/自验**（非准出）：按方案卡测试点 + **AC 走查**；覆盖集（按风险完整，不是只跑一条）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+
-    受影响回归；大改动/高风险：报告全节 + 独立 verifier + 回归/安全/回滚证据；L1+ 前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）；纯文档/无行为可
-    `na`；前端门第 7 项的独立评审 → 升级 `change.review`；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例
+    受影响回归；报告只写执行结果，测试分析与计划见本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`；P2/回归锚点：高风险必填、纯文档 na；大改动/高风险：报告全节 + 独立 verifier + 回归/安全/回滚证据；L1+
+    前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）；纯文档/无行为可 `na`；前端门第 7 项的独立评审 → 走 review 步（review_required）；有
+    review → 核 `.gate/review.md` 缺口闭环；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例
     + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。 测试报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发测试/自验）；P0
     未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/wf-development/completion.json`；非
     COMPLETE 不得进 closeout 报完成。 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/检查/结果/证据/缺口），不跑 completion-gate；closeout 写 `verification=not_applicable`。
@@ -90,5 +151,6 @@ steps:
   hitl:
   - name: confirm_commit
     when: has_pending_commit
+  on_fail: 停在本步/问用户
   output: 任务收尾 + 拟提交确认
   notes: 收尾与提交；共享终端；状态=done。

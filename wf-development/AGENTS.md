@@ -4,9 +4,9 @@
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
-> **已路由中段**：全局规则本会话已读则不重读全文；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐。  
+> **已路由中段**：全局规则本会话已读则不重读全文；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.09.02`  
+> **template_version**：`2026.11.09.05`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -35,7 +35,7 @@
 | 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
 | 文档 | 团队正式迭代内的纯文档/文案/注释 | clarify→implement→verify→closeout | 需求/方案/任务/评审/测试命令（门只核 docs-links/docs-placeholders） |
-| 自包含完整链 | 无正式迭代/正式协作（单人或团队，含大改动/高风险）；需正式发布/QA/交接 → 完整链 | `solo`：产品分析→方案→完整开发→测试→完成门 | 无（产品分析/测试不省；正式协作产物有则消费） |
+| 自包含完整链 | 无正式迭代/正式协作（单人或团队，含大改动/高风险）；需正式发布/QA/交接 → 完整链 | `solo`：产品分析→方案→评审→完整开发→评审→测试→完成门 | 无（产品分析/评审/测试不省；正式协作产物有则消费） |
 | 标准代码 | 团队正式迭代内的代码/配置变更，单点/≤3 文件/≤1 模块，且不改 API/数据模型/权限 | clarify→implement→verify→closeout | requirements/design/review-docs/plan/review（须记录理由与风险接受人） |
 | 完整交付 | 团队正式迭代/正式协作内的 >3 文件 / >1 模块 / 新功能/接口/数据 / 改 API·数据·权限 | clarify→requirements→design?→review-docs→plan→implement→review→verify→deliver→closeout | 仅 `when` 为假的步可跳，收尾 `skip=` |
 | 高风险 | 团队正式迭代/正式协作内的权限/资金/迁移/公共 API/破坏性；或需要正式安全/发布审批 | 完整交付 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
@@ -85,7 +85,7 @@
 | 4.4 | 导出资料库/发资料 | `materials` | select→… |
 | 5 | 提交/推送 | 当前 workflow 末步（`closeout`）或 `change` | 对应角色 |
 | 5.1 | 自包含完整链/无正式迭代/轻量开发 | `solo` | frame |
-| 5.2 | 方案/只出方案 | `solo` | plan |
+| 5.2 | 方案/只出方案 | `solo` | design |
 | 5.3 | 测试/单独实测 | `solo` | test |
 | 6 | 常规变更/需求澄清 | `change` | clarify |
 | 6.1 | 分析 PRD/方案/原型 | `change` | analyze_input |
@@ -132,7 +132,8 @@
 开发包单独落地时，产品与测试的最小职责由开发自代行，**内容全部在本包内**：
 
 - **产品**：需求/范围/AC/影响面/非目标/风险；输入含文档/原型 → `product-doc-analysis`；方向不清列选项+推荐；不是只开发。用本包 `requirements-and-spec` / `product-shaping` / `acceptance-and-launch`。
-- **测试**：设计 → 执行 → 报告；AC 走查/P0/P1/覆盖/证据/缺口；大改动/高风险全节 + 独立 verifier；用本包 `test-design-and-execution` / `implementation-and-selftest`。不代写版本级测试计划/准出结论。
-- **链路**：产品分析 → 方案 → 完整开发（本地验证）→ 测试 → 收尾；产物按 `10-requirements`/`20-design`/`40-tasks`/`50-verification`/`60-release` 落位。
+- **测试**：分析/计划（`solo.test_plan`）→ 执行 → 报告；AC 走查/P0/P1/P2/覆盖/证据/缺口；大改动/高风险全节 + 独立 verifier；用本包 `test-design-and-execution` / `implementation-and-selftest`。不代写版本级测试计划/准出结论。
+- **评审**：`solo.review_docs`（条件）审方案卡/验收表/用户版；`solo.review`（条件）审 diff/AC/SC/前端产物；L1+ UI/L2+/高风险/新功能 → true；L0/L1 小改可 false + 理由；不冒充已评审。
+- **链路**：产品分析 → 方案 → 评审 → 完整开发 → 评审 → 测试 → 收尾；产物按 `10-requirements`/`20-design`/`40-tasks`/`50-verification`/`60-release` 落位。
 - **有独立产品/测试且已按迭代/版本正式介入本轮交付时**：以对方职责为准，开发只做本地自测 + 部署冒烟；无正式迭代仍按本节由开发补产品分析与测试。
 

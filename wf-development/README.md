@@ -9,7 +9,7 @@
 执行宿主（任意支持 AGENTS 的 AI 编码工具，要求见本文「宿主适配」节）按 YAML 步骤执行；步内实现路径交 AI（框架固定 · 局部自主）。  
 **产品文档解析**：输入含 PRD/迭代方案/文档/页面原型/截图时，先按 `skills/product-doc-analysis/SKILL.md` 产出需求理解包——**§0【业务与变更简报】+【本期差量表】置顶**（人类快查本期增/改/删），下钻含引用、冲突、GAP、假设与置信度；确认门主屏出示 §0。同轮生成**用户版业务变化说明**（`{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md`；L1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。再按 `rules/core/clarification.md` 先分析、只问意图/范围/验收/风险，技术细节给建议，首轮 0～1 问、总≤3，确认后才进需求基线/方案/实施。
 **完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（前端需要补设计时才另出前端设计说明；产品方案完整则直接实现）→ 任务清单 → 实现/自测 → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/verify/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
-**自包含完整链（solo）**：无正式迭代/正式协作时默认走 `workflows/solo.yaml`：产品分析（按需 frame + 方案卡）→ 一次方案确认 → 完整开发 → 测试（设计→执行→报告）→ 完成门 → 收尾；不依赖产品/测试包，不是只开发，也不降标。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；有正式迭代/正式协作 → 走完整链（`change`/`iterate`），开发消费对方产物，不重复。细则见 `rules/core/lightweight.md`。  
+**自包含完整链（solo）**：无正式迭代/正式协作时默认走 `workflows/solo.yaml`：产品分析 → 方案与验收（一次方案确认）→ 评审（条件）→ 测试分析与计划 → 完整开发 → 代码评审（条件）→ 测试报告 → 完成门 → 收尾；不依赖产品/测试包，不是只开发，也不降标。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；有正式迭代/正式协作 → 走完整链（`change`/`iterate`），开发消费对方产物，不重复。细则见 `rules/core/lightweight.md`。  
 **独立落地**：本包可单独使用；不要求安装产品/测试包。缺他包产物时一句缺口并用本包模板补（产品最小硬门槛 + 开发自验），**不因「个人/无 QA」降标**。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；本包仍独立执行自己的 workflow；开发自验 ≠ 版本准出。  
 **产品缺陷流转**：开发判定产品缺陷 → 出评估单 → **有平台则以平台回写+指派为主**（不强制再打 BUG 交接包）；无平台/点名交接包 → 先问后发自包含评估包。产品确认后回流开发。三包独立；多包同仓直读不转发。  
 **全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`rules/core/global-rules.md` §5/§12；细则 `skills/engineering-quality` §1.1～1.2、`skills/frontend-design` §5.1）。
@@ -19,7 +19,7 @@
 | 路径 | 作用 |
 | --- | --- |
 | `workflows/` | 流程定义：`solo`（自包含完整链）/ `intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划）/ `materials`（权威文档库）/ `skill-audit`（能力技能体检） |
-| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / onboard-agent / delivery-lead / worker-agent |
+| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / **test-planner** / onboard-agent / delivery-lead / worker-agent |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（结构 `skills/<name>/SKILL.md`；编号→路径映射见 `skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |

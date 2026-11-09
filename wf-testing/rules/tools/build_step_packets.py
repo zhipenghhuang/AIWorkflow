@@ -279,7 +279,7 @@ INLINE_RULES = (
     ),
     (
         r"(?:子代理按\s*)?`?rules/collaboration/subagents\.md`?(?:\s*§[\d.]+)?",
-        "子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物",
+        "子代理：达阈值拆或记 deviation；只读扇出；复测串行；主代理核产物；禁平台/门",
     ),
     (
         r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
@@ -580,10 +580,18 @@ TEST_PLAN_CARD = """### 本步规则卡：先分析，再计划
 - **执行双读预告**：分析是原文索引，不替代；后续执行须打开原文对应段并另读 ≥1 互补源，禁只读分析。
 - **优先级**：P0 门禁/阻断必须全过；P1 核心必须执行并出结论；P2 常规必须执行并出结论或 N/A+依据+接受人。P0/P1/P2 都是覆盖义务，不是免测开关。
 - **计划只做总排**：范围、分析引用/计数、影响面/核心链路摘要、类型/轨道、轮次/批次、探索、准入准出、缺陷策略、状态/日志；不重复分析大表。
+- **§3.1 批次（硬）**：按 §7 计划模板 §3.1 填形态/并行/隔离（§6 技能闭环打开该节；勿另开协作/手册）；未按模板填=未完成；子代理≠并行。
 - **命令入口**：用户说「根据 XX 迭代生成测试计划」时，本步内完成分析 + 计划；不要求再单独说「分析需求」。
-- **计划门**：主屏展示分析关键结论 + 计划摘要；分析未确认不写计划，计划未确认不执行。
+- **计划门**：主屏展示分析关键结论 + 计划摘要（含批次形态一句）；分析未确认不写计划，计划未确认不执行。
 - 执行时按计划展开全部在范围 P0/P1/P2 意图；场景在执行时生成并写执行记录，不预生成全量用例。
-- 方法质量按 §6 必开技能闭环；本卡写门槛，技能写做法。"""
+- 方法质量按 §6 必开技能闭环；本卡写门槛，技能+模板写做法。"""
+
+TEST_EXECUTE_CARD = """### 本步规则卡：计划驱动执行编排
+
+- **取档真值**：先读计划 §3.1；缺行按决策树补（脚本→点名→接口单 Agent→无 Task 直跑→继续单模块直跑→≥2 模块子代理→大单拆分）；隔离不成立 → 串行并记 `plan_batch_conflict`。详档仅在 §6 执行技能闭环按需打开。
+- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`；对照决策树一句。
+- **子代理**：模块/拆分档走 Task；一模块一新开；拆分档 Reviewer 须 fresh（禁 resume Worker）；返回 ≤30 行；不过门、不 git、不交平台、不改他模块。
+- **质量锁**：同一意图禁并行；共享写域串行；质量优先于并行；不采信口头完成。"""
 
 LIFECYCLE_CARD = """### 本步规则卡：文档治理扫描
 
@@ -634,12 +642,17 @@ WRITEBACK_CARD = """### 本步规则卡：平台回写
 
 
 def step_card(pack_key: str, wid: str, sid: str) -> str:
-    """Step-local rule card: commit/wrap all chains; key steps explicit."""
+    """Step-local rule card that replaces YAML notes (commit/wrap/plan-style)."""
     if sid == "commit":
         return COMMIT_CARD
     if sid == "wrap":
         return WRAP_CARD
     return STEP_CARDS.get((pack_key, wid, sid), "")
+
+
+def step_card_append(pack_key: str, wid: str, sid: str) -> str:
+    """Extra hard gates appended after notes (does not drop action list)."""
+    return STEP_CARDS_APPEND.get((pack_key, wid, sid), "")
 
 
 STEP_CARDS: dict[tuple[str, str, str], str] = {
@@ -655,6 +668,11 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
     ("wf-product", "change", "apply"): WRITEBACK_CARD,
     ("wf-product", "defect", "apply"): WRITEBACK_CARD,
     ("wf-product", "defect", "writeback"): WRITEBACK_CARD,
+}
+
+# Append-only cards: keep YAML notes as 动作清单, then add short hard gates.
+STEP_CARDS_APPEND: dict[tuple[str, str, str], str] = {
+    ("wf-testing", "testing", "execute"): TEST_EXECUTE_CARD,
 }
 
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
@@ -845,6 +863,7 @@ def build_work_rules(
     wid: str,
     sid: str,
     card: str = "",
+    append_card: str = "",
     extra_card: str = "",
 ) -> str:
     """Step orchestration rules only — do NOT paste skill bodies (quality lives in skills)."""
@@ -877,6 +896,9 @@ def build_work_rules(
         parts.append("")
     else:
         parts.append(notes_to_howto("", wid))
+        parts.append("")
+    if append_card:
+        parts.append(append_card)
         parts.append("")
     if extra_card:
         parts.append(extra_card)
@@ -1478,6 +1500,7 @@ def render_packet(
     gate_lines.append(packet_advance(pack_key, wid, sid))
 
     card = step_card(pack_key, wid, sid)
+    append_card = step_card_append(pack_key, wid, sid)
     gate_text = " ".join(gates.get(hn) or "" for hn, _ in hitl_pairs(step))
     extras: list[str] = []
     if not card:
@@ -1489,7 +1512,14 @@ def render_packet(
             extras.append(IMPLEMENT_CARD)
     extra_card = "\n\n".join(extras)
     work = build_work_rules(
-        root, skills, notes, wid, sid, card=card, extra_card=extra_card
+        root,
+        skills,
+        notes,
+        wid,
+        sid,
+        card=card,
+        append_card=append_card,
+        extra_card=extra_card,
     )
     skill_idx = build_skill_index(root, skills, notes)
 

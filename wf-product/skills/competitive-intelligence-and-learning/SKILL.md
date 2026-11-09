@@ -29,7 +29,7 @@ description: Use when analyzing market competitors, benchmarking feature parity,
 | 资料来源 | 官网/定价页/帮助中心/试用/应用商店评/公开案例；每条 **链接+日期**；禁凭印象 |
 | 能力 | `browser-mcp` 已装则打开页面取证；未装=用户粘贴/截图/链接，不阻塞 |
 
-**扇出**（`rules/collaboration/subagents.md` §2）：≥4 独立竞品/来源 → 按来源只读扇出，返回证据表 ≤30 行；定位/借不借/对标结论**集中**由主 agent 写。
+**扇出**（达阈值才开）：≥4 独立竞品/来源 → 打开 `rules/collaboration/subagents.md` **仅 §2** → 按来源只读扇出（返回 ≤30 行）→ **回本技能**；定位/借不借/对标结论**集中**由主 agent 写。
 
 ## 2. 模式 S — 选择性学习（分析 → 借/改编/不借 → 验证）
 

@@ -4,8 +4,8 @@
 
 > **步骤顺序真值是 `workflows/*.yaml`**（相对本包根）；本文保留铁律、产物路径、拟提交与收尾骨架，不另定步骤顺序。  
 > **计划同步/变更传播/自主边界**：运行时硬条见 `core/global-rules.md` §6/§8；事件级矩阵见 `core/execution-contract.md` §2/§4（参考）；本文不重复。
-> **读取**：只读当前任务需要的节，不要通读；阶段/门以 YAML 为准，方法以 skills 为准。
-> 计划与 0→1 见 `../skills/zero-to-one-product-definition/SKILL.md`；原型见 `../skills/prototype-and-interaction/SKILL.md`、`../skills/ui-visual-design-system/SKILL.md`；展示/文档见 `../skills/demo-storytelling/SKILL.md`、`../skills/product-docs/SKILL.md`、`../skills/presentation-design/SKILL.md`；交付细则见 `../skills/change-management/SKILL.md`、`../skills/uat-and-retrospective/SKILL.md`。确认门**只认**步上 `hitl`（标量用 `hitl_when`；列表各项带 `when`）。
+> **运行时**：只认当前步骤卡 + §6 技能（+可选模板）；本文参考，禁通读拼流程。阶段/门以 YAML 为准。  
+> **读取**：只读当前任务需要的节，不要通读。方法见当前步 §6 技能（按需打开对应 skill，做完回步骤卡）。确认门**只认**步上 `hitl`（标量用 `hitl_when`；列表各项带 `when`）。
 
 ## 1. 铁律（不可让）
 
@@ -119,10 +119,12 @@
 
 步骤顺序与条件链以 `workflows/change.yaml` 为准；方法见 `skills/change-management/SKILL.md`。P0/P1 必走 `intake→triage→apply→verify`（改基线才 decide）。关单回执：正式签收/C2·C3/发布须回执；仅通知/同仓直读/用户代收 → 已发送+用户确认可关。未verify/联动未闭合不得关闭。
 
-## 7. 子代理编排（摘要 · 单一出处 `rules/collaboration/subagents.md`）
+## 7. 子代理编排（摘要）
+
+> 运行时以当前步骤卡/技能为准；达阈值取档细则按需打开 `rules/collaboration/subagents.md`（单一出处，禁通读）。本条只留不可让边界。
 
 - **取档**：工具 → 直做 → 分片 → 拆分；达阈值应拆或 `deviation=subagent_skipped`；开跑声明 `mode=`。  
-- **实例**：分片每单元新开；拆分核验 fresh `verifier-agent`（禁 resume Writer）；串行下一批默认新开（见 `subagents.md` §0）。  
+- **实例**：分片每单元新开；拆分核验 fresh `verifier-agent`（禁 resume Writer）；串行下一批默认新开。  
 - **并行**：只读扇出与文件不相交写分片可并行≤3；同一 PRD/计划/受理单/`index.html` 禁并行写。  
 - **降级**：超时/空产物/违规 → 同回合直做 + `subagent_degraded`；宿主无子代理 → `unavailable`。  
 - **回收**：返回 ≤30 行；独立核验只收产物＋验收＋证据；批末核验后再下一批。  

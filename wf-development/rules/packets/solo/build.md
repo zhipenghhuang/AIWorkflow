@@ -7,10 +7,10 @@
 - **workflow / step**：`solo` / `build`（完整开发与自测）
 - **packet**：`rules/packets/solo/build.md`
 - **角色**：`implementer`（常规实现）。需求/方案对齐 → 最小改动实现 → 自测/门禁 → 提测文档 → 提交；架构级先方案批准；本步只做该角色职责；越界交回或升级。
-- **前置**：plan 已确认；方案卡验收表已冻结；范围/AC 未确认不得写代码
-- **上游**：`plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`test`
-- **失败去向**：回 plan 修方案卡；范围超出先停下说明
+- **前置**：design 已确认；代码/配置：测试分析与计划已产出；do_landing_doc_review=true → review_docs 已通过；方案卡验收表已冻结；范围/AC 未确认不得写代码
+- **上游**：`test_plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **后续**：`review`（进 `review` 前的 `when=review_required`）
+- **失败去向**：回 design 修方案卡；范围超出先停下说明
 - **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
@@ -39,6 +39,8 @@
 
 - **本步必开技能（质量不降）**：`implementation-and-selftest`、`engineering-quality` → 见 §6 闭环。
 
+- **条件技能**：`frontend-implementation`（有 UI / 有原型）、`product-doc-analysis`（输入含 PRD/原型/产品文档） → 命中则同样走 §6 闭环。
+
 ### 本步规则卡：实施预检与自测
 
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。
@@ -47,7 +49,10 @@
 - 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
 - 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」；完成前按来源回指抽查 P0/高风险。
 - 需要独立评审 → 转当前链的 `review` 步；solo 转 `change.review`；不在本步自称已评审。
-- 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。
+- 子代理：达阈值拆或记 deviation；只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。
+
+### 测试输入
+- 读本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`；按 P0/P1/P2 与覆盖矩阵实施/自测。
 
 ### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
@@ -70,6 +75,8 @@
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
 | 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行或「需修」= BLOCKED |
 | 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
+
+> **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
@@ -135,6 +142,8 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 | --- | --- | --- | --- | --- |
 | `implementation-and-selftest` | **必开** | 进入本步即开（质量不降） | `skills/implementation-and-selftest/SKILL.md` | 只读 L13-L133（必做+处置/判定/反合理化）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 只读 L13-L65（硬门槛+方法）→ 回本包 |
+| `frontend-implementation` | 条件开 | 有 UI / 有原型 | `skills/frontend-implementation/SKILL.md` | 只读 L12-L131（必做+处置/判定/反合理化）→ 回本包 |
+| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -155,5 +164,5 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=build | agent=implementer | packet=rules/packets/solo/build.md | global=ok | skills=implementation-and-selftest,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=build | agent=implementer | packet=rules/packets/solo/build.md | global=ok | skills=implementation-and-selftest,engineering-quality,frontend-implementation,product-doc-analysis|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

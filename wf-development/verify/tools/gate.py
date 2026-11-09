@@ -404,8 +404,17 @@ def check_acceptance(items: list[dict[str, str]], project_root: Path) -> dict[st
                 missing.append(f"{item.get('id', '?')}: 缺少 {key}")
                 break
         result = (item.get("result") or "").strip()
-        if result and any(x in result.upper() for x in ("未通过", "不通过", "未验证", "待定", "TODO", "未完成", "FAIL", "BLOCKED")):
+        if not result or result in ("{…}", "…", "TBD", "待定", "待填", "未判定"):
+            missing.append(f"{item_id}: 缺判定结果（须写通过/失败/阻塞/未测+理由）")
+        elif any(x in result.upper() for x in ("未通过", "不通过", "未验证", "待定", "TODO", "未完成", "FAIL", "BLOCKED")):
             missing.append(f"{item_id}: 判定未通过/未验证（{result}）")
+        elif re.fullmatch(r"(?:通过|正常|成功|符合预期|无报错|看起来?对|ok|pass)[.。!！]*", result, re.I):
+            # 「通过」可作判定列终态；但检查列须有可观测断言，禁检查/陈述也是空话
+            check = (item.get("check") or item.get("statement") or "").strip()
+            if not check or re.fullmatch(
+                r"(?:通过|正常|成功|符合预期|无报错|看起来?对|ok|pass|已验证)[.。!！]*", check, re.I
+            ):
+                missing.append(f"{item_id}: 判定/检查过弱（须对照原文/AC 的可观测断言，禁仅「通过/正常」）")
         for token in _evidence_tokens(item.get("evidence", "")):
             if token in ("无", "—", "-", "TBD", "待补", "见日志"):
                 missing.append(f"{item_id}: 证据不具体（{token}）")

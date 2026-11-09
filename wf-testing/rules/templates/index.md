@@ -48,7 +48,7 @@
 | `30-execution/test-change-record-template.md` | testing.plan（期中变更） | CR + 影响分析 |
 | `30-execution/stable-smoke-checklist-template.md` | testing.execute / report | P0 冒烟 + 高价值锚点 |
 | `30-execution/special-index-template.md` | special/发布前索引 | 人工追踪 |
-| `30-execution/defect-writeup-template.md` | defect.submit / 回写 | 平台备注/附件/状态/指派 |
+| `30-execution/defect-writeup-template.md` | defect.submit / 回写 | 建单十段/盯办八块；回写先 §8.0 路由再开对应骨架（含 §8.9 转测保持开 / §8.10 盯办保持开） |
 
 ## 40-report-review
 
