@@ -24,9 +24,9 @@
 | git 提交门 | `confirm_commit` | 【拟提交·仓库】；默认仅本地提交，推送须点名并单独确认；≠ 收尾摘要；≠ 平台门。 |
 | 迁移/资料门 | `confirm_docs_migration`（when: `docs_migration_needed`） | 资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。 |
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。 |
-| 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `verify/Invoke-Gate.ps1 -Mode coverage`：来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路/计划结构可读；未过不得称分析完整/计划可执行。 |
-| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：执行记录/证据/P0/意图结论一致；只对 Scope 内记录；未过不开下一批。 |
-| 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部 P0/P1/P2 意图**/P0/缺口对账；未 PASS/CONDITIONAL 不得写整体通过。 |
+| 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `verify/Invoke-Gate.ps1 -Mode coverage`：来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路/计划结构可读；来源计数、意图引用、非空意图台账、§4.3 收口探针可对；未过不得称分析完整/计划可执行。 |
+| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：执行记录/证据/P0/意图结论一致；场景表非空、每场景有 INT、原文对账行已填；只对 Scope 内记录；未过不开下一批。 |
+| 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部 P0/P1/P2 意图**/P0/缺口对账；§2.3 覆盖与收口（含原文对账、AC/设计点、细节维、影响面、核心链路、S6/S7/S11）可读；未 PASS/CONDITIONAL 不得写整体通过。 |
 | 回写闸 | `gate: writeback-receipt`（when: `remark_writeback`） | 交平台/回写前跑 `-Mode writeback`：有单号/备注/状态/附件回执；只写 `writeback.json`，不覆盖 report。 |
 
 ## 2. `when` / `gate_when` 词表

@@ -67,6 +67,8 @@ def main() -> int:
 
     if not (re.search(r"record_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I) or "场景与结果" in text):
         errors.append("缺 record_format=intent-v1 / 场景与结果")
+    if "原文对账" not in text:
+        errors.append("缺 §0 原文对账行")
     for h in ("## 0. 记录信息", "## 1. 场景与结果"):
         if h not in text:
             errors.append(f"缺章节 {h}")

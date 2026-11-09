@@ -111,8 +111,23 @@ def is_blank(s: str) -> bool:
     return s in {"", "—", "-", "…", "...", "待补", "待确认"} or (s.startswith("{") and s.endswith("}"))
 
 
+def has_open_gap(s: str) -> bool:
+    """True only when a conclusion explicitly leaves a gap open."""
+    s = (s or "").strip()
+    if not s or s in {"—", "-", "…", "...", "无", "0"}:
+        return False
+    if re.search(r"(无|0|零)\s*(未接受|未解释|未覆盖)?\s*(个|项)?\s*缺口|缺口\s*[:：]?\s*(0|无|零)\s*(个|项)?", s):
+        return False
+    return "缺口" in s
+
+
 def is_p0(s: str) -> bool:
     return bool(re.search(r"(^|[/,，\s])P0([/,，\s]|$)", (s or "").strip(), re.I)) or (s or "").strip().upper() == "P0"
+
+
+def is_test_disp(s: str) -> bool:
+    s = (s or "").strip()
+    return s.startswith("测") and not s.startswith("不测")
 
 
 def to_int(s: str) -> int:
@@ -266,13 +281,18 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                 if is_blank(cell(row, headers, name)):
                     issues.append(f"§1「{row[0]}」缺 {name}")
             gap = cell(row, headers, "缺口")
-            if gap and gap not in ("0", "无", "—", "-"):
-                issues.append(f"§1「{row[0]}」仍有缺口 {gap}")
+            gap_n = to_int(gap)
+            if gap_n > 0 and not re.search(r"接受|已接受|accepted", gap, re.I):
+                issues.append(f"§1「{row[0]}」仍有未接受缺口 {gap}")
             total = to_int(cell(row, headers, "总数"))
             mapped = to_int(cell(row, headers, "已映射"))
+            na = to_int(cell(row, headers, "N/A"))
             if total and mapped > total:
                 issues.append(f"§1「{row[0]}」已映射 {mapped} > 总数 {total}")
+            if total and mapped + na + gap_n != total:
+                issues.append(f"§1「{row[0]}」总数 {total} ≠ 已映射 {mapped} + N/A {na} + 缺口 {gap_n}")
 
+    chapter_refs: list[tuple[str, str]] = []
     t_ch = pick_table(block1, ["章节/标题", "可测内容", "落点"])
     if not t_ch:
         issues.append("§1.2 章节回执缺失（需 章节/标题/可测内容/意图/落点）")
@@ -284,6 +304,11 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             for name in ("可测内容", "意图", "落点"):
                 if is_blank(cell(row, headers, name)):
                     issues.append(f"§1.2「{row[0]}」缺 {name}")
+            intent_text = cell(row, headers, "意图")
+            if not (INT_ID_RE.search(intent_text) or re.search(r"无|N/A|不适用", intent_text)):
+                issues.append(f"§1.2「{row[0]}」意图列须写 INT-* 或 无/N/A+理由")
+            for ref in INT_ID_RE.findall(intent_text):
+                chapter_refs.append((row[0], ref))
 
     t_basis = pick_table(block1, ["依据ID", "来源", "意图ID", "结论"])
     basis_refs: list[tuple[str, str]] = []
@@ -342,6 +367,8 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             if "N/A" in disp.upper() or "不适用" in disp:
                 if is_blank(cell(row, headers, "接受人")):
                     issues.append(f"§2.1 {iid} N/A 缺接受人")
+        if not intents:
+            issues.append("§2.1 意图台账无数据行")
 
     for basis_id, vp in basis_refs:
         refs = [x.strip("` ") for x in re.split(r"[/,，、;\s]+", vp) if x.strip("` ")]
@@ -350,6 +377,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                 continue
             if ref not in intents:
                 issues.append(f"§1.3「{basis_id}」意图ID {ref} 不在 §2.1 台账")
+
+    for ch, ref in chapter_refs:
+        if ref not in intents:
+            issues.append(f"§1.2「{ch}」意图 {ref} 不在 §2.1 台账")
 
     t_ac = pick_table(block2, ["来源条目", "类型", "意图", "处置"])
     if not t_ac:
@@ -363,8 +394,14 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                 if is_blank(cell(row, headers, name)):
                     issues.append(f"§2.1「{row[0]}」缺 {name}")
             disp = cell(row, headers, "处置")
+            ac_intent = cell(row, headers, "意图")
             if ("N/A" in disp.upper() or "不适用" in disp) and is_blank(cell(row, headers, "缺口/接受人")):
                 issues.append(f"§2.1「{row[0]}」N/A 缺接受人")
+            if disp.startswith("测") and not disp.startswith("不测") and not INT_ID_RE.search(ac_intent):
+                issues.append(f"§2.1「{row[0]}」处置=测 但未写 INT")
+            for ref in INT_ID_RE.findall(ac_intent):
+                if ref not in intents:
+                    issues.append(f"§2.1「{row[0]}」意图 {ref} 不在 §2.1 台账")
 
     # §2.2 coverage matrix
     block22 = subsection(text, "2.2")
@@ -500,7 +537,7 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             if not row or not row[0] or row[0] in ("检查", "—"):
                 continue
             conclusion = row[2].strip() if len(row) > 2 else ""
-            if is_blank(conclusion) or "缺口" in conclusion:
+            if is_blank(conclusion) or has_open_gap(conclusion):
                 issues.append(f"§6「{row[0]}」未闭环：{conclusion or '空'}")
 
     return {"path": str(path), "issues": issues, "intents": intents,
@@ -525,15 +562,24 @@ def parse_plan(path: Path) -> dict[str, Any]:
         issues.append("计划缺 suite 声明")
     if "接口" in text and not re.search(r"depth", text, re.I):
         issues.append("计划含接口但缺 depth 声明")
-    block4 = h2(text, "4.")
-    if block4 and not all(k in block4 for k in ("P0", "缺口", "准出")):
-        issues.append("§4 准入/准出缺 P0/缺口/准出关键口径")
-    t_track = pick_table(h2(text, "2."), ["轨道", "纳入"])
-    if not t_track:
-        issues.append("§2 轨道表缺失（需 轨道/纳入）")
-    t_round = pick_table(h2(text, "3."), ["轮次", "目标"])
-    if not t_round:
-        issues.append("§3 轮次表缺失（需 轮次/目标）")
+    if tier != "lite":
+        block4 = h2(text, "4.")
+        if block4 and not all(k in block4 for k in ("P0", "缺口", "准出")):
+            issues.append("§4 准入/准出缺 P0/缺口/准出关键口径")
+        t_track = pick_table(h2(text, "2."), ["轨道", "纳入"])
+        if not t_track:
+            issues.append("§2 轨道表缺失（需 轨道/纳入）")
+        elif not any(row and row[0] and row[0] not in ("轨道", "—") for row in t_track[1]):
+            issues.append("§2 轨道表无数据行")
+        t_round = pick_table(h2(text, "3."), ["轮次", "目标"])
+        if not t_round:
+            issues.append("§3 轮次表缺失（需 轮次/目标）")
+        elif not any(row and row[0] and row[0] not in ("轮次", "—") for row in t_round[1]):
+            issues.append("§3 轮次表无数据行")
+    else:
+        b3 = h2(text, "3.")
+        if not b3 or not all(k in b3 for k in ("轮次", "准入", "准出")):
+            issues.append("轻量计划 §3 缺轮次/准入/准出")
     if tier != "lite":
         t_imp = pick_table(h2(text, "1."), ["类型", "范围/链路", "覆盖/回归轮次"])
         if not t_imp:
@@ -561,6 +607,18 @@ def parse_plan(path: Path) -> dict[str, Any]:
         # T1+ 计划需有章程行或 N/A；仅做结构提示，语义由计划门确认。
         if "S6" not in text or "S7" not in text or "S11" not in text:
             issues.append("§3.2 探索式/§4.3 功能收口探针缺 S6/S7/S11")
+    if tier == "full":
+        t_probe = pick_table(block4, ["轴", "最小探针", "着落"])
+        if not t_probe:
+            issues.append("§4.3 功能收口探针表缺失（需 轴/最小探针/着落）")
+        else:
+            headers, rows = t_probe
+            for axis in ("S6", "S7", "S11"):
+                hit = next((row for row in rows if cell(row, headers, "轴").strip().startswith(axis)), None)
+                if hit is None:
+                    issues.append(f"§4.3 缺 {axis} 收口行")
+                elif is_blank(cell(hit, headers, "着落")):
+                    issues.append(f"§4.3 {axis} 缺着落（写 INT/章程/不测+接受人）")
     return {"path": str(path), "issues": issues, "tier": tier}
 
 
@@ -595,6 +653,8 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
         issues.append(f"{path.name}: 非执行记录格式")
     if "env-baseline" not in text:
         issues.append(f"{path.name}: 未引用 env-baseline.md（环境基线）")
+    if "原文对账" not in text:
+        issues.append(f"{path.name}: 缺 §0 原文对账行（开跑按原文目录对账分析漏项）")
 
     table = None
     for headers, rows in tables(text):
@@ -605,9 +665,11 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
         issues.append(f"{path.name}: 未找到场景表（需 SC/INT/场景/结果/证据）")
     else:
         headers, rows = table
+        seen = 0
         for row in rows:
             if not row or not row[0] or row[0] in ("SC", "—"):
                 continue
+            seen += 1
             sc = row[0].strip()
             source = cell(row, headers, "原文/依据") or cell(row, headers, "原文/契约")
             if is_blank(source):
@@ -617,6 +679,8 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
             pri = cell(row, headers, "优先级")
             actual = cell(row, headers, "实际/差异") or cell(row, headers, "实际")
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
+            if not INT_ID_RE.search(intent):
+                issues.append(f"{path.name}: {sc} 缺 INT-* 意图")
             for m in INT_ID_RE.findall(intent):
                 intent_ids.add(m)
                 old = intent_results.get(m, "")
@@ -644,6 +708,8 @@ def parse_record(path: Path, test_root: Path) -> dict[str, Any]:
                     missing_evidence.append(f"{sc}:P0 通过缺证据")
                 elif not resolve_evidence(path, test_root, evidence):
                     missing_evidence.append(f"{sc}:P0 通过证据不存在 {evidence}")
+        if seen == 0:
+            issues.append(f"{path.name}: 场景表无数据行")
 
     # 执行记录 §3/§4 的意图结论表（若存在，与场景表双向核对）
     itable = None
@@ -764,6 +830,8 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
     for key in ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5."):
         if key not in text:
             issues.append(f"报告缺 {key} 标题")
+    if not analysis.get("intents"):
+        issues.append("分析无意图台账，报告不可判定")
     verdict, reason = parse_verdict(text)
     if not verdict:
         issues.append(reason)
@@ -775,19 +843,53 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         issues.append("报告缺 suite 声明")
     if "接口" in text and not re.search(r"depth", text, re.I):
         issues.append("报告含接口但缺 depth 声明")
-    for token in ("S6", "S7", "S11", "探索式"):
-        if token not in text:
-            issues.append(f"报告缺收口项 {token}")
+    block23 = subsection(text, "2.3")
+    if not block23:
+        issues.append("报告缺 §2.3 覆盖与收口探针")
+    else:
+        for token in (
+            "来源",
+            "章节回执",
+            "原文对账",
+            "依据覆盖",
+            "设计点账本",
+            "模块×面",
+            "方法×规则",
+            "细节维",
+            "影响面",
+            "核心链路",
+            "S6",
+            "S7",
+            "S11",
+            "探索式",
+            "P0 意图",
+            "风险清单",
+        ):
+            if token not in block23:
+                issues.append(f"报告 §2.3 缺「{token}」")
+        t23 = pick_table(block23, ["项", "结论"])
+        if not t23:
+            issues.append("报告 §2.3 覆盖与收口表缺失（需 项/结论）")
+        else:
+            headers, rows = t23
+            for label in ("原文对账", "设计点账本", "细节维", "影响面", "核心链路", "S6", "S7", "S11"):
+                hit = next((row for row in rows if label in cell(row, headers, "项")), None)
+                if hit is None:
+                    issues.append(f"报告 §2.3 缺「{label}」行")
+                elif is_blank(cell(hit, headers, "结论")):
+                    issues.append(f"报告 §2.3「{label}」无结论")
     if verdict in ("PASS", "CONDITIONAL") and recs["p0_fail"]:
         issues.append("P0 未过但报告写通过/有条件通过")
-    if verdict == "PASS" and any(recs["counts"].get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行")):
-        issues.append("执行记录有失败/阻塞/待实现/未执行但报告写 PASS")
+    if verdict == "PASS" and any(recs["counts"].get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
+        issues.append("执行记录有失败/阻塞/待实现/未执行/未本轮验证但报告写 PASS")
     if verdict == "CONDITIONAL" and "接受人" not in text:
         issues.append("有条件通过缺接受人")
 
     stats = stats_from_report(text)
     if stats is None:
         issues.append("报告 §2.1 场景统计表缺失")
+    elif not stats:
+        issues.append("报告 §2.1 场景统计表无数据行")
     else:
         for pri in ("P0", "P1", "P2"):
             expected = recs.get("by_pri_status", {}).get(pri, {})
@@ -805,6 +907,8 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
     istats = intent_stats_from_report(text)
     if istats is None:
         issues.append("报告 §2.2 意图结论表缺失")
+    elif not istats:
+        issues.append("报告 §2.2 意图结论表无数据行")
     else:
         intents = analysis.get("intents", {})
         for pri in ("P0", "P1", "P2"):
@@ -826,7 +930,7 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
     if recs["blocked_bad"]:
         issues.append("阻塞缺已尝试/恢复条件：" + "、".join(recs["blocked_bad"][:4]))
     required = {iid for iid, meta in analysis.get("intents", {}).items()
-                if "测" in meta.get("disp", "")}
+                if is_test_disp(meta.get("disp", ""))}
     missing_all = sorted(required - recs.get("intent_ids", set()))
     unterminal = sorted(iid for iid in required
                         if not terminal_status(recs.get("intent_results", {}).get(iid, "")))
@@ -1014,10 +1118,10 @@ def main() -> int:
     hard_fail = [c for c in checks if c.get("status") == "fail"]
     blocked_checks = [c for c in checks if c.get("status") == "blocked"]
     if args.mode == "coverage":
-        verdict = "FAIL" if hard_fail else "PASS"
+        verdict = "BLOCKED" if (blocked or blocked_checks) else ("FAIL" if hard_fail else "PASS")
     elif args.mode == "execute":
         verdict = "BLOCKED" if (blocked or blocked_checks) else ("FAIL" if hard_fail or p0_fail else "PASS")
-        if verdict == "PASS" and any(counts.get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行")):
+        if verdict == "PASS" and any(counts.get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
             verdict = "CONDITIONAL"
     elif args.mode == "writeback":
         verdict = "BLOCKED" if (blocked or blocked_checks) else ("FAIL" if hard_fail else "PASS")
@@ -1032,7 +1136,7 @@ def main() -> int:
             verdict = "FAIL"
         elif reported_verdict == "CONDITIONAL":
             verdict = "CONDITIONAL"
-        elif any(counts.get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行")):
+        elif any(counts.get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
             verdict = "FAIL"
         elif reported_verdict == "PASS":
             verdict = "PASS"

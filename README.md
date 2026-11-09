@@ -168,7 +168,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 **开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
-**测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行时对照原文对应段 + ≥1 互补源（分析只作索引）；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
+**测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行前按原文目录对账分析漏项，逐场景对照原文对应段 + ≥1 互补源（分析只作索引）；P0 有证伪场景；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
 
 **单包优先**：只强制本包工作根（`docs/` 平铺；多包 `docs/{owner}/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护（无开发包则不建）；产/测写 `work-log.md`。多包发版软序见开发文档治理。原件根固定 `inbound/`；权威文档库项目级 `docs/materials/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
 
