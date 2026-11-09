@@ -169,7 +169,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ## 4. 阶段衔接（按变更分级取用）
 
 > 条件步以 `../workflows/*.yaml` 为准；技能按步注加载对应 `skills/<name>/SKILL.md`（编号别名映射见 `skills/README.md`，先读再执行）；外部工具/能力见 `capabilities/00-contract.md`（已安装即启用；未安装=降级，不阻塞）。
-> **轻量档（solo）**：见 `rules/core/lightweight.md`；完整档仍按 §4.1～§4.6。
+> **自包含链（solo）**：见 `rules/core/lightweight.md`；正式协作/迭代仍按 §4.1～§4.6。
 
 ### 4.1 需求基线（requirements 步）
 
@@ -206,7 +206,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ### 4.5 提测（deliver 步）
 
 - 触发：有 QA 交接或含部署/发版；无 QA 且无部署可跳过。  
-- **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发自验（轻量报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
+- **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发测试/自验（报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
 - 产出：提测单（`rules/templates/40-delivery/qa-handoff-template.md`）——部署版本、改动点/影响面、自测结论、已知问题、**裁剪债项、沿用基线再验摘要**、回归指引、测试设计输入；发布说明+回滚预案（`rules/templates/40-delivery/release-notes-template.md`）。  
 - 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`handoff/outbound/发布/`）；提测单单点滚动，发布说明一版一档。  
 - 纪律：自测证据不足不交 QA；已知问题不瞒报；口头裁剪无债项不交 QA；沿用模块无基线冒烟（且未写不适用）不交 QA；开发自验 ≠ 版本准出；若同项目有测试包，提测单可作为其计划的可选输入（不强制）。
@@ -247,9 +247,9 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | --- | --- | --- |
 | 项目治理 | `{workroot}/development-plan.md`；其余 `{workroot}/00-governance/` | 开发计划（L2+ 必建）、项目章程、风险登记、变更记录（按需） |
 | 需求基线 | `{workroot}/10-requirements/` | `需求-{主题}-{yyyyMMdd}.md` |
-| 产品定义卡（轻量） | `{workroot}/10-requirements/` | `产品定义-{主题}-{yyyyMMdd}.md`（一页；`solo.frame`） |
+| 产品定义卡（自包含） | `{workroot}/10-requirements/` | `产品定义-{主题}-{yyyyMMdd}.md`（一页；`solo.frame`） |
 | 方案 | `{workroot}/20-design/` | `方案-{主题}-{yyyyMMdd}.md`（迭代绑定；实施入口见文档治理 §5） |
-| 方案卡（轻量） | `{workroot}/20-design/` | `方案卡-{主题}-{yyyyMMdd}.md`（`solo.plan`；含验收表/测试策略） |
+| 方案卡（自包含） | `{workroot}/20-design/` | `方案卡-{主题}-{yyyyMMdd}.md`（`solo.plan`；含验收表/测试策略） |
 | ADR | `{workroot}/30-architecture/ADR/` | `ADR-{序号}-{主题}.md`（长期；被替代标状态） |
 | 技术设计（长期 SSOT） | `{workroot}/30-architecture/` | 现行 API/架构/模块说明；就地更新 |
 | 前端设计说明 | `{workroot}/20-design/` | `前端设计说明-{主题}-{yyyyMMdd}.md` |
@@ -258,7 +258,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | 产品返回资料 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；类型写索引 |
 | 任务清单/计划 | `{workroot}/40-tasks/` | `任务清单-{ver}.md` |
 | UAT/验收 | `{workroot}/50-verification/` | `UAT-{版本}-{yyyyMMdd}.md` |
-| 轻量测试报告 | `{workroot}/50-verification/` | `测试报告-{主题}-{yyyyMMdd}.md`（`solo.test`） |
+| 开发测试报告 | `{workroot}/50-verification/` | `测试报告-{主题}-{yyyyMMdd}.md`（`solo.test`） |
 | 提测单 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/提测/` | `提测单-{版本}.md` |
 | 发布说明 | `{workroot}/60-release/`（真源）；同轮实拷 `{workroot}/handoff/outbound/发布/` | `发布说明-{版本}.md` |
 | 上线检查单/发布记录 | `{workroot}/60-release/`（真源）；按需实拷 `handoff/outbound/发布/` | `上线检查单-{版本}.md`、`发布记录-{版本}.md` |

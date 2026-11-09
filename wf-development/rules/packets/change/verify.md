@@ -46,7 +46,7 @@
 - Invoke-Gate → -Claim。
 - 只认 CLAIM: ALLOWED。
 - 非 COMPLETE 不得进 deliver/closeout。
-- 无 QA 时开发自验报告必齐（轻量：可裁剪文档厚度；升级触发与无QA自验见步骤卡；必开技能/HITL不降）。
+- 无 QA 时开发自验报告必齐（按风险：可裁剪文档厚度；正式协作/自包含见步骤卡；必开技能/HITL不降）。
 - 有 UI 跑 frontend_parity。
 
 ### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）

@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.07.15-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.09.02-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -158,7 +158,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 包 | 定位 | 上手 |
 | --- | --- | --- |
 | **[产品规范](./wf-product/README.md)** | 0→1 与迭代：需求 · 竞品 · PRD · 原型 · UAT · 发布 | [说明](./wf-product/README.md) · [入口](./wf-product/AGENTS.md) |
-| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 验证 → 提测 → 发布；含轻量单人轨 | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
+| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 验证 → 提测 → 发布；含自包含完整链（solo） | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
 | **[测试规范](./wf-testing/README.md)** | 分析驱动：分析 → 计划总排 → 执行记录 → 报告/锚点 | [说明](./wf-testing/README.md) · [入口](./wf-testing/AGENTS.md) |
 
 <details>
@@ -166,7 +166,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 **产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard` · `materials` · `skill-audit`。产物落在 `docs/product/`（单包 `docs/`）。
 
-**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2 全链；L3 再加独立评审、安全 / 回滚演练、发布审批。轻量 `solo`＝一页方案卡 → 确认 → 实施 → 自验 → 完成门。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
+**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
 **测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行时对照原文对应段 + ≥1 互补源（分析只作索引）；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
 
@@ -186,7 +186,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 产品 | `启动新产品：{一句话}` / `产品计划` / `写 PRD` / `画原型` | 0→1 · 计划门 · PRD · 原型 |
 | 产品 | `需求变更` / `UAT` / `发布` / `复盘` | 变更 · 验收 · 发布决策 · 复盘 |
 | 开发 | 任意自然语言描述问题/需求 | 五元组入口判定 → 意图类路由 |
-| 开发 | `轻量开发` / `我有个想法：…` | 方案卡 → 确认 → 实施 → 自验 → 收尾 |
+| 开发 | `自包含开发` / `轻量开发` / `我有个想法：…` | 产品分析 → 方案 → 完整开发 → 测试 → 收尾 |
 | 开发 | `开发计划` / `按方案实施` / `代码评审` / `提测` | 续跑计划 · 实施 · 评审 · 提测 |
 | 开发 | `发布` / `回滚` / `复盘` | 上线检查 · 回滚 · 行动项 |
 | 测试 | `生成测试计划` / `按测试计划执行` | 计划门 → 分轨执行 → 报告 |
@@ -264,7 +264,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | --- | --- |
 | 产品 | 立项 · 计划 · 范围 · PRD · 设计 · 原型交接 · 变更 · 交接 · 发布 · 提交 |
 | 开发 | 计划 · 需求基线 · 方案 · 任务清单 · 交接 · 部署 · 回滚 · 验收 · 提交 |
-| 开发（solo） | 产品定义（按需） · 方案卡 · 提交 |
+| 开发（solo） | 产品分析（按需） · 方案 · 完整开发 · 测试 · 提交 |
 | 测试 | 计划 · 执行范围 · 交接 · 提交 · 缺陷回写 |
 
 | 闸 | 规则 |
@@ -282,7 +282,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 ```text
 AIWorkflow/
 ├─ wf-product/          # 产品轨母版
-├─ wf-development/      # 开发轨母版（含轻量单人轨）
+├─ wf-development/      # 开发轨母版（含自包含完整链 solo）
 ├─ wf-testing/          # 测试轨母版
 ├─ CHANGELOG.md         # 母版仓产品发版史
 ├─ THIRD_PARTY.md       # 第三方方法与来源

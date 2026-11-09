@@ -14,7 +14,7 @@
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
 前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
-**轻量轨（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出最小充分集并实测，报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
+**自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出按风险完整集并实测（大改动/高风险全节），报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
 **任务清单 `[P]` 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md>`；文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 可在准出前再硬拦一次。  
 

@@ -63,16 +63,16 @@
 | iterate 节奏/核验 | `rules/special/iteration-delivery.md`（规则，不替代拆单技能） |
 | onboard 核验/装配/文档整理 | `agents/onboard-agent.yaml`（核验清单即技能） |
 
-## 轻量单人轨（solo）
+## 自包含完整链（solo）
 
-> 用于个人小项目/单一想法：默认一页方案卡 + 一次方案确认；不替代完整链。口径见 `rules/core/lightweight.md`（产品最小硬门槛 + 开发自验；轻量≠降标）。
+> 用于无正式迭代/正式协作：产品分析 → 方案 → 完整开发 → 测试；不是只开发，也不依赖产品/测试包。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；正式协作/迭代 → 完整链。
 
 | 步骤 | 技能 | 说明 |
 | --- | --- | --- |
-| frame | `product-shaping` | 只在新想法/新产品/方向不清时走；小改跳过 |
-| plan | `product-shaping` + `solution-design` + `engineering-quality` + `task-breakdown` | 产品行为/技术/任务/验收/测试压到一页 |
-| build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` | 预检→硬补→按方案卡实施；失败时加 `debugging-and-error-recovery` |
-| test | `test-design-and-execution` | 最小充分集实测 + 轻量测试报告；P0 未过 = FAIL |
+| frame | `product-shaping` | 方向不清/新产品时走；小改跳过 |
+| plan | `product-shaping` + `product-doc-analysis`（输入含文档/原型）+ `solution-design` + `engineering-quality` + `task-breakdown` | 产品分析/方案/任务/验收/测试策略 |
+| build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality` | 预检→硬补→完整开发；失败时加 `debugging-and-error-recovery` |
+| test | `test-design-and-execution` | 设计→执行→报告；按风险完整；大改动/高风险全节 + 独立 verifier；P0 未过 = FAIL |
 
 ## 开发计划阶段 → 技能（每阶段至少一个）
 

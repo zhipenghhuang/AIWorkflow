@@ -67,7 +67,7 @@
 | `40-delivery/go-live-checklist-template.md` | release.readiness | 硬项/NO-GO |
 | `40-delivery/release-record-template.md` | release.record | 实际步骤/verify/观察 |
 | `40-delivery/uat-acceptance-template.md` | release.acceptance | 逐条 AC |
-| `40-delivery/lite-test-report-template.md` | solo.test | 轻量测试：范围/测试点/结果/证据/defects/缺口/verdict |
+| `40-delivery/lite-test-report-template.md` | solo.test | 开发测试报告：范围/测试点/结果/证据/defects/缺口/verdict |
 | `40-delivery/defect-writeup-template.md` | defect-fix.close / 缺陷处置 | 平台备注/附件/状态/指派文案骨架；**close 必读 §6.0/§6.1/§6.9/§6.10** |
 
 ## 60-retro

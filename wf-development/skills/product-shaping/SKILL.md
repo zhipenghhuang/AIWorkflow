@@ -58,7 +58,7 @@ description: Use when a raw idea, new product, unclear scope, MVP, priority, or 
 | 非目标 | ≥1 条明确不做 | 空白或「以后再说」无边界 |
 | AC | ≥1 条可被完成门读取 | 「按我说的做」无检查点 |
 
-拿不准用户要「只做方案」还是「直接做」→ 一问确认；拿不准是否升级完整链 → 按 `lightweight.md` §2 推荐升级并一问。
+拿不准用户要「只做方案」还是「直接做」→ 一问确认；拿不准是否正式协作/正式流程 → 按 `lightweight.md` §2 判轨；体量/风险不换链。
 
 ## 3. 产品定义卡（一页）
 

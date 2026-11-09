@@ -1,10 +1,10 @@
-# 轻量开发（单人或小项目） · `solo` 状态机
+# 自包含完整链（产品→开发→测试） · `solo` 状态机
 
 > 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
-- **入口**：`轻量开发` → `frame`；`我有个想法` → `frame`；`想法落地` → `frame`；`做个` → `frame`；`快速做` → `frame`；`小项目` → `frame`；`轻量方案` → `plan`；`只出轻量方案` → `plan`；`轻量测试` → `test`；`帮我测一下` → `test`；`验收一下` → `test`
+- **入口**：`轻量开发` → `frame`；`自包含开发` → `frame`；`无正式迭代` → `frame`；`小改动` → `frame`；`我有个想法` → `frame`；`想法落地` → `frame`；`小项目` → `frame`；`轻量方案` → `plan`；`只出轻量方案` → `plan`；`轻量测试` → `test`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
 - **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
 
@@ -15,7 +15,7 @@
 | 1 | `frame` | `implementer` | `new_product_or_unclear_idea` | — | 产品定义卡（{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md） | `plan` | 停在本步/升级 |
 | 2 | `plan` | `implementer` | — | `confirm_spec` | 方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md） | `build` | 停在本步/升级 |
 | 3 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `test` | 回 plan 修方案卡；范围超出先停下说明 |
-| 4 | `test` | `verifier-agent` | — | `gate:completion-gate` | 轻量测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
+| 4 | `test` | `verifier-agent` | — | `gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
 | 5 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
@@ -29,6 +29,7 @@
 ## 4. 边界
 
 - **本链专属**：`workflows/solo.yaml` + 本图 + `rules/packets/solo/`；改本链只重生成该链。
+- **轨道**：只接无正式迭代/正式协作（单人或团队，含大改动/高风险）；有正式协作/迭代或需正式发布/QA/交接 → 完整链；大改动/高风险按 `lightweight.md` §2 提高严谨度，不换链。
 - **共享**：`rules/core/`、`rules/gates.md`、`skills/`、`rules/templates/`；改共享层跑全包自检。
 - 跨链：重新路由或 handoff；诊断可读对方状态图，不打开对方 packet。
 

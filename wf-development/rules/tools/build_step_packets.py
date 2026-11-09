@@ -121,7 +121,7 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "iterate/release_handoff": ["qa-handoff-and-release"],
         "iterate/gates": ["test-design-and-execution"],
         "solo/frame": ["product-shaping"],
-        "solo/plan": ["product-shaping", "solution-design", "task-breakdown", "engineering-quality"],
+        "solo/plan": ["product-shaping", "product-doc-analysis", "solution-design", "task-breakdown", "engineering-quality"],
         "solo/build": ["implementation-and-selftest", "engineering-quality"],
         "solo/test": ["test-design-and-execution"],
         "control/init": ["development-plan", "product-doc-analysis"],
@@ -302,7 +302,7 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/core/lightweight\.md`?(?:\s*§[\d.]+)?",
-        "轻量：可裁剪文档厚度；升级触发与无QA自验见步骤卡；必开技能/HITL不降",
+        "按风险：可裁剪文档厚度；正式协作/自包含见步骤卡；必开技能/HITL不降",
     ),
     (r"`?rules/core/project-readme\.md`?", "README：只写现行入口/运行/目录"),
     (r"`?rules/core/context-memory\.md`?", "工作记忆：偏好/洞见/坑 ≤3 行"),
@@ -631,6 +631,7 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测
 - 实施预检（写代码前）：权限/状态/数据基数/多表面/失败路径/交互诚实/运行时 API 逐面判定；命中 → 先扩 SC/债项，再改码。有 UI 且含禁用/灰显/空列表/加载/筛选/主按钮 → 交互诚实默认命中；多表面同一状态/KPI → 跨层默认命中。
 - 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
 - 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」；完成前按来源回指抽查 P0/高风险。
+- 需要独立评审 → 转当前链的 `review` 步；solo 转 `change.review`；不在本步自称已评审。
 - 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
@@ -1078,6 +1079,10 @@ def render_chain_packet(
             else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
         )
         cross_line = "跨链：重新路由或 handoff；诊断可读对方状态图，不打开对方 packet。"
+    track_line = (
+        "- **轨道**：只接无正式迭代/正式协作（单人或团队，含大改动/高风险）；有正式协作/迭代或需正式发布/QA/交接 → 完整链；大改动/高风险按 `lightweight.md` §2 提高严谨度，不换链。\n"
+        if wid == "solo" else ""
+    )
     return f"""# {wf_name} · `{wid}` 状态机
 
 > 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
@@ -1103,7 +1108,7 @@ def render_chain_packet(
 ## 4. 边界
 
 - **本链专属**：`workflows/{wid}.yaml` + 本图 + `rules/packets/{wid}/`；改本链只重生成该链。
-- **共享**：`rules/core/`、`rules/gates.md`、`skills/`、`rules/templates/`；改共享层跑全包自检。
+{track_line}- **共享**：`rules/core/`、`rules/gates.md`、`skills/`、`rules/templates/`；改共享层跑全包自检。
 - {cross_line}
 
 ## 5. 终端

@@ -49,10 +49,11 @@
 - 点名生成/更新/整理时对照市面高标准给可选补强。
 - 按 `rules/templates/00-onboarding/version-policy-template.md` 产 `{workroot}/60-release/versioning.md`（版本格式/升级/环境/tag/审批；不确定写「待确认」）。
 - 记工作根、`inbound/` 原件根、`docs/materials/` 权威文档库。
-- 推断并填写 `协作模式`/`流程偏好`：单包+无计划/测试/产品/交接 → 单人/轻量优先。
-- 多包或已有计划/QA/交接 → 团队/完整优先。
-- 用户可改，不额外提问。
-- 轻量优先=入口偏好，不降 AC/完成门/开发自验（`lightweight.md` ）。
+- 按实际参与角色填 `协作模式`（无事实写「待确认」）。
+- `流程偏好` 仅作提示，不覆盖正式协作/正式流程判定。
+- 不因单包/无产物推断为单人。
+- 轨道不由此字段决定。
+- 自包含不降 AC/完成门/开发自验（`lightweight.md` ）。
 - `activeContext.md`：无则按 `rules/templates/00-onboarding/active-context-template.md` 建（**总览一句话** + `## 开发` + 跨包同步 + 运行时本包行）。
 - 已有则只补/更新总览（若空）、本包分节与本包接入行，禁止整文件覆盖他包内容。
 - 总览口径对齐项目档案「一句话定位」。

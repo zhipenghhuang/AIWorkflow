@@ -66,8 +66,8 @@
 | `incident_or_major_release` | 事故或重大发版需复盘 | 否 |
 | `docs_migration_needed` | 将搬迁/归档/清理且清单未确认 | 已确认或无搬迁 |
 | `requirements_need_confirm` | 需求基线实质变且未确认 | 已确认或无实质变 |
-| `new_product_or_unclear_idea` | 轻量档：新想法/新产品/方向不清 | 小改/需求已清 |
-| `solo_gate_required` | 轻量档：有方案卡/验收表且已 StartTask | 单独测试/纯文档 |
+| `new_product_or_unclear_idea` | 自包含链：方向不清/新产品（正式协作/迭代 → 完整链） | 小改/需求已清 |
+| `solo_gate_required` | 自包含链：有方案卡/验收表且已 StartTask | 单独测试/纯文档 |
 | `intent_needs_confirm` | 给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付 | 查询/机械/同任务已确认/意图写死/任务内续跑；**歧义拿不准**按真 |
 | `understanding_needs_confirm` | 外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算 | 当前任务已理解确认；纯查询/机械低风险 |
 | `has_product_docs_or_prototypes` | 输入含 PRD/迭代方案/需求/原型/截图/接口或技术文档 | 无此类输入 |
@@ -116,4 +116,4 @@
 
 低风险动作不要升级为 approve；高风险动作不得降为 notify。红线不被“少问/直跑”覆盖。
 
-**轻量档（solo）**：只 `confirm_spec` + `completion-gate` + `confirm_commit`；产品定义不单独设门，方向不清在方案卡里列选项一次性确认（见 `rules/core/lightweight.md` §5）。
+**自包含链（solo）**：只 `confirm_spec` + `completion-gate` + `confirm_commit`；产品定义不单独设门，方向不清在方案卡里列选项一次性确认（见 `rules/core/lightweight.md` §5）。

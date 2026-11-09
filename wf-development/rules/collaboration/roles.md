@@ -11,7 +11,7 @@
 | `implementer` | change.clarify/analyze_input/10-requirements/20-design/implement/deliver、iterate.implement/deliver、solo.frame/plan/build/closeout、handoff.closeout | 实现路径、工具、拆分、自测方法 | 方案/AC 冲突、破坏性变更、越界改动 → 停问；提交/推送 → 用户 | 不跳 review-docs/plan、不改验收标准、不自行发布 |
 | `reviewer-agent` | change.review、iterate.review、control.check | 代码评审结论（通过/需修/阻断）、评审范围 | 评审范围 < diff、需修、作者施压 → 编排/用户 | 不替作者改代码、不做业务取舍、不代替门 |
 | `doc-reviewer` | change.review-docs | 落地文档独立评审（D1–D8）、A/B 记录 | 需修/阻断、基线缺失 → 20-design/requirements | 不审代码 diff、不替作者改写 |
-| `verifier-agent` | change/iterate/defect 的 verify/gates、`solo.test` | 证据充分性、完成门、**开发自验**（轻量报告/`DEV-AC` 走查） | 缺证据/空 diff/环境缺失 → BLOCKED；不判完成；无 QA 时仍须自验 | 不改代码/文档、不代替评审、不解释业务、**不判版本准出**、不执行 `QA-AC/REL-AC` |
+| `verifier-agent` | change/iterate/defect 的 verify/gates、`solo.test` | 证据充分性、完成门、**开发测试/自验**（报告/`DEV-AC` 走查） | 缺证据/空 diff/环境缺失 → BLOCKED；不判完成；无 QA 时仍须自验 | 不改代码/文档、不代替评审、不解释业务、**不判版本准出**、不执行 `QA-AC/REL-AC` |
 | `delivery-lead` | release.readiness/acceptance/approval/deploy/verify/rollback/postrelease/record/retro、retro 全链 | 发布就绪建议、观察结论、回滚建议、复盘结论 | 部署/回滚/发布 → 用户；NO-GO → 停；事故 → 升级 | 不从脏工作区部署、不跳过审批、不替测试判准出 |
 | `defect-fixer` | defect-fix.preflight/pull/triage/fix/assess/handoff/await/decision/align/clarify/gates/menu/close/postrelease | 缺陷分诊、根因、修复方案、评估单建议 | 产品缺陷 → 产品确认；无根因/无法复现 → 停；平台不可用 → 降级/export | 不修前无红证、不回退补红证、不单方关闭 |
 | `worker-agent` | 子代理分片执行（单模块/只读） | 步内方法、探查顺序 | 连续失败、越界、需跨模块 → 交回编排 | 不 git、不平台、不改门、不写共享主档 |

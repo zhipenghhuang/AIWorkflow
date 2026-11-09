@@ -4,7 +4,7 @@
 
 ## 1. 元信息
 
-- **workflow / step**：`solo` / `test`（轻量测试）
+- **workflow / step**：`solo` / `test`（测试与验收）
 - **packet**：`rules/packets/solo/test.md`
 - **角色**：`verifier-agent`（独立验证（开发轨））。只读核验验收清单、diff、证据与完成门结果；返回通过/需修/阻塞；不改代码、不做最终交付判断；本步只做该角色职责；越界交回或升级。
 - **上游**：`build`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
@@ -14,8 +14,8 @@
 
 ## 2. 本步目标
 
-- **目标**：轻量测试
-- **产出**：轻量测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json
+- **目标**：测试与验收
+- **产出**：测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -29,7 +29,7 @@
 ## 4. 本步门
 
 - **GATE `completion-gate` when=solo_gate_required**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 只认 本包前端硬门**；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
-- **条件判定 `gate:solo_gate_required`**：轻量档：有方案卡/验收表且已 StartTask；满足→真，否则跳过该闸（步骤不跳过）。
+- **条件判定 `gate:solo_gate_required`**：自包含链：有方案卡/验收表且已 StartTask；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步动作
@@ -45,8 +45,12 @@
 - 模板 `rules/templates/40-delivery/lite-test-report-template.md`。
 - 口径 `lightweight.md`。
 - 门禁见 `verify/README.md`。
-- **开发自验**（非准出）：按方案卡测试点 + **AC 走查**。
+- **开发测试/自验**（非准出）：按方案卡测试点 + **AC 走查**。
 - 覆盖集（按风险完整，不是只跑一条）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归。
+- 大改动/高风险：报告全节 + 独立 verifier + 回归/安全/回滚证据。
+- L1+ 前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）。
+- 纯文档/无行为可 `na`。
+- 前端门第 7 项的独立评审 → 升级 `change.review`。
 - 前端看状态/视口/console/network/截图。
 - 后端看响应/错误码/日志。
 - 数据变更看迁移前后与回滚路径。
@@ -56,7 +60,7 @@
 - 同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。
 - 失败分类：产品/实现/环境/数据/测试问题。
 - 产品范围问题停下问用户，不按现网实现改预期。
-- 写报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发自验）。
+- 测试报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发测试/自验）。
 - P0 未过 = FAIL。
 - 禁写「已准出」。
 - 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`。

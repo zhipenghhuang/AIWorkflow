@@ -1,13 +1,13 @@
 ---
 name: test-design-and-execution
-description: Use when a change needs functional testing, acceptance checks, exploratory testing, regression, or a lightweight test report. Design a risk-based minimum test set, execute it with browser/API/commands, capture evidence, classify failures, and report PASS/CONDITIONAL/FAIL. 中文触发：测试、测一下、验收、功能测试、边界、权限、异常、回归、探索式、测试报告、AI 实测、冒烟。
+description: Use when a change needs functional testing, acceptance checks, exploratory testing, regression, or a development test report. Design a risk-based complete test set, execute it with browser/API/commands, capture evidence, classify failures, and report PASS/CONDITIONAL/FAIL. 中文触发：测试、测一下、验收、功能测试、边界、权限、异常、回归、探索式、测试报告、AI 实测、冒烟。
 ---
 
-# 轻量测试设计与执行（技能 · 随包生效）
+# 测试设计与执行（开发自包含链 · 随包生效）
 
 > 用于：`solo.test`；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务rules/接口行为时**必用**（见 `lightweight.md` §4.1）。
-> 目标：用**最小充分集**做**开发自验**——回答「这次改动能不能用」，不是堆用例数量，也不是版本准出。
-> 边界：不替代完整测试包的测试计划/用例库/覆盖三闸/准出门；结论用语写「开发自验 / 可交付」，禁写「已准出」。
+> 目标：用**按风险完整集**做**开发测试/自验**——回答「这次改动能不能用」；大改动/高风险全节，不是堆用例数量，也不是版本准出。
+> 边界：不替代完整测试包的测试计划/用例库/覆盖三闸/准出门；结论用语写「开发测试/自验 / 可交付」，禁写「已准出」。
 > 口径：`rules/core/lightweight.md` §4～§4.1；门禁与证据见 `verify/README.md`；P0 未过不得判整体通过。
 > 不确定「是否要正式测 / 是否够自验」→ 推荐路径 + 一问确认，不静默跳过用户路径。
 
@@ -71,7 +71,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 | 前端行为 | 主路径 + 1 边界 + 1 异常 + 受影响回归 |
 | 后端/接口 | 主路径 + 1 边界 + 1 错误码/权限 + 受影响回归 |
 | 数据/迁移 | 上述 + 迁移前后核对 + 回滚路径 |
-| 高风险 | 停，升级完整链按 L2/L3 检查矩阵 |
+| 高风险 | 本表全节 + 回归/安全/回滚证据 + 独立 verifier；不换链 |
 
 ## 3. 执行
 

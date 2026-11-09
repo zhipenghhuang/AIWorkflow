@@ -4,7 +4,7 @@
 
 ## 1. 元信息
 
-- **workflow / step**：`solo` / `plan`（一页方案卡）
+- **workflow / step**：`solo` / `plan`（产品分析与方案）
 - **packet**：`rules/packets/solo/plan.md`
 - **角色**：`implementer`（常规实现）。需求/方案对齐 → 最小改动实现 → 自测/门禁 → 提测文档 → 提交；架构级先方案批准；本步只做该角色职责；越界交回或升级。
 - **上游**：`frame`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
@@ -14,7 +14,7 @@
 
 ## 2. 本步目标
 
-- **目标**：一页方案卡
+- **目标**：产品分析与方案
 - **产出**：方案卡（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
@@ -38,12 +38,19 @@
 
 - **本步必开技能（质量不降）**：`product-shaping`、`solution-design`、`task-breakdown`、`engineering-quality` → 见 §6 闭环。
 
+- **条件技能**：`product-doc-analysis`（输入含 PRD/原型/产品文档） → 命中则同样走 §6 闭环。
+
 ### 本步动作清单
 
-- 技能见 §6 `product-shaping`（产品判断）+ §6 `solution-design` 当前节 + §6 `engineering-quality` + §6 `task-breakdown`（任务拆分）。
+- 技能见 §6 `product-shaping`（产品分析）+ §6 `solution-design` 当前节 + §6 `engineering-quality` + §6 `task-breakdown`（任务拆分）。
 - 模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
 - 本步只读/写方案卡，不改代码。
 - 把「产品行为 + 技术方案 + 任务 + 验收 + 测试策略 + 风险」压到一页。
+- 输入含文档/原型/截图/接口文档 → 先按 §6 `product-doc-analysis` 的 §0 Brief+差量表相关节（大改动/高风险全节）产出理解摘要，并入方案卡 §0/§1。
+- 一句话输入用产品五字段+假设，不另起理解包。
+- 方案卡 §0 必填「输入与理解」（原文/一句话 + 影响面 + 未确认项）。
+- 大改动/高风险：§0/§1 全节 + 影响面/替代/非目标/AC 追溯/风险。
+- 有文档/原型 → `product-doc-analysis`。
 - 必填：范围/非目标、主流程与状态/权限/异常、改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、测试点（P0/P1/类型）、风险/假设/待确认。
 - 验收表必须可被 `verify/Invoke-Gate.ps1` 读取。
 - 每条 AC 有检查与证据（路径或命令）。
@@ -51,7 +58,8 @@
 - 每个任务有文件与验证。
 - P0 测试点齐。
 - 不把「应该/正常」写成验收。
-- 需要独立代码评审/接口契约/迁移/安全 → 停下说明并升级 `change`/`iterate`，不硬走 solo。
+- 需要正式评审/发布/QA/UAT/交接 → 转完整链。
+- 技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。
 - confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」。
 - 用户确认后进 build。
 - 「只出轻量方案」→ 本步后直接 closeout，跳过 build/test。
@@ -67,6 +75,7 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `product-shaping` | **必开** | 进入本步即开（质量不降） | `skills/product-shaping/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
+| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
 | `solution-design` | **必开** | 进入本步即开（质量不降） | `skills/solution-design/SKILL.md` | 只读 L13-L112（硬门槛+方法+反合理化）→ 回本包 |
 | `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 只读 L12-L107（硬门槛+方法+反合理化）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 只读 L13-L65（硬门槛+方法）→ 回本包 |
@@ -90,5 +99,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=plan | agent=implementer | packet=rules/packets/solo/plan.md | global=ok | skills=product-shaping,solution-design,task-breakdown,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=plan | agent=implementer | packet=rules/packets/solo/plan.md | global=ok | skills=product-shaping,product-doc-analysis,solution-design,task-breakdown,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
 ```
