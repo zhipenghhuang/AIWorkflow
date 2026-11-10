@@ -7,19 +7,18 @@
 
 ## 1. 预算
 
-| 对象 | 上限（估算 tokens） |
-| --- | ---: |
-| `cold-start.md`（开局一次） | ≤ 1,200 |
-| `global-rules.md`（会话常驻） | ≤ 6,000 | 全局规则唯一出处；新会话读一次，切步不重读全文 |
-| `AGENTS.md` §0 + 指针 | ≤ 2,500 |
-| `AGENTS.md` 全文（含口令表） | 不计入每任务预算；口令表仅路由未定/首次命中时读 |
-| 常驻/必读规则 | ≤ 8,000 |
-| 参考手册 / `rules/special/` | ≤ 10,000（头部标 `读取级别：参考` 或 `按需`，只读当前节） |
-| 单个 `skills/<name>/SKILL.md` | ≤ 4,500 |
-| 模板 | 不设 token 上限 |
-| 单步读取总量 | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000（重步默认允许） |
+| 对象 | 上限（估算 tokens） | 说明 |
+| --- | ---: | --- |
+| `cold-start.md`（开局一次整文件读） | ≤ 1,200 | 只放启动/续跑/回执 |
+| `global-rules.md`（每步整文件读） | ≤ 6,000 | 全局规则唯一出处；每步读并逐条过；未读不得写 `global=ok` |
+| `AGENTS.md` §0 + 指针 | ≤ 2,500 | 分级表+指针；硬约束不重复 global-rules |
+| `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅路由未定/首次命中时读 |
+| 参考手册 / `rules/special/` / 按节读规则 | 不设整文件上限 | 头部标 `读取级别：参考` 或 `读取时机` + 节索引；只读当前节；不得为凑短删质量内容 |
+| `skills/<name>/SKILL.md` | 不设 token 上限 | 按 §6 行窗只读必做/处置/判定/反合理化；单步预算计实际行窗；主文件 ≤500 行（结构上限，超长拆 `references/`） |
+| 模板 | 不设 token 上限 | 只复制/填写，不作为规则通读 |
+| 单步读取总量（步骤包 + §6 实际行窗） | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000 | 不含每步 `global-rules`；核心来源按命中读；重步允许；超 12,000 才拆包或拆行窗。预算是指示线，不是砍质量的借口 |
 
-**读法**：新会话精读 `cold-start.md` + `global-rules.md`；切步只读当前步骤包（`packet=`）；中段只认心跳 + 运行状态。口令表仅路由需要时读。参考/技能/模板/`special` 按命中读当前节或一份。
+估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。整文件 token 只约束 `AGENTS.md` / `cold-start.md` / `global-rules.md` 这类“开局或每步整文件读”的文件；`gates.md`、`routing.md`、`doc-quality.md`、`doc-governance.md` 等按节读规则，不按整文件限长。`Test-DocHygiene.ps1` 检查上述整文件预算、模板索引与结构；按节读文档不报整文件长度。
 
 ## 2. 单一出处
 
@@ -69,7 +68,7 @@ powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-DocHygiene
 python "wf-product/rules/tools/validate_workflow.py" "wf-product"
 ```
 
-检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、读取索引挂载、孤立模板。
+检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板。
 后续可加：token 预算、重复句、同范围“必须/可跳过”冲突、孤儿规则；未实现前人工核对。
 
 ## 5. 规则 eval（改规则时）

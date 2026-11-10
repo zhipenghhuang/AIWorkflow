@@ -25,7 +25,7 @@ steps:
   agent: test-planner
   hitl: confirm_intent
   hitl_when: intent_needs_confirm
-  output: 自洽交接单文档（默认非 HO；落 outbound/{category}/）
+  output: 自洽交接单文档（默认非 HO；落 outbound/{category}/；同轮记 handoff-ledger.md）
   notes: '**默认入口**。读 `rules/collaboration/handoff.md` 与 `handoff-note-template.md`（择优，非填空卷）。 **意图择优**：先判 `intent_needs_confirm`（澄清方法见
     clarification）。真 → 完整【意图理解】停等再落盘；假 → 一行【意图】回执后直写。禁止含糊「交接」直接成文。 五问→形态 A/B/C 或专模；禁止整表粘贴。 专模真源写 `{workroot}/{ver}/`（如 `test-report.md`），同轮实拷
     `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建 HO；禁外印元数据。'

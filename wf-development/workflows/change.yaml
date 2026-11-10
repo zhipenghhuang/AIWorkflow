@@ -43,7 +43,7 @@ steps:
     when: iteration_close_needed
   - name: confirm_docs_migration
     when: docs_migration_needed
-  output: 需求理解包 + 验收清单草案（目标/范围/AC/非目标/假设/检查/证据）
+  output: 需求理解包（有外部输入时）+ L1 开发卡（验收/SC）/ L0 轻量回执
   notes: 按 clarification + requirements-and-spec 必做；一次一问；L0 轻量回执、L2+ 进 requirements。 有 PRD/原型 → 下一步 analyze_input；交接包先 handoff.receive。禁本步
     -StartTask。 外部输入/关账见 `rules/doc-governance.md`；分级见 AGENTS。
 - name: 产品资料解析与理解确认

@@ -1,12 +1,12 @@
 # AI测试流程（分析驱动） · `testing` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步必读并逐条过；切步/过门/续跑都重读）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`分析需求` → `plan`；`梳理测试依据` → `plan`；`理解PRD` → `plan`；`理解 PRD` → `plan`；`需求建模` → `plan`；`测试计划` → `plan`；`生成测试计划` → `plan`；`根据迭代生成测试计划` → `plan`；`按迭代生成测试计划` → `plan`；`根据版本生成测试计划` → `plan`；`根据需求生成测试计划` → `plan`；`根据方案生成测试计划` → `plan`；`功能测试计划` → `plan`；`更新计划` → `plan`；`本期变更` → `plan`；`计划变更` → `plan`；`增量变更` → `plan`；`新文档更新测试计划` → `plan`；`按测试计划执行` → `execute`；`按计划执行` → `execute`；`继续测试计划` → `execute`；`执行测试计划` → `execute`；`执行测试` → `execute`；`执行` → `execute`；`跑` → `execute`；`按计划回归` → `execute`；`回归重跑` → `execute`；`重跑` → `execute`；`执行专项` → `execute`；`执行接口测试` → `execute`；`执行探索式测试` → `execute`；`执行随机业务流程` → `execute`；`执行性能测试` → `execute`；`执行安全测试` → `execute`；`执行兼容性测试` → `execute`；`测试报告` → `report`；`出报告` → `report`；`准出评估` → `report`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

@@ -3,9 +3,9 @@
 | 脚本 | 用途 | 运行 |
 | --- | --- | --- |
 | `Test-Template.ps1` | 包自检：引用/锚点/workflows→agents/步标记/能力名/版本/YAML 语法/开发计划模板 schema/密钥扫描 | `powershell -ExecutionPolicy Bypass -File rules/tools/Test-Template.ps1` |
-| `Test-DocHygiene.ps1` | 文档卫生/读取预算：AGENTS 行数、规则超长、孤立模板、读取索引 | `powershell -ExecutionPolicy Bypass -File rules/tools/Test-DocHygiene.ps1` |
+| `Test-DocHygiene.ps1` | 文档卫生/整文件预算：AGENTS、开局卡、global-rules；模板索引；结构/临时文件 | `powershell -ExecutionPolicy Bypass -File rules/tools/Test-DocHygiene.ps1` |
 | `validate_workflow.py` | YAML 语法 + workflow/agent 基本 schema + step/agent/entry_points/hitl/when/gate 引用 | `python rules/tools/validate_workflow.py .` |
-| `validate_tasklist.py` | 任务清单模板/实例校验：章节/列/ID/状态/依赖/任务卡字段/RP 覆盖 | `python rules/tools/validate_tasklist.py <清单路径>` |
+| `validate_tasklist.py` | 任务清单模板/实例校验：章节/列/ID/状态/依赖/任务卡字段/SC 表与来源/RP 覆盖 | `python rules/tools/validate_tasklist.py <清单路径>` |
 | `validate_dev_plan.py` | 开发计划校验：阶段/门/状态/下一步/关键节/链接 | `python rules/tools/validate_dev_plan.py <开发计划路径>` |
 | `extract_prototype_modules.py` | 解码单 HTML 原型中的 `data:`/base64 模块并枚举路由/导航/组件 | `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner development`；按档案 `workroot`，未声明按约定；搬迁仍需确认） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner development` |

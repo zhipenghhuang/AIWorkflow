@@ -19,7 +19,7 @@ description: Use when executing tests or exploratory testing. Execute from the s
 4. **生成当前场景**：按 `testcase-design` 由意图展开；P0 按深度；覆盖矩阵/方法矩阵/细节维的空格先补；不预生成全量。  
 5. **执行**：脚本优先；同页簇/动作连做；失败现场留证；不把步骤当脚本机械点击；S6/S7/S11 在功能收口前逐项看。  
 6. **边执行边记录**：每场景写执行记录行；失败/阻塞/待实现另起详情；写意图结论表；更新计划 §0/§6。  
-7. **批末**：所有在范围意图终态；失败/阻塞证据可开；跑 `-Mode execute -Scope`；再进下一批/阶段。
+7. **批末关账**：① 本批意图终态齐；失败/阻塞证据可开；② INT 均在 §2.1 台账；本批触及的 §2.1.1 设计点已映射到这些 INT 的终态或 N/A+接受人；③ 跑 `-Mode execute -Scope`：过程完整且仅产品红 → **CONDITIONAL** 可下批（缺陷须入库）；分析/计划/链接/证据任一不过 → **FAIL/BLOCKED**，先补齐再推进。
 
 ## 1. 执行记录（唯一落档）
 
@@ -27,7 +27,7 @@ description: Use when executing tests or exploratory testing. Execute from the s
 - 接口：`{workroot}/{ver}/api/{NN}-{短名}-执行记录.md`
 - 探索：`{workroot}/{ver}/exploratory/{主题}-{戳}-探索记录.md`
 - 发布前：`{workroot}/{ver}/pre-release/{专项}-test-report.md`
-- 一行一场景；默认不写逐步表格；失败/P0/锚点才展开 3～7 步详情。
+- 一行一场景；§1 的 `步骤` 列始终写 3～7 个短动作（带核对点）；失败/P0/锚点才在 §2 另展开 3～7 步详情。
 - 结果：未执行/通过/失败/阻塞/待实现/不适用/未本轮验证；一个意图按最差态合并。
 - §3 意图结论表一行一个 INT，P0/P1/P2 都有终态；未测意图必须列接受人。
 
@@ -64,7 +64,9 @@ description: Use when executing tests or exploratory testing. Execute from the s
 - `不适用`：范围外/业务不适用 + 依据 + 接受人。
 - 失败/阻塞/待实现必须有证据或原因；通过不得只凭“没报错”。
 - 无有效样本不得报通过；期望拒绝却弱成功/授权未拦却先撞业务规则 = fail。
-- 新 INT 先回写分析再记入执行记录；P0 通过须含证伪/负向场景（或 N/A+接受人）。
+- 新 INT 先回写 §2.1（具体 ID + Oracle + 优先级）再记入执行记录；禁簇名；禁只写设计点不建台账。
+- P0 通过须含证伪/负向场景（或 N/A+接受人）；闸认「阻断/门禁/冲突/假通过」等为证伪信号，禁空刷词。
+- 批末 CONDITIONAL ≠ 准出通过：仅表示过程完整、可继续测其他批找缺陷；整体准出仍看 report 闸。
 
 ## 4. 接口执行
 
@@ -92,9 +94,11 @@ description: Use when executing tests or exploratory testing. Execute from the s
 
 ## 8. 执行 DoD
 
-- 意图范围清楚；场景有来源/Oracle；P0/P1/P2 全部有终态；P0 深度齐。
+- 意图范围清楚；场景有来源/Oracle；P0/P1/P2 全部有终态；P0 深度齐（`testcase-design` §3；禁浅打勾）。
+- 本批触及的设计点/适用维已落场景或「不适用+依据」；顺延无接受人=缺口。
+- 计划含接口轨：`api/` 记录+契约清单+depth 维按 `tracks/api`；功能内嵌探针不顶替。
 - 记录/证据/失败分类/重试有界；未测/阻塞显式；S6/S7/S11 有落点。
-- P0 未过不整体通过；计划 §0/§6 已同步。
+- P0 未过不整体通过；计划 §0/§6 已同步；状态/总览须分轨报进度（功能/接口/探索/发布前），禁只报功能条数。
 - 锚点通过或有缺口接受人。
 - 经济回执：`exec_mode=`/`pg=`（或 `na`）；已脚本化走脚本；同页簇/造数按判断执行。
 
@@ -108,7 +112,9 @@ description: Use when executing tests or exploratory testing. Execute from the s
 | “先交平台，后面补证据” | 弱证据/错题不交平台；回写要有回执。 |
 | “已脚本化再 MCP 点一遍更放心” | 双耗；回归只跑脚本，失败才有界复核。 |
 | “步骤就是脚本，照着点” | 步骤供复核；AI 执行对照来源/意图，不机械点。 |
-| “多模块也直跑更快” | ≥2 装填模块默认模块子代理（可串行）；无 Task 再降级并记 `subagent=unavailable`。 |
+| “多模块也直跑更快” | **同并行组** ≥2 装填模块默认模块子代理；并行组=`串行` 的多行可各直跑；无 Task 再降级并记 `subagent=unavailable`。 |
+| “有设计点列表就算覆盖了方案” | 否；每个测项须有 §2.1 台账行（Oracle）；设计点只映射，不能冒充台账。 |
+| “本批有 P0 红就不能开下批” | 过程完整（分析/链接/证据齐）+ 缺陷入库 → CONDITIONAL 可推进继续找缺陷；分析残缺/链接断禁推。 |
 | “写了 pg= 就算并行” | 无互斥隔离必须 `pg=na`；冲突串行并记 `plan_batch_conflict`。 |
 | “计划没写批次就自己并行” | 未列批次默认串行；先补 §3.1 或记 `no_batch_plan`，禁静默并行。 |
 | “看到 404 就标阻塞” | 先定位被测入口；入口自身 404/空壳→失败；仅前置/依赖不可达→阻塞（§0.4）。 |
@@ -116,3 +122,6 @@ description: Use when executing tests or exploratory testing. Execute from the s
 | “有阻塞就写准出 BLOCKED” | 失败/待实现与阻塞并存 → 准出优先 FAIL；仅前置阻塞主导才 BLOCKED。 |
 | “分析写了就算对照过原文” | 分析是索引；落账前仍须打开原文对应段 + 互补源。 |
 | “Oracle 写通过/正常” | 无效；须可观测断言，并能与分析 Oracle/原文对上。 |
+| “INT 打勾了就全覆盖” | 终态须带深度档；设计点/适用维未落=未覆盖（multi-track Q17）。 |
+| “功能里调过 API 就算接口轨完成” | 否；须 `api/` 契约记录+depth；见 `tracks/api` 红线。 |
+| “先顺延下批，本批算覆盖过” | 无接受人的顺延=缺口；不得写入已覆盖。 |

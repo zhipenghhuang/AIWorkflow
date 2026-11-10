@@ -1,12 +1,12 @@
 # 自包含完整链（产品→开发→评审→测试） · `solo` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`轻量开发` → `frame`；`自包含开发` → `frame`；`无正式迭代` → `frame`；`小改动` → `frame`；`我有个想法` → `frame`；`想法落地` → `frame`；`小项目` → `frame`；`产品分析` → `product`；`轻量方案` → `design`；`只出轻量方案` → `design`；`轻量测试` → `test`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

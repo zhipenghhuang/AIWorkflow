@@ -1,12 +1,12 @@
 # 产品缺陷平台协作 · `defect` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`拉取产品缺陷` → `preflight`；`我的产品缺陷` → `preflight`；`缺陷平台产品缺陷` → `preflight`；`禅道产品缺陷` → `preflight`；`产品缺陷评审` → `preflight`；`开发评估单评审` → `preflight`；`产品缺陷处置` → `preflight`；`产品判定` → `preflight`；`产品判定回流` → `preflight`；`平台回写` → `writeback`；`回写产品缺陷` → `writeback`；`粘贴产品缺陷` → `pull`；`文档产品缺陷` → `pull`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

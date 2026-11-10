@@ -6,7 +6,7 @@
 
 ## 1. 进入条件
 
-- 本链最后一个 domain 步骤的产出已落盘；`report-consistency` 等门已 `ALLOWED` 或明确不适用。
+- 本链最后一个 domain 步骤的产出已落盘；`report-consistency` 已 PASS/CONDITIONAL（或明确不适用）；完成表述另须 `-Claim` → `CLAIM: ALLOWED`。
 - 没有未闭环阻塞；有则先写 `blocked`。
 - 缺陷提交/平台回写若是本链 domain 动作，已完成或明确不适用；本步只做最终提交确认。
 

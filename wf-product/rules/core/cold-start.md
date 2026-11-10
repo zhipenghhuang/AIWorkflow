@@ -1,13 +1,13 @@
 # 开局卡（产品轨）
 
 > **冲突**：覆盖顺序只认 `rules/core/global-rules.md` §11；与门/红线冲突先说明风险，再等用户选择。
-> **读取级别：常驻**（新会话读一次）；中段只重锚运行状态，不重读全文。
+> **读取级别：开局一次**（新会话读；中段只重锚运行状态，不重读全文）。
 > **入口**：宿主已打开本包 `AGENTS.md`；本卡不再回指 AGENTS。口令未定再回 AGENTS 口令表 / `routing.md`。
 
 ## 1. 新会话顺序（按序一次）
 
 1. `activeContext.md`：总览 + 本包运行状态（workflow/state/packet）+ **偏好/洞见/坑 ≤3 行**（无则当无；写法 `context-memory.md`）。
-2. `rules/core/global-rules.md`：新会话读一次全文；同会话切步不重读。
+2. `rules/core/global-rules.md`：每步读全文并逐条过；未读不得写 `global=ok`。
 3. 有 `product-profile.md` → §1（身份/流程偏好）；涉计划再读 `product-plan.md` §0/§10。
 4. 未接入 → `onboard`；已接入（`wf-product onboard: done`）→ 命中 workflow 后读 `workflows/<id>.md`（一次）→ 当前步骤卡。
 

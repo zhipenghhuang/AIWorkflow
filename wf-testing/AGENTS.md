@@ -3,9 +3,9 @@
 > **用途**：测试规范 AI 入口。  
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §2 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：全局规则本会话已读则不重读全文；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **已路由中段**：`global-rules` **每步读**（逐条过；切步/过门/续跑都重读，换链/规则变更也重读）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.09.05`  
+> **template_version**：`2026.11.10.01`  
 > **主链**：分析 → 计划 → 执行 → 报告；分析必做，计划是总排。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -16,11 +16,11 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 测试` 进行中（含 workflow/state/packet） + **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；身份：档案 §1 或 `env-baseline`（每新会话一次）。  
 3. **接入**：`wf-testing onboard: done` 则跳过；计划/执行/缺陷无标记时核验一次。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`。  
-5. **覆盖**：只认 `rules/core/global-rules.md` §11。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（每步读并遵守）。  
+5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
 6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）。  
-8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
+8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；每步 `global=ok`=已读本步全局规则）。
 
 ### 0.0 事实与文档
 
@@ -30,12 +30,7 @@
 
 步骤门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`；开工档位/读链只认 `global-rules.md`；澄清**方法**按需读 `clarification.md`（参考层）。  
 **路径**：T0～T3 为内部风险标签，按 `gates.md` §4 的事实判定；补丁/单模块且不承担版本准出可轻量，其余默认完整；路径拿不准按完整。勿与开发 L* / 产品 P* 混用。  
-**分析必做**：无 `{workroot}/{ver}/test-analysis.md` 不得写计划、不得执行；分析是原文索引（须含影响面/核心链路；迭代不止改动模块）。  
-**环境基线**：`env-baseline.md`；分析/计划/执行前读命中节；计划 §2.2 写命中节/差异/核验；缺基线先接入。  
-**计划**：`{workroot}/{ver}/test-plan.md` 唯一总排；不重复分析大表。  
-**优先级**：P0/P1/P2 均为覆盖义务；不得用“低优先级”跳过。  
-**执行**：按计划执行全部在范围 P0/P1/P2；开跑按原文目录对账分析漏项、批末来源关账；P0 有证伪场景；场景边生成边写；T1+ 收口前 S6/S7/S11 有落点。  
-**完成**：只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`；P0 未过或意图未终态不得整体通过。  
+**路由硬门**：无 `{workroot}/{ver}/test-analysis.md` 不得写计划、不得执行；`test-plan.md` 为唯一总排；完成只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`（P0 未过或意图未终态不得整体通过）。缺 `env-baseline` 先接入。  
 **读法（硬）**：路由后只读**当前步骤卡 + §6 必开技能 + ≤1 模板**；分析/执行/报告硬门槛以本步步骤卡为准，不跳转拼手册。
 
 ## 1. 接入
@@ -44,7 +39,7 @@
 
 ## 2. 口令 → Workflow（命中即停）
 
-> **描述**：表内是常见口令示例（非穷尽），同义表述按五元组路由，不要求逐字匹配；命中优先执行。未命中或任意描述句 → 必读 `rules/core/routing.md`：抽五元组 → 意图类 A～L → 计划状态修正；首条必写 `reason=`。不抠固定措辞；路由后按步加载技能，不另造 workflow。
+> **描述**：表内是常见口令示例（非穷尽），同义表述按五元组路由，不要求逐字匹配；命中优先执行。未命中或任意描述句 → 必读 `rules/core/routing.md`：抽五元组 → 意图类 A～I → 计划状态修正；首条必写 `reason=`。不抠固定措辞；路由后按步加载技能，不另造 workflow。
 
 | 优先 | 命中 | workflow | 切入 step |
 | ---: | --- | --- | --- |
@@ -52,7 +47,7 @@
 | 1 | **根据迭代/版本/需求/方案生成测试计划**；根据迭代生成测试计划；生成测试计划；测试计划；更新计划；本期变更 | `testing` | plan（本步内完成分析 + 计划） |
 | 2 | 按测试计划执行；按计划执行；继续测试计划；按计划重跑 | `testing` | execute |
 | 3 | 测试报告；准出评估 | `testing` | report |
-| 4 | 执行专项；执行接口测试；执行探索式；执行发布前；执行性能/安全/兼容 | `testing` | execute（按 track 契约） |
+| 4 | 执行专项；执行接口测试；执行探索式；执行随机业务流程；执行发布前；执行性能/安全/兼容 | `testing` | execute（按 track 契约） |
 | 5 | 分析需求；梳理测试依据；理解 PRD（用户明确只做分析） | `testing` | plan（分析部分；仍产出分析文件） |
 | 6 | 缺陷协作/提交到平台/缺陷回归 | `defect` | classify（按链至收尾/提交门） |
 | 7 | 当前状态/下一步 | —（只读） | 直接读 `activeContext` + `test-plan.md` §0；不启动 workflow |
@@ -67,7 +62,7 @@
 | 16 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→closeout |
 
 **入口即止**：单步入口做到产出即止（不含提交/推送/部署/回写），仍按 `closeout-skeleton.md` 输出；标「按链」到链末停点；「按计划执行」走 execute→report；`report` 门后追加提交/交平台确认；`onboard` / `materials` / `skill-audit` 的 `chain: full` 例外（跑到链末停点）。  
-**路由消歧**：裸「回归」先确认 `defect` 单回归还是 `testing.execute` 重跑；确认后走「按计划回归 / 回归重跑 / 重跑」或 `defect`，勿把裸「回归」直接当 execute。  
+**路由消歧**：裸「回归」先确认 `defect` 单回归还是 `testing.execute` 重跑；确认后走「按计划回归 / 回归重跑 / 重跑」或 `defect`，勿把裸「回归」直接当 execute。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。  
 **主链**：`plan → execute → report`（`plan` 默认 `next: execute`）。  
 **版本级单点**：`test-plan.md` / `test-report.md`；补丁可用 `plan_tier=lite`（不承担版本准出）。  
 **路径**：本期产物在 `{workroot}/{ver}/`；执行记录 `functional|api/{NN}-{短名}-执行记录.md`（平铺，细则 §3）。  
@@ -83,12 +78,12 @@
 
 ## 4. git
 
-有 `.git` 时：完整任务收尾检查仓库状态与 `.gitignore`；结论只写入【任务收尾】第 2 点（字段：`待提交摘要` / `git` / `.gitignore`）；禁止收尾外另造 git 块；仓库完整清单仅【拟提交·仓库】一次（门=`confirm_commit`；≠ 门3 `confirm_platform`）。无 `.git` 时第 2 点写「无仓库」。
+有 `.git` 时：完整任务收尾检查仓库状态与 `.gitignore`；结论只写入【任务收尾】第 2 点（字段：`待提交摘要` / `git` / `.gitignore`）；禁止收尾外另造 git 块；仓库完整清单仅【拟提交·仓库】一次（门=`confirm_commit`；≠ 平台门 `confirm_platform`）。无 `.git` 时第 2 点写「无仓库」。
 提交/推送前：出示【拟提交·仓库】→ `confirm_commit` 确认后执行；禁擅自切主干、force push、开/合并 PR（除非点名）。重要改动确认后尽早提交。多 remote / 异形 tip 时禁对本工作树 `checkout`/`reset` 到非日常 tip；同步/历史改写只在临时目录或独立 worktree。
 
 ## 5. 收尾
 
-触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。**骨架与硬项以** `closeout-skeleton.md` §1 通用占位为准（执行用【执行收尾】；专规只填第1点；缺项=未收尾）。按项目事实填 `{…}`，禁照抄他例。收尾/复盘按 `context-memory.md` §4 写「工作记忆」（无则「无」）。浏览器退程见多Agent §2.2。门3（`confirm_platform`）与【拟提交·仓库】在骨架后按 `hitl` 分门确认。
+触发：工作流末步、计划全部阶段结束、点名「收尾/总结」。**骨架与硬项以** `closeout-skeleton.md` §1 通用占位为准（执行用【执行收尾】；专规只填第1点；缺项=未收尾）。按项目事实填 `{…}`，禁照抄他例。收尾/复盘按 `context-memory.md` §4 写「工作记忆」（无则「无」）。浏览器退程见多Agent §2.2。`confirm_platform` 与【拟提交·仓库】在骨架后按 `hitl` 分门确认。
 
 ## 6. 维护
 

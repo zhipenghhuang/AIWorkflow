@@ -45,13 +45,13 @@ steps:
   hitl: confirm_understanding
   hitl_when: understanding_needs_confirm
   notes: 来源分层（用户反馈/客服/数据/销售/竞品/合规）；每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）； **先还原需求**：技能 `skills/customer-needs-discovery/SKILL.md`（先读）——区分想要/需要/方案；单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
-    澄清**按 `rules/core/clarification.md` 执行**；正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
-    **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 `skills/competitive-intelligence-and-learning/SKILL.md` **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板
+    按 `rules/core/clarification.md`；正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。**未双确认不得**入池承诺/排优先级；未确认推断标「假设」并写验证方式。
+    **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 按 `competitive-intelligence-and-learning` 技能 **模式 S**；落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板
     `competitor-analysis-template.md`）；产出借/改编/不借表并回绑本产品问题；影响定位/范围须确认。功能差距清单需求 → 转 `benchmark` 步（模式 P），不在本步只交对标矩阵冒充分析。 **来源扇出**（子代理编排
     ）：批量洞察/竞品 ≥4 独立来源 → 按来源只读扇出（返回证据表/去重键 ≤30 行）；主 agent 去重入池；单条反馈直做。 引用须可回查（来源+日期），无依据写「待验证」。 能力（可选）：docs-mcp 查资料、browser-mcp
     查竞品/后台；未装=按主读与用户输入。 输入含外部文档/竞品/反馈原件 → 先按 `rules/doc-governance.md` 【入站分析】；确认前不改文件。确认采纳后落 `inbound/{ver|topic}/` 或 `_common/`（或
-    T7 参考）；S1/S2/S3 同批进 `inbound/_archive/`；本包写的 PRD/竞品分析正文落工作区，不进资料。 技能：`skills/requirement-discovery-and-prioritization/SKILL.md`（先读再做）；竞品向必加
-    `competitive-intelligence-and-learning`。
+    T7 参考）；S1/S2/S3 同批进 `inbound/_archive/`；本包写的 PRD/竞品分析正文落工作区，不进资料。 技能：`skills/requirement-discovery-and-prioritization/SKILL.md`（先读再做）；竞品向另按
+    `competitive-intelligence-and-learning` 技能。
 - name: 竞品对标与差距候选项
   id: benchmark
   when: benchmark_or_mode_p
@@ -97,9 +97,9 @@ steps:
     批准；两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。 已在需求池/立项书/计划范围内 → 直接写；未定性新输入 → 先走 `workflows/change.yaml` intake，不跳过受理。 **写前先读**：确认的客户需求理解/受理单/需求池/证据；每条
     F/R/AC 必须能追溯到来源（访谈/工单/数据/文档/裁决），无来源列 `Q-xx` 待确认，不臆造；未确认的推断标「假设」。 理解门先行：`confirm_understanding` 按 `rules/core/clarification.md`
     出示理解复述+方案要点；**未双确认不得**落正式 PRD（可出草稿并标待确认）。 P2+ 且开发/测试角色可得时，按 `rules/collaboration/handoff.md` 做需求澄清（Three Amigos）：产品讲问题/AC，开发讲可行性/影响，测试讲可测性/oracle；产出澄清记录（问题/示例/AC/待决，可并入
-    PRD 的变更记录节或评审记录）并回写 PRD；角色不可得则跳过，不阻塞。 技能：`skills/prd-writing/SKILL.md`（先读再写）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验，可选）；自检清单与
-    `skills/review-and-finalize/SKILL.md` 同源。 要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段rules/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑； **多需求/版本级**：用
-    `rules/templates/10-planning/iteration-plan-template.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；PRD 保留单需求明细。验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
+    PRD 的变更记录节或评审记录）并回写 PRD；角色不可得则跳过，不阻塞。 技能：`skills/prd-writing/SKILL.md`（先读再写）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验，可选）；定稿自检清单与
+    `review-and-finalize` 技能同源（评审步技能，本步不强制打开）。 要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段rules/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑；
+    **多需求/版本级**：用 `rules/templates/10-planning/iteration-plan-template.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；PRD 保留单需求明细。验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
     写不出验收标准 = 需求未定义完；禁臆造用户反馈与数据（引用可回查）。 **级别**：P0/普通 P1 → 轻量模板；**P1↑**（权限/资金/隐私/不可逆数据/主数据规则）→ 作者自检按 P2，可用轻量壳但须补权限/rules/异常/AC；P2+
     → 全量模板。 **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing ）；`gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。BLOCKED
     → 不得进评审/定稿；DRAFT → 可审不可定稿；进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。 P0 纯文案且无结构门要求时可跳过 gate；普通 P1 进交开发前仍须非 BLOCKED。
@@ -110,9 +110,9 @@ steps:
   - rules/packets/prd/prototype.md
   when: has_ui_requirement
   agent: ux-designer
-  output: '{workroot}/{ver}/20-design/原型-{主题}.html + 原型说明/交接要点（条件）'
-  notes: 条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。 按 `workflows/prototype.yaml` 执行（情境 → IA → 线框 → 视觉 → 高保真 → 工程化 → 评审 → 可用性 → 交接）；只执行所列步骤，不执行
-    prototype.closeout（由本链统一收尾）。 原型完成后回 PRD 评审；PRD 追溯矩阵「原型/页面」列回填。 技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`。
+  output: 切包声明（目标 `prototype.context`→handoff）+ activeContext 更新；原型正文/交接由目标步骤卡产出
+  notes: 条件步：有界面/页面需求或用户点名「画原型」才走；纯后端/接口跳过。 **切包（硬）**：同轮改续跑指针 → 关闭本包 → 只打开 `workflows/prototype.yaml` context；按该链推进到 handoff（跳过
+    closeout）→ 回写指针到本链 review。禁止在本步代跑原型正文、同时多 packet、或通读整条 prototype YAML。方法技能随目标 prototype 步骤卡 §6 打开。 原型完成后回 PRD 评审；PRD 追溯矩阵「原型/页面」列回填。
 - name: PRD 评审与定稿
   id: review
   must_read:

@@ -1,6 +1,6 @@
 # 步骤卡 · solo/frame
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -20,7 +20,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -30,7 +30,7 @@
 ## 4. 本步门
 
 - 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
-- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
+- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步动作
 
@@ -39,18 +39,19 @@
 
 - **本步必开技能（质量不降）**：`product-shaping` → 见 §6 闭环。
 
+- **条件技能**：`product-doc-analysis`（输入含 PRD/原型/产品文档） → 命中则同样走 §6 闭环。
+
 ### 本步动作清单
 
 - 技能见 §6 `product-shaping`（先读再做）。
-- 口径 按风险：可裁剪文档厚度。
-- 正式协作/自包含见步骤卡。
-- 必开技能/HITL不降。
+- 口径 按风险裁剪文档厚度。
+- 必开技能/HITL 不降。
 - 只在「新想法/新产品/方向不清」时走。
 - 无正式迭代/正式协作 → 本链。
 - 有正式协作/迭代或产品/测试按迭代/版本正式介入 → 完整链，不进本步。
 - 大改动/高风险也走本链，按 `lightweight.md` 提高产品分析与测试证据。
-- 小改/需求已清楚 → 跳过本步，直接 plan（方案卡 仍须产品最小硬门槛五字段）。
-- 本步不单独停：产出直接进 plan，由 `confirm_spec` 一次确认。
+- 小改/需求已清楚 → 跳过本步，直接 product（产品分析仍必做；方案卡仍须产品最小硬门槛五字段）。
+- 本步不单独停：产出直接进 product，由 `confirm_spec` 一次确认。
 - 方向存在 ≥2 个互斥选择时，在方案卡里列选项与推荐，仍只停一次。
 - 只问影响方向/范围/成功标准的问题：首轮 0～1 个，总 ≤3。
 - 是否正式协作/正式流程拿不准 → 推荐 + 一问确认。
@@ -72,6 +73,7 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `product-shaping` | **必开** | 进入本步即开（质量不降） | `skills/product-shaping/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
+| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -91,5 +93,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=frame | agent=implementer | packet=rules/packets/solo/frame.md | global=ok | skills=product-shaping|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=frame | agent=implementer | packet=rules/packets/solo/frame.md | global=ok | skills=product-shaping,product-doc-analysis|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

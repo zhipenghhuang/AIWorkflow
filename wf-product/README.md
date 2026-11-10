@@ -1,6 +1,6 @@
 # 产品规范 — 使用说明
 
-> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`。  
+> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`（global-rules 每步重读）。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -21,7 +21,7 @@
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；`skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令→workflow；版本单点） |
-| `rules/gates.md` | 门语义、`when` 词表、门档位（autonomous/notify/approve）；含 product-review/uat-evidence/change-closure/writeback-receipt |
+| `rules/gates.md` | 门语义、`when` 词表、门档位（autonomous/notify/approve）；含 PRD/评审/设计评审/UAT/变更/回写/材料库等门 |
 | `rules/workflow.md` | 参考：阶段护栏/产物路径（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
 | `rules/doc-governance.md` | 资料收取/分类/覆盖对照/失效/归档 + 工作文档生命周期/归档/清理 |
 | `rules/core/` | `global-rules.md`、`cold-start.md`、`clarification.md`、`routing.md`、`verification.md`、`rule-governance.md`、`maintenance.md`、`doc-quality.md`、`context-memory.md`（参考层；运行时先读 global-rules） |
@@ -42,7 +42,7 @@
 
 | 层 | 位置 | 读法 |
 | --- | --- | --- |
-| 入口 | `AGENTS.md` | 新会话读 **§0 开工 + `global-rules`**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
+| 入口 | `AGENTS.md` | **§0 开工（新会话一次）+ `global-rules`（每步）**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
 | 运行时读链 | `cold-start` → `activeContext` → `global-rules`（每步）→ `workflows/<id>.md` 链图（进链一次）→ **当前步骤卡** → §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
@@ -51,7 +51,7 @@
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `verify/` | 收尾/过门时读；运行态写 `.gate/wf-product/` |
 
-> 读取预算（目标，非硬上限）：核心必读 ≤3～4（`AGENTS.md` 当前相关节 + 当前 step YAML 块 + 当前 agent/当前关键产物）；方法层按读取索引「命中才读」；总量目标 ≤8k（含必开技能时实测可至 ~10k，超出在 `reads=` 说明）；复杂步可至 5 并在收尾 reads= 说明；不得为省预算跳过门/证据/红线。规则不是越多越稳，读全本会稀释当前 step 约束。
+> 读取预算（目标，非硬上限）：核心必读 ≤3～4（`AGENTS.md` 当前相关节 + 当前步骤卡 + 当前 agent/当前关键产物）；方法层按命中才读；单步读取 = 当前步骤包 + §6 实际行窗（另加每步 `global-rules`）；目标 ≤8k，复杂步可至 12k（超出在 `reads=` 说明）；按节读的规则手册不设整文件上限；复杂步可至 5 并在收尾 reads= 说明；不得为省预算跳过门/证据/红线。规则不是越多越稳，读全本会稀释当前 step 约束。
 
 ### 2.2 版本目录（新产品默认）
 

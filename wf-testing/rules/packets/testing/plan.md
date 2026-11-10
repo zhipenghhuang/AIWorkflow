@@ -1,6 +1,6 @@
 # 步骤卡 · testing/plan
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -53,7 +53,7 @@
 
 - 模板（本步两份都填）：`rules/templates/10-planning/test-analysis-template.md`（分析，必做）＋ `rules/templates/10-planning/test-plan-template.md`（总排）。
 - **分析多源**：写分析时至少读主读 + 1 个互补源（原型/接口/代码/现网/历史缺陷）；不能只看单一文档。
-- **分析必做**：来源盘点/章节回执/依据覆盖/AC 设计点账本；每条有意图或 N/A+依据+接受人；每个 AC/设计点有落点；覆盖矩阵（模块×13 面）、方法矩阵、D01–D13 + S6/S7/S11、风险、影响面（直接/邻接/上游/下游/共享数据/事件/回归）、核心链路无未接受空格。
+- **分析必做**：来源盘点/章节回执/依据覆盖/§2.1 意图台账（具体 INT+可观测 Oracle+处置）/AC 设计点账本（意图列只映射台账，禁簇名）；每条有意图或 N/A+依据+接受人；每个 AC/设计点有落点；覆盖矩阵（模块×13 面）、方法矩阵、D01–D13 + S6/S7/S11、风险、影响面（直接/邻接/上游/下游/共享数据/事件/回归）、核心链路无未接受空格。
 - **环境基线**：先读 `env-baseline.md` 命中节；计划 §2.2 写命中节/差异/核验，不复制整本；缺基线先接入。
 - **执行双读预告**：分析是原文索引，不替代；后续执行须打开原文对应段并另读 ≥1 互补源，禁只读分析。
 - **优先级**：P0 门禁/阻断必须全过；P1 核心必须执行并出结论；P2 常规必须执行并出结论或 N/A+依据+接受人。P0/P1/P2 都是覆盖义务，不是免测开关。
@@ -71,8 +71,8 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L12-L122（必做+处置/判定/反合理化）→ 回本包 |
-| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L11-L95（必做+处置/判定/反合理化）→ 回本包 |
+| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L13-L129（必做+处置/判定/反合理化）→ 回本包 |
+| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L11-L97（必做+处置/判定/反合理化）→ 回本包 |
 | `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。

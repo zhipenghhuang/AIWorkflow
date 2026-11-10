@@ -47,7 +47,7 @@ python wf-product/rules/tools/validate_prd.py <PRD.md>
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；文档卫生见 `Test-DocHygiene.ps1`。
 
-> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
+> 按产物机检（交接包 / PRD / 各门回执）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
 
 ## 3. 规则撰写标准
 
@@ -55,7 +55,7 @@ python wf-product/rules/tools/validate_prd.py <PRD.md>
 
 ## 4. 文档粒度
 
-常驻最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
+必读最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
 
 ## 5. 宿主无关
 

@@ -1,6 +1,6 @@
 # 步骤卡 · release/readiness
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -29,7 +29,7 @@
 ## 4. 本步门
 
 - **GATE `release-readiness`**：**checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用
-- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
+- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步动作
 
@@ -37,6 +37,8 @@
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
 - **本步必开技能（质量不降）**：`acceptance-and-launch`、`observability-and-instrumentation` → 见 §6 闭环。
+
+- **条件技能**：`qa-handoff-and-release`（有提测/交接物） → 命中则同样走 §6 闭环。
 
 ### 本步动作清单
 
@@ -77,6 +79,7 @@
 | --- | --- | --- | --- | --- |
 | `acceptance-and-launch` | **必开** | 进入本步即开（质量不降） | `skills/acceptance-and-launch/SKILL.md` | 只读 L12-L86（硬门槛+方法+反合理化）→ 回本包 |
 | `observability-and-instrumentation` | **必开** | 进入本步即开（质量不降） | `skills/observability-and-instrumentation/SKILL.md` | 只读 L13-L67（硬门槛+方法+反合理化）→ 回本包 |
+| `qa-handoff-and-release` | 条件开 | 有提测/交接物 | `skills/qa-handoff-and-release/SKILL.md` | 只读 L10-L152（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -97,5 +100,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=readiness | agent=delivery-lead | packet=rules/packets/release/readiness.md | global=ok | skills=acceptance-and-launch,observability-and-instrumentation|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=readiness | agent=delivery-lead | packet=rules/packets/release/readiness.md | global=ok | skills=acceptance-and-launch,observability-and-instrumentation,qa-handoff-and-release|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

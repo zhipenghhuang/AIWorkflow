@@ -120,15 +120,15 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "iterate/deliver": ["qa-handoff-and-release"],
         "iterate/release_handoff": ["qa-handoff-and-release"],
         "iterate/gates": ["test-design-and-execution"],
-        "solo/frame": ["product-shaping"],
+        "solo/frame": ["product-shaping", "product-doc-analysis"],
         "solo/plan": ["product-shaping", "solution-design", "task-breakdown", "engineering-quality"],
         "solo/build": ["implementation-and-selftest", "engineering-quality"],
         "solo/test": ["test-design-and-execution"],
-        "control/init": ["development-plan", "product-doc-analysis"],
+        "control/init": ["development-plan", "product-doc-analysis", "product-shaping"],
         "control/run": ["development-plan"],
         "control/sync": ["development-plan"],
         "release/acceptance": ["acceptance-and-launch"],
-        "release/readiness": ["acceptance-and-launch", "observability-and-instrumentation"],
+        "release/readiness": ["acceptance-and-launch", "observability-and-instrumentation", "qa-handoff-and-release"],
         "release/deploy": ["acceptance-and-launch"],
         "release/verify": ["acceptance-and-launch"],
         "release/rollback": ["acceptance-and-launch"],
@@ -153,7 +153,7 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "prototype/ia": ["prototype-and-interaction"],
         "prototype/wireframe": ["prototype-and-interaction"],
         "prototype/visual": ["ui-visual-design-system"],
-        "prototype/hi-fi": ["ui-visual-design-system"],
+        "prototype/hi-fi": ["ui-visual-design-system", "prototype-and-interaction"],
         "prototype/review": ["artifact-review", "ui-visual-design-system"],
         "prototype/handoff": ["prototype-and-interaction"],
         "change/intake": ["customer-needs-discovery", "change-management"],
@@ -274,7 +274,7 @@ def resolve_skills_for_step(
 INLINE_RULES = (
     (
         r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
-        "澄清：先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
+        "先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
     ),
     (
         r"`?(?:rules/core/)?iq-checklist\.md`?",
@@ -286,19 +286,19 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
-        "交接：内容优先、包按需；未回执不得称已接收",
+        "内容优先、包按需；未回执不得称已接收",
     ),
     (
         r"`?rules/doc-governance\.md`?(?:\s*§[\d.]+)?",
-        "文档治理（工作根/原件根/索引/关版整夹）",
+        "文档治理规则（工作根/原件根/索引/关版整夹）",
     ),
     (
         r"`?rules/workflow\.md`?(?:\s*§[\d.]+)?",
-        "变更/提交（本步门 + 共享 closeout）",
+        "变更/提交规则（本步门 + 共享 closeout）",
     ),
     (
         r"`?rules/core/verification\.md`?(?:\s*§[\d.]+)?",
-        "完成：有 Claim 门才认 CLAIM: ALLOWED；无门则产出落盘+本步门过，claim=na",
+        "完成口径：有 Claim 门才认 CLAIM: ALLOWED；无门则产出落盘+本步门过，claim=na",
     ),
     (
         r"`?rules/core/lightweight\.md`?(?:\s*§[\d.]+)?",
@@ -312,7 +312,7 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/defects/[^`\s]+\.md`?(?:\s*§[\d.]+)?",
-        "缺陷：先红证/根因；不修表象；回写带证据",
+        "先红证/根因；不修表象；回写带证据",
     ),
     (r"`?rules/gates\.md`?(?:\s*§[\d.]+)?", "门：见本包 §4"),
 )
@@ -465,48 +465,6 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
     text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
     return text
-
-
-def is_thin_notes(notes: str) -> bool:
-    n = (notes or "").strip()
-    return (not n) or n.startswith("只读 must_read")
-
-
-def load_orch(root: Path, wid: str) -> dict[str, str]:
-    p = root / f"rules/packets/{wid}/_orch.yaml"
-    if not p.is_file():
-        return {}
-    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-    steps = data.get("steps") if isinstance(data, dict) else None
-    if not isinstance(steps, dict):
-        return {}
-    out: dict[str, str] = {}
-    for k, v in steps.items():
-        if isinstance(v, str) and v.strip() and not is_thin_notes(v):
-            out[str(k)] = v.strip()
-    return out
-
-
-def save_orch(root: Path, wid: str, steps: dict[str, str]) -> None:
-    path = root / f"rules/packets/{wid}/_orch.yaml"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "workflow": wid,
-        "purpose": "编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。",
-        "steps": {k: steps[k] for k in sorted(steps.keys())},
-    }
-    dumped = yaml.dump(
-        payload,
-        Dumper=_Dumper,
-        allow_unicode=True,
-        sort_keys=False,
-        width=120,
-    )
-    header = (
-        f"# orch · {wid} — packet rebuild source (not runtime must_read)\n"
-        "# YAML step.notes may be thin; rich orchestration lives here.\n"
-    )
-    emit(path, header + dumped)
 
 
 def _skill_text(root: Path, name: str) -> str:
@@ -729,111 +687,6 @@ def hitl_pairs(step: dict) -> list[tuple[str, str]]:
     return [(n, w) for n, w in pairs if n]
 
 
-# Nested state-machine regions for long workflows (id, title, step_ids)
-REGIONS: dict[str, dict[str, list[tuple[str, str, list[str]]]]] = {
-    "wf-development": {
-        "change": [
-            ("align", "对齐与基线", ["clarify", "analyze_input", "requirements"]),
-            ("design", "方案与计划", ["design", "review-docs", "plan"]),
-            ("build", "实施与验证", ["implement", "review", "verify"]),
-            ("ship", "交付收尾", ["deliver", "release_handoff", "wrap", "commit"]),
-        ],
-        "defect-fix": [
-            ("intake", "接入与分类", ["preflight", "pull", "triage"]),
-            (
-                "product",
-                "产品协作闭环",
-                [
-                    "assess_product",
-                    "handoff_product",
-                    "await_product",
-                    "product_decision",
-                    "align",
-                ],
-            ),
-            ("fix", "修复与门禁", ["clarify", "fix", "gates", "menu"]),
-            ("close", "关闭与收尾", ["close", "postrelease", "retro", "wrap"]),
-        ],
-        "iterate": [
-            ("plan", "计划确认", ["precheck", "plan", "confirm"]),
-            ("build", "实施验证", ["implement", "review", "gates"]),
-            ("ship", "交付收尾", ["deliver", "release_handoff", "retro", "wrap", "commit"]),
-        ],
-        "release": [
-            ("ready", "就绪与批准", ["acceptance", "readiness", "approval"]),
-            ("go", "部署验证", ["deploy", "verify", "rollback"]),
-            ("after", "事后收尾", ["postrelease", "record", "retro", "wrap", "commit"]),
-        ],
-        "control": [
-            ("steer", "总控推进", ["init", "run", "sync", "check", "next"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "solo": [
-            ("frame", "定义与方案", ["frame", "plan"]),
-            ("build", "建造验证", ["build", "test"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-    },
-    "wf-product": {
-        "prd": [
-            ("discover", "发现与优先级", ["discover", "benchmark", "prioritize"]),
-            ("write", "撰写交接", ["prd", "prototype", "review", "handoff"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "prototype": [
-            ("shape", "结构与线框", ["context", "ia", "wireframe", "engineering"]),
-            ("visual", "视觉与评审", ["visual", "hi-fi", "review", "usability"]),
-            ("hand", "交接收尾", ["handoff", "wrap", "commit"]),
-        ],
-        "change": [
-            (
-                "intake",
-                "受理评估",
-                ["intake", "triage", "new_requirement", "assess", "decide"],
-            ),
-            ("apply", "落地验证", ["apply", "review", "verify"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "defect": [
-            (
-                "pull",
-                "拉取分析",
-                ["preflight", "pull", "source", "analyze", "decide"],
-            ),
-            ("act", "处置回写", ["apply", "review", "writeback", "verify"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "plan": [
-            ("shape", "目标范围", ["goals", "roadmap", "scope", "review-plan"]),
-            ("publish", "发布下一步", ["publish", "next"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "new-product": [
-            ("define", "发现定义", ["discover", "go", "define"]),
-            ("build", "PRD交付", ["prd", "deliver", "launch"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "deliver": [
-            ("prep", "排期跟进", ["schedule", "review-plan-deliver", "followup"]),
-            ("ship", "验收发布", ["uat", "release"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "showcase": [
-            ("story", "受众故事", ["audience", "story", "demo", "environment"]),
-            ("pack", "材料发布", ["materials", "docs", "dryrun", "publish"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-    },
-    "wf-testing": {
-        "testing": [
-            ("prep", "分析计划", ["status", "analyze", "plan", "generate", "review-cases"]),
-            ("run", "执行报告", ["execute", "report"]),
-            ("close", "交接收尾", ["handoff"]),
-        ],
-    },
-}
-
-
 def build_work_rules(
     root: Path,
     skills: list[str],
@@ -992,20 +845,6 @@ def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
     return "\n".join(lines)
 
 
-def regions_for(pack_key: str, wid: str) -> list[tuple[str, str, list[str]]]:
-    return REGIONS.get(pack_key, {}).get(wid, [])
-
-
-def region_of_step(
-    pack_key: str, wid: str, sid: str
-) -> tuple[str, str] | None:
-    for rid, title, sids in regions_for(pack_key, wid):
-        if sid in sids:
-            return rid, title
-    return None
-
-
-
 def render_chain_packet(
     pack_label: str,
     pack_key: str,
@@ -1042,13 +881,13 @@ def render_chain_packet(
     full_note = "本链为全链入口；按表推进到下一个门/停点。" if chain_full else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
     return f"""# {wf_name} · `{wid}` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：{entries}
 - **终端**：`{terminal}`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
@@ -1444,7 +1283,7 @@ def render_packet(
         )
 
     hard = (
-        "> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
+        "> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
         "\n### 本步边界\n\n"
         "- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。\n"
         "- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。"
@@ -1535,7 +1374,7 @@ def render_packet(
     )
     return f"""# 步骤卡 · {wid}/{sid}
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -1602,8 +1441,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
         wid = data["workflow"].get("id") or ypath.stem
         wf_name = data["workflow"].get("name") or wid
         steps = data.get("steps") or []
-        orch_cache = load_orch(root, wid)
-        orch_out: dict[str, str] = {}
         # Parent state machine + nested region machines
         chain_path = root / f"workflows/{wid}.md"
         chain_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1619,7 +1456,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
         steps_by_id = {
             s["id"]: s for s in steps if isinstance(s, dict) and "id" in s
         }
-        regs: list = []
         n = 0
         indexed = 0
         for step in steps:
@@ -1629,13 +1465,8 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             full_notes = step.get("notes") or ""
             if not isinstance(full_notes, str):
                 full_notes = str(full_notes)
-            # Prefer rich YAML notes; if already thinned, revive from _orch cache.
-            if is_thin_notes(full_notes) and sid in orch_cache:
-                full_notes = orch_cache[sid]
             full_notes = sanitize_notes_for_yaml(full_notes)
-            if full_notes and not is_thin_notes(full_notes):
-                orch_out[sid] = full_notes
-            # Resolve skills from rich notes (_orch / pre-thin), never from thin YAML stub.
+            # Resolve skills from rich YAML notes.
             step_for_skills = dict(step)
             step_for_skills["notes"] = full_notes
             skills = resolve_skills_for_step(
@@ -1714,7 +1545,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             f"# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。\n"
             f"# 本 YAML 只定义状态/门/产出；不用于运行时通读。\n"
         )
-        print_msg_extra = f", regions={len(regs)}" if regs else ""
         dumped = yaml.dump(
             data,
             Dumper=_Dumper,

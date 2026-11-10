@@ -54,7 +54,7 @@ frame（方向不清/新产品时）
 
 - **产品切片**：frame 做产品定义；product 做产品行为/AC/影响面/风险；输入含文档/原型 → `product-doc-analysis`；一句话输入用五字段 + 假设。产品分析不是只开发。
 - **方案切片**：design 做技术/任务/验收/风险；`task-breakdown` 必开；写 `review_required`/`do_landing_doc_review`；不写产品分析/测试计划。
-- **评审切片**：`review_docs` 条件审方案卡/验收表/用户版；`review` 条件审 diff/AC/SC/前端产物；L1+ UI/L2+/高风险/新功能 → true；L0/L1 小改可 false + 理由。
+- **评审切片**：`review_docs` 条件审方案卡/验收表/用户版；`review` 条件审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级可 false + 理由。
 - **开发切片**：与正式协作同一要求（iq 预检、StartTask、前端硬门、独立评审、completion-gate、Claim 不降）。
 - **测试切片**：`test_plan` 做分析/计划（来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测）；`test` 做执行 → 报告；AC 走查、证据、缺口；L1+ 前端/API 独立 verifier；大改动/高风险按 §2 全节 + 回归/安全/回滚证据。
 - **产品/方案/测试/评审分开**：方案卡不写测试计划；测试分析与计划独立落 `50-verification`；测试报告只写执行结果；评审只写缺口/结论。
@@ -80,7 +80,7 @@ frame（方向不清/新产品时）
 
 **其他**：
 
-- P0 失败根因涉及产品范围/架构 → 在 solo 内回 frame/plan 补产品分析/方案修正；不自动换链。
+- P0 失败根因涉及产品范围/架构 → 在 solo 内回 frame/product/design 补产品分析/方案修正；不自动换链。
 - 价值/成功标准说不清 → frame/`product-doc-analysis` + 方案卡列选项；不自动换链。
 - 轨道拿不准（是否正式协作）→ 只问 1 个关键问题；不静默降为只开发。
 
@@ -90,12 +90,13 @@ frame（方向不清/新产品时）
 | --- | --- | --- | --- | --- |
 | 产品定义卡 | 产品定义 | 技术/测试/PRD | `{workroot}/10-requirements/产品定义-{主题}-{yyyyMMdd}.md` | 仅 frame |
 | 用户版说明 | 业务用户可读变化 | AC/内部路径/任务/测试 | `{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md` | L1+ 用户可见 |
-| 方案卡 | 产品分析 + 方案 + 任务 + 验收 + 风险 | 测试计划/执行结果（放测试文件） | `{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md` | plan 必产 |
+| 方案卡 | 产品分析 + 方案 + 任务 + SC + 验收 + 风险 | 测试计划/执行结果（放测试文件） | `{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md` | design 必产（product 先写产品部分） |
 | 测试分析与计划 | 测试分析/计划 | 产品分析/执行结果 | `{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md` | 代码/配置必产；纯文档 na |
 | 测试报告 | 执行结果/证据/verdict | 重写产品分析/测试计划 | `{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md` | 代码/配置必产；纯文档 na |
 | **不产独立文件** | 理解包/需求基线/任务清单/用例库/提测单/PRD | — | — | — |
 
 - 产品定义卡是输入；方案卡引用，不重复。
+- 方案卡 §3.1 为方案条款（SC）表；`build` 的 SC 差集以它为准；solo 不另建任务清单。
 - 理解摘要只在方案卡 §0/§0.1；不另起独立理解包文件。
 - 测试分析与计划在 `solo.test_plan` 文件；测试报告只写执行结果，不重复计划。
 - 用户版说明仅 L1+ 用户可见；不替代方案卡/AC。

@@ -4,7 +4,7 @@ goal: 输出总结性结论 + 拟提交；按测试计划对照实际执行，�
 
 reads:
   - AGENTS.md §0～§2
-  - 当前 step 的产物/证据/输入（按 workflow 与读取索引）
+  - 当前 step 的产物/证据/输入（按 workflow 与当前步骤卡）
 
 must:
   - P0-Smoke/P0-HighRisk 未通过不得判整体通过；未测项/计划外缺口显式列。

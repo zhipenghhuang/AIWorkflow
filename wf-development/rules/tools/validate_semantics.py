@@ -26,6 +26,28 @@ def approx_tokens(text: str) -> int:
     return max(1, int(len(text.encode("utf-8")) / 3.6))
 
 
+def skill_window_bytes(root: Path, name: str, packet_text: str) -> int:
+    """Byte size actually read for a must-open skill: use the packet's Lx-Ly window."""
+    sp = root / "skills" / name / "SKILL.md"
+    if not sp.is_file():
+        return 0
+    data = sp.read_text(encoding="utf-8")
+    lines = data.splitlines()
+    for line in packet_text.splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 5 or cells[0].strip("`") != name or "**必开**" not in cells[1]:
+            continue
+        m = re.search(r"只读 L(\d+)-L(\d+)", cells[4])
+        if m:
+            start, end = int(m.group(1)), int(m.group(2))
+            chunk = "\n".join(lines[start - 1:end])
+            return len(chunk.encode("utf-8"))
+        break
+    return len(data.encode("utf-8"))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("root")
@@ -114,9 +136,7 @@ def main() -> int:
                 must_skills = set(re.findall(r"`([a-z0-9-]+)`", m_must.group(0)))
             total = len(text.encode("utf-8"))
             for name in must_skills:
-                sp = root / "skills" / name / "SKILL.md"
-                if sp.is_file():
-                    total += len(sp.read_bytes())
+                total += skill_window_bytes(root, name, text)
             tok = int(total / 3.6)
             if tok > args.max_tokens:
                 warnings.append(

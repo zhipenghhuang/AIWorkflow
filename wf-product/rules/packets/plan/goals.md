@@ -1,6 +1,6 @@
 # 步骤卡 · plan/goals
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -47,11 +47,11 @@
 - **目标有依据**：来自已双确认的客户/业务需求与证据，不自行发明 KPI/北极星。
 - 无基线/无口径标「待验证」并写验证方式。
 - **未双确认不得**进入目标/范围。
-- 口径不明须按 澄清：先查事实。
+- 口径不明须按 先查事实。
 - 仍不明一次一问（附候选/推荐）。
 - 未确认不升格 问清并确认。
 - 技能：0→1 读 §6 `zero-to-one-product-definition`。
-- 迭代读 §6 `requirement-discovery-and-prioritization` + §6 `customer-needs-discovery`（先读再做）。
+- 迭代读 §6 `requirement-discovery-and-prioritization`（先读；迭代路径/需求来源不明时按 `customer-needs-discovery` 技能补洞察）。
 - 能力（可选）：analytics 核对口径。
 - 未装 = 用户提供数据摘要。
 

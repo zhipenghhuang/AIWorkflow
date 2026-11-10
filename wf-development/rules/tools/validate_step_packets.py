@@ -86,6 +86,14 @@ def main() -> int:
                     if "必开" not in text and "条件开" not in text:
                         print(f"FAIL: {rel} skill section missing loop language")
                         fail += 1
+            head = text.split("## 6.")[0]
+            sec6 = re.search(r"## 6\..*?(?=\n## 7\.)", text, re.S)
+            listed = set(re.findall(r"\| `([a-z0-9-]+)` \|", sec6.group(0))) if sec6 else set()
+            refs = set(re.findall(r"§6[^`\n]{0,10}`([a-z0-9-]+)`", head))
+            refs |= set(re.findall(r"`skills/([a-z0-9-]+)/SKILL\.md`", head))
+            for name in sorted(refs - listed):
+                print(f"FAIL: {rel} SKILL_REF_NOT_IN_SECTION6: {name}")
+                fail += 1
             if "reads=" in text and rel not in text:
                 print(f"FAIL: {rel} receipt missing self path")
                 fail += 1

@@ -1,12 +1,12 @@
 # 需求与 PRD · `prd` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`收集需求` → `discover`；`需求洞察` → `discover`；`竞品分析` → `discover`；`学习竞品` → `discover`；`需求池` → `discover`；`分析客户需求` → `discover`；`需求调研` → `discover`；`客户访谈` → `discover`；`需求澄清` → `discover`；`竞品对标` → `benchmark`；`功能对标` → `benchmark`；`对标分析` → `benchmark`；`功能差距` → `benchmark`；`立项` → `prioritize`；`单需求立项` → `prioritize`；`排优先级` → `prioritize`；`写PRD` → `prd`；`写 PRD` → `prd`；`出PRD` → `prd`；`补PRD` → `prd`；`PRD评审` → `review`；`PRD 评审` → `review`；`定稿` → `review`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
@@ -16,7 +16,7 @@
 | 2 | `benchmark` | `pm-analyst` | `benchmark_or_mode_p` | `confirm_scope` | 竞品对标矩阵 + 需求池候选项（{workroot}/{ver}/10-requirements/竞品对标-*.md + {workroot}/requirement-pool.md） | `prioritize` | 停在本步/升级 |
 | 3 | `prioritize` | `pm-analyst` | `new_requirement_or_scope_change` | `confirm_scope` | 需求池优先级/立项建议（{workroot}/requirement-pool.md §优先级） | `prd` | 停在本步/升级 |
 | 4 | `prd` | `prd-writer` | — | `confirm_understanding`、`confirm_scope`、`gate:product-prd` | {workroot}/{ver}/10-requirements/PRD-{主题}.md（模板 rules/templates/10-planning/prd-template.md） | `prototype` | 停在本步/升级 |
-| 5 | `prototype` | `ux-designer` | `has_ui_requirement` | — | {workroot}/{ver}/20-design/原型-{主题}.html + 原型说明/交接要点（条件） | `review` | 停在本步/升级 |
+| 5 | `prototype` | `ux-designer` | `has_ui_requirement` | — | 切包声明（目标 `prototype.context`→handoff）+ activeContext 更新；原型正文/交接由目标步骤卡产出 | `review` | 停在本步/升级 |
 | 6 | `review` | `reviewer-agent` | — | `select_review_mode`、`confirm_prd`、`gate:product-review` | 评审记录或 HUMAN_APPROVED 声明 | `handoff` | 停在本步/升级 |
 | 7 | `handoff` | `pm-lead` | `prd_ready_for_handoff` | — | {workroot}/handoff/outbound/需求/ 自洽 PRD 实拷 + handoff-ledger.md；升 REQ 包时走 handoff.send | `closeout` | 停在本步/升级 |
 | 8 | `closeout` | `prd-writer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

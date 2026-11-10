@@ -1,4 +1,4 @@
-# Doc hygiene / read budget check (warnings, no file changes)
+# Doc hygiene: whole-read budgets + structure checks (warnings, no file changes)
 # Usage: powershell -ExecutionPolicy Bypass -File rules/tools/Test-DocHygiene.ps1
 param(
     [string]$Root = (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent)
@@ -19,11 +19,6 @@ function Get-ApproxTokens([string]$text) {
     $cjk = ([regex]::Matches($text, '[\u4e00-\u9fff]')).Count
     $ascii = [Math]::Max(0, $text.Length - $cjk)
     return [int][Math]::Round($cjk + ($ascii / 4))
-}
-
-function Test-ReferenceDoc([string]$path) {
-    $head = (Get-Content -LiteralPath $path -Encoding UTF8 -TotalCount 10) -join "`n"
-    return ($head -match '读取级别[：:]\s*参考' -or $head -match '参考手册')
 }
 
 if (-not (Test-Path -LiteralPath (Join-Path $Root 'AGENTS.md'))) { $errors.Add("MISSING_CORE: AGENTS.md") }
@@ -65,57 +60,31 @@ if (Test-Path -LiteralPath $ctx) {
     }
 }
 
-$rulesDir = Join-Path $Root 'rules'
-# 存量预算基线（可选）：rules/tools/doc-budget-baseline.json = { "相对路径": 允许上限 }。
-# 基线内的文件只在「超出基线」时告警（只减不增）；未登记文件一律按阈值。
-$budgetBaseline = @{}
-$baselinePath = Join-Path $rulesDir 'tools/doc-budget-baseline.json'
-if (Test-Path -LiteralPath $baselinePath) {
-    try {
-        $raw = [System.IO.File]::ReadAllText($baselinePath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
-        foreach ($p in $raw.PSObject.Properties) { $budgetBaseline[$p.Name] = [int]$p.Value }
-    } catch { $warnings.Add("BUDGET_BASELINE_UNREADABLE: doc-budget-baseline.json") }
-}
-$rules = @()
-if (Test-Path -LiteralPath $rulesDir) { $rules = @(Get-ChildItem -LiteralPath $rulesDir -Recurse -File -Filter *.md -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notmatch '[\\/](模板|special|tools)[\\/]' }) }
-foreach ($f in $rules) {
-    $n = Get-Lines $f.FullName
-    $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($f.FullName, [System.Text.Encoding]::UTF8))
-    $isTemplate = $f.FullName -match '[\\/]templates[\\/]'
-    $isReference = Test-ReferenceDoc $f.FullName
-    $relKey = $f.FullName.Substring($Root.Length).TrimStart('\', '/').Replace('\', '/')
-    if ($budgetBaseline.ContainsKey($relKey)) {
-        if ($tok -gt $budgetBaseline[$relKey]) {
-            $warnings.Add("RULE_TOKEN_GROWTH: $($f.Name) ~$tok tokens (>baseline $($budgetBaseline[$relKey]); 只减不增，新增内容改指针)")
-        }
-        continue
+function Add-WholeReadBudget([string]$path, [int]$maxTokens, [string]$label) {
+    if (-not (Test-Path -LiteralPath $path)) {
+        $warnings.Add("MISSING_${label}: $path")
+        return
     }
-    if (-not $isTemplate -and -not $isReference -and $tok -gt 3000) {
-        $warnings.Add("RULE_TOKEN_BUDGET: $($f.Name) ~$tok tokens (>3000; split or move detail to skills/special)")
-    }
-    if ($isReference -and $tok -gt 10000) {
-        $warnings.Add("REFERENCE_TOO_LONG: $($f.Name) ~$tok tokens (>10000; split reference)")
-    }
-    if ($n -gt 240 -and -not $isReference -and -not $isTemplate) {
-        $head = (Get-Content -LiteralPath $f.FullName -Encoding UTF8 -TotalCount 5) -join "`n"
-        if ($head -notmatch 'longform') { $warnings.Add("RULE_LONG: $($f.Name) $n lines (>240; add longform or split)") }
+    $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($path, [System.Text.Encoding]::UTF8))
+    if ($tok -gt $maxTokens) {
+        $warnings.Add("${label}_TOKEN_BUDGET: ~$tok tokens (>$maxTokens; 每步整文件读，必须保持精简)")
     }
 }
+
 $agentsText = [System.IO.File]::ReadAllText($agents, [System.Text.Encoding]::UTF8)
 $agentsTok = Get-ApproxTokens $agentsText
-if ($agentsTok -gt 7000) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>7000; quality-first resident hard rules; trim only conflicting restatements)") }
+if ($agentsTok -gt 7000) { $warnings.Add("AGENTS_TOKEN_BUDGET: ~$agentsTok tokens (>7000; 入口只留路由/硬门/指针)") }
 $s0Match = [regex]::Match($agentsText, '(?s)## 0\..*?(?=\r?\n## 1\.)')
 if ($s0Match.Success) {
     $s0Tok = Get-ApproxTokens $s0Match.Value
-    if ($s0Tok -gt 5500) { $warnings.Add("AGENTS_S0_TOKEN_BUDGET: ~$s0Tok tokens (>5500; pointerize into SSOT, keep hard one-liners)") }
+    if ($s0Tok -gt 5500) { $warnings.Add("AGENTS_S0_TOKEN_BUDGET: ~$s0Tok tokens (>5500; 下沉到 SSOT，只留硬一条)") }
 }
-$skillsDir = Join-Path $Root 'skills'
-if (Test-Path -LiteralPath $skillsDir) {
-    foreach ($sf in Get-ChildItem -LiteralPath $skillsDir -Recurse -File -Filter SKILL.md) {
-        $tok = Get-ApproxTokens ([System.IO.File]::ReadAllText($sf.FullName, [System.Text.Encoding]::UTF8))
-        if ($tok -gt 4500) { $warnings.Add("SKILL_TOKEN_BUDGET: $($sf.Directory.Name) ~$tok tokens (>4500; split references)") }
-    }
-}
+
+# 只有“每步/开局整文件读”的文件设整文件预算；按节读的规则手册不按整文件限长。
+Add-WholeReadBudget (Join-Path $Root 'rules/core/cold-start.md') 1200 'COLD_START'
+Add-WholeReadBudget (Join-Path $Root 'rules/core/global-rules.md') 6000 'GLOBAL_RULES'
+
+$ruleCount = @(Get-ChildItem -LiteralPath (Join-Path $Root 'rules') -Recurse -File -Filter *.md -ErrorAction SilentlyContinue).Count
 
 $wfDir = Join-Path $Root 'workflows'
 
@@ -173,7 +142,7 @@ foreach ($p in $scanRoots) {
 }
 
 Write-Output "=== Doc hygiene ($Root) ==="
-Write-Output ("AGENTS={0} lines; rule files={1}; workflows={2}" -f $agentsLines, $rules.Count, (Get-ChildItem -LiteralPath $wfDir -File -Filter *.yaml -ErrorAction SilentlyContinue).Count)
+Write-Output ("AGENTS={0} lines; rule files={1}; workflows={2}" -f $agentsLines, $ruleCount, (Get-ChildItem -LiteralPath $wfDir -File -Filter *.yaml -ErrorAction SilentlyContinue).Count)
 if ($warnings.Count -eq 0 -and $errors.Count -eq 0) {
     Write-Output 'Result: OK (no warnings)'
     exit 0

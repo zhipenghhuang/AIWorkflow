@@ -4,10 +4,10 @@
 
 ## 0. 正式层级
 
-- **运行时**：`AGENTS.md` → `core/cold-start.md` → `activeContext.md`（状态）→ `core/global-rules.md`（每步读）→ `workflows/<id>.md` → `packets/<id>/<step>.md` → `skills/`/`templates/` 指定节。
+- **运行时**：`AGENTS.md` → `core/cold-start.md` → `activeContext.md`（状态）→ `core/global-rules.md`（每步必读）→ `workflows/<id>.md` → `packets/<id>/<step>.md` → `skills/`/`templates/` 指定节。
 - **规则字典**：`gates.md` · `doc-governance.md` · `collaboration/` · `defects/`（按需查，不每步通读）。
 - **参考层**：`workflow.md` · `core/` 的 `execution-contract`/`clarification`/`verification`/`doc-quality`/`rule-governance`/`doc-facade-sync`。
-- **每步全局规则**：读 `core/global-rules.md` 并逐条过；首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。步骤卡只留指针，不复制正文。
+- **全局规则**：每步读 `core/global-rules.md` 并逐条过；心跳 `global=ok` 表示本步已读；偏离写 `global=dev:<原因>`。步骤卡只留指针，不复制正文。
 
 ## 1. 分层
 
@@ -20,7 +20,7 @@
 | `packets/<wf>/` | **某条链专属**：步骤卡；终端共享 `rules/packets/_shared/closeout.md` | 仅该链 |
 | `templates/` | 模板库（按步引用，见 `templates/index.md`） | 引用它的链 |
 | `tools/` | 生成器与自检 | 维护 |
-| `capabilities/` `collaboration/` `defects/` `special/` | 按需参考，不常驻 | 引用它的链 |
+| `capabilities/` `collaboration/` `defects/` `special/` | 按需参考，不预读 | 引用它的链 |
 | `doc-governance.md` `path-aliases.md` | 文档治理 / 路径别名 | 点名时 |
 
 ## 2. 三类改动
@@ -33,7 +33,7 @@
 
 ## 3. 共享库（链路按需引用）
 
-- **全局规则**：`core/global-rules.md`（每步读；步骤卡只留指针；改全局规则无需重生步骤卡）。
+- **全局规则**：`core/global-rules.md`（每步必读；步骤卡只留指针；改全局规则无需重生步骤卡，但须提示会话重读）。
 - 技能库：`skills/README.md`（步骤 → 技能映射；步骤包 §6 只列必开/条件开，AI 按 §6 选择，不全库通读）。
 - 模板库：`templates/index.md`（按 step 找模板；每步至多 1 个）。
 - 能力库：`{workroot}/capabilities/00-能力清单.md`（实例真源；包内只有契约与候选）。

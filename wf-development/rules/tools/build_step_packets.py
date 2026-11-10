@@ -120,7 +120,7 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "iterate/deliver": ["qa-handoff-and-release"],
         "iterate/release_handoff": ["qa-handoff-and-release"],
         "iterate/gates": ["test-design-and-execution"],
-        "solo/frame": ["product-shaping"],
+        "solo/frame": ["product-shaping", "product-doc-analysis"],
         "solo/product": ["product-shaping", "product-doc-analysis"],
         "solo/design": ["solution-design", "task-breakdown", "engineering-quality"],
         "solo/review_docs": ["design-doc-review"],
@@ -128,11 +128,11 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "solo/build": ["implementation-and-selftest", "engineering-quality", "frontend-implementation", "product-doc-analysis"],
         "solo/review": ["code-review", "engineering-quality"],
         "solo/test": ["test-design-and-execution"],
-        "control/init": ["development-plan", "product-doc-analysis"],
+        "control/init": ["development-plan", "product-doc-analysis", "product-shaping"],
         "control/run": ["development-plan"],
         "control/sync": ["development-plan"],
         "release/acceptance": ["acceptance-and-launch"],
-        "release/readiness": ["acceptance-and-launch", "observability-and-instrumentation"],
+        "release/readiness": ["acceptance-and-launch", "observability-and-instrumentation", "qa-handoff-and-release"],
         "release/deploy": ["acceptance-and-launch"],
         "release/verify": ["acceptance-and-launch"],
         "release/rollback": ["acceptance-and-launch"],
@@ -145,19 +145,19 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "defect-fix/implement": ["implementation-and-selftest", "debugging-and-error-recovery"],
     },
     "wf-product": {
-        "prd/discover": ["customer-needs-discovery", "requirement-discovery-and-prioritization"],
+        "prd/discover": ["customer-needs-discovery", "requirement-discovery-and-prioritization", "competitive-intelligence-and-learning"],
         "prd/benchmark": ["competitive-intelligence-and-learning", "requirement-discovery-and-prioritization"],
         "prd/prioritize": ["requirement-discovery-and-prioritization"],
-        "prd/prd": ["prd-writing", "analytics-and-experimentation"],
+        "prd/prd": ["prd-writing", "analytics-and-experimentation", "review-and-finalize"],
         "prd/review": ["artifact-review", "review-and-finalize"],
-        "plan/goals": ["zero-to-one-product-definition", "requirement-discovery-and-prioritization"],
+        "plan/goals": ["zero-to-one-product-definition", "requirement-discovery-and-prioritization", "customer-needs-discovery"],
         "plan/roadmap": ["zero-to-one-product-definition", "requirement-discovery-and-prioritization"],
         "plan/review-plan": ["artifact-review"],
         "prototype/context": ["prototype-and-interaction"],
         "prototype/ia": ["prototype-and-interaction"],
         "prototype/wireframe": ["prototype-and-interaction"],
         "prototype/visual": ["ui-visual-design-system"],
-        "prototype/hi-fi": ["ui-visual-design-system"],
+        "prototype/hi-fi": ["ui-visual-design-system", "prototype-and-interaction"],
         "prototype/review": ["artifact-review", "ui-visual-design-system"],
         "prototype/handoff": ["prototype-and-interaction"],
         "change/intake": ["customer-needs-discovery", "change-management"],
@@ -173,7 +173,7 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "showcase/demo": ["demo-storytelling"],
         "showcase/materials": ["presentation-design"],
         "showcase/docs": ["product-docs"],
-        "new-product/discover": ["zero-to-one-product-definition", "customer-needs-discovery"],
+        "new-product/discover": ["zero-to-one-product-definition", "customer-needs-discovery", "competitive-intelligence-and-learning"],
         "new-product/define": ["zero-to-one-product-definition"],
         "defect/analyze": ["change-management"],
         "defect/apply": ["change-management"],
@@ -278,7 +278,7 @@ def resolve_skills_for_step(
 INLINE_RULES = (
     (
         r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
-        "澄清：先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
+        "先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
     ),
     (
         r"`?(?:rules/core/)?iq-checklist\.md`?",
@@ -290,23 +290,23 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
-        "交接：内容优先、包按需；未回执不得称已接收",
+        "内容优先、包按需；未回执不得称已接收",
     ),
     (
         r"`?rules/doc-governance\.md`?(?:\s*§[\d.]+)?",
-        "文档治理（工作根/原件根/索引/关版整夹）",
+        "文档治理规则（工作根/原件根/索引/关版整夹）",
     ),
     (
         r"`?rules/workflow\.md`?(?:\s*§[\d.]+)?",
-        "变更/提交（本步门 + 共享 closeout）",
+        "变更/提交规则（本步门 + 共享 closeout）",
     ),
     (
         r"`?rules/core/verification\.md`?(?:\s*§[\d.]+)?",
-        "完成：有 Claim 门才认 CLAIM: ALLOWED；无门则产出落盘+本步门过，claim=na",
+        "完成口径：有 Claim 门才认 CLAIM: ALLOWED；无门则产出落盘+本步门过，claim=na",
     ),
     (
         r"`?rules/core/lightweight\.md`?(?:\s*§[\d.]+)?",
-        "按风险：可裁剪文档厚度；正式协作/自包含见步骤卡；必开技能/HITL不降",
+        "按风险裁剪文档厚度；必开技能/HITL 不降",
     ),
     (r"`?rules/core/project-readme\.md`?", "README：只写现行入口/运行/目录"),
     (r"`?rules/core/context-memory\.md`?", "工作记忆：偏好/洞见/坑 ≤3 行"),
@@ -316,7 +316,7 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/defects/[^`\s]+\.md`?(?:\s*§[\d.]+)?",
-        "缺陷：先红证/根因；不修表象；回写带证据",
+        "先红证/根因；不修表象；回写带证据",
     ),
     (r"`?rules/gates\.md`?(?:\s*§[\d.]+)?", "门：见本包 §4"),
 )
@@ -471,48 +471,6 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     return text
 
 
-def is_thin_notes(notes: str) -> bool:
-    n = (notes or "").strip()
-    return (not n) or n.startswith("只读 must_read")
-
-
-def load_orch(root: Path, wid: str) -> dict[str, str]:
-    p = root / f"rules/packets/{wid}/_orch.yaml"
-    if not p.is_file():
-        return {}
-    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-    steps = data.get("steps") if isinstance(data, dict) else None
-    if not isinstance(steps, dict):
-        return {}
-    out: dict[str, str] = {}
-    for k, v in steps.items():
-        if isinstance(v, str) and v.strip() and not is_thin_notes(v):
-            out[str(k)] = v.strip()
-    return out
-
-
-def save_orch(root: Path, wid: str, steps: dict[str, str]) -> None:
-    path = root / f"rules/packets/{wid}/_orch.yaml"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "workflow": wid,
-        "purpose": "编排笔记缓存：生成步骤包 §5 的真源；YAML notes 保持薄指针。勿手改 packet 后丢此文件。",
-        "steps": {k: steps[k] for k in sorted(steps.keys())},
-    }
-    dumped = yaml.dump(
-        payload,
-        Dumper=_Dumper,
-        allow_unicode=True,
-        sort_keys=False,
-        width=120,
-    )
-    header = (
-        f"# orch · {wid} — packet rebuild source (not runtime must_read)\n"
-        "# YAML step.notes may be thin; rich orchestration lives here.\n"
-    )
-    emit(path, header + dumped)
-
-
 def _skill_text(root: Path, name: str) -> str:
     p = root / "skills" / name / "SKILL.md"
     if not p.is_file():
@@ -537,7 +495,29 @@ CONDITIONAL_SKILLS = {
 }
 
 # Per-step conditional skills: only this step treats the skill as 条件开.
-STEP_CONDITIONAL_SKILLS: dict[tuple[str, str, str], dict[str, str]] = {}
+STEP_CONDITIONAL_SKILLS: dict[tuple[str, str, str], dict[str, str]] = {
+    ("wf-product", "new-product", "discover"): {
+        "competitive-intelligence-and-learning": "竞品分析/学习竞品（模式 S）"
+    },
+    ("wf-product", "plan", "goals"): {
+        "customer-needs-discovery": "迭代路径/需求来源不明"
+    },
+    ("wf-product", "prd", "discover"): {
+        "competitive-intelligence-and-learning": "竞品分析/学习竞品（模式 S）"
+    },
+    ("wf-product", "prd", "prd"): {
+        "review-and-finalize": "定稿前自检"
+    },
+    ("wf-development", "control", "init"): {
+        "product-shaping": "无 PRD/只有想法"
+    },
+    ("wf-development", "release", "readiness"): {
+        "qa-handoff-and-release": "有提测/交接物"
+    },
+    ("wf-development", "solo", "frame"): {
+        "product-doc-analysis": "输入含 PRD/原型/产品文档"
+    },
+}
 
 
 COMMIT_CARD = """### 本步规则卡：拟提交块（必填 · 字段已在本包）
@@ -638,13 +618,14 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测
 - 实施预检（写代码前）：权限/状态/数据基数/多表面/失败路径/交互诚实/运行时 API 逐面判定；命中 → 先扩 SC/债项，再改码。有 UI 且含禁用/灰显/空列表/加载/筛选/主按钮 → 交互诚实默认命中；多表面同一状态/KPI → 跨层默认命中。
 - 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
 - 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」；完成前按来源回指抽查 P0/高风险。
-- 需要独立评审 → 转当前链的 `review` 步；solo 转 `change.review`；不在本步自称已评审。
+- 需要独立评审 → 转当前链的 `review` 步；不在本步自称已评审。
 - 子代理：达阈值拆或记 deviation；只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 
 - 外部输入先入站：落 `inbound/{ver|topic}/` 或 `_common/`；登记 `inbound/INDEX.md`；确认后才改名/归档；不把原件迁出 inbound。
 - 迭代关账：确认后将迭代绑定文档迁入 `{workroot}/_archive/{yyyyMMdd}-{ver}/`；主档关闭时快照、主档不移动；「并行不关」只落新资料、不归档现行主档。
+- L1 单点且 `plan` 步不适用 → 进入 `implement` 前落 `{workroot}/40-tasks/开发卡-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`，含验收表/SC 表）；L0 免。
 - 交接包先 `handoff.receive`；本步不 `-StartTask`。"""
 
 WRITEBACK_CARD = """### 本步规则卡：平台回写
@@ -764,111 +745,6 @@ def hitl_pairs(step: dict) -> list[tuple[str, str]]:
             elif isinstance(item, dict) and item.get("name"):
                 pairs.append((str(item["name"]), str(item.get("when") or default_when)))
     return [(n, w) for n, w in pairs if n]
-
-
-# Nested state-machine regions for long workflows (id, title, step_ids)
-REGIONS: dict[str, dict[str, list[tuple[str, str, list[str]]]]] = {
-    "wf-development": {
-        "change": [
-            ("align", "对齐与基线", ["clarify", "analyze_input", "requirements"]),
-            ("design", "方案与计划", ["design", "review-docs", "plan"]),
-            ("build", "实施与验证", ["implement", "review", "verify"]),
-            ("ship", "交付收尾", ["deliver", "release_handoff", "wrap", "commit"]),
-        ],
-        "defect-fix": [
-            ("intake", "接入与分类", ["preflight", "pull", "triage"]),
-            (
-                "product",
-                "产品协作闭环",
-                [
-                    "assess_product",
-                    "handoff_product",
-                    "await_product",
-                    "product_decision",
-                    "align",
-                ],
-            ),
-            ("fix", "修复与门禁", ["clarify", "fix", "gates", "menu"]),
-            ("close", "关闭与收尾", ["close", "postrelease", "retro", "wrap"]),
-        ],
-        "iterate": [
-            ("plan", "计划确认", ["precheck", "plan", "confirm"]),
-            ("build", "实施验证", ["implement", "review", "gates"]),
-            ("ship", "交付收尾", ["deliver", "release_handoff", "retro", "wrap", "commit"]),
-        ],
-        "release": [
-            ("ready", "就绪与批准", ["acceptance", "readiness", "approval"]),
-            ("go", "部署验证", ["deploy", "verify", "rollback"]),
-            ("after", "事后收尾", ["postrelease", "record", "retro", "wrap", "commit"]),
-        ],
-        "control": [
-            ("steer", "总控推进", ["init", "run", "sync", "check", "next"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "solo": [
-            ("frame", "定义与方案", ["frame", "plan"]),
-            ("build", "建造验证", ["build", "test"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-    },
-    "wf-product": {
-        "prd": [
-            ("discover", "发现与优先级", ["discover", "benchmark", "prioritize"]),
-            ("write", "撰写交接", ["prd", "prototype", "review", "handoff"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "prototype": [
-            ("shape", "结构与线框", ["context", "ia", "wireframe", "engineering"]),
-            ("visual", "视觉与评审", ["visual", "hi-fi", "review", "usability"]),
-            ("hand", "交接收尾", ["handoff", "wrap", "commit"]),
-        ],
-        "change": [
-            (
-                "intake",
-                "受理评估",
-                ["intake", "triage", "new_requirement", "assess", "decide"],
-            ),
-            ("apply", "落地验证", ["apply", "review", "verify"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "defect": [
-            (
-                "pull",
-                "拉取分析",
-                ["preflight", "pull", "source", "analyze", "decide"],
-            ),
-            ("act", "处置回写", ["apply", "review", "writeback", "verify"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "plan": [
-            ("shape", "目标范围", ["goals", "roadmap", "scope", "review-plan"]),
-            ("publish", "发布下一步", ["publish", "next"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "new-product": [
-            ("define", "发现定义", ["discover", "go", "define"]),
-            ("build", "PRD交付", ["prd", "deliver", "launch"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "deliver": [
-            ("prep", "排期跟进", ["schedule", "review-plan-deliver", "followup"]),
-            ("ship", "验收发布", ["uat", "release"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-        "showcase": [
-            ("story", "受众故事", ["audience", "story", "demo", "environment"]),
-            ("pack", "材料发布", ["materials", "docs", "dryrun", "publish"]),
-            ("close", "收尾", ["wrap", "commit"]),
-        ],
-    },
-    "wf-testing": {
-        "testing": [
-            ("prep", "分析计划", ["status", "analyze", "plan", "generate", "review-cases"]),
-            ("run", "执行报告", ["execute", "report"]),
-            ("close", "交接收尾", ["handoff"]),
-        ],
-    },
-}
 
 
 def build_work_rules(
@@ -1043,20 +919,6 @@ def build_skill_index(
     return "\n".join(lines)
 
 
-def regions_for(pack_key: str, wid: str) -> list[tuple[str, str, list[str]]]:
-    return REGIONS.get(pack_key, {}).get(wid, [])
-
-
-def region_of_step(
-    pack_key: str, wid: str, sid: str
-) -> tuple[str, str] | None:
-    for rid, title, sids in regions_for(pack_key, wid):
-        if sid in sids:
-            return rid, title
-    return None
-
-
-
 def render_chain_packet(
     pack_label: str,
     pack_key: str,
@@ -1116,13 +978,13 @@ def render_chain_packet(
     )
     return f"""# {wf_name} · `{wid}` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：{entries}
 - **终端**：`{terminal}`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
@@ -1228,7 +1090,7 @@ def advance_prose(pack_key: str, wid: str, chain_full: bool) -> str:
         parts = [
             route,
             "从已命中的入口步沿阶段表向后；`when` 不满足则跳过且不打开该包。",
-            "口令明确只做单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）时，本步完成即停并输出收尾骨架；其余按表向后。",
+            "口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）时，本步完成即停并输出收尾骨架；其余按表向后。",
             "本步动作清单写明跳过、停止或改走他步时，以清单为准。",
         ]
         if chain_full and wid == "onboard":
@@ -1276,7 +1138,7 @@ def packet_advance(pack_key: str, wid: str, sid: str) -> str:
     if pack_key == "wf-development":
         return (
             "- **推进**：本步完成后沿父链进入下一未跳过步；"
-            "口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，"
+            "口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，"
             "以口令/清单为准，即停并输出收尾骨架。"
         )
     if wid in ("materials", "skill-audit"):
@@ -1537,7 +1399,7 @@ def render_packet(
             "- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。"
         )
     hard = (
-        "> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
+        "> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
         "\n### 本步边界\n\n"
         f"{boundary}"
     )
@@ -1606,7 +1468,11 @@ def render_packet(
             "- **参考模板（命中再开，不默认读）**：`" + "`；`".join(others) + "`。"
         )
     if not uniq_tpl:
-        if card or extra_card:
+        if (pack_key, wid, sid) == ("wf-development", "change", "clarify"):
+            open_lines.append(
+                "- **模板**：L1 单点且 `plan` 步不适用 → 用 `rules/templates/30-planning-tasks/dev-card-lite-template.md`；L0 免；其它无强制模板。"
+            )
+        elif card or extra_card:
             open_lines.append(
                 "- **无强制模板**：§5 规则卡已给出输出形状；直接落 §2 产出。"
             )
@@ -1645,7 +1511,7 @@ def render_packet(
     )
     return f"""# 步骤卡 · {wid}/{sid}
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。{banner}
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。{banner}
 
 ## 1. 元信息
 
@@ -1712,8 +1578,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
         wid = data["workflow"].get("id") or ypath.stem
         wf_name = data["workflow"].get("name") or wid
         steps = data.get("steps") or []
-        orch_cache = load_orch(root, wid)
-        orch_out: dict[str, str] = {}
         # Parent state machine + nested region machines
         chain_path = root / f"workflows/{wid}.md"
         chain_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1729,7 +1593,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
         steps_by_id = {
             s["id"]: s for s in steps if isinstance(s, dict) and "id" in s
         }
-        regs: list = []
         n = 0
         indexed = 0
         for step in steps:
@@ -1739,13 +1602,8 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             full_notes = step.get("notes") or ""
             if not isinstance(full_notes, str):
                 full_notes = str(full_notes)
-            # Prefer rich YAML notes; if already thinned, revive from _orch cache.
-            if is_thin_notes(full_notes) and sid in orch_cache:
-                full_notes = orch_cache[sid]
             full_notes = sanitize_notes_for_yaml(full_notes)
-            if full_notes and not is_thin_notes(full_notes):
-                orch_out[sid] = full_notes
-            # Resolve skills from rich notes (_orch / pre-thin), never from thin YAML stub.
+            # Resolve skills from rich YAML notes.
             step_for_skills = dict(step)
             step_for_skills["notes"] = full_notes
             skills = resolve_skills_for_step(
@@ -1824,7 +1682,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             f"# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。\n"
             f"# 本 YAML 只定义状态/门/产出；不用于运行时通读。\n"
         )
-        print_msg_extra = f", regions={len(regs)}" if regs else ""
         dumped = yaml.dump(
             data,
             Dumper=_Dumper,

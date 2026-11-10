@@ -1,6 +1,6 @@
 # 步骤卡 · testing/execute
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -20,7 +20,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -32,7 +32,7 @@
 - **HITL `confirm_execution_scope`**：开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。
 - **条件判定 `hitl:scope_needs_confirm`**：非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化；满足→真，否则跳过该门。
 - **GATE `execute-batch` when=module_batch_complete**：运行对应 verify；未过不得宣称完成。
-- **条件判定 `gate:module_batch_complete`**：本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据、P0 不外溢；满足→真，否则跳过该闸（步骤不跳过）。
+- **条件判定 `gate:module_batch_complete`**：本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据；P0 失败须有缺陷/解释（非「零红灯才推进」）；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -52,15 +52,27 @@
 - 开跑先按原文目录/可验收单元对账分析 §1.1/§1.2/§2.1.1，漏来源/漏章、漏 AC/字段规则/入口先补分析再执行。
 - 对账写功能/接口执行记录 §0「原文对账」行（探索/发布前在本轨记录信息写同义对账；可验收单元 N/已覆盖 n/本轮补录 n/未关 0+接受人）。
 - 多源对照硬门槛：逐场景打开原文对应段并另读≥1互补源，分析只作索引，禁只读分析（做法按 §6 执行技能闭环）。
-- 边执行边写执行记录（场景+原文/依据+步骤+数据+Oracle+结果+证据+缺陷+意图结论）。
-- 步骤写清位置/数据/预期，供人复核。
-- 不把步骤当预写脚本逐条点。
+- 边执行边写执行记录。
+- 执行记录模板：功能轨 `rules/templates/20-test-cases/test-case-template.md`。
+- 接口轨 `rules/templates/20-test-cases/api-test-case-template.md`。
+- 探索轨 `rules/templates/20-test-cases/exploratory-case-template.md`。
+- 随机流 `rules/templates/20-test-cases/random-flow-case-template.md`（场景+原文/依据+步骤+数据+Oracle+结果+证据+缺陷+意图结论）。
+- 步骤写清入口/操作/核对对象（字段/状态/码/提示）+预期，3～7 短步，供人复核。
+- 通过行也带核对点，不把步骤当预写脚本逐条点。
 - 全部 `处置=测` 意图到终态，P1/P2 不得用低优先级跳过。
+- 终态须达深度档（multi-track Q17），禁浅打勾。
 - 失败/待实现留证并进缺陷。
 - 阻塞留证，需外力进盯办（勿把阻塞当缺陷凑交）。
 - P0 意图至少一条证伪场景（负向/状态/权限/幂等/恢复按适用），只有正向通过不得记 P0 完整。
 - T1+ 功能收口前 S6/S7/S11 有落点。
-- 批末按计划 §3.1 批次/意图范围核对本轮记录，缺意图补测或写缺口+接受人，未关不得合并，并更新计划 §0/§6 与执行记录结论。
+- 批末按计划 §3.1 核对。
+- INT 须在 §2.1。
+- 本批触及的 §2.1.1 有终态或 N/A+接受人。
+- 顺延无接受人=缺口。
+- 计划含接口轨须 `api/` 契约记录+depth，功能内嵌探针不顶替。
+- 缺意图补测或写缺口+接受人。
+- 跑 execute 闸：过程完整才可推进（产品红→CONDITIONAL 须缺陷入库；分析/链接/证据不过→FAIL 禁下批）。
+- 并更新计划 §0/§6 与执行记录结论。
 
 ### 本步规则卡：计划驱动执行编排
 
@@ -76,10 +88,10 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L118（必做+处置/判定/反合理化）→ 回本包 |
+| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L129（硬门槛+方法+反合理化）→ 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L127（必做+处置/判定/反合理化）→ 回本包 |
 | `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
-| `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L62（必做+处置/判定/反合理化）→ 回本包 |
+| `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L64（必做+处置/判定/反合理化）→ 回本包 |
 | `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
 | `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 只读 L13-L93（硬门槛+方法+反合理化）→ 回本包 |
 
@@ -90,6 +102,7 @@
 ## 7. 模板与证据
 
 - **填写模板（仅此一份）**：`rules/templates/20-test-cases/test-case-template.md`；只读本步用到的节，禁止整文件通读。
+- **参考模板（命中再开，不默认读）**：`rules/templates/20-test-cases/api-test-case-template.md`；`rules/templates/20-test-cases/exploratory-case-template.md`；`rules/templates/20-test-cases/random-flow-case-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出

@@ -15,7 +15,7 @@
 | DEV-VER-03 | 证据先于结论：结论必须引用本轮检查、退出码、证据路径；聊天文本/子代理自述不算证据。 |
 | DEV-VER-04 | 失败不声称完成；工具/环境缺失记 `BLOCKED`，不得降级为“人工清单已过”。 |
 | DEV-VER-05 | 风险不降级：L0～L3 由变更事实判定；前端行为/布局变化最低 L1。 |
-| DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险的 L1 可免独立评审，但须记录理由与风险接受人。 |
+| DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L1+ 用户可见 UI 命中前端硬门 A 级、L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险/单点且未命中 A 级的 L1 可免独立评审，但须记录理由与风险接受人。 |
 | DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、**桌面+移动截图**，并与同类页面/原型对照（导航层级/文案、复用组件、列/区块、空态/错误态）；无证据不报完成。浏览器/MCP/截图不可用 → 前端项 `BLOCKED`/`UNVERIFIED`，不得口头放行；**接口 200、DOM 文本、class 名正确不能替代视觉完成证据**。单 HTML 原型须先解码 `data:`/base64 模块再核对（DEV-IQ-13），原始文本搜索无结果不能作为“原型无此页”的依据。 |
 | DEV-VER-08 | 报告先写中文回执结论（通过/部分通过/阻塞/未验证），再写完成内容；非“通过”禁用“完成/通过/已修复/正常”。 |
 | DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=wf-development`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 verify/gates 跑。 |
@@ -33,7 +33,7 @@
 ## 2. 验收清单
 
 - **L0**：纯文档/文案/注释；不强制验收清单；门核 `docs-links`/`docs-placeholders`；空 diff=`NOT_VERIFIED`，不得报完成。
-- **L1**：写在任务卡/开发卡里的 `## 验收清单` 表；至少含 `AC | 判定 | 检查 | 证据`。运行门时用 `-Acceptance <任务清单>` 显式传入；不传且无 `.gate/acceptance.yaml` → BLOCKED。
+- **L1**：写在任务卡/开发卡里的验收表（至少含 `AC | 判定 | 检查 | 证据`）；`change` 单点用开发卡（模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`），`iterate` 用任务清单。运行门时用 `-Acceptance <开发卡/任务清单>` 显式传入；不传且无 `.gate/acceptance.yaml` → BLOCKED。
 - **L2+**：落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`/`nfr.security`/`nfr.performance`；L3 另含 `security`/`rollback`），确认后冻结；变更走变更记录。L2+ 缺独立评审记录或非功能结论 → BLOCKED。
 - **建议字段**（模板见 `verify/templates/acceptance.yaml`）：`implement_preflight`（有行为必填）；取重时另含 `sc_trace`、`cross_layer`、`baseline_smoke`、`debts`。缺则 verify 标明缺口（`PARTIAL`/`BLOCKED`，见实施质量门 §8）。
 - 每行必须能判定（条件+动作+可观测结果），检查可复跑，证据有落点；AC/SC 预期来自方案，不来自现网实现（DEV-IQ-02）。

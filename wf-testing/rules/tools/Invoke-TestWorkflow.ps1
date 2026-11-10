@@ -347,7 +347,7 @@ if (Test-Path -LiteralPath $wfDir) {
             if ($line -match '^\s*hitl:\s*(\S+)?') {
                 $hitlIndent = $ind
                 $v = $Matches[1]
-                if ($v -and -not $declaredNames.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: 门名 '$v' 未在 AGENTS/门/读取索引 声明") }
+                if ($v -and -not $declaredNames.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: 门名 '$v' 未在 AGENTS/gates.md 声明") }
                 continue
             }
             if ($hitlIndent -ge 0) {
@@ -355,26 +355,26 @@ if (Test-Path -LiteralPath $wfDir) {
                 else {
                     if ($line -match '^\s*-\s*name:\s*(\S+)') {
                         $v = $Matches[1]
-                        if (-not $declaredNames.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: 门名 '$v' 未在 AGENTS/门/读取索引 声明") }
+                        if (-not $declaredNames.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: 门名 '$v' 未在 AGENTS/gates.md 声明") }
                     }
                     if ($line -match '^\s*when:\s*(\S+)') {
                         $v = $Matches[1]
-                        if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: when '$v' 未在 AGENTS/门/读取索引 声明") }
+                        if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: when '$v' 未在 AGENTS/gates.md 声明") }
                     }
                     continue
                 }
             }
             if ($line -match '^\s*hitl_when:\s*(\S+)') {
                 $v = $Matches[1]
-                if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: when '$v' 未在 AGENTS/门/读取索引 声明") }
+                if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: when '$v' 未在 AGENTS/gates.md 声明") }
             }
             if ($line -match '^\s*gate:\s*(\S+)') {
                 $v = $Matches[1]
-                if (-not $declaredGates.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate '$v' 未在 AGENTS/门/读取索引 声明") }
+                if (-not $declaredGates.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate '$v' 未在 AGENTS/gates.md 声明") }
             }
             if ($line -match '^\s*gate_when:\s*(\S+)') {
                 $v = $Matches[1]
-                if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate_when '$v' 未在 AGENTS/门/读取索引 声明") }
+                if (-not $declaredWhen.Contains($v)) { $wfFindings.Add("TOKEN_UNDECLARED: ${fName}:${ln}: gate_when '$v' 未在 AGENTS/gates.md 声明") }
             }
         }
     }

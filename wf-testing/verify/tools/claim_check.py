@@ -13,7 +13,7 @@ Usage:
   CLAIM: DENIED - <原因1>; <原因2>
 
 规则：
-  1. verdict 必须是 COMPLETE / READY / PASS（测试轨 PASS，产品轨 READY）。
+  1. verdict 必须是 PASS / CONDITIONAL（测试轨；CONDITIONAL 须有条件接受）或 COMPLETE / READY（其它轨）。
   2. receipt.blocked 必须为空，checks 里不得有 fail/blocked。
   3. 代码文件（排除 docs/.gate/inbound/规范包/var）在回执生成后不得再改动。
   4. 回执必须晚于 task_started_at（本轮任务）。

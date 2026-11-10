@@ -4,9 +4,9 @@
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
-> **已路由中段**：全局规则本会话已读则不重读全文；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **已路由中段**：每步读 `global-rules.md` 并逐条过；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.09.05`  
+> **template_version**：`2026.11.10.01`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -18,7 +18,7 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + 本包进行中运行状态（workflow/state/packet）+ **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；有 `project-profile.md` → §1+§2 表（每新会话一次）。L2+ 有计划才读 `development-plan.md`。  
 3. **接入**：`wf-development onboard: done` 则跳过，否则按 onboard-agent 一次判定。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（同会话已读，不重复）。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（每步读并遵守）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
 6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】；只读分析）。  
@@ -41,6 +41,7 @@
 | 高风险 | 团队正式迭代/正式协作内的权限/资金/迁移/公共 API/破坏性；或需要正式安全/发布审批 | 完整交付 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
 | 缺陷 | 平台缺陷/修复# | `defect-fix` | 无平台→change |
 
+**L1 单点**：`plan` 步不适用 → `clarify` 产开发卡（含验收/SC，模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`）；`implement` 前 SC 差集=0。  
 **轨道**：只看正式协作/正式流程；无正式协作的大改动/高风险仍走 `solo` 自包含完整链，按 `lightweight.md` §2 提高产品分析与测试证据，不换链。  
 **不确定**：是否正式协作拿不准 → 先问 1 个关键问题；不得静默把自包含链降为只开发；用户明确要求正式流程才转完整链，并记 `deviation=`。YAML `when` 不满足可跳过相应步，但须在收尾 `skip=` 记录理由。  
 **所有路径**：首轮理解与确认不可省；「可省」只指后续需求/方案/评审/提测等步骤，不含 clarify。  
@@ -85,7 +86,7 @@
 | 4.4 | 导出资料库/发资料 | `materials` | select→… |
 | 5 | 提交/推送 | 当前 workflow 末步（`closeout`）或 `change` | 对应角色 |
 | 5.1 | 自包含完整链/无正式迭代/轻量开发 | `solo` | frame |
-| 5.2 | 方案/只出方案 | `solo` | design |
+| 5.2 | 轻量方案/只出轻量方案 | `solo` | design |
 | 5.3 | 测试/单独实测 | `solo` | test |
 | 6 | 常规变更/需求澄清 | `change` | clarify |
 | 6.1 | 分析 PRD/方案/原型 | `change` | analyze_input |
@@ -104,8 +105,8 @@
 **部署**：裸「部署」先判环境；test/staging≠S8；prod→`release`。提交/推送≠部署。  
 **缺陷批入口不豁免开工门**：「指派给我」「我的待修」「修复#N」「#N」走 `defect-fix`，但须先输出【需求与意图理解】并等确认；未确认不得拉单后直接改码。仅「一次性/直接跑完/中途不停」可免等待（理解照常先输出）。  
 **续跑有计划**：「下一步/继续开发计划」优先 `control`。  
-**单步口令即停**：口令明确只做单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
-**路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。
+**单步口令即停**：口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
+**路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。裸「方案/出方案」走 `change.design`；点名「轻量」才走 `solo.design`。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。
 
 ## 4. 维护
 
@@ -133,7 +134,7 @@
 
 - **产品**：需求/范围/AC/影响面/非目标/风险；输入含文档/原型 → `product-doc-analysis`；方向不清列选项+推荐；不是只开发。用本包 `requirements-and-spec` / `product-shaping` / `acceptance-and-launch`。
 - **测试**：分析/计划（`solo.test_plan`）→ 执行 → 报告；AC 走查/P0/P1/P2/覆盖/证据/缺口；大改动/高风险全节 + 独立 verifier；用本包 `test-design-and-execution` / `implementation-and-selftest`。不代写版本级测试计划/准出结论。
-- **评审**：`solo.review_docs`（条件）审方案卡/验收表/用户版；`solo.review`（条件）审 diff/AC/SC/前端产物；L1+ UI/L2+/高风险/新功能 → true；L0/L1 小改可 false + 理由；不冒充已评审。
+- **评审**：`solo.review_docs`（条件）审方案卡/验收表/用户版；`solo.review`（条件）审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级可 false + 理由；不冒充已评审。
 - **链路**：产品分析 → 方案 → 评审 → 完整开发 → 评审 → 测试 → 收尾；产物按 `10-requirements`/`20-design`/`40-tasks`/`50-verification`/`60-release` 落位。
 - **有独立产品/测试且已按迭代/版本正式介入本轮交付时**：以对方职责为准，开发只做本地自测 + 部署冒烟；无正式迭代仍按本节由开发补产品分析与测试。
 

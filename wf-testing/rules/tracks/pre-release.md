@@ -11,7 +11,7 @@
 | --- | --- |
 | 正式产物 | `{workroot}/{ver}/pre-release/{专项}-测试方案.md` + `{专项}-test-report.md`；证据 `{ver}/evidence/`；脚本 `{workroot}/scripts/`；可选 `00-发布前索引.md` |
 | 过程 | `{workroot}/{ver}/pre-release/.draft/` |
-| 登记 | 按 `rules/templates/30-execution/special-index-template.md` 登记供人工追踪；状态（草稿/启用/停用）**不阻断执行**（门2 确认范围即可） |
+| 登记 | 按 `rules/templates/30-execution/special-index-template.md` 登记供人工追踪；状态（草稿/启用/停用）**不阻断执行**（`confirm_execution_scope` 确认范围即可） |
 | 覆盖 | **硬映射**（见 `rules/special/multi-track-quality.md` §2.3）：每条必测面 → `方案章节 \| 工具/跑次 \| 结果`；空行=未完成；裁剪须用户书面接受 |
 | 方案最低字段 | 目标 / 范围（含明确排除）/ 环境 / 主读与必测面覆盖 / **指标与达标线（目标值+来源）** / 步骤摘要 / 通过准则 / 结果（待测→实测） |
 | 与计划 | 生成/定范围前**至少读**分析 §2 意图/§3 风险；计划 §2 轨道/§3 轮次/§4 门槛；无计划时先建页或标不适用；专项指标与场景仍按本契约，禁无视本期差量选测面 |
@@ -95,7 +95,7 @@
 - **环境/数据可比**：记录测试环境与生产差异、数据量级；不可比须标限制，禁拿测试机结论冒充生产。  
 - 「已执行/通过/达标」结论须绑定可复核产物路径（报告/数据/日志），缺产物不得声称。
 - 能力按 `capabilities/00-contract.md` 选装（perf-test / sec-scan / a11y / visual-reg）；不可用禁假称已测。  
-- 工具与脚本可自选或现写；结论写入方案/报告；拟提交走门3（YAML）。  
+- 工具与脚本可自选或现写；结论写入方案/报告；拟提交走 `confirm_platform`（YAML）。  
 - 【任务收尾】汇报块（六点前）：结论说明体一整段（导语加粗；测了什么/对照达标线/问题/建议写入正文），供人审与发布决策；骨架见 `../templates/90-handoff/closeout-skeleton.md` §1.1。
 - 不与功能全量 DraftPath 接力；证据落本专项目录。  
 - **中断续跑**：按已落盘阶段产物核对完成度，从首个未完成阶段接续；不重跑已完成阶段。  

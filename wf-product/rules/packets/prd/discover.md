@@ -1,6 +1,6 @@
 # 步骤卡 · prd/discover
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -45,13 +45,13 @@
 - 每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）。
 - **先还原需求**：技能 §6 `customer-needs-discovery`（先读）——区分想要/需要/方案。
 - 单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
-- 澄清**按 澄清：先查事实。
+- 按 先查事实。
 - 仍不明一次一问（附候选/推荐）。
-- 未确认不升格 执行**。
+- 未确认不升格。
 - 正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。
 - **未双确认不得**入池承诺/排优先级。
 - 未确认推断标「假设」并写验证方式。
-- **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 技能 §6 `competitive-intelligence-and-learning` **模式 S**。
+- **竞品（模式 S）**：口令「竞品分析/学习竞品」或 0→1/战略定位需要时 → 按 `competitive-intelligence-and-learning` 技能 **模式 S**。
 - 落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（模板 `competitor-analysis-template.md`）。
 - 产出借/改编/不借表并回绑本产品问题。
 - 影响定位/范围须确认。
@@ -62,13 +62,13 @@
 - 引用须可回查（来源+日期），无依据写「待验证」。
 - 能力（可选）：docs-mcp 查资料、browser-mcp 查竞品/后台。
 - 未装=按主读与用户输入。
-- 输入含外部文档/竞品/反馈原件 → 先按 文档治理（工作根/原件根/索引/关版整夹） 【入站分析】。
+- 输入含外部文档/竞品/反馈原件 → 先按 文档治理规则（工作根/原件根/索引/关版整夹） 【入站分析】。
 - 确认前不改文件。
 - 确认采纳后落 `inbound/{ver|topic}/` 或 `_common/`（或 T7 参考）。
 - S1/S2/S3 同批进 `inbound/_archive/`。
 - 本包写的 PRD/竞品分析正文落工作区，不进资料。
 - 技能见 §6 `requirement-discovery-and-prioritization`（先读再做）。
-- 竞品向必加 `competitive-intelligence-and-learning`。
+- 竞品向另按 `competitive-intelligence-and-learning` 技能。
 
 ### 本步规则卡：文档治理
 

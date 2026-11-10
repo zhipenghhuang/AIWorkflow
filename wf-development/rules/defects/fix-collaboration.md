@@ -1,6 +1,6 @@
 # 缺陷修复协作
 
-> **读取级别：参考**（按节读取；按 `读取索引` 只读当前 step 节，禁止通读全本）。
+> **读取级别：参考**（按节读取；按当前 step 需要只读当前节，禁止通读全本）。
 
 > **步骤顺序**以 `../workflows/defect-fix.yaml` 为准；角色契约见 `../agents/defect-fixer.yaml`。  
 > 本文定分类、产品缺陷评估与流程；平台见 `rules/defects/platform-adapter.md`（配置 SSOT / 能力表 / Zentao 要点 / 其它 provider），备注骨架见 `rules/templates/40-delivery/defect-writeup-template.md`。本文中平台指针指适配文件，`§6.x` 指文案文件同名节。  

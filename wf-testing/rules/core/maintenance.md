@@ -6,7 +6,7 @@
 ## 1. 改哪里
 
 - 不变量/路由/读取协议 → `AGENTS.md`
-- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS 口令表指针；附录仅校验勿当词典）
+- 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～I/状态修正/置信度时同步；并核 AGENTS 口令表指针；附录仅校验勿当词典）
 - 开局卡 → `rules/core/cold-start.md`
 - 心跳格式 → `rules/core/global-rules.md` §8（同步 activeContext 运行状态）
 - 步骤 → `workflows/`（含 `skill-audit.yaml`）
@@ -50,7 +50,7 @@ python wf-testing/rules/tools/validate_api_testcase.py <接口执行记录.md>
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；另跑文档卫生检查（见 `rules/tools/README.md`）。执行记录/接口记录机检见上两行。
 
-> 按产物机检（交接包 / PRD / 任务清单 / 执行记录 / 接口记录 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
+> 按产物机检（交接包 / 执行记录 / 接口记录）见对应步骤包与 `rules/tools/README.md`；`Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
 
 ## 3. 无障碍/UX
 
@@ -66,7 +66,7 @@ python wf-testing/rules/tools/validate_api_testcase.py <接口执行记录.md>
 
 ## 6. 文档粒度
 
-常驻最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
+必读最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
 
 ## 7. 宿主无关
 

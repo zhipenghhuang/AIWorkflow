@@ -1,6 +1,6 @@
 # 步骤卡 · handoff/compose
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -15,11 +15,11 @@
 ## 2. 本步目标
 
 - **目标**：写交接单文档
-- **产出**：自洽交接单文档（默认非 HO；落 outbound/{category}/）
+- **产出**：自洽交接单文档（默认非 HO；落 outbound/{category}/；同轮记 handoff-ledger.md）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -40,7 +40,7 @@
 ### 本步动作清单
 
 - **默认入口**。
-- 读 交接：内容优先、包按需。
+- 读 内容优先、包按需。
 - 未回执不得称已接收 与 `handoff-note-template.md`（择优，非填空卷）。
 - **意图择优**：先判 `intent_needs_confirm`（澄清方法见 clarification）。
 - 真 → 完整【意图理解】停等再落盘。

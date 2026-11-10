@@ -1,6 +1,6 @@
 # 步骤卡 · prototype/hi-fi
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -36,7 +36,7 @@
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
-- **本步必开技能（质量不降）**：`ui-visual-design-system` → 见 §6 闭环。
+- **本步必开技能（质量不降）**：`ui-visual-design-system`、`prototype-and-interaction` → 见 §6 闭环。
 
 ### 本步动作清单
 
@@ -69,6 +69,7 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `ui-visual-design-system` | **必开** | 进入本步即开（质量不降） | `skills/ui-visual-design-system/SKILL.md` | 只读 L11-L114（硬门槛+方法+反合理化）→ 回本包 |
+| `prototype-and-interaction` | **必开** | 进入本步即开（质量不降） | `skills/prototype-and-interaction/SKILL.md` | 只读 L11-L22（硬门槛+方法）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -88,5 +89,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=hi-fi | agent=ux-designer | packet=rules/packets/prototype/hi-fi.md | global=ok | skills=ui-visual-design-system|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=hi-fi | agent=ux-designer | packet=rules/packets/prototype/hi-fi.md | global=ok | skills=ui-visual-design-system,prototype-and-interaction|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -32,7 +32,7 @@ description: Use before merge or when the user asks for code review. Review corr
 - 需修项：`位置（文件:行）｜问题｜证据｜严重度（阻断/重要/建议）｜修法建议`。
 - 通过/需修结论 + 缺口清单；不重写代码（建议级，修复由实施完成）。
 - 只报影响正确性/需求覆盖/安全/性能的问题；不为假想场景要求防御（防过度设计）。
-- **评审记录**（同时写 `.gate/review.md`）：`reviewer` / `implementer` / `verdict=通过|需修` / 评审范围（diff/提交，必须覆盖本轮门禁 diff）/ `review_required` 与免审理由（如适用）/ **AC 覆盖**（已覆盖/未覆盖/不适用+依据）/ **SC 对账**（同上；无行为变化写 `na`）/ 缺口清单 / 证据路径。L2+ 缺记录、缺 SC 对账（非 na）、reviewer=implementer、或评审范围小于门禁 diff → 完成门 BLOCKED。
+- **评审记录**（同时写 `.gate/review.md`）：`reviewer` / `implementer` / `verdict=通过|需修` / 评审范围（diff/提交，必须覆盖本轮门禁 diff）/ `review_required` 与免审理由（如适用）/ **AC 覆盖**（已覆盖/未覆盖/不适用+依据）/ **SC 对账**（同上；无行为变化写 `na`）/ 缺口清单 / 证据路径。A 级/L2+ 缺记录、缺 SC 对账（非 na）、reviewer=implementer、或评审范围小于门禁 diff → 完成门 BLOCKED。
 - **S5/结项评审附条件分流（硬）**：附条件/重要项必须附 `DEV/QA/PRODUCT` 分流表（`rules/core/verification.md` §2.2）；`DEV`=开发未实现/缺陷，不得写成“测试条件/QA 范围”绕过；`QA`=已实现待测试执行，须有入口/数据/预期；`PRODUCT`=范围/AC 待决策。`DEV` 未清零或书面裁剪+债项 → 不得判 S6 可提测。分流表放 S5 报告/计划，**不写入测试提测单**。
 
 ### 4.0 方案一致性（并入需求覆盖，不另开轴）
@@ -43,7 +43,7 @@ description: Use before merge or when the user asks for code review. Review corr
 
 ## 4.1 评审必要性与简单阶段
 
-- 先判 `review_required`：L2+/L3、高风险/大改/破坏性、**L2+ 新功能**、权限/资金/迁移/公共 API、点名 → 必审；L0 或确实低风险/单点的 L1 → 可免（须记理由）。
+- 先判 `review_required`：L2+/L3、高风险/大改/破坏性、**L2+ 新功能**、**L1+ 用户可见 UI 命中前端硬门 A 级**、权限/资金/迁移/公共 API、点名 → 必审；L0 或确实低风险/单点且未命中 A 级的 L1 → 可免（须记理由）。
 - 免审不是免验证：测试/冒烟/证据/完成门仍按级别执行（定向或全仓以 profile 为准）；计划/任务清单写“免审理由 + 风险接受人”。
 - 不得把 L2+ 说成“阶段简单”绕过；若确实简单，先重定级并记录。
 - 多波次二选一：每波独立评审+过门，或整迭代只过 S5 全量评审；不得混用。

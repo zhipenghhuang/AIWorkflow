@@ -1,6 +1,6 @@
 # 步骤卡 · handoff/change_send
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -43,7 +43,7 @@
 
 - 先按 `testing.plan` 期中变更完成 CR/影响分析。
 - 本步只负责“通知包”。
-- 按 交接：内容优先、包按需。
+- 按 内容优先、包按需。
 - 未回执不得称已接收 判 C0/C1/C2/C3。
 - C2/C3 必须先过计划门。
 - **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，用户确认后才生成 HO 包。

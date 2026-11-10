@@ -20,6 +20,7 @@
 | `00-onboarding/wf-agents-routing-template.md` | onboard.baseline（多包） | `wf/AGENTS.md` 路由 |
 | `00-onboarding/work-log-template.md` | onboard / report | `{workroot}/work-log.md` |
 | `00-onboarding/capabilities/00-capability-inventory.md` | onboard.capabilities | 能力清单模板 |
+| `00-onboarding/capabilities/bindings/browser-automation.md` | onboard.capabilities / skill-audit | 浏览器能力绑定模板 |
 | `00-onboarding/capability-skill-audit-report-template.md` | skill-audit.propose | 体检报告 |
 
 ## 10-planning

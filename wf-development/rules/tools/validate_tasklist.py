@@ -6,7 +6,8 @@ Usage: python validate_tasklist.py <task-list.md> [--lenient]
 Checks:
 - required sections and summary-table columns
 - unique task IDs, valid status
-- every task has a task card with 验收标准/改动范围/verify/完成定义
+- every task has a task card with 验收标准/改动范围/verify/完成定义/方案条款
+- 方案条款（SC）表存在（或标不适用），且每条 SC 有来源
 - dependency references resolve; no self-dependency
 - every summary row has a requirement point (R-xx)
 """
@@ -164,9 +165,23 @@ def main() -> int:
         next_card = text.find("\n### ", start + 1)
         block = text[start: next_card if next_card != -1 else len(text)]
         card_blocks[tid] = block
-        for key in ("验收标准", "改动范围", "验证", "完成定义"):
+        for key in ("验收标准", "改动范围", "验证", "完成定义", "方案条款"):
             if key not in block:
                 errors.append(f"CARD_FIELD: {tid}: missing {key}")
+        # 方案条款（SC）是覆盖载体：允许「不适用」，但不允许整段缺失/无来源。
+        sc_rows = [ln for ln in block.splitlines() if ln.strip().startswith("| SC-")]
+        if not sc_rows and "不适用" not in block:
+            errors.append(f"CARD_SC: {tid}: 缺少方案条款（SC）表或「不适用」理由")
+        for line in sc_rows:
+            cells = split_row(line)
+            if len(cells) < 7:
+                errors.append(
+                    f"CARD_SC_ROW: {tid}: SC 行列数不足 7（SC|原文|来源|落点|入口类型|证据|状态）"
+                )
+                continue
+            source = cells[2].strip()
+            if not source or source in ("—", "-", "待填", "待补", "…", "{…}"):
+                errors.append(f"CARD_SC_SOURCE: {tid}: {cells[0]} 缺少来源")
 
     # Parallel safety: [P] tasks must not depend on each other and must have
     # disjoint file scopes; at most 3 [P] tasks per wave.

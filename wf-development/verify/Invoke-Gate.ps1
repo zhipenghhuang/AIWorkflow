@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   开发轨完成门（唯一入口）。调用 verify/tools/gate.py，输出项目根 .gate/wf-development/。
@@ -74,7 +74,7 @@ if ($Tasklist) {
     $validator = Join-Path $packageRoot 'rules/tools/validate_tasklist.py'
     & $python.Source -B $validator $tasklistPath
     if ($LASTEXITCODE -ne 0) {
-        Write-Output 'TASKLIST_INVALID: [P] 文件重叠/相互依赖/并行>3 或结构不合法；不进入完成门'
+        Write-Output 'TASKLIST_INVALID: SC 表/来源缺失，或 [P] 文件重叠/相互依赖/并行>3/结构不合法；不进入完成门'
         exit 1
     }
 }

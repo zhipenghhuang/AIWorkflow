@@ -443,6 +443,64 @@ def _path_exists(project_root: Path, raw: str) -> bool:
     return resolve_path(project_root, raw).exists()
 
 
+SC_TRACE_RE = re.compile(r"(?:SC\s*对账|SC\s*覆盖|方案条款对账|sc[_ -]?trace)", re.I)
+SC_NEG_RE = re.compile(
+    r"(?<!无)未覆盖|(?<!无)未通过|(?<!无)不通过|(?<!无)缺口\s*[:：]?\s*[1-9]|(?<!无)需修|部分覆盖|部分通过",
+    re.I,
+)
+SC_POS_RE = re.compile(
+    r"已覆盖|全部覆盖|全覆盖|无未覆盖|无缺口|未覆盖\s*[:：]?\s*(?:无|0)\b|缺口\s*[:：]?\s*(?:无|0)\b|覆盖\s*\d|\d+\s*/\s*\d+",
+    re.I,
+)
+
+
+def _sc_values(text: str) -> list[str]:
+    """Extract the value after an SC reconciliation marker, one per line."""
+    lines = text.splitlines()
+    values: list[str] = []
+    for i, line in enumerate(lines):
+        if not SC_TRACE_RE.search(line):
+            continue
+        value = re.sub(
+            r".*?(?:SC\s*对账|SC\s*覆盖|方案条款对账|sc[_ -]?trace)\s*",
+            "",
+            line,
+            count=1,
+            flags=re.I,
+        )
+        value = value.strip().strip("`*_| ").lstrip("（(：:= |").strip()
+        if not value and i + 1 < len(lines):
+            value = lines[i + 1].strip().lstrip("-*| ").strip()
+        values.append(value)
+    return values
+
+
+def _sc_reconciliation(text: str, has_code_change: bool) -> tuple[bool, str]:
+    """SC 对账 must state a positive result; explicit gaps or na-with-code are blocked."""
+    values = _sc_values(text)
+    if not values:
+        return False, "评审记录缺少 SC 对账（或 na）"
+    seen_ok = False
+    for value in values:
+        # 评审记录里若粘了技能模板的枚举（已覆盖/未覆盖/不适用+依据），不当作实际对账。
+        if re.search(r"已覆盖\s*/\s*未覆盖|未覆盖\s*/\s*不适用", value):
+            continue
+        low = value.lower().lstrip("（(= |").strip()
+        if low.startswith("na") or low.startswith("不适用"):
+            if has_code_change:
+                return False, "有代码变更时 SC 对账不得 na/不适用"
+            seen_ok = True
+            continue
+        clean = re.sub(r"(未覆盖|缺口)\s*[:：]?\s*(?:无|0)\b", r"无\1", value)
+        if SC_NEG_RE.search(clean):
+            return False, f"SC 对账含未覆盖/缺口/需修：{value[:40]}"
+        if SC_POS_RE.search(clean) or re.search(r"通过|pass", clean, re.I):
+            seen_ok = True
+    if seen_ok:
+        return True, ""
+    return False, "SC 对账未给出覆盖结论（须已覆盖/未覆盖/na）"
+
+
 def check_process(meta: dict[str, Any], level: str, project_root: Path, files: list[str]) -> dict[str, Any]:
     missing: list[str] = []
     warnings: list[str] = []
@@ -480,13 +538,13 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
             missing.append("评审记录缺少 implementer/实施人")
         if rv and im and rv.group(1).strip() == im.group(1).strip():
             missing.append("评审人不能等于实施者")
-        # L2+：须有 SC 对账（或 na）；与 code-review §4.0 / review.md 字段对齐，禁只勾 AC
-        if not re.search(
-            r"(?:SC\s*对账|SC\s*覆盖|方案条款对账|sc[_ -]?trace)\s*[:：]|SC\s*对账\s*=\s*na\b|\bSC\b.{0,12}(?:不适用|na)\b",
-            text,
-            re.I,
-        ):
-            missing.append("评审记录缺少 SC 对账（或 na）")
+        # L2+：须有 SC 对账（或 na）；与 code-review §4.0 / review.md 字段对齐，禁只勾 AC。
+        # 内容也要看：自报“未覆盖/缺口/需修”或 L2+ 有代码却写 na → 不能算通过。
+        sc_ok, sc_why = _sc_reconciliation(
+            text, any(not f.lower().endswith(DOC_EXTS) for f in files)
+        )
+        if not sc_ok:
+            missing.append(sc_why)
 
     for key, label in (("understanding", "需求理解包"), ("design", "方案/设计")):
         val = process.get(key, "")
@@ -901,6 +959,11 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             problems_detail = ""
     else:
         problems_detail = ""
+
+    if tier == "A" and level_rank(level) <= 1:
+        review_record = project_root / ".gate" / "review.md"
+        if not review_record.is_file():
+            problems.append("A 级前端缺独立评审记录 .gate/review.md")
 
     if problems:
         return {"id": "frontend-evidence", "status": "blocked", "detail": problems}

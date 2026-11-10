@@ -196,10 +196,10 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 4.4 评审（review 步）
 
-- 触发：L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」；L0 单文件可跳过；范围纪律同 §3.5。  
+- 触发：A 级前端、L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」；L0 单文件可跳过；范围纪律同 §3.5。  
 - 执行：本机可用 `code-review` 时按其评审全量 diff；不可用派 `reviewer-agent` 独立核验。  
 - 补充：`security-scan` 可用时跑最小安全集；变更规模过大先拆。  
-- 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账）；方法只认 `skills/code-review`（含 §4.0）；需修回 implement，同回合重验≤1。L2+ 缺评审记录或缺 SC 对账（非 na）= 完成门 BLOCKED。  
+- 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账）；方法只认 `skills/code-review`（含 §4.0）；需修回 implement，同回合重验≤1。A 级/L2+ 缺评审记录或缺 SC 对账（非 na）= 完成门 BLOCKED。  
 - 三维体验：UX/DX/AX 任一净退化列需修；开发阶段检查是否残留旧数据兼容分支。
 - **S5 范围**：只评审代码/`DEV-AC`/CI/安全/回滚；产品验收矩阵的 `QA-AC/REL-AC` 未执行不阻断 S5，转入 S6/S7/S8。不得把方案验收矩阵原样拆成开发任务或 S5 阻断项；命中 DEV 必留的创建/生成触发链须在 `DEV-AC`（见 `rules/core/verification.md` §2.1）。**S5 附条件必须按 §2.2 分 `DEV/QA/PRODUCT`**：`DEV` 未清零或书面裁剪+债项不得进 S6，禁止把“开发没做”改写成“QA 条件/测试范围”。分流表留在 S5 报告/计划，**不写入测试提测单**。
 

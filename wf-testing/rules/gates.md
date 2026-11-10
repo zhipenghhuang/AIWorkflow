@@ -20,12 +20,11 @@
 | 理解门 | `confirm_understanding`（when: `understanding_needs_confirm`） | **主屏**：分析 §0 摘要、来源盘点计数、AC/设计点覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。 |
 | 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）。同会话同载体只一次；补丁/单模块轻量可不设门。 |
 | 执行门 | `confirm_execution_scope`（when: `scope_needs_confirm`） | 开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。 |
-| 平台门 | `confirm_platform`（when: `platform_ask_required` / `platform_submit`） | 有拟交平台/新建缺陷单 → STOP；回写走备注门；≠ git；无平台动作跳过。 |
 | git 提交门 | `confirm_commit` | 【拟提交·仓库】；默认仅本地提交，推送须点名并单独确认；≠ 收尾摘要；≠ 平台门。 |
 | 迁移/资料门 | `confirm_docs_migration`（when: `docs_migration_needed`） | 资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。 |
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。 |
-| 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `verify/Invoke-Gate.ps1 -Mode coverage`：来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路/计划结构可读；来源计数、意图引用、非空意图台账、§4.3 收口探针可对；未过不得称分析完整/计划可执行。 |
-| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：执行记录/证据/P0/意图结论一致；原文锚点+可观测 Oracle；INT 回指分析台账；P0 有证伪/负向（或 N/A）；只对 Scope 内记录；未过不开下一批。 |
+| 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `-Mode coverage`：§2.1 具体 INT 台账+可观测 Oracle；设计点只映射台账；来源/章节/依据/覆盖矩阵/方法矩阵/细节维/影响面/核心链路/计划结构；未 PASS 不得称分析完整/计划可执行/开跑。 |
+| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 本批记录/证据/阻塞理由/INT∈§2.1 台账/意图终态/P0 证伪；原文锚点+可观测 Oracle。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。 |
 | 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图**/P0/证伪/缺口对账；通过场景与分析来源/Oracle 有交集；CONDITIONAL 认 §4 接受人行；§2.3 覆盖与收口可读；未 PASS/CONDITIONAL 不得写整体通过。 |
 | 回写闸 | `gate: writeback-receipt`（when: `remark_writeback`） | 交平台/回写前跑 `-Mode writeback`：有单号/备注/状态/附件回执；只写 `writeback.json`，不覆盖 report。 |
 
@@ -40,7 +39,7 @@
 | `plan_needs_confirm` | 版本级首版/换代，或范围/准出/缺陷策略实质变化 | 同会话已确认且未实质变；补丁/单模块轻量 |
 | `scope_needs_confirm` | 非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化 | 计划驱动且 §0 已确认/执行中/待关闭 |
 | `analysis_coverage_required` | 本轮创建/更新分析或计划 | 纯只读/无分析/计划变更 |
-| `module_batch_complete` | 本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据、P0 不外溢 | 未跑完/记录未齐/证据缺 |
+| `module_batch_complete` | 本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据；P0 失败须有缺陷/解释（非「零红灯才推进」） | 未跑完/记录未齐/证据缺 |
 | `platform_ask_required` | 本轮有拟交平台/新建缺陷单待确认（不含回写） | 无平台动作 |
 | `platform_submit` | 拟新建缺陷单/交平台 | 无新建/交平台 |
 | `has_pending_commit` | 有文件变更待提交（git；≠平台门） | 无待提交 |
@@ -57,7 +56,7 @@
 
 **`analysis_coverage_required` 展开**：本轮 `test-analysis.md` 或 `test-plan.md` 新建/更新 → 真；纯只读、无分析/计划变更 → 假。覆盖闸检查分析来源/意图/风险/AC 设计点与计划结构。
 
-**`module_batch_complete` 展开**：本批意图均有终态；失败/阻塞/待实现有证据或明确原因；执行记录与计划 §0/§6 已同步；P0 未外溢。不是「整个模块/全仓跑完」。
+**`module_batch_complete` 展开**：本批意图均有终态；失败/阻塞/待实现有证据或明确原因；执行记录与计划 §0/§6 已同步；分析/计划已能过结构闸（§2.1 台账完整，INT 可链）。不是「整个模块/全仓跑完」。产品 P0 失败在过程完整时可 CONDITIONAL 下批；分析残缺/链接断/证据缺 → 不得推进。
 
 ## 3. 门档位（防过度审批）
 

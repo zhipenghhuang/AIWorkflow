@@ -23,8 +23,8 @@ steps:
   hitl: confirm_understanding
   hitl_when: understanding_needs_confirm
   output: '{workroot}/{ver}/10-requirements/立项书-{yyyyMMdd}.md'
-  notes: 市场 用户 竞品 问题验证；技能：`skills/zero-to-one-product-definition/SKILL.md` + `skills/customer-needs-discovery/SKILL.md` +
-    `skills/competitive-intelligence-and-learning/SKILL.md`（先读再做）。 **先问题后方案再确认**：澄清**按 `rules/core/clarification.md` 执行**；**未双确认不得**提
+  notes: 市场 用户 竞品 问题验证；技能：`skills/zero-to-one-product-definition/SKILL.md` + `skills/customer-needs-discovery/SKILL.md`（先读再做）；竞品向另按
+    `competitive-intelligence-and-learning` 技能 **模式 S**（命中时打开）。 **先问题后方案再确认**：按 `rules/core/clarification.md`；**未双确认不得**提
     Go 写全量 PRD。产出须含谁/场景/问题/代价/目标/非目标/方案要点/承诺信号；单个客户/竞品/领导说法标样本与证据等级；访谈/综合用 `interview-guide-template.md`/`insight-synthesis-template.md`。
     **竞品（模式 S，0→1 默认）**：有 ≥2 可指认竞品/替代或战略定位需要时，落盘 `竞品分析-{主题}-{yyyyMMdd}.md`（`competitor-analysis-template.md`）；学习决策表 **≥3 条**（借/改编/不借）回写立项书；无公开竞品则写替代方案
     +「待补竞品集」。禁只交功能对标矩阵代替选择性学习（对标跟进属迭代 `prd.benchmark`）。 **来源扇出**（子代理编排 ）：≥4 独立来源 → 按来源只读扇出（市场/用户/竞品/问题），各返回证据表/去重键 ≤30 行；立项书与

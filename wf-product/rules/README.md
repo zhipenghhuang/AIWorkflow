@@ -20,7 +20,7 @@
 | `packets/<wf>/` | **某条链专属**：步骤卡；终端共享 `rules/packets/_shared/closeout.md` | 仅该链 |
 | `templates/` | 模板库（按步引用，见 `templates/index.md`） | 引用它的链 |
 | `tools/` | 生成器与自检 | 维护 |
-| `capabilities/` `collaboration/` `defects/` `special/` | 按需参考，不常驻 | 引用它的链 |
+| `capabilities/` `collaboration/` `defects/` `special/` | 按需参考，不预读 | 引用它的链 |
 | `doc-governance.md` `path-aliases.md` | 文档治理 / 路径别名 | 点名时 |
 
 ## 2. 三类改动

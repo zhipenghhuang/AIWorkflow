@@ -60,3 +60,5 @@ description: Use for API and contract testing. Prefer script-first execution, co
 | “现网响应当预期” | Oracle 来自契约/需求，不按实现改预期。 |
 | “2xx 就算通过” | 状态码+业务信号+关键字段；假成功=失败。 |
 | “覆盖对照做成全维矩阵才完整” | 按适用维；不适用写依据；不要求全维空表。 |
+| “功能执行记录里已有 API 证据” | 那是探针；接口轨完成仍要本域 `api/` 记录+契约清单+depth 适用维。 |
+| “depth=full 太重，先只跑关键写口” | 须改计划声明更低 depth 并经确认；禁静默缩 full。 |

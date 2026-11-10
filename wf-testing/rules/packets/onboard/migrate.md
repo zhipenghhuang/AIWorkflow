@@ -1,6 +1,6 @@
 # 步骤卡 · onboard/migrate
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -56,7 +56,7 @@
 - `{workroot}/变更记录/` → `{workroot}/{ver}/changes/`。
 - 旧 `pre-release/{专项}/` 子夹 → `{ver}/pre-release/{专项}-测试方案.md` 等平铺。
 - `{workroot}/计划执行看板.md` → 合并进 `{workroot}/{ver}/test-plan.md` 后删除。
-- 资料迁移前先按 文档治理（工作根/原件根/索引/关版整夹） 做覆盖对照，输出迁移/改名/归档候选。
+- 资料迁移前先按 文档治理规则（工作根/原件根/索引/关版整夹） 做覆盖对照，输出迁移/改名/归档候选。
 - 确认后执行，不静默丢文件。
 - 若存在 `{workroot}/CHANGELOG.md`：列为迁移候选——**用户确认后**改名为 `{workroot}/work-log.md`（内容按工作日志模板整理索引+里程碑条；勿与根 `CHANGELOG.md` 混淆）。
 - 未确认不改名。

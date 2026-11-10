@@ -154,7 +154,7 @@ docs/materials/
 | --- | --- | --- |
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
-| `{workroot}/product-plan.md` / `development-plan.md` / `test-plan.md` | 长期主档 | 关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`，主档不移动 |
+| `{workroot}/product-plan.md` / `development-plan.md` / `{workroot}/{ver}/test-plan.md`（测试包） | 长期主档 | 关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`，主档不移动 |
 | `{workroot}/00-governance/` | 长期 | 变更/待决/决策/缺陷评估；就地更新 |
 | `{workroot}/10-requirements/` | 绑定 | 按实施入口归档；台账常青（路径以根上 `10…80` 为准，不另建 `{ver}/10-…`） |
 | `{workroot}/20-design/` | 绑定 | 关闭或非实施入口 → 归档；被后续引用的基础设计保留 |

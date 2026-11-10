@@ -37,7 +37,7 @@ steps:
   output: 产品计划工作稿 §1 目标/§2 指标（可并入产品计划草稿）
   notes: 读 `product-profile.md` + `{workroot}/requirement-pool.md` + 上期复盘（若有）； 产出本周期目标（O）与成功指标（KR）：基线 目标值 观测窗口；指标口径写清。 **目标有依据**：来自已双确认的客户/业务需求与证据，不自行发明
     KPI/北极星；无基线/无口径标「待验证」并写验证方式；**未双确认不得**进入目标/范围；口径不明须按 `rules/core/clarification.md` 问清并确认。 技能：0→1 读 `skills/zero-to-one-product-definition/SKILL.md`；迭代读
-    `skills/requirement-discovery-and-prioritization/SKILL.md` + `skills/customer-needs-discovery/SKILL.md`（先读再做）。 能力（可选）：analytics
+    `skills/requirement-discovery-and-prioritization/SKILL.md`（先读；迭代路径/需求来源不明时按 `customer-needs-discovery` 技能补洞察）。 能力（可选）：analytics
     核对口径；未装 = 用户提供数据摘要。
 - name: 路线图与优先级
   id: roadmap

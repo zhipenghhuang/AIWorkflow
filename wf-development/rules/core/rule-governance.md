@@ -9,20 +9,20 @@
 
 | 对象 | 上限（估算 tokens） | 说明 |
 | --- | ---: | --- |
-| `cold-start.md`（开局一次） | ≤ 1,200 | 只放启动/续跑/回执 |
-| `global-rules.md`（会话常驻） | ≤ 6,000 | 全局规则唯一出处；新会话读一次，切步不重读全文 |
+| `cold-start.md`（开局一次整文件读） | ≤ 1,200 | 只放启动/续跑/回执 |
+| `global-rules.md`（每步整文件读） | ≤ 6,000 | 全局规则唯一出处；每步读并逐条过；未读不得写 `global=ok` |
 | `AGENTS.md` §0 + 指针 | ≤ 2,500 | 分级表+指针；硬约束不重复 global-rules |
-| `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅未路由时读 |
-| 常驻/必读规则 | ≤ 8,000 | 含 global-rules + cold-start；超了拆节或移 skills/special |
-| 参考手册 / `rules/special/` | ≤ 10,000 | 头部标 `读取级别：参考` 或 `按需` + 节索引；只读当前节 |
-| 单个 `skills/<name>/SKILL.md` | ≤ 4,500 | 技能按步加载；超了拆 `references/` 或脚本 |
+| `AGENTS.md` 全文（含口令表） | 不计入每任务预算 | 口令表仅路由未定/首次命中时读 |
+| 参考手册 / `rules/special/` / 按节读规则 | 不设整文件上限 | 头部标 `读取级别：参考` 或 `读取时机` + 节索引；只读当前节；不得为凑短删质量内容 |
+| `skills/<name>/SKILL.md` | 不设 token 上限 | 按 §6 行窗只读必做/处置/判定/反合理化；单步预算计实际行窗；主文件 ≤500 行（结构上限，超长拆 `references/`） |
 | 模板 | 不设 token 上限 | 只复制/填写，不作为规则通读 |
-| 单步读取总量 | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000 | 核心 ≤3～4 来源（命中才读）；重步默认允许；超 12,000 才拆包或把技能拆 `references/`。预算是指示线，不是砍质量的借口 |
+| 单步读取总量（步骤包 + §6 实际行窗） | 轻 ≤6,000｜标准 ≤8,000｜重 ≤12,000 | 不含每步 `global-rules`；核心来源按命中读；重步允许；超 12,000 才拆包或拆行窗。预算是指示线，不是砍质量的借口 |
 
-估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。`Test-DocHygiene.ps1` 检查常驻规则、参考手册、AGENTS、技能；模板不报预算。
+估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。整文件 token 只约束 `AGENTS.md` / `cold-start.md` / `global-rules.md` 这类“开局或每步整文件读”的文件；`gates.md`、`routing.md`、`doc-quality.md`、`doc-governance.md` 等按节读规则，不按整文件限长。`Test-DocHygiene.ps1` 检查上述整文件预算、模板索引与结构；按节读文档不报整文件长度。
 
 **读法分级**：
-- **常驻**：新会话精读 `cold-start.md` + `global-rules.md`；切步只读当前步骤包（`packet=`）；其后心跳 + 运行状态。`special` 仅点名时按节读。  
+- **开局**：新会话精读 `cold-start.md`。  
+- **每步必读**：`global-rules.md`（全文逐条过）+ 当前步骤包（`packet=`）；未读不得写 `global=ok`；其后心跳 + 运行状态。`special` 仅点名时按节读。  
 - **参考**：`implementation-quality.md`（词典）、`workflow.md`、handoff/缺陷长文；只读当前节。`frontend-gate` / `iq-checklist` 为命中必读短卡，不算百科。
 - **技能**：命中步才读，不命中不读。
 - **模板**：只读当前要填的一份，不通读模板库。
@@ -81,7 +81,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Templa
 python "wf-development/rules/tools/validate_workflow.py" "wf-development"
 ```
 
-检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、读取索引挂载、孤立模板。
+检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板。
 新增检查（后续）：token 预算、重复句、同范围“必须/可跳过”冲突、孤儿规则。未实现前由维护者人工核对。
 
 ## 6. 规则 eval（改规则时）

@@ -106,11 +106,13 @@ def main() -> int:
                 if not val or val in ("—", "-", "…"):
                     errors.append(f"{sc}: 缺 {name}")
             if steps and steps not in ("—", "-"):
-                n = len(re.findall(r"\d+\s*[.、)]", steps)) or steps.count("→") + 1
-                if n < 2:
-                    warns.append(f"{sc}: 步骤过少（建议 3～7 步）")
-                if n > 10:
+                n = len(re.findall(r"\d+\s*[.、)）]", steps)) or steps.count("→") + 1
+                if n < 3:
+                    warns.append(f"{sc}: 步骤过少（建议 3～7 步；至少 2 个动作）")
+                if n > 7:
                     warns.append(f"{sc}: 步骤过多（建议 3～7 步）")
+                if not re.search(r"字段|状态|码|提示|按钮|列表|详情|接口|Network|值|=", steps):
+                    warns.append(f"{sc}: 步骤未见核对点（建议每步带字段/状态/码/提示等可观测对象）")
             if status in FAIL and (not ev or ev in ("—", "-", "无")):
                 errors.append(f"{sc}: {status} 缺证据")
         if seen == 0:
@@ -126,3 +128,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

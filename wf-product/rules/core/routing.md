@@ -33,7 +33,7 @@
 - 「拆竞品/学什么/差异化/定位」→ discover 模式 S；「功能对标/差距清单/parity」→ benchmark 模式 P。
 - 一条对话/截图/链接/工单 → 对象偏单条诉求（intake）。
 - 已有产品线 + 增量能力 → 非 new-product；全新品/无用户无竞品边界 → 才考虑 0→1。
-- 附件=PRD 且要定稿/挑错 → define 的 review；只要写/补 → define 的 prd（范围未确认则先 intake/discover）。
+- 附件=PRD 且要定稿/挑错 → `prd.review`；只要写/补 → `prd.prd`（范围未确认则先 intake/discover）。
 - 平台产品缺陷/评估回流 → 平台缺陷对象。
 - 「继续/下一步」+ 有 `{workroot}/product-plan.md` → resume。
 

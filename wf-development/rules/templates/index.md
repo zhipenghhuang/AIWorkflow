@@ -53,9 +53,9 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `30-planning-tasks/task-list-template.md` | change.plan / iterate.plan | RP/AC/DoR/DoD |
-| `30-planning-tasks/solution-card-template.md` | solo.product / solo.design | 产品分析+方案+任务+验收+风险；测试见测试计划 |
-| `30-planning-tasks/dev-card-lite-template.md` | change.clarify / iterate.plan（L1） | 目标/AC/改动面/verify/回滚；L0 不用 |
+| `30-planning-tasks/task-list-template.md` | change.plan / iterate.plan | RP/AC/SC/DoR/DoD |
+| `30-planning-tasks/solution-card-template.md` | solo.product / solo.design | 产品分析+方案+任务+SC+验收+风险；测试见测试计划 |
+| `30-planning-tasks/dev-card-lite-template.md` | change.clarify（L1） | 目标/AC/SC/改动面/verify/回滚；L0 不用；L2+ 用任务清单 |
 
 ## 40-delivery
 

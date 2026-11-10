@@ -7,6 +7,7 @@ description: Use when an approved requirement or design must be broken into exec
 
 > 用于：`iterate` 的 `plan` 步、`change` 的条件 `plan` 步。先读本技能，再拆单。  
 > 产出：`{workroot}/40-tasks/任务清单-{ver}.md`，骨架见 `rules/templates/30-planning-tasks/task-list-template.md`。  
+> **solo 例外**：`solo.design` 只落方案卡，任务/SC 并入方案卡 §3/§3.1，不另建任务清单（`rules/core/lightweight.md` §3）；本技能的任务卡字段按方案卡对应节填。  
 > 原则：**先垂直切片，再按文件分组派工**；任务不是“一行状态”，而是“可独立验收的交付单元”。
 
 ## 1. 输入（缺一先补）

@@ -50,7 +50,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 
 自检覆盖：引用可解析 + 章节锚点 + workflows→agents + 步标记词表 + 能力名声明 + 版本单点 + YAML 语法 + 技能（含反模式/反合理化闸）+ 语义（双入口/残句/角色边标识/预算/不可达步）；另跑文档卫生检查（见 `rules/tools/README.md`）。
 
-> 按产物机检（交接包 / PRD / 任务清单 / 用例 / 接口用例 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
+> 按产物机检（交接包 / 任务清单 / 开发计划）见对应步骤包与 `rules/tools/README.md`；`Test-Template.ps1`已含 YAML schema、步骤包结构与「生成物 ↔ workflows 漂移」检查。
 
 ## 3. 质量度量
 
@@ -62,7 +62,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 
 ## 5. 文档粒度
 
-常驻最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
+必读最小、按需加载：被 ≥2 角色/场景引用或按口令分时机点读 → 独立成文；单角色且不足 20 行 → 并入其契约/所属文档；单文件超 200 行且分时段消费再拆；引用不复制。
 
 ## 5.1 规则自优化闭环（DEV-IQ-15）
 

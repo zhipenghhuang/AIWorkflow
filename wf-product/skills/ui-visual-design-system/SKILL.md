@@ -42,7 +42,7 @@ description: Use when choosing a visual direction, defining design tokens, selec
 | --- | --- | --- |
 | UX 用户 | 任务更短/更清楚/更少出错；文案减法；状态与下一步可见 | 走查/截图 |
 | DX 开发 | 开发能按 PRD/原型/交接直接实施，不靠口头补充 | 覆盖矩阵/交接清单 |
-| AX AI Agent | AI 能按结构/ID/路径解析；单一出处；无重复长文 | PRD 章节/追溯矩阵/读取索引 |
+| AX AI Agent | AI 能按结构/ID/路径解析；单一出处；无重复长文 | PRD 章节/追溯矩阵/阅读顺序 |
 
 - 任一不得净退化且不破坏现有功能/验收；无法同向 → 评审记录写取舍、补偿与确认；不得静默牺牲。
 

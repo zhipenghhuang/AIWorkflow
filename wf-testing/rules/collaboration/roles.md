@@ -5,8 +5,8 @@
 
 | 角色 | 主责步骤 | 决策权 | 必须停 / 升级 | 不做什么 |
 | --- | --- | --- | --- | --- |
-| `test-planner` | testing.plan、status | 来源分析/意图/风险建议、计划结构、轨道/轮次/§3.1 形态与并行建议 | 分析未确认、计划门、范围/准出/资源/无隔离却要并行 → 用户 | 不执行、不替产品定 AC、不假装有隔离 |
-| `test-orchestrator` | testing.execute | 执行顺序/批次、阻塞判定、子代理派工 | 范围/环境/P0/安全 → 用户；blocked 四问未过 → 停 | 不写分析/计划正文、不替报告下准出结论、不平台回写 |
+| `test-planner` | testing.plan（含只读状态查询）、handoff.compose/send/receive/change_send/change_receive/replan | 来源分析/意图/风险建议、计划结构、轨道/轮次/§3.1 形态与并行建议 | 分析未确认、计划门、范围/准出/资源/无隔离却要并行 → 用户 | 不执行、不替产品定 AC、不假装有隔离 |
+| `test-orchestrator` | testing.execute、materials.* | 执行顺序/批次、阻塞判定、子代理派工 | 范围/环境/P0/安全 → 用户；blocked 四问未过 → 停 | 不写分析/计划正文、不替报告下准出结论、不平台回写 |
 | `report-agent` | testing.report、defect.closeout、handoff.closeout | 报告结构、准出评估建议、缺口分级 | 报告门未过/P0 失败/数字不一致 → 停；准出 → 用户 | 不改执行记录、不伪造回执、不替产品决策 |
 | `bug-agent` | defect.classify/search/submit | 查重、子类、严重度建议、回写内容 | 提交/回写 → confirm；产品判定 → 产品；平台不可用 → 一问后本批统一导出 | 交平台零导出；不重复建单、不无证据提交 |
 | `reviewer-agent` | 独立复核（按派工） | 复核结论、缺口分级；可当场改笔误/格式 | 终态/证据不可信 → 重测或交编排；需修/阻断 → 编排 | 不抬高通过率、不改主台账/计划、不代替门、不收 Worker 推理 |

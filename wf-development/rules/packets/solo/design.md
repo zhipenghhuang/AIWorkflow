@@ -1,6 +1,6 @@
 # 步骤卡 · solo/design
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -20,7 +20,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -30,7 +30,7 @@
 ## 4. 本步门
 
 - **HITL `confirm_spec`**：出示范围/接口/兼容与回滚/验收；批准后才实施（可在选模式 + 可选 AI 审之后）
-- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
+- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步动作
 
@@ -44,7 +44,7 @@
 - 技能见 §6 `solution-design` 当前节 + §6 `task-breakdown`（任务拆分）+ §6 `engineering-quality`。
 - 模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
 - 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。
-- 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。
+- 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡 §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。
 - 验收表必须可被 `verify/Invoke-Gate.ps1` 读取。
 - 每条 AC 有检查与证据。
 - 自检：AC 可观测。
@@ -58,7 +58,8 @@
 - 「只出轻量方案」→ 本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。
 - 测试分析与计划由 test_plan 步产出。
 - 本步不写测试计划/执行结果。
-- 在方案卡 §9 写 review_required（true/false + 理由；L1+ UI/L2+/高风险/新功能 → true）和 do_landing_doc_review（true/false + 理由；L2+/高风险/新功能/落地文档 → true）。
+- 在方案卡 §9 写 review_required（true/false + 理由；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true）和 do_landing_doc_review（true/false + 理由；L2+/高风险/新功能/落地文档 → true）。
+- §9 过程证据填理解包/方案/评审记录/安全/回滚（gate 读取；可指本卡；未产生写不适用）。
 - 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
@@ -71,7 +72,7 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `solution-design` | **必开** | 进入本步即开（质量不降） | `skills/solution-design/SKILL.md` | 只读 L13-L112（硬门槛+方法+反合理化）→ 回本包 |
-| `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 只读 L12-L107（硬门槛+方法+反合理化）→ 回本包 |
+| `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 只读 L13-L108（硬门槛+方法+反合理化）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 只读 L13-L65（硬门槛+方法）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。

@@ -1,6 +1,6 @@
 # 步骤卡 · control/init
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（本会话已读则不重读全文）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：本会话已读 `rules/core/global-rules.md` 则不重读全文；未读过不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
@@ -30,9 +30,9 @@
 
 - **HITL `confirm_plan`**：首次创建或范围·版本·里程碑实质变更；确认后计划状态=已确认
 - **条件判定 `hitl:plan_needs_confirm`**：计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
-- **HITL `confirm_iteration_close`**：出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 文档治理（工作根/原件根/索引/关版整夹） 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」
+- **HITL `confirm_iteration_close`**：出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 文档治理规则（工作根/原件根/索引/关版整夹） 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/升级且是否关本期不明；满足→真，否则跳过该门。
-- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
+- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
 
 ## 5. 本步动作
 
@@ -41,7 +41,7 @@
 
 - **本步必开技能（质量不降）**：`development-plan` → 见 §6 闭环。
 
-- **条件技能**：`product-doc-analysis`（输入含 PRD/原型/产品文档） → 命中则同样走 §6 闭环。
+- **条件技能**：`product-doc-analysis`（输入含 PRD/原型/产品文档）、`product-shaping`（无 PRD/只有想法） → 命中则同样走 §6 闭环。
 
 ### 本步动作清单
 
@@ -74,7 +74,7 @@
 - 不强制引用其它包。
 - confirm_plan：首次创建/范围·版本·里程碑实质变更时，出示阶段/范围/门/下一步请确认。
 - 确认后计划状态=已确认。
-- 范围·版本实质变更或换主题（即使不发版）→ 按 文档治理（工作根/原件根/索引/关版整夹）。
+- 范围·版本实质变更或换主题（即使不发版）→ 按 文档治理规则（工作根/原件根/索引/关版整夹）。
 - 不确定则 `confirm_iteration_close`。
 - 确认后先判 T1/T2/T4，再按 关账（T2/T4 保留仍被引用的基础设计/流程图/原型）。
 - 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认覆盖最新）。
@@ -97,6 +97,7 @@
 | --- | --- | --- | --- | --- |
 | `development-plan` | **必开** | 进入本步即开（质量不降） | `skills/development-plan/SKILL.md` | 只读 L14-L159（硬门槛+方法+反合理化）→ 回本包 |
 | `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
+| `product-shaping` | 条件开 | 无 PRD/只有想法 | `skills/product-shaping/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -117,5 +118,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan,product-doc-analysis|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan,product-doc-analysis,product-shaping|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

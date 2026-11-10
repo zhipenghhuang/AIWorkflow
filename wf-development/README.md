@@ -1,6 +1,6 @@
 # 开发规范 — 使用说明
 
-> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`。  
+> 供人阅读；**AI 新会话先读** `AGENTS.md` → `rules/core/cold-start.md` → `rules/core/global-rules.md`（global-rules 每步重读）。  
 > **template_version**：以 `AGENTS.md` 为准（单点）。
 
 ## 1. 是什么
@@ -43,7 +43,7 @@
 
 | 层 | 位置 | 读法 |
 | --- | --- | --- |
-| 入口 | `AGENTS.md` | 新会话读 **§0 开工 + `global-rules`**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
+| 入口 | `AGENTS.md` | **§0 开工（新会话一次）+ `global-rules`（每步）**；中段按 `rules/core/global-rules.md` §8 心跳；口令表仅路由未定/首次命中时读；禁止通读 §0～§3 全文 |
 | 多包定包 | `wf/AGENTS.md` **意图→包** | 歧义口令先定包再路由 |
 | 路由 | `workflows/*.yaml` | 只读命中 workflow 的当前 step |
 | 运行时读链 | `cold-start` → `activeContext` → `global-rules`（每步）→ `workflows/<id>.md` 链图（进链一次）→ **当前步骤卡** → §6 skill | 全局每步遵守；本步不跳转拼流程；他步可重复同文 |
@@ -52,7 +52,7 @@
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `verify/` | 收尾/过门时读；运行态写 `.gate/wf-development/` |
 
-> 读取预算（目标，非硬上限）：核心 ≤3～4 个来源（命中才读）+ ≤8k tokens；复杂可至 5；先读当前 step、当前 agent、当前技能节、当前产物，再按需补规则节。规则不是越多越稳，读全本会稀释当前 step 约束。
+> 读取预算（目标，非硬上限）：单步读取 = 当前步骤包 + §6 实际行窗（另加每步 `global-rules`）；目标 ≤8k，复杂步可至 12k；按节读的规则手册不设整文件上限。规则不是越多越稳，读全本会稀释当前 step 约束。
 
 ## 3. 上手（快速开始）
 
@@ -66,6 +66,7 @@
 6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-planning/development-plan-template.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称。  
 6.1 日常推进：说 **「按开发计划执行」** → `control/run` 只切包（更新 `activeContext` 后打开目标 `change`/`iterate`/`release`/`retro` 步骤卡，不在 run 内写代码）；目标步到下一门停止。说「进度 / 当前状态」→ `sync`；「下一步」→ `next`。每步回写计划与执行日志。  
 7. 新功能/迭代：说「按方案实施」或「只出任务清单」→ 任务清单按 `rules/templates/30-planning-tasks/task-list-template.md` 落 `{workroot}/40-tasks/`；确认后实施。  
+7.1 L1 单点（无 `plan` 步）：按 `rules/templates/30-planning-tasks/dev-card-lite-template.md` 落开发卡（验收表 + SC 表）；L1 多文件/正式迭代仍用任务清单。
 8. 发布：说「发布/上线」→ `workflows/release.yaml`；发布前必须过上线检查单与审批。测试/预发部署不算 S8（A 模式 `rc.N`；B 模式 `0.3.x` QA 批次）；版本口径见 `rules/core/versioning.md`。  
 9. 复盘：说「复盘/事故复盘」→ `workflows/retro.yaml`。
 10. 交接：**内容优先、包按需**。提测默认只交提测单；说「生成交接包…」或命中多文件/签收/仓外/同发发版时先问再 send。接收走 receive。多包同仓直读。
@@ -80,7 +81,7 @@ wf-development/rules/tools/Test-DocHygiene.ps1
 wf-development/verify/Invoke-Gate.ps1 -ProjectRoot "."
 ```
 
-自检内容：引用可解析、章节锚点、workflows→agents、步标记词表、能力名声明、版本单点、**YAML 语法/基本 schema、开发计划模板 schema**；文档卫生检查 AGENTS 行数、规则超长、孤立模板、读取索引/工作流挂载。  
+自检内容：引用可解析、章节锚点、workflows→agents、步标记词表、能力名声明、版本单点、**YAML 语法/基本 schema、开发计划模板 schema**；文档卫生检查 AGENTS/开局卡/global-rules 整文件预算、孤立模板、工作流挂载。  
 自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。  
 任务清单/开发计划可单独校验：
 

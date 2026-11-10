@@ -24,7 +24,7 @@ steps:
   agent: iterate-lead
   hitl: confirm_intent
   hitl_when: intent_needs_confirm
-  output: 自洽交接单文档（默认非 HO；落 outbound/{category}/）
+  output: 自洽交接单文档（默认非 HO；落 outbound/{category}/；同轮记 handoff-ledger.md）
   notes: '**默认入口**。先读 `rules/collaboration/handoff.md` 与 `handoff-note-template.md`（择优写法，非填空卷）。 **意图择优**：先判 `intent_needs_confirm`（澄清方法见
     clarification）。真 → 完整【意图理解】停等确认再落盘；假（意图已清）→ 一行【意图】回执后直写。禁止含糊「交接」直接成文。 **必做**：落笔前五问 → 选形态 A知会/B确认一页纸/C决策简报/D专模；禁止整表粘贴模板。
     产品确认环境/演示 → 优先 B；勿摊工程风险考卷。 **落盘**：专模真源写生命周期目录，同轮实拷 `{workroot}/handoff/outbound/{category}/`；无专模直接写出站对应类。**不**建 HO。 回执默认否；正文禁内部路径代结论、禁印意图码/回执元数据。

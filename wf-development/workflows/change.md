@@ -1,18 +1,18 @@
 # 常规代码变更 · `change` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`常规变更` → `clarify`；`澄清` → `clarify`；`需求澄清` → `clarify`；`提交` → `closeout`；`推送` → `closeout`；`分析PRD` → `analyze_input`；`分析 PRD` → `analyze_input`；`理解需求` → `analyze_input`；`解析原型` → `analyze_input`；`出方案` → `design`；`方案评审` → `review-docs`；`文档评审` → `review-docs`；`设计文档评审` → `review-docs`；`代码评审` → `review`；`提测` → `deliver`；`提测单` → `deliver`；`发布说明` → `deliver`；`回滚预案` → `deliver`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `clarify` | `implementer` | — | `confirm_iteration_close`、`confirm_docs_migration` | 需求理解包 + 验收清单草案（目标/范围/AC/非目标/假设/检查/证据） | `analyze_input` | 停在本步/升级 |
+| 1 | `clarify` | `implementer` | — | `confirm_iteration_close`、`confirm_docs_migration` | 需求理解包（有外部输入时）+ L1 开发卡（验收/SC）/ L0 轻量回执 | `analyze_input` | 停在本步/升级 |
 | 2 | `analyze_input` | `implementer` | `has_product_docs_or_prototypes` | `confirm_understanding` | 需求理解包（{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md；§0 Brief+Delta 必填）+ 用户版业务变化说明（L1+ 用户可见变化必出） | `requirements` | 停在本步/升级 |
 | 3 | `requirements` | `implementer` | `new_feature_or_scope_change_or_requested` | `confirm_requirements` | 需求基线（{workroot}/10-requirements/） | `design` | 停在本步/升级 |
 | 4 | `design` | `implementer` | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `confirm_spec` | 方案/ADR（{workroot}/20-design/） | `review-docs` | 停在本步/升级 |

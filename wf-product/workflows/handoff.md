@@ -1,18 +1,18 @@
 # 协作交接 · `handoff` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（新会话读一次；同会话不重读全文）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`写交接单` → `compose`；`生成交接包` → `compose`；`发送交接包` → `send`；`接收交接包` → `receive`；`变更通知` → `change_send`；`同步变更` → `change_receive`；`重规划` → `replan`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则新会话读一次，同会话不重读全文；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `compose` | `pm-lead` | — | `confirm_intent` | 自洽交接单文档（默认非 HO；落 outbound/{category}/） | `send` | 停在本步/升级 |
+| 1 | `compose` | `pm-lead` | — | `confirm_intent` | 自洽交接单文档（默认非 HO；落 outbound/{category}/；同轮记 handoff-ledger.md） | `send` | 停在本步/升级 |
 | 2 | `send` | `pm-lead` | — | `confirm_handoff` | {workroot}/handoff/outbound/{category}/{HO-ID}/ + 【交接包已生成】 | `receive` | 缺 00/01/快照/占位符/链接断 → 不发送；补后重跑校验 |
 | 3 | `receive` | `pm-lead` | — | `confirm_change`、`confirm_plan` | 入站分析/吸收 + 接收回执（按需）+ 产品计划/文档更新 + 台账状态 | `change_send` | 停在本步/升级 |
 | 4 | `change_send` | `pm-lead` | — | `confirm_change`、`confirm_handoff` | {workroot}/handoff/outbound/变更/{CHG-HO-ID}/ + 更新后的受影响文档 | `change_receive` | 停在本步/升级 |
