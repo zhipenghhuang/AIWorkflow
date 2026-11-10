@@ -94,7 +94,7 @@
 
 - 门自己跑关键检查并写 `completion.json`；不信任“已通过”文本。
 - 证据类型：命令+退出码、测试报告、Playwright trace/截图、console/network 日志、设计 QA、评审记录。
-- 前端证据与矩阵：按 `rules/core/frontend-gate.md` §2/§4（含每路由桌面+移动截图、`evidence.json`、console/network、design-qa）；L2+ 另按该文 §2 第 6 项提供 `verify/templates/plan-coverage.md`。截图必须晚于本轮验收清单，否则视为旧证据。
+- 前端证据与矩阵：按**当前步骤包内「前端硬门」**（含每路由桌面+移动截图、`evidence.json`、console/network、design-qa）；L2+ 另按该节计划覆盖项提供 `verify/templates/plan-coverage.md`。截图必须晚于本轮验收清单，否则视为旧证据。维护真源仍为 `rules/core/frontend-gate.md`。
 - **证据新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区），不能只比 `base_commit`；源码改动后必须重拍受影响路由并更新哈希。
 - **证据复用**：同一任务、同一源码 diff 的已通过证据可直接引用，不重复执行；代码变更后只重跑受影响集、重拍受影响路由；全量回归同一 diff 至多一次，再次全量须记录变更与理由。门禁实例的 `test`/`capture`/`e2e` 不得对同一路由重复全量执行。
 - 原始测试日志落 `.gate/logs/`（命令、起止、耗时、退出码、测试数）；对话只放 ≤30 行摘要；报告数字必须与本轮日志一致。

@@ -67,7 +67,8 @@ steps:
   hitl: confirm_requirements
   hitl_when: requirements_need_confirm
   output: 需求基线（{workroot}/10-requirements/）
-  notes: 以理解包为输入、引用不重写；基线每条 AC 带原文来源（文件+章节/画板），供实施/验证回指原文；只收 DEV-AC；GAP/冲突必须继承；未签收不得进设计/排期；L2+ 跳过 design 时基线仍须经 review-docs。
+  notes: 以理解包为输入、引用不重写；基线每条 AC 带方案来源（文件+章节/画板），供实施按方案→分析理解→实施择优（DEV-IQ-22）；只收 DEV-AC；GAP/冲突必须继承；未签收不得进设计/排期；L2+ 跳过 design
+    时基线仍须经 review-docs。
 - name: 方案与设计
   id: design
   must_read:
@@ -111,8 +112,8 @@ steps:
   precondition: clarify 已完成；按级别适用的 10-requirements/20-design/review-docs/plan 已完成并确认；任务 SC 已抽或已标不适用；缺一停，不跳过门直接写代码
   on_fail: 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过
   output: 代码/配置改动
-  notes: -StartTask → 勾选 iq-checklist → 预检（命中须扩 SC/债项）→ 按 SC 逐条自证落地（单元=一条 SC）→ 自测；无 UI 时 frontend-gate 标 na。 有原型加 skills product-doc-analysis
-    + frontend-implementation；禁刷绿/主路径先合；子代理按 `rules/collaboration/subagents.md`。
+  notes: 本步任务：按已确认基线/方案/SC 实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC/债项）→ 按 SC 自证（单元=一条 SC）→ 自测。无 UI
+    本包前端硬门 `na`。条件技能见 §6。禁刷绿/主路径先合。子代理见 `rules/collaboration/subagents.md`。DEV-IQ-22 与预检硬门槛见本包规则卡；方法见 §6。
 - name: 代码评审
   id: review
   must_read:
@@ -137,8 +138,8 @@ steps:
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 验证回执
-  notes: '按 AC 追溯来源回指原文走查（DEV-IQ-22），并合看原型/接口/现有实现；示例/死边界按实际重设并记替代理由；Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE 不得进
-    deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。'
+  notes: '按 AC 追溯来源走查方案对应段（DEV-IQ-22）；合看原型/接口/现有实现；理解包接在方案后不抢入口；示例/死边界在实施择优中记偏离；Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE
+    不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。'
 - name: 提测与发布文档
   id: deliver
   must_read:

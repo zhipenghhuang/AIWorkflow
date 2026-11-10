@@ -1,12 +1,12 @@
 # 需求与 PRD · `prd` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`收集需求` → `discover`；`需求洞察` → `discover`；`竞品分析` → `discover`；`学习竞品` → `discover`；`需求池` → `discover`；`分析客户需求` → `discover`；`需求调研` → `discover`；`客户访谈` → `discover`；`需求澄清` → `discover`；`竞品对标` → `benchmark`；`功能对标` → `benchmark`；`对标分析` → `benchmark`；`功能差距` → `benchmark`；`立项` → `prioritize`；`单需求立项` → `prioritize`；`排优先级` → `prioritize`；`写PRD` → `prd`；`写 PRD` → `prd`；`出PRD` → `prd`；`补PRD` → `prd`；`PRD评审` → `review`；`PRD 评审` → `review`；`定稿` → `review`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

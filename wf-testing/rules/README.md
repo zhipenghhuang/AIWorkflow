@@ -4,10 +4,11 @@
 
 ## 0. 正式层级
 
-- **运行时**：`AGENTS.md` → `core/cold-start.md` → `activeContext.md`（状态）→ `core/global-rules.md`（每步必读）→ `workflows/<id>.md` → `packets/<id>/<step>.md` → `skills/`/`templates/` 指定节。
+- **运行时**：`AGENTS.md` → `core/cold-start.md` → `activeContext.md`（状态）→ `core/global-rules.md`（每步必读；重读按 §7）→ `workflows/<id>.md` → `packets/<id>/<step>.md` → `skills/`/`templates/` 指定节。
+- **主从**：步骤包=本步剧本/验收；技能/模板=方法与壳；`global-rules`=跨步场规则；`collaboration/`·`defects/`·部分 `core/` 为具名索引（步骤卡点名再读）。
 - **规则字典**：`gates.md` · `doc-governance.md` · `collaboration/` · `defects/`（按需查，不每步通读）。
 - **参考层**：`workflow.md` · `core/` 的 `execution-contract`/`clarification`/`verification`/`doc-quality`/`rule-governance`/`doc-facade-sync`。
-- **全局规则**：每步读 `core/global-rules.md` 并逐条过；心跳 `global=ok` 表示本步已读；偏离写 `global=dev:<原因>`。步骤卡只留指针，不复制正文。
+- **全局规则**：按 `core/global-rules.md` §7 重读；心跳 `global=ok` 表示本步已按 §7 复核；偏离写 `global=dev:<原因>`。步骤卡只留指针，不复制正文。
 
 ## 1. 分层
 

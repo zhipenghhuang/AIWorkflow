@@ -7,7 +7,7 @@
 ## 1. 新会话顺序（按序一次）
 
 1. `activeContext.md`：总览 + 本包运行状态（workflow/state/packet）+ **偏好/洞见/坑 ≤3 行**（无则当无；写法 `context-memory.md`）。
-2. `rules/core/global-rules.md`：每步读全文并逐条过；未读不得写 `global=ok`。
+2. `rules/core/global-rules.md`：按 §7 重读（开局全文）；未按 §7 复核不得写 `global=ok`。
 3. 有 `project-profile.md` → §1+§2 表（身份/命令/流程偏好）；L2+ 有计划再读 `development-plan.md` §0/§10。
 4. 未接入 → `onboard`；已接入（`wf-development onboard: done`）→ 命中 workflow 后读 `workflows/<id>.md`（一次）→ 当前步骤卡。
 

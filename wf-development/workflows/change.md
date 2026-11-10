@@ -1,12 +1,12 @@
 # 常规代码变更 · `change` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`常规变更` → `clarify`；`澄清` → `clarify`；`需求澄清` → `clarify`；`提交` → `closeout`；`推送` → `closeout`；`分析PRD` → `analyze_input`；`分析 PRD` → `analyze_input`；`理解需求` → `analyze_input`；`解析原型` → `analyze_input`；`出方案` → `design`；`方案评审` → `review-docs`；`文档评审` → `review-docs`；`设计文档评审` → `review-docs`；`代码评审` → `review`；`提测` → `deliver`；`提测单` → `deliver`；`发布说明` → `deliver`；`回滚预案` → `deliver`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

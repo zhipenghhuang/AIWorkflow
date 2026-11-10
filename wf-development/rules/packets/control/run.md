@@ -1,6 +1,6 @@
 # 步骤卡 · control/run
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。选路前只读本包；选路后关闭本包，只打开目标步骤卡。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。选路前只读本包；选路后关闭本包，只打开目标步骤卡。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：遵守 `rules/core/global-rules.md`（重读按 §7）；本步未按 §7 复核不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 

@@ -270,23 +270,11 @@ def resolve_skills_for_step(
     return found
 
 
-# 外部规则 → 自足短句。只替换「外围规则」；核心步骤规则由 STEP_CARDS 内联。
+# 外围参考层 → 短句。core/defects/collaboration 与 skill/模板保留可点开路径。
 INLINE_RULES = (
     (
         r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
         "先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
-    ),
-    (
-        r"`?(?:rules/core/)?iq-checklist\.md`?",
-        "实施预检：先勾 AC/SC/DoD；未进 SC 且无债项不开工；命中面先扩 SC",
-    ),
-    (
-        r"(?:子代理按\s*)?`?rules/collaboration/subagents\.md`?(?:\s*§[\d.]+)?",
-        "子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物",
-    ),
-    (
-        r"`?rules/collaboration/handoff\.md`?(?:\s*§[\d.]+)?",
-        "内容优先、包按需；未回执不得称已接收",
     ),
     (
         r"`?rules/doc-governance\.md`?(?:\s*§[\d.]+)?",
@@ -294,7 +282,7 @@ INLINE_RULES = (
     ),
     (
         r"`?rules/workflow\.md`?(?:\s*§[\d.]+)?",
-        "变更/提交规则（本步门 + 共享 closeout）",
+        "本步编排以当前步骤卡为准；方法见 §6；勿通读手册拼流程",
     ),
     (
         r"`?rules/core/verification\.md`?(?:\s*§[\d.]+)?",
@@ -309,10 +297,6 @@ INLINE_RULES = (
     (
         r"`?rules/special/skill-audit\.md`?",
         "技能体检：盘点→适配→拟变更→确认→复检",
-    ),
-    (
-        r"`?rules/defects/[^`\s]+\.md`?(?:\s*§[\d.]+)?",
-        "先红证/根因；不修表象；回写带证据",
     ),
     (r"`?rules/gates\.md`?(?:\s*§[\d.]+)?", "门：见本包 §4"),
 )
@@ -565,13 +549,13 @@ WORKFLOW_CARD = """### 本步规则卡：变更与提交
 - 提交：默认仅本地提交；推送单独确认；禁 force push/切主干/擅自开 PR。
 - 无文件变更 → 不硬造提交。"""
 
-IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测
+IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛；实施类共用）
 
-- 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。
-- 实施预检（写代码前）：权限/状态/数据基数/多表面/失败路径/交互诚实/运行时 API 逐面判定；命中 → 先扩 SC/债项，再改码。有 UI 且含禁用/灰显/空列表/加载/筛选/主按钮 → 交互诚实默认命中；多表面同一状态/KPI → 跨层默认命中。
-- 单元=一条 SC；先红后绿；禁改断言/跳测试/关告警刷绿；最小改动≠裁剪 Then。
-- 自测：每条 SC 至少一条验证；边界/错误/权限/重复/并发按命中补；未验证显式写「未验证」。
-- 子代理：只读派发摘录与本批节；同一文件不重读；写域隔离；主代理核产物，不采信自述。"""
+- 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
+- **DEV-IQ-22（顺序硬）**：方案 → 分析理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。**方法**见 §6 `implementation-and-selftest`。
+- **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then。
+- **自测硬门槛**：每条 SC 有验证；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
+- 独立评审 → 本链 `review`；不在本步自称已评审。子代理索引 `rules/collaboration/subagents.md`；质量条守本步 §6 已列技能。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 
@@ -881,13 +865,13 @@ def render_chain_packet(
     full_note = "本链为全链入口；按表推进到下一个门/停点。" if chain_full else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
     return f"""# {wf_name} · `{wid}` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：{entries}
 - **终端**：`{terminal}`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
@@ -1032,11 +1016,11 @@ def advance_prose(pack_key: str, wid: str, chain_full: bool) -> str:
 
 
 def packet_advance(pack_key: str, wid: str, sid: str) -> str:
-    if pack_key == "wf-development":
+    if pack_key == "wf-development" and wid == "control" and sid == "run":
         return (
-            "- **推进**：本步完成后沿父链进入下一未跳过步；"
-            "口令为单步（只出方案/只评审/代码评审/方案评审/只提测/只出清单/轻量方案）或动作清单写明停止/跳转时，"
-            "以口令/清单为准，即停并输出收尾骨架。"
+            "- **推进**：本步只完成切包；**不**沿 control 自动进入 `sync`。"
+            "同轮更新 `activeContext` 后关闭本包，只打开目标步骤卡；"
+            "目标步到下一 `hitl`/产出停点即停；之后用户说「进度」→ `sync`，或再说「按开发计划执行」进下一阶段。"
         )
     if wid in ("materials", "skill-audit"):
         return (
@@ -1283,9 +1267,10 @@ def render_packet(
         )
 
     hard = (
-        "> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
+        "> **全局规则**：遵守 `rules/core/global-rules.md`（重读按 §7）；本步未按 §7 复核不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。\n"
         "\n### 本步边界\n\n"
-        "- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。\n"
+        "- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。\n"
+        "- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。\n"
         "- 必开技能打开→执行→回包；未过 §4 门不得宣称完成。"
     )
 
@@ -1374,7 +1359,7 @@ def render_packet(
     )
     return f"""# 步骤卡 · {wid}/{sid}
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 

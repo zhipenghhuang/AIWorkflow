@@ -1,18 +1,19 @@
 # 检查矩阵（测试轨）
 # 机器执行以 tools/test_gate.py 为准；本文件用于评审与调整。
+# manual = 机器只做结构/链接校验，语义仍由计划门/报告门人工复核。
 
-version: 5
+version: 6
 modes:
   coverage:
-    required: [env-baseline, analysis-structure, plan-structure]
+    required: [env-baseline, analysis-structure, plan-structure, plan-analysis-link]
     optional: []
     manual: [source-reconciliation, chapter-receipt, basis-coverage, ac-design-ledger, coverage-matrix, method-matrix, detail-dimensions, impact-surface, core-chains, p0-oracle, risk-scan-complete, na-accepted, ambiguity-gap, exploration-plan]
   execute:
-    required: [env-baseline, analysis-structure, plan-structure, execution-record, evidence-exists, blocked-reasons, p0-status, intent-conclusion]
+    required: [env-baseline, analysis-structure, plan-structure, plan-analysis-link, plan-state, execution-record, evidence-exists, blocked-reasons, p0-status, intent-conclusion, batch-coverage]
     optional: [scope-required, intent-coverage]
     manual: [batch-merge, result-self-check, batch-spotcheck, autonomy-log, s6-s7-s11]
   report:
-    required: [env-baseline, analysis-structure, plan-structure, execution-record, evidence-exists, blocked-reasons, p0-status, intent-coverage, intent-conclusion, p0-missing, report-structure, report-verdict]
+    required: [env-baseline, analysis-structure, plan-structure, plan-analysis-link, plan-state, execution-record, evidence-exists, blocked-reasons, p0-status, intent-coverage, intent-scenes, intent-conclusion, p0-missing, report-structure, report-verdict, track-records]
     optional: []
     manual: [gap-accepted, release-gate, defect-regression, coverage-matrix, exploration-close, s6-s7-s11, p0-conclusion]
   writeback:
@@ -23,6 +24,7 @@ modes:
 always:
   - analysis-structure
   - plan-structure
+  - plan-analysis-link
   - execution-record
   - evidence-exists
   - p0-status
@@ -33,6 +35,9 @@ always:
 risk_based:
   - blocked-reasons
   - intent-coverage
+  - intent-scenes
+  - plan-state
+  - track-records
   - writeback-receipt
 
 # 软项（人读；不单独机器 hard-fail）

@@ -4,9 +4,9 @@
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
-> **已路由中段**：每步读 `global-rules.md` 并逐条过；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.10.01`  
+> **template_version**：`2026.11.10.06`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -18,9 +18,9 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + 本包进行中运行状态（workflow/state/packet）+ **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；有 `project-profile.md` → §1+§2 表（每新会话一次）。L2+ 有计划才读 `development-plan.md`。  
 3. **接入**：`wf-development onboard: done` 则跳过，否则按 onboard-agent 一次判定。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（每步读并遵守）。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】；只读分析）。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 
@@ -122,7 +122,7 @@
 
 ## 7. 多包
 
-单包独立为默认；缺他包不阻塞。一次会话只跑一个包 workflow。歧义定包查 `wf/AGENTS.md` 意图→包。
+单包独立为默认；缺他包不阻塞。一次会话只跑一个包 workflow。歧义定包先查 `wf/AGENTS.md` 意图→包；无该文件时用兜底：产品缺陷评估/平台产品单→产品；修代码/开发缺陷流→开发；交平台/测试回归→测试；发布=业务上线/UAT→产品；发布=部署/回滚→开发；发布=准出报告→测试；下一步/继续→`activeContext` 当前包分节（无焦点一问）；提交/推送/交接→当前会话已绑定包（未开跑一问）。无法唯一则一问。多包应 onboard 生成 `wf/AGENTS.md`。
 
 ### 7.1 单包自带产品/测试切片（无独立角色或自包含完整链）
 

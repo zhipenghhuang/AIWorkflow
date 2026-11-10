@@ -1,6 +1,6 @@
 # 步骤卡 · handoff/compose
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,18 +19,19 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：遵守 `rules/core/global-rules.md`（重读按 §7）；本步未按 §7 复核不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
-- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。
 - 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
 
 - **HITL `confirm_intent`**：仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff`
 - **条件判定 `hitl:intent_needs_confirm`**：给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付；满足→真，否则跳过该门。
-- **推进**：本步完成后沿父链进入下一未跳过步；口令为单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）或动作清单写明停止/跳转时，以口令/清单为准，即停并输出收尾骨架。
+- **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
 
@@ -40,8 +41,7 @@
 ### 本步动作清单
 
 - **默认入口**。
-- 先读 内容优先、包按需。
-- 未回执不得称已接收 与 `handoff-note-template.md`（择优写法，非填空卷）。
+- 先读 `rules/collaboration/handoff.md` 与 `handoff-note-template.md`（择优写法，非填空卷）。
 - **意图择优**：先判 `intent_needs_confirm`（澄清方法见 clarification）。
 - 真 → 完整【意图理解】停等确认再落盘。
 - 假（意图已清）→ 一行【意图】回执后直写。

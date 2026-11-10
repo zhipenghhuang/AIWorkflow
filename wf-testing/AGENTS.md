@@ -3,10 +3,10 @@
 > **用途**：测试规范 AI 入口。  
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §2 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：`global-rules` **每步读**（逐条过；切步/过门/续跑都重读，换链/规则变更也重读）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.10.01`  
-> **主链**：分析 → 计划 → 执行 → 报告；分析必做，计划是总排。  
+> **template_version**：`2026.11.10.06`  
+> **主链**：方案全细节分析 → 计划 → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -16,11 +16,11 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 测试` 进行中（含 workflow/state/packet） + **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；身份：档案 §1 或 `env-baseline`（每新会话一次）。  
 3. **接入**：`wf-testing onboard: done` 则跳过；计划/执行/缺陷无标记时核验一次。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（每步读并遵守）。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）。  
-8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；每步 `global=ok`=已读本步全局规则）。
+8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；`global=ok`=本步已按 §7 复核）。
 
 ### 0.0 事实与文档
 
@@ -87,7 +87,7 @@
 
 ## 6. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理派工/生命周期 → `rules/collaboration/subagents.md`；改计划 §3.1 填表 → 计划模板该节；改轨边界 → `rules/tracks/`；改多轨准出 → `rules/special/multi-track-quality.md`；改 templates / skills / capabilities → 对应目录；改计划编排轮次/准出 → 计划模板 + `rules/workflow.md` §3.6（详版执行按节读 `multi-agent-output.md` §4）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤 → `workflows/`；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理派工/生命周期 → `rules/collaboration/subagents.md`；改计划 §3.1 填表 → 计划模板该节；改轨边界 → `rules/tracks/`；改多轨准出 → `rules/special/multi-track-quality.md`；改 templates / skills / capabilities → 对应目录；改计划编排轮次/准出 → 计划模板 + `rules/workflow.md` §3.6（详版执行按节读 `multi-agent-output.md` §4）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`；改门 → `verify/tools/test_gate.py` + `verify/tools/selftest_gate.py`。自检见 `rules/core/maintenance.md` §2。
 
 ## 7. 多包（自动探测）
 
@@ -97,7 +97,7 @@
 - **联动=交付物字段 + 同仓直读**；无提测单时本包自填影响面。
 - **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写已装包；规范包默认不跟踪：`.gitignore` 只写一行 `/<已装包>/`（多包 `/wf/`）；不预列未装包、不加注释。
 - 共用原件根 `inbound/`、根 `activeContext.md`；各包只改本分节。一次会话只执行一个包 workflow；跨包默认交自洽交付物或同仓直读；仅升包时用 `handoff/outbound/{category}/{HO-ID}/`。
-- **歧义定包**：缺陷/发布/下一步先查 `wf/AGENTS.md`；无法唯一则一问。
+- **歧义定包**：先查 `wf/AGENTS.md` **意图→包**；无该文件时用兜底：产品缺陷评估/平台产品单→产品；修代码/开发缺陷流→开发；交平台/测试回归→测试；发布=业务上线/UAT→产品；发布=部署/回滚→开发；发布=准出报告→测试；下一步/继续→`activeContext` 当前包分节（无焦点一问）；提交/推送/交接→当前会话已绑定包（未开跑一问）。无法唯一则一问。多包应 onboard 生成 `wf/AGENTS.md`。
 
 ## 8. 技能与能力（按步加载）
 

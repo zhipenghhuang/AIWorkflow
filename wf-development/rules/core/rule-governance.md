@@ -22,7 +22,8 @@
 
 **读法分级**：
 - **开局**：新会话精读 `cold-start.md`。  
-- **每步必读**：`global-rules.md`（全文逐条过）+ 当前步骤包（`packet=`）；未读不得写 `global=ok`；其后心跳 + 运行状态。`special` 仅点名时按节读。  
+- **每步必读**：`global-rules.md`（按 §7 重读分级）+ 当前步骤包（`packet=`）；未按 §7 复核不得写 `global=ok`；其后心跳 + 运行状态。`special` 仅点名时按节读。  
+- **主从**：步骤包=本步目的/门槛/门；技能/模板=方法与壳；`global-rules`=跨步场规则；`core|defects|collaboration` 具名索引按步骤包点名再读。禁技能另造平行流程。
 - **参考**：`implementation-quality.md`（词典）、`workflow.md`、handoff/缺陷长文；只读当前节。`frontend-gate` / `iq-checklist` 为命中必读短卡，不算百科。
 - **技能**：命中步才读，不命中不读。
 - **模板**：只读当前要填的一份，不通读模板库。

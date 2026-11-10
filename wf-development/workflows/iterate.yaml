@@ -54,8 +54,8 @@ steps:
   when: implementation_required
   agent: implementer
   output: 代码/配置改动 + 任务状态回写
-  notes: -StartTask → 勾选 iq-checklist → 预检（命中须扩 SC）→ 按 SC 逐条自证落地 → 回写清单；无 UI 时 frontend-gate 标 na。 超出清单先停；未验证不得标完成。细节同 change.implement
-    技能必做。
+  notes: 本步任务：按清单实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC）→ 按 SC 自证 → 回写。无 UI 本包前端硬门 `na`。超出清单先停；未验证不得标完成。硬门槛同
+    change.implement；方法见 §6。
 - name: 代码评审
   id: review
   must_read:

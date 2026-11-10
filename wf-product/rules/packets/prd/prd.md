@@ -1,6 +1,6 @@
 # 步骤卡 · prd/prd
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,11 +19,12 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过；本步未读不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
+> **全局规则**：遵守 `rules/core/global-rules.md`（重读按 §7）；本步未按 §7 复核不得写 `global=ok`。首行锚带 `global=ok`（偏离写 `global=dev:<原因>`）。
 
 ### 本步边界
 
-- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。
 - 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
@@ -47,43 +48,21 @@
 
 ### 本步动作清单
 
-- skills_required: prd-writing｜skills_optional: analytics-and-experimentation（有指标/埋点/实验才读） 前置：产品计划已确认，或单需求范围已经 `confirm_scope` 批准。
-- 两者都无 → 先补一行范围确认（一次），不直接写全量 PRD。
-- 已在需求池/立项书/计划范围内 → 直接写。
-- 未定性新输入 → 先走 `change.intake`，不跳过受理。
-- **写前先读**：确认的客户需求理解/受理单/需求池/证据。
-- 每条 F/R/AC 必须能追溯到来源（访谈/工单/数据/文档/裁决），无来源列 `Q-xx` 待确认，不臆造。
-- 未确认的推断标「假设」。
-- 理解门先行：`confirm_understanding` 按 先查事实。
+- 本步任务：写可评审 PRD。
+- 前置：已确认计划或 `confirm_scope`。
+- 否则先一行范围确认。
+- 未定性新输入 → 先 `change` intake。
+- 硬门槛：理解门双确认后才落正式 PRD。
+- F/R/AC 可追溯。
+- 写不出 AC=未定义完。
+- 完稿须【完稿自检摘要】+ `-Mode prd` 非 BLOCKED（P0 纯文案可跳结构门）。
+- 级别：P0/普通 P1 轻量。
+- P1↑/P2+ 按门槛补齐。
+- 方法见 §6 `prd-writing`（可选 analytics）。
+- 模板见 §7。
+- 澄清/交接索引 先查事实。
 - 仍不明一次一问（附候选/推荐）。
-- 未确认不升格 出示理解复述+方案要点。
-- **未双确认不得**落正式 PRD（可出草稿并标待确认）。
-- P2+ 且开发/测试角色可得时，按 内容优先、包按需。
-- 未回执不得称已接收 做需求澄清（Three Amigos）：产品讲问题/AC，开发讲可行性/影响，测试讲可测性/oracle。
-- 产出澄清记录（问题/示例/AC/待决，可并入 PRD 的变更记录节或评审记录）并回写 PRD。
-- 角色不可得则跳过，不阻塞。
-- 技能见 §6 `prd-writing`（先读再写）+ §6 `analytics-and-experimentation`（指标/埋点/实验，可选）。
-- 定稿自检清单与 `review-and-finalize` 技能同源（评审步技能，本步不强制打开）。
-- 要素齐：背景/目标与指标/用户场景/功能清单/流程/状态机/权限矩阵/字段rules/异常边界/非功能/埋点/验收标准/范围排除/依赖风险/里程碑。
-- **多需求/版本级**：用 `rules/templates/10-planning/iteration-plan-template.md` 汇总范围、功能覆盖、验收矩阵、执行记录与发布条件。
-- PRD 保留单需求明细。
-- 验收矩阵先标 `DEV-AC/QA-AC/REL-AC`，不得原样转开发任务。
-- 写不出验收标准 = 需求未定义完。
-- 禁臆造用户反馈与数据（引用可回查）。
-- **级别**：P0/普通 P1 → 轻量模板。
-- **P1↑**（权限/资金/隐私/不可逆数据/主数据规则）→ 作者自检按 P2，可用轻量壳但须补权限/rules/异常/AC。
-- P2+ → 全量模板。
-- **作者侧硬纪律**：完稿必须产出【完稿自检摘要】（见 prd-writing ）。
-- `gate_when: prd_structure_required` → 跑 `-Mode prd`（`gate: product-prd`）。
-- BLOCKED → 不得进评审/定稿。
-- DRAFT → 可审不可定稿。
-- 进定稿/交开发前 P2+/P1↑/任何拟 APPROVED 必须再跑至非 BLOCKED。
-- P0 纯文案且无结构门要求时可跳过 gate。
-- 普通 P1 进交开发前仍须非 BLOCKED。
-- **证据侦察分片**（子代理编排 ）：大 PRD（≥3 来源文档）→ 只读侦察 AC/状态机/权限/NFR/异常边界。
-- PRD 正文单写手分节推进，禁并行写。
-- 完稿按评审清单自检，带缺口禁落盘。
-- 同路径已有 PRD → 先读并增量更新，禁静默覆盖。
+- 未确认不升格 `rules/collaboration/handoff.md`。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -102,7 +81,6 @@
 ## 7. 模板与证据
 
 - **填写模板（仅此一份）**：`rules/templates/10-planning/prd-template.md`；只读本步用到的节，禁止整文件通读。
-- **参考模板（命中再开，不默认读）**：`rules/templates/10-planning/iteration-plan-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出

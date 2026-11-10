@@ -1,12 +1,12 @@
 # 产品展示与介绍 · `showcase` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`准备演示` → `audience`；`客户演示` → `audience`；`产品介绍` → `audience`；`产品汇报` → `audience`；`演示彩排` → `dryrun`；`一页纸` → `materials`；`Deck` → `materials`；`用户手册` → `docs`；`快速开始` → `docs`；`FAQ` → `docs`；`发布说明` → `docs`；`培训材料` → `docs`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

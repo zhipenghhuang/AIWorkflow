@@ -1,12 +1,12 @@
 # 开发计划 · `control` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`开发计划` → `init`；`项目计划` → `init`；`排期` → `init`；`生成计划` → `init`；`根据文档出计划` → `init`；`按开发计划执行` → `run`；`继续开发计划` → `run`；`进度` → `sync`；`当前阶段` → `sync`；`当前状态` → `sync`；`下一步` → `next`；`阶段检查` → `check`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

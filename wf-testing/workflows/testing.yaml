@@ -61,7 +61,6 @@ steps:
   must_read:
   - rules/packets/testing/plan.md
   - rules/templates/10-planning/test-analysis-template.md
-  - rules/templates/10-planning/test-plan-template.md
   agent: test-planner
   gate: coverage-map
   gate_type: machine
@@ -79,11 +78,8 @@ steps:
     when: docs_migration_needed
   next: execute
   output: '{workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排）'
-  notes: 先完整分析主读（至少再读 1 个互补源：原型/接口/代码/现网/历史缺陷）并读 `env-baseline.md` 命中节，再写计划。模板两份都填：`rules/templates/10-planning/test-analysis-template.md`（分析）+
-    `rules/templates/10-planning/test-plan-template.md`（总排）。分析必做：来源盘点/章节回执/依据覆盖/§2.1 意图台账（具体 INT+Oracle，覆盖方案测项）+ AC 设计点账本（意图列只映射台账已有
-    ID，禁簇名、禁台账外 ID）；每条有意图或 N/A+依据+接受人；覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11/风险/影响面/核心链路无未接受空格。计划只做总排（引用计数/摘要/轨道轮次/准入准出），不重复分析大表；§3.1
-    批次填执行形态/并行/隔离（同并行组≥2 模块默认模块子代理；并行组=串行的多行可各直跑；无隔离禁 PG；填表做法见 §6 技能）。分析未确认不得写计划；覆盖闸未过不得称可执行；计划未确认不得执行。不预生成用例≠可浅测（深度 multi-track
-    Q17）。
+  notes: 本步任务：先分析再计划（两份模板见 §7）。硬门槛：方案为主参考；主读+≥1 互补源；读 env-baseline 命中节；§2.1 INT+Oracle 与账本/矩阵可回指；计数被行数支撑；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1
+    与分析联动；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。
 - name: 按计划执行
   id: execute
   must_read:
@@ -99,14 +95,10 @@ steps:
   - name: confirm_execution_scope
     when: scope_needs_confirm
   output: 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态
-  notes: 按计划执行全部在范围 P0/P1/P2 意图：功能/接口/探索/发布前/回归按计划轮次与批次推进；开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值，缺行按决策树补并记偏差，开跑声明 `exec_mode=`+`pg=`；开跑先按原文目录/可验收单元对账分析
-    §1.1/§1.2/§2.1.1，漏来源/漏章、漏 AC/字段规则/入口先补分析再执行；对账写功能/接口执行记录 §0「原文对账」行（探索/发布前在本轨记录信息写同义对账；可验收单元 N/已覆盖 n/本轮补录 n/未关 0+接受人）。多源对照硬门槛：逐场景打开原文对应段并另读≥1互补源，分析只作索引，禁只读分析（做法按
-    §6 执行技能闭环）；边执行边写执行记录。执行记录模板：功能轨 `rules/templates/20-test-cases/test-case-template.md`；接口轨 `rules/templates/20-test-cases/api-test-case-template.md`；探索轨
-    `rules/templates/20-test-cases/exploratory-case-template.md`；随机流 `rules/templates/20-test-cases/random-flow-case-template.md`（场景+原文/依据+步骤+数据+Oracle+结果+证据+缺陷+意图结论）；步骤写清入口/操作/核对对象（字段/状态/码/提示）+预期，3～7
-    短步，供人复核；通过行也带核对点，不把步骤当预写脚本逐条点。全部 `处置=测` 意图到终态，P1/P2 不得用低优先级跳过；终态须达深度档（multi-track Q17），禁浅打勾；失败/待实现留证并进缺陷；阻塞留证，需外力进盯办（勿把阻塞当缺陷凑交）；P0
-    意图至少一条证伪场景（负向/状态/权限/幂等/恢复按适用），只有正向通过不得记 P0 完整；T1+ 功能收口前 S6/S7/S11 有落点；批末按计划 §3.1 核对；INT 须在 §2.1；本批触及的 §2.1.1 有终态或 N/A+接受人；顺延无接受人=缺口；计划含接口轨须
-    `api/` 契约记录+depth，功能内嵌探针不顶替；缺意图补测或写缺口+接受人；跑 execute 闸：过程完整才可推进（产品红→CONDITIONAL 须缺陷入库；分析/链接/证据不过→FAIL 禁下批）；并更新计划 §0/§6
-    与执行记录结论。
+  notes: 本步任务：按计划执行全部在范围 P0/P1/P2 意图（功能/接口/探索/发布前/回归）。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**硬门槛**：①
+    执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0+接受人）③ 功能六类场景有 SC 或 N/A+依据 ④
+    全部 `处置=测` 意图终态；P0 须证伪；深度 multi-track Q17；禁浅打勾 ⑤ INT 须在分析意图台账；意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth ⑦ 批末跑 execute 闸并更新计划状态。失败/待实现留证进缺陷；阻塞进盯办。模板见
+    §7；做法见 §6。
 - name: 输出报告
   id: report
   must_read:
@@ -119,9 +111,8 @@ steps:
   gate: report-consistency
   gate_type: machine
   output: '{workroot}/{ver}/test-report.md + 【任务收尾】'
-  notes: 按意图/优先级/轨道汇总：结论唯一（PASS/CONDITIONAL/FAIL/BLOCKED）；失败/待实现与阻塞并存 → 准出优先 FAIL，仅前置阻塞主导 → BLOCKED（报告模板 §0；用例态见 classification.md）；声明
-    runId/构建/suite/depth；P0 全过；全部 P0/P1/P2 意图有终态；覆盖矩阵/影响面/核心链路/S6-S7-S11/探索缺口显式列接受人；报告 §2.3 写执行记录 §0 原文对账、来源/章节、AC/设计点、细节维、影响面、核心链路、S6/S7/S11
-    的落点与缺口，只写模块名/无 ID 不算收口；数字与执行记录一致；先正文再 `-Mode report`；未 PASS/CONDITIONAL 不得写整体通过。
+  notes: 本步任务：出准出报告。结论唯一（PASS/CONDITIONAL/FAIL/BLOCKED）；失败与阻塞并存优先 FAIL（用例态见 `rules/defects/classification.md`）。硬门槛：P0 全过；全部处置=测意图有终态；报告计数与执行记录一致；对账/细节维可回指（无
+    ID 不算收口）；原文对账未关>0 不得 PASS；先正文再 `-Mode report`。模板见 §7。
 - name: 收尾与提交
   id: closeout
   must_read:

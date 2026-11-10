@@ -21,6 +21,12 @@
 
 估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。整文件 token 只约束 `AGENTS.md` / `cold-start.md` / `global-rules.md` 这类“开局或每步整文件读”的文件；`gates.md`、`routing.md`、`doc-quality.md`、`doc-governance.md` 等按节读规则，不按整文件限长。`Test-DocHygiene.ps1` 检查上述整文件预算、模板索引与结构；按节读文档不报整文件长度。
 
+**读法分级**：
+- **开局**：新会话精读 `cold-start.md`。
+- **每步必读**：`global-rules.md`（按 §7 重读分级）+ 当前步骤包（`packet=`）；未按 §7 复核不得写 `global=ok`。
+- **主从**：步骤包=本步目的/门槛/门；技能/模板=方法与壳；`global-rules`=跨步场规则；`core|defects|collaboration` 具名索引按步骤包点名再读。禁技能另造平行流程。
+- **参考 / 技能 / 模板**：按命中读当前节；不通读库。
+
 ## 2. 单一出处
 
 - 每条规则只在一个文件定义；其他位置只放指针 + 规则 ID。
@@ -87,6 +93,12 @@ python "wf-testing/rules/tools/validate_workflow.py" "wf-testing"
 10. 与「内容优先·包按需」冲突的「必须整包 HO」死句 → 规则卫生检查失败。
 11. 「待探查/推断」未升格写入基线 §3 真值，或未排除错入口就把契约错码开成实现缺陷 → 规则卫生/评审 FAIL（对照 `doc-quality` §1 第 2.1 条、`classification` §0）。
 12. 口令表/`entry_points` 指向不存在的 step，或链图缺当前状态 → 规则卫生检查失败。
+13. 来源盘点声明 N 项、§1.2/§1.3/§2.1.1 实际行数不足 N → 覆盖闸必须 FAIL。
+14. 执行记录 §3 声明多个意图通过、场景表只跑其中一部分 → 报告门必须 FAIL（无场景不算执行）。
+15. 分析 §2.1 为 P0、执行记录优先级写成 P2 且 P0 失败 → 报告门必须 FAIL，`-Claim` 必须 DENIED。
+16. 轻量计划声明 `版本准出=是`，或计划 §0 计数与分析不一致 → 覆盖闸必须 FAIL。
+17. 执行记录每场景只写原文单源、缺互补源 → 执行门必须 FAIL（或单源+理由+接受人）。
+18. 把「分析 §2.1」写成互补源，或用分析 Oracle 替代原文断言 → 执行门必须 FAIL。
 
 ## 6. 变更流程
 

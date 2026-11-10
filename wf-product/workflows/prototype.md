@@ -1,12 +1,12 @@
 # 页面原型设计 · `prototype` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步先读并逐条过）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`画原型` → `context`；`页面原型` → `context`；`原型设计` → `context`；`设计简报` → `context`；`设计策略` → `context`；`线框图` → `wireframe`；`UI设计` → `visual`；`高保真原型` → `hi-fi`；`设计评审` → `review`；`UI走查` → `usability`；`设计走查` → `usability`；`开发交接` → `handoff`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步先读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

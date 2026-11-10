@@ -3,9 +3,9 @@
 > **用途**：产品协作 AI 入口。  
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：每步读 `global-rules.md` 并逐条过；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.09.06`  
+> **template_version**：`2026.11.10.06`  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -15,9 +15,9 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 产品` 进行中（含 workflow/state/packet） + **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；有 `product-profile.md`→§1（每新会话一次）。涉计划读 `product-plan.md` §0·§10。  
 3. **接入**：`wf-product onboard: done` 则跳过，否则 onboard-agent 一次判定。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（每步读并遵守）。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）；理解→方案双确认按域门。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 
@@ -68,7 +68,7 @@
 | 7 | PRD 评审/定稿 | `prd` | review |
 | 8 | 排期/交付计划 | `deliver` | schedule→review-plan-deliver |
 | 9 | 需求答疑/跟进 | `change` | intake→triage |
-| 10 | 需求变更/产品缺陷（对话/文档） | `change` | 按链至下一门 |
+| 10 | 需求变更/产品缺陷（对话/文档） | `change` | 默认入口即止；按链/继续至下一门 |
 | 11 | 平台产品缺陷拉取/分析 | `defect` | preflight→pull→source→analyze |
 | 12 | 平台回写 | `defect` | writeback |
 | 13 | UAT/验收 | `deliver` | uat |
@@ -111,7 +111,8 @@
 - 共用原件根 `inbound/`（项目根固定；无则 onboard 建）、根 `activeContext.md`（总览 → 已启用包分节 → 跨包同步 → 运行时；单包只建本包节）。
 - 各包只改本分节、与本包相关的跨包同步一行、本包接入行；禁止整文件覆盖或改他包分节。
 - 一次会话只执行一个包 workflow；跨包默认交自洽交付物或同仓直读对方 `handoff/outbound/`；**仅升包时**用 `handoff/outbound/{category}/{HO-ID}/`；不复制正文、不自动执行对方 workflow。
-- **歧义定包**：缺陷/发布/下一步等先查 `wf/AGENTS.md` **意图→包**；无法唯一则一问。
+- **歧义定包**：先查 `wf/AGENTS.md` **意图→包**；无该文件时用下表；无法唯一则一问。多包应 onboard 生成 `wf/AGENTS.md`。
+- **无 `wf/AGENTS.md` 兜底**（有则以该文件为准）：产品缺陷评估/平台产品单→产品；修代码/开发缺陷流→开发；交平台/测试回归→测试；发布=业务上线/UAT→产品；发布=部署/回滚→开发；发布=准出报告→测试；下一步/继续→`activeContext` 当前包分节（无焦点一问）；提交/推送/交接→当前会话已绑定包（未开跑一问）。
 - 单包不启用以上规则，仍用同分节骨架（仅本包节）。
 
 ## 6. 技能与能力（按步加载）

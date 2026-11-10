@@ -1,6 +1,6 @@
 # 步骤卡 · handoff/compose
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,11 +19,12 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
+> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
-- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。
 - 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
@@ -40,8 +41,7 @@
 ### 本步动作清单
 
 - **默认入口**。
-- 读 内容优先、包按需。
-- 未回执不得称已接收 与 `handoff-note-template.md`（择优，非填空卷）。
+- 读 `rules/collaboration/handoff.md` 与 `handoff-note-template.md`（择优，非填空卷）。
 - **意图择优**：先判 `intent_needs_confirm`（澄清方法见 clarification）。
 - 真 → 完整【意图理解】停等再落盘。
 - 假 → 一行【意图】回执后直写。

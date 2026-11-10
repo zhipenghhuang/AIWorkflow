@@ -94,6 +94,7 @@ def main() -> int:
                     errors.append(f"契约 {row[0]} 缺 {name}")
 
     block2 = text.split("## 2. 场景与结果", 1)[1].split("## 3.", 1)[0] if "## 2. 场景与结果" in text else ""
+    scene_ids: set[str] = set()
     table = None
     for headers, rows in tables(block2):
         if "SC" in headers and "结果" in " ".join(headers):
@@ -109,6 +110,7 @@ def main() -> int:
                 continue
             seen += 1
             sc = row[0]
+            scene_ids.add(sc)
             status = cell(row, headers, "结果")
             ev = cell(row, headers, "证据")
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
@@ -128,6 +130,31 @@ def main() -> int:
                 errors.append(f"{sc}: {status} 缺证据")
         if seen == 0:
             errors.append("§2 场景表无数据行")
+
+    # §4 意图结论：结论须回指实际场景
+    itable = None
+    for headers, rows in tables(text):
+        joined = " ".join(headers)
+        if "INT" in headers and "结论" in joined and "SC" not in headers:
+            itable = (headers, rows)
+            break
+    if itable:
+        headers, rows = itable
+        for row in rows:
+            if not row or not row[0] or row[0] in ("INT", "—"):
+                continue
+            iid = row[0].strip()
+            if not INT_RE.fullmatch(iid):
+                continue
+            status = cell(row, headers, "结论")
+            if status == "不适用":
+                continue
+            ref = cell(row, headers, "场景 ID") or cell(row, headers, "场景")
+            refs = set(re.findall(r"SC-[A-Z0-9-]+", ref, re.I))
+            if not refs:
+                errors.append(f"意图 {iid}: 结论 {status or '空'} 未指向场景（场景 ID 必填）")
+            elif not (refs & scene_ids):
+                errors.append(f"意图 {iid}: 引用的场景不存在 {ref}")
 
     for w in warns:
         print(f"WARN: {w}")

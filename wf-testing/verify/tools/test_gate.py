@@ -131,6 +131,24 @@ def cell(row: list[str], headers: list[str], name: str) -> str:
     return row[i].strip() if 0 <= i < len(row) else ""
 
 
+def table_rows(table: tuple[list[str], list[list[str]]] | None) -> list[list[str]]:
+    """Real data rows of a parsed table (skip blank / separator-like first cells)."""
+    if not table:
+        return []
+    _headers, rows = table
+    out: list[list[str]] = []
+    for row in rows:
+        if not row:
+            continue
+        head = (row[0] or "").strip()
+        if not head or head in ("—", "-", "…", "...", "---"):
+            continue
+        if all(not (c or "").strip() for c in row):
+            continue
+        out.append(row)
+    return out
+
+
 def is_blank(s: str) -> bool:
     s = (s or "").strip()
     return s in {"", "—", "-", "…", "...", "待补", "待确认"} or (s.startswith("{") and s.endswith("}"))
@@ -156,6 +174,27 @@ def is_test_disp(s: str) -> bool:
     if not s or s.startswith("不测"):
         return False
     return s.startswith("测") or s.upper().startswith("TEST")
+
+
+def pri_key(s: str) -> str:
+    """Normalize a priority cell to P0/P1/P2 (empty when unparsable)."""
+    t = (s or "").strip()
+    if is_p0(t):
+        return "P0"
+    u = t.upper()
+    if "P0" in u:
+        return "P0"
+    if "P1" in u:
+        return "P1"
+    if "P2" in u:
+        return "P2"
+    return ""
+
+
+def is_na_disp(s: str) -> bool:
+    """True for dispositions that mean 'not tested' (N/A / 不适用 / 不测)."""
+    t = (s or "").strip()
+    return "N/A" in t.upper() or "不适用" in t or t.startswith("不测")
 
 
 def source_anchored(s: str) -> bool:
@@ -227,38 +266,6 @@ def conditional_acceptor_ok(text: str) -> bool:
             if not is_blank(cell(row, headers, "接受人")):
                 return True
     return False
-
-
-def _tokens(s: str) -> set[str]:
-    """轻量对账 token：INT/AC/路径/中文词块；过滤过短噪声。"""
-    raw = (s or "").strip()
-    if not raw:
-        return set()
-    parts = re.findall(r"[A-Za-z][A-Za-z0-9_-]{1,}|\d+(?:\.\d+)?|[\u4e00-\u9fff]{2,}", raw)
-    return {p.lower() for p in parts if p and p.lower() not in {"oracle", "预期", "通过", "失败", "结果"}}
-
-
-def analysis_aligned(source: str, oracle: str, meta: dict[str, str] | None) -> bool:
-    """场景原文/Oracle 与分析台账有可对账交集；无分析行则跳过。
-
-    通用词（状态/页面等）单独命中不算；须 ≥2 个交集，或至少 1 个较长/带锚点 token。
-    """
-    if not meta:
-        return True
-    scene_tok = _tokens(f"{source} {oracle}")
-    if not scene_tok:
-        return False
-    analysis_tok = _tokens(
-        f"{meta.get('source', '')} {meta.get('oracle', '')} {meta.get('unaccept', '')} {meta.get('intent', '')}"
-    )
-    if not analysis_tok:
-        return True  # 分析行空字段由 coverage 另拦；此处不叠罚
-    shared = scene_tok & analysis_tok
-    if not shared:
-        return False
-    weak = {"状态", "页面", "结果", "成功", "失败", "字段", "按钮", "列表", "详情", "接口", "数据", "用户"}
-    strong = {t for t in shared if t not in weak and (len(t) >= 3 or any(ch.isdigit() for ch in t) or "-" in t or "_" in t)}
-    return len(shared) >= 2 or bool(strong)
 
 
 def to_int(s: str) -> int:
@@ -392,6 +399,11 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
     p0_ids: set[str] = set()
     p1_ids: set[str] = set()
     p2_ids: set[str] = set()
+    src_specs: list[tuple[str, int, int, int]] = []
+    chapter_rows = basis_rows = ac_rows = 0
+    detail_yes = 0
+    pending_gaps: list[str] = []
+    p0_exemption = False
     if not re.search(r"analysis_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I):
         issues.append("缺 analysis_format=intent-v1")
     for key in ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5.", "## 6."):
@@ -406,6 +418,9 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
     t_src_b = None if t_src else pick_table(block1, ["来源", "缺口"])
     if t_src:
         headers, rows = t_src
+        src_data = table_rows(t_src)
+        if not src_data:
+            issues.append("§1 来源盘点无数据行（每条来源至少一行）")
         for row in rows:
             if not row or not row[0] or row[0] in ("来源", "—"):
                 continue
@@ -419,6 +434,7 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             total = to_int(cell(row, headers, "总数"))
             mapped = to_int(cell(row, headers, "已映射"))
             na = to_int(cell(row, headers, "N/A"))
+            src_specs.append((row[0], total, mapped, na))
             if total and mapped > total:
                 issues.append(f"§1「{row[0]}」已映射 {mapped} > 总数 {total}")
             if total and mapped + na + gap_n != total:
@@ -430,6 +446,8 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         map_h = next((h for h in headers if re.search(r"已映射|映射策略", h)), "")
         if not count_h or not map_h:
             issues.append("§1 来源盘点表缺计数列或映射列（需 总数/设计点行 + 已映射/映射策略 + 缺口）")
+        if not table_rows(t_src_b):
+            issues.append("§1 来源盘点无数据行（每条来源至少一行）")
         for row in rows:
             if not row or not row[0] or row[0] in ("来源", "—"):
                 continue
@@ -445,6 +463,7 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             if mapped == 0 and mapped_raw and not re.match(r"^\d+", mapped_raw.strip()):
                 # 非数字映射策略（如 §2.1.1 DP-240）视为已映射=总数（缺口另计）
                 mapped = total if total and gap_n == 0 else mapped
+            src_specs.append((row[0], total, mapped, 0))
             if total and mapped > total:
                 issues.append(f"§1「{row[0]}」已映射 {mapped} > 总数 {total}")
     else:
@@ -456,6 +475,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§1.2 章节回执缺失（需 章节/标题/可测内容/意图/落点）")
     else:
         headers, rows = t_ch
+        chapter_data = table_rows(t_ch)
+        chapter_rows = len(chapter_data)
+        if not chapter_data:
+            issues.append("§1.2 章节回执无数据行（主读每个章节/标题至少一行）")
         for row in rows:
             if not row or not row[0] or row[0] in ("章节/标题", "—"):
                 continue
@@ -474,7 +497,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§1.3 依据覆盖表缺失（需 依据ID/来源/意图ID/结论）")
     else:
         headers, rows = t_basis
-        basis_text = " ".join(" ".join(r) for r in rows)
+        basis_data = table_rows(t_basis)
+        basis_rows = len(basis_data)
+        if not basis_data:
+            issues.append("§1.3 依据覆盖无数据行（PRD/方案/原型/接口逐条至少一行）")
         for row in rows:
             if not row or not row[0] or row[0] in ("依据ID", "—"):
                 continue
@@ -536,6 +562,13 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                     issues.append(f"§2.1 {iid} N/A 缺接受人")
                 if is_p0(pri):
                     issues.append(f"§2.1 {iid} P0 不得 N/A（P0 必须执行；确不适用请降级并写 §4 接受人）")
+            elif disp.startswith("不测"):
+                if is_blank(cell(row, headers, "接受人")):
+                    issues.append(f"§2.1 {iid} 处置=不测 缺接受人")
+                if is_p0(pri):
+                    issues.append(f"§2.1 {iid} P0 不得处置=不测（P0 必须执行）")
+            elif not is_test_disp(disp):
+                issues.append(f"§2.1 {iid} 处置须为 测/N/A/不测：{disp or '空'}")
         if not intents:
             issues.append("§2.1 意图台账无数据行")
 
@@ -561,6 +594,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§2.1 AC/设计点账本缺失（需 来源条目/类型/意图/处置）")
     else:
         headers, rows = t_ac
+        ac_data = table_rows(t_ac)
+        ac_rows = len(ac_data)
+        if not ac_data:
+            issues.append("§2.1.1 AC/设计点账本无数据行（每个 AC/设计点至少一行）")
         for row in rows:
             if not row or not row[0] or row[0] in ("来源条目", "—", "DP"):
                 continue
@@ -573,6 +610,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             disp = cell(row, headers, "处置")
             if ("N/A" in disp.upper() or "不适用" in disp) and is_blank(cell(row, headers, "缺口/接受人")):
                 issues.append(f"§2.1.1「{row[0]}」N/A 缺接受人")
+            elif disp.startswith("不测") and is_blank(cell(row, headers, "缺口/接受人")):
+                issues.append(f"§2.1.1「{row[0]}」不测 缺接受人")
+            elif not (disp.startswith("测") or "N/A" in disp.upper() or "不适用" in disp or disp.startswith("不测")):
+                issues.append(f"§2.1.1「{row[0]}」处置须为 测/N/A/不测：{disp or '空'}")
             if disp.startswith("测") and not disp.startswith("不测") and not INT_ID_RE.search(ac_intent):
                 issues.append(f"§2.1.1「{row[0]}」处置=测 但未写 INT")
             for ref in longest_int_refs(ac_intent):
@@ -592,6 +633,24 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                         f"§2.1.1「{row[0]}」处置=测 但映射的 INT 在 §2.1 均非处置=测（台账处置矛盾）"
                     )
 
+    # 来源声明 ↔ 账本行数：章节/AC/设计点的自报计数必须被实际账本行支撑
+    ledger_rows = chapter_rows + basis_rows + ac_rows
+    ledger_specs = [(n, t, m, na) for (n, t, m, na) in src_specs
+                    if re.search(r"章节|PRD|F/R|AC|设计", n, re.I)]
+    ledger_mapped = sum(m for _n, _t, m, _na in ledger_specs)
+    if ledger_mapped > ledger_rows:
+        issues.append(
+            f"§1.1 章节/AC/设计点声明已映射 {ledger_mapped}，但 §1.2/§1.3/§2.1.1 合计仅 {ledger_rows} 行（来源计数与账本不符）"
+        )
+    for name, total, mapped, na in src_specs:
+        target = mapped if mapped else max(0, total - na)
+        if not total or not target:
+            continue
+        if re.search(r"章节|PRD|F/R", name, re.I) and chapter_rows < target:
+            issues.append(f"§1「{name}」声明 {target} 项，但 §1.2 仅 {chapter_rows} 行（章节回执不齐）")
+        elif re.search(r"\bAC\b|AC/", name, re.I) and (basis_rows + ac_rows) < target:
+            issues.append(f"§1「{name}」声明 {target} 项，但 §1.3+§2.1.1 仅 {basis_rows + ac_rows} 行（依据/设计点账本不齐）")
+
     # §2.2 coverage matrix
     block22 = subsection(text, "2.2")
     t22 = pick_table(block22, ["模块/流程", "负向/禁止"])
@@ -599,17 +658,28 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§2.2 模块×面矩阵缺失或表头不可读")
     else:
         headers, rows = t22
+        if not table_rows(t22):
+            issues.append("§2.2 覆盖矩阵无模块/流程行（空格=覆盖缺口）")
         for col in ("主路径", "状态/分支", "边界/异常", "权限/数据域", "并发/幂等", "审计/历史", "通知/附件", "迁移/兼容", "非功能", "视觉/UI", "集成/状态轴", "计算/算例", "负向/禁止"):
             if not any(col in h for h in headers):
                 issues.append(f"§2.2 覆盖矩阵缺列「{col}」")
         for row in rows:
             if not row or not row[0] or row[0] in ("模块/流程", "—"):
                 continue
+            row_has_int = False
             for j, val in enumerate(row[1:], 1):
                 if is_blank(val):
                     issues.append(f"§2.2「{row[0]}」第{j}列为空")
                 elif not has_matrix_marker(val):
                     issues.append(f"§2.2「{row[0]}」第{j}列未写 INT/场景 或 N/A+依据")
+                else:
+                    if re.search(r"INT-[A-Z0-9-]+|SC-[A-Z0-9-]+|SMK-[A-Z0-9-]+", val, re.I):
+                        row_has_int = True
+                    for ref in longest_int_refs(val):
+                        if not intent_ref_ok(ref, intents):
+                            issues.append(f"§2.2「{row[0]}」第{j}列 INT {ref} 不在 §2.1 台账")
+            if not row_has_int:
+                issues.append(f"§2.2「{row[0]}」整行 N/A（至少一个面须有 INT/场景）")
 
     # §2.3 method matrix
     block23 = subsection(text, "2.3")
@@ -618,6 +688,8 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§2.3 方法×规则矩阵缺失或表头不可读")
     else:
         headers, rows = t23
+        if p0_ids and not table_rows(t23):
+            issues.append("§2.3 方法矩阵无规则行（有 P0/关键规则时必须逐方法有落点）")
         for col in ("等价类", "边界", "判定表/组合", "状态迁移", "场景", "算例", "意图"):
             if not any(col in h for h in headers):
                 issues.append(f"§2.3 方法矩阵缺列「{col}」")
@@ -629,6 +701,13 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                     issues.append(f"§2.3「{row[0]}」第{j}列为空")
                 elif not has_matrix_marker(val):
                     issues.append(f"§2.3「{row[0]}」第{j}列未写 INT 或 N/A+依据")
+                else:
+                    for ref in longest_int_refs(val):
+                        if not intent_ref_ok(ref, intents):
+                            issues.append(f"§2.3「{row[0]}」第{j}列 INT {ref} 不在 §2.1 台账")
+            method_cols = ("等价类", "边界", "判定表/组合", "状态迁移", "场景", "算例")
+            if not any("INT-" in cell(row, headers, name).upper() for name in method_cols):
+                issues.append(f"§2.3「{row[0]}」方法列无 INT（只填意图列不算方法覆盖）")
 
     # §2.4 detail matrix
     block24 = subsection(text, "2.4")
@@ -649,9 +728,17 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             gap = cell(row, headers, "缺口或依据") or cell(row, headers, "缺口/理由")
             if apply not in ("是", "否"):
                 issues.append(f"§2.4「{row[0]}」适用未填 是/否")
-            elif apply == "是" and is_blank(ref):
-                issues.append(f"§2.4「{row[0]}」适用但缺意图/场景")
-            elif apply == "否" and is_blank(gap):
+            elif apply == "是":
+                detail_yes += 1
+                if is_blank(ref):
+                    issues.append(f"§2.4「{row[0]}」适用但缺意图/场景")
+                elif not re.search(r"INT-[A-Z0-9-]+|SC-[A-Z0-9-]+|SMK-[A-Z0-9-]+", ref, re.I):
+                    issues.append(f"§2.4「{row[0]}」适用但意图/场景无法指到 ID（须写 INT-*/SC-*/SMK-*）")
+                else:
+                    for ir in longest_int_refs(ref):
+                        if not intent_ref_ok(ir, intents):
+                            issues.append(f"§2.4「{row[0]}」意图 {ir} 不在 §2.1 台账")
+            elif is_blank(gap):
                 issues.append(f"§2.4「{row[0]}」不适用但缺依据")
 
     # §3 risk
@@ -661,6 +748,8 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         issues.append("§3 风险清单缺失或表头不可读")
     else:
         headers, rows = t_risk
+        if not table_rows(t_risk):
+            issues.append("§3 风险清单无数据行（至少登记本轮主要风险）")
         for row in rows:
             if not row or not row[0] or row[0] in ("RISK", "—"):
                 continue
@@ -673,14 +762,19 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
     else:
         headers, rows = t_scan
         seen = 0
+        cats: list[str] = []
         for row in rows:
             if not row or not row[0] or row[0] in ("类别", "—"):
                 continue
             seen += 1
+            cats.append(row[0])
             if cell(row, headers, "是否适用") not in ("是", "否"):
                 issues.append(f"§3.1「{row[0]}」是否适用须填 是/否")
         if seen < 8:
             issues.append(f"§3.1 风险扫描仅 {seen} 类")
+        for key in ("资金", "状态", "幂等", "跨系统", "权限", "数据", "外部依赖", "历史", "业务语义", "可观测", "UX"):
+            if not any(key in c for c in cats):
+                issues.append(f"§3.1 风险扫描缺类别「{key}」")
 
     # §5 impact + core chains
     block5 = h2(text, "5.")
@@ -701,11 +795,27 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                 if is_blank(cell(row, headers, name)):
                     issues.append(f"§5.1「{row[0]}」缺 {name}")
 
+    t_delta = pick_table(block5, ["变更点 ID", "变更摘要", "状态"])
+    if not t_delta:
+        issues.append("§5.2 变更影响追溯缺失（需 变更点 ID/变更摘要/状态）")
+    else:
+        headers, rows = t_delta
+        if not table_rows(t_delta):
+            issues.append("§5.2 变更影响追溯无数据行")
+        for row in rows:
+            if not row or not row[0] or row[0] in ("变更点 ID", "—"):
+                continue
+            status = cell(row, headers, "状态")
+            if status not in ("已覆盖", "缺口", "N/A", "不适用"):
+                issues.append(f"§5.2「{row[0]}」状态须为 已覆盖/缺口/N/A/不适用：{status or '空'}")
+
     t_core = pick_table(block5, ["链路 ID", "关键步骤"])
     if not t_core:
         issues.append("§5.3 核心链路表缺失或表头不可读")
     else:
         headers, rows = t_core
+        if not table_rows(t_core):
+            issues.append("§5.3 核心链路无数据行（至少一条主业务链）")
         for row in rows:
             if not row or not row[0] or row[0] in ("链路 ID", "—"):
                 continue
@@ -716,28 +826,70 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             if status not in ("已覆盖", "N/A", "不适用"):
                 issues.append(f"§5.3「{row[0]}」状态未闭环：{status or '空'}")
 
+    # §4 gaps / ambiguities
+    block4 = h2(text, "4.")
+    t_gap = pick_table(block4, ["ID", "问题", "状态"])
+    if t_gap:
+        headers, rows = t_gap
+        for row in rows:
+            if not row or not row[0] or row[0] in ("ID", "—"):
+                continue
+            status = cell(row, headers, "状态")
+            if not status or status in ("—", "-", "…", "..."):
+                issues.append(f"§4「{row[0]}」缺状态/接受人")
+            if re.search(r"待确认|未确认|未关|开放", status):
+                pending_gaps.append(f"{row[0]}:{status}")
+        p0_exemption = any(
+            "P0" in line and re.search(r"接受|accepted", line, re.I) for line in block4.splitlines()
+        )
+    elif not re.search(r"无\s*(未关|缺口|歧义)?", block4):
+        issues.append("§4 歧义/冲突/缺口缺失（需表，或明确写「无」）")
+
     # §6 sufficiency
     t6 = pick_table(h2(text, "6."), ["检查", "通过条件"])
     if not t6:
         issues.append("§6 覆盖充分性表缺失（需 检查/通过条件/结论）")
     else:
         headers, rows = t6
+        got_checks: list[str] = []
         for row in rows:
             if not row or not row[0] or row[0] in ("检查", "—"):
                 continue
+            got_checks.append(row[0])
             conclusion = row[2].strip() if len(row) > 2 else ""
             if is_blank(conclusion) or has_open_gap(conclusion):
                 issues.append(f"§6「{row[0]}」未闭环：{conclusion or '空'}")
+        for name in ("来源/章节", "依据覆盖", "意图", "覆盖矩阵", "方法矩阵", "细节维", "风险", "影响面", "变更追溯", "核心链路", "结论"):
+            if not any(name in c for c in got_checks):
+                issues.append(f"§6 缺检查项「{name}」")
 
     return {"path": str(path), "issues": issues, "intents": intents,
-            "ids": set(intents.keys()), "p0_ids": p0_ids, "p1_ids": p1_ids, "p2_ids": p2_ids}
+            "ids": set(intents.keys()), "p0_ids": p0_ids, "p1_ids": p1_ids, "p2_ids": p2_ids,
+            "detail_yes": detail_yes, "chapter_rows": chapter_rows, "basis_rows": basis_rows,
+            "ac_rows": ac_rows,
+            "pending_gaps": pending_gaps, "p0_exemption": p0_exemption}
 
 
 # ---------- plan ----------
 def parse_plan(path: Path) -> dict[str, Any]:
     text = read(path)
     issues: list[str] = []
-    tier = "lite" if re.search(r"plan_tier\s*=\s*lite|测试计划（轻量）", text[:3000], re.I) else "full"
+    state = ""
+    version_release = ""
+    outing = ""
+    risk_tier = ""
+    counts: dict[str, int] = {}
+    suite = ""
+    depth = ""
+    batch_intents: set[str] = set()
+    batch_all = False
+    batches: dict[str, set[str]] = {}
+    batch_all_ids: set[str] = set()
+    tracks: dict[str, str] = {}
+    charter_rows = 0
+    mtier = re.search(r"plan_tier\s*=\s*(full|lite)", text[:3000], re.I)
+    tier = (mtier.group(1).lower() if mtier
+            else ("lite" if "测试计划（轻量）" in text[:3000] else "full"))
     if not re.search(r"plan_format\**\s*[:：]\s*`?schedule-v1`?", text[:4000], re.I):
         issues.append("缺 plan_format=schedule-v1")
     for key in (("## 0.", "## 1.", "## 2.", "## 3.", "## 4.") if tier == "lite" else ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5.", "## 6.")):
@@ -747,12 +899,99 @@ def parse_plan(path: Path) -> dict[str, Any]:
         issues.append("计划未引用 test-analysis.md")
     if "env-baseline.md" not in text:
         issues.append("计划未引用 env-baseline.md（环境基线）")
-    if not re.search(r"suite", text, re.I):
-        issues.append("计划缺 suite 声明")
-    if "接口" in text and not re.search(r"depth", text, re.I):
-        issues.append("计划含接口但缺 depth 声明")
+
+    # §0 one-page state: release/outing/risk/counts
+    t0 = pick_table(h2(text, "0."), ["项", "值"])
+    kv0: dict[str, str] = {}
+    if t0:
+        headers0, rows0 = t0
+        for row in rows0:
+            if row and row[0]:
+                kv0[row[0].strip()] = (row[1].strip() if len(row) > 1 else "")
+    state = kv0.get("计划状态", "")
+    if not state:
+        mstate = re.search(r"计划状态[^\n：:]*[：:]\s*([^\s/|]+)", text)
+        if mstate:
+            state = mstate.group(1).strip()
+    if not state:
+        issues.append("§0 缺计划状态（草稿/已确认/执行中/变更中/待关闭/已关闭）")
+    version_release = ""
+    ver_cell = next((v for k, v in kv0.items() if "版本准出" in k), "")
+    if ver_cell:
+        version_release = "是" if "是" in ver_cell else ("否" if "否" in ver_cell else "")
+    elif tier == "lite":
+        m = re.search(r"版本准出\s*[=:：]\s*(是|否)", text[:3000])
+        if m:
+            version_release = m.group(1)
+    if not version_release:
+        issues.append("§0 缺版本准出声明（是/否）")
+    outing = ""
+    outing_cell = next((v for k, v in kv0.items() if "准出口径" in k), "")
+    if outing_cell:
+        if "补丁" in outing_cell:
+            outing = "补丁"
+        elif "发版" in outing_cell:
+            outing = "发版"
+        elif "迭代" in outing_cell or "提测" in outing_cell:
+            outing = "迭代"
+    elif tier == "lite":
+        m = re.search(r"准出口径\s*[=:：]\s*(迭代|提测|发版|补丁)", text[:3000])
+        if m:
+            outing = "补丁" if m.group(1) == "补丁" else ("发版" if m.group(1) == "发版" else "迭代")
+    if not outing:
+        issues.append("§0 缺准出口径（迭代/提测｜发版｜补丁）")
+    risk_tier = ""
+    for key, val in kv0.items():
+        if "风险档" in key:
+            mt = re.search(r"T[0-3]", val)
+            if mt:
+                risk_tier = mt.group(0)
+            break
+    if not risk_tier:
+        if tier == "lite":
+            risk_tier = "T0"
+        else:
+            issues.append("§0 缺风险档 T0～T3")
+    counts: dict[str, int] = {}
+    analysis_cell = next((v for k, v in kv0.items() if "分析文件" in k), "")
+    if not analysis_cell:
+        mline = re.search(r"分析[：:][^\n]*", text)
+        if mline:
+            analysis_cell = mline.group(0)
+    if not analysis_cell:
+        issues.append("§0 缺分析文件/计数行")
+    else:
+        n = re.search(r"意图\s*`?(\d+)", analysis_cell)
+        m3 = re.search(r"P0\s*/\s*P1\s*/\s*P2\s*=\s*`?(\d+)\s*/\s*(\d+)\s*/\s*(\d+)", analysis_cell)
+        if not m3:
+            m3 = re.search(r"P0\s*`?(\d+)`?\s*/\s*P1\s*`?(\d+)`?\s*/\s*P2\s*`?(\d+)", analysis_cell)
+        na = re.search(r"N/A\s*`?(\d+)", analysis_cell)
+        if n and m3 and na:
+            counts = {"total": int(n.group(1)), "P0": int(m3.group(1)),
+                      "P1": int(m3.group(2)), "P2": int(m3.group(3)), "N/A": int(na.group(1))}
+        else:
+            issues.append("§0 分析计数不可解析（需 意图 N；P0/P1/P2；N/A）")
+
+    suite = ""
+    depth = ""
+    ms = re.search(r"suite\s*[=:：]\s*`?([a-zA-Z]+)", text)
+    if ms:
+        suite = ms.group(1).lower()
+    if suite not in {"core", "module", "full"}:
+        issues.append("计划缺有效 suite 声明（core/module/full）")
+    md = re.search(r"depth\s*[=:：]\s*`?([a-zA-Z不适用]+)", text)
+    if md:
+        depth = md.group(1)
+    if "接口" in text:
+        if depth not in {"core", "standard", "full", "不适用"}:
+            issues.append("计划含接口但缺有效 depth 声明（core/standard/full/不适用）")
+        if depth == "core" and "补丁口径" not in text:
+            issues.append("接口 depth=core 仅限补丁口径（计划标「补丁口径」）")
+    if suite == "core" and "补丁口径" not in text:
+        issues.append("功能 suite=core 仅限补丁口径（计划标「补丁口径」）")
+
+    block4 = h2(text, "4.")
     if tier != "lite":
-        block4 = h2(text, "4.")
         if block4 and not all(k in block4 for k in ("P0", "缺口", "准出")):
             issues.append("§4 准入/准出缺 P0/缺口/准出关键口径")
         t_track = pick_table(h2(text, "2."), ["轨道", "纳入"])
@@ -760,27 +999,50 @@ def parse_plan(path: Path) -> dict[str, Any]:
             issues.append("§2 轨道表缺失（需 轨道/纳入）")
         elif not any(row and row[0] and row[0] not in ("轨道", "—") for row in t_track[1]):
             issues.append("§2 轨道表无数据行")
+        else:
+            headers, rows = t_track
+            for row in table_rows(t_track):
+                name = cell(row, headers, "轨道")
+                if name:
+                    tracks[name] = cell(row, headers, "纳入")
         block3 = h2(text, "3.")
         t_round = pick_table(block3, ["轮次", "目标"])
         if not t_round:
             issues.append("§3 轮次表缺失（需 轮次/目标）")
         elif not any(row and row[0] and row[0] not in ("轮次", "—") for row in t_round[1]):
             issues.append("§3 轮次表无数据行")
+        else:
+            headers, rows = t_round
+            for row in table_rows(t_round):
+                for name in ("目标", "出口"):
+                    if is_blank(cell(row, headers, name)):
+                        issues.append(f"§3「{row[0]}」缺 {name}")
         t_batch = pick_table(block3, ["批次", "执行形态"])
         if not t_batch:
             issues.append("§3.1 批次表缺失（需 批次/执行形态；单模块可一行直跑+串行）")
         else:
             headers, rows = t_batch
-            data_rows = [row for row in rows if row and row[0] and row[0] not in ("批次", "—")]
-            if not data_rows:
+            batch_data = table_rows(t_batch)
+            if not batch_data:
                 issues.append("§3.1 批次表无数据行")
             # 扇出只在「同一并行波次」内计：并行组=串行/空 → 各行独立，不跨批误伤
             wave: dict[str, list[tuple[str, str, str]]] = {}
-            for row in data_rows:
+            for row in batch_data:
                 mode = cell(row, headers, "执行形态")
                 if is_blank(mode):
                     issues.append(f"§3.1「{row[0]}」缺执行形态")
                     continue
+                mod = cell(row, headers, "模块/域") or cell(row, headers, "模块")
+                if is_blank(mod):
+                    issues.append(f"§3.1「{row[0]}」缺模块/域")
+                scope_cell = cell(row, headers, "意图范围")
+                bid = str(row[0]).strip()
+                row_ints = set(longest_int_refs(scope_cell))
+                if "全部" in scope_cell:
+                    batch_all = True
+                    batch_all_ids.add(bid)
+                batch_intents.update(row_ints)
+                batches[bid] = row_ints
                 pg = (cell(row, headers, "并行组") or "").strip()
                 iso = cell(row, headers, "隔离套") or cell(row, headers, "隔离套/账号/写域")
                 if re.search(r"PG[-_]?\w*", pg or "", re.I):
@@ -788,7 +1050,6 @@ def parse_plan(path: Path) -> dict[str, Any]:
                         issues.append(f"§3.1「{row[0]}」有 {pg} 但隔离套不可核验（须互斥账号/profile/port/写域）")
                 if re.search(r"脚本", mode) and not re.search(r"直跑|模块子代理|拆分", mode):
                     continue
-                mod = cell(row, headers, "模块/域") or cell(row, headers, "模块")
                 if is_blank(mod):
                     continue
                 # 串行/空并行组：每行独自一波，允许直跑
@@ -824,6 +1085,10 @@ def parse_plan(path: Path) -> dict[str, Any]:
             for lv in ("直接改动", "邻接", "上游", "下游", "共享数据/权限", "核心链路"):
                 if lv not in got:
                     issues.append(f"§1.4 缺「{lv}」行（不适用写 N/A+依据）")
+            for row in table_rows(t_imp):
+                for name in ("关联意图", "覆盖/回归轮次", "责任人"):
+                    if is_blank(cell(row, headers, name)):
+                        issues.append(f"§1.4「{row[0]}」缺 {name}")
         t_env = None
         for headers, rows in tables(h2(text, "2.")):
             if [h.strip() for h in headers] == ["项", "值"]:
@@ -838,7 +1103,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 if is_blank(kv.get(label, "")):
                     issues.append(f"§2.2 环境基线缺「{label}」")
     if tier == "full" and "探索式" in text:
-        # T1+ 计划需有章程行或 N/A；仅做结构提示，语义由计划门确认。
+        # T1+ 计划需有章程行或 N/A；金额/风险级由计划门确认。
         if "S6" not in text or "S7" not in text or "S11" not in text:
             issues.append("§3.2 探索式/§4.3 功能收口探针缺 S6/S7/S11")
     if tier == "full":
@@ -853,7 +1118,26 @@ def parse_plan(path: Path) -> dict[str, Any]:
                     issues.append(f"§4.3 缺 {axis} 收口行")
                 elif is_blank(cell(hit, headers, "着落")):
                     issues.append(f"§4.3 {axis} 缺着落（写 INT/章程/不测+接受人）")
-    return {"path": str(path), "issues": issues, "tier": tier}
+    # §3.2 charters: T1+ full plan must list enough charters
+    if tier == "full" and outing != "补丁" and risk_tier in ("T1", "T2", "T3"):
+        t_charter = pick_table(subsection(text, "3.2"), ["轴", "章程"])
+        if not t_charter:
+            issues.append("§3.2 探索式章程表缺失（T1+ 须 ≥3 条，T2/T3 ≥4 条，或 N/A+依据+接受人）")
+        else:
+            headers, rows = t_charter
+            charter_rows = len(table_rows(t_charter))
+            for row in table_rows(t_charter):
+                if is_blank(cell(row, headers, "章程")):
+                    issues.append(f"§3.2「{row[0]}」缺章程")
+            need = 4 if risk_tier in ("T2", "T3") else 3
+            if charter_rows < need:
+                issues.append(f"§3.2 探索章程仅 {charter_rows} 条，{risk_tier} 须 ≥{need} 条")
+    return {"path": str(path), "issues": issues, "tier": tier, "state": state,
+            "version_release": version_release, "outing": outing, "risk_tier": risk_tier,
+            "counts": counts, "suite": suite, "depth": depth,
+            "batch_intents": batch_intents, "batch_all": batch_all,
+            "batches": batches, "batch_all_ids": batch_all_ids, "tracks": tracks,
+            "charter_rows": charter_rows}
 
 
 # ---------- records ----------
@@ -880,13 +1164,22 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
     intent_results: dict[str, str] = {}
     intent_priority: dict[str, str] = {}
     intent_falsify: dict[str, bool] = {}
-    intent_misaligned: list[str] = []
     orphan_intents: list[str] = []
     p0_fail: list[str] = []
     missing_evidence: list[str] = []
     blocked_bad: list[str] = []
     analysis_ids = set((analysis or {}).get("ids") or [])
     analysis_intents = (analysis or {}).get("intents") or {}
+    scene_ids: set[str] = set()
+    scene_intent_ids: set[str] = set()
+    itable_ids: set[str] = set()
+    reconcile_open = 0
+    mb = re.search(r"批次[^\n]*?(B-[A-Z0-9-]+)", text)
+    batch_id = mb.group(1) if mb else ""
+
+    def eff_pri(iid: str, recorded: str) -> str:
+        ap = pri_key(analysis_intents.get(iid, {}).get("pri", ""))
+        return ap or pri_key(recorded) or "其他"
 
     if not (re.search(r"record_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I) or "场景与结果" in text):
         issues.append(f"{path.name}: 非执行记录格式")
@@ -894,6 +1187,35 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
         issues.append(f"{path.name}: 未引用 env-baseline.md（环境基线）")
     if "原文对账" not in text:
         issues.append(f"{path.name}: 缺 §0 原文对账行（开跑按原文目录对账分析漏项）")
+    else:
+        rec_line = ""
+        for mline in re.finditer(r"[^\n]*原文对账[^\n]*", text):
+            if re.search(r"未关\s*[:：]?\s*\d+", mline.group(0)):
+                rec_line = mline.group(0)
+                break
+        if rec_line:
+            mo = re.search(r"未关\s*[:：]?\s*(\d+)", rec_line)
+            if mo:
+                reconcile_open = int(mo.group(1))
+                if reconcile_open > 0 and not re.search(r"接受|accepted", rec_line, re.I):
+                    issues.append(f"{path.name}: 原文对账未关 {reconcile_open} 但未写接受人")
+            mn = re.search(r"可验收单元\s*(\d+)", rec_line)
+            if not mn:
+                issues.append(f"{path.name}: 原文对账缺「可验收单元 N」")
+            else:
+                n_units = int(mn.group(1))
+                mc = re.search(r"已覆盖\s*(\d+)", rec_line)
+                ma = re.search(r"补录\s*(\d+)", rec_line)
+                covered = int(mc.group(1)) if mc else 0
+                added = int(ma.group(1)) if ma else 0
+                if n_units <= 0:
+                    issues.append(f"{path.name}: 原文对账可验收单元须 >0")
+                elif covered + added < n_units:
+                    issues.append(f"{path.name}: 原文对账 已覆盖 {covered} + 补录 {added} < 可验收单元 {n_units}")
+
+    mref = re.search(r"原文\s*/\s*对照[^\n]*", text)
+    if not mref:
+        issues.append(f"{path.name}: 缺 §0「原文 / 对照」行（主读 + 对照；有互补源则写）")
 
     table = None
     for headers, rows in tables(text):
@@ -931,36 +1253,48 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             pri = cell(row, headers, "优先级")
             actual = cell(row, headers, "实际/差异") or cell(row, headers, "实际")
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
+            if is_blank(scene):
+                issues.append(f"{path.name}: {sc} 缺场景描述")
+            if is_blank(pri):
+                issues.append(f"{path.name}: {sc} 缺优先级（须与 §2.1 台账一致）")
             if not INT_ID_RE.search(intent):
                 issues.append(f"{path.name}: {sc} 缺 INT-* 意图")
-            if status in ("失败", "待实现") and is_blank(defect):
-                issues.append(f"{path.name}: {sc} {status} 缺缺陷号/处置（须入库或拟提交，禁失败无账）")
+            scene_ids.add(sc)
             if not is_api and status in ("通过", "失败", "阻塞", "待实现"):
                 if is_blank(steps):
                     issues.append(f"{path.name}: {sc} 缺步骤（执行记录须可复核，3～7 短步）")
                 else:
                     n_steps = len(re.findall(r"\d+\s*[.、)）]", steps)) or steps.count("→") + 1
-                    if n_steps < 2:
-                        issues.append(f"{path.name}: {sc} 步骤过少（至少 2 个动作；建议 3～7）")
+                    if n_steps < 3:
+                        issues.append(f"{path.name}: {sc} 步骤过少（功能记录须 3～7 短步，当前 {n_steps}）")
+                    elif n_steps > 7:
+                        issues.append(f"{path.name}: {sc} 步骤过多（功能记录须 3～7 短步，当前 {n_steps}）")
             if status == "通过" and weak_oracle(oracle):
                 issues.append(f"{path.name}: {sc} 通过但 Oracle 过弱/缺失（须对照原文/分析的可观测断言，禁「通过/正常」）")
             for m in INT_ID_RE.findall(intent):
                 intent_ids.add(m)
+                scene_intent_ids.add(m)
                 old = intent_results.get(m, "")
                 intent_results[m] = worst_status(old, status)
-                if is_p0(pri):
+                ap = pri_key(analysis_intents.get(m, {}).get("pri", ""))
+                if pri and ap and pri_key(pri) != ap:
+                    issues.append(
+                        f"{path.name}: {sc} 优先级 {pri} 与分析 §2.1 {analysis_intents[m]['pri']} 不一致（先回写分析再记；P0 以台账记账）"
+                    )
+                if eff_pri(m, pri) == "P0":
                     intent_priority[m] = "P0"
+                if status == "不适用" and is_test_disp(analysis_intents.get(m, {}).get("disp", "")):
+                    issues.append(f"{path.name}: {sc} 分析处置=测但场景记不适用（{m}）")
                 if looks_falsify(scene, source, oracle):
                     intent_falsify[m] = True
                 if analysis_ids and m not in analysis_ids:
                     orphan_intents.append(f"{sc}:{m}")
-                elif status == "通过" and m in analysis_intents and not analysis_aligned(source, oracle, analysis_intents.get(m)):
-                    intent_misaligned.append(f"{sc}:{m}")
             if status not in STATUSES:
                 issues.append(f"{path.name}: {sc} 结果不可识别：{status or '空'}")
                 continue
             counts[status] += 1
-            key = "P0" if is_p0(pri) else ("P1" if "P1" in pri.upper() else ("P2" if "P2" in pri.upper() else "其他"))
+            first_int = INT_ID_RE.findall(intent)[0] if INT_ID_RE.findall(intent) else ""
+            key = eff_pri(first_int, pri) if first_int else (pri_key(pri) or "其他")
             by_pri[key] += 1
             by_pri_status[key][status] += 1
             if status in FAIL_STATUSES:
@@ -980,21 +1314,65 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
         if seen == 0:
             issues.append(f"{path.name}: 场景表无数据行")
 
-    # 执行记录 §3/§4 的意图结论表（若存在，与场景表双向核对）
+    # 功能记录 §1.1：正向/负向/状态/权限/幂等/UI 至少给 SC 或 N/A+依据
+    if table and not is_api:
+        for cat in ("正向", "关键负向/失败", "状态/非法跃迁", "权限/数据域", "幂等/并发/恢复/对账", "UI/视觉"):
+            mline = re.search(rf"(?m)^\s*[-*]\s*{re.escape(cat)}\s*[:：]\s*(.+)$", text)
+            if not mline:
+                issues.append(f"{path.name}: 缺 §1.1 场景覆盖说明「{cat}」")
+                continue
+            val = mline.group(1).strip()
+            if not val or val in ("—", "-", "…"):
+                issues.append(f"{path.name}: §1.1「{cat}」未写 SC 或 N/A+依据")
+                continue
+            scs = re.findall(r"SC-[A-Z0-9-]+", val, re.I)
+            for sc in scs:
+                if sc not in scene_ids:
+                    issues.append(f"{path.name}: §1.1「{cat}」引用不存在的场景 {sc}")
+            if not scs and not re.search(r"N/A|不适用", val, re.I):
+                issues.append(f"{path.name}: §1.1「{cat}」须写 SC-* 或 N/A+依据")
+            if re.search(r"N/A|不适用", val, re.I) and not re.search(r"依据|理由", val):
+                issues.append(f"{path.name}: §1.1「{cat}」N/A 须写依据")
+
+    # 接口记录 §2.1：每个 EP 的适用维有 SC 或 不适用+依据
+    if table and is_api:
+        t_dim = pick_table(subsection(text, "2.1"), ["EP", "维度", "处置"])
+        if not t_dim:
+            issues.append(f"{path.name}: 缺 §2.1 维度适用性（EP/维度/处置）")
+        else:
+            dh, _dr = t_dim
+            for row in table_rows(t_dim):
+                disp = cell(row, dh, "处置")
+                if not disp or disp in ("—", "-", "…"):
+                    issues.append(f"{path.name}: §2.1「{row[0]}」缺处置")
+                    continue
+                scs = re.findall(r"SC-[A-Z0-9-]+", disp, re.I)
+                for sc in scs:
+                    if sc not in scene_ids:
+                        issues.append(f"{path.name}: §2.1「{row[0]}」引用不存在的场景 {sc}")
+                if not scs and not re.search(r"N/A|不适用", disp, re.I):
+                    issues.append(f"{path.name}: §2.1「{row[0]}」须写 SC-* 或 不适用+依据")
+                if re.search(r"N/A|不适用", disp, re.I) and not re.search(r"依据|理由", disp):
+                    issues.append(f"{path.name}: §2.1「{row[0]}」不适用须写依据")
+
+    # 执行记录 §3 意图结论表：必须以场景为证
     itable = None
     for headers, rows in tables(text):
         joined = " ".join(headers)
         if "INT" in headers and "结论" in joined and "SC" not in headers:
             itable = (headers, rows)
             break
-    if itable:
+    if not itable:
+        issues.append(f"{path.name}: 缺 §3 意图结论表（INT/场景 ID/结论；无场景的结论不算执行）")
+    else:
         headers, rows = itable
-        for row in rows:
-            if not row or not row[0] or row[0] in ("INT", "—"):
-                continue
+        if not any("场景" in h for h in headers):
+            issues.append(f"{path.name}: §3 意图结论表缺「场景 ID」列（结论须回指 §1 场景）")
+        for row in table_rows(itable):
             iid = row[0].strip()
             if not INT_ID_RE.fullmatch(iid):
                 continue
+            itable_ids.add(iid)
             status = cell(row, headers, "结论")
             pri = cell(row, headers, "优先级")
             gap = cell(row, headers, "缺口/接受人") or cell(row, headers, "缺口") or cell(row, headers, "接受人")
@@ -1003,18 +1381,40 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             if status not in STATUSES:
                 issues.append(f"{path.name}: 意图 {iid} 结论不可识别：{status or '空'}")
                 continue
+            scene_ref = cell(row, headers, "场景 ID") or cell(row, headers, "场景")
+            sc_refs = set(re.findall(r"SC-[A-Z0-9-]+", scene_ref, re.I))
+            if status == "不适用":
+                if is_blank(gap):
+                    issues.append(f"{path.name}: 意图 {iid} N/A 缺依据/接受人")
+                if is_test_disp(analysis_intents.get(iid, {}).get("disp", "")):
+                    issues.append(f"{path.name}: 意图 {iid} 分析处置=测但结论记不适用（须回写分析 N/A+接受人）")
+            elif not sc_refs:
+                issues.append(f"{path.name}: 意图 {iid} 结论 {status} 未指向场景（场景 ID 必填）")
+            else:
+                missing_sc = sorted(sc for sc in sc_refs if sc not in scene_ids)
+                if missing_sc:
+                    issues.append(f"{path.name}: 意图 {iid} 引用的场景不存在：{'、'.join(missing_sc[:3])}")
+            ap = pri_key(analysis_intents.get(iid, {}).get("pri", ""))
+            if pri and ap and pri_key(pri) != ap:
+                issues.append(
+                    f"{path.name}: 意图 {iid} 优先级 {pri} 与分析 §2.1 {analysis_intents[iid]['pri']} 不一致（先回写分析再记；P0 以台账记账）"
+                )
             intent_ids.add(iid)
             intent_results[iid] = worst_status(intent_results.get(iid, ""), status)
-            if is_p0(pri):
+            if eff_pri(iid, pri) == "P0":
                 intent_priority[iid] = "P0"
                 if status in ("失败", "阻塞", "待实现", "未执行", "未本轮验证"):
                     p0_fail.append(f"{iid}:{status}")
+        for iid in sorted(scene_intent_ids - itable_ids):
+            issues.append(f"{path.name}: 场景已执行但 §3 意图结论缺 {iid}")
 
     return {"path": str(path), "issues": issues, "counts": counts, "by_pri": by_pri,
             "by_pri_status": by_pri_status, "intent_ids": intent_ids,
+            "scene_intent_ids": scene_intent_ids, "itable_ids": itable_ids,
+            "reconcile_open": reconcile_open, "batch_id": batch_id,
             "intent_results": intent_results, "intent_priority": intent_priority,
             "intent_falsify": intent_falsify,
-            "intent_misaligned": intent_misaligned, "orphan_intents": orphan_intents,
+            "orphan_intents": orphan_intents,
             "p0_fail": p0_fail, "missing_evidence": missing_evidence, "blocked_bad": blocked_bad}
 
 
@@ -1024,10 +1424,11 @@ def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | N
     by_pri_status: dict[str, dict[str, int]] = {p: {s: 0 for s in STATUSES} for p in by_pri}
     issues: list[str] = []
     intent_ids: set[str] = set()
+    scene_intent_ids: set[str] = set()
+    reconcile_open = 0
     intent_results: dict[str, str] = {}
     intent_priority: dict[str, str] = {}
     intent_falsify: dict[str, bool] = {}
-    intent_misaligned: list[str] = []
     orphan_intents: list[str] = []
     p0_fail: list[str] = []
     missing_evidence: list[str] = []
@@ -1043,13 +1444,14 @@ def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | N
             for s, n in st.items():
                 by_pri_status[pri][s] += n
         intent_ids |= p["intent_ids"]
+        scene_intent_ids |= p.get("scene_intent_ids", set())
+        reconcile_open += int(p.get("reconcile_open", 0))
         for iid, status in p["intent_results"].items():
             intent_results[iid] = worst_status(intent_results.get(iid, ""), status)
         intent_priority.update(p["intent_priority"])
         for iid, flag in p.get("intent_falsify", {}).items():
             if flag:
                 intent_falsify[iid] = True
-        intent_misaligned += p.get("intent_misaligned", [])
         orphan_intents += p.get("orphan_intents", [])
         p0_fail += p["p0_fail"]
         missing_evidence += p["missing_evidence"]
@@ -1061,9 +1463,10 @@ def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | N
         and not intent_falsify.get(iid)
     )
     return {"counts": counts, "by_pri": by_pri, "by_pri_status": by_pri_status, "issues": issues,
-            "intent_ids": intent_ids, "intent_results": intent_results, "intent_priority": intent_priority,
+            "intent_ids": intent_ids, "scene_intent_ids": scene_intent_ids,
+            "reconcile_open": reconcile_open,
+            "intent_results": intent_results, "intent_priority": intent_priority,
             "intent_falsify": intent_falsify, "p0_no_falsify": p0_no_falsify,
-            "intent_misaligned": sorted(set(intent_misaligned)),
             "orphan_intents": sorted(set(orphan_intents)),
             "p0_fail": p0_fail, "missing_evidence": missing_evidence, "blocked_bad": blocked_bad}
 
@@ -1113,8 +1516,10 @@ def intent_stats_from_report(text: str) -> dict[str, dict[str, int]] | None:
     return out
 
 
-def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> dict[str, Any]:
+def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
+                 plan: dict[str, Any] | None = None) -> dict[str, Any]:
     text = read(path)
+    plan = plan or {}
     issues: list[str] = []
     if not re.search(r"report_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I):
         issues.append("报告缺 report_format=intent-v1")
@@ -1130,10 +1535,43 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         issues.append("报告缺 runId/构建声明")
     if "env-baseline" not in text:
         issues.append("报告缺 env-baseline.md / 环境基线声明")
-    if not re.search(r"suite", text, re.I):
+    report_suite = ""
+    report_depth = ""
+    ms = re.search(r"suite\s*[=:：]\s*`?([a-zA-Z]+)", text)
+    if ms:
+        report_suite = ms.group(1).lower()
+    if not report_suite:
+        t1 = pick_table(h2(text, "1."), ["项", "值"])
+        if t1:
+            headers1, rows1 = t1
+            for row in rows1:
+                label = cell(row, headers1, "项")
+                if "suite" in label.lower() or "档位" in label:
+                    parts = [p.strip().strip("`") for p in re.split(r"[/｜|]", cell(row, headers1, "值"))]
+                    if parts and parts[0].lower() in {"core", "module", "full"}:
+                        report_suite = parts[0].lower()
+                    if len(parts) > 1 and parts[1] in {"core", "standard", "full", "不适用"}:
+                        report_depth = parts[1]
+                    break
+    if not report_suite:
         issues.append("报告缺 suite 声明")
-    if "接口" in text and not re.search(r"depth", text, re.I):
-        issues.append("报告含接口但缺 depth 声明")
+    elif report_suite not in {"core", "module", "full"}:
+        issues.append(f"报告 suite 不可识别：{report_suite}")
+    elif plan.get("suite") and report_suite != plan["suite"]:
+        issues.append(f"报告 suite={report_suite} 与计划 {plan['suite']} 不一致")
+    if "接口" in text:
+        if not report_depth:
+            md = re.search(r"depth\s*[=:：]\s*`?([a-zA-Z不适用]+)", text)
+            if md:
+                report_depth = md.group(1)
+        if not report_depth:
+            issues.append("报告含接口但缺 depth 声明")
+        elif report_depth not in {"core", "standard", "full", "不适用"}:
+            issues.append(f"报告 depth 不可识别：{report_depth}")
+        elif plan.get("depth") and report_depth != plan["depth"]:
+            issues.append(f"报告 depth={report_depth} 与计划 {plan['depth']} 不一致")
+    if verdict == "PASS" and analysis.get("pending_gaps"):
+        issues.append("分析 §4 仍有待确认缺口，报告不得写 PASS：" + "、".join(analysis["pending_gaps"][:4]))
     block23 = subsection(text, "2.3")
     if not block23:
         issues.append("报告缺 §2.3 覆盖与收口探针")
@@ -1169,6 +1607,23 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
                     issues.append(f"报告 §2.3 缺「{label}」行")
                 elif is_blank(cell(hit, headers, "结论")):
                     issues.append(f"报告 §2.3「{label}」无结论")
+            detail_hit = next((row for row in rows if "细节维" in cell(row, headers, "项")), None)
+            if detail_hit is not None:
+                val = cell(detail_hit, headers, "结论")
+                mnum = re.search(r"(\d+)\s*/\s*(\d+)", val)
+                yes_n = int(analysis.get("detail_yes", 0))
+                if mnum:
+                    got_n, den = int(mnum.group(1)), int(mnum.group(2))
+                    if den != 16:
+                        issues.append(f"报告 §2.3 细节维分母={den}，应为 16（D01–D13+S6/S7/S11）")
+                    if got_n > yes_n:
+                        issues.append(f"报告 §2.3 细节维覆盖 {got_n} > 分析适用 {yes_n}（虚报）")
+                    elif verdict == "PASS" and got_n < yes_n:
+                        issues.append(f"报告 §2.3 细节维覆盖 {got_n}/{yes_n} 未全覆盖但写 PASS")
+                elif verdict == "PASS":
+                    issues.append("报告 §2.3 细节维须写 x/16（当前无法核对）")
+            if recs.get("reconcile_open") and verdict == "PASS":
+                issues.append(f"执行记录原文对账仍有未关 {recs['reconcile_open']} 项，报告不得写 PASS")
     if verdict in ("PASS", "CONDITIONAL") and recs["p0_fail"]:
         issues.append("P0 未过但报告写通过/有条件通过")
     if verdict == "PASS" and any(recs["counts"].get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
@@ -1181,8 +1636,6 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         issues.append("P0 仅正向通过无证伪/负向（或 N/A+接受）：" + "、".join(recs["p0_no_falsify"][:6]))
     if recs.get("orphan_intents"):
         issues.append("执行记录 INT 不在分析台账（须先回写分析）：" + "、".join(recs["orphan_intents"][:6]))
-    if recs.get("intent_misaligned"):
-        issues.append("通过场景与分析来源/Oracle 无可对账交集：" + "、".join(recs["intent_misaligned"][:6]))
 
     stats = stats_from_report(text)
     if stats is None:
@@ -1210,31 +1663,38 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         issues.append("报告 §2.2 意图结论表无数据行")
     else:
         intents = analysis.get("intents", {})
+        results = recs.get("intent_results", {})
         for pri in ("P0", "P1", "P2"):
             group = {iid: m for iid, m in intents.items() if (is_p0(m.get("pri", "")) and pri == "P0")
                      or (pri == "P1" and "P1" in m.get("pri", "").upper())
                      or (pri == "P2" and "P2" in m.get("pri", "").upper())}
             expected_total = len(group)
             tested = sum(1 for iid in group
-                         if terminal_status(recs.get("intent_results", {}).get(iid, ""))
-                         and recs.get("intent_results", {}).get(iid, "") != "不适用")
-            na = sum(1 for m in group.values() if "N/A" in m.get("disp", "").upper() or "不适用" in m.get("disp", ""))
+                         if terminal_status(results.get(iid, "")) and results.get(iid, "") != "不适用")
+            na = sum(1 for m in group.values() if is_na_disp(m.get("disp", "")))
             untested = max(0, expected_total - tested - na)
+            passed = sum(1 for iid in group if results.get(iid) == "通过")
+            failed = sum(1 for iid in group if results.get(iid) == "失败")
+            blocked = sum(1 for iid in group if results.get(iid) == "阻塞")
+            pending = sum(1 for iid in group if results.get(iid) == "待实现")
             got = istats.get(pri, {})
-            for label, exp in (("意图数", expected_total), ("已测", tested), ("N/A", na), ("未测", untested)):
+            for label, exp in (("意图数", expected_total), ("已测", tested), ("通过", passed),
+                               ("失败", failed), ("阻塞", blocked), ("待实现", pending),
+                               ("N/A", na), ("未测", untested)):
                 if got.get(label, 0) != exp:
-                    issues.append(f"报告 §2.2 {pri} {label}={got.get(label, 0)} 与预期 {exp} 不一致")
+                    issues.append(f"报告 §2.2 {pri} {label}={got.get(label, 0)} 与执行记录 {exp} 不一致")
     if recs["missing_evidence"]:
         issues.append("证据缺失：" + "、".join(recs["missing_evidence"][:6]))
     if recs["blocked_bad"]:
         issues.append("阻塞缺已尝试/恢复条件：" + "、".join(recs["blocked_bad"][:4]))
     required = {iid for iid, meta in analysis.get("intents", {}).items()
                 if is_test_disp(meta.get("disp", ""))}
-    missing_all = sorted(required - recs.get("intent_ids", set()))
+    scene_ok = set(recs.get("scene_intent_ids", set()))
+    missing_all = sorted(required - scene_ok)
     unterminal = sorted(iid for iid in required
                         if not terminal_status(recs.get("intent_results", {}).get(iid, "")))
     if missing_all:
-        issues.append("意图未出现在执行记录：" + "、".join(missing_all[:8]))
+        issues.append("意图无场景执行（§3 声明不能替代场景）：" + "、".join(missing_all[:8]))
     if unterminal:
         issues.append("意图未终态：" + "、".join(unterminal[:8]))
     if verdict in ("PASS", "CONDITIONAL") and (missing_all or unterminal):
@@ -1243,9 +1703,14 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any]) -> 
         iid for iid in analysis.get("p0_ids", set())
         if is_test_disp(analysis.get("intents", {}).get(iid, {}).get("disp", ""))
     }
-    missing_p0 = sorted(p0_required - recs.get("intent_ids", set()))
+    missing_p0 = sorted(p0_required - scene_ok)
     if missing_p0:
-        issues.append("P0 意图未出现在执行记录：" + "、".join(missing_p0[:8]))
+        issues.append("P0 意图无场景执行：" + "、".join(missing_p0[:8]))
+    if verdict == "PASS" and plan.get("outing") == "发版":
+        if report_suite != "full":
+            issues.append("计划准出口径=发版，报告 PASS 须 suite=full")
+        if "接口" in text and report_depth != "full":
+            issues.append("计划准出口径=发版，报告 PASS 须 depth=full（含接口时）")
     return {"issues": issues, "verdict": verdict}
 
 
@@ -1286,6 +1751,47 @@ def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:
     return out
 
 
+def cross_check_plan_analysis(analysis: dict[str, Any], plan: dict[str, Any],
+                              plan_text: str = "") -> list[str]:
+    """Plan must be a schedule of the confirmed analysis, not an independent document."""
+    issues: list[str] = []
+    counts = plan.get("counts") or {}
+    intents = analysis.get("intents", {})
+    p0 = len(analysis.get("p0_ids", set()))
+    p1 = len(analysis.get("p1_ids", set()))
+    p2 = len(analysis.get("p2_ids", set()))
+    na = sum(1 for m in intents.values() if is_na_disp(m.get("disp", "")))
+    if counts:
+        for label, exp in (("total", len(intents)), ("P0", p0), ("P1", p1), ("P2", p2), ("N/A", na)):
+            if counts.get(label) != exp:
+                issues.append(f"计划 §0 {label}={counts.get(label)} 与分析 {exp} 不一致")
+    if plan.get("tier") == "lite" and plan.get("version_release") == "是":
+        issues.append("轻量计划不得声明版本准出=是（应使用完整计划）")
+    if plan.get("version_release") == "是" and plan.get("outing") == "补丁":
+        issues.append("版本准出=是 与准出口径=补丁 冲突")
+    if plan.get("version_release") == "否" and plan.get("outing") in ("迭代", "发版"):
+        issues.append("版本准出=否 时准出口径应为补丁")
+    if plan.get("version_release") == "是" and plan.get("outing") == "发版":
+        if plan.get("suite") != "full":
+            issues.append("准出口径=发版 须 suite=full")
+        if plan.get("depth") and plan.get("depth") != "full":
+            issues.append("准出口径=发版 且范围含接口时 须 depth=full")
+    if (plan.get("tier") == "full" and plan.get("version_release") == "是"
+            and not p0 and not analysis.get("p0_exemption")):
+        issues.append("完整/版本计划的分析无 P0 意图（须至少 1 条 P0；确不适用在 §4 写 P0+接受人）")
+    if (plan.get("tier") == "full" and plan.get("version_release") == "是"
+            and plan.get("risk_tier") in ("T1", "T2", "T3")
+            and any("功能" in k and "是" in (v or "") for k, v in (plan.get("tracks") or {}).items())
+            and int(analysis.get("detail_yes", 0)) == 0):
+        issues.append("T1+ 功能计划的分析细节维全部为否（至少一个适用维，或调整轨道/口径）")
+    required = {iid for iid, meta in intents.items() if is_test_disp(meta.get("disp", ""))}
+    if plan.get("tier") == "full" and required and not plan.get("batch_all"):
+        missing = sorted(required - set(plan.get("batch_intents", set())))
+        if missing:
+            issues.append("计划 §3.1 批次意图范围未覆盖：" + "、".join(missing[:8]))
+    return issues
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
@@ -1293,8 +1799,8 @@ def main() -> int:
     ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage"], default="report")
     ap.add_argument("--scope", default="")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--strict", action="store_true", default=True)
-    ap.add_argument("--allow-legacy", action="store_true")
+    ap.add_argument("--strict", action="store_true", default=True,
+                    help="兼容开关；门默认全严格，无放宽模式")
     args = ap.parse_args()
 
     package_root = Path(args.package_root).resolve()
@@ -1313,12 +1819,18 @@ def main() -> int:
     p0_fail: list[str] = []
     p0_missing: list[str] = []
     source_hashes: dict[str, str] = {}
-    analysis: dict[str, Any] = {"issues": [], "ids": set(), "p0_ids": set(), "intents": {}}
+    analysis: dict[str, Any] = {"issues": [], "ids": set(), "p0_ids": set(), "intents": {},
+                                "detail_yes": 0, "pending_gaps": [], "p0_exemption": False}
+    plan: dict[str, Any] = {"issues": [], "tier": "full", "state": "", "version_release": "",
+                            "outing": "", "risk_tier": "", "counts": {}, "suite": "", "depth": "",
+                            "batch_intents": set(), "batch_all": False, "charter_rows": 0}
+    plan_text = ""
     recs: dict[str, Any] = {"issues": [], "counts": counts, "by_pri": by_pri,
                             "by_pri_status": {p: {s: 0 for s in STATUSES} for p in by_pri},
-                            "intent_ids": set(), "intent_results": {}, "intent_priority": {},
+                            "intent_ids": set(), "scene_intent_ids": set(), "reconcile_open": 0,
+                            "intent_results": {}, "intent_priority": {},
                             "intent_falsify": {}, "p0_no_falsify": [],
-                            "intent_misaligned": [], "orphan_intents": [],
+                            "orphan_intents": [],
                             "p0_fail": [], "missing_evidence": [], "blocked_bad": []}
     reported_verdict = ""
     conditional_accepted = False
@@ -1348,9 +1860,19 @@ def main() -> int:
             checks.append({"id": "plan-structure", "status": "blocked", "detail": "missing"})
         else:
             plan = parse_plan(plan_path)
+            plan_text = read(plan_path)
             checks.append({"id": "plan-structure", "status": "fail" if plan["issues"] else "pass",
                            "detail": plan["issues"][:12] or f"tier={plan['tier']}"})
             source_hashes[str(plan_path)] = hashlib.sha256(plan_path.read_bytes()).hexdigest()
+            if analysis.get("intents"):
+                link_issues = cross_check_plan_analysis(analysis, plan, plan_text)
+                checks.append({"id": "plan-analysis-link", "status": "fail" if link_issues else "pass",
+                               "detail": link_issues[:8] or "plan linked to analysis"})
+
+    if args.mode in ("execute", "report"):
+        state_ok = plan.get("state") in ("已确认", "执行中", "待关闭")
+        checks.append({"id": "plan-state", "status": "pass" if state_ok else "fail",
+                       "detail": plan.get("state") or "empty"})
 
     if args.mode in ("execute", "report"):
         scope = (args.scope or "").strip() or None
@@ -1370,11 +1892,10 @@ def main() -> int:
             checks.append({"id": "blocked-reasons", "status": "fail" if recs["blocked_bad"] else "pass",
                            "detail": recs["blocked_bad"][:10]})
             orphan = list(recs.get("orphan_intents") or [])
-            misaligned = list(recs.get("intent_misaligned") or [])
             checks.append({
                 "id": "intent-analysis-link",
-                "status": "fail" if (orphan or misaligned) else "pass",
-                "detail": (orphan[:6] + misaligned[:6]) or "INT linked to analysis",
+                "status": "fail" if orphan else "pass",
+                "detail": orphan[:6] or "INT linked to analysis",
             })
             p0_fail += recs["p0_fail"]
             p0_no_falsify = list(recs.get("p0_no_falsify") or [])
@@ -1399,20 +1920,23 @@ def main() -> int:
                     })
                     checks.append({"id": "intent-conclusion", "status": "fail", "detail": "no testable intents"})
                 else:
-                    missing = sorted(required - recs["intent_ids"])
+                    scene_ok = set(recs.get("scene_intent_ids", set()))
+                    missing = sorted(required - scene_ok)
                     unterminal = sorted(iid for iid in required
-                                        if not terminal_status(recs["intent_results"].get(iid, "")))
+                                        if not terminal_status(recs.get("intent_results").get(iid, "")))
                     checks.append({"id": "intent-coverage", "status": "fail" if missing else "pass",
-                                   "detail": missing[:10] if missing else f"all {len(required)} intents present"})
+                                   "detail": missing[:10] if missing else f"all {len(required)} intents have scenes"})
+                    checks.append({"id": "intent-scenes", "status": "fail" if missing else "pass",
+                                   "detail": missing[:10] if missing else "every intent has a scene"})
                     checks.append({"id": "intent-conclusion", "status": "fail" if unterminal else "pass",
                                    "detail": unterminal[:10] if unterminal else "all intents terminal"})
                 p0_required = {
                     iid for iid in analysis.get("p0_ids", set())
                     if is_test_disp(analysis.get("intents", {}).get(iid, {}).get("disp", ""))
                 }
-                p0_missing += sorted(p0_required - recs["intent_ids"])
+                p0_missing += sorted(p0_required - set(recs.get("scene_intent_ids", set())))
                 checks.append({"id": "p0-missing", "status": "fail" if p0_missing else "pass",
-                               "detail": p0_missing[:10] if p0_missing else "P0 intents present"})
+                               "detail": p0_missing[:10] if p0_missing else "P0 intents have scenes"})
             else:
                 unterminal = sorted(iid for iid, st in recs["intent_results"].items()
                                     if not terminal_status(st))
@@ -1420,6 +1944,57 @@ def main() -> int:
                                "detail": unterminal[:10] if unterminal else "batch intents terminal"})
                 checks.append({"id": "intent-coverage", "status": "pass", "detail": "execute: scope batch only"})
                 checks.append({"id": "p0-missing", "status": "pass", "detail": "execute: scope batch only"})
+        if args.mode == "report":
+            tracks = plan.get("tracks") or {}
+
+            def track_on(name: str) -> bool:
+                return any(name in k and "是" in (v or "") for k, v in tracks.items())
+
+            current_md = [p for p in test_root.rglob("*.md") if is_current(p)] if test_root.is_dir() else []
+            paths = [str(p).replace("\\", "/") for p in current_md]
+            missing_tracks: list[str] = []
+            if track_on("功能") and not any("/functional/" in p and "执行记录" in p for p in paths):
+                missing_tracks.append("功能（functional/ 执行记录）")
+            if track_on("接口") and not any("/api/" in p and "执行记录" in p for p in paths):
+                missing_tracks.append("接口（api/ 执行记录）")
+            if track_on("探索") and not any("探索记录" in p for p in paths):
+                missing_tracks.append("探索式（探索记录）")
+            if track_on("发布前") and not any("/pre-release/" in p and p.endswith("test-report.md") for p in paths):
+                missing_tracks.append("发布前（pre-release test-report）")
+            checks.append({"id": "track-records",
+                           "status": "fail" if missing_tracks else "pass",
+                           "detail": missing_tracks[:4] or "tracks have records"})
+
+        if args.mode == "execute":
+            plan_batches = plan.get("batches") or {}
+            batch_all_ids = plan.get("batch_all_ids") or set()
+            if plan_batches:
+                batch_issues: list[str] = []
+                for rec in records:
+                    rp = parse_record(rec, test_root, analysis)
+                    bid = rp.get("batch_id", "")
+                    if not bid:
+                        batch_issues.append(f"{rec.name} 未标批次 ID（§0 轮次/批次）")
+                        break
+                    if bid not in plan_batches:
+                        batch_issues.append(f"{bid} 不在计划 §3.1")
+                        break
+                    need = plan_batches.get(bid, set())
+                    if bid in batch_all_ids or not need:
+                        continue
+                    got = set(rp.get("scene_intent_ids", set()))
+                    missing = sorted(need - got)
+                    if missing:
+                        batch_issues.append(f"{bid} 意图未跑齐：{'、'.join(missing[:6])}")
+                        break
+                    extra = sorted(got - need)
+                    if extra:
+                        batch_issues.append(f"{bid} 出现批次外意图：{'、'.join(extra[:6])}")
+                        break
+                checks.append({"id": "batch-coverage",
+                               "status": "fail" if batch_issues else "pass",
+                               "detail": batch_issues[:4] or "batch intents covered"})
+
         smoke = test_root / "smoke-checklist.md"
         if not smoke.is_file():
             smoke = find_workroot(project_root) / "smoke-checklist.md"
@@ -1432,7 +2007,7 @@ def main() -> int:
             blocked.append("缺少 test-report.md")
             checks.append({"id": "report-structure", "status": "blocked", "detail": "missing"})
         else:
-            parsed = parse_report(report, analysis, recs)
+            parsed = parse_report(report, analysis, recs, plan)
             checks.append({"id": "report-structure", "status": "fail" if parsed["issues"] else "pass",
                            "detail": parsed["issues"][:10] or "ok"})
             reported_verdict = parsed["verdict"]
@@ -1469,9 +2044,10 @@ def main() -> int:
         # 高标准：分析/计划/环境/记录/证据/链接/终态/证伪 任一结构失败 → FAIL（禁下批）
         # 仅当过程完整且产品有红灯 → CONDITIONAL（可下批继续找缺陷，缺陷须入库）
         process_ids = {
-            "env-baseline", "analysis-structure", "plan-structure",
-            "execution-record", "evidence-exists", "blocked-reasons",
+            "env-baseline", "analysis-structure", "plan-structure", "plan-analysis-link",
+            "plan-state", "execution-record", "evidence-exists", "blocked-reasons",
             "intent-analysis-link", "intent-conclusion", "p0-falsify", "scope-required",
+            "batch-coverage",
         }
         process_fail = [c for c in hard_fail if c.get("id") in process_ids]
         incomplete = any(counts.get(k, 0) for k in ("未执行", "未本轮验证"))
@@ -1520,7 +2096,7 @@ def main() -> int:
             h.update(read(p).encode("utf-8", errors="replace"))
     now = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     completion = {
-        "gate_version": "3.5",
+        "gate_version": "3.6",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "scope": args.scope or "",

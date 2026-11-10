@@ -6,12 +6,12 @@ description: Use when implementing frontend pages, routes, components, forms, or
 # 前端实现（技能 · 随包生效）
 
 > 用于：S4 编码自测中涉及页面/路由/组件/表单/交互/前端数据流的任务。  
-> **硬门 SSOT**：`rules/core/frontend-gate.md`（本技能不重复门条款）。  
+> **硬门运行时**：当前步骤包内「前端硬门」（本技能不重复门条款）。维护真源 `rules/core/frontend-gate.md`（改后须重生包）。  
 > 质量条：`skills/engineering-quality/SKILL.md`。
 
 ## 0. 必做（先于编码）
 
-1. 读 `frontend-gate.md`；L0 无 UI → 整技能 na。  
+1. 读本步包内「前端硬门」；L0 无 UI → 整技能 na。  
 2. 有单 HTML 原型 → 先 `extract_prototype_modules.py` 解码，禁只搜原始 HTML。  
 3. 写/更新 `.gate/frontend/parity-matrix.md`（含字段网格；冲突裁决）。  
 4. 实现时不自造一级导航/页面壳；优先复用现有列表/详情壳。  

@@ -1,6 +1,6 @@
 # 步骤卡 · testing/execute
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（每步必读并逐条过）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -20,11 +20,12 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：每步读 `rules/core/global-rules.md` 并逐条过（切步/过门/续跑都重读）；心跳 `global=ok` 表示本步已读；未读不得写 `global=ok`。偏离写 `global=dev:<原因>`。
+> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
-- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。
+- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。
+- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。
 - 必开技能打开→执行→回包；未过 §4 门不得宣称完成。
 
 ## 4. 本步门
@@ -46,40 +47,27 @@
 
 ### 本步动作清单
 
-- 按计划执行全部在范围 P0/P1/P2 意图：功能/接口/探索/发布前/回归按计划轮次与批次推进。
+- 本步任务：按计划执行全部在范围 P0/P1/P2 意图（功能/接口/探索/发布前/回归）。
 - 开跑前读 `env-baseline.md` 命中节。
-- 取档以计划 §3.1 为真值，缺行按决策树补并记偏差，开跑声明 `exec_mode=`+`pg=`。
-- 开跑先按原文目录/可验收单元对账分析 §1.1/§1.2/§2.1.1，漏来源/漏章、漏 AC/字段规则/入口先补分析再执行。
-- 对账写功能/接口执行记录 §0「原文对账」行（探索/发布前在本轨记录信息写同义对账；可验收单元 N/已覆盖 n/本轮补录 n/未关 0+接受人）。
-- 多源对照硬门槛：逐场景打开原文对应段并另读≥1互补源，分析只作索引，禁只读分析（做法按 §6 执行技能闭环）。
-- 边执行边写执行记录。
-- 执行记录模板：功能轨 `rules/templates/20-test-cases/test-case-template.md`。
-- 接口轨 `rules/templates/20-test-cases/api-test-case-template.md`。
-- 探索轨 `rules/templates/20-test-cases/exploratory-case-template.md`。
-- 随机流 `rules/templates/20-test-cases/random-flow-case-template.md`（场景+原文/依据+步骤+数据+Oracle+结果+证据+缺陷+意图结论）。
-- 步骤写清入口/操作/核对对象（字段/状态/码/提示）+预期，3～7 短步，供人复核。
-- 通过行也带核对点，不把步骤当预写脚本逐条点。
-- 全部 `处置=测` 意图到终态，P1/P2 不得用低优先级跳过。
-- 终态须达深度档（multi-track Q17），禁浅打勾。
-- 失败/待实现留证并进缺陷。
-- 阻塞留证，需外力进盯办（勿把阻塞当缺陷凑交）。
-- P0 意图至少一条证伪场景（负向/状态/权限/幂等/恢复按适用），只有正向通过不得记 P0 完整。
-- T1+ 功能收口前 S6/S7/S11 有落点。
-- 批末按计划 §3.1 核对。
-- INT 须在 §2.1。
-- 本批触及的 §2.1.1 有终态或 N/A+接受人。
-- 顺延无接受人=缺口。
-- 计划含接口轨须 `api/` 契约记录+depth，功能内嵌探针不顶替。
-- 缺意图补测或写缺口+接受人。
-- 跑 execute 闸：过程完整才可推进（产品红→CONDITIONAL 须缺陷入库；分析/链接/证据不过→FAIL 禁下批）。
-- 并更新计划 §0/§6 与执行记录结论。
+- 取档以计划 §3.1 为真值。
+- 开跑声明 `exec_mode=`+`pg=`。
+- **硬门槛**：① 执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0+接受人）③ 功能六类场景有 SC 或 N/A+依据 ④ 全部 `处置=测` 意图终态。
+- P0 须证伪。
+- 深度 multi-track Q17。
+- 禁浅打勾 ⑤ INT 须在分析意图台账。
+- 意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth ⑦ 批末跑 execute 闸并更新计划状态。
+- 失败/待实现留证进缺陷。
+- 阻塞进盯办。
+- 模板见 §7。
+- 做法见 §6。
 
-### 本步规则卡：计划驱动执行编排
+### 本步规则卡：计划驱动执行编排（本步门槛）
 
-- **取档真值**：先读计划 §3.1；缺行按决策树补（脚本→点名→接口单 Agent→无 Task 直跑→继续单模块直跑→≥2 模块子代理→大单拆分）；隔离不成立 → 串行并记 `plan_batch_conflict`。详档仅在 §6 执行技能闭环按需打开。
-- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`；对照决策树一句。
-- **子代理**：模块/拆分档走 Task；一模块一新开；拆分档 Reviewer 须 fresh（禁 resume Worker）；返回 ≤30 行；不过门、不 git、不交平台、不改他模块。
-- **质量锁**：同一意图禁并行；共享写域串行；质量优先于并行；不采信口头完成。
+- **取档真值**：先读计划 §3.1；缺行按决策树补；隔离不成立 → 串行并记 `plan_batch_conflict`。取档详法见 §6 执行技能。
+- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`。
+- **子代理硬门槛**：模块/拆分档走 Task；一模块一新开；Reviewer fresh；返回 ≤30 行；不过门、不 git、不交平台、不改他模块。
+- **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成。
+- **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -88,8 +76,8 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L129（硬门槛+方法+反合理化）→ 回本包 |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L127（必做+处置/判定/反合理化）→ 回本包 |
+| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L130（硬门槛+方法+反合理化）→ 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L136（必做+处置/判定/反合理化）→ 回本包 |
 | `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
 | `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L64（必做+处置/判定/反合理化）→ 回本包 |
 | `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
@@ -102,7 +90,6 @@
 ## 7. 模板与证据
 
 - **填写模板（仅此一份）**：`rules/templates/20-test-cases/test-case-template.md`；只读本步用到的节，禁止整文件通读。
-- **参考模板（命中再开，不默认读）**：`rules/templates/20-test-cases/api-test-case-template.md`；`rules/templates/20-test-cases/exploratory-case-template.md`；`rules/templates/20-test-cases/random-flow-case-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出

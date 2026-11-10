@@ -36,8 +36,8 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `20-test-cases/test-case-template.md` | testing.execute（功能） | 执行记录：场景+步骤+Oracle+结果+证据+缺陷 |
-| `20-test-cases/api-test-case-template.md` | testing.execute（接口） | 接口执行记录：契约清单+适用维+请求+判定+证据 |
+| `20-test-cases/test-case-template.md` | testing.execute（功能） | 执行记录：场景薄记；失败 §2=交单素材成稿（§5.0.1a） |
+| `20-test-cases/api-test-case-template.md` | testing.execute（接口） | 接口执行记录；失败 §3=交单素材成稿（§5.0.1a） |
 | `20-test-cases/exploratory-case-template.md` | testing.execute（探索式） | 一场一句+会话记录 |
 | `20-test-cases/random-flow-case-template.md` | testing.execute（随机·计划外） | 旅程会话+去重窗+分流 |
 | `20-test-cases/a11y-ux-checklist.md` | testing.execute / report（按需） | 无障碍/UX 检查 |
@@ -49,7 +49,7 @@
 | `30-execution/test-change-record-template.md` | testing.plan（期中变更） | CR + 影响分析 |
 | `30-execution/stable-smoke-checklist-template.md` | testing.execute / report | P0 冒烟 + 高价值锚点 |
 | `30-execution/special-index-template.md` | special/发布前索引 | 人工追踪 |
-| `30-execution/defect-writeup-template.md` | defect.submit / 回写 | 建单十段/盯办八块；回写先 §8.0 路由再开对应骨架（含 §8.9 转测保持开 / §8.10 盯办保持开） |
+| `30-execution/defect-writeup-template.md` | defect.submit / 回写；execute 失败成稿指针 | §5.0.1a 素材 Schema；十段/盯办八块；厚度 §5.0.1b；回写先 §8.0 路由 |
 
 ## 40-report-review
 

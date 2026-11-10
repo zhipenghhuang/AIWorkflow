@@ -104,12 +104,8 @@ steps:
   precondition: design 已确认；代码/配置：测试分析与计划已产出；do_landing_doc_review=true → review_docs 已通过；方案卡验收表已冻结；范围/AC 未确认不得写代码
   on_fail: 回 design 修方案卡；范围超出先停下说明
   output: 代码/配置改动 + 自测证据
-  notes: '**动手前硬门**：勾选 `iq-checklist.md`；有行为变化须 DEV-IQ-09【实施预检】且**命中面先扩 SC/债项**（未扩表=预检无效，禁改码）；有方案条款时 SC 差集=0（DEV-IQ-12）；命中重要面
-    → DEV-IQ-10 同批硬补（自包含不降硬补）。方法 `implementation-and-selftest`；细则 `implementation-quality.md`/§4.3。 技能：`implementation-and-selftest`（先读再改）+
-    `engineering-quality`；预检命中面再读对应技能当前节；失败时 + `debugging-and-error-recovery`。 动手前写本轮任务标记：`verify/Invoke-Gate.ps1 -StartTask
-    -TaskId "<任务ID>" -ProjectRoot "."`（仅本步；frame/product/design/test_plan 不计窗口）。 按方案卡验收表+预检扩出的 SC 实施；**可验证单元=一条 SC**（自证后再下一条；页面能开≠单元完成）；前端按
-    `verify/frontend/acceptance.md` 留状态/视口/console/network 截图。 可测逻辑补测；密钥零入库；外部输入校验；破坏性变更先停；改动面超出方案卡 → 停下说明，不擅自扩范围。 需要正式发布/QA/UAT/交接
-    → 转完整链；代码评审走 review 步；技术上的多模块/接口/数据 → 按方案拆分与补证据，不因体量换链；本步不冒充已评审。 读本轮「测试分析与计划」；实施完更新方案卡「执行记录」与任务状态，准备 test。'
+  notes: 本步任务：按方案卡验收表实施并自测。硬门槛：-StartTask；勾选 `rules/core/iq-checklist.md`；命中面先扩 SC/债项；SC 差集=0；单元=一条 SC；禁刷绿；有 UI 守前端硬门。方法见
+    §6；词典索引 `rules/core/implementation-quality.md`。本步不自称已评审；超方案卡先停。
 - name: 代码评审
   id: review
   must_read:

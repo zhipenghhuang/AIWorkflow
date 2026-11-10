@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.10.01-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.10.06-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -168,7 +168,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 **开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
-**测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行前按原文目录对账分析漏项，逐场景对照原文对应段 + ≥1 互补源（分析只作索引）；P0 有证伪场景；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
+**测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行前按原文目录对账分析漏项，逐场景对照原文对应段（有互补源则对照；分析只作索引、不作互补源）；P0 有证伪场景；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
 
 **单包优先**：只强制本包工作根（`docs/` 平铺；多包 `docs/{owner}/`）；缺他包不阻塞。根 `CHANGELOG.md` 仅开发维护（无开发包则不建）；产/测写 `work-log.md`。多包发版软序见开发文档治理。原件根固定 `inbound/`；权威文档库项目级 `docs/materials/`。交接：内容优先、包按需；未回执不得称「已接收」。产品 `confirm_release`＝业务决策；开发 `confirm_deploy`＝工程部署。
 
@@ -227,12 +227,12 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 五步执行模型（`template_version` 见各包 `AGENTS.md`；母版取最高）：
 
 1. **路由** — 多包先定包；`AGENTS.md` 口令表 → 命中 workflow；首条输出 `route=… | step=… | global=ok | reads=…`；纯解释走 `readonly:analysis`
-2. **加载** — 开局卡（新会话一次；**不再回指 AGENTS**）→ `activeContext`（状态）→ `rules/core/global-rules.md`（每步读）→ `workflows/<id>.md` 链图（进链一次）→ `rules/packets/<id>/<step>.md`（本步唯一正文）→ §6 技能必做节 → 至多 1 个模板。**中段**：一行锚（`global-rules.md` §8）+ 运行状态，不重读开局卡全文
-3. **执行** — 步内方法以步骤包为准；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门须心跳
+2. **加载** — 开局卡（新会话一次；**不再回指 AGENTS**）→ `activeContext`（状态）→ `rules/core/global-rules.md`（遵守全文；重读按 §7）→ `workflows/<id>.md` 链图（进链一次）→ `rules/packets/<id>/<step>.md`（本步剧本/验收）→ §6 技能必做节 → 至多 1 个模板。**主从**：步骤卡门槛，技能/模板做法与壳，具名索引按点名再读。**中段**：一行锚（`global-rules.md` §8）+ 运行状态，不重读开局卡全文
+3. **执行** — 步内方法以步骤包为准；技能不另造平行流程；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门须心跳
 4. **验证** — `verify/Invoke-Gate.ps1`；只有门能授予 `COMPLETE` / `PASS` / `READY`
 5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`
 
-> **每步全局规则**：唯一文件 `rules/core/global-rules.md`；每步先读并逐条过，首行锚带 `global=ok`（偏离 `global=dev:<原因>`）。步骤卡只留指针，不复制正文。澄清**方法**在 `clarification.md`（参考层，按需读）；开工确认档位与动作前分析以 `global-rules.md` 为准。`check_lean.py` 与语义自检守卫该机制。
+> **全局规则**：唯一文件 `rules/core/global-rules.md`；遵守全文，重读按 §7（新会话/换链/变更全文；同链中段按节最小集），首行锚带 `global=ok`（偏离 `global=dev:<原因>`）。步骤卡只留指针，不复制正文。澄清**方法**在 `clarification.md`（参考层，按需读）；开工确认档位与动作前分析以 `global-rules.md` 为准。`check_lean.py` 与语义自检守卫该机制。
 
 <details>
 <summary><strong>分层落点</strong></summary>
@@ -388,7 +388,7 @@ AIWorkflow/
 <details>
 <summary><strong>自检与完成门（维护 / 贡献时）</strong></summary>
 
-改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。`Test-Template` / `Invoke-TestWorkflow` 已挂语义检查（开局卡 + `global-rules`）；外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
+改包后或用户点名时运行；业务任务不例行自检。自检为本地/按需，不依赖 CI。`Test-Template` / `Invoke-TestWorkflow` 已挂语义检查（开局卡 + `global-rules`）；测试轨门另有正例/反例自测。外部方法来源见 [THIRD_PARTY.md](./THIRD_PARTY.md)。
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-Template.ps1"
@@ -397,6 +397,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Invoke-TestWork
 python wf-product/rules/tools/check_skills.py wf-product --strict
 python wf-development/rules/tools/check_skills.py wf-development --strict
 python wf-testing/rules/tools/check_skills.py wf-testing --strict
+python wf-testing/verify/tools/selftest_gate.py
 python scripts/check_lean.py
 ```
 

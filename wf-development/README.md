@@ -24,7 +24,7 @@
 | `skills/` | 内置专业技能（结构 `skills/<name>/SKILL.md`；编号→路径映射见 `skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
 | `rules/core/cold-start.md` | **开局卡**（启动/续跑/回执） |
-| `rules/core/frontend-gate.md` | 前端硬门（有 UI 必读） |
+| `rules/core/frontend-gate.md` | 前端硬门**维护真源**（改后重生包；运行时读步骤包内嵌节） |
 | `rules/core/iq-checklist.md` | 实施质量勾选（implement 先勾） |
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
 | `rules/workflow.md` | 参考：护栏/提交门/文档落位（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |

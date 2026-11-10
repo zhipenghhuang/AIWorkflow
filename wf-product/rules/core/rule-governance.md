@@ -20,6 +20,12 @@
 
 估算：CJK 字符约 1 token/字；ASCII 约 4 字符/token。整文件 token 只约束 `AGENTS.md` / `cold-start.md` / `global-rules.md` 这类“开局或每步整文件读”的文件；`gates.md`、`routing.md`、`doc-quality.md`、`doc-governance.md` 等按节读规则，不按整文件限长。`Test-DocHygiene.ps1` 检查上述整文件预算、模板索引与结构；按节读文档不报整文件长度。
 
+**读法分级**：
+- **开局**：新会话精读 `cold-start.md`。
+- **每步必读**：`global-rules.md`（按 §7 重读分级）+ 当前步骤包（`packet=`）；未按 §7 复核不得写 `global=ok`。
+- **主从**：步骤包=本步目的/门槛/门；技能/模板=方法与壳；`global-rules`=跨步场规则；`core|defects|collaboration` 具名索引按步骤包点名再读。禁技能另造平行流程。
+- **参考 / 技能 / 模板**：按命中读当前节；不通读库。
+
 ## 2. 单一出处
 
 - 每条规则只在一个文件定义；其他位置只放指针 + 规则 ID。

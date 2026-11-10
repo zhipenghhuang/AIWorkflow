@@ -1,12 +1,12 @@
 # 测试缺陷协作 · `defect` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步必读并逐条过；切步/过门/续跑都重读）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`缺陷协作` → `classify`；`查重` → `classify`；`提交到平台` → `classify`；`指派给我` → `classify`；`已解决` → `classify`；`复测` → `classify`；`缺陷变化巡检` → `classify`；`补充澄清` → `classify`；`产品判定回流` → `classify`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 

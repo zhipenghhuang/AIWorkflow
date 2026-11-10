@@ -116,8 +116,16 @@ def main() -> int:
                 if bad in text:
                     print(f"FAIL: {rel} {why}: {bad}")
                     fail += 1
-            for m in re.finditer(r"`(rules/(?!packets/|templates/|tools/|core/)[^`]+)`", text):
-                print(f"FAIL: {rel} external rule ref: {m.group(1)}（写进本包规则卡，勿外指）")
+            # 允许索引稳定 SSOT：core / defects / collaboration / packets / templates / tools。
+            # 禁止外指参考层（workflow.md、special/、doc-governance 等）与他步拼规则。
+            for m in re.finditer(
+                r"`(rules/(?!packets/|templates/|tools/|core/|defects/|collaboration/)[^`]+)`",
+                text,
+            ):
+                print(
+                    f"FAIL: {rel} external rule ref: {m.group(1)}"
+                    f"（勿外指参考层/他步；专属门槛写本包，方法索引 skill/模板/core/defects）"
+                )
                 fail += 1
     print(f"SUMMARY fail={fail}")
     return 1 if fail else 0

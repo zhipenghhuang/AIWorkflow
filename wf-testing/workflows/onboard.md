@@ -1,12 +1,12 @@
 # 测试规范接入 · `onboard` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（每步必读并逐条过；切步/过门/续跑都重读）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
 - **入口**：`接入` → `baseline`；`重新接入` → `migrate`；`生成环境基线` → `baseline`；`装配能力` → `capabilities`；`生成README` → `baseline`；`更新README` → `baseline`；`整理README` → `baseline`；`资料收取` → `materials`；`资料整理` → `materials`；`资料归档` → `materials`；`资料巡检` → `materials`；`文档整理` → `lifecycle`；`文档巡检` → `lifecycle`；`文档清理` → `lifecycle`；`清理临时文件` → `lifecycle`；`清理过程文件` → `lifecycle`；`清理无效文件` → `lifecycle`；`清理失效文件` → `lifecycle`；`清理垃圾文件` → `lifecycle`；`清理临时` → `lifecycle`；`归档失效文档` → `lifecycle`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
-- **读链**：按 `rules/core/global-rules.md` §7；全局规则每步读并逐条过；本图进链读一次；每步先读当前 packet。
+- **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
 ## 2. 状态表
 
