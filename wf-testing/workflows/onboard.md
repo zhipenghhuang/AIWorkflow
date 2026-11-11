@@ -1,6 +1,6 @@
 # 测试规范接入 · `onboard` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级：新会话/换链全文，中段最小集，禁预防性通读）。每步先**实读**当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 

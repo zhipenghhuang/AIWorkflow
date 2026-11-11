@@ -13,7 +13,7 @@
 ```
 
 - 有门产物 → 回执与 `.gate/wf-product/{mode}.json` 一致（`READY/DRAFT/BLOCKED`）；无门 → `结论=不适用` + 自检依据，**不伪造**门回执。  
-- 无更新写 `sync=无`；心跳不替代遵守自检。  
+- 无更新写 `sync=无`；命中版本/迭代 bump、关闭、发布·上线或对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`）；心跳不替代遵守自检。  
 - `python verify/tools/check_compliance.py --report <本文件>`。
 
 ## 0.5 表达（可复制块）

@@ -286,6 +286,25 @@ def is_current(path: Path) -> bool:
     return not any(part in path.parts for part in ("_archive", ".draft", "evidence", "证据", "资料", "materials"))
 
 
+def track_record_substance(path: Path, kind: str) -> bool:
+    """Q18：正式轨关账认正文；空文件/缺要件不算。"""
+    try:
+        body = read(path).strip()
+    except Exception:
+        return False
+    if len(body) < 80:
+        return False
+    if kind == "exploratory":
+        return ("章程" in body) and (("覆盖" in body) or ("会话" in body) or ("风险点" in body))
+    if kind == "api":
+        has_ep = ("契约" in body) or bool(re.search(r"\bEP[-_A-Z0-9]", body))
+        has_sc = ("场景" in body) or bool(re.search(r"\bSC[-_A-Z0-9]", body))
+        return has_ep and has_sc
+    if kind == "pre-release":
+        return any(k in body for k in ("硬映射", "必测面", "指标", "结论", "达标"))
+    return True
+
+
 def default_project_root(package_root: Path) -> Path:
     for p in (package_root, *package_root.parents):
         if (p / "activeContext.md").is_file():
@@ -887,6 +906,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
     batch_all_ids: set[str] = set()
     tracks: dict[str, str] = {}
     charter_rows = 0
+    charter_done = 0
     mtier = re.search(r"plan_tier\s*=\s*(full|lite)", text[:3000], re.I)
     tier = (mtier.group(1).lower() if mtier
             else ("lite" if "测试计划（轻量）" in text[:3000] else "full"))
@@ -1242,6 +1262,9 @@ def parse_plan(path: Path) -> dict[str, Any]:
             for row in table_rows(t_charter):
                 if is_blank(cell(row, headers, "章程")):
                     issues.append(f"§3.2「{row[0]}」缺章程")
+                st = cell(row, headers, "状态")
+                if re.search(r"已跑|完成|闭环", st):
+                    charter_done += 1
             need = 4 if risk_tier in ("T2", "T3") else 3
             if charter_rows < need:
                 issues.append(f"§3.2 探索章程仅 {charter_rows} 条，{risk_tier} 须 ≥{need} 条")
@@ -1250,7 +1273,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
             "counts": counts, "suite": suite, "depth": depth,
             "batch_intents": batch_intents, "batch_all": batch_all,
             "batches": batches, "batch_all_ids": batch_all_ids, "tracks": tracks,
-            "charter_rows": charter_rows}
+            "charter_rows": charter_rows, "charter_done": charter_done}
 
 
 # ---------- records ----------
@@ -1974,7 +1997,7 @@ def main() -> int:
                                 "detail_yes": 0, "pending_gaps": [], "p0_exemption": False}
     plan: dict[str, Any] = {"issues": [], "tier": "full", "state": "", "version_release": "",
                             "outing": "", "risk_tier": "", "counts": {}, "suite": "", "depth": "",
-                            "batch_intents": set(), "batch_all": False, "charter_rows": 0}
+                            "batch_intents": set(), "batch_all": False, "charter_rows": 0, "charter_done": 0}
     plan_text = ""
     recs: dict[str, Any] = {"issues": [], "counts": counts, "by_pri": by_pri,
                             "by_pri_status": {p: {s: 0 for s in STATUSES} for p in by_pri},
@@ -2102,19 +2125,47 @@ def main() -> int:
                 return any(name in k and "是" in (v or "") for k, v in tracks.items())
 
             current_md = [p for p in test_root.rglob("*.md") if is_current(p)] if test_root.is_dir() else []
-            paths = [str(p).replace("\\", "/") for p in current_md]
+
+            def rel(p: Path) -> str:
+                return str(p).replace("\\", "/")
+
             missing_tracks: list[str] = []
-            if track_on("功能") and not any("/functional/" in p and "执行记录" in p for p in paths):
+            if track_on("功能") and not any("/functional/" in rel(p) and "执行记录" in p.name for p in current_md):
                 missing_tracks.append("功能（functional/ 执行记录）")
-            if track_on("接口") and not any("/api/" in p and "执行记录" in p for p in paths):
-                missing_tracks.append("接口（api/ 执行记录）")
-            if track_on("探索") and not any("探索记录" in p for p in paths):
-                missing_tracks.append("探索式（探索记录）")
-            if track_on("发布前") and not any("/pre-release/" in p and p.endswith("test-report.md") for p in paths):
-                missing_tracks.append("发布前（pre-release test-report）")
+            if track_on("接口"):
+                api_recs = [p for p in current_md if "/api/" in rel(p) and "执行记录" in p.name]
+                api_ok = [p for p in api_recs if track_record_substance(p, "api")]
+                api_bad = [p.name for p in api_recs if p not in api_ok]
+                if not api_ok:
+                    missing_tracks.append("接口（api/ 实质执行记录）")
+                if api_bad:
+                    missing_tracks.append("接口空壳：" + "、".join(api_bad[:3]))
+            if track_on("探索"):
+                exp_recs = [p for p in current_md if "探索记录" in p.name]
+                exp_ok = [p for p in exp_recs if track_record_substance(p, "exploratory")]
+                exp_bad = [p.name for p in exp_recs if p not in exp_ok]
+                if not exp_ok:
+                    missing_tracks.append("探索式（实质探索记录）")
+                if exp_bad:
+                    missing_tracks.append("探索空壳：" + "、".join(exp_bad[:3]))
+                done = int(plan.get("charter_done") or 0)
+                if done and len(exp_ok) < done:
+                    missing_tracks.append(f"探索已跑{done}但实质记录{len(exp_ok)}")
+            if track_on("发布前"):
+                pr_scheme = [p for p in current_md if "/pre-release/" in rel(p) and p.name.endswith("测试方案.md")]
+                pr_report = [p for p in current_md if "/pre-release/" in rel(p) and p.name.endswith("test-report.md")]
+                scheme_ok = [p for p in pr_scheme if track_record_substance(p, "pre-release")]
+                report_ok = [p for p in pr_report if track_record_substance(p, "pre-release")]
+                if not report_ok:
+                    missing_tracks.append("发布前（实质 test-report）")
+                if not scheme_ok:
+                    missing_tracks.append("发布前（实质测试方案）")
+                pr_bad = [p.name for p in (pr_scheme + pr_report) if not track_record_substance(p, "pre-release")]
+                if pr_bad:
+                    missing_tracks.append("发布前空壳：" + "、".join(pr_bad[:3]))
             checks.append({"id": "track-records",
                            "status": "fail" if missing_tracks else "pass",
-                           "detail": missing_tracks[:4] or "tracks have records"})
+                           "detail": missing_tracks[:6] or "tracks have substance records"})
 
         if args.mode == "execute":
             plan_batches = plan.get("batches") or {}

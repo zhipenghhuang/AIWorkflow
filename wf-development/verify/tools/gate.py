@@ -214,6 +214,27 @@ def changed_files(project_root: Path, package_root: Path, base_commit: str = "")
     return out
 
 
+def compute_diff_hash(project_root: Path, files: list[str], base_commit: str = "") -> str:
+    """代码/配置指纹：只覆盖非文档文件。
+
+    收尾阶段的计划/activeContext/INDEX/报告回写不应使完成回执失效；代码、测试、
+    配置、迁移等变更仍会使回执过期（claim_check 同时核对代码 mtime）。
+    """
+    code_files = [f for f in files if not f.lower().endswith(DOC_EXTS)]
+    ref = ""
+    if base_commit and git(project_root, "rev-parse", "--verify", f"{base_commit}^{{commit}}"):
+        ref = base_commit
+    elif git(project_root, "rev-parse", "--verify", "HEAD"):
+        ref = "HEAD"
+    diff_text = (
+        git(project_root, "diff", ref, "--", *code_files)
+        if ref and code_files else ""
+    )
+    return hashlib.sha256(
+        (diff_text + "\n" + "\n".join(code_files)).encode("utf-8", errors="replace")
+    ).hexdigest()[:16]
+
+
 def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[str]]:
     if not files:
         return "L0", ["none"]
@@ -1181,9 +1202,7 @@ def main() -> int:
         if blocked:
             reasons += [f"{c['id']} blocked: {c.get('detail', '')}" for c in blocked]
 
-    diff_ref = base_commit if base_commit else ("HEAD" if git(project_root, "rev-parse", "--verify", "HEAD") else "")
-    diff_text = git(project_root, "diff", diff_ref) if diff_ref else ""
-    diff_hash = hashlib.sha256((diff_text + "\n" + "\n".join(files)).encode("utf-8", errors="replace")).hexdigest()[:16]
+    diff_hash = compute_diff_hash(project_root, files, base_commit)
     commit = git(project_root, "rev-parse", "--short", "HEAD")
     gate_id = f"{commit or 'nogit'}-{diff_hash}"
     completion = {

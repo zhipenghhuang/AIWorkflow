@@ -177,7 +177,16 @@ def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None
         errors.append(f"mode={mm.group(1)} 不在 execute/analyze/stop")
     sync_match = re.search(r"sync=([^|]+)", body)
     if sync_match:
-        sync_body = sync_match.group(1)
+        sync_body = sync_match.group(1).strip()
+        # Soft: version/release/facade-ish sync without cold-layer marker → warn (doc-facade-sync §2.1)
+        if (
+            sync_body not in ("无", "na", "无门面变化")
+            and "冷层" not in sync_body
+            and re.search(r"版本|VERSION|bump|发布|上线|门面|部署|准出", sync_body, re.I)
+        ):
+            warnings.append(
+                "【遵守自检】sync= 含版本/发布/门面类表述时建议含 冷层:ok|na|deferred:<因>（见 doc-facade-sync）"
+            )
 
     # Economy receipt: required for testing/execute; optional elsewhere (warn if half-filled).
     has_exec_mode = "exec_mode=" in body

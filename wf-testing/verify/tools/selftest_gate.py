@@ -17,7 +17,11 @@ GOOD = {'.gate/wf-testing/completion.json': '{\n  "gate_version": "3.5",\n  "pac
 
 
 GOOD["docs/exploratory/登录-20261110-1100-探索记录.md"] = (
-    "# 登录 探索记录\n\n- 章程：登录入口是否可见\n- 结论：无发现\n"
+    "# 登录 探索记录\n\n"
+    "## 0. 本场\n\n| 项 | 值 |\n| --- | --- |\n| 章程一句 | 看登录页，用 admin，想发现失败下一步是否诚实 |\n\n"
+    "## 0.1 本场风险点\n\n| # | 风险点 | 结论 |\n| ---: | --- | --- |\n| 1 | 失败提示 | 覆盖 |\n\n"
+    "## 1. 会话记录\n\n| 项 | 记录 |\n| --- | --- |\n| 覆盖了什么 | 错误密码登录 |\n| 没碰到什么 | 多端 |\n| 疑问 | 无 |\n| 下一场一句 | 无 |\n\n"
+    "## 2. 发现\n\n无。\n"
 )
 
 _rec_path = "docs/functional/01-登录-执行记录.md"
@@ -155,6 +159,16 @@ def main() -> int:
             "| 接口/契约 | 否 | N/A+依据：无接口文档·接受人=审计 | — | — | 测试 |",
             GOOD,
         ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "hollow-exploratory", {
+            **GOOD,
+            "docs/exploratory/登录-20261110-1100-探索记录.md": "\n",
+            "docs/test-plan.md": GOOD["docs/test-plan.md"].replace(
+                "| S6 入口/可见/失败下一步 | 登录失败是否给原因与下一步 | 入口 | 本场 |",
+                "| S6 入口/可见/失败下一步 | 登录失败是否给原因与下一步 | 入口 | 已跑 |",
+            ),
+        }, "report", "FAIL", None,
     ))
 
     failed = 0

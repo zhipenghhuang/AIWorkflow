@@ -156,7 +156,15 @@ def check_self_check(text: str, errors: list[str]) -> None:
             errors.append(f"【遵守自检】缺少 {key}")
     sync_match = re.search(r"sync=([^|]+)", body)
     if sync_match:
-        sync_body = sync_match.group(1)
+        sync_body = sync_match.group(1).strip()
+        if (
+            sync_body not in ("无", "na", "无门面变化")
+            and "冷层" not in sync_body
+            and re.search(r"版本|VERSION|bump|发布|上线|门面|部署", sync_body, re.I)
+        ):
+            warnings.append(
+                "【遵守自检】sync= 含版本/发布/门面类表述时建议含 冷层:ok|na|deferred:<因>（见 doc-facade-sync）"
+            )
 
 
 def main() -> int:

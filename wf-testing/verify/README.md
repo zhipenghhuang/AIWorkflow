@@ -41,10 +41,10 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `intent-scenes` | report | 每个 `处置=测` 意图在场景表出现；只有 §3 结论无场景 → FAIL | FAIL |
 | `intent-conclusion` | execute/report | 每个意图有终态（通过/失败/阻塞/待实现/N/A）；P1/P2 未测同样失败 | FAIL |
 | `p0-missing` | report | 分析中 P0 意图无场景执行 | FAIL；execute 仅批内 |
-| `track-records` | report | 计划纳入的轨道有对应记录：功能→`functional/`、接口→`api/`、探索→`探索记录`、发布前→`pre-release/*test-report.md` | FAIL |
+| `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（章程+风险点/会话；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
 | `report-structure` | report | 报告 §0～§5、§2.1/§2.2 计数、§2.3 覆盖与收口、§4 缺口；§2.2 通过/失败/阻塞/待实现与执行记录一致；细节维 x/16 对分析适用数；原文对账未关>0 不得 PASS；suite/depth 对计划；结论唯一 | FAIL |
 | `report-verdict` | report | 准出可解析；与 P0/意图终态/失败一致；发版 PASS 须 full/full | FAIL |
-| `conditional-acceptor` | report | CONDITIONAL 须 §4 缺口表非空接受人 | FAIL |
+| `conditional-acceptor` | report | CONDITIONAL 须 §4 缺口表非空接受人（须用户确认口径，Q19；门检结构非空） | FAIL |
 | `writeback-receipt` | writeback | 单号/备注/状态/附件/回执 | FAIL |
 
 ## 3. 检查什么
@@ -67,4 +67,4 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 python wf-testing/verify/tools/selftest_gate.py
 ```
 
-正例 3（coverage/execute/report PASS）+ 反例 9：来源计数大于账本行、矩阵写假 INT、lite 声明版本准出、幽灵意图（§3 无场景）、P0 改写、P0 记不适用、无 P0、计划草稿态、批次 ID 不匹配。改 `test_gate.py` 后必须跑；`SELFTEST OK (12/12)` 才可提交。
+正例 3（coverage/execute/report PASS）+ 反例 12：来源计数大于账本行、矩阵写假 INT、lite 声明版本准出、幽灵意图（§3 无场景）、P0 改写、P0 记不适用、无 P0、计划草稿态、批次 ID 不匹配、软性发布前 N/A、软性接口 N/A、空壳探索记录。改 `test_gate.py` 后必须跑；`SELFTEST OK (15/15)` 才可提交。

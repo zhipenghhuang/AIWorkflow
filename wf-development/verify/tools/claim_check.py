@@ -22,7 +22,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import importlib.util
 import json
 import os
@@ -113,7 +112,7 @@ def parse_iso(value: str) -> datetime | None:
 
 
 def current_diff_hash(root: Path, package_root: Path, base_commit: str) -> str:
-    """用 gate.py 同一算法复算工作区 diff_hash；失败返回空（不误拒）。"""
+    """用 gate.py 同一算法复算代码/配置 diff_hash；失败返回空（不误拒）。"""
     try:
         gate_path = Path(__file__).resolve().parent / "gate.py"
         spec = importlib.util.spec_from_file_location("wf_gate_for_claim", gate_path)
@@ -122,15 +121,7 @@ def current_diff_hash(root: Path, package_root: Path, base_commit: str) -> str:
         gate = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(gate)
         files = gate.changed_files(root, package_root, base_commit=base_commit)
-        ref = ""
-        if base_commit and gate.git(root, "rev-parse", "--verify", f"{base_commit}^{{commit}}"):
-            ref = base_commit
-        elif gate.git(root, "rev-parse", "--verify", "HEAD"):
-            ref = "HEAD"
-        diff_text = gate.git(root, "diff", ref) if ref else ""
-        return hashlib.sha256(
-            (diff_text + "\n" + "\n".join(files)).encode("utf-8", errors="replace")
-        ).hexdigest()[:16]
+        return gate.compute_diff_hash(root, files, base_commit or "")
     except Exception:
         return ""
 

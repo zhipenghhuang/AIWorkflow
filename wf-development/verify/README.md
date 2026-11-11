@@ -35,6 +35,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 ```
 
 4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
+   > `diff_hash` 只覆盖代码/配置/测试/迁移等非文档文件；计划、`activeContext`、INDEX、验收报告等收尾文档回写不会使回执失效；代码/测试/证据文件变更仍会。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** closeout 均跑）；无门/阶段收尾用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`，只校验版式不读 completion.json。
 
 **落盘**：`wf-development/verify/` 只读；运行态写项目根 `.gate/wf-development/`（仅 JSON）与 `.gate/frontend/`（截图 + design-qa）。

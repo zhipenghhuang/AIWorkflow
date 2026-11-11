@@ -51,12 +51,13 @@
 - 开跑前读 `env-baseline.md` 命中节。
 - 取档以计划 §3.1 为真值。
 - 开跑声明 `exec_mode=`+`pg=`。
-- **硬门槛**：① 执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0+接受人）③ 功能六类场景有 SC 或 N/A+依据 ④ 全部 `处置=测` 意图终态。
+- **硬门槛**：① 执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0；缺口仅用户确认 Q19）③ 功能六类有面对须 SC（无面对才 N/A+事实句）④ 全部 `处置=测` 意图终态。
 - P0 须证伪。
 - 深度 multi-track Q17。
 - 禁浅打勾、禁为通过率删负向（Q9）⑤ INT 须在分析意图台账。
-- 意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth。
-- 发布前已纳入须硬映射闭环 ⑦ 缺数据/账号/入口临时不通须先自助造数换样换角（有界）。
+- 意图结论回指场景表 ⑥ 计划含接口轨须非空 `api/` 契约记录+场景表+depth（脚本不顶替；Q18）。
+- 发布前已纳入须先建方案+硬映射再执行（接受人禁顶替，Q19）。
+- 探索已跑须非空记录 ⑦ 缺数据/账号/入口临时不通须先自助造数换样换角（有界）。
 - 未穷尽禁阻塞。
 - 阻塞摘要须卡点+已尝试+恢复条件 ⑧ 批末跑 execute 闸并更新计划状态。
 - 失败/待实现留证进缺陷。
@@ -76,7 +77,7 @@
 - **基线锁（硬）**：开跑读命中节；造数/换样前查基线造数·样本节；本批打通的**新可复用** API/配方/样本/冲突 → **同轮**按基线「同步规则」回写；批末自检有则补齐、无则禁改。细则 SSOT：基线同步节 + §6 `test-data-and-environment`。
 - **证据终态制（硬）**：`evidence/` 只留断言终态（通常每 SC 1～2 叶）；中间探查/重试进 `.draft/`（`global-rules` §9）。UI 失败**当场**钉断言截图；禁留到交平台再补。
 - **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。
-- **同域锁（硬）**：结果/写操作页落通过前做同域自洽探针（方法 §6 执行技能 5.2）；同屏冲突/读写分裂/旁路假可过 → 禁选型通过（`classification.md` §0.5）。
+- **同域锁（硬）**：结果/写操作页落通过前做同域自洽探针（方法 §6 执行技能 5.2，含列表/徽标/KPI↔详情）；同屏冲突/读写分裂/旁路假可过 → 禁选型通过（`classification.md` §0.5）。S7/S11 收口门槛见 `multi-track-quality` §2.4.1。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -86,7 +87,7 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L130（硬门槛+方法+反合理化）→ 回本包 |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L145（必做+处置/判定/反合理化）→ 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L151（必做+处置/判定/反合理化）→ 回本包 |
 | `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L81（硬门槛+方法+反合理化）→ 回本包 |
 | `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L64（必做+处置/判定/反合理化）→ 回本包 |
 | `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
