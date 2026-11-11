@@ -61,6 +61,7 @@ steps:
   must_read:
   - rules/packets/testing/plan.md
   - rules/templates/10-planning/test-analysis-template.md
+  - rules/templates/10-planning/test-plan-template.md
   agent: test-planner
   gate: coverage-map
   gate_type: machine
@@ -78,8 +79,8 @@ steps:
     when: docs_migration_needed
   next: execute
   output: '{workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排）'
-  notes: 本步任务：先分析再计划（两份模板见 §7）。硬门槛：方案为主参考；主读+≥1 互补源；读 env-baseline 命中节；§2.1 INT+Oracle 与账本/矩阵可回指；计数被行数支撑；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1
-    与分析联动；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。
+  notes: 本步任务：先完整分析入账再计划总排（分析+计划两份模板见 §7）。硬门槛：方案为主参考；主读+≥1 互补源；读 env-baseline 命中节；方案每一个应测细节/设计点入账；§2.1 INT+Oracle；覆盖面/方法矩阵无未接受空格；计数被行数支撑；禁「先粗计划、执行再补分析」；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1
+    与分析联动；准出/轨道纳入见 multi-track-quality §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。
 - name: 按计划执行
   id: execute
   must_read:
@@ -97,8 +98,9 @@ steps:
   output: 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态
   notes: 本步任务：按计划执行全部在范围 P0/P1/P2 意图（功能/接口/探索/发布前/回归）。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**硬门槛**：①
     执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0+接受人）③ 功能六类场景有 SC 或 N/A+依据 ④
-    全部 `处置=测` 意图终态；P0 须证伪；深度 multi-track Q17；禁浅打勾 ⑤ INT 须在分析意图台账；意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth ⑦ 批末跑 execute 闸并更新计划状态。失败/待实现留证进缺陷；阻塞进盯办。模板见
-    §7；做法见 §6。
+    全部 `处置=测` 意图终态；P0 须证伪；深度 multi-track Q17；禁浅打勾、禁为通过率删负向（Q9）⑤ INT 须在分析意图台账；意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth；发布前已纳入须硬映射闭环
+    ⑦ 缺数据/账号/入口临时不通须先自助造数换样换角（有界）；未穷尽禁阻塞；阻塞摘要须卡点+已尝试+恢复条件 ⑧ 批末跑 execute 闸并更新计划状态。失败/待实现留证进缺陷；真阻塞进盯办。证据终态制+失败当场截图（见规则卡）；exec_mode
+    与计划 §3.1 对齐。模板见 §7；做法见 §6。
 - name: 输出报告
   id: report
   must_read:

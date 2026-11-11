@@ -28,7 +28,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | --- | --- | --- | --- |
 | `analysis-structure` | coverage/execute/report | `test-analysis.md`：来源盘点、章节回执、依据覆盖、**§2.1 意图台账**、§2.1.1 设计点账本、覆盖/方法矩阵、细节维、影响面、核心链路、风险、§6；**账本不得为空表**；§1.1 的已映射/总数须被 §1.2/§1.3/§2.1.1 实际行数支撑；§2.2/§2.3/§2.4 的 INT 须∈台账；§4 缺口表、§5.2 变更追溯、§6 11 项齐全 | FAIL（三模式同硬） |
 | `env-baseline` | coverage/execute/report | `env-baseline.md` 存在且含项目身份/§1 登录/§4 账号/§8 浏览器结构；缺失或空壳 → 不跑 | FAIL |
-| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；T1+ 章程数；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
+| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 章程数；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
 | `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`；T1+ 功能细节维不得全否 | FAIL |
 | `plan-state` | execute/report | §0 计划状态 ∈ 已确认/执行中/待关闭 | FAIL |
 | `batch-coverage` | execute | 记录 §0 批次 ID 在计划 §3.1；该批意图范围已被场景覆盖（写「全部」的批只校验批次存在） | FAIL |
@@ -53,7 +53,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 - **计划**：范围/轨道/轮次/批次/探索/准入准出可执行；引用分析与 env-baseline；§0 计数/版本准出/准出口径/批次意图范围与 §2.1 联动；suite/depth 已声明且 core 仅补丁；覆盖闸 PASS 后才称可执行。
 - **执行**：过程（分析/计划/链接/证据/终态/证伪）不过 → FAIL 禁下批；`未执行`/`未本轮验证` 仍在 → FAIL（批未关）；过程完整且仅产品红 → CONDITIONAL 可下批继续找缺陷（须入库）。三步序：方案原文 → 结合分析理解 → 现场择优（有互补源则对照）；优先级以分析 §2.1 为准；§3 意图结论须有场景 ID；P0 须证伪；功能记录 3～7 步且可复核。
 - **报告**：台账处置=测有实际场景且全终态；§2.2 通过/失败/阻塞/待实现与记录一致；P0 全过且有证伪；细节维 x/16 对分析适用数；计划纳入轨道有对应记录；CONDITIONAL 认 §4 接受人；非 PASS/CONDITIONAL 禁用“全部通过/可发布”。
-- **回写**：单号/备注/状态/附件回执；`writeback` 不覆盖 report。
+- **回写**：单号/备注/状态/附件回执；`writeback` 不覆盖 report。回执优先 `{ver}/functional/*回执*.md`（或 `api/`）；亦认 `evidence/*回执*.md` / `*回写*.md`（排除 `_archive`/`.draft`）；同批多份时优先正式轨较新文件。
 
 ## 4. 成本纪律
 

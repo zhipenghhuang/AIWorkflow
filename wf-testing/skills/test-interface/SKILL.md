@@ -55,7 +55,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 | 合理化 | 现实 |
 | --- | --- |
-| “UI 过了接口就不用测” | 有接口须按 depth；契约/错误码/幂等独立覆盖。 |
+| “UI 过了接口就不用测” | 迭代默认纳入接口轨（§0）；须按 depth；契约/错误码/幂等独立覆盖；UI 探针≠接口轨。 |
 | “先手点再补脚本” | 能脚本不 AI；稳定契约优先自动化。 |
 | “现网响应当预期” | Oracle 来自契约/需求，不按实现改预期。 |
 | “2xx 就算通过” | 状态码+业务信号+关键字段；假成功=失败。 |

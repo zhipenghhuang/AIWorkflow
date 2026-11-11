@@ -1,6 +1,6 @@
 # 步骤卡 · defect/search
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级）；方法在 §6 指定节（打开→执行→回包）。**未打开本文件=未开跑本步**。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
+> **全局规则**：按 `rules/core/global-rules.md` §7 **分级重读并遵守**（中段=最小集，禁每步通读全文）；须先打开本步骤卡；心跳 `global=ok`=已按 §7 复核且步骤卡已实读；未复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -39,13 +39,19 @@
 
 ### 本步动作清单
 
-- 提交前查重。
+- 提交前查重（先列表再本地过滤，至多1～2次高信号search；禁同质连环search）。
 - 回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 做快照 diff。
 - api 读不全 → browser。
 - 仍不全 → 请用户补关键备注/附件，禁只看标题分析。
 - 批量查重/快照 diff：达只读扇出阈值则按单扇出，未拆记 deviation。
 - 主上下文只收「单号/变化/查重键/证据缺口」≤30 行，判定/复测/回写集中。
 - 复测同账号写域禁并行。
+
+### 本步规则卡：查重节流
+
+- **义务**：提交前必查重；范围含未关闭/已解决/已关闭。
+- **节流（硬）**：先拉一份近期列表 → 本地按标题/模块/现象过滤 → 必要时至多 1～2 次高信号 search；**禁止** 8+ 同质关键词连环 search。
+- 产出一份 dedup 快照；主上下文候选判定 ≤30 行（见 `collaboration` §5.0.0、`platform-adapter`）。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 

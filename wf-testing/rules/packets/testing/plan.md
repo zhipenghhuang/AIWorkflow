@@ -1,6 +1,6 @@
 # 步骤卡 · testing/plan
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级）；方法在 §6 指定节（打开→执行→回包）。**未打开本文件=未开跑本步**。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -19,7 +19,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
+> **全局规则**：按 `rules/core/global-rules.md` §7 **分级重读并遵守**（中段=最小集，禁每步通读全文）；须先打开本步骤卡；心跳 `global=ok`=已按 §7 复核且步骤卡已实读；未复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -53,9 +53,10 @@
 ### 本步规则卡：先分析，再计划（本步门槛）
 
 - **模板**：分析 + 总排两份都填（见 §7）；轻量仅补丁/单模块且 `版本准出=否`。
-- **硬门槛**：① 方案为主参考；至少主读+1 互补源 ② 来源盘点含 UI/文案；§2.1 INT+Oracle；账本/矩阵可回指；计数被行数支撑（门查）③ 分析未确认不写计划；计划未确认不执行；覆盖闸未过不得称可执行 ④ 计划只总排；§0/§3.1 与分析联动 ⑤ §3.1 批次形态/并行/隔离按模板填（方法 §6）⑥ P0/P1/P2 均为覆盖义务。
+- **覆盖先后（硬）**：先按方案原文逐项完整入账（每个应测细节/设计点 → §2.1 INT+Oracle + 矩阵无空格），再写计划总排；**禁止**「先粗计划、细节执行时再补分析」。执行阶段才允许按现场自主打通/择优，不得用执行自主回补分析空账。
+- **硬门槛**：① 方案为主参考；至少主读+1 互补源 ② 应测细节/设计点入账；§2.1 INT+Oracle；覆盖面/方法矩阵无未接受空格；计数被行数支撑（门查）③ 分析未确认不写计划；计划未确认不执行；覆盖闸未过不得称可执行 ④ 计划只总排；§0/§3.1 与分析联动 ⑤ §3.1 按模板填 ⑥ P0/P1/P2 均为覆盖义务 ⑦ 准出/轨道纳入见 `multi-track-quality` §0+文首（默认硬纳入；整轨否仅白名单+接受人）。
 - **环境**：先读 `env-baseline.md` 命中节；缺基线先接入。
-- **预告**：执行三步序见 execute 卡；本步不预生成全量用例。做法见 §6。
+- **预告**：执行三步序见 execute 卡；本步不预生成全量用例≠可浅测。做法见 §6。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -64,9 +65,9 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L13-L132（必做+处置/判定/反合理化）→ 回本包 |
-| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L11-L97（必做+处置/判定/反合理化）→ 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
+| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L13-L133（必做+处置/判定/反合理化）→ 回本包 |
+| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L13-L88（必做+处置/判定/反合理化）→ 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L81（硬门槛+方法+反合理化）→ 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -74,7 +75,7 @@
 
 ## 7. 模板与证据
 
-- **填写模板（仅此一份）**：`rules/templates/10-planning/test-analysis-template.md`；只读本步用到的节，禁止整文件通读。
+- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；各只读本步用到的节，禁止整文件通读；分析模板先于计划模板。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出

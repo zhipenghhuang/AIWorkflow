@@ -1,6 +1,6 @@
 # 步骤卡 · testing/execute
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级）；方法在 §6 指定节（打开→执行→回包）。**未打开本文件=未开跑本步**。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -20,7 +20,7 @@
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
-> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
+> **全局规则**：按 `rules/core/global-rules.md` §7 **分级重读并遵守**（中段=最小集，禁每步通读全文）；须先打开本步骤卡；心跳 `global=ok`=已按 §7 复核且步骤卡已实读；未复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。
 
 ### 本步边界
 
@@ -54,20 +54,29 @@
 - **硬门槛**：① 执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0+接受人）③ 功能六类场景有 SC 或 N/A+依据 ④ 全部 `处置=测` 意图终态。
 - P0 须证伪。
 - 深度 multi-track Q17。
-- 禁浅打勾 ⑤ INT 须在分析意图台账。
-- 意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth ⑦ 批末跑 execute 闸并更新计划状态。
+- 禁浅打勾、禁为通过率删负向（Q9）⑤ INT 须在分析意图台账。
+- 意图结论回指场景表 ⑥ 计划含接口轨须 `api/` 契约记录+depth。
+- 发布前已纳入须硬映射闭环 ⑦ 缺数据/账号/入口临时不通须先自助造数换样换角（有界）。
+- 未穷尽禁阻塞。
+- 阻塞摘要须卡点+已尝试+恢复条件 ⑧ 批末跑 execute 闸并更新计划状态。
 - 失败/待实现留证进缺陷。
-- 阻塞进盯办。
+- 真阻塞进盯办。
+- 证据终态制+失败当场截图（见规则卡）。
+- exec_mode 与计划 §3.1 对齐。
 - 模板见 §7。
 - 做法见 §6。
 
 ### 本步规则卡：计划驱动执行编排（本步门槛）
 
 - **取档真值**：先读计划 §3.1；缺行按决策树补；隔离不成立 → 串行并记 `plan_batch_conflict`。取档详法见 §6 执行技能。
-- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`。
+- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`；**须与计划 §3.1 一致**（不一致 → 改计划或记 `deviation=`+reason；禁表写子代理、实跑直跑长期并存）。
 - **子代理硬门槛**：模块/拆分档走 Task；一模块一新开；Reviewer fresh；返回 ≤30 行；不过门、不 git、不交平台、不改他模块。
-- **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成。
+- **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成；禁为通过率删负向/边界/证伪（`multi-track-quality` Q9）。
+- **阻塞锁（硬）**：缺数据/账号/入口临时不通 → 先自助造数/换样/换角/换入口（有界）；**未穷尽禁止落阻塞**；摘要须卡点+已尝试+恢复条件。终态表见 `classification.md` §0.4。
+- **基线锁（硬）**：开跑读命中节；造数/换样前查基线造数·样本节；本批打通的**新可复用** API/配方/样本/冲突 → **同轮**按基线「同步规则」回写；批末自检有则补齐、无则禁改。细则 SSOT：基线同步节 + §6 `test-data-and-environment`。
+- **证据终态制（硬）**：`evidence/` 只留断言终态（通常每 SC 1～2 叶）；中间探查/重试进 `.draft/`（`global-rules` §9）。UI 失败**当场**钉断言截图；禁留到交平台再补。
 - **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。
+- **同域锁（硬）**：结果/写操作页落通过前做同域自洽探针（方法 §6 执行技能 5.2）；同屏冲突/读写分裂/旁路假可过 → 禁选型通过（`classification.md` §0.5）。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -77,8 +86,8 @@
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
 | `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L130（硬门槛+方法+反合理化）→ 回本包 |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L136（必做+处置/判定/反合理化）→ 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L77（硬门槛+方法+反合理化）→ 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L145（必做+处置/判定/反合理化）→ 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L81（硬门槛+方法+反合理化）→ 回本包 |
 | `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L64（必做+处置/判定/反合理化）→ 回本包 |
 | `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
 | `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 只读 L13-L93（硬门槛+方法+反合理化）→ 回本包 |

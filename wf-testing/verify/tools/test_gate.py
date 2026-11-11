@@ -990,6 +990,17 @@ def parse_plan(path: Path) -> dict[str, Any]:
     if suite == "core" and "补丁口径" not in text:
         issues.append("功能 suite=core 仅限补丁口径（计划标「补丁口径」）")
 
+    pre_level = ""
+    mpr = re.search(r"发布前风险级\s*[=:：]\s*`?([^\s`|；;]+)", text)
+    if mpr:
+        pre_level = re.sub(r"(级|风险)$", "", mpr.group(1).strip().strip("`"))
+        if pre_level.startswith("高"):
+            pre_level = "高"
+        elif pre_level.startswith("标准"):
+            pre_level = "标准"
+        elif pre_level.startswith("基础"):
+            pre_level = "基础"
+
     block4 = h2(text, "4.")
     if tier != "lite":
         if block4 and not all(k in block4 for k in ("P0", "缺口", "准出")):
@@ -1005,6 +1016,108 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 name = cell(row, headers, "轨道")
                 if name:
                     tracks[name] = cell(row, headers, "纳入")
+                    tracks[name + "::scope"] = cell(row, headers, "范围")
+            # 迭代/提测/发版：正式轨默认硬纳入；整轨否仅 multi-track §0 白名单+接受人（补丁口径不强制）
+            if outing in ("迭代", "提测", "发版"):
+                label = "发版" if outing == "发版" else "迭代/提测"
+                soft_na = re.compile(
+                    r"小改|无\s*NFR|无NFR|无接口文档|UI已|功能已|无可探索|时间紧|"
+                    r"本期不做|无运行时变更|顺手|内嵌探针|有接口面"
+                )
+
+                def _find_track(*needles: str) -> tuple[str, str, str]:
+                    for k, v in tracks.items():
+                        if "::" in k:
+                            continue
+                        if any(n in k for n in needles):
+                            return k, v or "", tracks.get(k + "::scope", "") or ""
+                    return "", "", ""
+
+                def _na_ok(blob: str, kind: str) -> bool:
+                    if "接受人" not in blob:
+                        return False
+                    if soft_na.search(blob):
+                        return False
+                    if kind == "api":
+                        return bool(re.search(
+                            r"无服务端|无HTTP|无RPC|无WebSocket|无\s*WS|无消息契约|无契约面|无后端|纯静态",
+                            blob, re.I,
+                        ))
+                    if kind == "prerelease":
+                        return bool(re.search(r"永不部署|无运行时交付|无运行时产品|纯文档", blob))
+                    if kind == "exploratory":
+                        return bool(re.search(r"补丁口径|\bT0\b|无运行时交付|无运行时产品|纯文档", blob))
+                    if kind == "regression":
+                        return bool(re.search(r"零变更|无邻接", blob))
+                    return False
+
+                fn_name, fn_inc, fn_scope = _find_track("功能")
+                if not fn_name:
+                    issues.append(f"{label}计划 §2 缺功能轨道（必须纳入）")
+                elif "是" not in fn_inc:
+                    issues.append(f"{label}功能轨必须纳入=是（不得整轨否冒充准出）")
+
+                api_name, api_inc, api_scope = _find_track("接口")
+                if not api_name:
+                    issues.append(f"{label}计划 §2 缺接口轨道（默认纳入；否仅§0白名单+接受人）")
+                else:
+                    api_blob = f"{api_inc} {api_scope}"
+                    if "是" in api_inc:
+                        if depth not in {"core", "standard", "full"}:
+                            issues.append("接口纳入=是 须 depth=core|standard|full（迭代≥standard；发版 full）")
+                        elif depth == "core" and "补丁口径" not in text:
+                            issues.append("接口 depth=core 仅限补丁口径")
+                    elif "否" in api_inc:
+                        if not _na_ok(api_blob, "api"):
+                            issues.append(
+                                "接口纳入=否 仅认§0白名单（无服务端/HTTP/RPC/WS/契约面等）+接受人；"
+                                "禁无接口文档/UI已测/内嵌探针"
+                            )
+                    else:
+                        issues.append("§2 接口「纳入」须为是或否")
+
+                reg_name, reg_inc, reg_scope = _find_track("回归")
+                if not reg_name:
+                    issues.append(f"{label}计划 §2 缺回归轨道（必须纳入）")
+                elif "是" not in reg_inc:
+                    if not _na_ok(f"{reg_inc} {reg_scope}", "regression"):
+                        issues.append("回归纳入=否 仅认零变更+零邻接+接受人（极少）")
+
+                exp_name, exp_inc, exp_scope = _find_track("探索")
+                if risk_tier in ("T1", "T2", "T3") or outing == "发版":
+                    if not exp_name:
+                        issues.append(f"T1+/发版 {label}计划 §2 缺探索式轨道（必须纳入）")
+                    else:
+                        exp_blob = f"{exp_inc} {exp_scope}"
+                        if "是" in exp_inc:
+                            pass
+                        elif "否" in exp_inc:
+                            if not _na_ok(exp_blob, "exploratory"):
+                                issues.append(
+                                    "T1+/发版 探索纳入=否 仅认§0白名单（T0/补丁口径或无运行时交付）+接受人；"
+                                    "禁功能测完/无可探索面"
+                                )
+                        else:
+                            issues.append("§2 探索式「纳入」须为是或否")
+
+                pr_name, pr_inc, pr_scope = _find_track("发布前")
+                if not pr_name:
+                    issues.append(f"{label}计划 §2 缺发布前轨道（必须纳入，或§0白名单否+接受人）")
+                else:
+                    blob = f"{pr_inc} {pr_scope}"
+                    if "是" in pr_inc:
+                        if pre_level not in ("基础", "标准", "高"):
+                            issues.append("发布前纳入=是 须声明风险级=基础|标准|高（分级见 tracks/pre-release）")
+                    elif "否" in pr_inc:
+                        if not _na_ok(blob, "prerelease"):
+                            issues.append(
+                                "发布前纳入=否 仅认§0白名单（永不部署/无运行时交付等）+接受人；"
+                                "禁小改/无NFR/无运行时变更；小改用风险级=基础"
+                            )
+                    else:
+                        issues.append("§2 发布前「纳入」须为是或否")
+                if pre_level == "不适用" and pr_name and "是" in pr_inc:
+                    issues.append("发布前纳入=是 时风险级不得为不适用")
         block3 = h2(text, "3.")
         t_round = pick_table(block3, ["轮次", "目标"])
         if not t_round:
@@ -1302,8 +1415,12 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                     missing_evidence.append(f"{sc}:缺证据")
                 elif not resolve_evidence(path, test_root, evidence):
                     missing_evidence.append(f"{sc}:证据不存在 {evidence}")
-                if status == "阻塞" and not re.search(r"尝试|恢复|卡点|穷尽", actual or "", re.I):
-                    blocked_bad.append(f"{sc}:阻塞缺已尝试/恢复条件")
+                if status == "阻塞":
+                    actual_txt = actual or ""
+                    has_try = re.search(r"尝试|穷尽|造数|换样|换角|换入口|建号|赋权|已试", actual_txt, re.I)
+                    has_recover = re.search(r"恢复|卡点", actual_txt, re.I)
+                    if not (has_try and has_recover):
+                        blocked_bad.append(f"{sc}:阻塞须含已尝试(含自助手段)与卡点/恢复条件")
             if key == "P0" and status in ("失败", "阻塞", "待实现", "未执行", "未本轮验证"):
                 p0_fail.append(f"{sc}:{status}")
             if key == "P0" and status == "通过":
@@ -1715,17 +1832,51 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
 
 
 # ---------- writeback ----------
+def _is_writeback_receipt_name(name: str) -> bool:
+    u = name.upper()
+    return ("回执" in name) or ("回写" in name) or ("缺陷" in name) or ("BUG" in u)
+
+
+def _writeback_receipt_allowed(path: Path) -> bool:
+    """正式轨优先；允许 evidence 下文件名含回执/回写（排除归档与 .draft）。"""
+    parts = set(path.parts)
+    if parts & {"_archive", ".draft"}:
+        return False
+    if not _is_writeback_receipt_name(path.name):
+        return False
+    if is_current(path):
+        return True
+    # 例外：evidence/证据 内的回执/回写叶（正式证据树旁放回执时仍可过门）
+    if parts & {"evidence", "证据"} and (("回执" in path.name) or ("回写" in path.name)):
+        return True
+    return False
+
+
+def _writeback_receipt_rank(path: Path) -> tuple:
+    """优先 functional/api 正式轨回执，再 evidence 回执；同级取较新 mtime。"""
+    parts = path.parts
+    if "functional" in parts or "api" in parts:
+        tier = 0
+    elif "evidence" in parts or "证据" in parts:
+        tier = 1
+    else:
+        tier = 2
+    try:
+        mtime = path.stat().st_mtime
+    except OSError:
+        mtime = 0.0
+    return (tier, -mtime)
+
+
 def parse_writeback(test_root: Path) -> dict[str, Any]:
     receipts: list[Path] = []
     if test_root.is_dir():
         for p in test_root.rglob("*.md"):
-            if not is_current(p):
-                continue
-            if "回执" in p.name or "回写" in p.name or "缺陷" in p.name or "BUG" in p.name.upper():
+            if _writeback_receipt_allowed(p):
                 receipts.append(p)
     if not receipts:
         return {"issues": ["未找到回写凭据"], "path": None}
-    receipt = max(receipts, key=lambda p: p.stat().st_mtime)
+    receipt = sorted(receipts, key=_writeback_receipt_rank)[0]
     text = read(receipt)
     issues = []
     if not re.search(r"(BUG[-_]?\d+|#\d+)", text, re.I):

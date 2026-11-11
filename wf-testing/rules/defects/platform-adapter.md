@@ -24,7 +24,7 @@
 | 能力 | 语义（平台无关） | 适配须给出 |
 | --- | --- | --- |
 | 认证 | 登录/取 Token | 端点、凭据字段、刷新方式 |
-| 列表 / 查重 | 按指派/创建者/关键词拉未关闭单 | 过滤参数、分页、标题/路径字段 |
+| 列表 / 查重 | 按指派/创建者/关键词拉未关闭单；**节流**：先列表再本地过滤，少次 search | 过滤参数、分页、标题/路径字段；禁 8+ 同质 search |
 | 详情 | 读单全文 | 状态/指派/严重度/优先级/构建/历史备注/附件字段名 |
 | 建单 / 提交 | 新建缺陷或盯办单据 | 标题/正文/严重度/优先级/**类型（实机枚举）**/指派/构建等字段与取值；类型用法见 §0 |
 | 备注 | 追加评论（与状态同轮） | 评论端点、正文格式（html/md/text） |
@@ -51,10 +51,23 @@
 
 - Token：`POST /api.php/v1/tokens`；禁浏览器登录页。  
 - 建单 REST v1：`openedBuild=trunk`（禁 `0`/空）；`severity`/`pri` 传字符串 `"1"`…`"4"`；`type` **以实机 Bug 类型枚举为准**（常见含代码错误/配置相关/安装部署/安全相关/性能问题/标准规范/测试脚本/设计defects/其他等——**探查后匹配**，实现偏差常用 `codeerror`，配置/环境/设计口径等勿一律 `codeerror`）；产品缺陷有 `designdefect`（或实机「设计缺陷」）则用，否则标题或【提交摘要】首行写「产品缺陷」。指派与类型不明 → 问用户，禁瞎填。  
-- 附件：`POST /api.php/v2/files`，字段 **`file`** + `objectType=bug` + `objectID`（禁 v1）；非 ASCII 文件名按 UTF-8 原字节写入 multipart `filename`；回查 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`（v1 详情 `files` 可为空，**不得**据此判未挂载）。  
-- 备注：`POST /api.php/v1/bugs/{id}/assign`，body=`assignedTo`+`comment`（可同指派）；勿仅 `PUT /bugs/{id}`+`{comment}`。  
-- 读/回查：详情与列表用 v1；写后 `GET /api.php/v1/bugs/{id}` 核对 `status/resolution/assignedTo/lastEditedDate` 与最新 action（本轮若写备注则 `comment` 须可回读）；附件以 v2 元数据或页面附件区为准。  
+- **首次建单**：十段只进 `steps`；建单 body 可带 `assignedTo`；**禁止**建单后再 `assign+comment` 刷首条备注（非状态回写不触发 `confirm_remark`）。  
+- 附件：`POST /api.php/v2/files`，字段 **`file`** + `objectType=bug` + `objectID`（禁 v1）；非 ASCII 文件名按 UTF-8 原字节写入 multipart `filename`；回查优先 bug 详情 `files` 或 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`。  
+- 备注（关/激/解决等）：`POST /api.php/v1/bugs/{id}/assign`，body=`assignedTo`+`comment`（可同指派）；勿仅 `PUT /bugs/{id}`+`{comment}`。  
+- 读/回查：详情与列表用 v1；写后 `GET /api.php/v1/bugs/{id}` 核对 `status/resolution/assignedTo/lastEditedDate` 与最新 action（本轮若写备注则 `comment` 须可回读）；附件以 v2 元数据或详情 `files` 为准。  
 - resolution 常用取值（写回前仍以 §13 为准）：`fixed` / `notrepro` / `bydesign` / `duplicate` / `external` / `postponed` / `willnotfix` / `tostory`。
+
+### 列表 / 查重（Zentao · 节流）
+
+- **推荐顺序**：`GET /api.php/v1/products/{productId}/bugs?limit=N`（或基线列表端点）→ 本地过滤 title/status/assignedTo → 必要时再 `search=` **至多 1～2 次**高信号词。  
+- **禁止**：对十余个近义关键词连环 `search`（实测易返回同质近期单、无增量）。  
+- 查重产出：一份 JSON/表（候选 id/title/status/判定=新建|重复|相关）；交 `search` 步主上下文 ≤30 行。
+
+### 共用客户端（方法 · 可选脚本）
+
+- 实例可在 `{workroot}/scripts/` 或 `docs/.draft/` 放**一份** token/create/upload/verify 封装；各批只填 BUGS[]（标题/十段/附件路径）。  
+- 凭据只读基线 §13；禁把密码写入执行记录/平台 steps。  
+- 不强制包内附带可执行客户端；无脚本时按上列 REST 直调即可。
 
 ## 其它 provider
 

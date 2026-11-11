@@ -13,8 +13,10 @@
 
 ## 2. 续跑
 
-- 读 `activeContext` 运行状态里的 `packet=`，从该步继续；不从头重跑。
+- 读 `activeContext` 运行状态里的 `packet=`，**先用工具打开该步骤卡**，再从该步继续；不从头重跑。
+- 未打开 `packet=` → 不得写 `global=ok`、不得宣称已按本步包执行。
 - packet 丢失用 `workflows/<id>.md` 状态表定位；仍不明 → 停下问用户。
+- 同链中段：`global-rules` 按 §7 最小集复核，禁预防性通读全文/大手册。
 - 状态/心跳/计划同步细则见 `rules/core/global-rules.md` §8。
 
 ## 3. 回执
@@ -22,3 +24,5 @@
 ```text
 route=workflow:<id> | step=<id> | packet=<path> | global=ok | skills=<...|na> | claim=ALLOWED|DENIED|na | next=<...>
 ```
+
+> `packet=` 必须是本步已打开的步骤卡相对路径；`global=ok` = 已按 §7 复核且步骤卡已实读。

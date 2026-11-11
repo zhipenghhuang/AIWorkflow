@@ -517,17 +517,22 @@ WRAP_CARD = """### 本步规则卡：六点收尾（缺项=未收尾 · 形状�
 TEST_PLAN_CARD = """### 本步规则卡：先分析，再计划（本步门槛）
 
 - **模板**：分析 + 总排两份都填（见 §7）；轻量仅补丁/单模块且 `版本准出=否`。
-- **硬门槛**：① 方案为主参考；至少主读+1 互补源 ② 来源盘点含 UI/文案；§2.1 INT+Oracle；账本/矩阵可回指；计数被行数支撑（门查）③ 分析未确认不写计划；计划未确认不执行；覆盖闸未过不得称可执行 ④ 计划只总排；§0/§3.1 与分析联动 ⑤ §3.1 批次形态/并行/隔离按模板填（方法 §6）⑥ P0/P1/P2 均为覆盖义务。
+- **覆盖先后（硬）**：先按方案原文逐项完整入账（每个应测细节/设计点 → §2.1 INT+Oracle + 矩阵无空格），再写计划总排；**禁止**「先粗计划、细节执行时再补分析」。执行阶段才允许按现场自主打通/择优，不得用执行自主回补分析空账。
+- **硬门槛**：① 方案为主参考；至少主读+1 互补源 ② 应测细节/设计点入账；§2.1 INT+Oracle；覆盖面/方法矩阵无未接受空格；计数被行数支撑（门查）③ 分析未确认不写计划；计划未确认不执行；覆盖闸未过不得称可执行 ④ 计划只总排；§0/§3.1 与分析联动 ⑤ §3.1 按模板填 ⑥ P0/P1/P2 均为覆盖义务 ⑦ 准出/轨道纳入见 `multi-track-quality` §0+文首（默认硬纳入；整轨否仅白名单+接受人）。
 - **环境**：先读 `env-baseline.md` 命中节；缺基线先接入。
-- **预告**：执行三步序见 execute 卡；本步不预生成全量用例。做法见 §6。"""
+- **预告**：执行三步序见 execute 卡；本步不预生成全量用例≠可浅测。做法见 §6。"""
 
 TEST_EXECUTE_CARD = """### 本步规则卡：计划驱动执行编排（本步门槛）
 
 - **取档真值**：先读计划 §3.1；缺行按决策树补；隔离不成立 → 串行并记 `plan_batch_conflict`。取档详法见 §6 执行技能。
-- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`。
+- **开跑声明（不可省）**：`exec_mode=脚本|直跑|模块子代理|拆分` + `pg=PG-xx|na`；**须与计划 §3.1 一致**（不一致 → 改计划或记 `deviation=`+reason；禁表写子代理、实跑直跑长期并存）。
 - **子代理硬门槛**：模块/拆分档走 Task；一模块一新开；Reviewer fresh；返回 ≤30 行；不过门、不 git、不交平台、不改他模块。
-- **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成。
-- **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。"""
+- **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成；禁为通过率删负向/边界/证伪（`multi-track-quality` Q9）。
+- **阻塞锁（硬）**：缺数据/账号/入口临时不通 → 先自助造数/换样/换角/换入口（有界）；**未穷尽禁止落阻塞**；摘要须卡点+已尝试+恢复条件。终态表见 `classification.md` §0.4。
+- **基线锁（硬）**：开跑读命中节；造数/换样前查基线造数·样本节；本批打通的**新可复用** API/配方/样本/冲突 → **同轮**按基线「同步规则」回写；批末自检有则补齐、无则禁改。细则 SSOT：基线同步节 + §6 `test-data-and-environment`。
+- **证据终态制（硬）**：`evidence/` 只留断言终态（通常每 SC 1～2 叶）；中间探查/重试进 `.draft/`（`global-rules` §9）。UI 失败**当场**钉断言截图；禁留到交平台再补。
+- **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。
+- **同域锁（硬）**：结果/写操作页落通过前做同域自洽探针（方法 §6 执行技能 5.2）；同屏冲突/读写分裂/旁路假可过 → 禁选型通过（`classification.md` §0.5）。"""
 
 LIFECYCLE_CARD = """### 本步规则卡：文档治理扫描
 
@@ -576,6 +581,18 @@ WRITEBACK_CARD = """### 本步规则卡：平台回写
 - 备注须实质（现象/根因/修复/验证），禁只写「已修复/已处理」；未验证只写「待验证」。
 - 平台不支持附件 → 出 export，不假装已回写。"""
 
+DEFECT_SEARCH_CARD = """### 本步规则卡：查重节流
+
+- **义务**：提交前必查重；范围含未关闭/已解决/已关闭。
+- **节流（硬）**：先拉一份近期列表 → 本地按标题/模块/现象过滤 → 必要时至多 1～2 次高信号 search；**禁止** 8+ 同质关键词连环 search。
+- 产出一份 dedup 快照；主上下文候选判定 ≤30 行（见 `collaboration` §5.0.0、`platform-adapter`）。"""
+
+DEFECT_SUBMIT_CARD = """### 本步规则卡：投影交单与回执
+
+- **platform_submit**：发现即提交（计划预授权）｜批末/阶段末/收尾确认｜用户口令提交到平台（`collaboration` §6.1）。
+- **投影（硬）**：steps=执行失败详情投影；禁交单窗现网补截图/主键/文案；缺则回 execute 补采。
+- **回执**：优先 `functional/*回执*.md`（或 `api/`）；evidence 旁放须文件名含回执/回写；过 writeback 门。"""
+
 
 def step_card(pack_key: str, wid: str, sid: str) -> str:
     """Step-local rule card that replaces YAML notes (commit/wrap/plan-style)."""
@@ -609,10 +626,18 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
 # Append-only cards: keep YAML notes as 动作清单, then add short hard gates.
 STEP_CARDS_APPEND: dict[tuple[str, str, str], str] = {
     ("wf-testing", "testing", "execute"): TEST_EXECUTE_CARD,
+    ("wf-testing", "defect", "search"): DEFECT_SEARCH_CARD,
+    ("wf-testing", "defect", "submit"): DEFECT_SUBMIT_CARD,
 }
 
+# testing.plan：分析+计划双模板（primary=分析；dual_fill 依赖 templates≥2）
+PLAN_DUAL_TEMPLATES = (
+    "rules/templates/10-planning/test-analysis-template.md",
+    "rules/templates/10-planning/test-plan-template.md",
+)
+
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
-    ("wf-testing", "testing", "plan"): "rules/templates/10-planning/test-analysis-template.md",
+    ("wf-testing", "testing", "plan"): PLAN_DUAL_TEMPLATES[0],
     ("wf-testing", "testing", "execute"): "rules/templates/20-test-cases/test-case-template.md",
     ("wf-testing", "testing", "report"): "rules/templates/40-report-review/test-report-template.md",
     ("wf-testing", "handoff", "compose"): "rules/templates/90-handoff/handoff-note-template.md",
@@ -885,7 +910,7 @@ def render_chain_packet(
     full_note = "本链为全链入口；按表推进到下一个门/停点。" if chain_full else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
     return f"""# {wf_name} · `{wid}` 状态机
 
-> 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
+> 全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级：新会话/换链全文，中段最小集，禁预防性通读）。每步先**实读**当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 为续跑指针；已有测试计划时阶段语义以计划 §0 为准。**只读当前 packet**，不通读全链。
 
 ## 1. 入口与终止
 
@@ -1288,7 +1313,7 @@ def render_packet(
         )
 
     hard = (
-        "> **全局规则**：按 `rules/core/global-rules.md` §7 重读并遵守全文；心跳 `global=ok` 表示本步已按 §7 复核；未按 §7 复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。\n"
+        "> **全局规则**：按 `rules/core/global-rules.md` §7 **分级重读并遵守**（中段=最小集，禁每步通读全文）；须先打开本步骤卡；心跳 `global=ok`=已按 §7 复核且步骤卡已实读；未复核不得写 `global=ok`。偏离写 `global=dev:<原因>`。\n"
         "\n### 本步边界\n\n"
         "- **主从**：本包=本步目的/门槛/门/推进；§6 技能=做法；§7 模板=壳；global-rules=跨步场规则。本步专属门槛以本包为准，不把技能当第二套流程。\n"
         "- 只读本包 + §6 技能 + §7 模板；不通读他步/大手册。core/defects/collaboration 等具名索引按需打开当前节。\n"
@@ -1400,7 +1425,7 @@ def render_packet(
     )
     return f"""# 步骤卡 · {wid}/{sid}
 
-> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
+> 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级）；方法在 §6 指定节（打开→执行→回包）。**未打开本文件=未开跑本步**。不读他步 packet / 大手册。
 
 ## 1. 元信息
 
@@ -1526,6 +1551,11 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             )
             if primary and primary not in templates:
                 templates.insert(0, primary)
+            if pack_key == "wf-testing" and wid == "testing" and sid == "plan":
+                for t in PLAN_DUAL_TEMPLATES:
+                    if t not in templates:
+                        templates.append(t)
+                primary = PLAN_DUAL_TEMPLATES[0]
             packet_rel = f"rules/packets/{wid}/{sid}.md"
             if sid == "closeout":
                 step["must_read"] = ["rules/packets/_shared/closeout.md"]

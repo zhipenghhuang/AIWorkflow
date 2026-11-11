@@ -41,7 +41,7 @@
 | `analysis_coverage_required` | 本轮创建/更新分析或计划 | 纯只读/无分析/计划变更 |
 | `module_batch_complete` | 本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据；P0 失败须有缺陷/解释（非「零红灯才推进」） | 未跑完/记录未齐/证据缺 |
 | `platform_ask_required` | 本轮有拟交平台/新建缺陷单待确认（不含回写） | 无平台动作 |
-| `platform_submit` | 拟新建缺陷单/交平台 | 无新建/交平台 |
+| `platform_submit` | 拟新建缺陷单/交平台（含：发现即提交预授权｜批末/阶段末/收尾确认｜用户口令提交到平台；见 collaboration §6.1） | 无新建/交平台 |
 | `has_pending_commit` | 有文件变更待提交（git；≠平台门） | 无待提交 |
 | `docs_migration_needed` | 本步将搬迁/归档/清理 inbound 或工作文档且未确认清单 | 已确认/无搬迁 |
 | `iteration_close_needed` | 探测到下一期/换主题/版本升级且是否关本期不明确 | 已确认结束或明确并行不关 |

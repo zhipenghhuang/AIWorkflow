@@ -2,10 +2,11 @@
 
 > **用途**：测试规范 AI 入口。  
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 可选 1 模板；未路由时用 §2 口令表。  
-> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
-> **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → **先打开** `activeContext.packet=` 步骤卡（未打开=未开跑本步）→ 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
+> **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
+> **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只投影禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.10.07`  
+> **template_version**：`2026.11.11.08`  
 > **主链**：方案全细节分析 → 计划 → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -16,11 +17,11 @@
 1. **中文**；写现行结论。  
 2. **短读**：`activeContext` 总览 + `## 测试` 进行中（含 workflow/state/packet） + **偏好/洞见/坑 ≤3 行**（开局卡 §1；写法 `context-memory.md`）；身份：档案 §1 或 `env-baseline`（每新会话一次）。  
 3. **接入**：`wf-testing onboard: done` 则跳过；计划/执行/缺陷无标记时核验一次。  
-4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
+4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（**遵守**；重读分级见 §7，中段禁全文通读充数）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；**本步第一步工具读**须含当前 `packet=` 路径；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）。  
-8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；`global=ok`=本步已按 §7 复核）。
+8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；`global=ok`=本步已按 §7 复核且已实读当前步骤卡）。
 
 ### 0.0 事实与文档
 
