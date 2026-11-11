@@ -7,7 +7,11 @@ Checks:
 - required sections and summary-table columns
 - unique task IDs, valid status
 - every task has a task card with 验收标准/改动范围/verify/完成定义/方案条款
-- 方案条款（SC）表存在（或标不适用），且每条 SC 有来源
+- 方案条款（SC）表存在（或标不适用）；每条 SC 有非空原文、可打开来源、落点、合法入口类型
+- 来源文件可解析，来源 §章节在目标文档中存在（可打开，不靠自述）
+- 方案设计要点 D-xx 全覆盖：来源文档的设计要点表逐条须被本清单引用
+- 覆盖矩阵 §4.1 覆盖总表全部 R-xx，引用的 T-xx 必须存在
+- 给了 --coverage 时：清单 SC ↔ `.gate/plan-coverage.md` 双向闭合
 - dependency references resolve; no self-dependency
 - every summary row has a requirement point (R-xx)
 """
@@ -30,6 +34,101 @@ REQUIRED_COLUMNS = ["ID", "阶段", "任务", "要求点", "优先级", "风险"
 STATUSES = {"未开始", "进行中", "阻塞", "待验收", "完成", "取消"}
 ID_RE = re.compile(r"^T-\d+$")
 RP_RE = re.compile(r"\bR-\d+\b")
+SC_ID_RE = re.compile(r"^SC-\d+$")
+SC_ENTRY_TYPES = {"create", "generate", "submit", "query-enrich", "na"}
+SC_SOURCE_OK = re.compile(r"[/\\.]|§|#|章|节|画板|锚点|\.md|\.html|\.yaml|\.yml", re.I)
+SC_PLACEHOLDER = {"", "—", "-", "待填", "待补", "…", "{…}", "...", "原文", "来源", "不适用"}
+SOURCE_FILE_RE = re.compile(
+    r"[^\s`'\"|｜，,；;：:（）()\[\]【】<>§]+?\.(?:md|markdown|html?|ya?ml|json|txt)", re.I
+)
+SECTION_REF_RE = re.compile(r"§\s*(\d+(?:\.\d+)*)")
+HEADING_NUM_RE = re.compile(r"^#{1,6}\s*(\d+(?:\.\d+)*)")
+DESIGN_POINT_ROW_RE = re.compile(r"^\|\s*(D-\d{2})\s*\|")
+DESIGN_POINT_RE = re.compile(r"\bD-\d{2}\b")
+SC_REF_RE = re.compile(r"\bSC-\d+\b")
+NA_MARK = "不适用"
+
+
+def project_bases(doc: Path, root: Path | None) -> list[Path]:
+    """Directories a source path may be written relative to (root first)."""
+    out: list[Path] = []
+
+    def add(p: Path) -> None:
+        try:
+            rp = p.resolve()
+        except OSError:
+            return
+        if rp.is_dir() and rp not in out:
+            out.append(rp)
+
+    if root is not None:
+        add(root)
+    p = doc.resolve().parent
+    for _ in range(6):
+        add(p)
+        if p.parent == p:
+            break
+        p = p.parent
+    add(Path.cwd())
+    return out
+
+
+def source_candidates(token: str, bases: list[Path]) -> list[Path]:
+    t = token.replace("\\", "/")
+    while t.startswith("./"):
+        t = t[2:]
+    cands: list[Path] = []
+    if t.startswith("{workroot}/"):
+        rest = t[len("{workroot}/"):]
+        for sub in ("docs/development", "docs/product", "docs/testing", "docs"):
+            for b in bases:
+                cands.append(b / sub / rest)
+        for b in bases:
+            cands.append(b / rest)
+        return cands
+    for b in bases:
+        cands.append(b / t)
+    return cands
+
+
+def resolve_source_file(token: str, bases: list[Path]) -> Path | None:
+    if re.search(r"[{}…*?<>]", token):
+        return None
+    for cand in source_candidates(token, bases):
+        try:
+            if cand.is_file():
+                return cand.resolve()
+        except OSError:
+            continue
+    return None
+
+
+def scan_doc(path: Path, cache: dict[Path, tuple[set[str], set[str]]]) -> tuple[set[str], set[str]]:
+    """Return (numbered heading sections, design-point ids from table rows)."""
+    if path in cache:
+        return cache[path]
+    sections: set[str] = set()
+    points: set[str] = set()
+    try:
+        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        cache[path] = (sections, points)
+        return sections, points
+    for line in lines:
+        hm = HEADING_NUM_RE.match(line)
+        if hm:
+            sections.add(hm.group(1))
+        dm = DESIGN_POINT_ROW_RE.match(line.strip())
+        if dm:
+            points.add(dm.group(1))
+    cache[path] = (sections, points)
+    return sections, points
+
+
+def section_exists(sections: set[str], sec: str) -> bool:
+    if sec in sections:
+        return True
+    return any(n.startswith(sec + ".") or sec.startswith(n + ".") for n in sections)
 
 
 def split_row(line: str) -> list[str]:
@@ -53,17 +152,36 @@ def split_row(line: str) -> list[str]:
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("USAGE: validate_tasklist.py <task-list.md> [--lenient]")
+    argv = sys.argv[1:]
+    positional = [a for a in argv if not a.startswith("--")]
+    if not positional:
+        print(
+            "USAGE: validate_tasklist.py <task-list.md> [--lenient] "
+            "[--root <project-root>] [--coverage <.gate/plan-coverage.md>]"
+        )
         return 2
-    path = Path(sys.argv[1])
-    lenient = "--lenient" in sys.argv
+    path = Path(positional[0])
+    lenient = "--lenient" in argv
+
+    def opt(name: str) -> str:
+        if name in argv:
+            i = argv.index(name)
+            if i + 1 < len(argv) and not argv[i + 1].startswith("--"):
+                return argv[i + 1]
+        return ""
+
+    root_opt = Path(opt("--root")) if opt("--root") else None
+    coverage_opt = Path(opt("--coverage")) if opt("--coverage") else None
     if not path.exists():
         print(f"TASKLIST_MISSING: {path}")
         return 1
     text = path.read_text(encoding="utf-8")
     errors: list[str] = []
     warnings: list[str] = []
+    bases = project_bases(path, root_opt)
+    doc_cache: dict[Path, tuple[set[str], set[str]]] = {}
+    source_docs: set[Path] = set()
+    all_sc: set[str] = set()
 
     for section in REQUIRED_SECTIONS:
         if section not in text:
@@ -99,6 +217,7 @@ def main() -> int:
     ids: list[str] = []
     deps: dict[str, list[str]] = {}
     parallel: dict[str, str] = {}
+    summary_rps: set[str] = set()
     for row in rows:
         if not row or not row[0]:
             continue
@@ -116,6 +235,7 @@ def main() -> int:
         rp = row[header.index("要求点")] if "要求点" in header else ""
         if not RP_RE.search(rp) and not rp.startswith("{"):
             warnings.append(f"NO_RP: {tid}: {rp!r}")
+        summary_rps.update(RP_RE.findall(rp))
         dep = row[header.index("依赖")] if "依赖" in header else ""
         deps[tid] = re.findall(r"T-\d+", dep)
         parallel[tid] = row[header.index("并行")] if "并行" in header else ""
@@ -168,10 +288,11 @@ def main() -> int:
         for key in ("验收标准", "改动范围", "验证", "完成定义", "方案条款"):
             if key not in block:
                 errors.append(f"CARD_FIELD: {tid}: missing {key}")
-        # 方案条款（SC）是覆盖载体：允许「不适用」，但不允许整段缺失/无来源。
+        # 方案条款（SC）是覆盖载体：允许「不适用」，但不允许整段缺失/无来源/空原文。
         sc_rows = [ln for ln in block.splitlines() if ln.strip().startswith("| SC-")]
         if not sc_rows and "不适用" not in block:
             errors.append(f"CARD_SC: {tid}: 缺少方案条款（SC）表或「不适用」理由")
+        seen_sc: list[str] = []
         for line in sc_rows:
             cells = split_row(line)
             if len(cells) < 7:
@@ -179,9 +300,107 @@ def main() -> int:
                     f"CARD_SC_ROW: {tid}: SC 行列数不足 7（SC|原文|来源|落点|入口类型|证据|状态）"
                 )
                 continue
+            sid = cells[0].strip()
+            if not SC_ID_RE.match(sid):
+                errors.append(f"CARD_SC_ID: {tid}: {sid!r} 须为 SC-01 形式")
+            elif sid in seen_sc:
+                errors.append(f"CARD_SC_DUP: {tid}: 重复 {sid}")
+            else:
+                seen_sc.append(sid)
+            gist = cells[1].strip()
+            if gist in SC_PLACEHOLDER or gist.startswith("{"):
+                errors.append(f"CARD_SC_GIST: {tid}: {sid} 原文要点为空或占位")
             source = cells[2].strip()
-            if not source or source in ("—", "-", "待填", "待补", "…", "{…}"):
-                errors.append(f"CARD_SC_SOURCE: {tid}: {cells[0]} 缺少来源")
+            if source in SC_PLACEHOLDER or source.startswith("{"):
+                errors.append(f"CARD_SC_SOURCE: {tid}: {sid} 缺少来源")
+            elif not SC_SOURCE_OK.search(source):
+                errors.append(f"CARD_SC_SOURCE: {tid}: {sid} 来源须含路径或章节/画板/锚点")
+            else:
+                # 来源可打开：文件必须存在，§章节必须在目标文档里存在（禁自述覆盖）。
+                for token in SOURCE_FILE_RE.findall(source):
+                    doc = resolve_source_file(token, bases)
+                    if doc is None:
+                        errors.append(
+                            f"CARD_SC_SOURCE_UNRESOLVED: {tid}: {sid} 来源文件不存在或不可解析：{token}"
+                        )
+                        continue
+                    source_docs.add(doc)
+                    if sid and SC_ID_RE.match(sid):
+                        all_sc.add(sid)
+                    sec = SECTION_REF_RE.search(source)
+                    if sec:
+                        sections, _ = scan_doc(doc, doc_cache)
+                        if sections and not section_exists(sections, sec.group(1)):
+                            errors.append(
+                                f"CARD_SC_SOURCE_ANCHOR: {tid}: {sid} 来源章节 §{sec.group(1)} "
+                                f"在 {token} 中不存在"
+                            )
+                        elif not sections:
+                            warnings.append(
+                                f"CARD_SC_ANCHOR_UNVERIFIABLE: {tid}: {sid} {token} 无编号标题，"
+                                f"§{sec.group(1)} 无法机检（建议给文档加编号标题）"
+                            )
+            landing = cells[3].strip()
+            if landing in SC_PLACEHOLDER or landing.startswith("{"):
+                errors.append(f"CARD_SC_LANDING: {tid}: {sid} 实现落点为空或占位")
+            entry_raw = cells[4].strip().lower()
+            if entry_raw in (
+                "create/generate/submit/query-enrich/na",
+                "create|generate|submit|query-enrich|na",
+            ):
+                errors.append(f"CARD_SC_ENTRY: {tid}: {sid} 入口类型仍为模板枚举，未选定")
+            else:
+                entry_parts = [p.strip() for p in re.split(r"[/,|]", entry_raw) if p.strip()]
+                if not entry_parts or not all(p in SC_ENTRY_TYPES for p in entry_parts):
+                    errors.append(
+                        f"CARD_SC_ENTRY: {tid}: {sid} 入口类型须为 "
+                        f"create/generate/submit/query-enrich/na（可组合）"
+                    )
+
+    # 方案设计要点（D-xx）闭环：来源文档里的设计要点表须被本清单逐条引用。
+    point_docs: dict[Path, set[str]] = {}
+    for doc in source_docs:
+        _, points = scan_doc(doc, doc_cache)
+        if points:
+            point_docs[doc] = points
+    if point_docs:
+        referenced = set(DESIGN_POINT_RE.findall(text))
+        for doc, points in point_docs.items():
+            missing = sorted(points - referenced)
+            if missing:
+                errors.append(
+                    f"DESIGN_POINT_UNCOVERED: {doc.name} 的设计要点未被任何 SC 引用："
+                    + ", ".join(missing)
+                )
+
+    # 覆盖矩阵 §4.1 与总表要求点对齐（双向：不漏、不凭空）。
+    if "## 4. 覆盖矩阵" in text:
+        matrix = text.split("## 4. 覆盖矩阵", 1)[1].split("## 5.", 1)[0]
+        missing_rp = sorted(summary_rps - set(RP_RE.findall(matrix)))
+        if missing_rp:
+            errors.append(f"COVERAGE_MISSING_RP: 覆盖矩阵未列 {', '.join(missing_rp)}")
+        unknown_tasks = sorted({t for t in re.findall(r"\bT-\d+\b", matrix) if t not in id_set})
+        if unknown_tasks:
+            errors.append(f"COVERAGE_UNKNOWN_TASK: 覆盖矩阵引用不存在的任务 {', '.join(unknown_tasks)}")
+
+    # 计划 SC ↔ 方案覆盖矩阵双向闭合（由完成门在 L2+ 传入 --coverage）。
+    if coverage_opt and coverage_opt.is_file():
+        cov_text = coverage_opt.read_text(encoding="utf-8", errors="replace")
+        cov_sc = set(SC_REF_RE.findall(cov_text))
+        missing_sc = sorted(all_sc - cov_sc)
+        if missing_sc:
+            errors.append(
+                "COVERAGE_MISSING_SC: `.gate/plan-coverage.md` 未覆盖清单 SC："
+                + ", ".join(missing_sc)
+            )
+        fabricated = sorted(cov_sc - all_sc)
+        if fabricated:
+            errors.append(
+                "COVERAGE_UNKNOWN_SC: `.gate/plan-coverage.md` 引用了清单不存在的 SC："
+                + ", ".join(fabricated)
+            )
+    elif coverage_opt:
+        warnings.append(f"COVERAGE_FILE_MISSING: {coverage_opt}")
 
     # Parallel safety: [P] tasks must not depend on each other and must have
     # disjoint file scopes; at most 3 [P] tasks per wave.
@@ -226,10 +445,6 @@ def main() -> int:
                 for pb in scopes.get(b, set()):
                     if pa == pb or pa.startswith(pb + "/") or pb.startswith(pa + "/"):
                         errors.append(f"PARALLEL_FILE_CONFLICT: {a} / {b} 共享路径 {pa} / {pb}")
-
-    # Coverage matrix should mention at least one RP if summary has RPs.
-    if "## 4. 覆盖矩阵" in text and not RP_RE.search(text.split("## 4. 覆盖矩阵", 1)[1].split("## 5.", 1)[0]):
-        warnings.append("COVERAGE_EMPTY: no R-xx in 覆盖矩阵")
 
     for w in warnings:
         print(f"WARN: {w}")

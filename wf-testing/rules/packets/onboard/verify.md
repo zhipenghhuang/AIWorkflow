@@ -39,11 +39,9 @@
 
 ### 本步动作清单
 
-- 按 onboard-agent 接入清单核验（①～⑦，含写「wf-testing onboard: done」；若有旧 landing=ok 删除并改写），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。
-- 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`。
-- BLOCKED 不得打标。
-- 有挂起原口令则 resume。
-- 此后业务任务见标记直跑。
+- 按 onboard-agent 接入清单核验（：
+  - ①～。
+  - ⑦，含写「wf-testing onboard: done」；若有旧 landing=ok 删除并改写），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；BLOCKED 不得打标。 有挂起原口令则 resume；此后业务任务见标记直跑。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 

@@ -840,6 +840,31 @@ def skill_section_range(root: Path, name: str) -> tuple[int, int, str] | None:
 
 
 
+def skill_section_anchor(root: Path, name: str, start: int, end: int) -> str:
+    """Heading anchor (§a–§b) for a skill window; empty when headings are unnumbered."""
+    p = root / "skills" / name / "SKILL.md"
+    if not p.is_file():
+        return ""
+    lines = p.read_text(encoding="utf-8").splitlines()
+
+    def heading_no(idx: int) -> str:
+        if 0 <= idx < len(lines):
+            m = re.match(r"^##\s*(\d+)", lines[idx])
+            if m:
+                return m.group(1)
+        return ""
+
+    first = heading_no(start - 1)
+    last = ""
+    for j in range(min(end, len(lines)) - 1, start - 1, -1):
+        last = heading_no(j)
+        if last:
+            break
+    if first and last:
+        return f"§{first}–§{last}"
+    return ""
+
+
 def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
     if not skills:
         return (
@@ -863,7 +888,11 @@ def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
         rng = skill_section_range(root, sk)
         opened = "必做区 → 回本包"
         if rng:
-            opened = f"只读 L{rng[0]}-L{rng[1]}（{rng[2]}）→ 回本包"
+            anchor = skill_section_anchor(root, sk, rng[0], rng[1])
+            if anchor:
+                opened = f"只读 {anchor}（{rng[2]}），按标题定位 → 回本包"
+            else:
+                opened = f"只读 L{rng[0]}-L{rng[1]}（{rng[2]}）→ 回本包"
         lines.append(
             f"| `{sk}` | {level} | {when} | `skills/{sk}/SKILL.md` | {opened} |"
         )
@@ -1207,6 +1236,20 @@ def notes_to_howto(notes: str, current_wid: str | None = None) -> str:
     notes = neutralize_pointers(notes.strip(), current_wid)
     if not notes:
         return "按 §2 产出落盘；结果须可验证；有门则先过门。"
+    # Numbered clauses: keep one item per ①…⑩ so gates stay addressable and readable.
+    markers = "①②③④⑤⑥⑦⑧⑨⑩"
+    positions = [i for i, ch in enumerate(notes) if ch in markers]
+    if len(positions) >= 2:
+        lead = notes[: positions[0]].strip().strip("：:；;。 ")
+        numbered: list[str] = []
+        if lead:
+            numbered.append(f"- {lead}：")
+        for k, pos in enumerate(positions):
+            nxt = positions[k + 1] if k + 1 < len(positions) else len(notes)
+            seg = notes[pos:nxt].strip().strip("；;。 ")
+            if seg:
+                numbered.append(("  - " if lead else "- ") + f"{seg}。")
+        return "### 本步动作清单\n\n" + "\n".join(numbered)
     # Split on 。；; outside （）/() and backticks so paren lists stay intact.
     parts: list[str] = []
     buf: list[str] = []
@@ -1380,7 +1423,8 @@ def render_packet(
         open_lines.append(
             "- **填写模板（本步两份都填）**：`"
             + "`；`".join(uniq_tpl)
-            + "`；各只读本步用到的节，禁止整文件通读；分析模板先于计划模板。"
+            + "`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；"
+            "**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。"
         )
     elif primary_tpl:
         open_lines.append(

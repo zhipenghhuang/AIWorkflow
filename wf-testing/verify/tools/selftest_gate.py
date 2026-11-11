@@ -24,6 +24,30 @@ GOOD["docs/exploratory/登录-20261110-1100-探索记录.md"] = (
     "## 2. 发现\n\n无。\n"
 )
 
+GOOD["docs/capabilities/00-能力清单.md"] = (
+    "| 能力名 | 启用 | kind | impl | status | 详情 | 绑定 | verified |\n"
+    "| --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    "| `api-client` | 否 | none | — | missing | 降级 | — | 2026-11-10 |\n"
+)
+
+
+def _upgrade_plan(text: str) -> str:
+    text = text.replace(
+        "| 构建 / 版本 | b1 |",
+        "| 构建 / 版本 | b1 |\n| 构建封板 | build-b1 / 2026-11-10 10:00 |\n| 数据快照 | SEED-1 / 登录账号样本 |",
+    )
+    block = (
+        "\n### 3.3 冒烟清单\n\n"
+        "| SMK ID | 入口/路由 | 检查点 | 期望 | 证据 |\n"
+        "| --- | --- | --- | --- | --- |\n"
+    )
+    for i in range(1, 7):
+        block += f"| SMK-{i:02d} | /login | 登录页 | 可打开 | 截图 |\n"
+    return text + block
+
+
+GOOD["docs/test-plan.md"] = _upgrade_plan(GOOD["docs/test-plan.md"])
+
 _rec_path = "docs/functional/01-登录-执行记录.md"
 _rec = GOOD[_rec_path]
 _rec = _rec.replace("| 原文对账 |", "| 原文 / 对照 | PRD / 原型 #/login、#/home |\n| 原文对账 |")
@@ -169,6 +193,57 @@ def main() -> int:
                 "| S6 入口/可见/失败下一步 | 登录失败是否给原因与下一步 | 入口 | 已跑 |",
             ),
         }, "report", "FAIL", None,
+    ))
+
+    cases.append((
+        "oracle-vague", mutated(
+            "docs/test-analysis.md",
+            "状态码 401 且提示账号或密码错误",
+            "阻断并定位",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "batch-capacity", mutated(
+            "docs/test-plan.md",
+            "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN | 直跑 |",
+            "| B-R1-01 | 登录 | "
+            + "、".join(f"INT-900-{i:02d}" for i in range(1, 37))
+            + " | 直跑 |",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "batch-all-shortcut", mutated(
+            "docs/test-plan.md",
+            "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN |",
+            "| B-R1-01 | 登录 | 全部 |",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "plan-no-freeze", mutated(
+            "docs/test-plan.md",
+            "\n| 构建封板 | build-b1 / 2026-11-10 10:00 |",
+            "",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "smk-undeclared", mutated(
+            "docs/test-plan.md",
+            "| SMK ID | 入口/路由 | 检查点 | 期望 | 证据 |",
+            "| 编号 | 入口 | 检查点 | 期望 | 证据 |",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "capability-unaccepted", mutated(
+            "docs/test-plan.md",
+            "**脚本优先**：登录冒烟优先脚本。",
+            "**脚本优先**：api-client 回放，登录冒烟优先。",
+            GOOD,
+        ), "coverage", "FAIL", None,
     ))
 
     failed = 0

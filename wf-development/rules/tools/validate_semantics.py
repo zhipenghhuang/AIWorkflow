@@ -19,6 +19,11 @@ import yaml
 
 RESIDUE = ("//", "→。", "→；", "→ /")
 REQUIRED_PACKET_MARKS = ("- **角色**：", "- **上游**：", "- **后续**：", "- **失败去向**：")
+# 每步读链上限（packet + 必开技能窗口）。execute 为一次性 setup 成本、含 3 个必开方法技能，
+# 单列上限；其余步沿用默认。packet 本体另有 7k 上限，防止步骤卡自身膨胀。
+STEP_CAPS = {"execute": 14000}
+STEP_SOFT = {"execute": 10000}
+PACKET_CAP = 7000
 
 
 def approx_tokens(text: str) -> int:
@@ -27,7 +32,7 @@ def approx_tokens(text: str) -> int:
 
 
 def skill_window_bytes(root: Path, name: str, packet_text: str) -> int:
-    """Byte size actually read for a must-open skill: use the packet's Lx-Ly window."""
+    """Byte size actually read for a must-open skill: resolve §a–§b anchor (or legacy Lx-Ly)."""
     sp = root / "skills" / name / "SKILL.md"
     if not sp.is_file():
         return 0
@@ -44,6 +49,26 @@ def skill_window_bytes(root: Path, name: str, packet_text: str) -> int:
             start, end = int(m.group(1)), int(m.group(2))
             chunk = "\n".join(lines[start - 1:end])
             return len(chunk.encode("utf-8"))
+        a = re.search(r"只读 §(\d+)–§(\d+)", cells[4])
+        if a:
+            first, last = int(a.group(1)), int(a.group(2))
+            start_i = end_i = None
+            for i, ln in enumerate(lines):
+                hm = re.match(r"^##\s*(\d+)", ln)
+                if not hm:
+                    continue
+                if start_i is None and int(hm.group(1)) == first:
+                    start_i = i
+                if start_i is not None and int(hm.group(1)) == last:
+                    end_i = i
+            if start_i is not None and end_i is not None:
+                stop = len(lines)
+                for j in range(end_i + 1, len(lines)):
+                    if re.match(r"^##\s", lines[j]):
+                        stop = j
+                        break
+                chunk = "\n".join(lines[start_i:stop])
+                return len(chunk.encode("utf-8"))
         break
     return len(data.encode("utf-8"))
 
@@ -138,13 +163,20 @@ def main() -> int:
             for name in must_skills:
                 total += skill_window_bytes(root, name, text)
             tok = int(total / 3.6)
-            if tok > args.max_tokens:
+            cap = STEP_CAPS.get(sid, args.max_tokens)
+            soft = STEP_SOFT.get(sid, args.soft_tokens)
+            pkt_tok = int(len(text.encode("utf-8")) / 3.6)
+            if pkt_tok > PACKET_CAP:
                 warnings.append(
-                    f"BUDGET: {wid}/{sid} ~{tok} tokens > {args.max_tokens}（超重步上限，须拆）"
+                    f"PACKET_BUDGET: {wid}/{sid} 步骤卡 ~{pkt_tok} tokens > {PACKET_CAP}（卡体须瘦身）"
                 )
-            elif tok > args.soft_tokens:
+            if tok > cap:
+                warnings.append(
+                    f"BUDGET: {wid}/{sid} ~{tok} tokens > {cap}（超重步上限，须拆）"
+                )
+            elif tok > soft:
                 infos.append(
-                    f"HEAVY: {wid}/{sid} ~{tok} tokens（重步；默认允许，超 12k 才拆）"
+                    f"HEAVY: {wid}/{sid} ~{tok} tokens（重步；默认允许，超 {cap} 才拆）"
                 )
 
     for w in warnings:

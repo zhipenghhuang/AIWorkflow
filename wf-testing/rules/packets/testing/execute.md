@@ -47,25 +47,14 @@
 
 ### 本步动作清单
 
-- 本步任务：按计划执行全部在范围 P0/P1/P2 意图（功能/接口/探索/发布前/回归）。
-- 开跑前读 `env-baseline.md` 命中节。
-- 取档以计划 §3.1 为真值。
-- 开跑声明 `exec_mode=`+`pg=`。
-- **硬门槛**：① 执行三步序（禁只读分析、禁先看分析再找原文；方法 §6 执行技能；偏差分型见 `rules/defects/classification.md`）② 执行记录原文对账齐（未关 0；缺口仅用户确认 Q19）③ 功能六类有面对须 SC（无面对才 N/A+事实句）④ 全部 `处置=测` 意图终态。
-- P0 须证伪。
-- 深度 multi-track Q17。
-- 禁浅打勾、禁为通过率删负向（Q9）⑤ INT 须在分析意图台账。
-- 意图结论回指场景表 ⑥ 计划含接口轨须非空 `api/` 契约记录+场景表+depth（脚本不顶替；Q18）。
-- 发布前已纳入须先建方案+硬映射再执行（接受人禁顶替，Q19）。
-- 探索已跑须非空记录 ⑦ 缺数据/账号/入口临时不通须先自助造数换样换角（有界）。
-- 未穷尽禁阻塞。
-- 阻塞摘要须卡点+已尝试+恢复条件 ⑧ 批末跑 execute 闸并更新计划状态。
-- 失败/待实现留证进缺陷。
-- 真阻塞进盯办。
-- 证据终态制+失败当场截图（见规则卡）。
-- exec_mode 与计划 §3.1 对齐。
-- 模板见 §7。
-- 做法见 §6。
+- 本步任务：按计划执行全部在范围 P0/P1/P2 意图与轨道（功能/接口/探索/发布前/回归）。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**硬门槛**：
+  - ① 执行记录原文对账齐（可验收单元 N；未关 0，缺口仅用户确认 Q19）。
+  - ② 功能六类有面对须 SC（无面对才 N/A+事实句）。
+  - ③ 全部 `处置=测` 意图终态；P0 须证伪；深度按 Q17；禁浅打勾、禁删负向（Q9）。
+  - ④ INT 须在分析 §2.1 台账；意图结论回指场景表。
+  - ⑤ 计划含接口轨须非空 `api/` 契约记录+场景表+depth（Q18）；发布前须先建方案+硬映射；探索已跑须非空记录。
+  - ⑥ 缺数据/账号/入口先自助造数/换样/换角（有界），未穷尽禁阻塞；阻塞摘要须卡点+已尝试+恢复条件。
+  - ⑦ 批末跑 execute 闸并更新计划状态；失败/待实现留证进缺陷，真阻塞进盯办。
 
 ### 本步规则卡：计划驱动执行编排（本步门槛）
 
@@ -86,12 +75,12 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 L13-L130（硬门槛+方法+反合理化）→ 回本包 |
-| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 L14-L151（必做+处置/判定/反合理化）→ 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L81（硬门槛+方法+反合理化）→ 回本包 |
-| `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 L11-L64（必做+处置/判定/反合理化）→ 回本包 |
-| `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 L11-L69（硬门槛+方法+反合理化）→ 回本包 |
-| `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 只读 L13-L93（硬门槛+方法+反合理化）→ 回本包 |
+| `testcase-design` | **必开** | 进入本步即开（质量不降） | `skills/testcase-design/SKILL.md` | 只读 §1–§8（硬门槛+方法+反合理化），按标题定位 → 回本包 |
+| `test-execution-and-exploration` | **必开** | 进入本步即开（质量不降） | `skills/test-execution-and-exploration/SKILL.md` | 只读 §0–§9（必做+处置/判定/反合理化），按标题定位 → 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 §1–§7（硬门槛+方法+反合理化），按标题定位 → 回本包 |
+| `test-interface` | 条件开 | 计划含接口轨/执行接口批 | `skills/test-interface/SKILL.md` | 只读 §0–§7（必做+处置/判定/反合理化），按标题定位 → 回本包 |
+| `test-performance-security-compatibility` | 条件开 | 计划含发布前/性能/安全/兼容 | `skills/test-performance-security-compatibility/SKILL.md` | 只读 §1–§7（硬门槛+方法+反合理化），按标题定位 → 回本包 |
+| `ai-feature-testing` | 条件开 | 被测含 LLM/RAG/Agent | `skills/ai-feature-testing/SKILL.md` | 只读 §1–§9（硬门槛+方法+反合理化），按标题定位 → 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。

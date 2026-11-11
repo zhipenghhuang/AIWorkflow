@@ -27,6 +27,11 @@ BACKEND_SUFFIXES = (
 BAD_STATUS_RE = re.compile(r"未完成|未通过|不通过|需修|阻塞|未覆盖|待填|待补|部分")
 NEG_RE = re.compile(r"未通过|不通过|需修|阻塞|部分|未覆盖|缺口\s*[:：]?\s*[1-9]")
 POS_RE = re.compile(r"^(?:通过|PASS|pass)(?:\s|$|[（(：:，,])", re.I)
+CLAUSE_REF_RE = re.compile(r"\b(?:SC|AC|R)-\d+\b")
+NA_MARK = "不适用"
+SOURCE_FILE_RE = re.compile(r"[^\s`'\"|｜，,；;：:（）()\[\]【】<>]+?\.(?:md|markdown|html?|ya?ml|txt)", re.I)
+SOURCE_PLACEHOLDER = {"", "—", "-", "待填", "待补", "…", "{…}", "...", "无", "na", "NA"}
+SOURCE_LABELS = ("需求基线", "方案/ADR", "方案", "原型/设计说明")
 
 
 def _level_rank(level: str) -> int:
@@ -64,10 +69,16 @@ def _data_rows(block: str) -> list[list[str]]:
 
 
 def _bad_status_rows(block: str) -> list[str]:
-    """Rows whose status is missing or explicitly not done must not pass."""
+    """Rows whose status is missing or explicitly not done must not pass.
+
+    A row marked 不适用 (no frontend change) is a filled statement, not an
+    unfinished row; the template asks for exactly that row.
+    """
     bad: list[str] = []
     for cells in _table_rows(block):
         if not cells or not cells[0] or cells[0] in HEADER_FIRST:
+            continue
+        if any(NA_MARK in (c or "") for c in cells):
             continue
         status = (cells[-1] or "").strip()
         if not status or BAD_STATUS_RE.search(status):
@@ -76,15 +87,61 @@ def _bad_status_rows(block: str) -> list[str]:
 
 
 def _explicit_na(block: str) -> bool:
-    """Only a filled line starting with 不适用 counts as N/A.
+    """Only a filled line/row starting with 不适用 counts as N/A.
 
     The template's instruction line (which starts with '>') must not count.
     """
     for line in block.splitlines():
         text = line.strip().lstrip("-* ").strip()
-        if text.startswith("不适用"):
+        if text.startswith(NA_MARK):
             return True
+        if text.startswith("|"):
+            for cell in (c.strip() for c in text.strip("|").split("|")):
+                if cell.startswith(NA_MARK):
+                    return True
     return False
+
+
+def _source_value(text: str, label: str) -> str:
+    for line in text.splitlines():
+        m = re.match(rf"^[-*]?\s*{re.escape(label)}\s*[:：]\s*(.+)$", line.strip())
+        if m:
+            return m.group(1).strip()
+    return ""
+
+
+def _resolves(token: str, project_root: Path) -> bool:
+    bases = [project_root, project_root / "docs", project_root / "docs" / "development",
+             project_root / "docs" / "product", project_root / "docs" / "testing"]
+    t = token.replace("\\", "/").lstrip("./")
+    candidates = []
+    if t.startswith("{workroot}/"):
+        rest = t[len("{workroot}/"):]
+        candidates += [b / rest for b in bases]
+        candidates += [b / "development" / rest for b in bases]
+    else:
+        candidates += [b / t for b in bases]
+    return any(c.is_file() for c in candidates)
+
+
+def _check_sources(text: str, project_root: Path) -> list[str]:
+    """§1 来源须填写且可解析（禁凭空虚设覆盖矩阵）。"""
+    problems: list[str] = []
+    filled = False
+    for label in SOURCE_LABELS:
+        value = _source_value(text, label)
+        if not value:
+            continue
+        filled = True
+        plain = value.strip().strip("`*_ ").strip()
+        if plain in SOURCE_PLACEHOLDER or plain.startswith("不适用"):
+            continue
+        for token in SOURCE_FILE_RE.findall(value):
+            if not _resolves(token, project_root):
+                problems.append(f"plan-coverage.md 「{label}」来源不可解析：{token}")
+    if not filled:
+        problems.append("plan-coverage.md §1 缺少来源行（需求基线 / 方案/ADR）")
+    return problems
 
 
 def _section(text: str, heading: str) -> str:
@@ -147,6 +204,10 @@ def validate(project_root: Path, level: str, files: list[str]) -> tuple[list[str
     )
     if code_changed and not _has_real_row(backend):
         problems.append("plan-coverage.md 后端/功能覆盖无有效行")
+    elif code_changed:
+        backend_rows = _data_rows(backend)
+        if backend_rows and not any(CLAUSE_REF_RE.search(cells[0] or "") for cells in backend_rows):
+            problems.append("plan-coverage.md 后端/功能行首列须含 SC-/AC-/R- 引用")
     if frontend_changed and not _has_real_row(frontend) and not _explicit_na(frontend):
         problems.append("plan-coverage.md 前端覆盖无有效行且未声明不适用")
     bad_backend = _bad_status_rows(backend)

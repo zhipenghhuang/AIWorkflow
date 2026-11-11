@@ -252,6 +252,44 @@ def weak_oracle(s: str) -> bool:
     return is_blank(t) or bool(WEAK_ORACLE_RE.match(t))
 
 
+ORACLE_SIGNALS = (
+    r"[=＝≥≤<>]|等于|不超过|至少|大于|小于|不超",
+    r"状态|可查|显示|拒绝|阻断|不变|保留|不出现|可下钻|可复制|可见|可达|打开|禁用|提示|下一步|撤销|幂等",
+    r"[元分件次条行张%％天笔]|字段|数量|金额|日期|批次|编号|入口|页面",
+)
+
+
+def strong_oracle(s: str) -> bool:
+    """Oracle 须可判定：含数值；或 ≥24 字且有状态/字段/比较/引号标识；或足够具体的长句。"""
+    t = (s or "").strip()
+    if len(t) < 10:
+        return False
+    if re.search(r"\d", t):
+        return True
+    anchored = bool(re.search(r"状态|可查|显示|拒绝|阻断|不变|保留|可下钻|可见|可达|禁用|提示|下一步", t))
+    anchored = anchored or bool(re.search(r"[元分件次条行张%％天笔]|字段|数量|金额|日期|批次|编号|入口|页面", t))
+    anchored = anchored or bool(re.search(r"[=＝≥≤<>]|等于|不超过|至少|大于|小于", t))
+    anchored = anchored or ("「" in t and "」" in t)
+    return (len(t) >= 24 and anchored) or len(t) >= 40
+
+
+def expand_int_ranges(s: str) -> str:
+    """Expand INT-X-01~09 / INT-X-01～09 to explicit ids so batch coverage is exact."""
+
+    def repl(m: re.Match[str]) -> str:
+        prefix, a, b = m.group(1), int(m.group(2)), int(m.group(3))
+        if b < a or b - a > 200:
+            return m.group(0)
+        width = len(m.group(2))
+        return "、".join(f"INT-{prefix}-{i:0{width}d}" for i in range(a, b + 1))
+
+    return re.sub(
+        r"INT-([A-Z0-9]+)-(\d{2,})\s*[~～至]\s*(?:INT-[A-Z0-9]+-)?(\d{2,})",
+        repl,
+        s,
+    )
+
+
 def conditional_acceptor_ok(text: str) -> bool:
     """CONDITIONAL：§4 缺口表须有非空接受人行（禁全文碰巧出现「接受人」）。"""
     block = h2(text, "4.")
@@ -299,9 +337,14 @@ def track_record_substance(path: Path, kind: str) -> bool:
     if kind == "api":
         has_ep = ("契约" in body) or bool(re.search(r"\bEP[-_A-Z0-9]", body))
         has_sc = ("场景" in body) or bool(re.search(r"\bSC[-_A-Z0-9]", body))
-        return has_ep and has_sc
+        rows = [ln for ln in body.splitlines() if ln.strip().startswith("|")]
+        return has_ep and has_sc and len(rows) >= 6 and bool(re.search(r"\bSC[-_][A-Z0-9]", body))
     if kind == "pre-release":
-        return any(k in body for k in ("硬映射", "必测面", "指标", "结论", "达标"))
+        rows = [ln for ln in body.splitlines() if ln.strip().startswith("|")]
+        has_hdr = any(("必测面" in ln and "结果" in ln) for ln in rows)
+        data = [ln for ln in rows if not re.match(r"^\|\s*[-: ]+\|", ln) and "必测面" not in ln]
+        graded = [ln for ln in data if re.search(r"达标|未达标|缺口|待测", ln)]
+        return has_hdr and len(graded) >= 3
     return True
 
 
@@ -564,6 +607,10 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                     issues.append(f"§2.1 {iid} 缺 {name}")
             if weak_oracle(cell(row, headers, "Oracle")):
                 issues.append(f"§2.1 {iid} Oracle 过弱（须可观测断言，禁「通过/正常」）")
+            elif not strong_oracle(cell(row, headers, "Oracle")):
+                issues.append(
+                    f"§2.1 {iid} Oracle 不可判定（须含数值/比较/状态或字段单位等 ≥2 类信号）"
+                )
             pri = cell(row, headers, "优先级")
             disp = cell(row, headers, "处置")
             if is_p0(pri):
@@ -1170,10 +1217,14 @@ def parse_plan(path: Path) -> dict[str, Any]:
                     issues.append(f"§3.1「{row[0]}」缺模块/域")
                 scope_cell = cell(row, headers, "意图范围")
                 bid = str(row[0]).strip()
-                row_ints = set(longest_int_refs(scope_cell))
+                row_ints = set(longest_int_refs(expand_int_ranges(scope_cell)))
                 if "全部" in scope_cell:
                     batch_all = True
                     batch_all_ids.add(bid)
+                if len(row_ints) > 35 and not re.search(r"模块子代理|拆分", mode or ""):
+                    issues.append(
+                        f"§3.1「{bid}」意图 {len(row_ints)} > 35，须拆批或形态=模块子代理/拆分"
+                    )
                 batch_intents.update(row_ints)
                 batches[bid] = row_ints
                 pg = (cell(row, headers, "并行组") or "").strip()
@@ -1268,6 +1319,13 @@ def parse_plan(path: Path) -> dict[str, Any]:
             need = 4 if risk_tier in ("T2", "T3") else 3
             if charter_rows < need:
                 issues.append(f"§3.2 探索章程仅 {charter_rows} 条，{risk_tier} 须 ≥{need} 条")
+    if tier == "full":
+        for label in ("构建封板", "数据快照"):
+            if not re.search(rf"^\|\s*{label}\s*\|\s*\S", text, re.M):
+                issues.append(f"§2.2 缺「{label}」行（开跑封板/数据快照须可追溯）")
+        smk_ids = set(re.findall(r"SMK-\d+", text))
+        if not re.search(r"\|\s*SMK\s*ID\s*\|", text) or len(smk_ids) < 6:
+            issues.append("§3.3 冒烟清单缺失或不足 6 条（SMK 须有入口/期望，R0 前生成）")
     return {"path": str(path), "issues": issues, "tier": tier, "state": state,
             "version_release": version_release, "outing": outing, "risk_tier": risk_tier,
             "counts": counts, "suite": suite, "depth": depth,
@@ -1959,10 +2017,11 @@ def cross_check_plan_analysis(analysis: dict[str, Any], plan: dict[str, Any],
             and int(analysis.get("detail_yes", 0)) == 0):
         issues.append("T1+ 功能计划的分析细节维全部为否（至少一个适用维，或调整轨道/口径）")
     required = {iid for iid, meta in intents.items() if is_test_disp(meta.get("disp", ""))}
-    if plan.get("tier") == "full" and required and not plan.get("batch_all"):
+    if plan.get("tier") == "full" and required:
         missing = sorted(required - set(plan.get("batch_intents", set())))
         if missing:
-            issues.append("计划 §3.1 批次意图范围未覆盖：" + "、".join(missing[:8]))
+            hint = "（写「全部」须同时列明或展开意图）" if plan.get("batch_all") else ""
+            issues.append("计划 §3.1 批次意图范围未覆盖" + hint + "：" + "、".join(missing[:8]))
     return issues
 
 
@@ -2042,6 +2101,32 @@ def main() -> int:
                 link_issues = cross_check_plan_analysis(analysis, plan, plan_text)
                 checks.append({"id": "plan-analysis-link", "status": "fail" if link_issues else "pass",
                                "detail": link_issues[:8] or "plan linked to analysis"})
+            if args.mode == "coverage" and plan_path.is_file():
+                touched = [n for n in ("api-client", "api-fuzz", "sec-scan") if n in plan_text]
+                if touched:
+                    cap = find_workroot(project_root) / "capabilities" / "00-能力清单.md"
+                    cap_issues: list[str] = []
+                    if not cap.is_file():
+                        cap_issues.append("缺 capabilities/00-能力清单.md")
+                    else:
+                        cap_text = read(cap)
+                        for name in touched:
+                            row_line = next(
+                                (ln for ln in cap_text.splitlines()
+                                 if ln.startswith("|") and f"`{name}`" in ln),
+                                "",
+                            )
+                            if not row_line:
+                                cap_issues.append(f"{name} 未登记")
+                            elif "available" not in row_line and not (
+                                "degraded" in row_line and "accepted=" in row_line
+                            ):
+                                cap_issues.append(f"{name} 未标 accepted=（降级须回写）")
+                    checks.append({
+                        "id": "capability-degrade",
+                        "status": "fail" if cap_issues else "pass",
+                        "detail": cap_issues[:6] or f"degraded-accepted={touched}",
+                    })
 
     if args.mode in ("execute", "report"):
         state_ok = plan.get("state") in ("已确认", "执行中", "待关闭")

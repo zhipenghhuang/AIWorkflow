@@ -16,7 +16,8 @@
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出按风险完整集并实测（大改动/高风险全节），报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
-**任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md>`；SC 表/来源缺失或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 可在准出前再硬拦一次。  
+**任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md>`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 可在准出前再硬拦一次。  
+**实施质量字段**：L1+ 有代码时验收清单须含 `implement_preflight` + `sc_trace`（Markdown 可用「实施预检」行 + SC 表）；缺或 `missing` → BLOCKED。
 
 
 ## 2. 一次任务怎么跑

@@ -72,9 +72,12 @@ if ($Tasklist) {
         exit 1
     }
     $validator = Join-Path $packageRoot 'rules/tools/validate_tasklist.py'
-    & $python.Source -B $validator $tasklistPath
+    $tlArgs = @($validator, $tasklistPath, '--root', $root)
+    $coveragePath = Join-Path $root '.gate/plan-coverage.md'
+    if (Test-Path -LiteralPath $coveragePath) { $tlArgs += @('--coverage', $coveragePath) }
+    & $python.Source -B @tlArgs
     if ($LASTEXITCODE -ne 0) {
-        Write-Output 'TASKLIST_INVALID: SC 表/来源缺失，或 [P] 文件重叠/相互依赖/并行>3/结构不合法；不进入完成门'
+        Write-Output 'TASKLIST_INVALID: SC 表/来源/原文/入口类型不合法，或 [P] 冲突/结构错误；不进入完成门'
         exit 1
     }
 }

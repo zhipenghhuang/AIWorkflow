@@ -45,7 +45,7 @@
 
 - 先确认范围/AC/非目标；未确认不拆单。
 - 每条 AC/Then/异常/权限/数据/跨层抽成 SC；无 SC 不开工（L0 除外）；裁剪写债项。
-- 每条 SC 必填 `来源=`（可打开的文件路径 + 章节/画板/锚点）；缺来源回指 → 不得 `confirm_backlog`。
+- 每条 SC 必填可打开的路径+章节/画板/锚点、非空原文、落点、入口类型；`validate_tasklist.py` FAIL → 不得 `confirm_backlog`。
 - 任务卡含 DoR/DoD/依赖/并行；并行 >3 或文件重叠 → 拆批。
 - 只读不改代码；清单经 `confirm_backlog` 后实施。
 

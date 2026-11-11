@@ -188,6 +188,12 @@ def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None
                 "【遵守自检】sync= 含版本/发布/门面类表述时建议含 冷层:ok|na|deferred:<因>（见 doc-facade-sync）"
             )
 
+    # Capability degradation must be visible as a standalone block when touched.
+    if re.search(r"api-client|api-fuzz|sec-scan", text) and "【能力缺失】" not in text:
+        warnings.append(
+            "涉及缺失能力时须单列【能力缺失】块（capabilities/00-contract §2.2），不得只在行内提一句"
+        )
+
     # Economy receipt: required for testing/execute; optional elsewhere (warn if half-filled).
     has_exec_mode = "exec_mode=" in body
     has_pg = "pg=" in body

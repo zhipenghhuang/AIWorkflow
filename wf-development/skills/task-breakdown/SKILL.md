@@ -76,7 +76,7 @@ description: Use when an approved requirement or design must be broken into exec
 - [ ] 每个任务可独立验收；L 任务已拆；高风险任务已前置。  
 - [ ] `[P]` 任务不同文件、无未完成依赖。  
 - [ ] 有检查点；每个检查点有可执行验证。  
-- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；每条 SC 有可打开的 `来源=`；Then/异常/角色正反/第二次写/**字段清单·枚举·可空**/跨章通用校验已覆盖或债项化；触发链已标入口类型且非仅 `query-enrich`（细则 `implementation-quality.md` DEV-IQ-01/12）。  
+- [ ] 每任务有 SC 表（或标不适用）；**未进 SC 的方案/PRD 条款数=0**（否则 OPEN/债项）；每条 SC 有可打开来源+非空原文+落点+合法入口类型；跑通 `validate_tasklist.py`；Then/异常/角色正反/第二次写/**字段清单·枚举·可空**/跨章通用校验已覆盖或债项化；触发链入口类型非仅 `query-enrich`（DEV-IQ-01/12）。  
 - [ ] 命中权限/状态/数据基数/多表面时，四维矩阵已填；每个 Then/异常/角色正反/第二次写都有行。  
 - [ ] 任务清单有变更记录；未覆盖旧清单前先问用户。  
 - [ ] 运行 `python rules/tools/validate_tasklist.py <清单路径>` 通过（如可用）。

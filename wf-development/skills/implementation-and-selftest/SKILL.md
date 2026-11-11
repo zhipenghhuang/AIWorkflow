@@ -17,7 +17,7 @@ description: Use when implementing or verifying a change. Enforce implement pref
 3. 输出【实施预检】（DEV-IQ-09）；**命中面须先扩成 SC/债项 ID**，否则预检无效、禁改码；命中面同批硬补（DEV-IQ-10）。  
 4. 编码只跟 SC；**单元 = 一条 SC**；禁语义替换；预期只认 SC/AC（禁刷绿）。  
 5. 有 UI → 遵守 `frontend-gate`；有原型 → 已加载 product-doc-analysis；状态/KPI **单一映射源**；有阻断则先不可用再可点。  
-6. 完成前：自测证据 + 方案盘点已关 + 已结合分析理解 + 实施择优偏离留痕 + 方案回指抽查（P0/高风险逐条）+（L2+）plan-coverage；`-Claim` 仅在 ALLOWED 后写完成。  
+6. 完成前：自测证据 + 方案盘点已关 + 已结合分析理解 + 实施择优偏离留痕 + 方案回指抽查（P0/高风险逐条）+ 验收清单 `implement_preflight`/`sc_trace` 已写 +（L2+）plan-coverage；`-Claim` 仅在 ALLOWED 后写完成。  
 7. 回执 `skills=implementation-and-selftest`（+ 端技能名）。
 
 ## 0.1 实现前确认

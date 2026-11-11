@@ -35,7 +35,7 @@
 - **L0**：纯文档/文案/注释；不强制验收清单；门核 `docs-links`/`docs-placeholders`；空 diff=`NOT_VERIFIED`，不得报完成。
 - **L1**：写在任务卡/开发卡里的验收表（至少含 `AC | 判定 | 检查 | 证据`）；`change` 单点用开发卡（模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`），`iterate` 用任务清单。运行门时用 `-Acceptance <开发卡/任务清单>` 显式传入；不传且无 `.gate/acceptance.yaml` → BLOCKED。
 - **L2+**：落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`/`nfr.security`/`nfr.performance`；L3 另含 `security`/`rollback`），确认后冻结；变更走变更记录。L2+ 缺独立评审记录或非功能结论 → BLOCKED。
-- **建议字段**（模板见 `verify/templates/acceptance.yaml`）：`implement_preflight`（有行为必填）；取重时另含 `sc_trace`、`cross_layer`、`baseline_smoke`、`debts`。缺则 verify 标明缺口（`PARTIAL`/`BLOCKED`，见实施质量门 §8）。
+- **门禁字段**（模板见 `verify/templates/acceptance.yaml`）：L1+ 有代码必填 `implement_preflight`、`sc_trace`（done/na+理由；Markdown 可用「实施预检」行 + SC 表）；取重另含 `cross_layer`、`baseline_smoke`、`debts`。缺或 `missing` → **BLOCKED**（见实施质量门 §8）。
 - 每行必须能判定（条件+动作+可观测结果），检查可复跑，证据有落点；AC/SC 预期来自方案，不来自现网实现（DEV-IQ-02）。
 - 写不出 AC = 需求未定义完；不得进入实施。
 - 确认后不重复问；新增/变更 AC 走变更记录。

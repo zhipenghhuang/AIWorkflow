@@ -288,8 +288,44 @@ def find_acceptance(project_root: Path, explicit: str | None) -> Path | None:
     return p if p.is_file() else None
 
 
+def _iq_empty() -> dict[str, str]:
+    return {
+        "implement_preflight": "",
+        "sc_trace": "",
+        "cross_layer": "",
+        "baseline_smoke": "",
+    }
+
+
+def _extract_iq_from_text(text: str) -> dict[str, str]:
+    """Pull IQ fields from YAML-style keys or Markdown 实施预检 / SC 表."""
+    out = _iq_empty()
+    for key in ("implement_preflight", "sc_trace", "cross_layer", "baseline_smoke"):
+        m = re.search(rf"(?im)^{key}\s*[:：]\s*(.+)$", text)
+        if m:
+            out[key] = m.group(1).strip().strip("`\"'")
+    if not out["implement_preflight"]:
+        m = re.search(r"实施预检[^\n]*[:：]\s*(.+)", text)
+        if m:
+            body = m.group(1).strip()
+            if body and not re.search(r"待填|待补|\{\.\.\.\}|\{命中", body):
+                if re.search(r"(?i)^\s*na\b|不适用", body):
+                    out["implement_preflight"] = body if re.match(r"(?i)^na\b", body) else f"na: {body}"
+                else:
+                    out["implement_preflight"] = "done"
+    if not out["sc_trace"]:
+        if re.search(r"(?m)^\|\s*SC-\d+\b", text):
+            out["sc_trace"] = "done: SC table"
+        elif re.search(r"(?:方案条款|SC)[^\n]{0,40}不适用", text):
+            out["sc_trace"] = "na: 无行为变化"
+    return out
+
+
 def parse_acceptance(path: Path | None) -> dict[str, Any]:
-    empty = {"items": [], "task_id": "", "level": "", "process": {}, "nfr": None, "scope_files": []}
+    empty = {
+        "items": [], "task_id": "", "level": "", "process": {}, "nfr": None,
+        "scope_files": [], **_iq_empty(),
+    }
     if path is None:
         return empty
     text = path.read_text(encoding="utf-8-sig", errors="replace")
@@ -316,6 +352,11 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
                         "evidence": str(item.get("evidence") or ""),
                         "result": str(item.get("result") or item.get("status") or ""),
                     })
+        iq = _iq_empty()
+        for key in iq:
+            raw = data.get(key)
+            if raw is not None and str(raw).strip():
+                iq[key] = str(raw).strip()
         return {
             "items": out,
             "task_id": str(data.get("task_id") or ""),
@@ -323,6 +364,7 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
             "process": data.get("process") if isinstance(data.get("process"), dict) else {},
             "nfr": data.get("nfr") if isinstance(data.get("nfr"), dict) else None,
             "scope_files": [str(x) for x in data.get("scope_files", [])] if isinstance(data.get("scope_files"), list) else [],
+            **iq,
         }
 
     # Markdown task card: one or more acceptance tables; L2+ should use YAML.
@@ -403,8 +445,10 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
     for mm in re.finditer(r"改动范围[^\n:：]*[:：]\s*([^\n]+)", text):
         scope += [x.strip().strip("`") for x in re.split(r"[;,；、]", mm.group(1)) if x.strip()]
     scope = list(dict.fromkeys(scope))
-    return {"items": rows, "task_id": task_id, "level": level, "process": process,
-            "nfr": None, "scope_files": scope}
+    return {
+        "items": rows, "task_id": task_id, "level": level, "process": process,
+        "nfr": None, "scope_files": scope, **_extract_iq_from_text(text),
+    }
 
 
 def _evidence_tokens(raw: str) -> list[str]:
@@ -601,9 +645,47 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
 
 NFR_PATH_RE = re.compile(r"[^\s()（）,，;；]+\.(?:md|json|log|txt|ya?ml|png|jpe?g|csv|html?)", re.I)
 NFR_METRIC_RE = re.compile(r"(p\d{2}|ms\b|SQL|KB|MB|GB|%|QPS|TPS|耗时|字节)", re.I)
+NFR_WEAK_NA_RE = re.compile(r"^(?:无风险|已关注|无影响|不涉及|无|ok|n/?a)$", re.I)
+NFR_SEC_NA_OK = re.compile(r"无鉴权|无登录|无权限|无上传|纯文案|无认证|无支付|无密钥")
+NFR_PERF_NA_OK = re.compile(r"无列表|无导出|无批量|无查询|无聚合|纯文案|无运行时|无接口")
+PERF_HINT_RE = re.compile(r"(?:list|export|batch|query|aggregat|/search|/report)", re.I)
 
 
-def check_nfr(meta: dict[str, Any], level: str, project_root: Path) -> dict[str, Any]:
+def check_iq_fields(meta: dict[str, Any], level: str, files: list[str], docs_only: bool) -> dict[str, Any]:
+    """L1+ 有代码时硬拦 implement_preflight / sc_trace（DEV-IQ-09/12、DEV-VER-11）。"""
+    missing: list[str] = []
+    if level_rank(level) < 1 or docs_only or not files:
+        return {"missing": missing}
+    if not any(not f.lower().endswith(DOC_EXTS) for f in files):
+        return {"missing": missing}
+
+    pre = str(meta.get("implement_preflight") or "").strip()
+    if not pre or pre.lower() == "missing":
+        missing.append("有代码变更须写 implement_preflight=done|na（或 Markdown「实施预检」行）")
+    else:
+        m = re.match(r"^(done|na)\b\s*[:：]?\s*(.*)$", pre, re.I)
+        if m:
+            if m.group(1).lower() == "na" and len(m.group(2).strip()) < 2:
+                missing.append("implement_preflight=na 需一句理由")
+        elif not re.search(r"不适用|命中\s*=", pre):
+            missing.append("implement_preflight 须为 done|na（或含命中=/不适用 的实施预检行）")
+
+    sc = str(meta.get("sc_trace") or "").strip()
+    if not sc or sc.lower() == "missing":
+        missing.append("有代码变更须写 sc_trace（SC 表/路径/done，或 na+理由）")
+    else:
+        m = re.match(r"^(done|na)\b\s*[:：]?\s*(.*)$", sc, re.I)
+        if m and m.group(1).lower() == "na" and len(m.group(2).strip()) < 2:
+            missing.append("sc_trace=na 需一句理由")
+        elif not m and not re.search(r"SC-\d+|方案条款|任务清单|开发卡", sc):
+            # bare path or inline label still ok if it looks like a pointer
+            if len(sc) < 4:
+                missing.append("sc_trace 过短；须指向 SC 表或 na+理由")
+    return {"missing": missing}
+
+
+def check_nfr(meta: dict[str, Any], level: str, project_root: Path,
+              files: list[str] | None = None) -> dict[str, Any]:
     """L2+ 非功能影响与证据：nfr.security / nfr.performance（DEV-VER-19）。
 
     值必须是 `done: <证据>`（存在的路径、可复跑命令或可量化指标）或
@@ -611,12 +693,15 @@ def check_nfr(meta: dict[str, Any], level: str, project_root: Path) -> dict[str,
     """
     missing: list[str] = []
     declared: dict[str, str] = {}
+    files = files or []
     if level_rank(level) < 2:
         return {"missing": missing, "declared": declared}
     nfr = meta.get("nfr")
     if not isinstance(nfr, dict):
         return {"missing": ["L2+ 缺少 nfr（安全/性能影响结论；done 或 na+理由）"],
                 "declared": declared}
+    auth_hit = any(any(tok in f.replace("\\", "/").lower() for tok in AUTH_GLOBS) for f in files)
+    perf_hit = any(PERF_HINT_RE.search(f.replace("\\", "/")) for f in files)
     for key, label in (("security", "安全"), ("performance", "性能")):
         raw = str(nfr.get(key) or "").strip()
         if not raw:
@@ -629,8 +714,12 @@ def check_nfr(meta: dict[str, Any], level: str, project_root: Path) -> dict[str,
         status, body = status_m.group(1).lower(), status_m.group(2).strip()
         declared[key] = status
         if status == "na":
-            if len(body) < 4:
-                missing.append(f"nfr.{key}=na 需一句理由")
+            if len(body) < 4 or NFR_WEAK_NA_RE.match(body):
+                missing.append(f"nfr.{key}=na 须写具体理由（禁「无风险/已关注」空话）")
+            elif key == "security" and auth_hit and not NFR_SEC_NA_OK.search(body):
+                missing.append("触及鉴权/支付路径时 nfr.security=na 须说明为何无安全面")
+            elif key == "performance" and perf_hit and not NFR_PERF_NA_OK.search(body):
+                missing.append("触及列表/导出/批量等路径时 nfr.performance=na 须说明为何无性能面")
             continue
         if not body:
             missing.append(f"nfr.{key}=done 需证据（路径/命令/指标）")
@@ -1077,8 +1166,9 @@ def main() -> int:
 
     acc = check_acceptance(meta["items"], project_root)
     process = check_process(meta, level, project_root, files)
-    nfr = check_nfr(meta, level, project_root)
     docs_only = bool(files) and all(f.lower().endswith(DOC_EXTS) for f in files)
+    nfr = check_nfr(meta, level, project_root, files)
+    iq = check_iq_fields(meta, level, files, docs_only)
     acceptance_unusable = acceptance_path is None or not meta["items"]
     if level_rank(level) >= 1 and not args.allow_missing_acceptance:
         if acceptance_unusable:
@@ -1088,6 +1178,8 @@ def main() -> int:
             acc["missing"].append(f"验收清单 AC 重复：{', '.join(acc['duplicates'][:5])}")
     if args.allow_missing_acceptance and level_rank(level) >= 1:
         acc["missing"].append("--allow-missing-acceptance 仅允许 L0；L1+ 必须提供验收清单")
+    if iq["missing"]:
+        acc["missing"].extend(iq["missing"])
 
     scripts = package_json_scripts(project_root)
     timeouts = profile.get("timeouts", {}) if isinstance(profile.get("timeouts"), dict) else {}
@@ -1221,6 +1313,9 @@ def main() -> int:
         "acceptance": {"path": str(acceptance_path) if acceptance_path else None,
                        "mtime": acceptance_mtime, **acc},
         "process": {"missing": process["missing"], "warnings": process["warnings"]},
+        "iq": {"implement_preflight": meta.get("implement_preflight") or "",
+               "sc_trace": meta.get("sc_trace") or "",
+               "missing": iq["missing"]},
         "nfr": nfr,
         "checks": checks,
         "blocked": reasons,

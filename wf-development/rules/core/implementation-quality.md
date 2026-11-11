@@ -107,7 +107,7 @@
 
 1. **命中 ⇒ 先扩 SC（或债项）再改码**；`拟补SC=` 必须能在任务卡 SC 表对上号。  
 2. 仅输出「命中=交互诚实」等面名、**未扩表** → 预检作废，等同未跑 DEV-IQ-09，禁止进入编码。  
-3. 落点：对话首条实施回执 **或** 任务卡「实施预检」行；L2+ 建议同步 `acceptance.implement_preflight=done`（未跑=`missing`；L0=`na`）。
+3. 落点：对话首条实施回执 **或** 任务卡「实施预检」行；L1+ 有代码须写入验收清单 `implement_preflight=done|na`（Markdown 开发卡/任务清单写「实施预检」行亦可；未跑=`missing` → 完成门 BLOCKED；L0=`na`）。
 
 ### 3.3 禁止合理化
 
@@ -246,7 +246,7 @@
 ## 8. 与完成门的关系
 
 - 机器门（`completion-gate`）仍只认脚本可检项；本文条目以 **checklist / 验收清单字段 / 评审记录** 为载体。  
-- L2+ `.gate/acceptance.yaml` 建议含：`implement_preflight`（done/na/missing）、`sc_trace`、`cross_layer`、`baseline_smoke`、`debts`；**必含** `nfr.security` / `nfr.performance`（done+证据 或 na+理由，门禁校验）。有行为变化却 `implement_preflight=missing`、非功能结论缺省，或取重缺项 → verify 不得报「通过」完整完成（可 `PARTIAL` 并列缺口，或 `BLOCKED`）。  
+- L1+ 有代码：验收清单须含可解析的 `implement_preflight`、`sc_trace`（done/na+理由，或 Markdown SC 表/实施预检行）；缺或 `missing` → 完成门 **BLOCKED**。L2+ `.gate/acceptance.yaml` 另建议 `cross_layer`/`baseline_smoke`/`debts`；**必含** `nfr.security` / `nfr.performance`（done+证据 或 na+具体理由；触及鉴权/列表等路径时空话 `na` 不放行）。取重缺项 → 不得报全覆盖通过。  
 - 报告措辞：未满足 DEV-IQ-* 不得使用「完成/已修复」声称全覆盖。
 
 ## 9. 降级路径

@@ -65,9 +65,9 @@
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 L13-L133（必做+处置/判定/反合理化）→ 回本包 |
-| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 L13-L90（必做+处置/判定/反合理化）→ 回本包 |
-| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 L13-L81（硬门槛+方法+反合理化）→ 回本包 |
+| `test-basis-analysis` | **必开** | 进入本步即开（质量不降） | `skills/test-basis-analysis/SKILL.md` | 只读 §0–§8（必做+处置/判定/反合理化），按标题定位 → 回本包 |
+| `test-analysis-and-plan` | **必开** | 进入本步即开（质量不降） | `skills/test-analysis-and-plan/SKILL.md` | 只读 §0–§7（必做+处置/判定/反合理化），按标题定位 → 回本包 |
+| `test-data-and-environment` | **必开** | 进入本步即开（质量不降） | `skills/test-data-and-environment/SKILL.md` | 只读 §1–§7（硬门槛+方法+反合理化），按标题定位 → 回本包 |
 
 - 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
@@ -75,7 +75,7 @@
 
 ## 7. 模板与证据
 
-- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；各只读本步用到的节，禁止整文件通读；分析模板先于计划模板。
+- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出
