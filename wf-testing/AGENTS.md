@@ -5,7 +5,7 @@
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-testing/`。与根冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.10.06`  
+> **template_version**：`2026.11.10.07`  
 > **主链**：方案全细节分析 → 计划 → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 

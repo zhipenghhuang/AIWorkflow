@@ -6,7 +6,7 @@ Usage: python validate_testcase.py <record.md>
 Checks:
 - record_format=intent-v1 or 场景与结果
 - §0 记录信息 / §1 场景与结果 / §3 意图结论与本轮统计
-- scene table headers: SC, INT/AC, 场景, 步骤, 预期/Oracle, 结果, 证据
+- scene table headers: SC, 场景, 步骤, 预期/Oracle|预期, 结果, 证据, INT/AC（列序可变）
 - every row: valid status; intent id; non-empty scene/oracle/steps
 - fail/block/pending: evidence present
 - high-risk rows: evidence on pass, key depth hints? (manual)
@@ -84,7 +84,7 @@ def main() -> int:
             table = (headers, rows)
             break
     if not table:
-        errors.append("§1 未找到场景表（需 SC/INT/场景/步骤/预期/Oracle/结果/证据）")
+        errors.append("§1 未找到场景表（需 SC/场景/步骤/预期/结果/证据/INT）")
     else:
         headers, rows = table
         seen = 0
@@ -99,12 +99,12 @@ def main() -> int:
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
             scene = cell(row, headers, "场景")
             steps = cell(row, headers, "步骤")
-            oracle = cell(row, headers, "预期/Oracle")
+            oracle = cell(row, headers, "预期/Oracle") or cell(row, headers, "预期")
             if status not in STATUSES:
                 errors.append(f"{sc}: 结果不可识别 {status or '空'}")
             if not INT_RE.search(intent):
                 errors.append(f"{sc}: 缺 INT-* 意图")
-            for name, val in (("场景", scene), ("步骤", steps), ("Oracle", oracle)):
+            for name, val in (("场景", scene), ("步骤", steps), ("预期", oracle)):
                 if not val or val in ("—", "-", "…"):
                     errors.append(f"{sc}: 缺 {name}")
             if steps and steps not in ("—", "-"):
