@@ -17,9 +17,11 @@
 [CmdletBinding()]
 param(
     [string]$ProjectRoot = (Get-Location).Path,
-    [ValidateSet('execute', 'report', 'writeback', 'coverage')]
+    [ValidateSet('execute', 'report', 'writeback', 'coverage', 'materials')]
     [string]$Mode = 'report',
     [string]$Scope = '',
+    [string]$Version = '',
+    [string]$MaterialsDir = '',
     [switch]$Json,
     [switch]$Strict,
     [switch]$Claim
@@ -71,6 +73,8 @@ if ($Claim) {
 
 $gateArgs = @($gate, '--package-root', $packageRoot, '--project-root', $root, '--mode', $Mode)
 if ($Scope) { $gateArgs += @('--scope', $Scope) }
+if ($Version) { $gateArgs += @('--version', $Version) }
+if ($MaterialsDir) { $gateArgs += @('--materials-dir', $MaterialsDir) }
 if ($Json) { $gateArgs += '--json' }
 if ($Strict) { $gateArgs += '--strict' }
 

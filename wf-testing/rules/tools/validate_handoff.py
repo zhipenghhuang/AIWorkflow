@@ -1,7 +1,7 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Validate a handoff package folder.
 
-Usage: python validate_handoff.py <package-dir>
+Usage: python validate_handoff.py <handoff-package-dir>（含 00-交接说明.md / 01-交接清单.md 的目录）
 Exit 0 = OK; 1 = errors; 2 = usage/path error.
 
 Checks:
@@ -50,7 +50,7 @@ def split_row(line: str) -> list[str]:
 
 def main() -> int:
     if len(sys.argv) < 2:
-        print("USAGE: validate_handoff.py <package-dir>")
+        print("USAGE: validate_handoff.py <handoff-package-dir>")
         return 2
     root = Path(sys.argv[1]).resolve()
     if not root.is_dir():

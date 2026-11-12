@@ -1323,6 +1323,27 @@ def parse_plan(path: Path) -> dict[str, Any]:
         for label in ("构建封板", "数据快照"):
             if not re.search(rf"^\|\s*{label}\s*\|\s*\S", text, re.M):
                 issues.append(f"§2.2 缺「{label}」行（开跑封板/数据快照须可追溯）")
+        m_data = re.search(r"^\|\s*数据 / 造数\s*\|\s*(.+?)\s*\|\s*$", text, re.M)
+        data_cell = m_data.group(1) if m_data else ""
+        if data_cell and not re.search(r"无需造数|无造数|不适用", data_cell) \
+                and re.search(r"造数|构数|配方|REG-|runId|seed", data_cell):
+            has_data_batch = False
+            t_dbatch = pick_table(subsection(text, "3.1"), ["批次", "执行形态"])
+            if t_dbatch:
+                h_d, _r_d = t_dbatch
+                for r_d in table_rows(t_dbatch):
+                    blob = " ".join([
+                        cell(r_d, h_d, "批次"),
+                        cell(r_d, h_d, "模块/域") or cell(r_d, h_d, "模块"),
+                        cell(r_d, h_d, "执行形态"),
+                    ])
+                    if re.search(r"造数|数据准备|DATA", blob, re.I):
+                        has_data_batch = True
+                        break
+            if not has_data_batch:
+                issues.append(
+                    "§3.1 缺数据准备批（§2.2 有造数项：须先设执行形态含「造数」的批次，一次造齐后续复用）"
+                )
         smk_ids = set(re.findall(r"SMK-\d+", text))
         if not re.search(r"\|\s*SMK\s*ID\s*\|", text) or len(smk_ids) < 6:
             issues.append("§3.3 冒烟清单缺失或不足 6 条（SMK 须有入口/期望，R0 前生成）")
@@ -1978,7 +1999,7 @@ def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:
     out_dir.mkdir(parents=True, exist_ok=True)
     out = out_dir / f"{mode}.json"
     out.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    if mode != "writeback":
+    if mode not in ("writeback", "materials"):
         (out_dir / "completion.json").write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return out
 
@@ -2025,12 +2046,87 @@ def cross_check_plan_analysis(analysis: dict[str, Any], plan: dict[str, Any],
     return issues
 
 
+def check_materials(project_root: Path, version: str, materials_dir: str) -> tuple[list[dict], list[str]]:
+    """材料库发布校验（materials-validate）：README/INDEX 齐、文件全登记、无草稿/证据/密钥、链接自包含。"""
+    checks: list[dict] = []
+    blocked: list[str] = []
+    root = (project_root / materials_dir).resolve() if materials_dir else project_root / "docs" / "materials"
+    if not version and not materials_dir:
+        blocked.append("未指定材料库版本（-Version {ver}）")
+        checks.append({"id": "materials-version", "status": "blocked", "detail": "missing"})
+        return checks, blocked
+    ver_dir = root / version if version else root
+    if not ver_dir.is_dir():
+        blocked.append(f"材料库目录不存在：{ver_dir}")
+        checks.append({"id": "materials-dir", "status": "blocked", "detail": str(ver_dir)})
+        return checks, blocked
+    checks.append({"id": "materials-dir", "status": "pass", "detail": str(ver_dir)})
+
+    readme = ver_dir / "README.md"
+    index = root / "INDEX.md"
+    checks.append({"id": "materials-readme", "status": "pass" if readme.is_file() else "fail",
+                   "detail": str(readme) if readme.is_file() else "缺少版本 README.md"})
+    checks.append({"id": "materials-index", "status": "pass" if index.is_file() else "fail",
+                   "detail": str(index) if index.is_file() else "缺少 docs/materials/INDEX.md"})
+    index_text = read(index) if index.is_file() else ""
+
+    skip_parts = {".draft", "evidence", "证据", "_archive", "__pycache__", ".git"}
+    secret_re = re.compile(
+        r"(?i)(api[_-]?key\s*[:=]\s*\S+|secret[_-]?key\s*[:=]\s*\S+|"
+        r"access[_-]?token\s*[:=]\s*\S+|password\s*[:=]\s*\S+|"
+        r"BEGIN (?:RSA|OPENSSH|EC) PRIVATE KEY|AKIA[0-9A-Z]{16})"
+    )
+    link_re = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+    files = [p for p in ver_dir.rglob("*") if p.is_file()]
+    unregistered: list[str] = []
+    drafts: list[str] = [
+        d.relative_to(root).as_posix()
+        for d in ver_dir.rglob("*")
+        if d.is_dir() and any(part in skip_parts for part in d.relative_to(ver_dir).parts)
+    ]
+    secrets: list[str] = []
+    for p in files:
+        rel = p.relative_to(root).as_posix()
+        if any(part in skip_parts for part in p.relative_to(ver_dir).parts):
+            drafts.append(rel)
+        if p.name != "README.md" and rel not in index_text and p.name not in index_text:
+            unregistered.append(rel)
+        if p.suffix.lower() in {".md", ".txt", ".yaml", ".yml", ".json", ".csv"}:
+            text = read(p)
+            if secret_re.search(text):
+                secrets.append(rel)
+    checks.append({"id": "materials-registered", "status": "fail" if unregistered else "pass",
+                   "detail": unregistered[:10] or "all files registered"})
+    checks.append({"id": "materials-no-draft", "status": "fail" if drafts else "pass",
+                   "detail": drafts[:10] or "no draft/evidence dirs"})
+    checks.append({"id": "materials-secrets", "status": "fail" if secrets else "pass",
+                   "detail": secrets[:10] or "no secret patterns"})
+
+    broken: list[str] = []
+    for doc in (readme, index):
+        if not doc.is_file():
+            continue
+        for target in link_re.findall(read(doc)):
+            if target.startswith(("http://", "https://", "mailto:", "#")):
+                continue
+            clean = target.split("#", 1)[0].strip()
+            if not clean:
+                continue
+            if not (doc.parent / clean).exists() and not (root / clean).exists():
+                broken.append(f"{doc.name} → {clean}")
+    checks.append({"id": "materials-links", "status": "fail" if broken else "pass",
+                   "detail": broken[:10] or "links resolve"})
+    return checks, blocked
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
     ap.add_argument("--project-root", default=None)
-    ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage"], default="report")
+    ap.add_argument("--mode", choices=["execute", "report", "writeback", "coverage", "materials"], default="report")
     ap.add_argument("--scope", default="")
+    ap.add_argument("--version", default="", help="materials 模式：材料库版本目录名")
+    ap.add_argument("--materials-dir", default="", help="materials 模式：材料库根（默认 docs/materials）")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--strict", action="store_true", default=True,
                     help="兼容开关；门默认全严格，无放宽模式")
@@ -2044,6 +2140,38 @@ def main() -> int:
     test_root = find_test_root(project_root)
     analysis_path = test_root / "test-analysis.md"
     plan_path = test_root / "test-plan.md"
+
+    if args.mode == "materials":
+        version = args.version or (declared_current_ver(project_root) or "")
+        checks, blocked = check_materials(project_root, version, args.materials_dir)
+        hard_fail = [c for c in checks if c.get("status") == "fail"]
+        verdict = "BLOCKED" if blocked else ("FAIL" if hard_fail else "PASS")
+        now = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+        completion = {
+            "gate_version": "3.6",
+            "package": PACKAGE_NAME,
+            "mode": "materials",
+            "version": version,
+            "verdict": verdict,
+            "checks": checks,
+            "blocked": blocked,
+            "timestamp": now,
+        }
+        if args.json:
+            print(json.dumps(completion, ensure_ascii=False, indent=2))
+        else:
+            print("=== 材料库校验（materials-validate）===")
+            print(f"verdict: {verdict}")
+            print(f"version: {version or '(未指定)'}")
+            for c in checks:
+                print(f"- {c['id']}: {c.get('status')} {str(c.get('detail', ''))[:200]}")
+            if blocked:
+                print("blocked:")
+                for b in blocked[:8]:
+                    print(f"  - {b}")
+        out = write_receipt(project_root, "materials", completion)
+        print(f"written: {out}")
+        return 0 if verdict == "PASS" else 1
 
     checks: list[dict[str, Any]] = []
     blocked: list[str] = []
@@ -2076,7 +2204,9 @@ def main() -> int:
             checks.append({"id": "env-baseline", "status": "blocked", "detail": "missing"})
         else:
             env_text = read(env_path)
-            env_missing = [h for h in ("## 项目身份", "## 1.", "## 4.", "## 8.") if h not in env_text]
+            env_missing = [h for h in ("## 项目身份", "## 1.", "## 8.") if h not in env_text]
+            if "## 4." not in env_text and "## 2.2" not in env_text:
+                env_missing.append("## 4./## 2.2（测试账号与角色）")
             checks.append({"id": "env-baseline", "status": "fail" if env_missing else "pass",
                            "detail": ("缺 " + "、".join(env_missing)) if env_missing else str(env_path)})
             source_hashes[str(env_path)] = hashlib.sha256(env_path.read_bytes()).hexdigest()

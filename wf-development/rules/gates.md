@@ -57,7 +57,6 @@
 | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | 新功能/架构/破坏性/高风险，或点名做 design | 未命中且未点名 |
 | `multi_file_or_new_feature_or_requested` | 多文件或新功能，或点名做 plan | 单点且未点名 |
 | `has_qa_or_deploy_or_requested` | 本轮有提测/QA/部署交付，或点名 deliver | 无交付且未点名 |
-| `has_deploy` | 本轮有正式部署/交接意向或点名部署 | 无部署意向 |
 | `has_deployed` | 本轮部署步骤已成功执行 | 尚未成功部署 |
 | `has_uat` | 本轮有 UAT/业务验收要求 | 无 UAT 要求 |
 | `release_ready_and_acceptance_passed` | 上线检查单 GO，且 UAT 通过或不需要 | 未 GO 或验收未过 |

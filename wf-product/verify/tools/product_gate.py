@@ -40,7 +40,8 @@ def default_project_root(package_root: Path) -> Path:
 
 
 def declared_workroot(project_root: Path):
-    for name in ("project-profile.md", "env-baseline.md"):
+    # 产品档案是 product-profile.md；project-profile/env-baseline 兼容多包或旧实例。
+    for name in ("product-profile.md", "project-profile.md", "env-baseline.md"):
         f = project_root / name
         if not f.is_file():
             continue

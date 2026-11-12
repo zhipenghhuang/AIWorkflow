@@ -189,6 +189,7 @@ def validate(project_root: Path, level: str, files: list[str]) -> tuple[list[str
     if not path.is_file():
         return ["missing .gate/plan-coverage.md（L2+ 方案/功能覆盖矩阵）"], stats
     text = path.read_text(encoding="utf-8-sig", errors="replace")
+    problems.extend(_check_sources(text, project_root))
     for heading in REQUIRED:
         if heading not in text:
             problems.append(f"plan-coverage.md 缺少章节 {heading}")

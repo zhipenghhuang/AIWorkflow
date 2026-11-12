@@ -113,12 +113,10 @@ EXPLICIT: dict[str, dict[str, list[str]]] = {
         "change/review": ["code-review", "engineering-quality"],
         "change/verify": ["test-design-and-execution"],
         "change/deliver": ["qa-handoff-and-release"],
-        "change/release_handoff": ["qa-handoff-and-release"],
         "iterate/plan": ["task-breakdown", "cross-layer-consistency"],
         "iterate/implement": ["implementation-and-selftest", "engineering-quality"],
         "iterate/review": ["code-review", "engineering-quality"],
         "iterate/deliver": ["qa-handoff-and-release"],
-        "iterate/release_handoff": ["qa-handoff-and-release"],
         "iterate/gates": ["test-design-and-execution"],
         "solo/frame": ["product-shaping", "product-doc-analysis"],
         "solo/product": ["product-shaping", "product-doc-analysis"],
@@ -570,6 +568,9 @@ PLAN_CARD = """### 本步规则卡：拆单与 SC
 - 先确认范围/AC/非目标；未确认不拆单。
 - 每条 AC/Then/异常/权限/数据/跨层抽成 SC；无 SC 不开工（L0 除外）；裁剪写债项。
 - 每条 SC 必填可打开的路径+章节/画板/锚点、非空原文、落点、入口类型；`validate_tasklist.py` FAIL → 不得 `confirm_backlog`。
+- **来源可解析（硬）**：SC 来源的文件须存在、`§x` 须在目标文档有同名编号标题；`validate_tasklist.py` 解析不到即 FAIL，不得写自述来源。
+- **设计要点闭环（硬）**：方案 §4.1 设计要点 `D-xx` 每条至少被一条 SC 引用；缺一条 = 覆盖不完整，不得 `confirm_backlog`。
+- **覆盖矩阵闭环（硬）**：§4.1 须覆盖总表全部 `R-xx`，引用的 `T-xx` 必须存在。
 - 任务卡含 DoR/DoD/依赖/并行；并行 >3 或文件重叠 → 拆批。
 - 只读不改代码；清单经 `confirm_backlog` 后实施。"""
 
@@ -601,7 +602,7 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛�
 - **DEV-IQ-22（顺序硬）**：方案 → 分析理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。**方法**见 §6 `implementation-and-selftest`。
 - **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then；验收清单写 `implement_preflight`/`sc_trace`（缺则 Claim BLOCKED）。
 - **自测硬门槛**：每条 SC 有验证；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
-- 独立评审 → 本链 `review`；不在本步自称已评审。子代理索引 `rules/collaboration/subagents.md`；质量条守本步 §6 已列技能。"""
+- 独立评审 → 本链 `review`；不在本步自称已评审。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（阈值与隔离见 `rules/collaboration/subagents.md`；达阈值未拆记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 
@@ -1390,7 +1391,7 @@ def render_packet(
     gate = step.get("gate")
     if gate:
         gw = step.get("gate_when")
-        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "运行对应 verify；未过不得宣称完成。"
+        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "按本包门表该门的检查方法核验并留证据；未过不得宣称完成。"
         desc = neutralize_pointers(desc, wid)
         gate_lines.append(
             f"- **GATE `{gate}`"
@@ -1476,11 +1477,17 @@ def render_packet(
         else "- §2 产出已落盘；本步无 §6 技能指向。"
     )
     requires_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
-    claim_line = (
-        "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
-        if requires_claim
-        else "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
-    )
+    gate_when = str(step.get("gate_when") or "")
+    if requires_claim and gate_when:
+        claim_line = (
+            f"- 本步 Claim 门受 `gate_when: {gate_when}` 约束："
+            "门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，"
+            "`claim=na` 并写 `when_eval=<假理由>`。"
+        )
+    elif requires_claim:
+        claim_line = "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
+    else:
+        claim_line = "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
     banner = (
         "选路前只读本包；选路后关闭本包，只打开目标步骤卡。"
         if pack_key == "wf-development" and wid == "control" and sid == "run"

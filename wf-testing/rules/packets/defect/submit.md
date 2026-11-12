@@ -34,7 +34,7 @@
 - **条件判定 `hitl:remark_writeback`**：拟关/激/解决/标重复/补充澄清/回归写回；满足→真，否则跳过该门。
 - **HITL `confirm_platform`**：有拟交平台/新建缺陷单 → STOP；回写走备注门；≠ git；无平台动作跳过。
 - **条件判定 `hitl:platform_submit`**：拟新建缺陷单/交平台（含：发现即提交预授权｜批末/阶段末/收尾确认｜用户口令提交到平台；见 collaboration §6.1）；满足→真，否则跳过该门。
-- **GATE `writeback-receipt` when=remark_writeback**：运行对应 verify；未过不得宣称完成。
+- **GATE `writeback-receipt` when=remark_writeback**：按本包门表该门的检查方法核验并留证据；未过不得宣称完成。
 - **条件判定 `gate:remark_writeback`**：拟关/激/解决/标重复/补充澄清/回归写回；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -82,7 +82,7 @@
 
 - §2 产出已落盘；本步无 §6 技能指向。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
+- 本步 Claim 门受 `gate_when: remark_writeback` 约束：门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，`claim=na` 并写 `when_eval=<假理由>`。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执

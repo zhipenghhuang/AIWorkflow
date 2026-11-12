@@ -111,12 +111,11 @@
 
 ## 6. 首条格式
 
-```text
-route=workflow:<id> | step=<id> | level=<内部风险标签，按事实推导> | reason=<意图类+关键信号+轨道依据一句话> | next_action=…
-```
+> **字段与写法只认 `cold-start.md` §3**（单一出处）；本节只补路由专属字段。
 
+- 路由后首条须齐 `route=<workflow 或 readonly:analysis> | step=<id> | level=<按事实推导> | reason=<意图类+关键信号+轨道依据> | global=ok | reads=<实际读取来源> | next_action=`；`packet=` 在打开步骤卡后补。
 - 纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`，不要求 workflow id。
-- 可附 `intent=<A-L>`、`input=<路径>`；若一问待答可写 `pending_confirm=轨道|范围`。
+- 可附 `intent=<A-L>`、`input=<路径>`；若一问待答可写 `pending_confirm=轨道|范围`；字段名不得改别名。
 - 描述句里偶然出现「计划/测试/变更」**不等于**口令命中。
 - 不因口语降低完成门/证据/红线；不把开发自验写成准出。
 

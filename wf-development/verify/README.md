@@ -16,8 +16,9 @@
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出按风险完整集并实测（大改动/高风险全节），报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
-**任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md>`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 可在准出前再硬拦一次。  
+**任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md> --root .`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，来源文件不存在、`§x` 在目标文档无对应编号标题，方案 §4.1 设计要点 `D-xx` 未被 SC 覆盖，§4.1 漏 `R-xx` 或引用不存在的 `T-xx`，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 在准出前再硬拦一次；存在 `.gate/plan-coverage.md` 时同轮核 SC ↔ 覆盖矩阵双向闭合。
 **实施质量字段**：L1+ 有代码时验收清单须含 `implement_preflight` + `sc_trace`（Markdown 可用「实施预检」行 + SC 表）；缺或 `missing` → BLOCKED。
+**方案覆盖矩阵**：`tools/plan_coverage.py` 校验 §1 来源行非空且可解析（禁凭空虚设）、§2/§3 行状态、结论；前端无变更按模板写一行「不适用：…」，该行视为已填而非未完成。
 
 
 ## 2. 一次任务怎么跑

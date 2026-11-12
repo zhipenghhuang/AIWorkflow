@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **GATE `materials-validate`**：运行对应 verify；未过不得宣称完成。
+- **GATE `materials-validate`**：按本包门表该门的检查方法核验并留证据；未过不得宣称完成。
 - **推进**：本流程为 `chain: full`；本步完成后进入下一未跳过步，直至 closeout。
 
 ## 5. 本步动作

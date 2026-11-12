@@ -61,7 +61,7 @@
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/materials-index-template.md`；`rules/templates/00-onboarding/materials-version-readme-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出

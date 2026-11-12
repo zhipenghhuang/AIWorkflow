@@ -54,7 +54,7 @@
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/capabilities/00-capability-inventory.md`。
 
 ## 8. 完成与退出
 

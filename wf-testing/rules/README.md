@@ -36,7 +36,7 @@
 
 - **全局规则**：`core/global-rules.md`（每步必读；步骤卡只留指针；改全局规则无需重生步骤卡，但须提示会话重读）。
 - 技能库：`skills/README.md`（步骤 → 技能映射；步骤包 §6 只列必开/条件开，AI 按 §6 选择，不全库通读）。
-- 模板库：`templates/index.md`（按 step 找模板；每步至多 1 个）。
+- 模板库：`templates/index.md`（按 step 找模板；每步按步骤卡 §7 取用，通常 1 份，成对时按卡内顺序）。
 - 能力库：`{workroot}/capabilities/00-能力清单.md`（实例真源；包内只有契约与候选）。
 
 ## 4. 不允许

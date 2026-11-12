@@ -1093,6 +1093,34 @@ def extract_template(step: dict, root: Path) -> str | None:
     return seen[0] if seen else None
 
 
+def load_template_index(root: Path) -> dict[tuple[str, str], list[str]]:
+    """templates/index.md「用于 step」→ (workflow, step) → template paths.
+
+    Keeps the index and the step cards in sync: a template assigned to a step
+    must be discoverable from that step's §7, otherwise the gate can demand a
+    structure the card never points at.
+    """
+    p = root / "rules" / "templates" / "index.md"
+    out: dict[tuple[str, str], list[str]] = {}
+    if not p.is_file():
+        return out
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 2:
+            continue
+        tpl = cells[0].strip("` ")
+        if not tpl.endswith(".md") and not tpl.endswith(".html"):
+            continue
+        rel = f"rules/templates/{tpl}"
+        if not (root / rel).is_file():
+            continue
+        for wid, sid in re.findall(r"\b([a-z][a-z0-9-]*)\.([a-z][a-z0-9_-]*)\b", cells[1]):
+            out.setdefault((wid, sid), []).append(rel)
+    return out
+
+
 def sanitize_notes_for_yaml(notes: str) -> str:
     """Drop stale file§N anchors and repair residue left by earlier passes."""
     if not notes:
@@ -1208,6 +1236,7 @@ def render_packet(
     agent_meta: tuple[str, str] = ("", ""),
     when_map: dict[str, str] | None = None,
     templates: list[str] | None = None,
+    ref_only: bool = False,
 ) -> str:
     sid = step["id"]
     when_map = when_map or {}
@@ -1283,7 +1312,7 @@ def render_packet(
     gate = step.get("gate")
     if gate:
         gw = step.get("gate_when")
-        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "运行对应 verify；未过不得宣称完成。"
+        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "按本包门表该门的检查方法核验并留证据；未过不得宣称完成。"
         desc = neutralize_pointers(desc, wid)
         gate_lines.append(
             f"- **GATE `{gate}`"
@@ -1314,13 +1343,21 @@ def render_packet(
 
     open_lines: list[str] = []
     uniq_tpl = list(dict.fromkeys(t for t in templates if t))
-    primary_tpl = template if template in uniq_tpl else (uniq_tpl[0] if uniq_tpl else None)
+    primary_tpl = None if ref_only else (
+        template if template in uniq_tpl else (uniq_tpl[0] if uniq_tpl else None)
+    )
     others = [t for t in uniq_tpl if t != primary_tpl]
     if primary_tpl:
         open_lines.append(
             f"- **填写模板（仅此一份）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
         )
-    if others:
+    if ref_only and uniq_tpl:
+        open_lines.append(
+            "- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`"
+            + "`；`".join(uniq_tpl)
+            + "`。"
+        )
+    elif others:
         open_lines.append(
             "- **参考模板（命中再开，不默认读）**：`" + "`；`".join(others) + "`。"
         )
@@ -1352,11 +1389,17 @@ def render_packet(
         else "- §2 产出已落盘；本步无 §6 技能指向。"
     )
     requires_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
-    claim_line = (
-        "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
-        if requires_claim
-        else "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
-    )
+    gate_when = str(step.get("gate_when") or "")
+    if requires_claim and gate_when:
+        claim_line = (
+            f"- 本步 Claim 门受 `gate_when: {gate_when}` 约束："
+            "门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，"
+            "`claim=na` 并写 `when_eval=<假理由>`。"
+        )
+    elif requires_claim:
+        claim_line = "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
+    else:
+        claim_line = "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
     return f"""# 步骤卡 · {wid}/{sid}
 
 > 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
@@ -1411,6 +1454,7 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
     when_map = load_when_table(root)
     skill_dirs = list_skill_dirs(root)
     readme_rows = parse_readme_skill_rows(root)
+    tpl_index = load_template_index(root)
     pack_key = root.name
     wf_dir = root / "workflows"
     for ypath in sorted(wf_dir.glob("*.yaml")):
@@ -1485,6 +1529,15 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             )
             if primary and primary not in templates:
                 templates.insert(0, primary)
+            # 步骤卡没点名模板时，用 templates/index.md 的「用于 step」补参考指针：
+            # 门按模板结构判分，卡里却看不到模板 = 按卡执行拿不到结构。
+            ref_only = False
+            if not templates:
+                idx_tpls = tpl_index.get((wid, sid), [])
+                if idx_tpls:
+                    templates = list(dict.fromkeys(idx_tpls))
+                    primary = None
+                    ref_only = True
             packet_rel = f"rules/packets/{wid}/{sid}.md"
             if sid == "closeout":
                 step["must_read"] = ["rules/packets/_shared/closeout.md"]
@@ -1507,6 +1560,7 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
                 agent_meta=load_agent_meta(root, step.get("agent")),
                 when_map=when_map,
                 templates=templates,
+                ref_only=ref_only,
             )
             body = re.sub(
                 r"`(rules/templates/[^`]+?[、,][^`]+?)`",

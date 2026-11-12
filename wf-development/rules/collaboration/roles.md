@@ -13,7 +13,7 @@
 | `doc-reviewer` | change.review-docs、solo.review_docs | 落地文档独立评审（D1–D8）、A/B 记录 | 需修/阻断、基线缺失 → 20-design/requirements | 不审代码 diff、不替作者改写 |
 | `test-planner` | `solo.test_plan` | 测试分析与计划（来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测） | AC/范围不清 → 回 design；不写代码/不执行测试 | 不判版本准出、不改代码/文档、不代替评审 |
 | `verifier-agent` | change/iterate/defect 的 verify/gates、`solo.test` | 证据充分性、完成门、**开发测试/自验**（报告/`DEV-AC` 走查） | 缺证据/空 diff/环境缺失 → BLOCKED；不判完成；无 QA 时仍须自验 | 不改代码/文档、不代替评审、不解释业务、**不判版本准出**、不执行 `QA-AC/REL-AC` |
-| `delivery-lead` | release.readiness/acceptance/approval/deploy/verify/rollback/postrelease/record/retro、retro 全链、change/iterate.release_handoff、materials.* | 发布就绪建议、观察结论、回滚建议、复盘结论 | 部署/回滚/发布 → 用户；NO-GO → 停；事故 → 升级 | 不从脏工作区部署、不跳过审批、不替测试判准出 |
+| `delivery-lead` | release.readiness/acceptance/approval/deploy/verify/rollback/postrelease/record/retro、retro 全链、materials.* | 发布就绪建议、观察结论、回滚建议、复盘结论 | 部署/回滚/发布 → 用户；NO-GO → 停；事故 → 升级 | 不从脏工作区部署、不跳过审批、不替测试判准出 |
 | `defect-fixer` | defect-fix.preflight/pull/triage/assess_product/handoff_product/await_product/product_decision/align/fix/clarify/menu/close/postrelease/retro（`gates` 由 `verifier-agent`） | 缺陷分诊、根因、修复方案、评估单建议 | 产品缺陷 → 产品确认；无根因/无法复现 → 停；平台不可用 → 降级/export | 不修前无红证、不回退补红证、不单方关闭 |
 | `worker-agent` | 子代理分片执行（单模块/只读） | 步内方法、探查顺序 | 连续失败、越界、需跨模块 → 交回编排 | 不 git、不平台、不改门、不写共享主档 |
 | `onboard-agent` | onboard.mount/profile/materials/lifecycle/gitignore/verify、skill-audit | 接入判定、资料分类建议、体检建议 | 迁移/清理/技能变更/档案缺失 → 用户 | 不改业务代码、不替业务做技术取舍 |

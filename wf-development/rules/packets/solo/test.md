@@ -180,7 +180,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
+- 本步 Claim 门受 `gate_when: solo_gate_required` 约束：门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，`claim=na` 并写 `when_eval=<假理由>`。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执

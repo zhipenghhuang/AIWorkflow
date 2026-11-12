@@ -4,7 +4,7 @@
 workflow:
   id: change
   name: 常规代码变更
-  version: 12
+  version: 13
   terminal: closeout
 entry_points:
   常规变更: clarify
@@ -153,14 +153,6 @@ steps:
   gate_type: checklist
   output: 提测单/发布说明/回滚预案（{workroot}/60-release/）
   notes: 自洽提测单真源 60-release，同轮拷 handoff/outbound；未 COMPLETE 不得标可提测。 跳过本步≠跳过自验。附加 HO 包另走 handoff。
-- name: 发布交接
-  id: release_handoff
-  must_read:
-  - rules/packets/change/release_handoff.md
-  when: has_deploy
-  agent: delivery-lead
-  output: 发布就绪包
-  notes: 本步不直接部署；建议 REL 包经 handoff；生产部署重新路由 `release`（说「发布」→ readiness），本步只出就绪包，不部署、不改生产。
 - name: 收尾与提交
   id: closeout
   must_read:

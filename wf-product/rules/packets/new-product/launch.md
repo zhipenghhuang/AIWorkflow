@@ -63,7 +63,7 @@
 
 - §2 产出已落盘；本步无 §6 技能指向。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
+- 本步 Claim 门受 `gate_when: has_uat` 约束：门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，`claim=na` 并写 `when_eval=<假理由>`。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执

@@ -21,9 +21,8 @@
 | 7 | `implement` | `implementer` | — | — | 代码/配置改动 | `review` | 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过 |
 | 8 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `verify` | 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。 |
 | 9 | `verify` | `verifier-agent` | `work_changed_or_requested` | `gate:completion-gate` | .gate/wf-development/completion.json + 验证回执 | `deliver` | 停在本步/升级 |
-| 10 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案（{workroot}/60-release/） | `release_handoff` | 停在本步/升级 |
-| 11 | `release_handoff` | `delivery-lead` | `has_deploy` | — | 发布就绪包 | `closeout` | 停在本步/升级 |
-| 12 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 10 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案（{workroot}/60-release/） | `closeout` | 停在本步/升级 |
+| 11 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

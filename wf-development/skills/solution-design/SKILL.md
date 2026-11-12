@@ -6,6 +6,7 @@ description: Use when a change needs architecture, interface, data, migration, s
 # 方案与设计（技能 · 随包生效）
 
 > 用于：design 步。产出按 `rules/templates/20-design/solution-template.md` 落盘；本技能=把方案写**扎实**的手艺。  
+> **设计要点清单（硬）**：§4 每条要点一个 `D-xx`（接口/字段/状态/权限/错误码/迁移/兼容/观测/测试各按实际拆），落点写到模块/接口；任务清单 SC 与 `.gate/plan-coverage.md` 逐条引用，缺引用 = 方案未落地（`validate_tasklist.py` 机检）。  
 > 本技能是 S2 的“主skills/路由器”；涉及技术选型、数据库、API、前端、安全时，按下表加载子技能，不要求全读。  
 > **工程质量条**：所有 design 步同时加载 `skills/engineering-quality/SKILL.md` §1/§4/§5；本技能只写方案结构与取舍，不重复质量条。  
 > **前端变更**：需要补前端设计/调整 UI 时，按需读 `skills/frontend-design/SKILL.md` + `rules/templates/20-design/frontend-design-spec-template.md`；产品设计完整且无冲突时，方案只写实现要点并引用产品设计，不重做 UI。

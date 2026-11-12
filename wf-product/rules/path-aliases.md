@@ -6,7 +6,6 @@
 
 | 口令/旧路径 | 规范路径 |
 | --- | --- |
-| 项目档案 / `project-profile.md` | `project-profile.md` |
 | 产品档案 / `product-profile.md` | `product-profile.md` |
 | 环境基线 / `env-baseline.md` | `env-baseline.md` |
 | 文档索引 / 工作区索引 | `{workroot}/INDEX.md`（单包即 `docs/INDEX.md`） |

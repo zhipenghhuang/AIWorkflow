@@ -4,7 +4,7 @@
 workflow:
   id: iterate
   name: 迭代交付
-  version: 11
+  version: 12
   terminal: closeout
 entry_points:
   按方案实施: precheck
@@ -93,14 +93,6 @@ steps:
   output: 提测单/发布说明/回滚预案
   notes: 未 COMPLETE 不得标可提测。出提测单/发布说明/回滚预案（模板 `rules/templates/40-delivery/qa-handoff-template.md`）；必开 §6 `qa-handoff-and-release`；有意图确认时走
     `confirm_intent`。
-- name: 发布交接
-  id: release_handoff
-  must_read:
-  - rules/packets/iterate/release_handoff.md
-  when: has_deploy
-  agent: delivery-lead
-  output: 发布就绪包
-  notes: 组装发布就绪包；必开 §6 `qa-handoff-and-release`；生产部署走 `release` 流程 readiness 起 + `confirm_deploy`。
 - name: 迭代复盘
   id: retro
   must_read:

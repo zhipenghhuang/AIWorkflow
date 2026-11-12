@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/change/deliver.md`
 - **角色**：`implementer`（常规实现）。需求/方案对齐 → 最小改动实现 → 自测/门禁 → 提测文档 → 提交；架构级先方案批准；本步只做该角色职责；越界交回或升级。
 - **上游**：`verify`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`release_handoff`（进 `release_handoff` 前的 `when=has_deploy`）
+- **后续**：`closeout`
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:has_qa_or_deploy_or_requested`**：本轮有提测/QA/部署交付，或点名 deliver；满足→真，否则跳过本步（不打开本包）。
 - **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。

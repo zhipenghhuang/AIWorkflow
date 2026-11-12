@@ -93,7 +93,7 @@
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 规则卡已给出输出形状；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/10-planning/requirement-pool-template.md`；`rules/templates/10-planning/interview-guide-template.md`；`rules/templates/10-planning/insight-synthesis-template.md`；`rules/templates/10-planning/competitor-analysis-template.md`。
 
 ## 8. 完成与退出
 

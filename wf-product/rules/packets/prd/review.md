@@ -91,14 +91,14 @@
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/30-review-change/review-record-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
+- 本步 Claim 门受 `gate_when: ai_review_chosen` 约束：门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，`claim=na` 并写 `when_eval=<假理由>`。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执

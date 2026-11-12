@@ -520,6 +520,8 @@ TEST_PLAN_CARD = """### 本步规则卡：先分析，再计划（本步门槛�
 - **覆盖先后（硬）**：先按方案原文逐项完整入账（每个应测细节/设计点 → §2.1 INT+Oracle + 矩阵无空格），再写计划总排；**禁止**「先粗计划、细节执行时再补分析」。执行阶段才允许按现场自主打通/择优，不得用执行自主回补分析空账。
 - **硬门槛**：① 方案为主参考；至少主读+1 互补源 ② 应测细节/设计点入账；§2.1 INT+Oracle；覆盖面/方法矩阵无未接受空格；计数被行数支撑（门查）③ 分析未确认不写计划；计划未确认不执行；覆盖闸未过不得称可执行 ④ 计划只总排；§0/§3.1 与分析联动 ⑤ §3.1 按模板填 ⑥ P0/P1/P2 均为覆盖义务 ⑦ 准出/轨道纳入见 `multi-track-quality` §0+文首（默认硬纳入；整轨否仅白名单+接受人）。
 - **环境**：先读 `env-baseline.md` 命中节；缺基线先接入。
+- **只读核验（可做）**：为落 §2.2/§1.4 事实可登录、GET 接口/页面结构/构建版本；**禁业务写**；回执进 `.draft`，证据与断言以执行期为准；未实测到具体值写「待确认」。
+- **造数先行（硬）**：分析定稿后再定造数——§2.2 造数行落到字段级成功信号/幂等前缀/清理，§3.1 设**数据准备批**（执行形态含「造数」）一次造齐可复用数据，出 `{ver}/functional/00-数据准备-造数台账.md`；后续批按台账消费、缺则补造回写，不逐场景重造。造数/建号/开通/专项方案编制属执行期自助（`defects/classification.md` §0.4），不列计划门待确认；无需造数写「无需造数+依据」。
 - **预告**：执行三步序见 execute 卡；本步不预生成全量用例≠可浅测。做法见 §6。"""
 
 TEST_EXECUTE_CARD = """### 本步规则卡：计划驱动执行编排（本步门槛）
@@ -530,6 +532,7 @@ TEST_EXECUTE_CARD = """### 本步规则卡：计划驱动执行编排（本步�
 - **质量锁**：同一意图禁并行；共享写域串行；不采信口头完成；禁为通过率删负向/边界/证伪（`multi-track-quality` Q9）。
 - **阻塞锁（硬）**：缺数据/账号/入口临时不通 → 先自助造数/换样/换角/换入口（有界）；**未穷尽禁止落阻塞**；摘要须卡点+已尝试+恢复条件。终态表见 `classification.md` §0.4。
 - **基线锁（硬）**：开跑读命中节；造数/换样前查基线造数·样本节；本批打通的**新可复用** API/配方/样本/冲突 → **同轮**按基线「同步规则」回写；批末自检有则补齐、无则禁改。细则 SSOT：基线同步节 + §6 `test-data-and-environment`。
+- **先造数后执行（硬）**：首跑先过计划数据准备批，核对造数台账（对象/ID/成功信号/幂等/清理）；后续批按台账消费，缺项或数据漂移先补造再断言；台账未齐不得宣告功能批完成。
 - **证据终态制（硬）**：`evidence/` 只留断言终态（通常每 SC 1～2 叶）；中间探查/重试进 `.draft/`（`global-rules` §9）。UI 失败**当场**钉断言截图；禁留到交平台再补。
 - **三步序 + 偏差择优（硬）**：顺序与禁则见动作清单；**方法**见 §6 `test-execution-and-exploration`；分型专文 `rules/defects/classification.md` §0.5。
 - **同域锁（硬）**：结果/写操作页落通过前做同域自洽探针（方法 §6 执行技能 5.2，含列表/徽标/KPI↔详情）；同屏冲突/读写分裂/旁路假可过 → 禁选型通过（`classification.md` §0.5）。S7/S11 收口门槛见 `multi-track-quality` §2.4.1。"""
@@ -1372,7 +1375,7 @@ def render_packet(
     gate = step.get("gate")
     if gate:
         gw = step.get("gate_when")
-        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "运行对应 verify；未过不得宣称完成。"
+        desc = gates.get(f"gate: {gate}") or gates.get(str(gate)) or "按本包门表该门的检查方法核验并留证据；未过不得宣称完成。"
         desc = neutralize_pointers(desc, wid)
         gate_lines.append(
             f"- **GATE `{gate}`"
@@ -1426,6 +1429,10 @@ def render_packet(
             + "`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；"
             "**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。"
         )
+        open_lines.append(
+            "- **轻量档**（`plan_tier=lite`，仅补丁/单模块且 `版本准出=否`）：计划改用 "
+            "`rules/templates/10-planning/test-plan-lite-template.md`；分析仍用上表分析模板。"
+        )
     elif primary_tpl:
         open_lines.append(
             f"- **填写模板（仅此一份）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
@@ -1462,11 +1469,17 @@ def render_packet(
         else "- §2 产出已落盘；本步无 §6 技能指向。"
     )
     requires_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
-    claim_line = (
-        "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
-        if requires_claim
-        else "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
-    )
+    gate_when = str(step.get("gate_when") or "")
+    if requires_claim and gate_when:
+        claim_line = (
+            f"- 本步 Claim 门受 `gate_when: {gate_when}` 约束："
+            "门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，"
+            "`claim=na` 并写 `when_eval=<假理由>`。"
+        )
+    elif requires_claim:
+        claim_line = "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
+    else:
+        claim_line = "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
     return f"""# 步骤卡 · {wid}/{sid}
 
 > 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守；重读按 §7 分级）；方法在 §6 指定节（打开→执行→回包）。**未打开本文件=未开跑本步**。不读他步 packet / 大手册。

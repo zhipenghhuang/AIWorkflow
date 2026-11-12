@@ -246,6 +246,28 @@ def main() -> int:
         ), "coverage", "FAIL", None,
     ))
 
+    cases.append((
+        "no-data-batch", mutated(
+            "docs/test-plan.md",
+            "| 数据 / 造数 | admin/正确密码、错误密码 |",
+            "| 数据 / 造数 | 造数：设备/工单/报工；REG- 前缀 |",
+            GOOD,
+        ), "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "data-batch-ok", mutated(
+            "docs/test-plan.md",
+            "| B-R1-01 | 登录 |",
+            "| B-R0-DATA | 数据准备 | 无（数据前置） | 造数 | 串行 | 共享·串行 | 环境就绪 | 造数台账 |\n| B-R1-01 | 登录 |",
+            mutated(
+                "docs/test-plan.md",
+                "| 数据 / 造数 | admin/正确密码、错误密码 |",
+                "| 数据 / 造数 | 造数：设备/工单/报工；REG- 前缀 |",
+                GOOD,
+            ),
+        ), "coverage", "PASS", None,
+    ))
+
     failed = 0
     for name, files, mode, expected, scope in cases:
         root = Path(tempfile.mkdtemp(prefix="wf-gate-selftest-"))
