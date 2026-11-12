@@ -1,12 +1,12 @@
 # AGENTS.md
 
 > **用途**：开发协作 AI 入口。  
-> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill → ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §3 口令表。  
+> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚按 `rules/core/cold-start.md` §3 字段（`global=dev:…` 表偏离；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.11.04`  
+> **template_version**：`2026.11.12.03`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim` → `CLAIM: ALLOWED`。前端只认**当前步骤包**内「前端硬门」节（无 UI 标 `na`）。
@@ -20,7 +20,7 @@
 3. **接入**：`wf-development onboard: done` 则跳过，否则按 onboard-agent 一次判定。  
 4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 索引（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】；只读分析）。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 
@@ -110,7 +110,7 @@
 
 ## 4. 维护
 
-改开局卡 → `rules/core/cold-start.md`；改前端硬门真源 → `frontend-gate.md` 后须 `build_step_packets.py` 重生包；改不变量/口令 → 本文；改步骤 → `workflows/` + `rules/packets/`（改后跑 `build_step_packets.py`）；改心跳 → `rules/core/global-rules.md` §8；自检 → `maintenance.md` §2 + `Validate-StepPackets.ps1`。
+改开局卡 → `rules/core/cold-start.md`；改前端硬门真源 → `frontend-gate.md` 后须 `build_step_packets.py` 重生包；改不变量/口令 → 本文；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）+ `rules/packets/`；改心跳 → `rules/core/global-rules.md` §8；自检 → `maintenance.md` §2 + `Validate-StepPackets.ps1`。
 
 ## 5. 文档治理（摘要）
 
@@ -118,7 +118,7 @@
 
 ## 6. 技能与能力
 
-命中步必读 `skills/<name>/SKILL.md`（先读「必做」区）。能力实例 SSOT=`{workroot}/capabilities/00-能力清单.md`。
+命中步必读 `skills/<name>/SKILL.md`（整卡读取）。能力实例 SSOT=`{workroot}/capabilities/00-能力清单.md`。
 
 ## 7. 多包
 

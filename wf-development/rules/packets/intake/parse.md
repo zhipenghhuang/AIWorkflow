@@ -64,15 +64,16 @@
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
+> `references/` 仅在技能正文点名时再打开；不预读其它技能/手册。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `change-intake` | **必开** | 进入本步即开（质量不降） | `skills/change-intake/SKILL.md` | 只读 L13-L96（硬门槛+方法+反合理化）→ 回本包 |
-| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
+| `change-intake` | **必开** | 进入本步即开（质量不降） | `skills/change-intake/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
-- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
@@ -90,5 +91,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=parse | agent=iterate-lead | packet=rules/packets/intake/parse.md | global=ok | skills=change-intake,product-doc-analysis|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=parse | agent=iterate-lead | packet=rules/packets/intake/parse.md | global=ok | skills=change-intake|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

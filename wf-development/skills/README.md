@@ -1,6 +1,6 @@
 # 包内专业技能（随包生效 · 无需安装/挂载）
 
-> **定位**：每一步的**专业方法与手艺**，随本包分发。命中步骤 → 步骤注记直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
+> **定位**：每一步的**专业方法与手艺**，随本包分发。命中步骤 → 步骤包 §6 打开并**整卡读取**对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`skills/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `skills/` 指向本地 skills 目录（可选，不是前置条件）。  
 > **更新**：本包 `skills/` 可就地改。口令「体检能力」做检查与优化建议（确认后应用）；「通用优化技能」按通用最优。外部工具选型写入实例 `{workroot}/capabilities/`（「装配能力」）。  
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容）；description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。
@@ -8,32 +8,6 @@
 > **与「能力」的区别**：技能=怎么做（随包必用）；能力选型真源=`{workroot}/capabilities/00-能力清单.md`；包内契约/参考目录非真源。  
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、obra/superpowers（MIT；系统化调试/计划/评审）、github/spec-kit（MIT）、bmad-code-org/BMAD-METHOD（MIT）、wshobson/agents（MIT）、alibaba/open-code-review（Apache-2.0）、Google Engineering Practices、Google AIP、Microsoft REST API Guidelines、OWASP ASVS 5.0、OWASP WSTG、OWASP Top 10 for LLM 2025、SLSA v1.2、OpenSSF Scorecard、12-Factor、DORA、C4/arc42/ADR、OpenTelemetry（含 GenAI 语义约定）、Diátaxis、Keep a Changelog/SemVer、WCAG 2.2、Core Web Vitals、NIST AI RMF、ISO/IEC 42001（许可以官方为准）。  
-
-## 别名 → 实际路径（旧引用兼容）
-
-| 别名 | 实际路径 |
-| --- | --- |
-| 00 | `skills/development-plan/SKILL.md` |
-| 01 | `skills/requirements-and-spec/SKILL.md` |
-| 02 | `skills/solution-design/SKILL.md` |
-| 02A | `skills/technology-selection/SKILL.md` |
-| 02B | `skills/database-design/SKILL.md` |
-| 02C | `skills/api-design/SKILL.md` |
-| 02D | `skills/frontend-design/SKILL.md` |
-| 02E | `skills/threat-modeling/SKILL.md` |
-| 02F | `skills/performance-and-capacity/SKILL.md` |
-| quality | `skills/engineering-quality/SKILL.md` |
-| 03 | `skills/implementation-and-selftest/SKILL.md` |
-| 03A | `skills/frontend-implementation/SKILL.md` |
-| 03B | `skills/backend-implementation/SKILL.md` |
-| 03C | `skills/design-doc-review/SKILL.md` |
-| 04 | `skills/code-review/SKILL.md` |
-| 05 | `skills/qa-handoff-and-release/SKILL.md` |
-| 06 | `skills/task-breakdown/SKILL.md` |
-| 07 | `skills/acceptance-and-launch/SKILL.md` |
-| 08 | `skills/retrospective-and-improvement/SKILL.md` |
-
-> 新引用一律用实际路径；编号别名只用于兼容旧文本。
 
 ## 步骤 → 技能映射
 
@@ -59,6 +33,7 @@
 | solo.review_docs（落地文档评审） | `skills/design-doc-review/SKILL.md` |
 | solo.test_plan（测试分析与计划） | `skills/test-design-and-execution/SKILL.md` |
 | solo.build（完整开发与自测） | `skills/implementation-and-selftest/SKILL.md`（§0.5 预检；自包含不降硬补）+ `skills/engineering-quality/SKILL.md`；有 UI → `frontend-implementation`；有 PRD/原型 → `product-doc-analysis` |
+| 实施（按端） | `skills/frontend-implementation/SKILL.md`（有 UI）+ `skills/backend-implementation/SKILL.md`（后端/接口/数据） |
 | solo.review（代码评审） | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` |
 | solo.test（测试与验收） | `skills/test-design-and-execution/SKILL.md` |
 | release：acceptance / readiness / deploy / verify / rollback / postrelease | `skills/acceptance-and-launch/SKILL.md` + `skills/observability-and-instrumentation/SKILL.md` |
@@ -126,7 +101,7 @@
 - **流程而非知识**：写“先做什么、怎么判定、产出什么”，不写百科。
 - **具体**：能写命令/字段/阈值就不写“检查一下”；引用本包真实路径，不造文件。
 - **单一出处**：红线/门/评分卡只引用，不复制；跨技能用名称引用。
-- **渐进披露**：主文件建议 ≤500 行；单步读取以 §6 行窗为准；**超长才拆** `references/`。
+- **渐进披露**：主文件建议 ≤500 行；步骤卡 §6 默认**整卡读取**；确实过长的附录/命令/样例才拆 `references/`，由正文点名再开。
 - **宿主/模型中立**：不写死某宿主工具名、模型版本或私有调用方式；写能力与目标。
 - **只写现行**：不记录历史过程/旧方案。母版仓维护：用户可见包能力进母版根 CHANGELOG（产品语言）；过程/接入进工作日志。业务项目：项目发版史仅开发发版时写项目根 CHANGELOG。
 - **中文优先**：方法与判定用中文；保留必要英文术语与代码/命令。

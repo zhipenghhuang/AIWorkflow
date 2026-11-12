@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/change.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: change
@@ -35,6 +35,9 @@ trigger:
 steps:
 - name: 对齐与澄清
   id: clarify
+  skills:
+  - requirements-and-spec
+  - product-shaping
   must_read:
   - rules/packets/change/clarify.md
   agent: implementer
@@ -48,6 +51,9 @@ steps:
     -StartTask。 外部输入/关账见 `rules/doc-governance.md`；分级见 AGENTS。
 - name: 产品资料解析与理解确认
   id: analyze_input
+  skills:
+  - product-doc-analysis
+  - requirements-and-spec
   must_read:
   - rules/packets/change/analyze_input.md
   when: has_product_docs_or_prototypes
@@ -56,9 +62,13 @@ steps:
   hitl_when: understanding_needs_confirm
   output: 需求理解包（{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md；§0 Brief+Delta 必填）+ 用户版业务变化说明（L1+ 用户可见变化必出）
   notes: 只读输入；多源合看（方案/原型/接口/代码），冲突不静默选边；Brief+差量表必填；DEV-AC 进开发，QA/REL-AC 转交接。 confirm_understanding 主屏=理解包 §0（Brief+差量表）+(P/D/S)
-    用户版+待确认摘要；未确认不进基线/设计/实施。 细节只认 product-doc-analysis 必做区（含用户版说明、P/D/S）。
+    用户版+待确认摘要；未确认不进基线/设计/实施。 细节只认 §6 `product-doc-analysis` 整卡方法（含用户版说明、P/D/S）。
 - name: 需求基线
   id: requirements
+  skills:
+  - requirements-and-spec
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/change/requirements.md
   - rules/templates/10-planning/requirement-baseline-template.md
@@ -71,6 +81,11 @@ steps:
     时基线仍须经 review-docs。
 - name: 方案与设计
   id: design
+  skills:
+  - solution-design
+  - engineering-quality
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/change/design.md
   - rules/templates/20-design/solution-template.md
@@ -82,6 +97,9 @@ steps:
   notes: L0 可跳过；L1 本步 confirm_spec；L2+ 落盘后进 review-docs。 子域技能（api/db/frontend/threat/…）按变更面读对应技能当前节；前端补设计说明模板。
 - name: 落地文档评审
   id: review-docs
+  skills:
+  - design-doc-review
+  - engineering-quality
   must_read:
   - rules/packets/change/review-docs.md
   when: do_landing_doc_review
@@ -91,9 +109,13 @@ steps:
     when: need_select_review_mode
   - name: confirm_spec
   output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
-  notes: STOP 选 A/B；未选不得 implement。本步不审 diff（代码走 review）。 方法只认 design-doc-review 必做区。
+  notes: STOP 选 A/B；未选不得 implement。本步不审 diff（代码走 review）。 方法只认 §6 `design-doc-review` 整卡方法。
 - name: 任务清单
   id: plan
+  skills:
+  - task-breakdown
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/change/plan.md
   - rules/templates/30-planning-tasks/task-list-template.md
@@ -106,6 +128,12 @@ steps:
     实质变化才 approve。
 - name: 实施
   id: implement
+  skills:
+  - implementation-and-selftest
+  - engineering-quality
+  skills_conditional:
+    frontend-implementation: 有 UI / 有原型
+    product-doc-analysis: 输入含 PRD/原型/产品文档
   must_read:
   - rules/packets/change/implement.md
   agent: implementer
@@ -116,6 +144,9 @@ steps:
     本包前端硬门 `na`。条件技能见 §6。禁刷绿/主路径先合。子代理见 `rules/collaboration/subagents.md`。DEV-IQ-22 与预检硬门槛见本包规则卡；方法见 §6。
 - name: 代码评审
   id: review
+  skills:
+  - code-review
+  - engineering-quality
   must_read:
   - rules/packets/change/review.md
   when: review_required
@@ -131,6 +162,8 @@ steps:
   notes: 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md。有 UI 核 parity 产物。 免审须记理由；免审不免自测。方法只认 code-review。
 - name: 自验与完成门
   id: verify
+  skills:
+  - test-design-and-execution
   must_read:
   - rules/packets/change/verify.md
   when: work_changed_or_requested
@@ -142,6 +175,8 @@ steps:
     不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。'
 - name: 提测与发布文档
   id: deliver
+  skills:
+  - qa-handoff-and-release
   must_read:
   - rules/packets/change/deliver.md
   - rules/templates/40-delivery/qa-handoff-template.md
@@ -155,6 +190,7 @@ steps:
   notes: 自洽提测单真源 60-release，同轮拷 handoff/outbound；未 COMPLETE 不得标可提测。 跳过本步≠跳过自验。附加 HO 包另走 handoff。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: implementer

@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/handoff.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: handoff
@@ -19,6 +19,7 @@ trigger:
 steps:
 - name: 写交接单文档
   id: compose
+  skills: []
   must_read:
   - rules/packets/handoff/compose.md
   - rules/templates/90-handoff/handoff-note-template.md
@@ -31,6 +32,7 @@ steps:
     `{workroot}/handoff/outbound/{category}/`；无专模直接写出站类。不建 HO；禁外印元数据。'
 - name: 生成交接包
   id: send
+  skills: []
   must_read:
   - rules/packets/handoff/send.md
   agent: test-planner
@@ -43,6 +45,7 @@ steps:
     `04` 空白≠必须填写。有平台已交 → 拒绝重复 BUG 整包。输出【交接包已生成】。'
 - name: 接收与签收
   id: receive
+  skills: []
   must_read:
   - rules/packets/handoff/receive.md
   agent: test-planner
@@ -56,6 +59,7 @@ steps:
     按类型更新计划/分析表/准入；正式签收才回执。更新台账、计划、索引、activeContext。'
 - name: 发送变更通知
   id: change_send
+  skills: []
   must_read:
   - rules/packets/handoff/change_send.md
   agent: test-planner
@@ -70,6 +74,7 @@ steps:
     更新 `handoff-ledger.md`、测试计划、 `{workroot}/INDEX.md`、activeContext；输出【变更通知已生成】+ 回执截止。 未确认不得发；不得用口头/聊天替代变更包。
 - name: 接收变更并适配
   id: change_receive
+  skills: []
   must_read:
   - rules/packets/handoff/change_receive.md
   agent: test-planner
@@ -83,6 +88,7 @@ steps:
     回计划门。 更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
 - name: 重规划
   id: replan
+  skills: []
   must_read:
   - rules/packets/handoff/replan.md
   agent: test-planner
@@ -94,6 +100,7 @@ steps:
     `CHG` 包并收回执。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: report-agent

@@ -1,6 +1,6 @@
 # 包内专业技能（随包生效 · 无需安装/挂载）
 
-> **定位**：每一步的**专业方法与手艺**，随本包分发。命中步骤 → 步骤注记直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
+> **定位**：每一步的**专业方法与手艺**，随本包分发。命中步骤 → 步骤包 §6 打开并**整卡读取**对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`skills/<name>/SKILL.md`（`name` 取 frontmatter）；随包复制、**无需安装**；AGENTS/步注直接按路径读取。宿主支持本地 skills 根时，可把 `skills/` 指向本地 skills 目录（可选，不是前置条件）。  
 > **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部工具选型写入实例 `{workroot}/capabilities/`（「装配能力」）。  
 > **格式**：每份技能含 `name` / `description` frontmatter（Agent Skills 兼容），description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行（超长拆 `references/`）。质量标准见本文末节。
@@ -8,25 +8,6 @@
 > **与「能力」的区别**：技能=怎么做（随包必用）；能力选型真源=`{workroot}/capabilities/00-能力清单.md`；包内契约/参考目录非真源。  
 > **与「规则」的区别**：技能给方法；红线/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、deanpeters/Product-Manager-Skills、shinpr/prd-reviewer（异上下文 PRD 审）、headout pm-os l1-reviewer（问题/反范围/场景/可测 AC）、NIST AI RMF / Generative AI Profile、ISO/IEC 42001、EU AI Act（按适用）、OWASP Top 10 for LLM 2025、ETIS 评审（AI 产物人责）、Stage-Gate / Lean Startup / Working Backwards、The Mom Test / JTBD / Continuous Discovery / BABOK、WCAG 2.2、Core Web Vitals、Google SRE（SLI/SLO）、主流设计系统（许可以官方为准）。  
-
-## 编号别名 → 实际路径（旧引用兼容）
-
-| 别名 | 实际路径 |
-| --- | --- |
-| 00 | `skills/zero-to-one-product-definition/SKILL.md` |
-| 01 | `skills/requirement-discovery-and-prioritization/SKILL.md` |
-| 02 | `skills/prd-writing/SKILL.md` |
-| 03 | `skills/review-and-finalize/SKILL.md` |
-| 04 | `skills/change-management/SKILL.md` |
-| 05 | `skills/uat-and-retrospective/SKILL.md` |
-| 06 | `skills/prototype-and-interaction/SKILL.md` |
-| 07 | `skills/ui-visual-design-system/SKILL.md` |
-| 08 | `skills/demo-storytelling/SKILL.md` |
-| 09 | `skills/presentation-design/SKILL.md` |
-| 10 | `skills/product-docs/SKILL.md` |
-
-> 新引用一律用实际路径；编号别名只用于兼容旧文本。  
-> **无编号别名**（勿强加 00–10）：`customer-needs-discovery`、`competitive-intelligence-and-learning`、`analytics-and-experimentation`、`artifact-review` 等后增技能，只按目录名引用。
 
 ## 步骤 → 技能映射
 
@@ -37,7 +18,7 @@
 | prd：discover | `skills/customer-needs-discovery/SKILL.md` + `skills/requirement-discovery-and-prioritization/SKILL.md`；竞品分析口令加 `competitive-intelligence-and-learning`（S） |
 | prd：benchmark | `skills/competitive-intelligence-and-learning/SKILL.md`（模式 P）+ `skills/requirement-discovery-and-prioritization/SKILL.md` |
 | prd：prioritize | `skills/requirement-discovery-and-prioritization/SKILL.md` + 按需 `customer-needs-discovery` |
-| prd：prd（撰写） | `skills/prd-writing/SKILL.md`（§9 完稿自检摘要 + P1↑；与 `03` 同源）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验） |
+| prd：prd（撰写） | `skills/prd-writing/SKILL.md`（§9 完稿自检摘要 + P1↑；与 `review-and-finalize` 同源）+ `skills/analytics-and-experimentation/SKILL.md`（指标/埋点/实验） |
 | prd：review（评审定稿） | `skills/artifact-review/SKILL.md`（先选 A/B）+ `skills/review-and-finalize/SKILL.md`（选 B 量规） |
 | plan：review-plan | `skills/artifact-review/SKILL.md` |
 | prototype：review | `skills/artifact-review/SKILL.md` + `skills/ui-visual-design-system/SKILL.md` |
@@ -82,7 +63,7 @@
 - **流程而非知识**：写“先做什么、怎么判定、产出什么”，不写百科。
 - **具体**：能写字段/阈值/模板节就不写“检查一下”；引用本包真实路径，不造文件。
 - **单一出处**：红线/门/评分卡只引用，不复制；跨技能用名称引用。
-- **渐进披露**：主文件建议 ≤500 行；单步读取以 §6 行窗为准；**超长才拆** `references/`。
+- **渐进披露**：主文件建议 ≤500 行；步骤卡 §6 默认**整卡读取**；确实过长的附录/命令/样例才拆 `references/`，由正文点名再开。
 - **宿主/模型中立**：不写死某宿主工具名、模型版本或私有调用方式；写能力与目标。
 - **只写现行**：不记录历史过程/旧方案。业务项目禁止改项目根 CHANGELOG；过程/接入进本包工作日志。母版仓包能力变化由母版维护会话记母版根 CHANGELOG（通常开发落笔）。
 - **中文优先**：方法与判定用中文；保留必要英文术语与代码/命令。

@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/change.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: change
@@ -23,6 +23,9 @@ trigger:
 steps:
 - name: 受理与建档
   id: intake
+  skills:
+  - customer-needs-discovery
+  - change-management
   must_read:
   - rules/packets/change/intake.md
   agent: pm-lead
@@ -37,6 +40,8 @@ steps:
   notes: 统一入口建档；先还原问题再分诊；双确认未过不入池/不写正式 PRD。 外部输入/关账见 `rules/doc-governance.md`；方法只认 §6 必开技能闭环。
 - name: 分诊与定性
   id: triage
+  skills:
+  - change-management
   must_read:
   - rules/packets/change/triage.md
   agent: pm-lead
@@ -44,6 +49,7 @@ steps:
   notes: 按技能判定树；理解未确认先回 intake。产品缺陷须依据；无依据禁甩锅。
 - name: 新需求与优先级（条件）
   id: new_requirement
+  skills: []
   must_read:
   - rules/packets/change/new_requirement.md
   when: new_requirement
@@ -51,9 +57,11 @@ steps:
   hitl: confirm_scope
   hitl_when: scope_decision_required
   output: '{workroot}/requirement-pool.md 更新 + 范围结论'
-  notes: 仅新需求；入池须证据；confirm_scope 后进 assess/路线图。细节只认技能必做。
+  notes: 仅新需求；入池须证据；confirm_scope 后进 assess/路线图。细节只认 §6 技能整卡方法。
 - name: 影响评估
   id: assess
+  skills:
+  - change-management
   must_read:
   - rules/packets/change/assess.md
   when: needs_impact_assessment
@@ -62,6 +70,7 @@ steps:
   notes: 改已定稿基线须变更单且差量表必填。方法只认 change-management。
 - name: 处置确认
   id: decide
+  skills: []
   must_read:
   - rules/packets/change/decide.md
   when: decision_required
@@ -75,6 +84,8 @@ steps:
   notes: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑可跳过本门。
 - name: 联动落地
   id: apply
+  skills:
+  - change-management
   must_read:
   - rules/packets/change/apply.md
   when: change_apply_required
@@ -84,6 +95,9 @@ steps:
   notes: 仅接受/下期/立即修且有联动项；逐项闭合并写受理单 §6。平台回写见 `rules/defects/` 适配；CHG 包走 handoff。
 - name: 重审（条件）
   id: review
+  skills:
+  - artifact-review
+  - review-and-finalize
   must_read:
   - rules/packets/change/review.md
   when: substantive_change
@@ -97,9 +111,11 @@ steps:
   - name: confirm_prd
     when: finalize_requested
   output: 评审记录（{workroot}/{ver}/10-requirements/评审-{主题}-{yyyyMMdd}.md）
-  notes: STOP 选 A/B；选 B 跑 -Mode review。方法只认 artifact-review review-and-finalize 必做。
+  notes: STOP 选 A/B；选 B 跑 -Mode review。方法只认 §6 `artifact-review` `review-and-finalize` 整卡方法。
 - name: 验证与关闭
   id: verify
+  skills:
+  - change-management
   must_read:
   - rules/packets/change/verify.md
   when: needs_linked_update
@@ -110,6 +126,7 @@ steps:
   notes: Invoke-Gate -Mode change；未 READY 不得 closeout 冒充完成。回执未收不得称已接收。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: pm-lead

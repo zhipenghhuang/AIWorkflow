@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_plan`**：首次创建或范围·版本·里程碑实质变更；确认后计划状态=已确认
+- **HITL `confirm_plan`**：首次创建或范围·版本·里程碑实质变更；确认后计划状态=已确认；未关闭 S 或阻塞实施的 P 未答复时不得确认（`clarification.md` §1.1）
 - **条件判定 `hitl:plan_needs_confirm`**：计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
 - **HITL `confirm_iteration_close`**：出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 文档治理规则（工作根/原件根/索引/关版整夹） 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/升级且是否关本期不明；满足→真，否则跳过该门。
@@ -46,6 +46,8 @@
 
 ### 本步动作清单
 
+- 先判换迭代：新方案/新版本到达且当前迭代未关闭 → STOP `confirm_iteration_close`。
+- 未决前只做入站/理解/待确认，不得替换 `development-plan.md` 或归档现行绑定文档。
 - 本步只建/更新开发计划，不自动执行后续阶段。
 - 要推进说「按开发计划执行」。
 - 技能见 §6 `development-plan`（先读再做）。
@@ -67,7 +69,7 @@
 - L2+ 同时确认 需求台账/变更记录/待决项/决策记录/`inbound/` + `inbound/INDEX.md` 存在。
 - 无则按模板补。
 - 每阶段按阶段表“技能”列加载技能。
-- S2 技术方案按变更面加载 02A/02B/02C/02D/02E/02F，不要求全读。
+- S2 技术方案按变更面加载 technology-selection/database-design/api-design/frontend-design/threat-modeling/performance-and-capacity，不要求全读。
 - 已存在：不覆盖。
 - 读现状后转 sync，避免丢失进度。
 - L0 微改可写「不适用」。
@@ -91,16 +93,17 @@
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
+> `references/` 仅在技能正文点名时再打开；不预读其它技能/手册。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `development-plan` | **必开** | 进入本步即开（质量不降） | `skills/development-plan/SKILL.md` | 只读 L14-L159（硬门槛+方法+反合理化）→ 回本包 |
-| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 只读 L12-L19（必做）→ 回本包 |
-| `product-shaping` | 条件开 | 无 PRD/只有想法 | `skills/product-shaping/SKILL.md` | 只读 L13-L125（硬门槛+方法+反合理化）→ 回本包 |
+| `development-plan` | **必开** | 进入本步即开（质量不降） | `skills/development-plan/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `product-doc-analysis` | 条件开 | 输入含 PRD/原型/产品文档 | `skills/product-doc-analysis/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `product-shaping` | 条件开 | 无 PRD/只有想法 | `skills/product-shaping/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
-- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
@@ -119,5 +122,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan,product-doc-analysis,product-shaping|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

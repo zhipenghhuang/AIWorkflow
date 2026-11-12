@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/onboard.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: onboard
@@ -40,6 +40,7 @@ trigger:
 steps:
 - name: 旧结构迁移
   id: migrate
+  skills: []
   must_read:
   - rules/packets/onboard/migrate.md
   agent: onboard-agent
@@ -57,6 +58,7 @@ steps:
     文件冲突/无法判断归属/三项混在一个方案 → 停下问一次，不擅自覆盖。 迁移后核对链接与引用，再进入 baseline/context。
 - name: 挂载与基线
   id: baseline
+  skills: []
   must_read:
   - rules/packets/onboard/baseline.md
   - rules/templates/00-onboarding/env-baseline-template.md
@@ -73,6 +75,7 @@ steps:
     记原件根 `inbound/` + 本包副本根；资料模式默认 mix（keep 仍可复制/吸收）。 存量全索引；按需复制/A0～A2 吸收。 **禁**类型前缀扁平；**禁**再建 `项目文档/`。不建 `{workroot}/计划执行看板.md`。'
 - name: 资料收取与归档
   id: materials
+  skills: []
   must_read:
   - rules/packets/onboard/materials.md
   agent: onboard-agent
@@ -90,6 +93,7 @@ steps:
     台账。 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认 overwrite-latest）。
 - name: 文档治理检查
   id: lifecycle
+  skills: []
   must_read:
   - rules/packets/onboard/lifecycle.md
   agent: onboard-agent
@@ -104,6 +108,7 @@ steps:
     并写清理清单。
 - name: activeContext
   id: context
+  skills: []
   must_read:
   - rules/packets/onboard/context.md
   - rules/templates/00-onboarding/active-context-template.md
@@ -113,6 +118,7 @@ steps:
     已有文件：只补/更新总览（若空）、`## 测试` 与运行时「测试规范接入」行；保留他包分节与他包接入行；禁止整文件套模板覆盖。
 - name: 入库策略
   id: gitignore
+  skills: []
   must_read:
   - rules/packets/onboard/gitignore.md
   agent: onboard-agent
@@ -122,6 +128,7 @@ steps:
     不忽略源文件、模板、当前计划/报告/用例。 规范包默认不跟踪：只写已装包一行（如 `/wf-testing/`），多包写 `/wf/`；不预列未装包、不加注释；其它项只列路径。
 - name: 环境与工具检查
   id: capabilities
+  skills: []
   must_read:
   - rules/packets/onboard/capabilities.md
   agent: onboard-agent
@@ -130,6 +137,7 @@ steps:
     仅当用户点名「装配能力」时：对照契约+参考目录+现清单盘点，确认后写入 `{workroot}/capabilities/`（及按需绑定/装配笔记）；刷基线 索引；安装指引见 README「宿主适配」。 例外：已配置且明显不可用、会影响预期的事项，一句话说明。禁强推、禁把选型写回包内契约。
 - name: 核验与打标
   id: verify
+  skills: []
   must_read:
   - rules/packets/onboard/verify.md
   agent: onboard-agent
@@ -138,6 +146,7 @@ steps:
     -Action ValidateTemplateRefs`；BLOCKED 不得打标。 有挂起原口令则 resume；此后业务任务见标记直跑。'
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: onboard-agent

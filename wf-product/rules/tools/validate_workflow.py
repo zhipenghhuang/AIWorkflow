@@ -124,6 +124,35 @@ def main() -> int:
             agent = str(step.get("agent") or "")
             if agent and agent_ids and agent not in agent_ids:
                 errors.append(f"STEP_AGENT: {path.relative_to(root)}: {sid or idx} agent={agent} not found")
+            step_skills = step.get("skills")
+            if step_skills is not None:
+                if not isinstance(step_skills, list):
+                    errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} skills must be a list")
+                    step_skills = []
+                seen_skills: set[str] = set()
+                for sk in step_skills:
+                    sk = str(sk).strip()
+                    if not re.fullmatch(r"[a-z0-9-]+", sk):
+                        errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} bad skill name '{sk}'")
+                        continue
+                    if sk in seen_skills:
+                        errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} duplicate skill '{sk}'")
+                    seen_skills.add(sk)
+                    if not (root / "skills" / sk / "SKILL.md").is_file():
+                        errors.append(f"STEP_SKILL: {path.relative_to(root)}: {sid or idx} skills/{sk}/SKILL.md not found")
+                step_cond = step.get("skills_conditional")
+                if step_cond is not None:
+                    if not isinstance(step_cond, dict):
+                        errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} skills_conditional must be a mapping")
+                    else:
+                        for sk, why in step_cond.items():
+                            sk = str(sk).strip()
+                            if sk in seen_skills:
+                                errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} '{sk}' both required and conditional")
+                            if not str(why or "").strip():
+                                errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} conditional '{sk}' missing when")
+                            if not (root / "skills" / sk / "SKILL.md").is_file():
+                                errors.append(f"STEP_SKILL: {path.relative_to(root)}: {sid or idx} skills/{sk}/SKILL.md not found")
             read_ref = step.get("read_ref")
             if read_ref:
                 ref_path = str(read_ref).split("#", 1)[0].strip()

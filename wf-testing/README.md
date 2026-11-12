@@ -22,7 +22,7 @@
 | `workflows/` | `testing` / `defect` / `handoff` / `onboard` / `materials` / `skill-audit` |
 | `agents/` | planner / orchestrator / reviewer / worker / bug / report / onboard |
 | `capabilities/` | 包侧契约+参考目录；实例真源 `{workroot}/capabilities/` |
-| `skills/` | 依据分析、计划、场景设计、执行、接口、发布前 |
+| `skills/` | 依据分析、计划、场景设计、执行、接口、发布前、报告与准出 |
 | `rules/gates.md` | 门/`when`/`gate_when` 语义 |
 | `rules/workflow.md` | 参考：产物路径/轨道/执行规则（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
 | `rules/tracks/` | `api.md`、`exploratory.md`、`random-flows.md`、`pre-release.md` |
@@ -76,7 +76,7 @@ wf-testing/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
 python wf-testing/verify/tools/selftest_gate.py
 ```
 
-自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。自检含 YAML 语法/schema、引用、锚点、步骤包、技能质量；门自测含正例+反例（计数/假 INT/lite 版本/幽灵意图/P0 改写/P0 记不适用/无 P0/计划草稿/批次 ID 不匹配）。
+自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。自检含 YAML 语法/schema、引用、锚点、步骤包、技能质量、生成漂移；门自测含正例+反例（计数/假 INT/lite 版本/幽灵意图/P0 改写/P0 记不适用/无 P0/计划草稿/批次 ID 不匹配）。
 
 ## 5. 宿主适配
 

@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/retro.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: retro
@@ -17,6 +17,8 @@ trigger:
 steps:
 - name: 收集事实
   id: gather
+  skills:
+  - retrospective-and-improvement
   must_read:
   - rules/packets/retro/gather.md
   agent: delivery-lead
@@ -25,6 +27,8 @@ steps:
     time/cycle time/CFR/escaped defects/MTTR）。 无法确认写「未知」，不猜。
 - name: 根因分析
   id: analyze
+  skills:
+  - retrospective-and-improvement
   must_read:
   - rules/packets/retro/analyze.md
   agent: delivery-lead
@@ -32,6 +36,8 @@ steps:
   notes: 5 Whys/因果链追到可改变的系统性原因；不要停在“人为疏忽”。 贡献因素：流程/工具/测试/评审/监控/文档/排期/沟通；做得好/做不好各列。 只对事不对人；结论附证据。
 - name: 行动项
   id: actions
+  skills:
+  - retrospective-and-improvement
   must_read:
   - rules/packets/retro/actions.md
   agent: delivery-lead
@@ -40,6 +46,7 @@ steps:
   notes: 每条行动项：具体动作 + 负责人 + 截止 + 验收标准 + 跟踪位置；优先系统性缺口。 能落到rules/skills/templates/门禁的直接改；不能落地的建跟踪项。 confirm_actions：出示行动项清单与优先级，确认后落盘；未确认不宣称改进完成。
 - name: 落盘与索引
   id: record
+  skills: []
   must_read:
   - rules/packets/retro/record.md
   - rules/templates/60-retro/retro-template.md
@@ -50,6 +57,7 @@ steps:
     `rules/core/context-memory.md` 复盘沉淀（升级 清理偏好与洞见）。 下次复盘先对账上次行动项；未完成项说明原因与新截止。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: delivery-lead

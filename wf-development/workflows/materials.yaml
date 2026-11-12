@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/materials.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: materials
@@ -21,6 +21,7 @@ trigger:
 steps:
 - name: 选择版本与范围
   id: select
+  skills: []
   must_read:
   - rules/packets/materials/select.md
   agent: delivery-lead
@@ -31,6 +32,7 @@ steps:
     确认，不新造门。
 - name: 同步权威文档
   id: sync
+  skills: []
   must_read:
   - rules/packets/materials/sync.md
   agent: delivery-lead
@@ -40,6 +42,7 @@ steps:
     或升 rev，不覆盖旧目录。 不直接编辑材料库正文；需要改先改 `{workroot}` 再重新发布（默认仍覆盖同 ver）。
 - name: 版本说明、索引与校验
   id: index
+  skills: []
   must_read:
   - rules/packets/materials/index.md
   agent: delivery-lead
@@ -51,6 +54,7 @@ steps:
     链接自包含，只发 `{ver}/` 不缺文件；测试数据默认不外发；旧版本状态正确。 待补项列明，不把“已生成”说成“已完整”。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: delivery-lead

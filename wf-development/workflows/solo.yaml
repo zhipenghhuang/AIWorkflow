@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/solo.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: solo
@@ -26,6 +26,10 @@ trigger:
 steps:
 - name: 产品定义
   id: frame
+  skills:
+  - product-shaping
+  skills_conditional:
+    product-doc-analysis: 输入含 PRD/原型/产品文档
   must_read:
   - rules/packets/solo/frame.md
   when: new_product_or_unclear_idea
@@ -39,6 +43,10 @@ steps:
     输入含 PRD/原型/文档 → 先按 `skills/product-doc-analysis/SKILL.md` 产出理解摘要，再填本卡，不重复问已确认项。
 - name: 产品分析
   id: product
+  skills:
+  - product-shaping
+  skills_conditional:
+    product-doc-analysis: 输入含 PRD/原型/产品文档
   must_read:
   - rules/packets/solo/product.md
   - rules/templates/30-planning-tasks/solution-card-template.md
@@ -55,6 +63,10 @@ steps:
     frame，方案卡引用不重复。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
 - name: 方案与验收
   id: design
+  skills:
+  - solution-design
+  - task-breakdown
+  - engineering-quality
   must_read:
   - rules/packets/solo/design.md
   - rules/templates/30-planning-tasks/solution-card-template.md
@@ -72,6 +84,8 @@ steps:
     + 理由；L2+/高风险/新功能/落地文档 → true）；§9 过程证据填理解包/方案/评审记录/安全/回滚（gate 读取；可指本卡；未产生写不适用）。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
 - name: 落地文档评审
   id: review_docs
+  skills:
+  - design-doc-review
   must_read:
   - rules/packets/solo/review_docs.md
   when: do_landing_doc_review
@@ -81,11 +95,13 @@ steps:
     when: need_select_review_mode
   on_fail: 回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build
   output: 评审-文档-*.md 或 HUMAN_APPROVED 声明
-  notes: 技能：`skills/design-doc-review/SKILL.md`（只读必做区）。 STOP 选 A/B；未选不得进 test_plan/build；本步不审 diff（代码走 review）；审方案卡/验收表/用户版说明；缺口回
+  notes: 技能：`skills/design-doc-review/SKILL.md`（整卡读取）。 STOP 选 A/B；未选不得进 test_plan/build；本步不审 diff（代码走 review）；审方案卡/验收表/用户版说明；缺口回
     design；结论落 20-design 或 50-verification（按项目约定）。 本步触发以方案卡 §9 do_landing_doc_review 为准；L0/L1 小改可 false + 理由；L2+/高风险/新功能/落地文档
     → true。
 - name: 测试分析与计划
   id: test_plan
+  skills:
+  - test-design-and-execution
   must_read:
   - rules/packets/solo/test_plan.md
   - rules/templates/40-delivery/solo-test-plan-template.md
@@ -98,6 +114,12 @@ steps:
     跳过；代码/配置必产。 测试报告只写执行结果，不重复本计划。
 - name: 完整开发与自测
   id: build
+  skills:
+  - implementation-and-selftest
+  - engineering-quality
+  skills_conditional:
+    frontend-implementation: 有 UI / 有原型
+    product-doc-analysis: 输入含 PRD/原型/产品文档
   must_read:
   - rules/packets/solo/build.md
   agent: implementer
@@ -108,6 +130,9 @@ steps:
     §6；词典索引 `rules/core/implementation-quality.md`。本步不自称已评审；超方案卡先停。
 - name: 代码评审
   id: review
+  skills:
+  - code-review
+  - engineering-quality
   must_read:
   - rules/packets/solo/review.md
   when: review_required
@@ -121,6 +146,8 @@ steps:
     UI 命中前端硬门 A 级/L2+/高风险/新功能/点名 → true。
 - name: 测试与验收
   id: test
+  skills:
+  - test-design-and-execution
   must_read:
   - rules/packets/solo/test.md
   - rules/templates/40-delivery/lite-test-report-template.md
@@ -142,6 +169,7 @@ steps:
     纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；closeout 写 `verification=not_applicable` + 依据。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: implementer

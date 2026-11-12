@@ -9,7 +9,7 @@
 - 无口令/自然语言入口判定 → `rules/core/routing.md`（改五元组/意图类 A～L/状态修正/置信度时同步；并核 AGENTS 口令表指针；附录仅校验勿当词典）
 - 开局卡 → `rules/core/cold-start.md`
 - 心跳格式 → `rules/core/global-rules.md` §8（同步 activeContext 运行状态）
-- 步骤 → `workflows/`（含 `skill-audit.yaml`；0→1：`new-product.yaml`；计划：`plan.yaml`；受理/变更：`change.yaml`；缺陷平台：`defect.yaml`；展示：`showcase.yaml`；原型：`prototype.yaml`）
+- 步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`；含 `skill-audit.yaml`；0→1：`new-product.yaml`；计划：`plan.yaml`；受理/变更：`change.yaml`；缺陷平台：`defect.yaml`；展示：`showcase.yaml`；原型：`prototype.yaml`）
 - 角色契约（决策权）→ `rules/collaboration/roles.md`；角色 YAML IO → `agents/`
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`；缺陷平台：`rules/defects/platform-collaboration.md`）
 - 澄清协议 → `rules/core/clarification.md`

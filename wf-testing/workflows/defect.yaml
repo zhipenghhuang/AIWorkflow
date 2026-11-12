@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/defect.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: defect
@@ -32,6 +32,7 @@ preflight:
 steps:
 - name: 识别子类
   id: classify
+  skills: []
   must_read:
   - rules/packets/defect/classify.md
   agent: bug-agent
@@ -42,6 +43,7 @@ steps:
     bug-agent reads）。 首条回执含 mode=直跑|只读扇出（平台回归加严，见 subagents）。 **批量侦察**：≥5 单且读单成本高（多备注/附件/评估单）或合计 ≥20k token → 逐单只读扇出（一单/小批一子代理），返回子类候选/证据缺口/查重键；达阈值未扇出→deviation=subagent_skipped:<理由>；子类结论与处置集中，不采信子代理终态；复测默认串行。
 - name: 查重或拉取
   id: search
+  skills: []
   must_read:
   - rules/packets/defect/search.md
   agent: bug-agent
@@ -54,6 +56,7 @@ steps:
     行，判定/复测/回写集中；复测同账号写域禁并行。
 - name: 提交或回写
   id: submit
+  skills: []
   must_read:
   - rules/packets/defect/submit.md
   when: defect_submit_required
@@ -74,6 +77,7 @@ steps:
   output: 平台单号（或待确认后的统一导出路径）· 备注与状态同轮 · 可复制汇总块（collaboration.md §5.2）
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: report-agent

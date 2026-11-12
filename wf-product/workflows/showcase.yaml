@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/showcase.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: showcase
@@ -26,6 +26,8 @@ trigger:
 steps:
 - name: 受众与目标
   id: audience
+  skills:
+  - demo-storytelling
   must_read:
   - rules/packets/showcase/audience.md
   - rules/templates/50-showcase-docs/demo-script-template.md
@@ -35,6 +37,8 @@ steps:
   notes: 读 `product-profile.md` `{workroot}/product-plan.md` PRD UAT GTM 原型； 明确受众（老板/客户/用户/技术）、目标、时长、成功标准、保密边界与不演示项。 技能：`skills/demo-storytelling/SKILL.md`（先读再做）；受众/目标已明确则直接续跑，不停。
 - name: 故事线与流程图
   id: story
+  skills:
+  - demo-storytelling
   must_read:
   - rules/packets/showcase/story.md
   agent: pm-lead
@@ -45,6 +49,8 @@ steps:
     技能 demo-storytelling；模板。
 - name: 演示脚本
   id: demo
+  skills:
+  - demo-storytelling
   must_read:
   - rules/packets/showcase/demo.md
   agent: pm-lead
@@ -52,6 +58,7 @@ steps:
   notes: 场景化脚本：每场景写目标/入口/逐步点击路径/数据/预期/兜底/时长； 路径详细到菜单 → 页面 → Tab → 控件/行；优先演真实构建或原型；未实现能力不演。 准备 Q&A 与异议处理；技能 demo-storytelling。
 - name: Demo 环境与数据
   id: environment
+  skills: []
   must_read:
   - rules/packets/showcase/environment.md
   - rules/templates/50-showcase-docs/demo-checklist-template.md
@@ -61,6 +68,8 @@ steps:
     走查，未装=手工检查。
 - name: 展示材料
   id: materials
+  skills:
+  - presentation-design
   must_read:
   - rules/packets/showcase/materials.md
   agent: ux-designer
@@ -70,6 +79,8 @@ steps:
     presentation 可选。 **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外发送/承诺前由 `publish` 步 `confirm_materials` 确认，内部草稿不停。
 - name: 用户文档
   id: docs
+  skills:
+  - product-docs
   must_read:
   - rules/packets/showcase/docs.md
   - rules/templates/50-showcase-docs/user-manual-quickstart-template.md
@@ -81,6 +92,8 @@ steps:
     核对数字/版本/截图/边界；不并行写同一文档。 不写未发布功能；客户版发布说明面向用户，不写内部实现与内部路径；对外前由 `publish` 步确认。
 - name: 彩排与反馈
   id: dryrun
+  skills:
+  - demo-storytelling
   must_read:
   - rules/packets/showcase/dryrun.md
   when: demo_needs_dryrun
@@ -89,6 +102,7 @@ steps:
   notes: 准备演示/客户介绍/彩排 → `demo_needs_dryrun=true`。 计时演练；检查故事/路径/数据/兜底/Q&A；记录异议、问题、需求 → 按 `workflows/change.yaml` 回受理/需求池； 修正材料后再对外。
 - name: 对外确认
   id: publish
+  skills: []
   must_read:
   - rules/packets/showcase/publish.md
   when: materials_for_external
@@ -99,6 +113,7 @@ steps:
   notes: 材料/文档/演示已就绪；出示对外清单（一页纸/Deck/user/发布说明）、数字与截图来源、未实现/未发布边界， 对外前可派 verifier-agent 只读核对（数字/版本/截图/边界）；确认后才对外发送、承诺或发布；内部汇报/草稿不触发。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: pm-lead

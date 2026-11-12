@@ -37,6 +37,8 @@
 > **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。
 > **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。
 
+- **本步必开技能（质量不降）**：`test-report` → 见 §6 闭环。
+
 ### 本步动作清单
 
 - 本步任务：出准出报告。
@@ -56,8 +58,17 @@
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
-- 本步无技能指向；按 §5 编排执行。
-- 禁止无指向却通读 skills/「找感觉」。
+> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  
+> 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
+> `references/` 仅在技能正文点名时再打开；不预读其它技能/手册。
+
+| 技能 | 级别 | 何时 | 路径 | 打开后 |
+| --- | --- | --- | --- | --- |
+| `test-report` | **必开** | 进入本步即开（质量不降） | `skills/test-report/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+
+- 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 条件未命中 → 该行 `na` + 一句理由。
+- 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
 ## 7. 模板与证据
 
@@ -66,7 +77,7 @@
 
 ## 8. 完成与退出
 
-- §2 产出已落盘；本步无 §6 技能指向。
+- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
 - 失败：停在本步补齐或升级；不得静默跳过。
@@ -74,5 +85,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:testing | step=report | agent=report-agent | packet=rules/packets/testing/report.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=report | agent=report-agent | packet=rules/packets/testing/report.md | global=ok | skills=test-report|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

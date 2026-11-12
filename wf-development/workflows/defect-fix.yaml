@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/defect-fix.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: defect-fix
@@ -27,6 +27,7 @@ trigger:
 steps:
 - name: 平台可用性
   id: preflight
+  skills: []
   must_read:
   - rules/packets/defect-fix/preflight.md
   agent: defect-fixer
@@ -38,6 +39,7 @@ steps:
     fix。'
 - name: 拉取与归组
   id: pull
+  skills: []
   must_read:
   - rules/packets/defect-fix/pull.md
   agent: defect-fixer
@@ -50,6 +52,9 @@ steps:
     → 直接进 product_decision。
 - name: 分类与处置
   id: triage
+  skills: []
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/defect-fix/triage.md
   agent: defect-fixer
@@ -63,6 +68,7 @@ steps:
     同类路径候选（同模型写入口/同谓词消费方/同权限端点/同状态表面）+ 规则缺口」；按 `skills/cross-layer-consistency/SKILL.md` 取矩阵，不只修表面现象。 内部处置码只用于路由，不写进平台备注。'
 - name: 产品缺陷评估
   id: assess_product
+  skills: []
   must_read:
   - rules/packets/defect-fix/assess_product.md
   - rules/templates/20-design/product-defect-assessment-template.md
@@ -75,6 +81,7 @@ steps:
     → 不判产品缺陷：按实现缺陷或 need_clarification 处理。 无平台/export/文档输入 → 评估单经 change/handoff 交付，口径与平台备注同源。
 - name: 评估单提交产品
   id: handoff_product
+  skills: []
   must_read:
   - rules/packets/defect-fix/handoff_product.md
   - rules/templates/40-delivery/defect-writeup-template.md
@@ -89,6 +96,7 @@ steps:
     提交后停，不进入 fix；输出 AWAIT_PRODUCT。
 - name: 等待产品处置
   id: await_product
+  skills: []
   must_read:
   - rules/packets/defect-fix/await_product.md
   when: product_defect
@@ -98,6 +106,7 @@ steps:
     fix-collaboration §4.1 并行处理（不受本单等待阻塞），澄清项照常回写；不输出提交菜单中未实施的项。 下次用户说「拉取产品回复/产品回复/产品退回/继续缺陷」→ 从 product_decision 进入。
 - name: 产品处置读取
   id: product_decision
+  skills: []
   must_read:
   - rules/packets/defect-fix/product_decision.md
   when: product_decision_received
@@ -111,6 +120,7 @@ steps:
     读不全（solutionChannel=manual）→ 请用户补关键附件/备注，禁只看标题或只读一句备注。
 - name: 文档对齐
   id: align
+  skills: []
   must_read:
   - rules/packets/defect-fix/align.md
   when: product_decision_requires_alignment
@@ -123,6 +133,11 @@ steps:
     不适用写原因；未对齐不得 fix。
 - name: 红证与修复
   id: fix
+  skills:
+  - debugging-and-error-recovery
+  - implementation-and-selftest
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/defect-fix/fix.md
   - rules/templates/20-design/solution-template.md
@@ -141,6 +156,7 @@ steps:
     commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
 - name: 澄清/非缺陷回写
   id: clarify
+  skills: []
   must_read:
   - rules/packets/defect-fix/clarify.md
   - rules/templates/40-delivery/defect-writeup-template.md
@@ -154,6 +170,7 @@ steps:
     重复→duplicateBug=主单；设计如此→引用设计原文；外部→给外部证据； 延期/不修复须产品/项目确认，不得开发单方关闭。 不改代码；备注与状态同轮；确认前展示全文。
 - name: 门禁
   id: gates
+  skills: []
   must_read:
   - rules/packets/defect-fix/gates.md
   output: .gate/wf-development/completion.json + 门禁摘要
@@ -168,6 +185,7 @@ steps:
     ≤30 行。 失败不声称完成；存量失败只对账新增；工具/环境缺失 → BLOCKED。
 - name: 总结菜单
   id: menu
+  skills: []
   must_read:
   - rules/packets/defect-fix/menu.md
   when: implementation_required
@@ -180,6 +198,7 @@ steps:
     产品缺陷项须列评估单/产品结论/对齐状态。
 - name: 提交推送部署回写
   id: close
+  skills: []
   must_read:
   - rules/packets/defect-fix/close.md
   - rules/templates/40-delivery/release-notes-template.md
@@ -203,6 +222,7 @@ steps:
     修复/回归完成且已写回平台 → **不**强制 `FIX` 整包；无平台/点名 → **先问后发** 自包含 FIX 包。未回执不得写“测试已回归/产品已验收”。
 - name: 发布后验证
   id: postrelease
+  skills: []
   must_read:
   - rules/packets/defect-fix/postrelease.md
   when: has_deployed
@@ -212,6 +232,8 @@ steps:
     失败/回滚不重复回写已回写项；需要时转 retro。
 - name: 复盘
   id: retro
+  skills:
+  - retrospective-and-improvement
   must_read:
   - rules/packets/defect-fix/retro.md
   - rules/templates/60-retro/retro-template.md
@@ -222,6 +244,7 @@ steps:
     行动项必须有负责人/截止/验收；进任务清单或 {workroot}/80-retrospectives/改进项.md。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: defect-fixer

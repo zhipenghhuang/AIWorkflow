@@ -6,7 +6,7 @@
 ## 1. 改哪里
 
 - 不变量/路由/读取协议 → `AGENTS.md`
-- 步骤顺序 → `workflows/`
+- 步骤顺序/技能挂载 → `workflows/`（step 的 `skills` / `skills_conditional`）；改后跑 `build_step_packets.py`
 - 角色契约 → `agents/`
 - 红线/输出/门 → `rules/`（门：`rules/gates.md`）
 - 澄清协议 → `rules/core/clarification.md`

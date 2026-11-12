@@ -66,8 +66,12 @@ def main() -> int:
             errors.append(f"{rel}: name 重复（{names[name]}）")
         else:
             names[name] = rel
+        if name and name != p.parent.name:
+            errors.append(f"{rel}: frontmatter name={name} != 目录名 {p.parent.name}")
         if not desc:
             errors.append(f"{rel}: frontmatter 缺少 description")
+        elif len(desc) > 1024:
+            errors.append(f"{rel}: description 超过 1024 字符")
         elif not CJK.search(desc):
             warnings.append(f"{rel}: description 缺中文触发词")
         lines = len(text.splitlines())
@@ -93,6 +97,13 @@ def main() -> int:
     for name, p, _ in skills:
         if name and name not in corpus:
             warnings.append(f"{p.relative_to(root)}: 未被 workflows/agents/rules/skills 引用")
+
+    readme = skill_root / "README.md"
+    if readme.is_file():
+        rt = readme.read_text(encoding="utf-8", errors="replace")
+        for name, relpath in names.items():
+            if name and f"skills/{name}" not in rt:
+                errors.append(f"{relpath}: skills/README.md 未映射")
 
     if warnings:
         for w in warnings:

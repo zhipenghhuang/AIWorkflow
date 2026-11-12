@@ -5,7 +5,7 @@
 
 ## 1. 是什么
 
-**AI Workflow 包（产品轨）**：声明式 `workflows/*.yaml` + 角色 `agents/*.yaml` + 规则 `rules/` + 内置专业技能（`skills/`：随包生效、按步自动加载）+ 能力契约/参考目录（实例真源 `{workroot}/capabilities/`）。  
+**AI Workflow 包（产品轨）**：声明式 `workflows/*.yaml` + 角色 `agents/*.yaml` + 规则 `rules/` + 内置专业技能（`skills/`：随包生效、按步整卡读取）+ 能力契约/参考目录（实例真源 `{workroot}/capabilities/`）。  
 主链：**新产品 0→1**（发现 → 立项 → 产品定义 → PRD → 交付 → 上市 → 复盘）与**迭代**（需求洞察 → 优先级/立项 → PRD → 评审定稿 → 排期 → 跟进/变更 → UAT → 发布 → 复盘）；**产品计划**（`{workroot}/product-plan.md`）为总领单点，**§3.0【业务与变更简报】+本期差量表**为默认权威 Delta（阶段 1 定范围时写入）；独立「迭代变更摘要」仅仓外handoff/版本归档/点名时按需生成。变更单含 §2.1 Now→Proposed（改已定稿基线）。**展示**（`showcase.yaml`）：受众 → 故事线/流程图 → 演示脚本 → Demo 环境 → 材料/用户文档 → 彩排。  
 执行宿主（任意支持 AGENTS 的 AI 编码工具，要求见本文「宿主适配」节）按 YAML 步骤执行；步内实现路径交 AI（框架固定 · 局部自主）。  
 **需求理解（产品核心职责）**：按 `skills/customer-needs-discovery/SKILL.md` + `rules/core/clarification.md` **多问清需求、完善方案要点、并做理解→方案双确认**；每轮 1 问（或 2～3 互斥选项）；技术细节先给业务向建议请确认；未双确认不得入池承诺/写正式 PRD/定版本；未确认推断标「假设」。  
@@ -19,7 +19,7 @@
 | `workflows/` | `new-product`（0→1）· `plan`（产品计划/路线图）· `prd`（洞察/竞品分析·对标/立项/PRD/评审/需求交接）· `prototype`（设计策略/项目适配/IA/线框/视觉/高保真/评审/交接）· `showcase`（演示/介绍/用户文档）· `change`（受理与变更）· `defect`（缺陷平台）· `deliver`（排期/UAT/发布/复盘）· `handoff`（交接包/接收回执/变更通知/状态）· `onboard` · `materials`（权威文档库）· `skill-audit`（能力技能体检） |
 | `agents/` | pm-analyst / prd-writer / pm-lead / reviewer-agent / ux-designer / onboard-agent / verifier-agent / worker-agent |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
-| `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步自动加载；`skills/README.md`） |
+| `skills/` | 内置专业技能（每步方法/手艺，随包生效、按步整卡读取；`skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令→workflow；版本单点） |
 | `rules/gates.md` | 门语义、`when` 词表、门档位（autonomous/notify/approve）；含 PRD/评审/设计评审/UAT/变更/回写/材料库等门 |
 | `rules/workflow.md` | 参考：阶段护栏/产物路径（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
@@ -51,7 +51,7 @@
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `verify/` | 收尾/过门时读；运行态写 `.gate/wf-product/` |
 
-> 读取预算（目标，非硬上限）：核心必读 ≤3～4（`AGENTS.md` 当前相关节 + 当前步骤卡 + 当前 agent/当前关键产物）；方法层按命中才读；单步读取 = 当前步骤包 + §6 实际行窗（另加每步 `global-rules`）；目标 ≤8k，复杂步可至 12k（超出在 `reads=` 说明）；按节读的规则手册不设整文件上限；复杂步可至 5 并在收尾 reads= 说明；不得为省预算跳过门/证据/红线。规则不是越多越稳，读全本会稀释当前 step 约束。
+> 读取预算（目标，非硬上限）：核心必读 ≤3～4（`AGENTS.md` 当前相关节 + 当前步骤卡 + 当前 agent/当前关键产物）；方法层按命中才读；单步读取 = 当前步骤包 + §6 技能整卡（另加每步 `global-rules`）；普通步 ≤12k，复杂步可至 22k（超出在 `reads=` 说明）；按节读的规则手册不设整文件上限；复杂步可至 5 并在收尾 `reads=` 说明；不得为省预算跳过门/证据/红线。预算约束技能长度与拆分，不把技能截断成行窗；技能确实过长时拆 `references/`，不靠少读降本。
 
 ### 2.2 版本目录（新产品默认）
 

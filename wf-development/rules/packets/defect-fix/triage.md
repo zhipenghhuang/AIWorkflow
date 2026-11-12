@@ -69,14 +69,15 @@
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
-> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  
+> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  
 > 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。
+> `references/` 仅在技能正文点名时再打开；不预读其它技能/手册。
 
 | 技能 | 级别 | 何时 | 路径 | 打开后 |
 | --- | --- | --- | --- | --- |
-| `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 只读 L12-L127（硬门槛+方法+反合理化）→ 回本包 |
+| `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
-- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。
+- 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。
 - 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。
 
@@ -86,7 +87,7 @@
 
 ## 8. 完成与退出
 
-- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已落盘；本步无 §6 技能指向。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
 - 失败：停在本步补齐或升级；不得静默跳过。
@@ -94,5 +95,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=triage | agent=defect-fixer | packet=rules/packets/defect-fix/triage.md | global=ok | skills=cross-layer-consistency|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=triage | agent=defect-fixer | packet=rules/packets/defect-fix/triage.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
 ```

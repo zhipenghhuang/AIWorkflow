@@ -37,9 +37,9 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | S0 输入检查 | 00 + 01§2 + change-intake | 未开始 | A: iterate-lead / R: implementer | PRD/原型/AC/收件箱 | 核对版本/缺口/环境/新输入 | 输入清单/问题 | G0 | {链接} | S1 |
 | S1 需求分析 | 01 | 未开始 | A: iterate-lead / R: implementer | 输入清单 | 功能点/AC/异常/权限/影响面 | 分析表 | G1 | {链接} | S2 |
-| S2 技术方案 | 02 + 02A/B/C/D/E/F 按需 + quality | 未开始 | A: implementer / R: implementer | 分析表 | 架构/选型/DB/API/前端/安全/性能/观测/回滚/测试策略 | 方案/ADR（前端补设计时另出说明） | G2 | {链接} | S3 |
+| S2 技术方案 | solution-design + technology-selection/database-design/api-design/frontend-design/threat-modeling/performance-and-capacity 按需 + engineering-quality | 未开始 | A: implementer / R: implementer | 分析表 | 架构/选型/DB/API/前端/安全/性能/观测/回滚/测试策略 | 方案/ADR（前端补设计时另出说明） | G2 | {链接} | S3 |
 | S3 任务与排期 | 06 | 未开始 | A: iterate-lead / R: iterate-lead | 方案 | 任务拆解/依赖/估算/DoR/DoD/检查点 | 任务清单 | G3 | {链接} | S4 |
-| S4 编码自测 | 03 + 03A/03B 按端 + quality | 未开始 | A: implementer / R: implementer | 任务清单 | 小步实现/单测/自测/文档 | 代码/证据 | G4 | {链接} | S5 |
+| S4 编码自测 | implementation-and-selftest + frontend-implementation/backend-implementation 按端 + engineering-quality | 未开始 | A: implementer / R: implementer | 任务清单 | 小步实现/单测/自测/文档 | 代码/证据 | G4 | {链接} | S5 |
 | S5 评审CI | 04 + quality | 未开始 | A: reviewer-agent / R: implementer | 代码/证据 | 代码评审/静态/安全/CI | 评审/CI 结果 | G5 | {链接} | S6 |
 | S6 提测 | 05 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 交 QA/环境/数据/回归指引 | 提测单/接收 | G6 | {链接} | S7 |
 | S7 测试缺陷 | 05 + 缺陷规则 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 测试/缺陷/回归 | 测试报告/缺陷记录 | G7 | {链接} | S8 |
@@ -61,7 +61,6 @@
 门结论：{G0～G1=…｜G2-W…=…｜…；单波次可写 G2=通过}
 
 > 技能路径：`skills/<name>/SKILL.md`，随包、无需安装。  
-> 00=development-plan｜01=requirements-and-spec｜02=solution-design｜02A=technology-selection｜02B=database-design｜02C=api-design｜02D=frontend-design｜02E=threat-modeling｜02F=performance-and-capacity｜03=implementation-and-selftest｜03A=frontend-implementation｜03B=backend-implementation｜quality=engineering-quality｜04=code-review｜05=qa-handoff-and-release｜06=task-breakdown｜07=acceptance-and-launch｜08=retrospective-and-improvement。
 
 ## 2. 输入与范围
 

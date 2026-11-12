@@ -7,6 +7,9 @@
 | `Invoke-TestWorkflow.ps1` | `-Action ValidateTemplateRefs`（引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML 语法/密钥扫描） |
 | `Test-DocHygiene.ps1` | 文档卫生/整文件预算：AGENTS、开局卡、global-rules；模板索引；结构/临时文件 |
 | `validate_workflow.py` | YAML 语法 + workflow/agent 基本 schema + step/agent/entry_points/hitl/when/gate 引用（由自检调用） |
+| `build_step_packets.py` | 由 `workflows/*.yaml` 生成链图/步骤卡；`--check` 只检漂移、不落盘 | `python rules/tools/build_step_packets.py . [--check]` |
+| `validate_step_packets.py` | 步骤卡 9 节结构/技能存在/整卡读取/生成漂移（`Validate-StepPackets.ps1` 入口） | `powershell -File rules/tools/Validate-StepPackets.ps1 -PackageRoot .` |
+| `check_skills.py` | 技能质量：frontmatter/≤500 行/反模式/README 映射 | `python rules/tools/check_skills.py . --strict` |
 | `playwright/executor.mjs` | 脚本档执行器（**复制到项目** `{workroot}/scripts/`，业务无关勿改逻辑；规则 `rules/special/script-execution.md`，用法同目录 `README.md`；`--mode=api` 支持接口轨无浏览器回放） |
 | `playwright/config.template.mjs` | 脚本档适配配置模板（复制为项目 `{workroot}/scripts/case-executor.config.mjs`） |
 | `validate_testcase.py` | 功能执行记录机检（原文对账/场景表/Oracle/证据/结果） |

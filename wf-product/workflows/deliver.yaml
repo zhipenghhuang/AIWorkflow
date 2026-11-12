@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/deliver.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: deliver
@@ -28,6 +28,8 @@ trigger:
 steps:
 - name: 排期与交接
   id: schedule
+  skills:
+  - change-management
   must_read:
   - rules/packets/deliver/schedule.md
   - rules/templates/40-delivery/delivery-plan-template.md
@@ -40,6 +42,8 @@ steps:
     A/B）；未过评审方式不得发 PLAN 包。'
 - name: 交付计划评审
   id: review-plan-deliver
+  skills:
+  - artifact-review
   must_read:
   - rules/packets/deliver/review-plan-deliver.md
   agent: reviewer-agent
@@ -51,6 +55,8 @@ steps:
     send（含 `confirm_handoff`），本步不直接落包。未收回执不得称「已接收」。
 - name: 交付跟进
   id: followup
+  skills:
+  - change-management
   must_read:
   - rules/packets/deliver/followup.md
   agent: pm-lead
@@ -60,6 +66,10 @@ steps:
     >2 个工作日或 > 阶段工期 10% → 升级（计划 ），并同步。
 - name: UAT 验收
   id: uat
+  skills:
+  - uat-and-retrospective
+  skills_conditional:
+    analytics-and-experimentation: 有指标/埋点/实验
   must_read:
   - rules/packets/deliver/uat.md
   - rules/templates/40-delivery/uat-acceptance-template.md
@@ -73,6 +83,8 @@ steps:
     UAT 结论。 收到测试报告/准出 → 有包则 `handoff.receive`，无包则读报告正文；UAT 通过后默认交 UAT 记录；`UAT` 包按需先问后发。 判定产品缺陷 vs 实现缺陷（依据：PRD 原文/设计对照）；结论：通过/不通过/有条件通过（有条件通过须列遗留、责任人与接受人）。
 - name: 发布与复盘
   id: release
+  skills:
+  - uat-and-retrospective
   must_read:
   - rules/packets/deliver/release.md
   - rules/templates/60-retro/retro-template.md
@@ -96,6 +108,7 @@ steps:
     T1/T2/T4，T2/T4 保留仍被引用的 PRD/原型基线；长期主档就地更新、版本绑定目录归档、已完结临时/失败/重复列清理候选；确认后执行。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: pm-lead

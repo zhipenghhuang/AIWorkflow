@@ -78,7 +78,7 @@ S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 �
 
 ## 4. 执行步骤
 
-1. **初始化**：复制模板到 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`）；填一页状态、输入、阶段表；当前阶段=S0；首次计划过 `confirm_plan`。  
+1. **初始化**：复制模板到 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`）；填一页状态、输入、阶段表；当前阶段=S0；首次计划过 `confirm_plan`。存在未关闭 S 或阻塞实施的 P（`clarification.md` §1.1）时，计划只可保持草稿，不得 `confirm_plan`、不得进入 S2。  
 2. **按计划执行（切包）**：读 §0 → 按阶段选定唯一目标 `workflow/step`（选路见 `control/run` 步骤卡）→ 同轮更新 `activeContext` → **关闭** `control/run` → 只打开目标步骤卡；目标步的必开技能/原文回指/前端硬门/完成门全数生效。  
 3. **禁在 control/run 内实施**：不写代码/方案/任务/理解包正文；不代跑 capture/parity/Claim。  
 4. **每阶段结束**：目标步产出/证据齐 → 回写阶段表（状态/产出/证据/下一步）→ 过门；用户说「进度」做 `sync`，或再说「按开发计划执行」进下一阶段。  

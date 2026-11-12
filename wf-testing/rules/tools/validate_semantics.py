@@ -19,10 +19,10 @@ import yaml
 
 RESIDUE = ("//", "→。", "→；", "→ /")
 REQUIRED_PACKET_MARKS = ("- **角色**：", "- **上游**：", "- **后续**：", "- **失败去向**：")
-# 每步读链上限（packet + 必开技能窗口）。execute 为一次性 setup 成本、含 3 个必开方法技能，
-# 单列上限；其余步沿用默认。packet 本体另有 7k 上限，防止步骤卡自身膨胀。
-STEP_CAPS = {"execute": 14000}
-STEP_SOFT = {"execute": 10000}
+# 每步读链上限（packet + 必开技能整卡）。重步含 2～4 个方法技能，单列上限；
+# 其余步沿用默认。预算约束技能长度/拆分，不把技能截成行窗。packet 另有 7k 上限。
+STEP_CAPS = {"build": 22000, "implement": 22000, "execute": 22000, "init": 18000}
+STEP_SOFT = {"build": 16000, "implement": 16000, "execute": 16000, "init": 14000}
 PACKET_CAP = 7000
 
 
@@ -31,53 +31,19 @@ def approx_tokens(text: str) -> int:
     return max(1, int(len(text.encode("utf-8")) / 3.6))
 
 
-def skill_window_bytes(root: Path, name: str, packet_text: str) -> int:
-    """Byte size actually read for a must-open skill: resolve §a–§b anchor (or legacy Lx-Ly)."""
+def skill_full_bytes(root: Path, name: str) -> int:
+    """Bytes actually read for a must-open skill: the whole SKILL.md."""
     sp = root / "skills" / name / "SKILL.md"
     if not sp.is_file():
         return 0
-    data = sp.read_text(encoding="utf-8")
-    lines = data.splitlines()
-    for line in packet_text.splitlines():
-        if not line.startswith("|"):
-            continue
-        cells = [c.strip() for c in line.strip("|").split("|")]
-        if len(cells) < 5 or cells[0].strip("`") != name or "**必开**" not in cells[1]:
-            continue
-        m = re.search(r"只读 L(\d+)-L(\d+)", cells[4])
-        if m:
-            start, end = int(m.group(1)), int(m.group(2))
-            chunk = "\n".join(lines[start - 1:end])
-            return len(chunk.encode("utf-8"))
-        a = re.search(r"只读 §(\d+)–§(\d+)", cells[4])
-        if a:
-            first, last = int(a.group(1)), int(a.group(2))
-            start_i = end_i = None
-            for i, ln in enumerate(lines):
-                hm = re.match(r"^##\s*(\d+)", ln)
-                if not hm:
-                    continue
-                if start_i is None and int(hm.group(1)) == first:
-                    start_i = i
-                if start_i is not None and int(hm.group(1)) == last:
-                    end_i = i
-            if start_i is not None and end_i is not None:
-                stop = len(lines)
-                for j in range(end_i + 1, len(lines)):
-                    if re.match(r"^##\s", lines[j]):
-                        stop = j
-                        break
-                chunk = "\n".join(lines[start_i:stop])
-                return len(chunk.encode("utf-8"))
-        break
-    return len(data.encode("utf-8"))
+    return len(sp.read_text(encoding="utf-8").encode("utf-8"))
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("root")
-    ap.add_argument("--max-tokens", type=int, default=12000)
-    ap.add_argument("--soft-tokens", type=int, default=8000)
+    ap.add_argument("--max-tokens", type=int, default=16000)
+    ap.add_argument("--soft-tokens", type=int, default=12000)
     ap.add_argument("--verbose", action="store_true", help="输出 HEAVY 提示")
     args = ap.parse_args()
     root = Path(args.root).resolve()
@@ -154,14 +120,13 @@ def main() -> int:
             if sec6 and "本步无技能指向" in sec6.group(0):
                 if "本步必开技能" in text:
                     warnings.append(f"SKILL_CONTRADICTION: {wid}/{sid} §6 无技能但 §5 标必开")
-            # budget: packet + mandatory (必开) skills only; 条件/模板不计入最坏值
-            m_must = re.search(r"本步必开技能[^\n]*", text)
-            must_skills = set()
-            if m_must:
-                must_skills = set(re.findall(r"`([a-z0-9-]+)`", m_must.group(0)))
+            # budget: packet + all §6 skills（worst case; 条件未命中时实际更低）
+            listed_skills = set()
+            if sec6:
+                listed_skills = set(re.findall(r"\| `([a-z0-9-]+)` \|", sec6.group(0)))
             total = len(text.encode("utf-8"))
-            for name in must_skills:
-                total += skill_window_bytes(root, name, text)
+            for name in listed_skills:
+                total += skill_full_bytes(root, name)
             tok = int(total / 3.6)
             cap = STEP_CAPS.get(sid, args.max_tokens)
             soft = STEP_SOFT.get(sid, args.soft_tokens)

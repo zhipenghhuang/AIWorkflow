@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/iterate.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: iterate
@@ -22,6 +22,7 @@ trigger:
 steps:
 - name: 前置检查
   id: precheck
+  skills: []
   must_read:
   - rules/packets/iterate/precheck.md
   agent: iterate-lead
@@ -30,6 +31,10 @@ steps:
     + `rules/doc-governance.md`。
 - name: 读方案与拆清单
   id: plan
+  skills:
+  - task-breakdown
+  skills_conditional:
+    cross-layer-consistency: 命中权限/状态/数据基数/多表面
   must_read:
   - rules/packets/iterate/plan.md
   - rules/templates/30-planning-tasks/task-list-template.md
@@ -39,6 +44,7 @@ steps:
     -StartTask。
 - name: 确认清单与节奏
   id: confirm
+  skills: []
   must_read:
   - rules/packets/iterate/confirm.md
   when: implementation_required
@@ -49,6 +55,9 @@ steps:
   notes: 清单未变可跳过 hitl；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单。
 - name: 实施与定向自验
   id: implement
+  skills:
+  - implementation-and-selftest
+  - engineering-quality
   must_read:
   - rules/packets/iterate/implement.md
   when: implementation_required
@@ -58,6 +67,9 @@ steps:
     change.implement；方法见 §6。
 - name: 代码评审
   id: review
+  skills:
+  - code-review
+  - engineering-quality
   must_read:
   - rules/packets/iterate/review.md
   when: review_required
@@ -73,6 +85,8 @@ steps:
   notes: 多波次评审；写 .gate/review.md；核验者≠实施者；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa。
 - name: 全量门禁与文档同步
   id: gates
+  skills:
+  - test-design-and-execution
   must_read:
   - rules/packets/iterate/gates.md
   when: implementation_required
@@ -83,6 +97,8 @@ steps:
   notes: Invoke-Gate → Claim；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无 UI 标 na）。
 - name: 提测与发布文档
   id: deliver
+  skills:
+  - qa-handoff-and-release
   must_read:
   - rules/packets/iterate/deliver.md
   - rules/templates/40-delivery/qa-handoff-template.md
@@ -95,6 +111,7 @@ steps:
     `confirm_intent`。
 - name: 迭代复盘
   id: retro
+  skills: []
   must_read:
   - rules/packets/iterate/retro.md
   when: iteration_done_or_incident
@@ -103,6 +120,7 @@ steps:
   notes: 小迭代可轻量；行动项须负责人/截止/验收。最终六段由 closeout 出。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: iterate-lead

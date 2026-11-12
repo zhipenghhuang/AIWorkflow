@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/prd.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: prd
@@ -38,6 +38,9 @@ trigger:
 steps:
 - name: 需求洞察与需求池
   id: discover
+  skills:
+  - customer-needs-discovery
+  - requirement-discovery-and-prioritization
   must_read:
   - rules/packets/prd/discover.md
   output: 需求池/洞察/竞品分析（{workroot}/requirement-pool.md 或 {workroot}/{ver}/10-requirements/洞察|竞品分析-*.md）
@@ -54,6 +57,9 @@ steps:
     `competitive-intelligence-and-learning` 技能。
 - name: 竞品对标与差距候选项
   id: benchmark
+  skills:
+  - competitive-intelligence-and-learning
+  - requirement-discovery-and-prioritization
   when: benchmark_or_mode_p
   must_read:
   - rules/packets/prd/benchmark.md
@@ -68,6 +74,8 @@ steps:
     能力：browser-mcp 可选；未装=用户提供链接/截图。
 - name: 优先级与立项
   id: prioritize
+  skills:
+  - requirement-discovery-and-prioritization
   must_read:
   - rules/packets/prd/prioritize.md
   output: 需求池优先级/立项建议（{workroot}/requirement-pool.md §优先级）
@@ -80,6 +88,10 @@ steps:
     confirm_scope：出示范围/目标/粗排期请确认，批准后才进 PRD；仅跨版本/高价值/点名立项链时停。
 - name: PRD 撰写
   id: prd
+  skills:
+  - prd-writing
+  skills_conditional:
+    analytics-and-experimentation: 有指标/埋点/实验
   must_read:
   - rules/packets/prd/prd.md
   - rules/templates/10-planning/prd-template.md
@@ -98,6 +110,7 @@ steps:
     `rules/collaboration/handoff.md`。
 - name: 页面原型（条件）
   id: prototype
+  skills: []
   must_read:
   - rules/packets/prd/prototype.md
   when: has_ui_requirement
@@ -107,6 +120,9 @@ steps:
     closeout）→ 回写指针到本链 review。禁止在本步代跑原型正文、同时多 packet、或通读整条 prototype YAML。方法技能随目标 prototype 步骤卡 §6 打开。 原型完成后回 PRD 评审；PRD 追溯矩阵「原型/页面」列回填。
 - name: PRD 评审与定稿
   id: review
+  skills:
+  - artifact-review
+  - review-and-finalize
   must_read:
   - rules/packets/prd/review.md
   output: 评审记录或 HUMAN_APPROVED 声明
@@ -129,6 +145,7 @@ steps:
     头部 `status: APPROVED`、`source_of_truth: true`、`updated`；更新产品计划。**未定稿不排期**。'
 - name: 需求交接包
   id: handoff
+  skills: []
   must_read:
   - rules/packets/prd/handoff.md
   when: prd_ready_for_handoff
@@ -139,6 +156,7 @@ steps:
     `send`（含 `confirm_handoff`），不另造模板。未命中不机械每问。 仅评审未定稿 → 跳过。未回执不得写“开发/测试已接收”。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: prd-writer

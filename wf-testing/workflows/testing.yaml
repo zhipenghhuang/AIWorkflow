@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/testing.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: testing
@@ -58,6 +58,10 @@ preflight:
 steps:
 - name: 分析并生成测试计划
   id: plan
+  skills:
+  - test-basis-analysis
+  - test-analysis-and-plan
+  - test-data-and-environment
   must_read:
   - rules/packets/testing/plan.md
   - rules/templates/10-planning/test-analysis-template.md
@@ -83,6 +87,14 @@ steps:
     与分析联动；准出/轨道纳入见 multi-track-quality §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。
 - name: 按计划执行
   id: execute
+  skills:
+  - testcase-design
+  - test-execution-and-exploration
+  - test-data-and-environment
+  skills_conditional:
+    test-interface: 计划含接口轨/执行接口批
+    test-performance-security-compatibility: 计划含发布前/性能/安全/兼容
+    ai-feature-testing: 被测含 LLM/RAG/Agent
   must_read:
   - rules/packets/testing/execute.md
   - rules/templates/20-test-cases/test-case-template.md
@@ -102,6 +114,8 @@ steps:
     批末跑 execute 闸并更新计划状态；失败/待实现留证进缺陷，真阻塞进盯办。
 - name: 输出报告
   id: report
+  skills:
+  - test-report
   must_read:
   - rules/packets/testing/report.md
   - rules/templates/40-report-review/test-report-template.md
@@ -117,6 +131,7 @@ steps:
     `-Mode report`。模板见 §7。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: report-agent

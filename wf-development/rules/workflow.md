@@ -168,7 +168,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ## 4. 阶段衔接（按变更分级取用）
 
-> 条件步以 `../workflows/*.yaml` 为准；技能按步注加载对应 `skills/<name>/SKILL.md`（编号别名映射见 `skills/README.md`，先读再执行）；外部工具/能力见 `capabilities/00-contract.md`（已安装即启用；未安装=降级，不阻塞）。
+> 条件步以 `../workflows/*.yaml` 为准；技能按 §6 **整卡读取**对应 `skills/<name>/SKILL.md`（步骤卡点名，不预读）；外部工具/能力见 `capabilities/00-contract.md`（已安装即启用；未安装=降级，不阻塞）。
 > **自包含链（solo）**：见 `rules/core/lightweight.md`；正式协作/迭代仍按 §4.1～§4.6。
 
 ### 4.1 需求基线（requirements 步）

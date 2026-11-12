@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/skill-audit.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: skill-audit
@@ -28,6 +28,7 @@ trigger:
 steps:
 - name: 定范围与模式
   id: scope
+  skills: []
   must_read:
   - rules/packets/skill-audit/scope.md
   agent: onboard-agent
@@ -36,6 +37,7 @@ steps:
     并记「无项目对照自动」；有填实档案 → project。 确认范围：全量｜仅外部能力｜仅随包技能｜按域。无偏好时：generic 默认全量；project 按档案栈推荐。
 - name: 盘点
   id: inventory
+  skills: []
   must_read:
   - rules/packets/skill-audit/inventory.md
   agent: onboard-agent
@@ -44,6 +46,7 @@ steps:
     + 映射覆盖行数。 可顺带跑 `rules/tools/check_skills.py <本包根> --strict`，失败记入缺口。
 - name: 生态检索
   id: discover
+  skills: []
   must_read:
   - rules/packets/skill-audit/discover.md
   agent: onboard-agent
@@ -52,6 +55,7 @@ steps:
     installs + 信誉源；写入【生态检索】：可吸收方法｜能力候选｜维持；禁未确认 `skills add` 进母版。 无网络/CLI → 降级只读参考目录并记原因，不得跳过本节留空。
 - name: 适配分析
   id: fit
+  skills: []
   must_read:
   - rules/packets/skill-audit/fit.md
   agent: onboard-agent
@@ -59,6 +63,7 @@ steps:
   notes: project：对照档案、activeContext、近期完成门/降级。generic：对照能力表主选备选与技能完整性/冗余，不写项目特例。 合并 inventory + discover：分类 够用｜缺口｜过重｜冲突｜重复｜映射断裂｜可吸收方法。
 - name: 出具建议
   id: propose
+  skills: []
   must_read:
   - rules/packets/skill-audit/propose.md
   - rules/templates/00-onboarding/capability-skill-audit-report-template.md
@@ -68,6 +73,7 @@ steps:
     置顶。 能力拟改只针对 `{workroot}/capabilities/`；技能可改本包 `skills/`；未确认不改。可列「下一步：装配能力」。
 - name: 确认并应用
   id: apply
+  skills: []
   must_read:
   - rules/packets/skill-audit/apply.md
   agent: onboard-agent
@@ -78,6 +84,7 @@ steps:
     执行；拒绝/无候选 → 跳过，零改动。改包后**必须**跑 `rules/tools/Test-Template.ps1`；改技能另跑 `check_skills.py --strict`；失败不得声称完成。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: onboard-agent

@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/new-product.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: new-product
@@ -16,6 +16,9 @@ trigger:
 steps:
 - name: 发现与机会评估
   id: discover
+  skills:
+  - zero-to-one-product-definition
+  - customer-needs-discovery
   must_read:
   - rules/packets/new-product/discover.md
   - rules/templates/10-planning/business-case-template.md
@@ -32,6 +35,10 @@ steps:
     引用可回查（来源 + 日期）；禁臆造市场数据与用户反馈；无依据写「待验证」。 能力（可选）：browser-mcp 竞品、analytics 数据、docs-mcp 资料；未装 = 降级。
 - name: 立项评审
   id: go
+  skills:
+  - zero-to-one-product-definition
+  - customer-needs-discovery
+  - competitive-intelligence-and-learning
   must_read:
   - rules/packets/new-product/go.md
   agent: pm-analyst
@@ -41,6 +48,8 @@ steps:
     的 `when: go_decision_go` 会自动跳过，不得继续写 PRD/排期/问发布。 **未过立项不写全量 PRD**（`rules/workflow.md` ）。'
 - name: 产品定义与计划
   id: define
+  skills:
+  - zero-to-one-product-definition
   must_read:
   - rules/packets/new-product/define.md
   when: go_decision_go
@@ -53,6 +62,11 @@ steps:
     PRD。 子链 closeout 不执行，统一由本文件末 closeout 收尾。'
 - name: 需求定义（PRD）
   id: prd
+  skills:
+  - prd-writing
+  - review-and-finalize
+  - prototype-and-interaction
+  - ui-visual-design-system
   must_read:
   - rules/packets/new-product/prd.md
   when: go_decision_go
@@ -63,6 +77,9 @@ steps:
     `skills/review-and-finalize/SKILL.md`；界面原型见 `skills/prototype-and-interaction/SKILL.md` `skills/ui-visual-design-system/SKILL.md`。'
 - name: 交付与验收
   id: deliver
+  skills:
+  - change-management
+  - uat-and-retrospective
   must_read:
   - rules/packets/new-product/deliver.md
   when: go_decision_go
@@ -73,6 +90,7 @@ steps:
     `skills/uat-and-retrospective/SKILL.md`。'
 - name: 上市与复盘
   id: launch
+  skills: []
   must_read:
   - rules/packets/new-product/launch.md
   - rules/templates/40-delivery/gtm-template.md
@@ -87,6 +105,7 @@ steps:
     UAT 不发布**。 发布后：指标监控 → 复盘（模板 `rules/templates/60-retro/retro-template.md`）→ 改进项回需求池；更新 `{workroot}/product-plan.md`。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: pm-lead

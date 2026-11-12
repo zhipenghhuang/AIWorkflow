@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/handoff.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: handoff
@@ -19,6 +19,7 @@ trigger:
 steps:
 - name: 写交接单文档
   id: compose
+  skills: []
   must_read:
   - rules/packets/handoff/compose.md
   agent: iterate-lead
@@ -31,6 +32,7 @@ steps:
     口令含「交接包」未命中触发 → 仍本步。用户明确要包且命中 → 转 `send`。'
 - name: 生成交接包
   id: send
+  skills: []
   must_read:
   - rules/packets/handoff/send.md
   agent: iterate-lead
@@ -43,6 +45,7 @@ steps:
     确认后：完整包 `00/01/02/03/04`；刷新出站散文件实拷；跑 `validate_handoff.py` → 台账已发送。 回执默认仍可选；仅正式签收/C2·C3/发布要求填写。 传递：多包同仓直读出站路径；仓外文件夹或 ZIP。输出【交接包已生成】。'
 - name: 接收与签收
   id: receive
+  skills: []
   must_read:
   - rules/packets/handoff/receive.md
   agent: iterate-lead
@@ -56,6 +59,7 @@ steps:
     → 直读对方 `…/handoff/outbound/…`，不强制拷入站；仓外 → 主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`（内容分类；非 HO 亦收）。 核对/吸收后按类型更新基线/计划；正式签收才回执三选一。更新台账（已吸收/已接收等）、计划、索引、activeContext。'
 - name: 发送变更通知
   id: change_send
+  skills: []
   must_read:
   - rules/packets/handoff/change_send.md
   agent: iterate-lead
@@ -69,6 +73,7 @@ steps:
     多包同仓直读，禁止转发。
 - name: 接收变更并适配
   id: change_receive
+  skills: []
   must_read:
   - rules/packets/handoff/change_receive.md
   agent: iterate-lead
@@ -83,6 +88,7 @@ steps:
     → 列冲突，不静默选一边；未裁决前不实施。
 - name: 重规划
   id: replan
+  skills: []
   must_read:
   - rules/packets/handoff/replan.md
   agent: iterate-lead
@@ -94,6 +100,7 @@ steps:
     并重发。 重规划后重过受影响门（方案/清单/完成门/发布门）；未过门不得把阶段标完成；向产品/测试发 `CHG` 包并收回执。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: implementer

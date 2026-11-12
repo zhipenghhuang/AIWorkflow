@@ -89,6 +89,16 @@ def main() -> int:
             head = text.split("## 6.")[0]
             sec6 = re.search(r"## 6\..*?(?=\n## 7\.)", text, re.S)
             listed = set(re.findall(r"\| `([a-z0-9-]+)` \|", sec6.group(0))) if sec6 else set()
+            for name in sorted(listed):
+                if not (root / "skills" / name / "SKILL.md").is_file():
+                    print(f"FAIL: {rel} SKILL_MISSING: skills/{name}/SKILL.md")
+                    fail += 1
+            if re.search(r"只读\s*L\d+-L\d+|只读\s*§\d+", text):
+                print(f"FAIL: {rel} LINE_WINDOW: 技能须整卡读取，步骤卡不得写行窗")
+                fail += 1
+            if listed and "整卡读取" not in text:
+                print(f"FAIL: {rel} SKILL_FULL_CARD: §6 须写明整卡读取")
+                fail += 1
             refs = set(re.findall(r"§6[^`\n]{0,10}`([a-z0-9-]+)`", head))
             refs |= set(re.findall(r"`skills/([a-z0-9-]+)/SKILL\.md`", head))
             for name in sorted(refs - listed):

@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/prototype.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: prototype
@@ -26,6 +26,8 @@ trigger:
 steps:
 - name: 项目情境与参考基准
   id: context
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/context.md
   agent: ux-designer
@@ -36,6 +38,8 @@ steps:
     `competitive-intelligence-and-learning`；能力 design-intelligence/browser-mcp 可选。
 - name: 信息架构与页面清单
   id: ia
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/ia.md
   agent: ux-designer
@@ -44,6 +48,8 @@ steps:
     F/A/AC → 页面/路由）。
 - name: 低保真线框
   id: wireframe
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/wireframe.md
   agent: ux-designer
@@ -52,6 +58,8 @@ steps:
     起步（离线、无依赖）。
 - name: 视觉方向与设计系统
   id: visual
+  skills:
+  - ui-visual-design-system
   must_read:
   - rules/packets/prototype/visual.md
   output: 视觉稿/设计 tokens/标注（{workroot}/{ver}/20-design/）
@@ -62,6 +70,9 @@ steps:
     ui-generation frontend-design；未装 = 按包内技能。
 - name: 高保真可点击原型
   id: hi-fi
+  skills:
+  - ui-visual-design-system
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/hi-fi.md
   agent: ux-designer
@@ -72,6 +83,8 @@ steps:
     ui-generation 可选增强，未装不影响。
 - name: 工程化与可访问性
   id: engineering
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/engineering.md
   agent: ux-designer
@@ -80,6 +93,9 @@ steps:
     页面多时先用脚本/清单核状态矩阵与链接；仅语义/一致性判断派 verifier-agent，返回缺口 ≤30 行。 原型/PRD 版本元数据；缺项列阻断，修完再评审。
 - name: 设计评审
   id: review
+  skills:
+  - artifact-review
+  - ui-visual-design-system
   must_read:
   - rules/packets/prototype/review.md
   - rules/templates/20-design/design-review-template.md
@@ -97,6 +113,8 @@ steps:
     原型/PRD 是下限；原型有明显缺陷可择优修正，但必须写偏离理由/影响/确认，重大偏离先 `OPEN-*`。 **评审分片**（≥8 页）：维度扇出；评分卡只算一次。能力 design-review 可选；未装按清单。'
 - name: 可用性走查
   id: usability
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/usability.md
   agent: ux-designer
@@ -104,6 +122,8 @@ steps:
   notes: 3～5 个关键任务走查：任务完成/步数/卡点/错误；Nielsen 10 启发式； 记录问题/严重度/建议；需修回 hi-fi（同回合≤1）。 无真实用户时标注“内部走查”，不冒充用户测试结论。
 - name: 开发交接
   id: handoff
+  skills:
+  - prototype-and-interaction
   must_read:
   - rules/packets/prototype/handoff.md
   - rules/templates/20-design/dev-handoff-template.md
@@ -118,6 +138,7 @@ steps:
     confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。 PRD 追溯矩阵「原型/页面」列回填；拟提交按 `rules/workflow.md`。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: ux-designer

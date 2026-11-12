@@ -1,6 +1,6 @@
 # 包内专业技能（随包生效 · 无需安装/挂载）
 
-> **定位**：每一步的专业方法与手艺，随本包分发。命中步骤 → 步骤包 §6 直接加载对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
+> **定位**：每一步的专业方法与手艺，随本包分发。命中步骤 → 步骤包 §6 打开并**整卡读取**对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`skills/<name>/SKILL.md`；随包复制、无需安装。  
 > **格式**：每份技能含 `name` / `description` frontmatter；description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行。质量标准见本文末节。  
 > **与规则的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。
@@ -14,7 +14,7 @@
 | 接口轨 | `skills/test-interface/SKILL.md`（契约/适用维/脚本/执行记录；+ `rules/tracks/api.md`） |
 | 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（风险级/指标/工具/韧性；+ `rules/tracks/pre-release.md`） |
 | AI/LLM/RAG/Agent 功能 | `skills/ai-feature-testing/SKILL.md`（Oracle/评测集/重复阈值/红队） + `skills/test-performance-security-compatibility/SKILL.md`（安全） |
-| report | `rules/templates/40-report-review/test-report-template.md` + `rules/workflow.md` §4 |
+| report | `skills/test-report/SKILL.md`（结论判定/对账/缺口）+ `rules/templates/40-report-review/test-report-template.md` |
 | defect | `rules/defects/collaboration.md` |
 | 脚本档 | `rules/special/script-execution.md` |
 | onboard | `agents/onboard-agent.yaml`（核验清单即技能） |
@@ -47,7 +47,7 @@
 - **流程而非知识**：写“先做什么、怎么判定、产出什么”。
 - **具体**：能写字段/阈值/命令就不写“检查一下”；引用本包真实路径。
 - **单一出处**：红线/门/评分卡只引用，不复制。
-- **渐进披露**：主文件建议 ≤500 行；单步读取以 §6 行窗为准；超长才拆 `references/`。
+- **渐进披露**：主文件建议 ≤500 行；步骤卡 §6 默认**整卡读取**；确实过长的附录/命令/样例才拆 `references/`，由正文点名再开。
 - **宿主/模型中立**：不写死某宿主工具名、模型版本或私有调用方式。
 - **只写现行**：不记录历史过程/旧方案。
 

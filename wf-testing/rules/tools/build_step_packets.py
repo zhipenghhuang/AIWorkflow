@@ -75,200 +75,146 @@ def list_skill_dirs(root: Path) -> set[str]:
     return {p.name for p in sk.iterdir() if p.is_dir() and (p / "SKILL.md").is_file()}
 
 
-def parse_readme_skill_rows(root: Path) -> list[tuple[str, list[str]]]:
-    p = root / "skills" / "README.md"
-    if not p.is_file():
-        return []
-    rows: list[tuple[str, list[str]]] = []
-    for line in p.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("|"):
-            continue
-        cells = [c.strip() for c in line.strip("|").split("|")]
-        if len(cells) < 2:
-            continue
-        left, right = cells[0], cells[1]
-        if left in ("步骤", "步骤 / 轨", "别名") or set(left) <= {"-"}:
-            continue
-        skills = re.findall(r"skills/([a-z0-9-]+)", right)
-        if skills:
-            rows.append((left, skills))
-    return rows
-
-
-# Explicit high-value maps (README rows are fuzzy; these win for main chains)
-EXPLICIT: dict[str, dict[str, list[str]]] = {
-    "wf-development": {
-        "change/clarify": ["requirements-and-spec", "product-shaping"],
-        "change/analyze_input": ["product-doc-analysis", "requirements-and-spec"],
-        "change/requirements": ["requirements-and-spec", "cross-layer-consistency"],
-        "change/design": ["solution-design", "engineering-quality", "cross-layer-consistency"],
-        "change/review-docs": ["design-doc-review", "engineering-quality"],
-        "change/plan": ["task-breakdown", "cross-layer-consistency"],
-        "change/implement": [
-            "implementation-and-selftest",
-            "engineering-quality",
-            "frontend-implementation",
-            "product-doc-analysis",
-        ],
-        "change/review": ["code-review", "engineering-quality"],
-        "change/verify": ["test-design-and-execution"],
-        "change/deliver": ["qa-handoff-and-release"],
-        "change/release_handoff": ["qa-handoff-and-release"],
-        "iterate/plan": ["task-breakdown", "cross-layer-consistency"],
-        "iterate/implement": ["implementation-and-selftest", "engineering-quality"],
-        "iterate/review": ["code-review", "engineering-quality"],
-        "iterate/deliver": ["qa-handoff-and-release"],
-        "iterate/release_handoff": ["qa-handoff-and-release"],
-        "iterate/gates": ["test-design-and-execution"],
-        "solo/frame": ["product-shaping", "product-doc-analysis"],
-        "solo/plan": ["product-shaping", "solution-design", "task-breakdown", "engineering-quality"],
-        "solo/build": ["implementation-and-selftest", "engineering-quality"],
-        "solo/test": ["test-design-and-execution"],
-        "control/init": ["development-plan", "product-doc-analysis", "product-shaping"],
-        "control/run": ["development-plan"],
-        "control/sync": ["development-plan"],
-        "release/acceptance": ["acceptance-and-launch"],
-        "release/readiness": ["acceptance-and-launch", "observability-and-instrumentation", "qa-handoff-and-release"],
-        "release/deploy": ["acceptance-and-launch"],
-        "release/verify": ["acceptance-and-launch"],
-        "release/rollback": ["acceptance-and-launch"],
-        "release/postrelease": ["acceptance-and-launch", "observability-and-instrumentation"],
-        "retro/gather": ["retrospective-and-improvement"],
-        "retro/analyze": ["retrospective-and-improvement"],
-        "retro/actions": ["retrospective-and-improvement"],
-        "intake/parse": ["change-intake", "product-doc-analysis"],
-        "defect-fix/fix": ["debugging-and-error-recovery", "implementation-and-selftest", "cross-layer-consistency"],
-        "defect-fix/implement": ["implementation-and-selftest", "debugging-and-error-recovery"],
-    },
-    "wf-product": {
-        "prd/discover": ["customer-needs-discovery", "requirement-discovery-and-prioritization", "competitive-intelligence-and-learning"],
-        "prd/benchmark": ["competitive-intelligence-and-learning", "requirement-discovery-and-prioritization"],
-        "prd/prioritize": ["requirement-discovery-and-prioritization"],
-        "prd/prd": ["prd-writing", "analytics-and-experimentation", "review-and-finalize"],
-        "prd/review": ["artifact-review", "review-and-finalize"],
-        "plan/goals": ["zero-to-one-product-definition", "requirement-discovery-and-prioritization", "customer-needs-discovery"],
-        "plan/roadmap": ["zero-to-one-product-definition", "requirement-discovery-and-prioritization"],
-        "plan/review-plan": ["artifact-review"],
-        "prototype/context": ["prototype-and-interaction"],
-        "prototype/ia": ["prototype-and-interaction"],
-        "prototype/wireframe": ["prototype-and-interaction"],
-        "prototype/visual": ["ui-visual-design-system"],
-        "prototype/hi-fi": ["ui-visual-design-system", "prototype-and-interaction"],
-        "prototype/review": ["artifact-review", "ui-visual-design-system"],
-        "prototype/handoff": ["prototype-and-interaction"],
-        "change/intake": ["customer-needs-discovery", "change-management"],
-        "change/triage": ["change-management"],
-        "change/assess": ["change-management"],
-        "change/apply": ["change-management"],
-        "change/verify": ["change-management"],
-        "change/review": ["artifact-review", "review-and-finalize"],
-        "deliver/uat": ["uat-and-retrospective", "analytics-and-experimentation"],
-        "deliver/release": ["uat-and-retrospective"],
-        "showcase/audience": ["demo-storytelling"],
-        "showcase/story": ["demo-storytelling"],
-        "showcase/demo": ["demo-storytelling"],
-        "showcase/materials": ["presentation-design"],
-        "showcase/docs": ["product-docs"],
-        "new-product/discover": ["zero-to-one-product-definition", "customer-needs-discovery", "competitive-intelligence-and-learning"],
-        "new-product/define": ["zero-to-one-product-definition"],
-        "defect/analyze": ["change-management"],
-        "defect/apply": ["change-management"],
-        "defect/writeback": ["change-management"],
-    },
-    "wf-testing": {
-        "testing/plan": ["test-basis-analysis", "test-analysis-and-plan", "test-data-and-environment"],
-        "testing/execute": [
-            "testcase-design",
-            "test-execution-and-exploration",
-            "test-data-and-environment",
-            "test-interface",
-            "test-performance-security-compatibility",
-            "ai-feature-testing",
-        ],
-        "testing/report": [
-            "test-artifact-review",
-        ],
-    },
-}
-
-
 def resolve_skills_for_step(
     root: Path,
-    pack_key: str,
-    wid: str,
-    sid: str,
     step: dict,
     skill_dirs: set[str],
-    readme_rows: list[tuple[str, list[str]]],
 ) -> list[str]:
-    found: list[str] = []
-
-    def add(name: str) -> None:
-        name = name.strip()
-        if name and name in skill_dirs and name not in found:
-            found.append(name)
-
-    key = f"{wid}/{sid}"
-    explicit = EXPLICIT.get(pack_key, {}).get(key)
-    if explicit is not None:
-        for s in explicit:
-            add(s)
-        return found
-
-    raw = step.get("skills") or []
+    raw = step.get("skills")
+    if raw is None:
+        return []
     if isinstance(raw, str):
         raw = [raw]
-    for s in raw:
-        add(str(s))
-
-    notes = step.get("notes") or ""
-    if isinstance(notes, str):
-        for m in re.finditer(r"skills/([a-z0-9-]+)", notes):
-            add(m.group(1))
-
-    wf_aliases = {
-        "change",
-        "iterate",
-        "solo",
-        "prd",
-        "plan",
-        "defect",
-        "defect-fix",
-        "release",
-        "testing",
-        "prototype",
-        "deliver",
-        "showcase",
-        "new-product",
-        "retro",
-        "onboard",
-        "skill-audit",
-        "control",
-        "intake",
-    }
-    matches: list[tuple[int, list[str]]] = []
-    for left, skills in readme_rows:
-        if not re.search(rf"(?<![a-z0-9-]){re.escape(sid)}(?![a-z0-9-])", left, re.I):
-            continue
-        left_l = left.lower()
-        score = 1
-        if wid.lower() in left_l:
-            score += 10
-        mentioned = [w for w in wf_aliases if w in left_l]
-        if mentioned and wid.lower() not in left_l and wid.replace("_", "-") not in mentioned:
-            if any(w not in {wid.lower(), wid.replace("_", "-")} for w in mentioned):
-                continue
-        matches.append((score, skills))
-    matches.sort(key=lambda x: -x[0])
-    for _, skills in matches[:2]:
-        for s in skills:
-            add(s)
-
+    found: list[str] = []
+    for item in raw:
+        name = str(item).strip()
+        if name and name in skill_dirs and name not in found:
+            found.append(name)
     return found
 
 
-# 外围参考层 → 短句（禁止步骤卡外指 special/workflow/doc-governance 等）。
-# core/defects/collaboration 与 skill/模板：保留可点开路径（本步索引，不残句替换）。
+def step_requires_claim(pack_key: str, gate: str | None, notes: str) -> bool:
+    if not gate:
+        # notes mentioning -Claim with an explicit claimable mode still count
+        if re.search(r"-Claim\b", notes or "") and re.search(
+            r"Mode\s+(report|writeback|prd|review|design-review|uat|change)",
+            notes or "",
+            re.I,
+        ):
+            return True
+        return False
+    g = str(gate).strip().lower()
+    allowed = CLAIMABLE_GATES.get(pack_key, set())
+    if g in allowed:
+        return True
+    # product gates often named product-prd / uat-evidence etc.
+    for a in allowed:
+        if a in g or g in a:
+            return True
+    return False
+
+
+def expand_inline_rules(text: str) -> str:
+    """Replace peripheral rule refs with a self-contained sentence (no doc hop)."""
+    for pattern, replacement in INLINE_RULES:
+        text = re.sub(pattern, replacement, text)
+    return text
+
+
+def rewrite_workflow_refs(text: str, current_wid: str | None = None) -> str:
+    """Keep cross-chain targets as `other.step` / `other` 流程; same-chain → 本 workflow."""
+
+    def _wid_of(fname: str) -> str:
+        return re.sub(r"\.ya?ml$", "", fname.strip())
+
+    def repl_bt(m: re.Match[str]) -> str:
+        wid = _wid_of(m.group(1))
+        step = m.group(2)
+        if current_wid and wid == current_wid:
+            return f"本 workflow{(' ' + step) if step else ''}"
+        if step:
+            return f"`{wid}.{step}`"
+        return f"`{wid}` 流程"
+
+    # `workflows/foo.yaml` [step]
+    text = re.sub(
+        r"`workflows/([^`]+)`(?:\s+(?:的\s*)?([A-Za-z0-9_-]+))?",
+        repl_bt,
+        text,
+    )
+    # bare workflows/foo.yaml [step] (no backticks)
+    def repl_bare(m: re.Match[str]) -> str:
+        wid = _wid_of(m.group(1) + ".yaml")
+        step = m.group(2)
+        if current_wid and wid == current_wid:
+            return f"本 workflow{(' ' + step) if step else ''}"
+        if step:
+            return f"`{wid}.{step}`"
+        return f"`{wid}` 流程"
+
+    text = re.sub(
+        r"(?<![`/\w])workflows/([a-z0-9_-]+)\.ya?ml(?:\s+(?:的\s*)?([A-Za-z0-9_-]+))?",
+        repl_bare,
+        text,
+    )
+    return text
+
+
+def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
+    """Inline peripheral rules; keep templates/skills as first-class packet sections."""
+    text = expand_inline_rules(text)
+    text = re.sub(r"遵守\s*`frontend-gate`", "遵守本包「前端硬门」节（有 UI）", text)
+    text = re.sub(r"`?rules/core/frontend-gate\.md`?", "本包前端硬门", text)
+    text = re.sub(r"`frontend-gate`", "本包前端硬门", text)
+    text = re.sub(r"`?frontend-gate\.md`?", "本包前端硬门", text)
+    text = re.sub(
+        r"`?rules/core/implementation-quality\.md`?(?:\s*§[\d.]+)?",
+        "本包 §5 规则卡",
+        text,
+    )
+    text = re.sub(
+        r"\*{0,2}命中则加载\*{0,2}[：:][^\n]*",
+        "命中面：按本包 §6 条件开技能闭环（打开→执行→回包）",
+        text,
+    )
+    text = re.sub(r"实施质量门\s*§[\d.]+", "本包 §5 实施预检卡", text)
+    text = re.sub(r"按实施质量门[^\n；。]*", "按本包 §5 实施预检卡", text)
+    text = re.sub(
+        r"`?implementation-quality\.md`?(?:\s*§[\d.]+)?",
+        "本包 §5 规则卡",
+        text,
+    )
+    text = re.sub(
+        r"已加载\s*product-doc-analysis",
+        "已按 §6 闭环执行 product-doc-analysis",
+        text,
+    )
+    text = re.sub(
+        r"加载\s*product-doc-analysis",
+        "打开 product-doc-analysis 走 §6 闭环",
+        text,
+    )
+    text = re.sub(
+        r"`execution-contract\.md`(?:\s*§[\d.]+)?",
+        "开局卡分级与动作前分析约定",
+        text,
+    )
+    text = re.sub(r"`contract\.md`", "规则心跳一行格式", text)
+    text = re.sub(
+        r"`rules/capabilities/instance-discipline\.md`\s*§[\d.]+",
+        "实例纪律（按需拉起、结束显式退程）",
+        text,
+    )
+    # Skills → §6（本包技能表）；模板保留真实路径，由 §7 列出。
+    text = re.sub(r"`skills/([a-z0-9-]+)/SKILL\.md`", r"§6 `\1`", text)
+    text = re.sub(r"`skills/README\.md`", "技能体检：盘点→适配→拟变更→确认→复检", text)
+    text = rewrite_workflow_refs(text, current_wid)
+    text = re.sub(r"技能[：:]\s*§6", "技能见 §6", text)
+    text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
+    text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
+    return text
+
+
 INLINE_RULES = (
     (
         r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
@@ -447,32 +393,6 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
     text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
     return text
-
-
-def _skill_text(root: Path, name: str) -> str:
-    p = root / "skills" / name / "SKILL.md"
-    if not p.is_file():
-        return ""
-    text = p.read_text(encoding="utf-8")
-    if text.startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
-            text = parts[2].strip()
-    return text
-
-
-# Conditional skills: only open when situation matches; others listed for a step are 必开
-CONDITIONAL_SKILLS = {
-    "frontend-implementation": "有 UI / 有原型",
-    "product-doc-analysis": "输入含 PRD/原型/产品文档",
-    "ai-feature-testing": "被测含 LLM/RAG/Agent",
-    "cross-layer-consistency": "命中权限/状态/数据基数/多表面",
-    "threat-modeling": "安全/威胁面变更",
-    "performance-and-capacity": "性能/容量面变更",
-    "analytics-and-experimentation": "有指标/埋点/实验",
-    "test-interface": "计划含接口轨/执行接口批",
-    "test-performance-security-compatibility": "计划含发布前/性能/安全/兼容",
-}
 
 
 COMMIT_CARD = """### 本步规则卡：拟提交块（必填 · 字段已在本包）
@@ -724,17 +644,19 @@ def build_work_rules(
     card: str = "",
     append_card: str = "",
     extra_card: str = "",
+    step_conditional: dict[str, str] | None = None,
 ) -> str:
     """Step orchestration rules only — do NOT paste skill bodies (quality lives in skills)."""
+    step_conditional = step_conditional or {}
     parts: list[str] = []
     parts.append(
         "> **本节 = 本步编排与门槛**（顺序、产出、门、禁做）。\n"
         "> **方法质量在技能**：§6 列为必开/条件开的 skill 必须按闭环执行，"
         "**禁止**把技能正文粘进本包替代实读；**禁止**为省事跳过必开技能。\n"
     )
-    if skills:
-        must = [s for s in skills if s not in CONDITIONAL_SKILLS]
-        cond = [s for s in skills if s in CONDITIONAL_SKILLS]
+    if skills or step_conditional:
+        must = list(skills)
+        cond = [s for s in step_conditional if s not in skills]
         if must:
             parts.append(
                 "- **本步必开技能（质量不降）**："
@@ -744,7 +666,7 @@ def build_work_rules(
         if cond:
             parts.append(
                 "- **条件技能**："
-                + "、".join(f"`{s}`（{CONDITIONAL_SKILLS[s]}）" for s in cond)
+                + "、".join(f"`{s}`（{step_conditional[s]}）" for s in cond)
                 + " → 命中则同样走 §6 闭环。\n"
             )
     if card:
@@ -779,128 +701,45 @@ def build_work_rules(
     return "\n".join(parts).strip()
 
 
-_QUALITY_H = re.compile(r"^##\s+.*(?:现场处置|判定|反合理化|合理化与反驳)")
-
-
-def _section_end(lines: list[str], start_idx: int) -> int:
-    for j in range(start_idx + 1, len(lines)):
-        if re.match(r"^##\s", lines[j]):
-            return j - 1
-    return len(lines) - 1
-
-
-def skill_section_range(root: Path, name: str) -> tuple[int, int, str] | None:
-    """Line window: 必做 plus 现场处置/判定/反合理化 when those headings exist.
-
-    Line numbers are a generated window, not a reason to drop those sections.
-    """
-    p = root / "skills" / name / "SKILL.md"
-    if not p.is_file():
-        return None
-    lines = p.read_text(encoding="utf-8").splitlines()
-    start = None
-    label = ""
-    for i, line in enumerate(lines):
-        if re.match(r"^##\s*0(?:\.\d+)?\s*[.、]?\s*必做", line) or re.match(
-            r"^##\s*必做", line
-        ):
-            start = i
-            label = "必做"
-            break
-    if start is None:
-        for i, line in enumerate(lines):
-            if re.match(r"^##\s*0(?:[.、\s]|$)", line) or re.match(
-                r"^##\s*1(?:[.、\s])", line
-            ):
-                start = i
-                label = "硬门槛+方法"
-                break
-    if start is None:
-        return None
-    end = _section_end(lines, start)
-    if label != "必做":
-        for j in range(start + 1, len(lines)):
-            if re.match(r"^##\s*(?:参考|附录|变更记录|Changelog)\b", lines[j], re.I):
-                end = j - 1
-                break
-    last_q = None
-    for j in range(start + 1, len(lines)):
-        if _QUALITY_H.match(lines[j]):
-            last_q = j
-    if last_q is not None:
-        qend = _section_end(lines, last_q)
-        if qend > end:
-            end = qend
-            label = (
-                "必做+处置/判定/反合理化"
-                if label == "必做"
-                else "硬门槛+方法+反合理化"
-            )
-    while end > start and not lines[end].strip():
-        end -= 1
-    return start + 1, end + 1, label
-
-
-
-
-def skill_section_anchor(root: Path, name: str, start: int, end: int) -> str:
-    """Heading anchor (§a–§b) for a skill window; empty when headings are unnumbered."""
-    p = root / "skills" / name / "SKILL.md"
-    if not p.is_file():
-        return ""
-    lines = p.read_text(encoding="utf-8").splitlines()
-
-    def heading_no(idx: int) -> str:
-        if 0 <= idx < len(lines):
-            m = re.match(r"^##\s*(\d+)", lines[idx])
-            if m:
-                return m.group(1)
-        return ""
-
-    first = heading_no(start - 1)
-    last = ""
-    for j in range(min(end, len(lines)) - 1, start - 1, -1):
-        last = heading_no(j)
-        if last:
-            break
-    if first and last:
-        return f"§{first}–§{last}"
-    return ""
-
-
-def build_skill_index(root: Path, skills: list[str], notes: str) -> str:
-    if not skills:
+def build_skill_index(
+    root: Path,
+    skills: list[str],
+    notes: str,
+    step_conditional: dict[str, str] | None = None,
+) -> str:
+    step_conditional = step_conditional or {}
+    if not skills and not step_conditional:
         return (
             "- 本步无技能指向；按 §5 编排执行。\n"
             "- 禁止无指向却通读 skills/「找感觉」。"
         )
     lines = [
-        "> **技能闭环（硬）**：打开 → 读必做，并读现场处置/判定/反合理化（技能有这些节时）→ **回到本步骤包**继续门/产出/完成信号。  ",
+        "> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  ",
         "> 多个必开技能**按表格顺序逐个**闭环（一次只打开 1 个，做完即回包）；不得并行打开，也不得用摘要代替实读。",
+        "> `references/` 仅在技能正文点名时再打开；不预读其它技能/手册。",
         "",
         "| 技能 | 级别 | 何时 | 路径 | 打开后 |",
         "| --- | --- | --- | --- | --- |",
     ]
     for sk in skills:
-        if sk in CONDITIONAL_SKILLS:
+        if sk in step_conditional:
             level = "条件开"
-            when = CONDITIONAL_SKILLS[sk]
+            when = step_conditional[sk]
         else:
             level = "**必开**"
             when = "进入本步即开（质量不降）"
-        rng = skill_section_range(root, sk)
-        opened = "必做区 → 回本包"
-        if rng:
-            anchor = skill_section_anchor(root, sk, rng[0], rng[1])
-            if anchor:
-                opened = f"只读 {anchor}（{rng[2]}），按标题定位 → 回本包"
-            else:
-                opened = f"只读 L{rng[0]}-L{rng[1]}（{rng[2]}）→ 回本包"
+        opened = "整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包"
         lines.append(
             f"| `{sk}` | {level} | {when} | `skills/{sk}/SKILL.md` | {opened} |"
         )
+    for sk, when in step_conditional.items():
+        if sk in skills:
+            continue
+        lines.append(
+            f"| `{sk}` | 条件开 | {when} | `skills/{sk}/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |"
+        )
     lines.append("")
-    lines.append("- 必开未打开 / 未按必做执行 = **未遵守**（不得用「包内已有摘要」代替）。")
+    lines.append("- 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。")
     lines.append("- 条件未命中 → 该行 `na` + 一句理由。")
     lines.append("- 禁止把 SKILL 全文粘贴进步骤包或对话冒充已执行。")
     return "\n".join(lines)
@@ -1400,6 +1239,7 @@ def render_packet(
         if "implementation-quality" in notes and not any("实施预检" in e for e in extras):
             extras.append(IMPLEMENT_CARD)
     extra_card = "\n\n".join(extras)
+    step_conditional = step.get("skills_conditional") or {}
     work = build_work_rules(
         root,
         skills,
@@ -1409,8 +1249,9 @@ def render_packet(
         card=card,
         append_card=append_card,
         extra_card=extra_card,
+        step_conditional=step_conditional,
     )
-    skill_idx = build_skill_index(root, skills, notes)
+    skill_idx = build_skill_index(root, skills, notes, step_conditional)
 
     open_lines: list[str] = []
     uniq_tpl = list(dict.fromkeys(t for t in templates if t))
@@ -1533,7 +1374,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
     gates = load_gates_table(root)
     when_map = load_when_table(root)
     skill_dirs = list_skill_dirs(root)
-    readme_rows = parse_readme_skill_rows(root)
     pack_key = root.name
     wf_dir = root / "workflows"
     for ypath in sorted(wf_dir.glob("*.yaml")):
@@ -1577,9 +1417,7 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             # Resolve skills from rich YAML notes.
             step_for_skills = dict(step)
             step_for_skills["notes"] = full_notes
-            skills = resolve_skills_for_step(
-                root, pack_key, wid, sid, step_for_skills, skill_dirs, readme_rows
-            )
+            skills = resolve_skills_for_step(root, step_for_skills, skill_dirs)
             # template from full notes before thinning yaml
             step_for_tpl = dict(step)
             step_for_tpl["notes"] = full_notes
@@ -1651,7 +1489,6 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             elif primary and primary not in new_mr:
                 new_mr.append(primary)
             step["must_read"] = new_mr
-            step.pop("skills", None)
             # YAML carries the rich note; no separate cache.
             step["notes"] = full_notes if full_notes else "按本步目标与产出执行。"
             n += 1
@@ -1659,7 +1496,7 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
                 indexed += 1
         header = (
             f"# 编排：进 wf → workflows/{wid}.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。\n"
-            f"# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。\n"
+            f"# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。\n"
             f"# 本 YAML 只定义状态/门/产出；不用于运行时通读。\n"
         )
         dumped = yaml.dump(

@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.11.14-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.12.02-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -227,7 +227,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 五步执行模型（`template_version` 见各包 `AGENTS.md`；母版取最高）：
 
 1. **路由** — 多包先定包；`AGENTS.md` 口令表 → 命中 workflow；首条输出 `route=… | step=… | global=ok | reads=…`；纯解释走 `readonly:analysis`
-2. **加载** — 开局卡（新会话一次；**不再回指 AGENTS**）→ `activeContext`（状态）→ `rules/core/global-rules.md`（遵守全文；重读按 §7）→ `workflows/<id>.md` 链图（进链一次）→ `rules/packets/<id>/<step>.md`（本步剧本/验收）→ §6 技能必做节 → 至多 1 个模板。**主从**：步骤卡门槛，技能/模板做法与壳，具名索引按点名再读。**中段**：一行锚（`global-rules.md` §8）+ 运行状态，不重读开局卡全文
+2. **加载** — 开局卡（新会话一次；**不再回指 AGENTS**）→ `activeContext`（状态）→ `rules/core/global-rules.md`（遵守全文；重读按 §7）→ `workflows/<id>.md` 链图（进链一次）→ `rules/packets/<id>/<step>.md`（本步剧本/验收）→ §6 技能整卡 → 至多 1 份模板。**主从**：步骤卡门槛，技能/模板做法与壳，具名索引按点名再读。**中段**：一行锚（`global-rules.md` §8）+ 运行状态，不重读开局卡全文
 3. **执行** — 步内方法以步骤包为准；技能不另造平行流程；`when` 条件跳过；步上 `hitl` 必须确认；切步/过门须心跳
 4. **验证** — `verify/Invoke-Gate.ps1`；只有门能授予 `COMPLETE` / `PASS` / `READY`
 5. **落盘** — 写入本包标准目录，更新索引 / 计划 / 项目侧 `activeContext.md`

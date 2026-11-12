@@ -1,5 +1,5 @@
 # 编排：进 wf → workflows/plan.md；执行 → 当前 step 步骤包；终端 → _shared/closeout.md。
-# 步骤卡 §6 必开技能：打开→执行→回包。禁把 skill 正文嵌进步骤卡。
+# 步骤卡 §6 必开技能：整卡读取→执行→回包。禁把 skill 正文嵌进步骤卡。
 # 本 YAML 只定义状态/门/产出；不用于运行时通读。
 workflow:
   id: plan
@@ -29,6 +29,9 @@ trigger:
 steps:
 - name: 目标与指标
   id: goals
+  skills:
+  - zero-to-one-product-definition
+  - requirement-discovery-and-prioritization
   must_read:
   - rules/packets/plan/goals.md
   agent: pm-analyst
@@ -41,6 +44,9 @@ steps:
     核对口径；未装 = 用户提供数据摘要。
 - name: 路线图与优先级
   id: roadmap
+  skills:
+  - zero-to-one-product-definition
+  - requirement-discovery-and-prioritization
   must_read:
   - rules/packets/plan/roadmap.md
   agent: pm-analyst
@@ -49,6 +55,7 @@ steps:
     A/B/C 方案；可只读拉取数据/反馈/竞品证据（≤30 行/来源），排序与取舍由本步做。 方法按需：RICE Kano MoSCoW；拿不准向上一档并说明。 不写需求细节（细节归 PRD）；需求池只留候选与状态。
 - name: 本期范围与里程碑
   id: scope
+  skills: []
   must_read:
   - rules/packets/plan/scope.md
   - rules/templates/10-planning/iteration-change-summary-template.md
@@ -62,6 +69,8 @@ steps:
     closeout；会话中断时以已落盘稿为准。 **计划未确认不进入 PRD 排期**（见 `rules/workflow.md` 第 1 节）。 **无产品计划第 3.0 节 Brief+差量表（权威在独立摘要时须可打开）不得交开发当本期范围已清**。
 - name: 计划文档评审
   id: review-plan
+  skills:
+  - artifact-review
   must_read:
   - rules/packets/plan/review-plan.md
   agent: reviewer-agent
@@ -73,6 +82,7 @@ steps:
     scope/publish 修订。 小周期微调且已 confirm_plan → `landing_doc_review_needed` 可假。
 - name: 落盘与索引
   id: publish
+  skills: []
   must_read:
   - rules/packets/plan/publish.md
   - rules/templates/10-planning/product-plan-template.md
@@ -95,6 +105,7 @@ steps:
     `product-profile.md`，不随季度归档。
 - name: 计划续跑
   id: next
+  skills: []
   must_read:
   - rules/packets/plan/next.md
   agent: pm-lead
@@ -105,6 +116,7 @@ steps:
     产品包独立运行；开发/测试包为可选输入/输出，缺则不阻塞。 执行后回写 状态/下一动作、 执行日志；门结论/变更写。
 - name: 收尾与提交
   id: closeout
+  skills: []
   must_read:
   - rules/packets/_shared/closeout.md
   agent: pm-lead
