@@ -12,7 +12,7 @@
 | 主读门 | `select_mainread`（when: `mainread_unspecified`） | 主读路径未确认 → STOP 一问；已点名/唯一正式版已在依据清单写明 → 可续，不重问。 |
 | 意图门 | `confirm_intent`（when: `intent_needs_confirm`） | 口令无法唯一确定给谁·做什么·形态，或跨角色外发未对齐 → 先对齐；意图已清跳过。 |
 | 交接门 | `confirm_handoff`（when: `handoff_send_required`） | 拟生成 HO/统一导出缺陷 → 出示类型/接收方/摘要/落点；确认后落盘；未确认零发包。 |
-| 平台门 | `confirm_platform`（when: `platform_ask_required` / `platform_submit`） | 有拟交平台/新建缺陷单 → STOP；新建单出示 `caseId｜标题｜类型｜surface｜十段｜附件` 清单并抽一单正文；回写走备注门；≠ git；无平台动作跳过。 |
+| 平台门 | `confirm_platform`（when: `platform_ask_required` / `platform_submit`） | 有拟交平台/新建缺陷单 → STOP；新建单出示 `caseId｜标题｜类型｜surface｜结构/厚度｜附件` 清单并抽一单正文（须见设计对照标记+字段级实际）；`validate_defect_steps` 未过禁进确认；回写走备注门；≠ git；无平台动作跳过。 |
 | 备注门 | `confirm_remark`（when: `remark_writeback`） | 拟关/激/解决/标重复/补充澄清/回归写回 → 先列 id+结论+备注全文；确认后执行。 |
 | 入库门 | `confirm_gitignore`（when: `gitignore_needed`） | 四选一确认资产范围；规范包默认不跟踪，写已装包行与运行态 `.gate/`；接入时一次。 |
 | 技能变更门 | `confirm_skill_changes`（when: `skill_changes_pending`） | 出示拟变更清单；确认后才改；未确认零改动。 |
@@ -26,7 +26,7 @@
 | 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `-Mode coverage`：§2.1 具体 INT 台账+可观测 Oracle；**账本非空且 §1.1 计数被账本行数支撑**；设计点只映射台账，矩阵/细节维 INT 回指台账；来源/章节/依据/覆盖矩阵/方法矩阵/细节维/影响面/核心链路/§4/§5.2/§6 齐；计划 §0 计数/版本准出/准出口径/批次意图范围与分析联动；**§2.2 有造数项时 §3.1 须有数据准备批**；**§2 接口/探索/发布前 纳入=是须有 §3.1 批次**。未 PASS 不得称分析完整/计划可执行/开跑。 |
 | 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 计划状态/联动 + **记录批次 ID ∈ 计划 §3.1 且该批意图跑齐** + 本批记录/证据/阻塞理由/**失败/待实现行失败详情块（含 surface；surface=ui 的失败须截图）**/**§0 分析索引 + 每场景实际/差异（三步序方法在步骤卡/技能）**/**§0 原文/对照与对账计数**/**§1.1 六类（接口 §2.1 适用维）有 SC/N/A+依据；UI/视觉禁弱 N/A（API 主断言/脚本/契约充数）**/INT∈§2.1 台账/**优先级取分析仅作 P0 记账**/**§3 结论回指场景**/意图终态/P0 证伪；原文锚点+可观测 Oracle。实现≠方案的偏差分型与证据在记录「实际/差异」（classification §0.5）。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。 |
 | 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图须有实际场景**/P0/证伪/缺口对账；**计划纳入轨道须有对应记录（功能/接口/探索/发布前）**；§2.2 通过/失败/阻塞/待实现与记录一致；§2.3 细节维计数对分析、原文对账未关>0 不得 PASS；CONDITIONAL 认 §4 接受人行；未 PASS/CONDITIONAL 不得写整体通过。 |
-| 回写闸 | `gate: writeback-receipt` | 提交/回写前跑 `-Mode writeback`：有单号/备注/状态/附件回执；新建单另查来源/surface/十段；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖；未跑须接受人）；只写 `writeback.json`，不覆盖 report。 |
+| 回写闸 | `gate: writeback-receipt` | 提交/回写前跑 `-Mode writeback`：有单号/备注/状态/附件回执；新建单另查来源/surface/`结构`/`厚度`（厚度未过→FAIL）；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖；未跑须接受人）；只写 `writeback.json`，不覆盖 report。 |
 
 ## 2. `when` / `gate_when` 词表
 

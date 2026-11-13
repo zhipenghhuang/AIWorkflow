@@ -516,13 +516,13 @@ DEFECT_SUBMIT_CARD = """### 本步规则卡：投影交单与回执
 
 - **先定 surface**：`ui|api|ui+api`（读者看到的面）；有菜单/页面/控件→ui，纯接口→api；入口指纹（ui|network|contract）只说明入口怎么找到，≠surface。
 - **十段清单（缺段禁交）**：【提交摘要】【环境】【测试数据/业务主键】【问题】【复现】【实际】【预期】【接口判定】【设计对照】【技术附记】；首段含 `问题标题：`+`一句话影响：`+`最小复现：`；末段=`【技术附记】`。
-- **platform_submit**：发现即提交（计划预授权）｜批末/阶段末/收尾确认｜用户口令提交到平台（`collaboration` §6.1）；确认门出示清单+一单正文。
+- **platform_submit**：发现即提交（计划预授权）｜批末/阶段末/收尾确认｜用户口令提交到平台（`collaboration` §6.1）；确认门出示清单+一单正文；`validate_defect_steps` 0 ERROR 后才进确认/POST。
 - **投影（硬）**：steps=执行失败详情按文案模板只换壳；`surface=ui`/`ui+api` 的【复现】必须是 UI 导航，API 只进第8/10块；`surface=api` 才可请求链；禁自拟精简十段、禁交单窗现网补截图/主键/文案、禁重开页面补拍。
 - **平台自洽（硬）**：建单/挂靠补证/澄清备注均须可跟做构造+观测自洽；截图/响应**上传并回查**或正文写 `字段=值`；禁测仓 `evidence/…`、本机路径、未上传叶名充证据（`collaboration` 平台自洽 + 文案模板 §5.0.3#16/#17）。
 - **附件门（硬）**：`surface=ui`/`ui+api` → ≥1 钉点截图已挂本单；`surface=api` → 响应文件已挂**或**正文关键片段齐；回查 `files` 后再写回执（禁「有 json 叶=已交证」）。
-- **写入自检（硬 · 新建/正式交平台）**：十段齐 + `surface` 一致；HTML/文本版式按适配「写入前自检」；建单 body 带 `assignedTo`（禁建后再 assign+comment 刷首条备注）。
+- **写入自检（硬 · 新建/正式交平台）**：十段齐 + §5.0.1b 标记齐 + `surface` 一致；**POST/PUT 前** `python rules/tools/validate_defect_steps.py <steps>` 须 0 ERROR（结构齐≠厚度过）；HTML/文本版式按适配「写入前自检」；建单 body 带 `assignedTo`（禁建后再 assign+comment 刷首条备注）。
 - **入口门（硬）**：投影前核执行详情含 `入口指纹=`；写接口单须有回查字段=值（Q22）；细则 `collaboration` §5.0.1c / `classification` §0.4。
-- **回执**：`{ver}/写回回执.md`（本轮覆盖）；新建单写 `来源=记录投影|现网补采`、`surface=`、`十段=齐|缺`；回归写回附范围卡（构建/回归范围/冒烟/影响面/未覆盖；未跑/未覆盖写接受人，槽位见 `collaboration` §7.0）；过 writeback 门。"""
+- **回执**：`{ver}/写回回执.md`（本轮覆盖）；新建单写 `来源=记录投影|现网补采`、`surface=`、`结构=齐|缺`、`厚度=过|未过`（厚度未过禁标交单成功）；回归写回附范围卡（构建/回归范围/冒烟/影响面/未覆盖；未跑/未覆盖写接受人，槽位见 `collaboration` §7.0）；过 writeback 门。"""
 
 
 def step_card(pack_key: str, wid: str, sid: str) -> str:
