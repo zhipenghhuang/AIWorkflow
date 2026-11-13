@@ -12,8 +12,8 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 1. 读主读/OpenAPI/Network/前端契约 + 计划 §2 接口意图；禁猜 path/字段（禁按模块名对称拼 path）。
 2. 建契约清单：EP、方法+path、鉴权、关键参数、成功码/关键字段、错误码、来源。
-3. 定适用维：成功契约、无 token/失效、越权、参数边界、超长/Emoji、非法状态/假成功、幂等/并发、不存在、分页、排序、错误 METHOD；不适用写依据。
-4. 执行时生成场景并写 `{workroot}/{ver}/api/{NN}-{短名}-执行记录.md`；确定性同轮脚本。
+3. **先填 §2.1 维表**（每 EP：适用维 → `SC-*` 或 `不适用+依据`；depth 底线见 `tracks/api`），再按表生成场景；禁先探活后补空表。
+4. 执行时写 `{workroot}/{ver}/api/{NN}-{短名}-执行记录.md`；确定性同轮脚本；探活只进 `.draft`。
 5. 跑 `python rules/tools/validate_api_testcase.py <域文件>`；ERROR 未清=未完成。
 6. 声明 depth：迭代 standard、发版 full、补丁 core；不得用“只跑高风险”冒充 standard。
 
@@ -48,7 +48,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 
 ## 6. DoD
 
-- 契约清单有来源；适用维无空白；depth 已声明。
+- 契约清单有来源；§2.1 维表无空白；depth 已声明；机检无 ERROR。
 - 判定三要素 + 写后回查 + 脚本/理由；证据可打开。
 - 失败分类；未覆盖/限制写清；报告与记录一致。
 
@@ -61,7 +61,10 @@ description: Use for API and contract testing. Prefer script-first execution, co
 | “现网响应当预期” | Oracle 来自契约/需求，不按实现改预期。 |
 | “2xx 就算通过” | 状态码+业务信号+关键字段=值；假成功=失败。 |
 | “有 message/failReason 就算错误契约过” | 须业务可读且与门禁同类；异常原文当合格错误=失败。 |
-| “对称猜 /aps280/…/x 404 就未交付” | path 须契约/Network；未钉指纹禁交「入口不存在」。 |
+| “对称猜 path 404 就未交付” | path 须契约/Network；未钉指纹禁交「入口不存在」。 |
 | “覆盖对照做成全维矩阵才完整” | 按适用维；不适用写依据；不要求全维空表。 |
-| “功能执行记录里已有 API 证据” | 那是探针；接口轨完成仍要本域 `api/` 记录+契约清单+depth 适用维。 |
+| “功能执行记录里已有 API 证据” | 那是探针；接口轨完成仍要本域 `api/` 记录+契约清单+§2.1 维表。 |
 | “depth=full 太重，先只跑关键写口” | 须改计划声明更低 depth 并经确认；禁静默缩 full。 |
+| “探活全绿 / 通过率高就能关批” | 否；认正文+维表+机检；探活不顶替。 |
+| “路由 404 就算不存在资源维过了” | 否；路由未挂≠业务对象不存在（`tracks/api` 404 分型）。 |
+| “越权返回非 500 就算过” | 否；须拒绝或空域可观测。 |

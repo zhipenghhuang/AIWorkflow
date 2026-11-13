@@ -8,7 +8,9 @@ Checks:
 - §0 记录信息 / §1 契约清单 / §2 场景与结果 / §4 意图结论与本轮统计
 - contract table: EP, method+path, success code/fields, source
 - scene table: SC, EP, INT/AC, 维度, 请求, 预期, 结果, 证据
-- fail/block/pending evidence; depth declared; only 2xx not considered pass (manual)
+- §2.1 维表：每契约 EP 有行；处置=SC-* 或 不适用；depth 底线维
+- 成功契约通过行：预期含字段级 Oracle（非仅 2xx/成功）
+- fail/block/pending evidence; depth declared
 
 Exit 0 = pass; 1 = errors; 2 = usage.
 """
@@ -21,6 +23,17 @@ from pathlib import Path
 STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
 FAIL = {"失败", "阻塞", "待实现"}
 INT_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
+SC_RE = re.compile(r"SC-[A-Z0-9-]+", re.I)
+EP_RE = re.compile(r"^EP-[A-Z0-9-]+$", re.I)
+
+# depth 底线维名（命中即认；别名用子串）
+CORE_DIMS = ("成功契约", "无 token", "无token", "鉴权")
+STANDARD_EXTRA = ("错误 METHOD", "错误METHOD", "METHOD")
+FIELD_ORACLE_RE = re.compile(
+    r"(data\.|字段|code\s*[=＝]|status\s*[=＝]|[=＝]\s*[`'\"]?\w|[a-zA-Z_][\w.]*\s*[=＝]|非空|为空)",
+    re.I,
+)
+WEAK_EXPECT_RE = re.compile(r"^(?:200|2xx|成功|ok|通过|success)(?:[/+\s,，、]+(?:200|2xx|成功|ok|通过|success))*$", re.I)
 
 
 def tables(block: str):
@@ -52,9 +65,51 @@ def cell(row, headers, name):
     return row[i].strip() if 0 <= i < len(row) else ""
 
 
+def norm_dim(s: str) -> str:
+    return re.sub(r"\s+", "", s or "").lower().replace("／", "/").replace("｜", "|")
+
+
+def dim_match(cell_text: str, aliases: tuple[str, ...]) -> bool:
+    n = norm_dim(cell_text)
+    for a in aliases:
+        if norm_dim(a) in n:
+            return True
+    return False
+
+
+def detect_depth(text: str) -> str:
+    head = text[:8000]
+    m = re.search(r"depth\s*[=：:]\s*`?(core|standard|full)`?", head, re.I)
+    if m:
+        return m.group(1).lower()
+    for line in head.splitlines():
+        if "depth" not in line.lower():
+            continue
+        m = re.search(r"\b(core|standard|full)\b", line, re.I)
+        if m:
+            return m.group(1).lower()
+    return ""
+
+
+def disposition_ok(disp: str) -> tuple[bool, str]:
+    d = (disp or "").strip()
+    if not d or d in ("—", "-", "…", "待定"):
+        return False, "空"
+    if SC_RE.search(d):
+        return True, "sc"
+    if "不适用" in d or re.search(r"\bN/?A\b", d, re.I):
+        # 须带依据（不止「不适用」二字）
+        if len(re.sub(r"不适用|N/?A|[+\s：:·|]", "", d, flags=re.I)) < 2:
+            return False, "不适用无依据"
+        return True, "na"
+    if "未装" in d or "本轮 depth" in d:
+        return True, "deferred"
+    return False, "非SC/非不适用"
+
+
 def main() -> int:
     if len(sys.argv) < 2:
-        print("Usage: validate_api_testcase.py <record.md>", file=sys.stderr)
+        print("Usage: python validate_api_testcase.py <record.md>", file=sys.stderr)
         return 2
     p = Path(sys.argv[1])
     if not p.is_file():
@@ -73,10 +128,13 @@ def main() -> int:
             errors.append(f"缺章节 {h}")
     if not any(h in text for h in ("## 4. 意图结论", "## 4. 本轮结论")):
         errors.append("缺章节 ## 4. 意图结论与本轮统计")
-    if not re.search(r"depth\s*[：:]|\bdepth\b", text[:5000], re.I):
+    depth = detect_depth(text)
+    if not depth:
         warns.append("未声明 depth（core/standard/full）")
 
+    # §1 契约 EP
     block1 = text.split("## 1. 契约清单", 1)[1].split("## 2.", 1)[0] if "## 1. 契约清单" in text else ""
+    contract_eps: list[str] = []
     t1 = None
     for headers, rows in tables(block1):
         if "EP" in headers and "方法" in " ".join(headers):
@@ -89,12 +147,17 @@ def main() -> int:
         for row in rows:
             if not row or not row[0] or row[0] in ("EP", "—"):
                 continue
+            ep = row[0].strip().strip("`")
+            if EP_RE.match(ep):
+                contract_eps.append(ep)
             for name in ("方法 + path", "成功码", "来源"):
                 if not cell(row, headers, name):
                     errors.append(f"契约 {row[0]} 缺 {name}")
 
+    # §2 场景
     block2 = text.split("## 2. 场景与结果", 1)[1].split("## 3.", 1)[0] if "## 2. 场景与结果" in text else ""
     scene_ids: set[str] = set()
+    scene_by_ep_dim: dict[str, set[str]] = {}
     table = None
     for headers, rows in tables(block2):
         if "SC" in headers and "结果" in " ".join(headers):
@@ -109,12 +172,13 @@ def main() -> int:
             if not row or not row[0] or row[0] in ("SC", "—"):
                 continue
             seen += 1
-            sc = row[0]
+            sc = row[0].strip().strip("`")
             scene_ids.add(sc)
             status = cell(row, headers, "结果")
             ev = cell(row, headers, "证据")
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
-            ep = cell(row, headers, "EP")
+            ep = cell(row, headers, "EP").strip().strip("`")
+            dim = cell(row, headers, "维度") or cell(row, headers, "维")
             req = cell(row, headers, "请求")
             expect = cell(row, headers, "预期")
             if status not in STATUSES:
@@ -128,8 +192,79 @@ def main() -> int:
                     errors.append(f"{sc}: 缺 {name}")
             if status in FAIL and (not ev or ev in ("—", "-", "无")):
                 errors.append(f"{sc}: {status} 缺证据")
+            if ep and dim:
+                scene_by_ep_dim.setdefault(ep, set()).add(dim)
+            # 成功契约通过 → 字段级 Oracle
+            if status == "通过" and dim_match(dim, ("成功契约", "成功")):
+                exp = (expect or "").strip()
+                if WEAK_EXPECT_RE.match(exp) or (not FIELD_ORACLE_RE.search(exp) and "code" not in exp.lower()):
+                    # 允许「200 + code=0 + data.id」类；拒绝纯 200/成功
+                    if not re.search(r"code|data\.|字段|非空|[=＝]", exp, re.I):
+                        errors.append(f"{sc}: 成功契约通过但预期缺字段级 Oracle（禁仅 2xx/成功）")
         if seen == 0:
             errors.append("§2 场景表无数据行")
+
+    # §2.1 维表
+    dim_block = ""
+    if "### 2.1" in block2:
+        dim_block = block2.split("### 2.1", 1)[1]
+    elif "维度适用" in block2:
+        dim_block = block2.split("维度适用", 1)[1]
+    dim_rows: list[tuple[str, str, str]] = []
+    dim_eps: set[str] = set()
+    dim_table = None
+    for headers, rows in tables(dim_block if dim_block else ""):
+        joined = " ".join(headers)
+        if "EP" in headers and ("维度" in joined or "维" in joined) and ("处置" in joined or "SC" in joined or "适用" in joined):
+            dim_table = (headers, rows)
+            break
+    if not dim_table:
+        errors.append("缺 §2.1 维度适用性表（EP/维度/处置）")
+    else:
+        headers, rows = dim_table
+        for row in rows:
+            if not row or not row[0] or row[0] in ("EP", "—"):
+                continue
+            ep = row[0].strip().strip("`")
+            dim = cell(row, headers, "维度") or cell(row, headers, "维")
+            disp = cell(row, headers, "处置") or cell(row, headers, "SC") or cell(row, headers, "适用")
+            if not EP_RE.match(ep):
+                continue
+            dim_eps.add(ep)
+            ok, kind = disposition_ok(disp)
+            if not dim or dim in ("—", "-", "…"):
+                errors.append(f"§2.1 {ep}: 缺维度")
+            if not ok:
+                errors.append(f"§2.1 {ep}/{dim or '?'}: 处置无效（{kind}；须 SC-* 或 不适用+依据）")
+            else:
+                dim_rows.append((ep, dim, disp))
+                if kind == "sc":
+                    refs = set(SC_RE.findall(disp))
+                    missing = refs - scene_ids
+                    if missing:
+                        errors.append(f"§2.1 {ep}/{dim}: 引用场景不存在 {','.join(sorted(missing))}")
+
+        for ep in contract_eps:
+            if ep not in dim_eps:
+                errors.append(f"§2.1 缺契约 EP 行: {ep}")
+
+        # depth 底线：每 EP 须有成功契约 + 无 token（或 N/A）；standard+ 另要 METHOD
+        check_sets = [
+            ("成功契约", ("成功契约", "成功")),
+            ("无 token", ("无 token", "无token", "鉴权", "token")),
+        ]
+        if depth in ("standard", "full", ""):
+            # 未声明 depth 时按 standard 底线机检（与迭代默认一致）
+            check_sets.append(("错误 METHOD", ("错误 METHOD", "错误METHOD", "METHOD", "Content-Type")))
+        by_ep: dict[str, list[tuple[str, str]]] = {}
+        for ep, dim, disp in dim_rows:
+            by_ep.setdefault(ep, []).append((dim, disp))
+        for ep in contract_eps:
+            rows_e = by_ep.get(ep, [])
+            for label, aliases in check_sets:
+                hit = [(d, disp) for d, disp in rows_e if dim_match(d, aliases)]
+                if not hit:
+                    errors.append(f"§2.1 {ep}: 缺 depth 底线维「{label}」（SC 或 不适用+依据）")
 
     # §4 意图结论：结论须回指实际场景
     itable = None
@@ -143,7 +278,7 @@ def main() -> int:
         for row in rows:
             if not row or not row[0] or row[0] in ("INT", "—"):
                 continue
-            iid = row[0].strip()
+            iid = row[0].strip().strip("`")
             if not INT_RE.fullmatch(iid):
                 continue
             status = cell(row, headers, "结论")

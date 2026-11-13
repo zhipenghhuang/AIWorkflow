@@ -143,7 +143,7 @@
 
 ### 2.6 接口
 
-见 `tracks/api.md`；迭代必须纳入（整轨否仅 `multi-track-quality` §0 白名单+用户确认）。使用 `api-test-case-template.md`（执行记录）。落盘 `{ver}/api/{NN}-{短名}-执行记录.md`；脚本 `{workroot}/scripts/`；契约清单 + 适用维 + 判定三要素 + 脚本默认；迭代 depth=standard、发版 full、补丁 core；UI 探针 ≠ 本轨。
+见 `tracks/api.md`；迭代必须纳入（整轨否仅 `multi-track-quality` §0 白名单+用户确认）。使用 `api-test-case-template.md`（执行记录）。落盘 `{ver}/api/{NN}-{短名}-执行记录.md`；脚本 `{workroot}/scripts/`；契约清单 + §2.1 适用维 + 判定三要素 + 脚本默认；迭代 depth=standard、发版 full、补丁 core；探活/UI 探针 ≠ 本轨完成。
 
 ### 2.7 发布前
 
