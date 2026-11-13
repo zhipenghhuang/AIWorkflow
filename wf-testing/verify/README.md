@@ -34,7 +34,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`（写「全部」视为覆盖）；T1+ 功能细节维不得全否 | FAIL |
 | `plan-state` | execute/report | §0 计划状态 ∈ 已确认/执行中/待关闭 | FAIL |
 | `batch-coverage` | execute | 记录 §0 批次 ID 在计划 §3.1；该批意图范围已被场景覆盖（写「全部」的批只校验批次存在） | FAIL |
-| `execution-record` | execute/report | 场景表非空；每场景有 INT/优先级/场景/实际/差异；**§0 有分析索引（`test-analysis.md` 命中节）**；**`原文/依据` = 原文对应段（有互补源则对照；分析不作互补源）**；§0「原文 / 对照」+ 原文对账 `可验收单元 N` 且 `已覆盖+补录 ≥ N`、未关0/接受人；功能 §1.1 六类各有 SC 或 N/A+依据；接口 §2.1 适用维有 SC 或不适用+依据；优先级与 §2.1 一致（仅 P0 记账，测试依据仍原文）；功能步骤 3～7；失败/待实现有缺陷号或拟提交处置；通过须可观测 Oracle；§3 意图结论表有场景 ID 且回指 §1 | FAIL |
+| `execution-record` | execute/report | 场景表非空；每场景有 INT/优先级/场景/实际/差异；**§0 有分析索引（`test-analysis.md` 命中节）**；**`原文/依据` = 原文对应段（有互补源则对照；分析不作互补源）**；§0「原文 / 对照」+ 原文对账 `可验收单元 N` 且 `已覆盖+补录 ≥ N`、未关0/接受人；功能 §1.1 六类各有 SC 或 N/A+依据（UI/视觉禁「API 主断言/脚本/契约」充 N/A）；接口 §2.1 适用维有 SC 或不适用+依据；优先级与 §2.1 一致（仅 P0 记账，测试依据仍原文）；功能步骤 3～7；失败/待实现有缺陷号或拟提交处置；通过须可观测 Oracle；§3 意图结论表有场景 ID 且回指 §1 | FAIL |
 | `evidence-exists` | execute/report | 失败/阻塞/待实现证据可打开；P0 通过有证据 | FAIL |
 | `intent-analysis-link` | execute/report | 执行 INT 须在 **§2.1 台账**（设计点不能冒充）；分析只作索引，**不作 Oracle 来源、不作互补源** | FAIL |
 | `p0-status` | execute/report | P0 场景/意图失败 → execute 在过程完整时可为 CONDITIONAL（可下批）；report 不得 PASS；P0 以分析 §2.1 优先级为准 | execute: CONDITIONAL；report: 不得 PASS |

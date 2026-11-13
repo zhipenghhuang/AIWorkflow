@@ -26,6 +26,7 @@
 | 外部原件 | `inbound/INDEX.md` |
 | 工作根 | 见环境基线“项目身份”（默认单包 `docs/`、多包 `docs/{owner}/`） |
 | 跨包快照 | `activeContext.md` |
+| 交接台账 | 各包 `{workroot}/handoff/handoff-ledger.md`（只导航，不合并结构） |
 
 ## 3. 既有项目目录（未迁移）
 

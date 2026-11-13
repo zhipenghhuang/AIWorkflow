@@ -35,7 +35,7 @@
 
 ## 3. 上手
 
-1. 复制 `wf-testing/`（排除 `.draft/`、`.state/`、`.gate/`、`__pycache__`）；包默认不进入项目 git；在项目根 `AGENTS.md` 补引导语句（样例 `rules/templates/00-onboarding/root-agents-pointer.md`）。
+1. 复制 `wf-testing/`（排除 `.draft/`、`.state/`、`.gate/`、`__pycache__`）；包默认不进入项目 git；不跟踪时 `.gitignore` 写 `/wf-testing/`（多包 `/wf/`）与运行态 `.gate/`，不预列未装包、不加注释；在项目根 `AGENTS.md` 补引导语句（样例 `rules/templates/00-onboarding/root-agents-pointer.md`）。
 2. 设计文档放入 `inbound/{ver|topic}/` 或 `_common/`；按 `rules/doc-governance.md` 收取/对照。
 3. 主流程：**「根据 XX 迭代生成测试计划」→ 计划门确认 →「按测试计划执行」→「测试报告」**。
    - `plan` 内先完成分析（来源/AC/设计点/意图/风险），再写总排；不要求先单独说“分析需求”。
@@ -60,7 +60,7 @@
 
 1. 读方案/提测影响面/变更点；打开 `{ver}/test-analysis.md` 与 `{ver}/test-plan.md`、根 `smoke-checklist.md`。
 2. 计划按 `multi-track-quality` **§0** 硬纳入正式轨（整轨否仅白名单+接受人）；§3：R0 → R1 功能/接口/探索/发布前 → R2 回归。
-3. 执行：开跑直接打开原文，按原文目录/可验收单元逐项对照；逐场景对照原文对应段（有互补源则对照；分析只作索引）；P0 至少一条证伪场景；按意图/影响面/方法矩阵生成场景；脚本优先；边执行边写执行记录与原文对账；UI 探针 ≠ 接口轨。
+3. 执行：开跑直接打开原文，按原文目录/可验收单元逐项对照；逐场景对照原文对应段（有互补源则对照；分析只作索引）；P0 至少一条证伪场景；按意图/影响面/方法矩阵生成场景；脚本优先；边执行边写执行记录与原文对账；UI 探针 ≠ 接口轨；**失败/待实现行当场按执行模板 §2/§3 写满（含 `surface`/技术附记），批末门检；交单只投影**。
 4. 缺陷即回归：原单 + 冒烟子集 + 影响面 + 锚点。
 5. 探索式与发布前按计划闭环硬映射；小改用发布前基础级，不整轨取消。
 6. 报告声明 suite/depth/发布前风险级 + 意图结论 + 缺口；对照 `multi-track-quality` 准出。
@@ -76,7 +76,7 @@ wf-testing/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
 python wf-testing/verify/tools/selftest_gate.py
 ```
 
-自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。自检含 YAML 语法/schema、引用、锚点、步骤包、技能质量、生成漂移；门自测含正例+反例（计数/假 INT/lite 版本/幽灵意图/P0 改写/P0 记不适用/无 P0/计划草稿/批次 ID 不匹配）。
+自检时机：改包后、用户点名；接入核验由 onboarding 接入清单执行。自检含 YAML 语法/schema、引用、锚点、步骤包、技能质量、生成漂移；门自测含正例+反例（计数/假 INT/lite 版本/幽灵意图/P0 改写/P0 记不适用/无 P0/计划草稿/批次 ID 不匹配/失败详情/交单回执）。
 
 ## 5. 宿主适配
 

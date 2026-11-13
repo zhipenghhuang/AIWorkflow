@@ -25,10 +25,10 @@
 
 ## 2. 一次任务怎么跑
 
-1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
-   > **L2+ 非功能**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）；缺省或空写 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
+1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把当前任务态（`.gate/frontend/`、`.gate/review.md`、旧任务或无本轮 `task_id` 的 `.gate/plan-coverage.md`/`.gate/acceptance.yaml`、`.gate/wf-development/` 回执）**归档**到 `.gate/archive/<task_id>/`；本轮已写好且 `task_id` 匹配的 acceptance/coverage 保留。不删除，保留追溯。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
+   > **L2+ 非功能与任务绑定**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）和本轮 `task_id`；`.gate/plan-coverage.md` 也须含本轮 `task_id`；缺省、空写或与 `.gate/task.json` 不一致 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
    > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、smoke 中已配置的命令；L1 未配 `test_scoped` 且有 smoke → 不跑全仓 test；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`（优先配 `*_scoped`）。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
 3. 收尾：
 
@@ -42,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
    > `diff_hash` 只覆盖代码/配置/测试/迁移等非文档文件；计划、`activeContext`、INDEX、验收报告等收尾文档回写不会使回执失效；代码/测试/证据文件变更仍会。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** closeout 均跑）；无门/阶段收尾用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`，只校验版式不读 completion.json。
 
-**落盘**：`wf-development/verify/` 只读；运行态写项目根 `.gate/wf-development/`（仅 JSON）与 `.gate/frontend/`（截图 + design-qa）。
+**落盘**：`wf-development/verify/` 只读；运行态写项目根 `.gate/wf-development/`（JSON 回执）、`.gate/frontend/`（截图 + design-qa）与 `.gate/` 根任务态（`.gate/review.md`/`.gate/plan-coverage.md`/`.gate/acceptance.yaml`）；`-StartTask` 轮换到 `.gate/archive/<task_id>/`。
 
 ## 3. 文件
 
@@ -57,7 +57,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
 | `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 十五项（含交互诚实与视觉协调）、L2+ 二十项 |
 | `frontend/route-coverage.example.json` | 路由/菜单/深链/截图机读台账模板；复制为 `.gate/frontend/route-coverage.json` |
-| `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；L2+ 门内校验 |
+| `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；含本轮 `task_id`，L2+ 门内校验 |
 | `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、行状态、结论；L2+ 自动调用 |
 | `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；门内自动调用 |
 | `frontend/capture_example.py` | capture 参考实现（Playwright）：登录→逐路由→就绪判定（骨架/登录页不算）→桌面/移动截图→`evidence.json`；复制到项目并配 `frontend.capture` |
@@ -95,5 +95,5 @@ python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/front
 - 配了 `perf`/`security` 命令 → L2+ 必跑；失败即 BLOCKED，不降级为“人工看过”。
 - 全量测试单实例串行，日志落 `.gate/logs/`；中断/并发/超时 = 未验证，不得用旧数字补报告。
 - 截图桌面+移动各 1/页；JPEG/WebP；不默认 HTML/trace/video；同一截图哈希不得跨路由复用。
-- 门按本轮 `base_commit`+验收重跑；不复用旧回执；早于任务开始的截图 → BLOCKED；`-StartTask` 会递归清理 `.gate/frontend/` 旧媒体。
+- 门按本轮 `base_commit`+验收重跑；不复用旧回执；早于任务开始的截图/评审/覆盖/报告 → BLOCKED；`-StartTask` 会归档当前任务态（不删除）。
 - L1 验收嵌任务卡；L2+ 才落 `acceptance.yaml`。规则只读当前步。

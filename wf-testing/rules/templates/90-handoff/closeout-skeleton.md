@@ -13,7 +13,7 @@
 ```
 
 - 有报告门 → 与 `.gate/wf-testing/report.json` 一致（`PASS/CONDITIONAL/FAIL/BLOCKED`）；无门 → `不适用` + 依据，不伪造。  
-- 标题按场景可换【生成收尾】/【执行收尾】。无更新写 `sync=无`；命中被测版本 bump/关闭/准出衔接/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`）；被测版本已变时同字段兼记 `ac=ok|半截`（半截=未收尾）。  
+- 标题按场景可换【生成收尾】/【执行收尾】。无更新写 `sync=无`；命中被测版本 bump/关闭/准出衔接/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`；`ok`=已打开并对齐，禁空写）；被测版本已变时同字段兼记 `ac=ok|半截`（半截=未收尾；`ac=ok` 无冷层标记=未收齐）。  
 - **execute 收尾**：`exec_mode=` / `pg=` 必填（无并行写 `pg=na`）；建议附 `surface=api|ui|ui+api`；`econ=` 写本批经济要点或 `na`+理由。非执行步三者可 `na`。拟交「未交付/列表空」时自检须含入口指纹+误用已排除。  
 - `python verify/tools/check_compliance.py --report <本文件>`。
 

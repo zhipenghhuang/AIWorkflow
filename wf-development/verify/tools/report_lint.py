@@ -145,7 +145,7 @@ def check_layout(text: str, errors: list[str], warnings: list[str]) -> None:
             errors.append(f"附录缺少「{label}」")
 
 
-def check_self_check(text: str, errors: list[str]) -> None:
+def check_self_check(text: str, errors: list[str], warnings: list[str]) -> None:
     sc = re.search(r"【遵守自检】([^\n]+)", text)
     if not sc:
         errors.append("缺少【遵守自检】行（route/mode/reads/gates/sync/skip/deviation）")
@@ -164,6 +164,10 @@ def check_self_check(text: str, errors: list[str]) -> None:
         ):
             warnings.append(
                 "【遵守自检】sync= 含版本/发布/门面类表述时建议含 冷层:ok|na|deferred:<因>（见 doc-facade-sync）"
+            )
+        if re.search(r"\bac=ok\b", sync_body) and "冷层" not in sync_body:
+            warnings.append(
+                "【遵守自检】sync= 含 ac=ok（产品版本 SSOT 已变）时须含 冷层:ok|na|deferred:<因>（禁空写；见 doc-facade-sync）"
             )
 
 
@@ -185,7 +189,7 @@ def main() -> int:
     warnings: list[str] = []
 
     check_layout(text, errors, warnings)
-    check_self_check(text, errors)
+    check_self_check(text, errors, warnings)
 
     m = re.search(r"【验证回执】(.+)", text)
     if not m:

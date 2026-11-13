@@ -14,7 +14,7 @@
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner product`；按档案 `workroot`，未声明按约定） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner product` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） | `python rules/tools/check_secrets.py .` |
 | `validate_semantics.py` | 语义自检：开局卡结构/global-rules 节/双入口/残句/角色边/预算 | `python rules/tools/validate_semantics.py .` |
-| `clean_temp.py` | 临时/脏文件清理（默认 dry-run，只动缓存与过期临时） | `python rules/tools/clean_temp.py --project-root . [--apply]` |
+| `clean_temp.py` | 临时/缓存/过期日志清理（默认 dry-run；`--reset-frontend` 先归档；archive 用保留窗口显式清理） | `python rules/tools/clean_temp.py --project-root . [--apply] [--reset-frontend] [--gate-archive-keep N] [--gate-archive-days D]` |
 
 - `Test-Template.ps1` 会调用 `validate_workflow.py`（需 Python + PyYAML）；找不到 Python 时显示跳过，不假装通过。
 - 改包后跑自检 + 文档卫生；业务任务不例行自检。

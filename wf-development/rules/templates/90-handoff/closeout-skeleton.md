@@ -15,7 +15,7 @@
 
 - 回执须与 `.gate/wf-development/completion.json` 一致；无回执不得写「完成/通过」。中文结论 ↔ `COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED`。  
 - **开发自验**：无 QA / 跳过 deliver / solo 实测时必填；有正式测试准出 → `N/A` 并引对方报告。  
-- **遵守自检**：无更新写 `sync=无`；命中版本 bump/关闭/发布·上线/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`）；产品版本 SSOT 已变时同字段兼记 `ac=ok|半截`（半截=未收尾；CHANGELOG 有用户可见则非 `na` 才算齐）；心跳 **不替代**本行。  
+- **遵守自检**：无更新写 `sync=无`；命中版本 bump/关闭/发布·上线/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`；`ok`=已打开并对齐，禁空写）；产品版本 SSOT 已变时同字段兼记 `ac=ok|半截`（半截=未收尾；CHANGELOG 有用户可见则非 `na` 才算齐；`ac=ok` 无冷层标记=未收齐）；心跳 **不替代**本行。  
 - 发送前：`python verify/tools/check_compliance.py --report <本文件>`（无门可加 `--format-only`）。
 
 ## 0.5 表达（可复制块）

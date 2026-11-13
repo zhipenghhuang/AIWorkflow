@@ -1,7 +1,7 @@
 """Validate .gate/plan-coverage.md for L2+ plan/function coverage.
 
 This is a lightweight machine gate, not a semantic reviewer:
-- file exists;
+- file exists and carries the current task_id (when provided);
 - required sections exist;
 - backend/function table has at least one real row when code/config changed;
 - frontend table has at least one real row when page/static files changed (or explicit N/A);
@@ -180,7 +180,8 @@ def _conclusion_verdict(value: str) -> tuple[bool, str]:
     return False, f"结论须为 通过/需修/阻塞：{text[:40]}"
 
 
-def validate(project_root: Path, level: str, files: list[str]) -> tuple[list[str], dict]:
+def validate(project_root: Path, level: str, files: list[str],
+             task_id: str = "") -> tuple[list[str], dict]:
     problems: list[str] = []
     stats = {"rows": 0, "conclusion": ""}
     if _level_rank(level) < 2:
@@ -189,6 +190,13 @@ def validate(project_root: Path, level: str, files: list[str]) -> tuple[list[str
     if not path.is_file():
         return ["missing .gate/plan-coverage.md（L2+ 方案/功能覆盖矩阵）"], stats
     text = path.read_text(encoding="utf-8-sig", errors="replace")
+    if task_id:
+        m = re.search(r"(?im)^\s*task_id\s*[:：]\s*`?([^`\s|]+)", text)
+        existing = m.group(1).strip().strip("`\"'") if m else ""
+        if not existing:
+            problems.append("plan-coverage.md 缺 task_id（须与本轮 task.json 一致）")
+        elif existing != task_id:
+            problems.append(f"plan-coverage.md task_id={existing} 与当前任务 {task_id} 不一致")
     problems.extend(_check_sources(text, project_root))
     for heading in REQUIRED:
         if heading not in text:

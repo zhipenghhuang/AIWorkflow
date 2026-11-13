@@ -187,6 +187,10 @@ def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None
             warnings.append(
                 "【遵守自检】sync= 含版本/发布/门面类表述时建议含 冷层:ok|na|deferred:<因>（见 doc-facade-sync）"
             )
+        if re.search(r"\bac=ok\b", sync_body) and "冷层" not in sync_body:
+            warnings.append(
+                "【遵守自检】sync= 含 ac=ok（版本/迭代主题已变）时须含 冷层:ok|na|deferred:<因>（禁空写；见 doc-facade-sync）"
+            )
 
     # Economy receipt: required for testing/execute; optional elsewhere (warn if half-filled).
     has_exec_mode = "exec_mode=" in body

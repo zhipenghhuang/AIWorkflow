@@ -5,7 +5,7 @@
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.02`  
+> **template_version**：`2026.11.13.04`  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -102,12 +102,12 @@
 
 改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）；改角色 → `agents/`；改门/红线/输出 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接/变更分级 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改模板 → `rules/templates/`；改技能 → `skills/`；改能力 → `capabilities/`；改文档树/归档 → `rules/doc-governance.md`；改门面同步 → `rules/core/doc-facade-sync.md`（及 `project-readme.md` 指针）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`。自检见 `rules/core/maintenance.md` §2。
 
-## 5. 多包（自动探测）
+## 5. 多包（按目录判定）
 
 `wf/`（含 ≥2 个 `wf-*`）=多包；项目根单个 `wf-*` =单包；同 id 双份/半迁停问。
 - **口令表节号**：本包与开发 §3；测试 §2（勿跨包按节号直译）。
 - **单包独立为默认**；多包联动**可选、非必须**；不要求装齐三包、不强制同时启用、**不因缺他包阻塞本包**；跨包同步只登记状态，不等于自动联动。**联动=交付物字段+同仓直读，≠共安装、≠自动跑对方、≠强制引用他包路径。**
-- **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写**已装包**；不描述包的用途/装载/升级。规范包**默认不跟踪**：`.gitignore` 只写一行 `/<已装包>/`（多包 `/wf/`）；不预列未装包、不加注释。用户明确要求跟踪时才跟踪。
+- **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写**已装包**；不描述包的用途/装载/升级。规范包**默认不跟踪**：`.gitignore` 写已装包行 `/<已装包>/`（多包 `/wf/`）与运行态 `.gate/`；不预列未装包、不加注释。用户明确要求跟踪时才跟踪。
 - 共用原件根 `inbound/`（项目根固定；无则 onboard 建）、根 `activeContext.md`（总览 → 已启用包分节 → 跨包同步 → 运行时；单包只建本包节）。
 - 各包只改本分节、与本包相关的跨包同步一行、本包接入行；禁止整文件覆盖或改他包分节。
 - 一次会话只执行一个包 workflow；跨包默认交自洽交付物或同仓直读对方 `handoff/outbound/`；**仅升包时**用 `handoff/outbound/{category}/{HO-ID}/`；不复制正文、不自动执行对方 workflow。

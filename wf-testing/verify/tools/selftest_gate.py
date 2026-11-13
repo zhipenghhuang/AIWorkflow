@@ -53,6 +53,17 @@ WB_PLAIN = """# 写回回执 · 补充澄清
 | #2004 | comment | active | 已补充环境信息 | 无附件；actionId=2 |
 """
 
+WB_SUBMIT_OK = """# 写回回执 · 新建缺陷
+
+| 单号 | 动作 | 写回后状态 | 备注 | 附件回查 |
+| --- | --- | --- | --- | --- |
+| #2100 | submit | active | 已建单 | fileId=1 |
+
+来源=记录投影；surface=ui；十段=齐
+"""
+
+WB_SUBMIT_NO_SURFACE = WB_SUBMIT_OK.replace("surface=ui", "surface=—")
+
 WB_NO_CARD = WB_RECEIPT.split("## 回归范围卡")[0]
 WB_SMOKE_UNWAIVED = WB_RECEIPT.replace(
     "冒烟=批 B-01 一次（SMK-01 通过）", "冒烟=未跑"
@@ -160,6 +171,48 @@ def template_like(files: dict[str, str]) -> dict[str, str]:
     return out
 
 
+FAIL_DETAIL = """### SC-001 错误密码登录被拒绝
+
+- **问题标题**：登录页：错误密码提示系统异常，无法定位账号/密码错误
+- **分类 / 两档**：实现缺陷；严重程度 2-严重；优先级 1-紧急
+- **一句话影响**：所有登录失败用户看不到账号/密码错误原因，无法自助恢复
+- **最小复现**：打开 /login → 输入 admin/错误密码 → 点「登录」
+- **环境**：URL=http://example.test；角色=admin（无密码）；构建=b1
+- **测试数据/业务主键**：构造：环境自带 admin 账号；账号=admin；密码=错误密码
+- **问题** + **业务后果**：登录页提交错误密码后提示「系统异常」；用户无法判断账号还是密码错误，登录主路径被阻断
+- **复现**：前置：admin 账号存在；1. 打开 /login；2. 输入 admin/错误密码；3. 点「登录」；复现频率：每次
+- **实际**（≥2）：1. 前端：Toast「系统异常」；2. 前端：状态码 401 未展示账号/密码错误
+- **预期**（≥2）：1. 前端：提示「账号或密码错误」；2. 前端：停留在登录页并保留账号
+- **接口判定**：POST /api/login；参数：username=admin,password=wrong；码/消息：401/账号或密码错误；回查：无写操作；判定：接口语义正确，前端提示错
+- **设计对照**：资料《PRD》§2；原文：错误密码须提示账号或密码错误；设计应然：展示可读错误；现网/本轮：提示系统异常；差别：提示文案不符；方案理解核对：未冻结项未误判；本条以资料为准
+- **证据**：evidence/sc-001.png
+- **surface**：ui
+- **入口指纹**：ui:/login
+- **误用已排除**：是
+- **技术附记**：route=/login；落点=登录页 Toast；code=401；响应：message=账号或密码错误；依据=PRD §2；判定=前端提示错
+- **下一步**：提交平台
+"""
+
+
+def fail_record(base: dict[str, str], with_detail: bool) -> dict[str, str]:
+    out = dict(base)
+    rec_path = "docs/functional/01-登录-执行记录.md"
+    rec = out[rec_path]
+    rec = rec.replace(
+        "| 通过 | evidence/sc-001.txt | 符合 | — |",
+        "| 失败 | evidence/sc-001.png | 偏差=缺陷：提示与状态不符 | — |",
+    )
+    rec = rec.replace(
+        "| INT-001-LOGIN | P0 | SC-001 | 通过 | evidence/sc-001.txt |",
+        "| INT-001-LOGIN | P0 | SC-001 | 失败 | evidence/sc-001.png |",
+    )
+    if with_detail:
+        rec = rec.replace("## 2. 观察与问题\n\n无。", "## 2. 观察与问题\n\n" + FAIL_DETAIL)
+    out[rec_path] = rec
+    out["docs/evidence/sc-001.png"] = "png"
+    return out
+
+
 def main() -> int:
     cases: list[tuple[str, dict[str, str], str, str, str | None]] = []
     cases.append(("good-coverage", GOOD, "coverage", "PASS", None))
@@ -167,6 +220,13 @@ def main() -> int:
     cases.append(("good-report", GOOD, "report", "PASS", None))
     cases.append(("template-format-execute", template_like(GOOD), "execute", "PASS", "functional"))
     cases.append(("template-format-report", template_like(GOOD), "report", "PASS", None))
+    cases.append(("fail-no-detail", fail_record(GOOD, False), "execute", "FAIL", "functional"))
+    cases.append(("fail-detail-ok", fail_record(GOOD, True), "execute", "CONDITIONAL", "functional"))
+    _product = fail_record(GOOD, True)
+    _product["docs/functional/01-登录-执行记录.md"] = _product[
+        "docs/functional/01-登录-执行记录.md"
+    ].replace("实现缺陷", "产品缺陷")
+    cases.append(("product-no-proof", _product, "execute", "FAIL", "functional"))
     cases.append((
         "count-vs-ledger", mutated(
             "docs/test-analysis.md",
@@ -235,6 +295,14 @@ def main() -> int:
             "docs/functional/01-登录-执行记录.md",
             "| 轮次/批次 | R1 / B-R1-01 |",
             "| 轮次/批次 | R1 / B-R1-99 |",
+            GOOD,
+        ), "execute", "FAIL", "functional",
+    ))
+    cases.append((
+        "ui-weak-na", mutated(
+            "docs/functional/01-登录-执行记录.md",
+            "- UI/视觉：`SC-002`",
+            "- UI/视觉：`N/A+依据：本批 API 字段级主断言`",
             GOOD,
         ), "execute", "FAIL", "functional",
     ))
@@ -347,6 +415,8 @@ def main() -> int:
     ))
 
     cases.append(("good-writeback-regression", {"docs/写回回执.md": WB_RECEIPT}, "writeback", "PASS", None))
+    cases.append(("writeback-submit-ok", {"docs/写回回执.md": WB_SUBMIT_OK}, "writeback", "PASS", None))
+    cases.append(("writeback-submit-no-surface", {"docs/写回回执.md": WB_SUBMIT_NO_SURFACE}, "writeback", "FAIL", None))
     cases.append(("writeback-plain-comment", {"docs/写回回执.md": WB_PLAIN}, "writeback", "PASS", None))
     cases.append(("writeback-no-card", {"docs/写回回执.md": WB_NO_CARD}, "writeback", "FAIL", None))
     cases.append(("writeback-smoke-unwaived", {"docs/写回回执.md": WB_SMOKE_UNWAIVED}, "writeback", "FAIL", None))

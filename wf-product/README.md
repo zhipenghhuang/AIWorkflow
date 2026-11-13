@@ -69,7 +69,7 @@
 
 ## 3. 上手（快速开始）
 
-1. 复制 `wf-product/` 到项目根下一层；排除 `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）；包默认不进入项目 git，不跟踪时 `.gitignore` 只写一行 `/wf-product/`（多包 `/wf/`），不预列未装包、不加注释
+1. 复制 `wf-product/` 到项目根下一层；排除 `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）；包默认不进入项目 git，不跟踪时 `.gitignore` 写 `/wf-product/`（多包 `/wf/`）与运行态 `.gate/`，不预列未装包、不加注释
 2. 挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）  
 3. 对 AI 说「接入产品规范」→ 生成 `product-profile.md` 与 `activeContext.md`、确认入库策略、打标  
 4. 之后直接说口令：「收集需求」「竞品分析」「竞品对标」「产品计划」「写 PRD」「设计简报」「画原型」「PRD 评审」「排期」「需求变更」「UAT」「发布」「准备演示」「用户手册」「发布说明」「复盘」「资料收取」「资料整理」「资料归档」「文档巡检」「清理临时文件」  

@@ -43,7 +43,7 @@
 - 缺则问一次，不硬造。
 - 默认只收定稿、正确、完整、可独立阅读的文档。
 - 草稿/过程/证据/密钥/PII/未授权第三方文档不进库。
-- 域默认：`03-technical` `04-implementation` `06-release`（工程发布）。
+- 域默认：`03-technical` `04-implementation` `06-release`（工程发布）`07-appendix`。
 - **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升 rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。
 - 换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（文档治理关账）。
 - 外发前按现有 `confirm_handoff` `confirm_intent` 确认，不新造门。

@@ -3,7 +3,7 @@
 # 规范包只读：勿写入 wf-development/verify/。
 # 实施质量（DEV-IQ）：L1+ 有代码须 implement_preflight + sc_trace（门禁硬拦）；取重时 cross_layer/baseline_smoke/debts；见 implementation-quality.md §8
 # 非功能（L2+）：nfr.security / nfr.performance 必填（done+证据 或 na+具体理由；禁「无风险」空话）；见 verification.md DEV-VER-19
-task_id: DEV-{yyyyMMdd}-{NNN}
+task_id: DEV-{yyyyMMdd}-{NNN}   # 须与 .gate/task.json 的 task_id 一致；L2+ 缺失/不一致 → BLOCKED
 title: "{主题}"
 level: L2            # L0/L1/L2/L3；L2+ 必须有 process.review
 change_types: [frontend]  # frontend/api/db/docs/code
@@ -12,11 +12,13 @@ acceptance:
     statement: "{条件 + 动作 + 可观测结果}"
     check: "build + login.spec"       # 可复跑命令/脚本/人工检查
     evidence: ".gate/frontend/smoke-desktop.jpg"  # 路径或命令输出；路径必须存在
+    result: "通过"                    # 必填：通过/失败/阻塞/未测+理由
     sc_refs: ["SC-01"]                # 可选；指回任务卡条款
   - id: AC-02
     statement: "{空态/错误态/权限态}"
     check: "states.spec"
     evidence: ".gate/frontend/state-empty-desktop.jpg"
+    result: "通过"
     sc_refs: ["SC-02"]
 process:
   understanding: "{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md"

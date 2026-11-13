@@ -56,7 +56,7 @@
 
 ## 3. 上手（快速开始）
 
-1. 复制 `wf-development/` 到项目根下一层；**排除** `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）。推荐 `git archive` 或 `robocopy /XD .draft .state .gate __pycache__`。包默认不进入项目 git；不跟踪时 `.gitignore` 只写一行 `/wf-development/`（多包 `/wf/`），不预列未装包、不加注释。
+1. 复制 `wf-development/` 到项目根下一层；**排除** `.draft/`、`.state/`、`.gate/`、`__pycache__/`（运行态/过程文件/缓存，不是规范）。推荐 `git archive` 或 `robocopy /XD .draft .state .gate __pycache__`。包默认不进入项目 git；不跟踪时 `.gitignore` 写 `/wf-development/`（多包 `/wf/`）与运行态 `.gate/`，不预列未装包、不加注释。
 2. 挂载：按 `rules/templates/00-onboarding/root-agents-pointer.md` 把引导语句补入项目根 `AGENTS.md`（追加不覆盖；母版不写偏好正文，由落地项目自写）。  
 3. 对 AI 说「接入开发规范」→ `workflows/onboard.yaml`：建档 → 文档树/索引/归档 → 根 `CHANGELOG.md` + `{workroot}/work-log.md` → 入库策略 → 打标。  
 3.1 **无正式迭代/自包含完整链**：直接说「自包含开发/无正式迭代/轻量开发/我有个想法」→ `solo`：产品分析（按需）→ 方案卡 → 你确认 → 完整开发 → 测试 → 收尾；大改动/高风险仍走 `solo` 并提高严谨度；有正式迭代/正式协作 → 完整链。  

@@ -30,7 +30,7 @@
 
 ## 4. 本步门
 
-- **GATE `completion-gate` when=solo_gate_required**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 本包前端硬门，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
+- **GATE `completion-gate` when=solo_gate_required**：任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 本包前端硬门，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
 - **条件判定 `gate:solo_gate_required`**：自包含链：有方案卡/验收表且已 StartTask；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -96,14 +96,14 @@
 | 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
-| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；缺行/未完成行或「未通过/需修」= BLOCKED |
+| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED |
 | 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
-开工时在 `.gate/frontend/tier.json` 写 `{"tier":"A|B|C","reason":"…","routes":["/路径"]}`；未写按 **A**。分级决定产物范围，**不变的是**：console/network 无阻断错误、截图晚于本轮源码变更、结论可复核。
+开工时在 `.gate/frontend/tier.json` 写 `{"tier":"A|B|C","reason":"…","routes":["/路径"]}`；未写按 **A**。分级决定产物范围，**不变的是**：console/network 无阻断错误、截图/报告晚于本轮源码变更、结论可复核。`tier.json` 与 console/network/playwright 结果须晚于本轮任务开始；旧 `tier.json` 不读（按 A 校验），旧报告 BLOCKED。
 
 | 级别 | 适用 | 必产物 |
 | --- | --- | --- |
@@ -113,7 +113,7 @@
 
 - **缺陷族审计**：A 级仍须同波次族审计；B/C 级做**同类路径静态扫描**（同模型/同谓词/同状态表面）+ 受影响路由验证，不要求全站矩阵重拍。
 - **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
-- **机检**：`gate.py` 读取 `tier.json`；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验。
+- **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验。
 
 ### 前端门 3. 必命令（RUN）
 

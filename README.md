@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.13.07-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.13.11-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -30,7 +30,7 @@
 每个包包含：流程定义 · 角色契约 · 规则红线 · 内置技能 · 可选能力 · 文档模板。  
 复制**一个包**到项目根，挂上薄 `AGENTS.md` 入口——AI 按口令路由到流程，在确认门停下等你拍板，并把产物写到约定位置。
 
-> 本仓用于管理、发布与同步，**不充当业务执行现场**。落地只复制单个包；三包互相独立，也可同项目多包装载并自动探测。
+> 本仓用于管理、发布与同步，**不充当业务执行现场**。落地只复制单个包；三包互相独立，也可同项目多包装载并按目录约定识别。
 
 | | |
 | --- | --- |
@@ -113,7 +113,7 @@ rsync -a --exclude .draft --exclude .state --exclude .gate --exclude __pycache__
 robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft .state .gate __pycache__
 ```
 
-> 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`）。工作根由项目档案 §1 的 `workroot` 声明；未声明时单包用 `docs/`、多包用 `docs/{owner}/`。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 只写一行 `/<包目录>/`（多包 `/wf/`），不预列未装包、不加注释。
+> 业务项目只需要**包 + 自己的文档目录**，不要把整个母版仓复制进去。单包放项目根（如 `wf-development/`）；多包放 `wf/`（如 `wf/wf-development/`）。工作根由项目档案 §1 的 `workroot` 声明；未声明时单包用 `docs/`、多包用 `docs/{owner}/`。产品 / 测试换成对应包名。包默认不进入项目 git：`.gitignore` 写 `/<包目录>/`（多包 `/wf/`）与运行态 `.gate/`，不预列未装包、不加注释。
 >
 > **母版 / 实例**：母版只维护通用高标准。复制后的包默认不改；发现不匹配时先输出拟改内容 / 原因 / 影响，确认后只改当前实例。项目特例优先改产出文档；通用改进回母版升版本。
 
@@ -310,7 +310,7 @@ AIWorkflow/
 <details>
 <summary><strong>文档落点（实例侧）</strong></summary>
 
-各包只强制本包工作根；未装的包不必建对应目录。项目根只保留白名单（档案入口、`activeContext.md`、原始资料根等）。
+各包只强制本包工作根；未装的包不必建对应目录。项目根只保留白名单（档案入口、`activeContext.md`、原始资料根等）与运行态 `.gate/`。
 
 | 类别 | 落点 |
 | --- | --- |

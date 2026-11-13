@@ -2,9 +2,9 @@
 """Lean completion gate for the dev workflow.
 
 Design goals:
-- The spec package is read-only. Runtime state lives in <project>/.gate/wf-development/.
+- The spec package is read-only. Runtime state lives in <project>/.gate/; task state is archived under .gate/archive/<task>/.
 - A gate result must belong to the current task, not a previous task or another package.
-- Evidence must exist; a stale screenshot/acceptance/回执 must not turn into COMPLETE.
+- Evidence must exist; stale screenshots/acceptance/review/coverage/tier/reports/回执 must not turn into COMPLETE.
 - No code change => NOT_VERIFIED, not COMPLETE. Dry-run => DRY_RUN, never COMPLETE.
 
 Usage:
@@ -62,7 +62,6 @@ def default_project_root(package_root: Path) -> Path:
         if (p / "activeContext.md").is_file():
             return p
     return package_root.parent
-GATE_MEDIA_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}
 FRONTEND_GLOBS = (
     ".tsx", ".jsx", ".vue", ".svelte", ".css", ".scss", ".less", ".html", ".htm",
     "/pages/", "/components/", "/views/", "/templates/", "/layouts/",
@@ -85,41 +84,63 @@ PATHISH = re.compile(r"(?:[A-Za-z]:[\\/]|\.{0,2}/|[\w.-]+\.(?:png|jpe?g|webp|gif
 COMMANDISH = re.compile(r"^(?:npm|npx|node|python|py|pytest|go|cargo|mvn|gradle|dotnet|git|powershell|pwsh|bash|sh)\b", re.I)
 
 
-def clear_expired_gate_media(project_root: Path, task_id: str = "") -> int:
-    """Archive stale screenshots on StartTask (never delete evidence).
+def _safe_task_name(task_id: str) -> str:
+    safe = re.sub(r"[^0-9A-Za-z._-]+", "_", (task_id or "").strip()).strip("._-")
+    return safe or datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    Deleting media broke traceability: docs kept citing .gate/frontend/*.png that
-    had been removed by a later task start. Archive keeps history and lets the
-    current run use a clean folder.
+
+def _read_task_id(path: Path) -> str:
+    try:
+        text = path.read_text(encoding="utf-8-sig", errors="replace")
+    except OSError:
+        return ""
+    m = re.search(r"(?im)^\s*task_id\s*[:：]\s*`?([^`\s|]+)", text)
+    return m.group(1).strip().strip("`\"'") if m else ""
+
+
+def _archive_file(path: Path, archive_root: Path, project_root: Path) -> int:
+    try:
+        dest = archive_root / path.relative_to(project_root)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        path.replace(dest)
+        return 1
+    except (OSError, ValueError):
+        return 0
+
+
+def archive_task_state(project_root: Path, task_id: str = "") -> int:
+    """Archive task-scoped runtime on StartTask; never delete evidence.
+
+    Keeps current-task acceptance/coverage (task_id matches), project-profile.json,
+    logs/, prototype/, task.json and archive/. Moving review/coverage/acceptance/
+    tier/reports prevents a new task from passing with stale artifacts.
     """
-    removed = 0
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    archive_root = project_root / ".gate" / "archive" / (task_id or stamp)
-    stale_names = {
-        "completion.json", "review.md", "plan-coverage.md",
-        "parity-matrix.md", "route-coverage.json", "design-qa.md",
-    }
-    targets = [
-        project_root / ".gate" / "frontend",
-        project_root / ".gate" / PACKAGE_NAME,
-    ]
-    for folder in targets:
-        if not folder.is_dir():
-            continue
-        iterator = folder.rglob("*") if folder.name == "frontend" else folder.iterdir()
-        for path in iterator:
-            if not path.is_file():
-                continue
-            if path.suffix.lower() not in GATE_MEDIA_SUFFIXES and path.name not in stale_names:
-                continue
-            dest = archive_root / path.relative_to(project_root)
-            try:
-                dest.parent.mkdir(parents=True, exist_ok=True)
-                path.replace(dest)
-                removed += 1
-            except OSError:
-                pass
-    return removed
+    archive_root = project_root / ".gate" / "archive" / _safe_task_name(task_id)
+    moved = 0
+    frontend = project_root / ".gate" / "frontend"
+    if frontend.is_dir():
+        for path in frontend.rglob("*"):
+            if path.is_file():
+                moved += _archive_file(path, archive_root, project_root)
+        for path in sorted(frontend.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+            if path.is_dir():
+                try:
+                    path.rmdir()
+                except OSError:
+                    pass
+    receipt_dir = project_root / ".gate" / PACKAGE_NAME
+    if receipt_dir.is_dir():
+        for path in receipt_dir.iterdir():
+            if path.is_file():
+                moved += _archive_file(path, archive_root, project_root)
+    for name in ("acceptance.yaml", "plan-coverage.md"):
+        path = project_root / ".gate" / name
+        if path.is_file() and _read_task_id(path) != (task_id or "").strip():
+            moved += _archive_file(path, archive_root, project_root)
+    review = project_root / ".gate" / "review.md"
+    if review.is_file():
+        moved += _archive_file(review, archive_root, project_root)
+    return moved
 
 
 def run(cmd: str, cwd: Path, timeout: int = 600) -> dict[str, Any]:
@@ -601,7 +622,8 @@ def _sc_reconciliation(text: str, has_code_change: bool) -> tuple[bool, str]:
     return False, "SC 对账未给出覆盖结论（须已覆盖/未覆盖/na）"
 
 
-def check_process(meta: dict[str, Any], level: str, project_root: Path, files: list[str]) -> dict[str, Any]:
+def check_process(meta: dict[str, Any], level: str, project_root: Path, files: list[str],
+                  task_started: str = "") -> dict[str, Any]:
     missing: list[str] = []
     warnings: list[str] = []
     code_files = [f for f in files if not f.lower().endswith(DOC_EXTS)]
@@ -628,7 +650,10 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
     elif not _path_exists(project_root, review):
         missing.append(f"评审记录不存在：{review}")
     else:
-        text = resolve_path(project_root, review).read_text(encoding="utf-8-sig", errors="replace")
+        review_path = resolve_path(project_root, review)
+        if _older_than(review_path, _parse_iso_mtime(task_started)):
+            missing.append(f"评审记录早于本轮任务开始：{review}")
+        text = review_path.read_text(encoding="utf-8-sig", errors="replace")
         verdict_match = re.search(r"verdict\s*[:：=]\s*([^\n|]+)", text, re.I)
         if verdict_match:
             verdict = verdict_match.group(1).strip().strip("`*_ ")
@@ -966,6 +991,15 @@ def _parse_iso_mtime(iso: str) -> float:
         return 0.0
 
 
+def _older_than(path: Path, floor: float, tolerance: float = 2.0) -> bool:
+    if not floor:
+        return False
+    try:
+        return path.is_file() and path.stat().st_mtime + tolerance < floor
+    except OSError:
+        return False
+
+
 def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
     """Verify the prototype was decoded this round (source hash bound manifest)."""
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
@@ -995,11 +1029,14 @@ def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str,
             "detail": f"modules={len(modules)} sha={digest[:12]}"}
 
 
-def frontend_tier(evidence_dir: Path, fe: dict[str, Any]) -> str:
-    """读取证据分级：.gate/frontend/tier.json（A/B/C），缺省 A（兼容旧行为）。"""
+def frontend_tier(evidence_dir: Path, fe: dict[str, Any], not_before: float = 0.0) -> str:
+    """读取证据分级：.gate/frontend/tier.json（A/B/C），缺省 A（兼容旧行为）。
+
+    早于本轮任务的 tier 不读（按 A 校验），避免上一任务的 C 级降级证据漏到新任务。
+    """
     tier_file = evidence_dir / "tier.json"
     tier = ""
-    if tier_file.is_file():
+    if tier_file.is_file() and not _older_than(tier_file, not_before):
         try:
             data = json.loads(tier_file.read_text(encoding="utf-8-sig")) or {}
             tier = str(data.get("tier", "")).strip().upper()
@@ -1017,7 +1054,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
         return {"id": "frontend-evidence", "status": "blocked", "detail": f"missing {evidence_dir}"}
-    tier = frontend_tier(evidence_dir, fe)
+    tier = frontend_tier(evidence_dir, fe, _parse_iso_mtime(task_started_at))
     if tier == "C":
         routes = []
         route_file = evidence_dir / "route-coverage.json"
@@ -1055,17 +1092,20 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             problems.append(f"截图早于本轮{label}：{stale[:3]}")
     results_json = evidence_dir / "playwright-results.json"
     if results_json.is_file():
-        try:
-            stats = (json.loads(results_json.read_text(encoding="utf-8-sig")) or {}).get("stats", {})
-            expected = int(stats.get("expected", 0) or 0)
-            skipped = int(stats.get("skipped", 0) or 0)
-            unexpected = int(stats.get("unexpected", 0) or 0)
-            if unexpected:
-                problems.append(f"Playwright unexpected={unexpected}")
-            if skipped and expected == 0:
-                problems.append("Playwright 全部 skipped（模板未适配或 APP_READY 未设置）")
-        except Exception:
-            problems.append("playwright-results.json 不可解析")
+        if _older_than(results_json, freshness_floor):
+            problems.append("playwright-results.json 早于本轮（重新执行）")
+        else:
+            try:
+                stats = (json.loads(results_json.read_text(encoding="utf-8-sig")) or {}).get("stats", {})
+                expected = int(stats.get("expected", 0) or 0)
+                skipped = int(stats.get("skipped", 0) or 0)
+                unexpected = int(stats.get("unexpected", 0) or 0)
+                if unexpected:
+                    problems.append(f"Playwright unexpected={unexpected}")
+                if skipped and expected == 0:
+                    problems.append("Playwright 全部 skipped（模板未适配或 APP_READY 未设置）")
+            except Exception:
+                problems.append("playwright-results.json 不可解析")
 
     # L1 includes interaction-honesty rows 14/20; L2+ all 20
     required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20]
@@ -1124,7 +1164,11 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             if not reports:
                 problems.append("缺少 console/network 报告 JSON")
             else:
-                for rp in reports[:3]:
+                fresh_reports = [rp for rp in reports if not _older_than(rp, freshness_floor)]
+                if len(fresh_reports) != len(reports):
+                    stale = [rp.name for rp in reports if rp not in fresh_reports]
+                    problems.append(f"console/network 报告早于本轮：{stale[:3]}")
+                for rp in fresh_reports[:3]:
                     try:
                         data = json.loads(rp.read_text(encoding="utf-8-sig"))
                     except Exception:
@@ -1271,7 +1315,7 @@ def main() -> int:
             return 2
         task_file = project_root / ".gate" / "task.json"
         task_file.parent.mkdir(parents=True, exist_ok=True)
-        cleared = clear_expired_gate_media(project_root, args.start_task)
+        cleared = archive_task_state(project_root, args.start_task)
         try:
             attempts_path(project_root).unlink()
         except FileNotFoundError:
@@ -1285,7 +1329,7 @@ def main() -> int:
         task_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         print(
             f"task started: {args.start_task} base={base_commit or 'nogit'} "
-            f"archived_media={cleared} -> {task_file}"
+            f"archived_files={cleared} -> {task_file}"
         )
         return 0
 
@@ -1320,7 +1364,13 @@ def main() -> int:
     acceptance_mtime = acceptance_path.stat().st_mtime if acceptance_path and acceptance_path.is_file() else 0.0
 
     acc = check_acceptance(meta["items"], project_root)
-    process = check_process(meta, level, project_root, files)
+    if task_id and meta.get("task_id") and str(meta["task_id"]).strip() != task_id:
+        acc["missing"].append(f"验收清单 task_id={str(meta['task_id']).strip()} 与当前任务 {task_id} 不一致")
+    if (level_rank(level) >= 2 and acceptance_path
+            and acceptance_path.suffix.lower() in (".yaml", ".yml")
+            and not str(meta.get("task_id") or "").strip()):
+        acc["missing"].append("L2+ 验收清单缺 task_id（须与本轮 task.json 一致）")
+    process = check_process(meta, level, project_root, files, task_started)
     docs_only = bool(files) and all(f.lower().endswith(DOC_EXTS) for f in files)
     freshness_floor = max(_parse_iso_mtime(task_started), code_mtime_floor(project_root, files))
     attempts: dict[str, Any] = {"task_id": task_id, "checks": {}}
@@ -1452,7 +1502,7 @@ def main() -> int:
                 else:
                     checks.append(run_cmd_check("integration", integration, project_root,
                                                 int(timeouts.get("integration", 900))))
-            problems, stats = validate_plan_coverage(project_root, level, files)
+            problems, stats = validate_plan_coverage(project_root, level, files, task_id=task_id)
             checks.append({
                 "id": "plan-coverage",
                 "status": "blocked" if problems else "pass",

@@ -148,7 +148,7 @@ steps:
   hitl: confirm_gitignore
   output: .gitignore 更新 + `git check-ignore` 证据
   notes: 四选一：①只忽略运行态/缓存；②忽略产物+证据；③忽略产物+证据+资料（保留模板）；④自定义。 默认②；写档案、改 .gitignore；密钥/凭据/本地日志不入库；`{workroot}/INDEX.md` 与正式文档按选择入库。
-    规范包默认不跟踪：只写已装包一行（如 `/wf-development/`），多包写 `/wf/`；不预列未装包、不加注释；其它项只列路径。
+    规范包默认不跟踪：`.gitignore` 写已装包行（如 `/wf-development/`；多包 `/wf/`）与运行态 `.gate/`；不预列未装包、不加注释；其它项只列路径。
 - name: 环境与工具检查
   id: capabilities
   skills: []

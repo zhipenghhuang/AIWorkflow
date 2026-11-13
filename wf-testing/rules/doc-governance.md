@@ -55,13 +55,14 @@ docs/materials/
 ```
 
 - **项目级一份**，不按包拆；各包只写自己负责的域。
+- **多包共享文件**：`README.md`/`INDEX.md` 由已装开发包统一刷新；无开发包由已装产品包；均无则由当前发布包。非主责包只提交本域文件与索引行，不重建他域；`06-release/` 业务文件归产品、工程文件归开发，不互相覆盖。
 - 每个 `{ver}/` **自包含**；不设外挂 `_common/`；只发单版本也不缺文件。
 - **不设 `_archive/`**；旧版本保留，`INDEX.md` 标 `current / superseded`。
 - `README.md` 写版本、范围、包含/不包含、阅读顺序、来源、缺失/待补。
 - `INDEX.md` 登记所有文件；来源列写 `IN-xxxx`、`docs/...` 或 `generated`。
 - 只放**可外发**内容：无草稿、证据、密钥、真实 PII、未授权第三方文档。
 - 正文不在材料库直接改；定稿后从 `{workroot}/` 发布/同步。
-- **默认覆盖最新**：未明确「保留历史 / 不覆盖 / 升 rev / 另存快照」时，对目标 `{ver}/` **就地覆盖**为工作区当前定稿（同步刷新 README 与 INDEX `last_published_at`）。
+- **默认覆盖最新**：未明确「保留历史 / 不覆盖 / 升 rev / 另存快照」时，对目标 `{ver}/` **就地覆盖**为工作区当前定稿（README/INDEX 按 §2.2 多包主责规则刷新，`last_published_at` 同步）。
 - **显式例外**：用户点名保留已外发副本、不覆盖、升 rev、另存 `{ver}-r2`、或正式签收锁定 → 才新建 `{ver}-r2`/升 rev，不覆盖旧目录。
 - 材料库不是交接包；发送/交接只是它的用途，回执/台账仍走 `handoff/`。
 
@@ -92,7 +93,7 @@ docs/materials/
 - 工作区可含过程稿、草稿、待确认、证据；正式文档只写现行有效。
 - 单包为 `docs/`；多包为 `docs/testing/`。
 - **工作区索引**：`{workroot}/INDEX.md`（单包即 `docs/INDEX.md`）；只做导航：当前 `{ver}`、文档清单、材料包、归档、缺失；**不写阶段/门/状态**（状态权威＝`{ver}/test-plan.md` §0）。
-- **项目总览**：多包或保留原目录时用 `docs/INDEX.md`；链到各工作区索引、`docs/materials/INDEX.md`、`inbound/INDEX.md` 与既有目录；不写状态、不替代工作区索引；多包各包只改本包一行。
+- **项目总览**：多包或保留原目录时用 `docs/INDEX.md`；链到各工作区索引、`docs/materials/INDEX.md`、`inbound/INDEX.md`、各包 `handoff/handoff-ledger.md` 与既有目录；不写状态、不替代工作区索引；多包各包只改本包一行。
 - **共享/控制路径**：`docs/materials/`、`docs/handoff/`（单包）、`inbound/`。
 - 无内容不建空目录；模板是骨架，不是强制空树。
 
@@ -215,7 +216,7 @@ docs/materials/
 | 失效资料 → 工作区归档 + 清单 | 必做 | 必做 |
 | 临时/过程/失败/重复清理 | 必做 | 必做 |
 | 修断链 | 必做 | 必做 |
-| 材料库：关账前用最新定稿**覆盖刷新**关闭版 `{prev}/`，INDEX 标 `superseded`；再建/更新下一版 `{next}/` 为 `current`；旧目录保留 | **必做** | **必做** |
+| 材料库：关账前用最新定稿**覆盖刷新**关闭版 `{prev}/`（README/INDEX 按 §2.2 主责刷新；非主责只改本域与索引行），INDEX 标 `superseded`；再建/更新下一版 `{next}/` 为 `current`；旧目录保留 | **必做** | **必做** |
 | 根 README / 基线对外句（门面；见 `rules/core/doc-facade-sync.md`；本包不写根 CHANGELOG） | **按需** | **按需**（测试入口/怎么验；轻量） |
 | 根 CHANGELOG / 发布说明 / 部署 / 公告 | 跳过（除非点名发版） | 按 release 门 |
 
@@ -236,13 +237,13 @@ docs/materials/
 
 ## 8. 过程/临时清理
 
-范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；过期运行态（`.gate/frontend` 旧截图、`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、根 CHANGELOG/工作日志永不自动删。
+范围 `{workroot}/` + 项目根顶层（含 `.gate/`）；不确定 → `{workroot}/_archive/_pending-cleanup/`。候选：已完结 `.draft/`、tmp/bak/log、副本、未引用导出；过期运行态（`.gate/wf-testing/` 非 JSON 媒体、`.gate/logs`）。进行中 draft、现行证据/主档、根 CHANGELOG/工作日志永不自动删。
 
-何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。新任务 `-StartTask` 可清空 `.gate/frontend/` 旧媒体，不等同关账全清 `.gate`。
+何时扫：点名整理/巡检/清理；或换迭代/关版本并入 §7.1。日常任务收尾不主动列清理。本包无任务窗口，回执按 mode 固定名覆盖，不做 `-StartTask`。
 
-**保留窗口**：`.draft/` 完结即删，>7 天未改列候选；`.gate/logs` >7 天；`.gate/frontend` 只保留当前任务（新任务 `-StartTask` 清旧媒体）；`.gate/*.json` 保留当前 + 最近 5 个任务；更早的在点名清理或关账时归档 `_archive/gate/{yyyyMMdd}/`（需确认，`clean_temp.py` 不自动删 JSON）。
+**保留窗口**：`.draft/` 完结即删，>7 天未改列候选；`.gate/logs` >7 天；`.gate/wf-testing/*.json` 固定名覆盖，无需归档；本包只清理 `.gate/wf-testing/` 非 JSON 媒体与 `.gate/logs`。
 
-**一键清理**：`python rules/tools/clean_temp.py --project-root .`（默认 dry-run；`--apply` 才删；`--reset-frontend` 清当前前端媒体；只动缓存/过期临时，不碰源文件、证据 JSON、`_archive`）。
+**一键清理**：`python rules/tools/clean_temp.py --project-root .`（默认 dry-run；`--apply` 才删；只动缓存/过期临时，不碰源文件、证据 JSON、`_archive`）。
 
 **材料库旧版本不自动清理**；要删必须用户确认。
 

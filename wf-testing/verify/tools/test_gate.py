@@ -24,6 +24,11 @@ PACKAGE_NAME = "wf-testing"
 RECEIPT_DIR = Path(".gate") / PACKAGE_NAME
 STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用", "未本轮验证"}
 FAIL_STATUSES = {"失败", "阻塞", "待实现"}
+FAIL_DETAIL_LABELS = (
+    "**问题标题**", "**分类", "**一句话影响**", "**最小复现**", "**环境**",
+    "**测试数据", "**问题**", "**复现**", "**实际**", "**预期**",
+    "**接口判定**", "**设计对照**", "**入口指纹**", "**技术附记**",
+)
 INT_ID_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
 # 原文锚点：章节/AC/路由/方法/互补源分隔；禁只写文档名
 SOURCE_ANCHOR_RE = re.compile(
@@ -85,6 +90,25 @@ def subsection(text: str, heading: str) -> str:
     start = m.end()
     nxt = re.search(r"^#{2,3}\s", text[start:], re.M)
     return text[start:start + nxt.start()] if nxt else text[start:]
+
+
+def failure_details(block: str) -> dict[str, str]:
+    """Map SC id -> `### SC-...` failure-detail section (last wins)."""
+    out: dict[str, str] = {}
+    cur = ""
+    buf: list[str] = []
+    for line in block.splitlines():
+        m = re.match(r"^###\s*(SC-[A-Z0-9-]+)\b", line.strip(), re.I)
+        if m:
+            if cur:
+                out[cur] = "\n".join(buf)
+            cur = norm_id(m.group(1))
+            buf = [line]
+        elif cur:
+            buf.append(line)
+    if cur:
+        out[cur] = "\n".join(buf)
+    return out
 
 
 def h2(text: str, prefix: str) -> str:
@@ -1478,6 +1502,9 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
         issues.append(f"{path.name}: §0 缺分析索引（须写 test-analysis.md 命中节）")
 
     table = None
+    scene_status: dict[str, str] = {}
+    scene_evidence: dict[str, str] = {}
+    fail_scs: set[str] = set()
     for headers, rows in tables(text):
         if "SC" in headers and "结果" in " ".join(headers):
             table = (headers, rows)
@@ -1552,6 +1579,10 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             if status not in STATUSES:
                 issues.append(f"{path.name}: {sc} 结果不可识别：{status or '空'}")
                 continue
+            scene_status[sc] = status
+            scene_evidence[sc] = evidence
+            if status in ("失败", "待实现"):
+                fail_scs.add(sc)
             if status in ("通过", "失败", "阻塞", "待实现") and is_blank(actual):
                 issues.append(f"{path.name}: {sc} 缺实际/差异（现场执行结果）")
             counts[status] += 1
@@ -1580,6 +1611,37 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
         if seen == 0:
             issues.append(f"{path.name}: 场景表无数据行")
 
+    if fail_scs:
+        details = failure_details(h2(text, "2.") + "\n" + h2(text, "3."))
+        for sc in sorted(fail_scs):
+            sec = details.get(sc, "")
+            if not sec:
+                issues.append(f"{path.name}: {sc} 失败/待实现缺 §2/§3 失败详情块（交单素材）")
+                continue
+            missing = [label for label in FAIL_DETAIL_LABELS if label not in sec]
+            if missing:
+                issues.append(f"{path.name}: {sc} 失败详情缺 " + "、".join(missing))
+            ms = re.search(r"surface\**\s*[：:=]\s*(ui|api|ui\+api)\b", sec, re.I)
+            if not ms:
+                issues.append(f"{path.name}: {sc} 失败详情缺 surface=ui|api|ui+api")
+            elif ms.group(1).lower() in ("ui", "ui+api") and scene_status.get(sc) == "失败":
+                evidence = scene_evidence.get(sc, "")
+                if not re.search(r"\.(?:png|jpe?g|webp)\b|截图", sec + " " + evidence, re.I):
+                    issues.append(
+                        f"{path.name}: {sc} surface={ms.group(1)} 须有断言点截图"
+                        "（§2/§3 证据或 §1 证据）"
+                    )
+            elif ms.group(1).lower() == "api":
+                if not re.search(r"无\s*UI|无菜单|无页面|仅接口|纯接口|无可见控件|纯\s*API|仅\s*API", sec, re.I):
+                    issues.append(f"{path.name}: {sc} surface=api 须一句无 UI 面依据")
+            mcat = re.search(r"分类[^\n]*[:：]\s*`?([^；;\n|]+)", sec)
+            category = mcat.group(1).strip().strip("`") if mcat else ""
+            if category.startswith("产品缺陷"):
+                if "**相符证明**" not in sec:
+                    issues.append(f"{path.name}: {sc} 产品缺陷缺相符证明（classification §2）")
+                if "**证据**" not in sec:
+                    issues.append(f"{path.name}: {sc} 产品缺陷缺证据（相符证明须绑定证据）")
+
     # 功能记录 §1.1：正向/负向/状态/权限/幂等/UI 至少给 SC 或 N/A+依据
     if table and not is_api:
         for cat in ("正向", "关键负向/失败", "状态/非法跃迁", "权限/数据域", "幂等/并发/恢复/对账", "UI/视觉"):
@@ -1599,6 +1661,22 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                 issues.append(f"{path.name}: §1.1「{cat}」须写 SC-* 或 N/A+依据")
             if re.search(r"N/A|不适用", val, re.I) and not re.search(r"依据|理由", val):
                 issues.append(f"{path.name}: §1.1「{cat}」N/A 须写依据")
+            # UI/视觉：禁用「API 主断言/脚本/契约」充无页面面 N/A
+            if cat == "UI/视觉" and re.search(r"N/A|不适用", val, re.I):
+                weak = re.search(
+                    r"API\s*主断言|字段级主断言|本批\s*API|以\s*API|脚本优先|契约自|前端\s*bundle|bundle\s*契约",
+                    val,
+                    re.I,
+                )
+                ok_fact = re.search(
+                    r"无\s*UI|无页面|无菜单|无可见|仅接口|纯接口|纯\s*API|仅\s*API|无前端|用户确认|当轮确认|接受人",
+                    val,
+                    re.I,
+                )
+                if weak and not ok_fact:
+                    issues.append(
+                        f"{path.name}: §1.1「UI/视觉」不得以「API 主断言/脚本/契约」充 N/A（无页面面写事实句，或当轮用户确认）"
+                    )
 
     # 接口记录 §2.1：每个 EP 的适用维有 SC 或 不适用+依据
     if table and is_api:
@@ -2086,6 +2164,13 @@ def parse_writeback(test_root: Path) -> dict[str, Any]:
         issues.append("回写凭据缺附件回查")
     if "已回写" in text and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", text, re.I):
         issues.append("声称已回写但缺回执")
+    if re.search(r"(?:\|\s*submit\s*\||动作\s*[=:：]\s*submit|新建|建单|提交到平台|platform_submit)", text, re.I):
+        if not re.search(r"来源\s*[=:：]\s*(记录投影|现网补采)", text):
+            issues.append("新建/平台交单回执缺 来源=记录投影|现网补采")
+        if not re.search(r"surface\s*[=:：]\s*(ui|api|ui\+api)", text, re.I):
+            issues.append("新建/平台交单回执缺 surface=ui|api|ui+api")
+        if not re.search(r"十段\s*[=:：]\s*(齐|缺)", text):
+            issues.append("新建/平台交单回执缺 十段=齐|缺")
     issues.extend(_regression_card_issues(text))
     return {"issues": issues, "path": str(receipt)}
 

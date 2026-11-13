@@ -27,12 +27,12 @@
 | `confirm_acceptance` | UAT/业务验收 | 出示 AC 覆盖/失败项/遗留风险/发布建议；确认后进审批 |
 | `confirm_actions` | 复盘行动项 | 出示行动项/负责人/截止/验收；确认后落盘 |
 | `confirm_remark` | 回写前备注 | 出示 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」 |
-| `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，只写已装包一行（多包 `/wf/`），无注释、不预列未装包；其它项只列路径；写档案 §1 并改 `.gitignore` |
+| `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，`.gitignore` 写已装包行（多包 `/wf/`）与运行态 `.gate/`，无注释、不预列未装包；其它项只列路径；写档案 §1 并改 `.gitignore` |
 | `confirm_docs_migration` | inbound/工作文档归档、搬迁或临时清理 | 出示分类/覆盖对照/拟归档或清理清单与目标；确认后执行 |
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
 | `confirm_skill_changes` | capabilities/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
-| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 `rules/core/frontend-gate.md`，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
+| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 `rules/core/frontend-gate.md`，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |

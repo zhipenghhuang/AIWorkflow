@@ -56,5 +56,6 @@
 | `code-review` | review | 未装 code-review，已用独立核验；需要装说「装配能力」 |
 | `security-scan` | review/release | 未装 security-scan，已按人工清单；需要装说「装配能力」 |
 | `browser-automation` / `browser-mcp` | release | 未配置浏览器自动化，已按手工清单；需要装说「装配能力」 |
-| `unit-test-gen` | implement | 未装 unit-test-gen，已按手写+门禁；需要装说「装配能力」 |
+| `unit-test-gen` | implement（逻辑结构面命中或 L2+ 核心模块） | 未装 unit-test-gen，已按手写+门禁；需要装说「装配能力」 |
+| `mutation-gate` | implement（逻辑结构面命中且需加强信号） | 未装 mutation-gate，不以变异为门；需要装说「装配能力」 |
 | `release-automation` | 发版 | 未装 release-automation，已按模板；需要装说「装配能力」 |

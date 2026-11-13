@@ -6,7 +6,7 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只投影禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.07`  
+> **template_version**：`2026.11.13.11`  
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -91,13 +91,13 @@
 
 改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理派工/生命周期 → `rules/collaboration/subagents.md`；改计划 §3.1 填表 → 计划模板该节；改轨边界 → `rules/tracks/`；改多轨准出 → `rules/special/multi-track-quality.md`；改 templates / skills / capabilities → 对应目录；改计划编排轮次/准出 → 计划模板 + `rules/workflow.md` §3.6（详版执行按节读 `multi-agent-output.md` §4）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`；改门 → `verify/tools/test_gate.py` + `verify/tools/selftest_gate.py`。自检见 `rules/core/maintenance.md` §2。
 
-## 7. 多包（自动探测）
+## 7. 多包（按目录判定）
 
 `wf/`（含 ≥2 个 `wf-*`）=多包；项目根单个 `wf-*` =单包；同 id 双份/半迁停问。
 - **口令表节号**：本包 §2；产品/开发 §3。
 - **单包独立为默认**；多包联动可选、非必须；缺他包不阻塞本包。
 - **联动=交付物字段 + 同仓直读**；无提测单时本包自填影响面。
-- **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写已装包；规范包默认不跟踪：`.gitignore` 只写一行 `/<已装包>/`（多包 `/wf/`）；不预列未装包、不加注释。
+- **实例面（硬）**：实例根 `AGENTS`/README/档案/`activeContext`/`.gitignore` 只写已装包；规范包默认不跟踪：`.gitignore` 写已装包行 `/<已装包>/`（多包 `/wf/`）与运行态 `.gate/`；不预列未装包、不加注释。
 - 共用原件根 `inbound/`、根 `activeContext.md`；各包只改本分节。一次会话只执行一个包 workflow；跨包默认交自洽交付物或同仓直读；仅升包时用 `handoff/outbound/{category}/{HO-ID}/`。
 - **歧义定包**：先查 `wf/AGENTS.md` **意图→包**；无该文件时用兜底：产品缺陷评估/平台产品单→产品；修代码/开发缺陷流→开发；交平台/测试回归→测试；发布=业务上线/UAT→产品；发布=部署/回滚→开发；发布=准出报告→测试；下一步/继续→`activeContext` 当前包分节（无焦点一问）；提交/推送/交接→当前会话已绑定包（未开跑一问）。无法唯一则一问。多包应 onboard 生成 `wf/AGENTS.md`。
 
