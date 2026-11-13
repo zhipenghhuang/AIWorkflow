@@ -44,10 +44,10 @@
 
 ### 本步动作清单
 
-- L0 可跳过。
+- 本步是否执行只认步上 `when`，为假（L0 且未点名方案）记 `when_eval=假:<依据>`，不得绕过确认门。
 - L1 本步 confirm_spec。
 - L2+ 落盘后进 review-docs。
-- 子域技能（api/db/frontend/threat/…）按变更面读对应技能当前节。
+- 接口/库表/选型/前端/AI 方法：命中即整卡打开 `api-design`/`database-design`/`technology-selection`/`frontend-design`/`ai-application-engineering`，未命中记 `na`+理由。
 - 前端补设计说明模板。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。

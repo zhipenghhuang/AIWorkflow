@@ -70,8 +70,8 @@ steps:
   hitl_when: scope_decision_required
   notes: 入口=「竞品对标/功能对标/对标分析/功能差距」或 discover 分诊为模式 P。 技能：`skills/competitive-intelligence-and-learning/SKILL.md` **模式 P**（先读）+
     `requirement-discovery-and-prioritization`（入池字段）。 落盘模板 `competitive-benchmark-template.md`；对标矩阵含本产品列与 ≥2 竞品；差距项入需求池**候选项**（来源=`竞品对标`+链接+日期）；可无完整客户访谈，但**禁止**自动已立项/已排期。
-    ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。 用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → 可跳过门。 发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。
-    能力：browser-mcp 可选；未装=用户提供链接/截图。
+    ≥4 竞品/来源按子代理编排只读扇出；判断与入池去重集中。 用户要「按对标进本期」→ `confirm_scope`（Top N + 成本粗估）；仅沉淀候选项不承诺版本 → `scope_decision_required` 为假，跳过该门并记
+    `when_eval=假:未承诺版本`。 发现定位级问题 → 建议补做模式 S（`discover`/竞品分析），不在本步终裁差异化。 能力：browser-mcp 可选；未装=用户提供链接/截图。
 - name: 优先级与立项
   id: prioritize
   skills:

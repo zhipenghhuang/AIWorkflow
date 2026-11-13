@@ -40,7 +40,7 @@
 
 ### 本步动作清单
 
-- 清单未变可跳过 hitl。
+- 清单未实质变化（`backlog_approval_required` 为假）→ 跳过该门并记 `when_eval=假:清单未变`。
 - L1 notify、L2+ 实质变化 approve。
 - 确认后冻结。
 - 变更记清单。

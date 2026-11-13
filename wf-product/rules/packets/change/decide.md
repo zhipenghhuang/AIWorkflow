@@ -44,7 +44,7 @@
 
 - confirm_change 出示分诊/影响/差量。
 - 产品缺陷须相符证明。
-- 纯答疑可跳过本门。
+- 纯答疑（`change_requested` 与 `plan_level_change` 均为假）→ 跳过该门并记 `when_eval=假:纯答疑`。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 

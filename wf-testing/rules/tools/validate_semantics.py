@@ -154,6 +154,12 @@ def main() -> int:
             for bad in RESIDUE:
                 if bad in text:
                     errors.append(f"RESIDUE: {wid}/{sid} 含 '{bad}'")
+            for line in text.splitlines():
+                if "可跳过" in line and "不可跳过" not in line:
+                    errors.append(
+                        f"SKIP_LOOPHOLE: {wid}/{sid} 含无条件「可跳过」：{line.strip()[:60]}"
+                        "（改为 when/hitl_when 为假 + when_eval，或用户同意记 skip=）"
+                    )
             # §6 empty but §5/§8 demands skill closure
             sec6 = re.search(r"## 6\..*?(?=\n## 7\.)", text, re.S)
             if sec6 and "本步无技能指向" in sec6.group(0):

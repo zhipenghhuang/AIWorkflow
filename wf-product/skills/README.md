@@ -71,7 +71,7 @@
 **4. 修改流程**
 
 1. 改 `skills/<name>/SKILL.md`；同步本 README 映射与相关 workflow `notes`。
-2. 跑 `rules/tools/Test-Template.ps1`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`。
+2. 跑 `rules/tools/Test-Template.ps1`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`；技能大改后按 `skills/evals/README.md` 抽测 3 条并记录结果。
 3. 更新包 `AGENTS.md` `template_version`；业务项目不写项目根 CHANGELOG；母版仓可见包能力变化才记母版根 CHANGELOG；不单独给技能设版本号。
 4. 新增技能必须在本表挂到具体步骤；跨阶段技能挂到所有适用阶段。
 5. **生态吸收**：经 `skill-audit` discover（`npx skills find` / find-skills）确认后，只**方法回灌**本目录或登记 `{workroot}/capabilities/`；禁止外部 skill 原样并行第二套编排。

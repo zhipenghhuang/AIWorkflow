@@ -6,7 +6,7 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.14`  
+> **template_version**：`2026.11.13.15`  
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -89,7 +89,7 @@
 
 ## 6. 维护
 
-改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理派工/生命周期 → `rules/collaboration/subagents.md`；改计划 §3.1 填表 → 计划模板该节；改轨边界 → `rules/tracks/`；改多轨准出 → `rules/special/multi-track-quality.md`；改模板 / 技能 / 能力 → 对应目录；改计划编排轮次/准出 → 计划模板 + `rules/workflow.md` §3.6（详版执行按节读 `multi-agent-output.md` §4）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`；改门 → `verify/tools/test_gate.py` + `verify/tools/selftest_gate.py`。自检见 `rules/core/maintenance.md` §2。
+改不变量/路由/读取协议 → 本文；改无口令路由 → `rules/core/routing.md`；改心跳 → `rules/core/global-rules.md` §8；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）；改角色 → `agents/`；改红线/门 → `rules/`；改澄清 → `rules/core/clarification.md`；改协作/交接 → `rules/collaboration/handoff.md` + `workflows/handoff.yaml`；改子代理派工/生命周期 → `rules/collaboration/subagents.md`；改计划 §3.1 填表 → 计划模板该节；改轨边界 → `rules/tracks/`；改多轨准出 → `rules/special/multi-track-quality.md`；改模板 / 技能 / 能力 → 对应目录；改计划编排轮次/准出 → 计划模板 + `rules/workflow.md` §3.6（详版执行按节读 `multi-agent-output.md` §4）；改步骤读包 → `rules/packets/`（改后跑 `build_step_packets.py`）+ `Validate-StepPackets.ps1`；改门 → `verify/tools/test_gate.py` + `verify/tools/selftest_gate.py`；改验证不变量/完成状态 → `rules/core/verification.md`。自检见 `rules/core/maintenance.md` §2。
 
 ## 7. 多包（按目录判定）
 

@@ -51,12 +51,12 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ```
 
 - 探查前先读 `project-profile.md` §2（代码地图）；L2+ 先读 `{workroot}/development-plan.md`（旧项目可 `{workroot}/00-governance/development-plan.md`；阶段/下一步/缺口）；命中即免重复探查；新发现收尾回写（档案 §5）。  
-- 变更分级见 `AGENTS.md` §0.1；L0 微改不强制方案/清单/评审文档，L2+ 走完整链路。  
+- 路径与可省项见 `AGENTS.md` §0.1；步是否执行只认步上 `when`，为假记 `when_eval=假:<依据>`（不得按档位口令自行跳过）。  
 - 目标/范围/验收按 `AGENTS.md` §0.1；架构级/新子系统先方案（`rules/templates/20-design/solution-template.md`；design 步 `confirm_spec`）批准再改；大改/高风险走 review 步（§4.4）。  
 - 多文件/新功能先拆任务清单（`rules/templates/30-planning-tasks/task-list-template.md`；技能 `skills/task-breakdown/SKILL.md`），确认后实施。  
 - 有 QA 交接或含部署 → deliver 步产提测单/发布说明（§4.5/§4.7）；prod 部署 → 转 `release`；test/staging 不转 release，按项目档案执行并出环境部署记录。  
 - 动手前说明拟改文件；有产品方案/缺陷预期时用验收点自检勾完。  
-- 无文件变更 → 跳过 `verify` 门禁与 `confirm_commit`。
+- 空 diff → `verify`（`work_changed_or_requested`）与 `confirm_commit`（`has_pending_commit`）条件为假，按 `core/global-rules.md` §11 跳过并记 `when_eval=`。
 
 ## 2. 提交与推送
 
@@ -189,14 +189,14 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 4.3 任务清单（plan 步）
 
-- 触发：多文件/新功能/迭代，或点名「只出任务清单」；L0 单文件小改可跳过。  
+- 触发只认步上 `multi_file_or_new_feature_or_requested`；为假（L0 单文件且未点名）跳过并记 `when_eval=假:<依据>`。  
 - 方法：`skills/task-breakdown/SKILL.md`；模板 `rules/templates/30-planning-tasks/task-list-template.md`；落 `{workroot}/40-tasks/任务清单-{ver}.md`。  
 - 门：`confirm_backlog`（清单/节奏变更）；展示任务数/RP 覆盖/依赖/风险/节奏三选。  
 - 要求：每任务有 AC/verify/精确文件/DoD；每个 RP 有覆盖；垂直切片；检查点；变更记录；未完成任务清单禁止覆盖。
 
 ### 4.4 评审（review 步）
 
-- 触发：A 级前端、L2+ 多文件/新功能、大改/高风险/破坏性变更或点名「代码评审」；L0 单文件可跳过；范围纪律同 §3.5。  
+- 触发只认步上 `review_required`；为假（L0 单文件且未命中 A 级前端/安全/性能/并发/数据面、未点名）跳过并记 `when_eval=假:<依据>`；范围纪律同 §3.5。  
 - 执行：本机可用 `code-review` 时按其评审全量 diff；不可用派 `reviewer-agent` 独立核验。  
 - 补充：`security-scan` 可用时跑最小安全集；变更规模过大先拆。  
 - 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账）；方法只认 `skills/code-review`（含 §4.0）；需修回 implement，同回合重验≤1。A 级/L2+ 缺评审记录或缺 SC 对账（非 na）= 完成门 BLOCKED。  
@@ -205,7 +205,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 ### 4.5 提测（deliver 步）
 
-- 触发：有 QA 交接或含部署/发版；无 QA 且无部署可跳过。  
+- 触发只认步上 `has_qa_or_deploy_or_requested`；为假（无 QA 交接且无部署/发版、未点名）跳过并记 `when_eval=假:<依据>`。  
 - **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发测试/自验（报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
 - 产出：提测单（`rules/templates/40-delivery/qa-handoff-template.md`）——部署版本、改动点/影响面、自测结论、已知问题、**裁剪债项、沿用基线再验摘要**、回归指引、测试设计输入；发布说明+回滚预案（`rules/templates/40-delivery/release-notes-template.md`）。  
 - 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`handoff/outbound/发布/`）；提测单单点滚动，发布说明一版一档。  

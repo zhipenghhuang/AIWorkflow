@@ -78,7 +78,7 @@ steps:
   precondition: product 已完成；方案卡 §0/§1 已冻结；产品/AC 未确认不得写技术方案
   on_fail: 回 product 修产品分析；范围/AC 不清先停下说明
   output: 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
-  notes: 技能：`skills/solution-design/SKILL.md` 当前节 + `skills/task-breakdown/SKILL.md`（任务拆分）+ `skills/engineering-quality/SKILL.md`；模板
+  notes: 技能：`skills/solution-design/SKILL.md` + `skills/task-breakdown/SKILL.md`（任务拆分）+ `skills/engineering-quality/SKILL.md`；模板
     `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡
     §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。 验收表必须可被 `verify/Invoke-Gate.ps1` 读取；每条 AC 有检查与证据。
     自检：AC 可观测；每个任务有文件与验证；不把「应该/正常」写成验收。 需要正式发布/QA/UAT/交接 → 转完整链；代码/文档评审在本链按条件执行；技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；确认后进

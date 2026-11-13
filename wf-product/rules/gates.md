@@ -47,35 +47,35 @@
 
 | token | 为真 | 为假 |
 | --- | --- | --- |
-| `has_pending_commit` | 有文件变更待提交 | 未命中该条件 |
-| `has_uat` | 本轮有 UAT/验收要求（发布门必须核） | 未命中该条件 |
-| `change_requested` | 改动已定稿基线或产品缺陷/问题处置需确认（不含纯新需求入池） | 未命中该条件 |
+| `has_pending_commit` | 有文件变更待提交 | 无待提交文件 |
+| `has_uat` | 本轮有 UAT/验收要求（发布门必须核） | 本轮无 UAT/验收要求 |
+| `change_requested` | 改动已定稿基线或产品缺陷/问题处置需确认（不含纯新需求入池） | 纯新需求入池/答疑，无基线或缺陷处置变更 |
 | `intent_needs_confirm` | 口令/上下文对「给谁·做什么·交付形态」**无法唯一确定**，或跨角色外发handoff/确认文且本任务未对齐，或新开对外交付主题 → 真 | 纯查询/机械、同任务已确认未变、本句已写死意图、已对齐任务内续跑 → 假；**歧义拿不准**按真。细则 `clarification.md` §0 |
-| `understanding_needs_confirm` | 输入为模糊/单点需求、含外部文档或原型、存在实质冲突、方案有取舍、或 P1↑/P2/P3/点名写 PRD/计划/收集需求时需确认**理解+方案要点**；已有**当前任务**理解与方案双确认记录/已确认受理单（含方案要点）、或信息完整的缺陷单/答疑且已能复述且无新方案取舍时假 | 未命中该条件 |
-| `plan_needs_confirm` | 首次计划或范围·指标·版本实质变更 | 未命中该条件 |
-| `new_requirement_or_scope_change` | 新需求/范围变化 | 未命中该条件 |
+| `understanding_needs_confirm` | 输入为模糊/单点需求、含外部文档或原型、存在实质冲突、方案有取舍、或 P1↑/P2/P3/点名写 PRD/计划/收集需求时需确认**理解+方案要点**；已有**当前任务**理解与方案双确认记录/已确认受理单（含方案要点）、或信息完整的缺陷单/答疑且已能复述且无新方案取舍时假 | 当前任务已确认理解与方案要点，或纯查询/机械低风险 |
+| `plan_needs_confirm` | 首次计划或范围·指标·版本实质变更 | 同会话已确认且范围/指标/版本未实质变 |
+| `new_requirement_or_scope_change` | 新需求/范围变化 | 纯答疑/文案，无新需求或范围变化 |
 | `benchmark_or_mode_p` | 口令为竞品对标/功能对标/对标分析/功能差距，或 discover 已分诊为模式 P | 仅洞察/需求池/模式 S，未分诊为模式 P |
-| `new_requirement` | 分诊为新需求（不含已定稿基线的需求变更） | 未命中该条件 |
-| `scope_decision_required` | 跨版本/高价值/点名立项，需单需求范围确认 | 未命中该条件 |
-| `scope_unconfirmed` | 无已确认产品计划且无已批准的单需求范围 | 未命中该条件 |
-| `landing_doc_review_needed` | 落地文档（PRD P2+、产品计划首版或实质变更、设计评审/设计交接、交付计划、实质变更重审、或用户点名评审）待选评审方式且本会话尚未选定；P0/普通 P1 light 且用户未点名时可假；**P1↑ 默认 B（AI 独立评审），选 A 须用户明确 + 独立复核；P2+ 必问 A/B** | 未命中该条件 |
-| `ai_review_chosen` | 用户已选 B（AI 独立评审） | 未命中该条件 |
-| `prd_structure_required` | 本步为写/改 PRD 且级别为 P2+/P1↑，或用户点名定稿/交开发/拟置 APPROVED，或普通 P1 将交开发；P0 纯文案无结构变更为假 | 未命中该条件 |
-| `finalize_requested` | 评审通过且用户点名定稿/进入排期（仅评审不触发） | 未命中该条件 |
-| `has_ui_requirement` | 有页面/界面需求或点名画原型 | 未命中该条件 |
-| `narrative_needs_confirm` | 受众/目标/演示范围不明或首次对外演示 | 未命中该条件 |
-| `materials_for_external` | 材料/文档将对外发送、承诺或发布 | 未命中该条件 |
-| `demo_needs_dryrun` | 准备演示/客户介绍/彩排 | 未命中该条件 |
-| `docs_requested` | 点名用户手册/快速开始/FAQ/发布说明/培训材料 | 未命中该条件 |
-| `needs_impact_assessment` | 变更/缺陷/新需求需影响评估 | 未命中该条件 |
-| `needs_linked_update` | 需联动回写与回执（除纯答疑外均为真） | 未命中该条件 |
-| `decision_required` | 需处置确认（P2+/P3、改已定稿基线、产品缺陷、影响版本/里程碑/KPI；P0/P1 且不改基线=false） | 未命中该条件 |
-| `change_apply_required` | 处置结论为接受/下期/立即修且确有联动项；或 P0/P1 轻量受理（无 AC/范围变化）确有联动项（无需 `decide`）（拒绝/重复/不修/退回开发/补充信息=false） | 未命中该条件 |
-| `go_decision_go` | 立项结论=Go（Hold/Kill=false） | 未命中该条件 |
-| `substantive_change` | 实质变更需重审 | 未命中该条件 |
-| `plan_level_change` | 影响版本范围/里程碑/KPI | 未命中该条件 |
-| `release_decision_needed` | 未发布或发布内容/窗口变更 | 未命中该条件 |
-| `remark_writeback` | 有拟回写缺陷平台的备注/附件/状态/指派 | 未命中该条件 |
+| `new_requirement` | 分诊为新需求（不含已定稿基线的需求变更） | 非新需求（变更/答疑/缺陷/重复） |
+| `scope_decision_required` | 跨版本/高价值/点名立项，需单需求范围确认 | 未跨版本、非高价值、未点名立项 |
+| `scope_unconfirmed` | 无已确认产品计划且无已批准的单需求范围 | 已有已确认产品计划或已批准的单需求范围 |
+| `landing_doc_review_needed` | 落地文档（PRD P2+、产品计划首版或实质变更、设计评审/设计交接、交付计划、实质变更重审、或用户点名评审）待选评审方式且本会话尚未选定；P0/普通 P1 light 且用户未点名时可假；**P1↑ 默认 B（AI 独立评审），选 A 须用户明确 + 独立复核；P2+ 必问 A/B** | P0/普通 P1 light 且未点名；或本会话已选定 A/B 且文档未实质变 |
+| `ai_review_chosen` | 用户已选 B（AI 独立评审） | 用户选 A 或尚未选择 |
+| `prd_structure_required` | 本步为写/改 PRD 且级别为 P2+/P1↑，或用户点名定稿/交开发/拟置 APPROVED，或普通 P1 将交开发；P0 纯文案无结构变更为假 | 非写/改 PRD，或 P0 纯文案且无结构变更 |
+| `finalize_requested` | 评审通过且用户点名定稿/进入排期（仅评审不触发） | 仅评审、未点名定稿或进入排期 |
+| `has_ui_requirement` | 有页面/界面需求或点名画原型 | 无页面/界面需求且未点名原型 |
+| `narrative_needs_confirm` | 受众/目标/演示范围不明或首次对外演示 | 受众/目标/范围已明且非首次对外演示 |
+| `materials_for_external` | 材料/文档将对外发送、承诺或发布 | 仅内部留档，不对外发送/承诺/发布 |
+| `demo_needs_dryrun` | 准备演示/客户介绍/彩排 | 无演示/客户介绍/彩排 |
+| `docs_requested` | 点名用户手册/快速开始/FAQ/发布说明/培训材料 | 未点名用户文档（手册/FAQ/发布说明/培训） |
+| `needs_impact_assessment` | 变更/缺陷/新需求需影响评估 | 纯答疑/文案，无需影响评估 |
+| `needs_linked_update` | 需联动回写与回执（除纯答疑外均为真） | 纯答疑且无联动项 |
+| `decision_required` | 需处置确认（P2+/P3、改已定稿基线、产品缺陷、影响版本/里程碑/KPI；P0/P1 且不改基线=false） | P0/P1 且不改已定稿基线 |
+| `change_apply_required` | 处置结论为接受/下期/立即修且确有联动项；或 P0/P1 轻量受理（无 AC/范围变化）确有联动项（无需 `decide`）（拒绝/重复/不修/退回开发/补充信息=false） | 拒绝/重复/不修/退回开发/补充信息 |
+| `go_decision_go` | 立项结论=Go（Hold/Kill=false） | 立项结论=Hold/Kill |
+| `substantive_change` | 实质变更需重审 | 纯答疑/文案，不改已定稿 AC/范围 |
+| `plan_level_change` | 影响版本范围/里程碑/KPI | 不影响版本范围/里程碑/KPI |
+| `release_decision_needed` | 未发布或发布内容/窗口变更 | 已发布且仅做复盘 |
+| `remark_writeback` | 有拟回写缺陷平台的备注/附件/状态/指派 | 无拟回写缺陷平台的备注/附件/状态/指派 |
 | `handoff_send_required` | 拟生成/点名 HO 且未确认类型/接收方/摘要（仅说「要交接包」未确认摘要仍真；不得因它门已过置假） | 用户已确认该摘要未变 |
 | `handoff_change_substantive` | 交接包内变更达 C2/C3 或改定稿基线 | 低于该阈值 |
 | `prd_ready_for_handoff` | PRD 已 APPROVED 且门 READY，本轮定稿/进排期，台账无同版本 REQ 已发/已收；仅评审不触发 | 未定稿或已发过 |

@@ -52,7 +52,7 @@ steps:
   hitl: confirm_backlog
   hitl_when: backlog_approval_required
   output: 已确认清单/节奏
-  notes: 清单未变可跳过 hitl；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单。
+  notes: 清单未实质变化（`backlog_approval_required` 为假）→ 跳过该门并记 `when_eval=假:清单未变`；L1 notify、L2+ 实质变化 approve。确认后冻结；变更记清单。
 - name: 实施与定向自验
   id: implement
   skills:

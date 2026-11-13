@@ -5,7 +5,7 @@ goal: RP/AC/SC↔改动文件↔验证输出对账；只报正确性/需求覆�
 reads:
   - 当前 step 的任务清单（含 SC）/需求基线/方案/实施方返回/diff/证据
   - L2+/L3：理解包路径（有则；只取 §0 差量/冲突表，不整篇）
-  - 技能 `code-review` 当前节 + `engineering-quality` §5；能力契约（code-review/security-scan 可用时）
+  - 技能 `code-review`、`engineering-quality`（按当前步骤卡 §6 整卡；质量条另读 §5）；能力契约（code-review/security-scan 可用时）
 
 must:
   - 不采信口头完成；结论附依据（差异、命令输出、扫描结果）。

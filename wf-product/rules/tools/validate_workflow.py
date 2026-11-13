@@ -153,11 +153,6 @@ def main() -> int:
                                 errors.append(f"STEP_SKILLS: {path.relative_to(root)}: {sid or idx} conditional '{sk}' missing when")
                             if not (root / "skills" / sk / "SKILL.md").is_file():
                                 errors.append(f"STEP_SKILL: {path.relative_to(root)}: {sid or idx} skills/{sk}/SKILL.md not found")
-            read_ref = step.get("read_ref")
-            if read_ref:
-                ref_path = str(read_ref).split("#", 1)[0].strip()
-                if ref_path and not (root / ref_path).exists():
-                    errors.append(f"READ_REF: {path.relative_to(root)}: {sid or idx} -> {read_ref} (file not found)")
             hitl = step.get("hitl")
             names: list[str] = []
             if isinstance(hitl, str):

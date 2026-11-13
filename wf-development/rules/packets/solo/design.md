@@ -43,7 +43,7 @@
 
 ### 本步动作清单
 
-- 技能见 §6 `solution-design` 当前节 + §6 `task-breakdown`（任务拆分）+ §6 `engineering-quality`。
+- 技能见 §6 `solution-design` + §6 `task-breakdown`（任务拆分）+ §6 `engineering-quality`。
 - 模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
 - 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。
 - 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡 §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。

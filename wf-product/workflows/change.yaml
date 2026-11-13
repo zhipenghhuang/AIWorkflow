@@ -82,7 +82,7 @@ steps:
   - name: confirm_plan
     when: plan_level_change
   output: 处置结论（受理单 §5；改基线时写变更单 §4）
-  notes: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑可跳过本门。
+  notes: confirm_change 出示分诊/影响/差量；产品缺陷须相符证明。纯答疑（`change_requested` 与 `plan_level_change` 均为假）→ 跳过该门并记 `when_eval=假:纯答疑`。
 - name: 联动落地
   id: apply
   skills:

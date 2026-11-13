@@ -76,8 +76,8 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Test-DocHygiene
 python "wf-testing/rules/tools/validate_workflow.py" "wf-testing"
 ```
 
-检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板。
-后续可加：token 预算、重复句、同范围“必须/可跳过”冲突、孤儿规则；未实现前人工核对。
+检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板、语义（重复入口/残句/读预算/不可达步/步骤卡标识/无条件跳过）。
+维护者人工核对：token 预算、重复句、同范围「必须/可跳过」冲突、孤儿规则。
 
 ## 5. 规则 eval（改规则时）
 

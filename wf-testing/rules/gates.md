@@ -2,7 +2,7 @@
 
 > 单一出处：主读门、理解门、计划门、执行门、报告门、提交/平台/交接门，以及 `when` / `gate_when` 词表。
 > 步骤顺序以 `../workflows/*.yaml` 为准；只认步上 `when` / `hitl` / `hitl_when` / `gate_when`。
-> 读取时机：当前步有门时只读对应行；写/改 YAML 时才读全表。
+> 读取时机：当前步有门时只读对应行；写/改 YAML 时才读全表。不变量/完成状态（TEST-VER）见 `core/verification.md`。
 
 ## 1. 门
 

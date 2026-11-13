@@ -56,7 +56,7 @@
 **4. 修改流程**
 
 1. 改 `skills/<name>/SKILL.md`；同步本 README 映射与相关 workflow `notes`。
-2. 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；改引用后跑 `Test-DocHygiene.ps1`；必跑 `check_skills.py <包根> --strict`。
+2. 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；改引用后跑 `Test-DocHygiene.ps1`；必跑 `check_skills.py <包根> --strict`；技能大改后按 `skills/evals/README.md` 抽测 3 条并记录结果。
 3. 更新包 `AGENTS.md` `template_version`。
 4. 新增技能必须挂到具体步骤。
 5. **生态吸收**：经 `skill-audit` discover（`npx skills find` / find-skills）确认后，只**方法回灌**本目录或登记 `{workroot}/capabilities/`；禁止外部 skill 原样并行第二套编排。
