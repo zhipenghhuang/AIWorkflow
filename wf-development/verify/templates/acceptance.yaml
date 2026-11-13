@@ -28,6 +28,8 @@ process:
 implement_preflight: done
 # L1+ 有代码必填（done|路径|na+理由）；missing → BLOCKED
 sc_trace: "{workroot}/40-tasks/任务清单-….md#SC"   # 或 done: SC table；无行为写 na: …
+# 命中 profile shared_globs（共享/被引用文件）必填：调用方/依赖模块 + 回归集；或 na: <理由>
+impact_map: ""
 cross_layer: done   # done | na | missing — 权限/状态/基数/多表面命中须 done
 baseline_smoke: na  # done | na | missing — 增量沿用基线时须 done
 debts: []           # ["DEBT-01"] 或 []；裁剪/豁免须非空 ID 列表或显式无
@@ -38,7 +40,7 @@ nfr:
   performance: "done: .gate/perf/bench.md（列表 p95 120ms；23 SQL；首屏 554KB）"
   # 不适用示例：security: "na: 纯文案/样式调整，无鉴权、数据、上传或外部调用变化"
   # 不适用示例：performance: "na: 无运行时路径（纯文档）"
-scope_files: []                      # L2+ 建议填：允许改动的代码路径/文件
+scope_files: []                      # L2+ 有代码必填：允许改动的代码路径/文件（越界 → BLOCKED）
 non_goals:
   - "{明确不做}"
 assumptions:

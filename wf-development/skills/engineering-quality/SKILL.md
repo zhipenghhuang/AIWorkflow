@@ -83,9 +83,9 @@ description: Use in design, implementation, and code review when correctness, re
 
 **Before**
 
-- 读任务卡/AC、设计说明、契约、代码地图、质量门禁命令。
+- 读任务卡/AC、设计说明、契约、`project-profile` §2 代码地图与同类实现、质量门禁命令。
 - 明确“怎么证明它对”：失败用例/探针/压测/扫描；无测点写理由。
-- 列出改动文件与影响面；超出清单先停下说明。
+- 列出改动文件、调用方/依赖面与影响面；超出清单先停下说明。
 
 **During**
 

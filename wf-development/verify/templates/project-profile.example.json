@@ -14,6 +14,8 @@
   "e2e": "npx playwright test",
   "smoke": "npm run test:smoke",
   "integration": "npm run test:integration",
+  "shared_globs": [],
+  "_shared_note": "被多处复用的公共文件/目录（示例：src/shared/**、src/lib/**、internal/pkg/**）。命中后该任务须写 impact_map（调用方/依赖模块+回归集）；无则 []，勿填整个源码根。",
   "security": "",
   "perf": "",
   "_perf_note": "性能基准/回归命令（可选）；配置后 L2+ 门内必跑，失败=BLOCKED。示例：python scripts/perf_regression.py 或 k6 run perf/smoke.js",

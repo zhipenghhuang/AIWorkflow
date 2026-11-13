@@ -19,7 +19,7 @@ description: Use before merge or when the user asks for code review. Review corr
 
 ## 2. 全量覆盖法（防挑着看）
 
-- 先列**改动文件清单**（含测试、配置、迁移、文案资源），逐文件勾核一遍再写结论。
+- 先列**改动文件清单**（含测试、配置、迁移、文案资源）与**调用方/依赖面**（被改符号、接口、配置键在哪些模块被引用），逐文件勾核一遍再写结论。
 - 大 diff 先按文件分组过，再回头精读高风险文件（金额/权限/并发/数据迁移）。
 - 本机可用 code-review 时按其全量 diff 模式跑（`capabilities/00-contract.md`）；不可用=人工/子代理按同清单。
 

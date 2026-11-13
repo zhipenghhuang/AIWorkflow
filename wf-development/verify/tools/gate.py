@@ -22,12 +22,14 @@ Options:
 Notes:
   - StartTask freezes base_commit; changed_files = diff(base)..工作区 + untracked（中途 commit 不丢任务窗口）。
   - 定向：profile 的 lint_scoped/test_scoped 含 {files} 才注入变更列表；否则跑全仓命令，检查 id 为 project-*。
+  - shared_globs（profile）命中的文件改动须在验收清单写 impact_map（调用方/依赖模块+回归集）。
 
 Exit: 0 = COMPLETE, 1 = PARTIAL/BLOCKED/NOT_VERIFIED/DRY_RUN, 2 = usage/config error.
 """
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import json
 import re
@@ -298,6 +300,7 @@ def _iq_empty() -> dict[str, str]:
     return {
         "implement_preflight": "",
         "sc_trace": "",
+        "impact_map": "",
         "cross_layer": "",
         "baseline_smoke": "",
     }
@@ -306,8 +309,8 @@ def _iq_empty() -> dict[str, str]:
 def _extract_iq_from_text(text: str) -> dict[str, str]:
     """Pull IQ fields from YAML-style keys or Markdown 实施预检 / SC 表."""
     out = _iq_empty()
-    for key in ("implement_preflight", "sc_trace", "cross_layer", "baseline_smoke"):
-        m = re.search(rf"(?im)^{key}\s*[:：]\s*(.+)$", text)
+    for key in ("implement_preflight", "sc_trace", "impact_map", "cross_layer", "baseline_smoke"):
+        m = re.search(rf"(?im)^[ \t-]*{key}\s*[:：]\s*(.+)$", text)
         if m:
             out[key] = m.group(1).strip().strip("`\"'")
     if not out["implement_preflight"]:
@@ -586,6 +589,18 @@ def _sc_reconciliation(text: str, has_code_change: bool) -> tuple[bool, str]:
 def check_process(meta: dict[str, Any], level: str, project_root: Path, files: list[str]) -> dict[str, Any]:
     missing: list[str] = []
     warnings: list[str] = []
+    code_files = [f for f in files if not f.lower().endswith(DOC_EXTS)]
+    scope = meta.get("scope_files") or []
+    if scope:
+        normalized = {_norm(str(x)) for x in scope}
+        for rel in code_files:
+            if not any(rel == s or rel.startswith(s.rstrip("/") + "/") for s in normalized):
+                (missing if level_rank(level) >= 2 else warnings).append(f"改动超出声明范围：{rel}")
+                break
+    elif code_files and level_rank(level) >= 2:
+        missing.append("L2+ 有代码变更须声明改动范围（scope_files/改动范围）")
+    elif code_files:
+        warnings.append("未声明改动范围（scope_files/改动范围）")
     if level_rank(level) < 2:
         return {"missing": missing, "warnings": warnings}
     process = meta.get("process") or {}
@@ -645,18 +660,6 @@ def check_process(meta: dict[str, Any], level: str, project_root: Path, files: l
                 missing.append(f"L3 缺少{label}证据（process.{key}）")
             elif not _path_exists(project_root, val) and not COMMANDISH.match(val):
                 missing.append(f"{label}证据不存在：{val}")
-
-    scope = meta.get("scope_files") or []
-    if scope:
-        normalized = {_norm(str(x)) for x in scope}
-        for rel in files:
-            if rel.lower().endswith(DOC_EXTS):
-                continue
-            if not any(rel == s or rel.startswith(s.rstrip("/") + "/") for s in normalized):
-                missing.append(f"改动超出声明范围：{rel}")
-                break
-    else:
-        warnings.append("未声明改动范围（scope_files/改动范围）")
     return {"missing": missing, "warnings": warnings}
 
 
@@ -668,8 +671,23 @@ NFR_PERF_NA_OK = re.compile(r"无列表|无导出|无批量|无查询|无聚合|
 PERF_HINT_RE = re.compile(r"(?:list|export|batch|query|aggregat|/search|/report)", re.I)
 
 
-def check_iq_fields(meta: dict[str, Any], level: str, files: list[str], docs_only: bool) -> dict[str, Any]:
-    """L1+ 有代码时硬拦 implement_preflight / sc_trace（DEV-IQ-09/12、DEV-VER-11）。"""
+def _shared_hits(files: list[str], profile: dict[str, Any]) -> list[str]:
+    """Profile shared_globs 命中的文件（被多处引用的公共路径）。"""
+    raw = profile.get("shared_globs") if isinstance(profile, dict) else None
+    if not isinstance(raw, list):
+        return []
+    patterns = [str(p).strip().lower() for p in raw if str(p).strip()]
+    if not patterns:
+        return []
+    return [f for f in files if any(fnmatch.fnmatch(f.replace("\\", "/").lower(), p) for p in patterns)]
+
+
+def check_iq_fields(meta: dict[str, Any], level: str, files: list[str], docs_only: bool,
+                    profile: dict[str, Any] | None = None) -> dict[str, Any]:
+    """L1+ 有代码时硬拦 implement_preflight / sc_trace（DEV-IQ-09/12、DEV-VER-11）。
+
+    profile.shared_globs 命中时另须 impact_map（共享/被引用面：调用方/依赖模块+回归集）。
+    """
     missing: list[str] = []
     if level_rank(level) < 1 or docs_only or not files:
         return {"missing": missing}
@@ -698,6 +716,27 @@ def check_iq_fields(meta: dict[str, Any], level: str, files: list[str], docs_onl
             # bare path or inline label still ok if it looks like a pointer
             if len(sc) < 4:
                 missing.append("sc_trace 过短；须指向 SC 表或 na+理由")
+
+    shared = _shared_hits([f for f in files if not f.lower().endswith(DOC_EXTS)], profile or {})
+    if shared:
+        impact = str(meta.get("impact_map") or "").strip()
+        if not impact or impact.lower() == "missing":
+            missing.append(
+                "共享路径改动须写 impact_map（调用方/依赖模块+回归集，或 na+理由）："
+                + ", ".join(shared[:3])
+            )
+        elif any(x in impact for x in ("{", "待填", "待补", "TBD")):
+            missing.append("impact_map 仍为占位符/未填")
+        else:
+            m = re.match(r"^(done|na)\b\s*[:：]?\s*(.*)$", impact, re.I)
+            if m and m.group(1).lower() == "na":
+                if len(m.group(2).strip()) < 2:
+                    missing.append("impact_map=na 需一句理由")
+            elif m and m.group(1).lower() == "done":
+                if len(m.group(2).strip()) < 4:
+                    missing.append("impact_map=done 需列调用方/依赖模块与回归集")
+            elif not m and len(impact) < 6:
+                missing.append("impact_map 过短：须列调用方/依赖模块与回归集")
     return {"missing": missing}
 
 
@@ -1011,7 +1050,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             problems.append("playwright-results.json 不可解析")
 
     # L1 includes interaction-honesty rows 14/20; L2+ all 20
-    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 10, 14, 15, 16, 17, 18, 19, 20]
+    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20]
     if not qa.is_file():
         problems.append("missing design-qa.md")
     else:
@@ -1193,7 +1232,7 @@ def main() -> int:
     process = check_process(meta, level, project_root, files)
     docs_only = bool(files) and all(f.lower().endswith(DOC_EXTS) for f in files)
     nfr = check_nfr(meta, level, project_root, files)
-    iq = check_iq_fields(meta, level, files, docs_only)
+    iq = check_iq_fields(meta, level, files, docs_only, profile)
     acceptance_unusable = acceptance_path is None or not meta["items"]
     if level_rank(level) >= 1 and not args.allow_missing_acceptance:
         if acceptance_unusable:

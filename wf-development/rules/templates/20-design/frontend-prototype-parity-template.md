@@ -97,7 +97,7 @@
 - [ ] 每个冲突/裁决已登记下游落点（任务/矩阵行/测试），未消费不得关闭
 - [ ] 每条路由桌面 + 移动截图已留证，哈希不重复
 - [ ] `route-coverage.json` result=pass，console/failed=0
-- [ ] `.gate/frontend/design-qa.md` 全项通过（L1 十三项含交互诚实 / L2+ 二十项）
+- [ ] `.gate/frontend/design-qa.md` 全项通过（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）
 - [ ] 未自造一级导航/页面壳/表格/详情
 - [ ] 组件复用说明可追溯
 - [ ] 独立评审记录已附（前端硬门 A 级 / L2+）

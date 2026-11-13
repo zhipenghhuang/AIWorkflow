@@ -22,6 +22,7 @@ description: Use when implementing or verifying a change. Enforce implement pref
 
 ## 0.1 实现前确认
 
+- **先看现场（硬）**：读 `project-profile` §2 代码地图与同类实现/样板；对照至少 1 个相邻页面或同类功能（壳/组件/分层/错误处理/测试写法），沿用或写偏离理由；无同类写依据。  
 - 命中权限/状态/数据基数/多表面 → `cross-layer-consistency`。  
 - 文档冲突 → OPEN，禁静默选边（DEV-IQ-04）。  
 - 复用既有写法须与 SC 动词一致。

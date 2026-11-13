@@ -102,6 +102,7 @@ change_types:
 quality_gates:
   - implement-preflight  # DEV-IQ-09；acceptance.implement_preflight；有行为却 missing 不得全覆盖通过
   - sc-trace          # 任务卡/acceptance.sc_trace；无 SC 不得开工（L0 除外）
+  - impact-map        # 共享/被引用文件改动：调用方/依赖模块+回归集；acceptance.impact_map；profile shared_globs 命中触发
   - selftest-vs-spec  # 断言指回 SC/AC；禁与方案相反刷绿
   - defect-red-green  # 缺陷修复：修复前红证 + 修复后同口径绿证（原单入口/边界）
   - writeback-ready   # 回写：§6.1 八段 + hash/版本 + 状态/指派 + 验证站冒烟

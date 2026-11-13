@@ -514,7 +514,8 @@ DEFECT_SEARCH_CARD = """### 本步规则卡：查重节流
 DEFECT_SUBMIT_CARD = """### 本步规则卡：投影交单与回执
 
 - **platform_submit**：发现即提交（计划预授权）｜批末/阶段末/收尾确认｜用户口令提交到平台（`collaboration` §6.1）。
-- **投影（硬）**：steps=执行失败详情投影；禁交单窗现网补截图/主键/文案；缺则回 execute 补采。
+- **投影（硬）**：steps=执行失败详情按文案模板投影；**禁自拟精简十段**；禁交单窗现网补截图/主键/文案；缺则回 execute 补采。
+- **写入自检（硬 · 新建/正式交平台）**：【提交摘要】含 `问题标题：`+`一句话影响：`+`最小复现：`；末段块名=`【技术附记】`（禁另起【证据】块顶替）；HTML/文本版式按适配「写入前自检」；建单 body 带 `assignedTo`（禁建后再 assign+comment 刷首条备注）。
 - **入口门（硬）**：投影前核执行详情含 `入口指纹=`；写接口单须有回查字段=值（Q22）；细则 `collaboration` §5.0.1c / `classification` §0.4。
 - **回执**：`{ver}/写回回执.md`（本轮覆盖）；过 writeback 门。"""
 
@@ -565,6 +566,7 @@ TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
     ("wf-testing", "testing", "plan"): PLAN_DUAL_TEMPLATES[0],
     ("wf-testing", "testing", "execute"): "rules/templates/20-test-cases/test-case-template.md",
     ("wf-testing", "testing", "report"): "rules/templates/40-report-review/test-report-template.md",
+    ("wf-testing", "defect", "submit"): "rules/templates/30-execution/defect-writeup-template.md",
     ("wf-testing", "handoff", "compose"): "rules/templates/90-handoff/handoff-note-template.md",
     ("wf-testing", "onboard", "baseline"): "rules/templates/00-onboarding/env-baseline-template.md",
     ("wf-development", "change", "requirements"): "rules/templates/10-planning/requirement-baseline-template.md",
@@ -1278,9 +1280,18 @@ def render_packet(
             "`rules/templates/10-planning/test-plan-lite-template.md`；分析仍用上表分析模板。"
         )
     elif primary_tpl:
-        open_lines.append(
-            f"- **填写模板（仅此一份）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
-        )
+        if pack_key == "wf-testing" and wid == "defect" and sid == "submit":
+            open_lines.append(
+                f"- **正式交平台/新建单（硬）**：必开 `{primary_tpl}` — 缺陷通道只读 **§5.0.1～§5.0.1b**"
+                "（需要粘贴骨架再开 §5.0.2）；盯办通道改读 **§5.0.3b**。只读点名节，**禁**整文件通读、**禁**跳过本条自拟 steps。"
+            )
+            open_lines.append(
+                "- **仅状态回写备注**（无关/激/解决等）：用同模板 **§8** 对应骨架；不强制十段。"
+            )
+        else:
+            open_lines.append(
+                f"- **填写模板（仅此一份）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
+            )
         if others:
             open_lines.append(
                 "- **参考模板（命中再开，不默认读）**：`" + "`；`".join(others) + "`。"

@@ -34,8 +34,8 @@
 
 - **L0**：纯文档/文案/注释；不强制验收清单；门核 `docs-links`/`docs-placeholders`；空 diff=`NOT_VERIFIED`，不得报完成。
 - **L1**：写在任务卡/开发卡里的验收表（至少含 `AC | 判定 | 检查 | 证据`）；`change` 单点用开发卡（模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`），`iterate` 用任务清单。运行门时用 `-Acceptance <开发卡/任务清单>` 显式传入；不传且无 `.gate/acceptance.yaml` → BLOCKED。
-- **L2+**：落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`/`nfr.security`/`nfr.performance`；L3 另含 `security`/`rollback`），确认后冻结；变更走变更记录。L2+ 缺独立评审记录或非功能结论 → BLOCKED。
-- **门禁字段**（模板见 `verify/templates/acceptance.yaml`）：L1+ 有代码必填 `implement_preflight`、`sc_trace`（done/na+理由；Markdown 可用「实施预检」行 + SC 表）；取重另含 `cross_layer`、`baseline_smoke`、`debts`。缺或 `missing` → **BLOCKED**（见实施质量门 §8）。
+- **L2+**：落 `.gate/acceptance.yaml`（含 `task_id`/`level`/`process.review`/`nfr.security`/`nfr.performance`；有代码须含 `scope_files`；L3 另含 `security`/`rollback`），确认后冻结；变更走变更记录。L2+ 缺独立评审记录或非功能结论 → BLOCKED。
+- **门禁字段**（模板见 `verify/templates/acceptance.yaml`）：L1+ 有代码必填 `implement_preflight`、`sc_trace`（done/na+理由；Markdown 可用「实施预检」行 + SC 表）；命中 profile `shared_globs` 另须 `impact_map`（调用方/依赖模块 + 回归集）；取重另含 `cross_layer`、`baseline_smoke`、`debts`。缺或 `missing` → **BLOCKED**（见实施质量门 §8）。
 - **来源可打开（硬）**：SC 来源文件须存在、`§x` 须在目标文档有同名编号标题；方案 §4.1 设计要点 `D-xx` 须逐条被 SC 引用；任务清单 §4.1 须覆盖总表全部 `R-xx`。由 `validate_tasklist.py` 机检，解析不到即 FAIL。
 - 每行必须能判定（条件+动作+可观测结果），检查可复跑，证据有落点；AC/SC 预期来自方案，不来自现网实现（DEV-IQ-02）。
 - 写不出 AC = 需求未定义完；不得进入实施。
@@ -124,7 +124,7 @@
 | 布局/交互/表单/权限 | 上述 + E2E 主链路 + network 4xx/5xx + 独立目检 + **菜单/深链全量清单** + **字段网格/日期控件按原型核对** |
 | 高风险/品牌页 | 上述 + 视觉基线/diff + a11y 扫描 + 深度设计评审 |
 
-设计合理性由 `verify/frontend/design-qa.md` 判断：L1 十三项高价值检查（含 #3/#14/#20 交互诚实），L2+ 二十项 + 独立目检；不追求每页像素级 diff。
+设计合理性由 `verify/frontend/design-qa.md` 判断：L1 十五项高价值检查（含 #3/#14/#20 交互诚实、#8/#9 视觉协调），L2+ 二十项 + 独立目检；不追求每页像素级 diff。
 L1+ 前端还必须通过 `verify/tools/frontend_parity.py`（parity-matrix + route-coverage + 截图哈希/新鲜度）；未通过 = `BLOCKED`。
 产品设计不完整 → 先出 1 页前端设计说明（布局/层级/tokens/状态），确认后再写代码。
 
