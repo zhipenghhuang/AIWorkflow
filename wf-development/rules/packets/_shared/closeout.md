@@ -24,6 +24,7 @@
 ## 3. 状态与同步
 
 - `activeContext.md` 本包运行状态：`workflow/state=closeout/status=done|blocked|cancelled`、`packet: `rules/packets/_shared/closeout.md``、`gate=<回执或 na>`、`next=`。
+- 本轮若改产品版本 SSOT：同轮改 `activeContext` 版本/焦点命中句；有用户可见条目 → 根 `CHANGELOG` 对应版块（无则 `na`）。跳过 Claim / 用户自提交不豁免。
 - 阶段/门/焦点变化才更新 `{workroot}/development-plan.md` §0/§10；仅新增/改名/归档文件才更新 `{workroot}/INDEX.md`。
 - 不再单独写 `triad=`/`facade=` 字段；有对外门面变化时在收尾第 6 点说明一句。
 

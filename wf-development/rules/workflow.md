@@ -108,7 +108,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 未确认不得提交/推送；**默认仅提交**，推送须单独确认。密钥与凭据不得纳入。  
 提交信息与粒度：缺陷 `Bug #{id}：{简述}`（合并组一次提交并列出组内全部编号；独立缺陷单独提交）；迭代 `迭代 {版本/主题}：{简述}`；常规变更用简述。一次提交一类改动。  
-**文档同提交**：任务清单、提测单/发布说明、需求/方案、 `{workroot}/INDEX.md`、activeContext、根 `CHANGELOG.md`（**仅**用户可见版本关闭/发版时）与 `{workroot}/work-log.md`（里程碑时）等本轮产物应纳入同一提交或紧随的独立文档提交；不得留一批未提交文档在根目录。
+**文档同提交**：任务清单、提测单/发布说明、需求/方案、 `{workroot}/INDEX.md`、activeContext、根 `CHANGELOG.md`（产品版本号变更且含用户可见条目时，或用户可见版本关闭/发版时）与 `{workroot}/work-log.md`（里程碑时）等本轮产物应纳入同一提交或紧随的独立文档提交；不得留一批未提交文档在根目录。
 
 **推送与部署**：
 

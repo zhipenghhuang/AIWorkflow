@@ -36,6 +36,7 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - 页面/布局/路由/菜单/权限入口；路由守卫与深链。
 - 组件边界：容器/展示、复用组件、目录与项目约定一致。
 - 全局/页面/局部状态；避免重复状态与不一致。
+- **共享模块单例（DEV-IQ-19）**：store/确认框/会话等带模块级状态的文件须单一入口（import map 或项目约定）；禁止多 chunk 各挂不同 `?v=`；局部 bump = 双例风险（确认无请求、权限偶发丢）。有 token 自检同批跑。
 - 请求统一走封装层；鉴权失效统一处理。
 - tokens/组件从设计系统单一来源取；禁止页面散落硬编码颜色/间距/圆角。
 
