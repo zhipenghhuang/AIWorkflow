@@ -42,7 +42,7 @@ description: Use when implementing backend APIs, services, data access, jobs, in
 
 ## 5. 测试与证据
 
-- 单测：业务rules/边界/异常/幂等。
+- 单测：业务规则/边界/异常/幂等。
 - 集成：真实数据库/缓存/消息（可用容器）；契约测试。
 - 负面验证：鉴权/越权、参数边界、终态重复、不存在对象、错误码。
 - 证据：测试命令+结果、关键日志/指标、迁移/配置变更说明。

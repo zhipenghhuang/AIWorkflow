@@ -28,7 +28,7 @@ description: Use when defining product metrics, event tracking, funnels, retenti
 | 身份 | 匿名/登录/租户；id 变更与合并规则 |
 | 来源 | 客户端/服务端；以哪端为真 |
 | 版本 | 事件 schema 版本；废弃/重命名迁移 |
-| owner | {workroot}/数据/开发责任人 |
+| owner | 业务/数据/开发责任人 |
 
 - 客户端事件易丢/易重复；关键业务以服务端为准，客户端只补交互。
 - 命名、属性、枚举一次定清；上线后改名=破坏历史数据，必须走版本/双写/迁移。

@@ -56,6 +56,7 @@ steps:
   - requirements-and-spec
   must_read:
   - rules/packets/change/analyze_input.md
+  - rules/templates/10-planning/requirement-understanding-template.md
   when: has_product_docs_or_prototypes
   agent: implementer
   hitl: confirm_understanding

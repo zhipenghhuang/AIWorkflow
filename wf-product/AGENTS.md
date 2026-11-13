@@ -118,7 +118,7 @@
 ## 6. 技能与能力（按步加载）
 
 - **角色边界**：谁负责/能定什么/何时停/向谁升级见 `rules/collaboration/roles.md`；出现职责冲突先查此表，不靠聊天记忆。
-- **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。体检能力确认后可就地改本包 skills / capabilities。
+- **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。体检能力确认后可就地改本包技能/能力。
 - **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
 - **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`；包内 `capabilities/00-contract.md`+`capabilities/reference.md` 非真源。纪律 `rules/capabilities/instance-discipline.md`。「装配能力」写实例；「体检能力」含 **discover**（`npx skills find` / find-skills）→ 方法回灌或能力候选，禁外装并行编排。
-- **适度建议（业务会话）**：仅当有证据表明现行 skills / capabilities 达不到本任务要求、与清单/档案明显不符、或持续降级损害定稿/准出时，在收尾待确认表附 **至多 1 条**（对象+现象+「说体检能力」）；禁推销清单、禁未确认改 skills / capabilities。同会话同类只提一次。
+- **适度建议（业务会话）**：仅当有证据表明现行技能/能力达不到本任务要求、与清单/档案明显不符、或持续降级损害定稿/准出时，在收尾待确认表附 **至多 1 条**（对象+现象+「说体检能力」）；禁推销清单、禁未确认改技能/能力。同会话同类只提一次。

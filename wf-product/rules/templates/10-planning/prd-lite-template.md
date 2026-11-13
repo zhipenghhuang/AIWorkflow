@@ -1,5 +1,5 @@
 ---
-doc_id: PRD-{{workroot}/主题}-{序号}
+doc_id: PRD-{产品/主题}-{序号}
 title: {主题} 产品需求文档（轻量）
 status: DRAFT
 review_status: SELF_CHECKED

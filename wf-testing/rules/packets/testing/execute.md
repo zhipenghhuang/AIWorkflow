@@ -92,11 +92,14 @@
 ## 7. 模板与证据
 
 - **填写模板（按轨）**：功能/探索 → `rules/templates/20-test-cases/test-case-template.md`；接口 → `rules/templates/20-test-cases/api-test-case-template.md`；发布前 → 本轨专项方案/报告。只读本轨用到的节，禁整文件通读；禁混用模板。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/20-test-cases/api-test-case-template.md`；`rules/templates/20-test-cases/exploratory-case-template.md`；`rules/templates/20-test-cases/random-flow-case-template.md`；`rules/templates/20-test-cases/a11y-ux-checklist.md`；`rules/templates/30-execution/stable-smoke-checklist-template.md`。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
 - 失败：停在本步补齐或升级；不得静默跳过。

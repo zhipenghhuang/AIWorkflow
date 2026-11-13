@@ -28,6 +28,7 @@ steps:
   - change-management
   must_read:
   - rules/packets/change/intake.md
+  - rules/templates/30-review-change/intake-disposition-template.md
   agent: pm-lead
   hitl:
   - name: confirm_understanding

@@ -1,5 +1,5 @@
 ---
-doc_id: PRD-{{workroot}/主题}-{序号}
+doc_id: PRD-{产品/主题}-{序号}
 title: {主题} 产品需求文档（PRD）
 status: DRAFT
 review_status: PENDING   # PENDING / SELF_CHECKED / APPROVED（B 路径）/ HUMAN_APPROVED（A 路径）
@@ -63,7 +63,7 @@ updated: {yyyy-MM-dd}
 
 ## 4. 功能需求（F-xx）
 
-| ID | 功能 | 优先级 | 用户价值 | rules/状态 | 权限/数据域 | 关联 AC |
+| ID | 功能 | 优先级 | 用户价值 | 规则/状态 | 权限/数据域 | 关联 AC |
 | --- | --- | --- | --- | --- | --- | --- |
 | F-01 | `{…}` | P0/P1/P2 | `{…}` | `{…}` | `{…}` | AC-01 |
 
@@ -111,7 +111,7 @@ stateDiagram-v2
 
 ## 8. 数据与字段来源
 
-> 业务字段/rules/口径；表结构/索引/迁移归开发。
+> 业务字段/规则/口径；表结构/索引/迁移归开发。
 
 | 字段 | 类型/必填 | 范围/默认 | 来源 | 校验/口径 | 说明 |
 | --- | --- | --- | --- | --- | --- |

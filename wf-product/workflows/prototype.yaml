@@ -52,6 +52,7 @@ steps:
   - prototype-and-interaction
   must_read:
   - rules/packets/prototype/wireframe.md
+  - rules/templates/20-design/prototype-spec-template.md
   agent: ux-designer
   output: '{workroot}/{ver}/20-design/wireframe-{页面}.html 或 原型说明 §线框'
   notes: 先结构后视觉：导航/标题/筛选/内容/操作/反馈区；一屏一个主任务。 每页覆盖空/加载/失败/成功/禁用/无权限状态；交互与文案就地标注。 可用 `rules/templates/20-design/prototype-scaffold.html`

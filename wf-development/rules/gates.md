@@ -30,7 +30,7 @@
 | `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，`.gitignore` 写已装包行（多包 `/wf/`）与运行态 `.gate/`，无注释、不预列未装包；其它项只列路径；写档案 §1 并改 `.gitignore` |
 | `confirm_docs_migration` | inbound/工作文档归档、搬迁或临时清理 | 出示分类/覆盖对照/拟归档或清理清单与目标；确认后执行 |
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
-| `confirm_skill_changes` | capabilities/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
+| `confirm_skill_changes` | 能力/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
 | `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 `rules/core/frontend-gate.md`，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
@@ -113,7 +113,7 @@
 | --- | --- | --- |
 | autonomous | 只读、L0 微改、可逆 | 直接做，收尾记录假设；仅保留证据/提交/密钥红线 |
 | notify | L1 常规、清单/节奏未实质变化 | 展示清单/计划后继续，用户可打断 |
-| approve | L2+ 范围/方案/清单实质变化、L3、部署/回滚/回写/提交、skills / capabilities拟变更 | 停：需求基线、**评审方式选择**、方案、清单/节奏、部署、回滚、回写、提交、交接包发送、技能变更 |
+| approve | L2+ 范围/方案/清单实质变化、L3、部署/回滚/回写/提交、技能 / 能力拟变更 | 停：需求基线、**评审方式选择**、方案、清单/节奏、部署、回滚、回写、提交、交接包发送、技能变更 |
 
 低风险动作不要升级为 approve；高风险动作不得降为 notify。红线不被“少问/直跑”覆盖。
 

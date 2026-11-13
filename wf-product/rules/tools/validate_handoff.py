@@ -28,6 +28,14 @@ ID_RE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Z]{2,8}-[A-Z]{2,6}2[A-Z]{2,16}$")
 ID_RE_LOOSE = re.compile(r"^HO-\d{8}-\d{2,3}-[A-Za-z0-9]{2,12}-[A-Za-z0-9]{2,8}2[A-Za-z0-9]{2,20}$")
 KNOWN_TYPES = {"PLAN", "REQ", "DES", "CHG", "BUG", "UAT", "REL", "RETRO", "DEC", "CLAR", "QA", "TEST", "FIX", "OTHER"}
 
+INTERNAL_MARKERS = (
+    "wf-product/", "wf-development/", "wf-testing/",
+    "rules/packets/", "rules/core/", "rules/collaboration/", "rules/templates/",
+    ".gate/", "activeContext", "packet=", "CLAIM:", "handoff-ledger.md",
+    "DEV-IQ", "S5", "S6",
+)
+PLACEHOLDERS = ("{…}", "{workroot}", "{HO-", "{yyyy")
+
 
 def split_row(line: str) -> list[str]:
     cells: list[str] = []
@@ -74,6 +82,17 @@ def main() -> int:
     for sec in SECTIONS:
         if not re.search(rf"^#+\s*.*{re.escape(sec)}", text, flags=re.M):
             errors.append(f"MISSING_SECTION: 00-交接说明.md: {sec}")
+
+    mtext_early = (root / "01-交接清单.md").read_text(encoding="utf-8") if (root / "01-交接清单.md").is_file() else ""
+    for name, body in (("00-交接说明.md", text), ("01-交接清单.md", mtext_early)):
+        if not body:
+            continue
+        for marker in INTERNAL_MARKERS:
+            if marker in body:
+                errors.append(f"INTERNAL_LEAK: {name} 含内部标记 {marker}（删除说明块或改为白话）")
+        for ph in PLACEHOLDERS:
+            if ph in body:
+                errors.append(f"PLACEHOLDER: {name} 未替换 {ph}")
 
     if ID_RE.match(root.name):
         parts = root.name.split("-")

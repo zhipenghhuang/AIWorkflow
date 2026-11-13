@@ -66,12 +66,14 @@
 
 ## 7. 模板与证据
 
-- **填写模板（仅此一份）**：`rules/templates/40-delivery/qa-handoff-template.md`；只读本步用到的节，禁止整文件通读。
+- **填写模板（主）**：`rules/templates/40-delivery/qa-handoff-template.md`；只读本步用到的节，禁止整文件通读。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
 - 失败：停在本步补齐或升级；不得静默跳过。

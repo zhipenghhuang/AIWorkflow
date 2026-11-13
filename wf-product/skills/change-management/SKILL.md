@@ -23,8 +23,8 @@ description: Use when a requirement, question, product defect, or new requiremen
 | 分类 | 判定 | 去向 |
 | --- | --- | --- |
 | 0→1 新产品/新业务 | 无产品定义/立项，需验证问题、市场、用户 | 转 `workflows/new-product.yaml`（discover→go→define） |
-| 新需求 | 已有{workroot}/版本，不在已定稿范围/需求池 | 需求池 `R-xx` → 优先级 → 本期/下期/不做 |
-| 需求变更 | 改动已定稿 PRD 的范围/AC/rules/计划 | 变更单 `CR-xx` → `confirm_change` |
+| 新需求 | 已有产品版本，不在已定稿范围/需求池 | 需求池 `R-xx` → 优先级 → 本期/下期/不做 |
+| 需求变更 | 改动已定稿 PRD 的范围/AC/规则/计划 | 变更单 `CR-xx` → `confirm_change` |
 | 答疑 | 口径已有，只是理解问题 | 书面答复；若影响基线则升级为变更 |
 | 产品缺陷 | 实现符合 PRD/设计，但口径本身不合理/有风险 | 产品决策：立即修 / 下版 / 不修 |
 | 实现缺陷 | 与 PRD/设计不一致（未做/做错/缺段） | 退回开发/测试，不改 PRD |

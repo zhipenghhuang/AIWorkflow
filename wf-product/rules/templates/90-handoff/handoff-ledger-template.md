@@ -1,4 +1,4 @@
-# handoff-ledger.md — {{workroot}/项目}
+# handoff-ledger.md — {产品/项目}
 
 > **用途**：本包所有发出/接收交接的唯一登记；计划只写摘要，详细状态看本表。
 > **规范**：`rules/collaboration/handoff.md` §5/§7；模板 `rules/templates/90-handoff/handoff-ledger-template.md`。

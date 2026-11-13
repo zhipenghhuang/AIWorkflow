@@ -19,7 +19,7 @@
 | `00-onboarding/active-context-template.md` | onboard / 开工无文件时 | 项目根 `activeContext.md`（含 `### 进行中` 快照） |
 | `00-onboarding/root-agents-pointer.md` | onboard.mount | 项目根 AGENTS 包挂载样例（偏好正文由项目自写） |
 | `00-onboarding/wf-agents-routing-template.md` | onboard.mount（多包） | `wf/AGENTS.md` 路由；只列已装包 |
-| `00-onboarding/changelog-template.md` | onboard.docs / control.closeout / release.record | 项目根 `CHANGELOG.md`：产品发版史（用户可见capabilities/破坏性/迁移/安全；开发维护） |
+| `00-onboarding/changelog-template.md` | onboard.docs / control.closeout / release.record | 项目根 `CHANGELOG.md`：产品发版史（用户可见能力/破坏性/迁移/安全；开发维护） |
 | `00-onboarding/work-log-template.md` | onboard.docs / control.closeout / release.record | `{workroot}/work-log.md`：岗位里程碑（含接入/治理）；不写进根 CHANGELOG |
 | `00-onboarding/capability-skill-audit-report-template.md` | skill-audit.propose | `{workroot}/00-governance/能力技能体检-{yyyyMMdd}.md`（工作产物，不进资料区） |
 | `00-onboarding/capabilities/00-capability-inventory.md` | onboard.capabilities | 实例 SSOT 模板：复制到 `{workroot}/capabilities/00-能力清单.md`；绑定按需 `{workroot}/capabilities/绑定/{slot}.md` |

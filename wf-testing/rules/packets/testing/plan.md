@@ -77,13 +77,15 @@
 
 ## 7. 模板与证据
 
-- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
+- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；`rules/templates/10-planning/test-plan-lite-template.md`；`rules/templates/10-planning/user-facing-change-notes-template.md`；`rules/templates/30-execution/test-change-record-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
 - **轻量档**（`plan_tier=lite`，仅补丁/单模块、无新增功能面且 `版本准出=否`）：计划改用 `rules/templates/10-planning/test-plan-lite-template.md`；分析仍用上表分析模板。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
 - 失败：停在本步补齐或升级；不得静默跳过。

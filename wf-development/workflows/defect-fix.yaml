@@ -151,11 +151,10 @@ steps:
     `base_commit`；截图须晚于 `started_at`/验收清单）→ 来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→ 短【实施预检】（DEV-IQ-09；**命中须先扩 SC/债项**）；命中重要面同批硬补（DEV-IQ-10）；勾选
     `iq-checklist.md`；单元=一条 SC；方法 `skills/implementation-and-selftest/SKILL.md`。 按 `skills/cross-layer-consistency/SKILL.md`
     做同类路径扫描：同模型其他写入口、同谓词其他消费方、同权限端点/菜单、同状态其他表面；逐条判「同defects/已正确/不适用」，原单+同类路径各补一条回归；记录根因层/规则缺口。 **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改
-    rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。 实现缺陷→按缺陷修复协作修；产品已认可/修改后认可→按新产品文档/评估单实施；产品改判实现缺陷→按产品说明修，备注引用产品结论。 复杂实施再按
-    `rules/templates/20-design/solution-template.md` 展开，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`；简单修复不强制完整方案，但须更新受影响文档/任务清单。 L1+
-    UI 命中前端硬门 A 级、L2+ / 高风险/大改/破坏性：核验者≠实施者（派 `reviewer-agent` 独立核验或走 `code-review` 技能；只给原单＋diff＋红绿命令；核验不替代门禁），并写 `.gate/review.md`
-    供完成门核对。 **修复分片**（子代理编排）：≥3 单且文件不重叠 → 一组一子代理（worker-agent；文件不相交可并行≤3；同文件/同根因合并组；「同为实现缺陷」alone 不够）；达阈值未分片→deviation=subagent_skipped:<理由>；不达阈值直做；子代理禁
-    commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
+    规则/技能/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。 实现缺陷→按缺陷修复协作修；产品已认可/修改后认可→按新产品文档/评估单实施；产品改判实现缺陷→按产品说明修，备注引用产品结论。 复杂实施再按 `rules/templates/20-design/solution-template.md`
+    展开，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`；简单修复不强制完整方案，但须更新受影响文档/任务清单。 L1+ UI 命中前端硬门 A 级、L2+ / 高风险/大改/破坏性：核验者≠实施者（派 `reviewer-agent`
+    独立核验或走 `code-review` 技能；只给原单＋diff＋红绿命令；核验不替代门禁），并写 `.gate/review.md` 供完成门核对。 **修复分片**（子代理编排）：≥3 单且文件不重叠 → 一组一子代理（worker-agent；文件不相交可并行≤3；同文件/同根因合并组；「同为实现缺陷」alone
+    不够）；达阈值未分片→deviation=subagent_skipped:<理由>；不达阈值直做；子代理禁 commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
 - name: 澄清/非缺陷回写
   id: clarify
   skills: []
@@ -201,6 +200,7 @@ steps:
   skills: []
   must_read:
   - rules/packets/defect-fix/close.md
+  - rules/templates/40-delivery/defect-writeup-template.md
   when: implementation_required
   agent: defect-fixer
   precondition: gates 已 COMPLETE，或 skip_claim 且本地验证摘要已落，或本批无代码/配置改动

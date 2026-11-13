@@ -33,7 +33,7 @@
 | `verify/` | PRD/评审/UAT/变更/回写门 `verify/Invoke-Gate.ps1`、检查矩阵、产物校验脚本；独立可复制 |
 
 > 实例在项目根：`product-profile.md`（含 §3 产品规范要点——固定内联）、`activeContext.md`（含 `### 进行中` 快照）；产出统一在 **`{workroot}/`**；权威文档库为项目级 `docs/materials/`。  
-> **三层**：`inbound/` 原件；`{workroot}/` 工作区（计划/需求池/版本目录/user/handoff/capabilities/过程）；`docs/materials/` 定稿、完整、可发送的权威文档库。  
+> **三层**：`inbound/` 原件；`{workroot}/` 工作区（计划/需求池/版本目录/user/handoff/能力/过程）；`docs/materials/` 定稿、完整、可发送的权威文档库。  
 > **交接**：内容优先、包按需；默认交自洽主文档并实拷 `{workroot}/handoff/outbound/{category}/`；HO 仅多文件/正式签收/仓外/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。多包同仓直读对方出站，禁无意义转发。  
 > **可选联动（不强制）**：本包可独立落地，不要求安装开发/测试包；PRD/立项书/产品计划可作为其输入；工程部署由开发轨执行（如启用），未启用由用户安排。多包同项目共用 `inbound/` 与 `activeContext.md`，本包仍独立执行。  
 > **边界**：产品负责需求、规则、原型、验收；技术架构、技术栈、数据库/API/部署归开发轨（如启用）或由用户安排。  

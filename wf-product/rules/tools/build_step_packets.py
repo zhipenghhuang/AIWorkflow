@@ -207,11 +207,12 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     )
     # Skills → §6（本包技能表）；模板保留真实路径，由 §7 列出。
     text = re.sub(r"`skills/([a-z0-9-]+)/SKILL\.md`", r"§6 `\1`", text)
-    text = re.sub(r"`skills/README\.md`", "技能体检：盘点→适配→拟变更→确认→复检", text)
+    text = re.sub(r"`skills/README\.md`", "技能体检（盘点→适配→拟变更→确认→复检）", text)
     text = rewrite_workflow_refs(text, current_wid)
     text = re.sub(r"技能[：:]\s*§6", "技能见 §6", text)
     text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
     text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
+    text = text.replace("按 技能体检", "按技能体检").replace("与 技能体检", "与技能体检")
     return text
 
 
@@ -387,11 +388,12 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     )
     # Skills → §6（本包技能表）；模板保留真实路径，由 §7 列出。
     text = re.sub(r"`skills/([a-z0-9-]+)/SKILL\.md`", r"§6 `\1`", text)
-    text = re.sub(r"`skills/README\.md`", "技能体检：盘点→适配→拟变更→确认→复检", text)
+    text = re.sub(r"`skills/README\.md`", "技能体检（盘点→适配→拟变更→确认→复检）", text)
     text = rewrite_workflow_refs(text, current_wid)
     text = re.sub(r"技能[：:]\s*§6", "技能见 §6", text)
     text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
     text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
+    text = text.replace("按 技能体检", "按技能体检").replace("与 技能体检", "与技能体检")
     return text
 
 
@@ -513,6 +515,15 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
 }
 
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
+    ("wf-development", "change", "analyze_input"): "rules/templates/10-planning/requirement-understanding-template.md",
+    ("wf-development", "handoff", "compose"): "rules/templates/90-handoff/handoff-note-template.md",
+    ("wf-development", "handoff", "send"): "rules/templates/90-handoff/handoff-package-brief-template.md",
+    ("wf-development", "defect-fix", "close"): "rules/templates/40-delivery/defect-writeup-template.md",
+    ("wf-development", "iterate", "deliver"): "rules/templates/40-delivery/qa-handoff-template.md",
+    ("wf-testing", "handoff", "send"): "rules/templates/90-handoff/handoff-package-brief-template.md",
+    ("wf-product", "change", "intake"): "rules/templates/30-review-change/intake-disposition-template.md",
+    ("wf-product", "prototype", "wireframe"): "rules/templates/20-design/prototype-spec-template.md",
+    ("wf-product", "new-product", "prd"): "rules/templates/10-planning/prd-template.md",
     ("wf-testing", "testing", "plan"): "rules/templates/10-planning/test-plan-template.md",
     ("wf-testing", "testing", "analyze"): "rules/templates/10-planning/test-analysis-template.md",
     ("wf-testing", "testing", "report"): "rules/templates/40-report-review/test-report-template.md",
@@ -661,7 +672,7 @@ def build_skill_index(
     if not skills and not step_conditional:
         return (
             "- 本步无技能指向；按 §5 编排执行。\n"
-            "- 禁止无指向却通读 skills/「找感觉」。"
+            "- 禁止无指向却通读技能库找感觉。"
         )
     lines = [
         "> **技能闭环（硬）**：打开 → **整卡读取**（必做 → 方法/判定 → 反模式/DoD）→ **回到本步骤包**继续门/产出/完成信号。  ",
@@ -1218,7 +1229,7 @@ def render_packet(
     others = [t for t in uniq_tpl if t != primary_tpl]
     if primary_tpl:
         open_lines.append(
-            f"- **填写模板（仅此一份）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
+            f"- **填写模板（主）**：`{primary_tpl}`；只读本步用到的节，禁止整文件通读。"
         )
     if ref_only and uniq_tpl:
         open_lines.append(
@@ -1228,7 +1239,7 @@ def render_packet(
         )
     elif others:
         open_lines.append(
-            "- **参考模板（命中再开，不默认读）**：`" + "`；`".join(others) + "`。"
+            "- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`" + "`；`".join(others) + "`。"
         )
     if not uniq_tpl:
         if card or extra_card:
@@ -1239,6 +1250,10 @@ def render_packet(
             open_lines.append(
                 "- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。"
             )
+    if uniq_tpl:
+        open_lines.append(
+            "- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。"
+        )
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
         _need_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
         verify_line = (
@@ -1269,6 +1284,7 @@ def render_packet(
         claim_line = "- 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。"
     else:
         claim_line = "- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。"
+    tpl_done = "- §2 产出已按模板必填节落地；无空节、无未替换占位符。\n" if uniq_tpl else ""
     return f"""# 步骤卡 · {wid}/{sid}
 
 > 状态 = 本 step；全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）；方法在 §6 指定节（打开→执行→回包）。不读他步 packet / 大手册。
@@ -1306,7 +1322,7 @@ def render_packet(
 ## 8. 完成与退出
 
 {done_line}
-- 本步 hitl 已确认，或 when 条件跳过。
+{tpl_done}- 本步 hitl 已确认，或 when 条件跳过。
 {claim_line}
 - 失败：停在本步补齐或升级；不得静默跳过。
 
@@ -1397,13 +1413,15 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
                 templates.insert(0, primary)
             # 步骤卡没点名模板时，用 templates/index.md 的「用于 step」补参考指针：
             # 门按模板结构判分，卡里却看不到模板 = 按卡执行拿不到结构。
+            # 模板索引 = 单一出处：本步在 index 里挂过的模板都要在 §7 可见；
+            # 已有主模板时补为配套模板，避免“门按结构判分、卡里看不到模板”。
             ref_only = False
-            if not templates:
-                idx_tpls = tpl_index.get((wid, sid), [])
-                if idx_tpls:
-                    templates = list(dict.fromkeys(idx_tpls))
-                    primary = None
-                    ref_only = True
+            idx_tpls = tpl_index.get((wid, sid), [])
+            for t in idx_tpls:
+                if t not in templates:
+                    templates.append(t)
+            if templates and not primary:
+                ref_only = True
             packet_rel = f"rules/packets/{wid}/{sid}.md"
             if sid == "closeout":
                 step["must_read"] = ["rules/packets/_shared/closeout.md"]

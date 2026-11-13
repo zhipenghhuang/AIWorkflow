@@ -39,6 +39,43 @@ def skill_full_bytes(root: Path, name: str) -> int:
     return len(sp.read_text(encoding="utf-8").encode("utf-8"))
 
 
+
+# 术语回归守卫：历史“路径 ASCII 化”曾把中文术语误替换成路径词，
+# 导致规则/模板读不懂、AI 按错语义执行。命中即报错，不静默。
+TERM_ALLOW_WORKROOT = ("输入", "测试用例", "执行台账", "测试脚本", "变更记录", "计划执行看板", "说明-")
+TERM_ALLOW_CAP = ("槽位", "绑定", "装配")
+
+
+def term_regressions(root: Path) -> list[str]:
+    cn = "\u4e00-\u9fa5"
+    p1 = re.compile(r"\{workroot\}/([" + cn + r"][^/\s`，。；|）)]*)")
+    p2 = re.compile(r"[" + cn + r"](?:rules|skills|templates|capabilities)/")
+    p3 = re.compile(r"(?:rules|skills|templates|capabilities)/([" + cn + r"][^/\s`，。；|）)]*)")
+    out: list[str] = []
+    for f in sorted(root.rglob("*")):
+        if not f.is_file() or f.suffix not in (".md", ".yaml"):
+            continue
+        if any(part in f.parts for part in (".draft", ".state", ".gate", "__pycache__")):
+            continue
+        for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            bad = False
+            for m in p1.finditer(line):
+                if not m.group(1).startswith(TERM_ALLOW_WORKROOT):
+                    bad = True
+            if p2.search(line):
+                bad = True
+            for m in p3.finditer(line):
+                if m.group(1).startswith(TERM_ALLOW_CAP):
+                    continue
+                bad = True
+            if bad:
+                out.append(
+                    f"TERM_REGRESSION: {f.relative_to(root)}:{i} 疑似术语被替换成路径词："
+                    f"{line.strip()[:80]}"
+                )
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("root")
@@ -50,6 +87,8 @@ def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
     infos: list[str] = []
+
+    errors.extend(term_regressions(root))
 
     entry_owner: dict[str, str] = {}
 

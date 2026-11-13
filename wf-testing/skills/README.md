@@ -23,7 +23,7 @@
 
 ## 技能质量标准（Skill Anatomy）
 
-> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“rules/技能分离”约束。
+> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“规则/技能分离”约束。
 
 **1. Frontmatter（必填）**
 

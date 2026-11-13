@@ -185,7 +185,7 @@
 | 资源主键 | 名称 | 说明 |
 | ---: | --- | --- |
 | {id} | {资源名（如产线/设备/门店）} | {典型用例编号} |
-| {id} | {资源名} | {capabilities/属性对照} |
+| {id} | {资源名} | {能力/属性对照} |
 | {id} | {受限资源} | 阻断样本 {PREFIX-BLOCK01} |
 
 ---
@@ -365,7 +365,7 @@
 | 对象/域 | 冲突信号（UI/API） | 处置（UI 优先） | 保留例外 / 引用键 |
 | --- | --- | --- | --- |
 | `{主数据A}` | `{保存 400「已启用」/ 多条 ENABLED}` | 先停旧（**A**：toggle + `targetStatus` + `reason`） | `{开放下游单引用}` |
-| `{主数据B}` | `{toggle 假成功}` | **B**：list 行 → `save` `status=DISABLED` | `{rules/配置绑定}` |
+| `{主数据B}` | `{toggle 假成功}` | **B**：list 行 → `save` `status=DISABLED` | `{规则/配置绑定}` |
 | `{角色/权限}` | `{改权未恢复}` | 测后**必须**恢复原 roleId | — |
 
 **形态**：**A** = toggle/status 接口（body 含 `targetStatus` + `reason`）；**B** = save 改 `status`；**C** = UI 停用优先、API 仅交叉验证。

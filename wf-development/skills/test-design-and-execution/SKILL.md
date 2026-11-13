@@ -5,7 +5,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 
 # 测试设计与执行（开发自包含链 · 随包生效）
 
-> 用于：`solo.test`；`solo.test_plan`（测试分析与计划）；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务rules/接口行为时**必用**（见 `lightweight.md` §4.1）。
+> 用于：`solo.test`；`solo.test_plan`（测试分析与计划）；`change.verify` / `iterate.gates` 在无 QA、且触及用户路径/业务规则/接口行为时**必用**（见 `lightweight.md` §4.1）。
 > 目标：用**按风险完整集**做**开发测试/自验**——回答「这次改动能不能用」；大改动/高风险全节，不是堆用例数量，也不是版本准出。
 > 边界：不替代完整测试包的测试计划/用例库/覆盖三闸/准出门；结论用语写「开发测试/自验 / 可交付」，禁写「已准出」。
 > 口径：`rules/core/lightweight.md` §4～§4.1；门禁与证据见 `verify/README.md`；P0 未过不得判整体通过。
@@ -46,7 +46,7 @@ description: Use when a change needs functional testing, acceptance checks, expl
 按顺序展开，不跳：
 
 1. **主路径**：用户从入口到结果的完整故事，至少 1 条成功。
-2. **rules/状态**：合法状态迁移抽样；有状态对象至少 1 条非法跃迁。
+2. **规则/状态**：合法状态迁移抽样；有状态对象至少 1 条非法跃迁。
 3. **边界**：数字/长度/时间/金额/分页取 `min-1 / min / max / max+1` 的代表值。
 4. **权限/数据域**：跨角色/租户至少 1 条；文档未声明时做角色冒烟，不假装已覆盖。
 5. **异常/失败**：空值、重复提交、网络失败、超时、脏数据、依赖不可用。

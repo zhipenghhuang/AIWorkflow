@@ -39,7 +39,7 @@
 
 ### 本步动作清单
 
-- 有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按 技能体检：盘点→适配→拟变更→确认→复检 执行。
+- 有拟改项 → skill_changes_pending=true，出示【拟变更清单】确认后按技能体检：盘点→适配→拟变更→确认→复检 执行。
 - 否则跳过。
 - 改包后**必须**跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`。
 - 改技能另跑 `check_skills.py --strict`。
@@ -49,7 +49,7 @@
 ## 6. 技能指向（打开 → 执行 → 回包）
 
 - 本步无技能指向；按 §5 编排执行。
-- 禁止无指向却通读 skills/「找感觉」。
+- 禁止无指向却通读技能库找感觉。
 
 ## 7. 模板与证据
 

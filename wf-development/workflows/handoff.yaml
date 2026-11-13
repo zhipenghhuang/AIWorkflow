@@ -22,6 +22,7 @@ steps:
   skills: []
   must_read:
   - rules/packets/handoff/compose.md
+  - rules/templates/90-handoff/handoff-note-template.md
   agent: iterate-lead
   hitl: confirm_intent
   hitl_when: intent_needs_confirm
@@ -35,6 +36,7 @@ steps:
   skills: []
   must_read:
   - rules/packets/handoff/send.md
+  - rules/templates/90-handoff/handoff-package-brief-template.md
   agent: iterate-lead
   hitl: confirm_handoff
   hitl_when: handoff_send_required

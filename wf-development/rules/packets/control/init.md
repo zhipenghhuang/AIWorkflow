@@ -108,12 +108,14 @@
 
 ## 7. 模板与证据
 
-- **填写模板（仅此一份）**：`rules/templates/10-planning/development-plan-template.md`；只读本步用到的节，禁止整文件通读。
-- **参考模板（命中再开，不默认读）**：`rules/templates/90-handoff/handoff-ledger-template.md`。
+- **填写模板（主）**：`rules/templates/10-planning/development-plan-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/90-handoff/handoff-ledger-template.md`；`rules/templates/00-onboarding/version-policy-template.md`。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
 - 失败：停在本步补齐或升级；不得静默跳过。

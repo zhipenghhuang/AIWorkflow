@@ -45,7 +45,7 @@
 - 汇总：版本/构建、发布内容、实际步骤、验证结果、观察结论、遗留项、回滚（如有）。
 - readiness=NO-GO 时记录 NO-GO 原因与下一步，不得写“已发布”。
 - 更新 `{workroot}/60-release/发布说明-{版本}.md`、`发布记录-{版本}.md`、根 `CHANGELOG.md`、`{workroot}/INDEX.md`、`activeContext.md`。
-- 根 CHANGELOG：产品发版史（版本/日期 + 用户可见capabilities/破坏性/迁移·兼容/安全；产品语言；禁验证命令/接入/文档治理/过程项——验证写发布记录）。
+- 根 CHANGELOG：产品发版史（版本/日期 + 用户可见能力/破坏性/迁移·兼容/安全；产品语言；禁验证命令/接入/文档治理/过程项——验证写发布记录）。
 - **多包输入**：优先产品对外变化摘要（工作日志「发布决策」/产品发布说明/范围差量）。
 - 无则本包发布说明+缺口一句。
 - **软序**：有产品包宜已有发布决策或等价确认。
@@ -88,11 +88,14 @@
 
 ## 7. 模板与证据
 
-- **填写模板（仅此一份）**：`rules/templates/40-delivery/release-record-template.md`；只读本步用到的节，禁止整文件通读。
+- **填写模板（主）**：`rules/templates/40-delivery/release-record-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/changelog-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/40-delivery/release-notes-template.md`。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
 - 失败：停在本步补齐或升级；不得静默跳过。

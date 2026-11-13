@@ -1,7 +1,7 @@
 # 维护本包（开发轨）
 
 > 只在改包/自检/维护时读；业务任务不读本节。`AGENTS.md` 只留维护指针。  
-> **capabilities/技能体检**（推荐口令「体检能力」）走 `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills），不替代本节自检。
+> **能力/技能体检**（推荐口令「体检能力」）走 `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（含 **discover** 生态检索：`npx skills find` / find-skills），不替代本节自检。
 
 ## 1. 改哪里
 
@@ -17,10 +17,10 @@
 - 模板 → `rules/templates/`
 - 文档质量标准/类型矩阵 → `rules/core/doc-quality.md`
 - 工作记忆/偏好/洞见/坑沉淀 → `rules/core/context-memory.md`（读/写/升级/清理单一出处）
-- 适配：templates / rules / skills 可按项目实际适配；先拟改/原因/影响，用户确认后改本包并登记；能靠产出文档解决的优先改产出
+- 适配：模板 / 规则 / 技能 可按项目实际适配；先拟改/原因/影响，用户确认后改本包并登记；能靠产出文档解决的优先改产出
 - 技能 → `skills/`（**可就地改**；通用最优用口令「通用优化技能」）
 - 能力契约/参考目录 → 包内 `capabilities/`；实例 → `{workroot}/capabilities/`（`rules/capabilities/instance-discipline.md`）
-- capabilities/技能体检流程 → `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
+- 能力/技能体检流程 → `workflows/skill-audit.yaml` + `rules/special/skill-audit.md`（inventory→discover→fit；方法回灌进 `skills/`，外装进 `{workroot}/capabilities/`）
 - 文档树/归档 → `rules/doc-governance.md`
 - 门面/对外句同步 → `rules/core/doc-facade-sync.md`（`project-readme.md` 只留读写偏好；改触发矩阵先改前者）
 - 子代理编排 → `rules/collaboration/subagents.md`（单一出处），workflow/agent 只留指针
@@ -33,7 +33,7 @@
 | 装配能力 | 安装并向 `{workroot}/capabilities/` 写入 |
 | 体检能力（及同义） | 外部能力改 `{workroot}/capabilities/` + 随包技能可改本包；HITL |
 | 通用优化技能 | 同上 workflow，mode=generic（不绑具体项目） |
-| 维护/查询 | 改rules/路由/跑自检；技能能力深度分析转体检口令 |
+| 维护/查询 | 改规则/路由/跑自检；技能能力深度分析转体检口令 |
 
 ## 2. 自检
 
@@ -58,7 +58,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 
 ## 4. 规则撰写标准
 
-新增或保留rules/步骤的标准＝**有用、不冗余（单一出处，其余指针）、不误导、高性价比**；强调集中在不可让项；凡「须确认/询问/固定骨架」处，YAML 步上必须有对应 `hitl`。
+新增或保留规则/步骤的标准＝**有用、不冗余（单一出处，其余指针）、不误导、高性价比**；强调集中在不可让项；凡「须确认/询问/固定骨架」处，YAML 步上必须有对应 `hitl`。
 
 ## 5. 文档粒度
 

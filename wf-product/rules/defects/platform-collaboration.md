@@ -26,7 +26,7 @@ route=workflow:defect | step=… | agent=pm-lead | next_action=LOGIN|LIST|PULL|A
 
 ## 1. 配置与前置
 
-读 `product-profile.md` §7（provider/baseUrl/凭据来源/默认{workroot}/提交方式/备注格式/适配定义/solutionChannel/附件能力）。  
+读 `product-profile.md` §7（provider/baseUrl/凭据来源/默认产品/提交方式/备注格式/适配定义/solutionChannel/附件能力）。  
 若同项目已有开发/测试包配置（`project-profile.md` §3/§4、测试包环境基线 §13），优先复用其 provider、端点和凭据来源；本表只记产品侧差异，不重复存凭据。
 
 | 情况 | 处置 |
@@ -44,7 +44,7 @@ route=workflow:defect | step=… | agent=pm-lead | next_action=LOGIN|LIST|PULL|A
 
 | 口令 | 默认范围 |
 | --- | --- |
-| 拉取/查看/我的产品缺陷 / 指派给我 | 当前产品账号被指派、未关闭的缺陷（含 active / resolved）；按默认{workroot}/项目过滤 |
+| 拉取/查看/我的产品缺陷 / 指派给我 | 当前产品账号被指派、未关闭的缺陷（含 active / resolved）；按默认产品/项目过滤 |
 | 开发评估单 / 待产品评审 | 指派给产品、含开发评估单附件或备注「【产品缺陷·开发评估】」的单；先读评估单全文 |
 | 测试直提产品缺陷 / 产品缺陷待确认 | 测试提交、类型=产品缺陷、指派给产品的单；读相符证明 + 证据 |
 | 点名「产品缺陷 / 待产品确认」 | 先拉指派给当前账号的未关闭单，再按标题/类型/标签/备注分拣；平台有类型字段则叠加过滤 |

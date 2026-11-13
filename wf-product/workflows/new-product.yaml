@@ -69,6 +69,7 @@ steps:
   - ui-visual-design-system
   must_read:
   - rules/packets/new-product/prd.md
+  - rules/templates/10-planning/prd-template.md
   when: go_decision_go
   agent: prd-writer
   output: PRD + 评审记录/原型（{workroot}/{ver}/10-requirements/、20-design/）

@@ -153,12 +153,14 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/40-delivery/lite-test-report-template.md`。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）；有 UI 遵 §5 前端硬门（已内嵌）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
 - 失败：停在本步补齐或升级；不得静默跳过。

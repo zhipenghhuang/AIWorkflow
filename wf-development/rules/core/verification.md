@@ -144,4 +144,4 @@
 - **环境隔离（硬）**：重型测试/capture 前停掉本机后台写入（worker/daemon）或改用独立库/端口；由锁、端口、并发导致的失败按未验证处理并重跑，不得写通过。
 - `-StartTask` 冻结 `base_commit`；门按 base..工作区计 diff（防中途 commit 空门）。截图新鲜度 = max(本轮代码 mtime, task `started_at`)；截图哈希跨路由复用 = 无效。
 - 不复用旧 `completion.json`；高价值低成本默认做（见 `verify/checks.yaml`）。
-- 不为 L0/L1 新增文档；不每个任务通读rules/技能。
+- 不为 L0/L1 新增文档；不每个任务通读规则/技能。

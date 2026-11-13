@@ -96,7 +96,7 @@ provider 生态（可选）：Jira → mcp-atlassian / 官方远程 MCP；GitLab
 **【提交摘要】/§5.2 清单**：写完整平台标题（含前缀）。  
 **提交/写回回执落盘**：本轮门禁凭据=`{ver}/写回回执.md`（与 test-plan 同级固定名；**每轮覆盖只留本轮**。禁追加考古、禁按日另建、禁另开 `defects/`、禁塞 `functional/`）。表内写单号/动作/状态/备注说明/附件回查（含 noteId|actionId|时间）；**新建/交平台单另写 `来源=记录投影|现网补采`、`surface=ui|api|ui+api`、`结构=齐|缺`、`厚度=过|未过`（厚度未过禁标成功；机检 `validate_defect_steps.py` 0 ERROR 可证厚度=过）**；回归写回另附 §7.0 回归范围卡；过 `writeback` 门。历史以平台为准；收尾第 1 点只留 §7.2 短结果块，不复贴全文表。
 
-### 5.0.1～5.0.3 十段结构/HTML templates/禁止（指针）
+### 5.0.1～5.0.3 十段结构/HTML 模板/禁止（指针）
 
 > 见 `rules/templates/30-execution/defect-writeup-template.md`：**§5.0.1a**（执行成稿 Schema）→ §5.0.1～§5.0.3（十段/禁令）；**厚度只认 §5.0.1b**。本文只保留 5.0 字段、**§5.0.1c** 与 5.1 自问。
 

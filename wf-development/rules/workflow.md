@@ -72,7 +72,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ### 2.1 提交节奏、基线检查与粒度
 
 - **提交触发**：任务完成自测/评审后、进入下一任务前、每天/会话结束、diff 超过阈值、长任务/破坏性操作前。  
-- **尽早提交**：rules/契约/大块正文等重要改动经确认后尽早本地提交，勿长期只停在工作区（并行会话或误操作可清空未提交改动）。
+- **尽早提交**：规则/契约/大块正文等重要改动经确认后尽早本地提交，勿长期只停在工作区（并行会话或误操作可清空未提交改动）。
 - **基线检查**：任何新任务开始前先 `git status` 分账——本任务 / 前序任务 / 无关文件；有前序未提交时输出【基线检查】，先提交、隔离（worktree/stash/分支）或记录例外。**未提交默认不得开始下一任务**（例外=基线检查选项 C/D 且用户确认）。
 - **提交范围**：一任务/一逻辑改动一次；禁止 `git add -A` 跨任务混提；本任务代码+测试+文档同批；前序改动单独分批。
 - **阈值**：>20 个文件或 >500 行（不含生成/锁文件）→ 先拆分提交或说明原因并获确认，不得继续堆。
@@ -269,7 +269,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 | handoff-ledger.md | `{workroot}/handoff/handoff-ledger.md` | 唯一登记 |
 | 外部资料 / 原始素材 | `inbound/{ver|topic}/` 或 `inbound/_common/` | 保持原名；见文档治理 §2 |
 | inbound/INDEX.md | `inbound/INDEX.md` | 类型/主题/版本/来源/关联/状态/覆盖关系 |
-| 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见capabilities/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
+| 版本记录 | 项目根 `CHANGELOG.md` | 产品发版史（用户可见能力/破坏性/迁移/安全）；禁止接入/文档治理/过程项 |
 | 工作日志 | `{workroot}/work-log.md` | 开发岗位里程碑（含接入/治理）；≠根 CHANGELOG |
 
 **缺陷处置文档流**：判为**产品缺陷**后 → 评估单落 `{workroot}/00-governance/缺陷评估/`（交产品评审口径）；口径存疑但实现路径清晰 → 评审版方案落 `{workroot}/20-design/BUG优化修复方案/`（与评估单二选一）；产品返回原件落 `inbound/…`；结论摘录到 `{workroot}/00-governance/change-log.md`；实施前按影响更新生命周期目录（`10～80`）/ 计划 / 档案 / 索引 / activeContext（细则见文档治理 / `fix-collaboration.md` §5）。

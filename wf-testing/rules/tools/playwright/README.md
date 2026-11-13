@@ -94,7 +94,7 @@ node {workroot}/scripts/executor.mjs --mode=api --plan={workroot}/scripts/01-xxx
 | API 鉴权 | 多数后端要求 `Authorization: Bearer <token>` **请求头**；仅注入 Cookie 会被 401（实测「未按照指定前缀提交 token」） | `api` 动作已内置 `config.apiHeaders(page)` 钩子（模板已实现：从 localStorage 读 token + Bearer 头） |
 | 存储注入 | 回调函数不能进浏览器（序列化报错）——在 Node 侧先求值再注入 | 模板已按此实现，照抄 |
 | 登录提速 | 登录一次/轮 + 跨场景复用会话；实测 2 条场景（登录 + 真实页面断言）~4s、0 token | 冒烟集直接从登录+首屏断言起步 |
-| **会话守护** | 部分前端在启动期会发一次**未带鉴权头**的接口（如 notifications）→ 401 → 拦截器清 token → 跳登录页（竞态；注入式登录易踩，偶发） | 已内置 `afterNavigate` 钩子 + `applySession` 重注入（templates/示例系统实例均已实现）：会话被清自动恢复，不重新过验证码；**同时这是应用侧缺陷线索，按脚本失败升级纪律交 AI 复核** |
+| **会话守护** | 部分前端在启动期会发一次**未带鉴权头**的接口（如 notifications）→ 401 → 拦截器清 token → 跳登录页（竞态；注入式登录易踩，偶发） | 已内置 `afterNavigate` 钩子 + `applySession` 重注入（模板/示例系统实例均已实现）：会话被清自动恢复，不重新过验证码；**同时这是应用侧缺陷线索，按脚本失败升级纪律交 AI 复核** |
 
 ## 7. CI 落地（可选 · 任意 CI 平台通用）
 

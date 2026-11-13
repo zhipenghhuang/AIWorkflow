@@ -37,7 +37,7 @@ description: Use after a release, iteration, incident, or repeated defect patter
 
 - 每条行动项必须：具体动作 + 负责人 + 截止日期 + 验收标准 + 跟踪位置。  
 - 优先级：先修复“会再次造成同类事故”的系统性缺口；不要只写“加强意识”。  
-- 能落到rules/skills/templates/门禁的，直接改对应文件；不能落地的，建跟踪项。  
+- 能落到规则/技能/模板/门禁的，直接改对应文件；不能落地的，建跟踪项。  
 - 行动项进任务清单或 `{workroot}/80-retrospectives/改进项.md`；下次复盘先对账上次行动项。
 
 ## 5. 输出骨架

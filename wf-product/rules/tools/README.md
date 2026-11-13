@@ -10,7 +10,7 @@
 | `build_step_packets.py` | 由 `workflows/*.yaml` 生成链图/步骤卡；`--check` 只检漂移、不落盘 | `python rules/tools/build_step_packets.py . [--check]` |
 | `validate_step_packets.py` | 步骤卡 9 节结构/技能存在/整卡读取/生成漂移（`Validate-StepPackets.ps1` 入口） | `powershell -File rules/tools/Validate-StepPackets.ps1 -PackageRoot .` |
 | `check_skills.py` | 技能质量：frontmatter/≤500 行/反模式/README 映射 | `python rules/tools/check_skills.py . --strict` |
-| `validate_prd.py` | PRD templates/实例校验 | `python rules/tools/validate_prd.py <PRD.md>` |
+| `validate_prd.py` | PRD 模板/实例校验 | `python rules/tools/validate_prd.py <PRD.md>` |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner product`；按档案 `workroot`，未声明按约定） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner product` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） | `python rules/tools/check_secrets.py .` |
 | `validate_semantics.py` | 语义自检：开局卡结构/global-rules 节/双入口/残句/角色边/预算 | `python rules/tools/validate_semantics.py .` |

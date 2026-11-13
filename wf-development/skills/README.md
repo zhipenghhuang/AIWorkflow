@@ -77,7 +77,7 @@
 
 ## 技能质量标准（Skill Anatomy）
 
-> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“rules/技能分离”约束。新增或大改技能按此验收。
+> 依据 Agent Skills 规范与 addyosmani/agent-skills 的 skill anatomy，结合本包“规则/技能分离”约束。新增或大改技能按此验收。
 
 **1. Frontmatter（必填）**
 
@@ -112,7 +112,7 @@
 2. 跑 `rules/tools/Test-Template.ps1`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`。
 3. 更新包 `AGENTS.md` `template_version`；仅母版仓且有用户可见包能力变化时才更新母版根 `CHANGELOG.md`；业务项目不因改技能写项目根 CHANGELOG；不单独给技能设版本号。
 4. 新增技能必须在本表挂到具体步骤；跨阶段技能挂到所有适用阶段。
-5. **收敛**：长期无 step/`skills_required` 挂载、与相邻技能高度重复 → 并入 `references/` 或合并技能；经「体检capabilities/通用优化技能」确认后再删目录，禁止静默删技能。
+5. **收敛**：长期无 step/`skills_required` 挂载、与相邻技能高度重复 → 并入 `references/` 或合并技能；经「体检能力/通用优化技能」确认后再删目录，禁止静默删技能。
 6. **生态吸收**：经 `skill-audit` discover（`npx skills find` / find-skills）确认后，只**方法回灌**本目录或登记 `{workroot}/capabilities/`；禁止外部 skill 原样并行第二套编排。
 
 **5. 验收清单**

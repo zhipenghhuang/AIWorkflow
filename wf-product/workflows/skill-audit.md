@@ -13,7 +13,7 @@
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `scope` | `onboard-agent` | — | — | 体检范围卡（模式 project/generic、范围、依据） | `inventory` | 停在本步/升级 |
-| 2 | `inventory` | `onboard-agent` | — | — | 库存摘要（capabilities/skills/映射/缺口，含证据） | `discover` | 停在本步/升级 |
+| 2 | `inventory` | `onboard-agent` | — | — | 库存摘要（能力/技能/映射/缺口，含证据） | `discover` | 停在本步/升级 |
 | 3 | `discover` | `onboard-agent` | — | — | 生态检索表（query / 候选 / installs / 吸收动作 / 证据） | `fit` | 停在本步/升级 |
 | 4 | `fit` | `onboard-agent` | — | — | 适配分析表（够用/缺口/过重/冲突/重复/映射断裂/可吸收方法 + 证据） | `propose` | 停在本步/升级 |
 | 5 | `propose` | `onboard-agent` | — | — | {workroot}/00-governance/能力技能体检-{yyyyMMdd}.md（工作产物，不进资料区） | `apply` | 停在本步/升级 |

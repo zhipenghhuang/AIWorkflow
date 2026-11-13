@@ -35,6 +35,7 @@ steps:
   skills: []
   must_read:
   - rules/packets/handoff/send.md
+  - rules/templates/90-handoff/handoff-package-brief-template.md
   agent: test-planner
   hitl: confirm_handoff
   hitl_when: handoff_send_required

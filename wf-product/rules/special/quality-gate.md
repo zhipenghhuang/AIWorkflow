@@ -52,7 +52,7 @@
 
 - PRD（P2+ 全量）：`python rules/tools/validate_prd.py <PRD.md>`；P0/P1 轻量 PRD 走 `rules/core/verification.md` 的最小门，不跑全量 validator。
 - 测试用例：仅当同仓已装测试包且需校验用例时，用其包内 `validate_testcase.py`（模块总览/结构化/步骤定位）；未装则跳过，不阻塞本包
-- 包自检：`rules/tools/Test-Template.ps1`（YAML/引用/锚点/门/capabilities/版本）
+- 包自检：`rules/tools/Test-Template.ps1`（YAML/引用/锚点/门/能力/版本）
 
 ## 6. 审计与改进
 
