@@ -56,6 +56,6 @@ ID / 对象（能力名 | skills/<name> | 生态:<owner/repo@skill>）
 
 ## 5. 纪律
 
-未 HITL 零改动；能力 SSOT=`{workroot}/capabilities/`；浏览器可复用 `docs/testing/capabilities/` 指针。  
+未 HITL 零改动；能力 SSOT=`{workroot}/capabilities/`；浏览器可写 `复用=` 指针到他轨清单/绑定，不复制正文。  
 生态检索证据写入体检报告「生态检索」节；无网络/CLI 不可用 → 记降级并只对照参考目录，不得假装已检索。
 

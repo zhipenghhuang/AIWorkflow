@@ -1,11 +1,11 @@
 # AGENTS.md
 
 > **用途**：产品协作 AI 入口。  
-> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §3 口令表。  
+> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（主模板 1 份；配套模板按产出需要读）；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.05`  
+> **template_version**：`2026.11.13.07`  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -120,5 +120,5 @@
 - **角色边界**：谁负责/能定什么/何时停/向谁升级见 `rules/collaboration/roles.md`；出现职责冲突先查此表，不靠聊天记忆。
 - **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。体检能力确认后可就地改本包技能/能力。
 - **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
-- **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`；包内 `capabilities/00-contract.md`+`capabilities/reference.md` 非真源。纪律 `rules/capabilities/instance-discipline.md`。「装配能力」写实例；「体检能力」含 **discover**（`npx skills find` / find-skills）→ 方法回灌或能力候选，禁外装并行编排。
-- **适度建议（业务会话）**：仅当有证据表明现行技能/能力达不到本任务要求、与清单/档案明显不符、或持续降级损害定稿/准出时，在收尾待确认表附 **至多 1 条**（对象+现象+「说体检能力」）；禁推销清单、禁未确认改技能/能力。同会话同类只提一次。
+- **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`；包内 `capabilities/00-contract.md`+`capabilities/reference.md` 非真源。纪律 `rules/capabilities/instance-discipline.md`。清单 `available` 即用，否则按契约降级；硬触达未接受降级须出【能力缺失】（契约 §2）。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 **discover**（`npx skills find` / find-skills）→ 方法回灌或能力候选，禁外装并行编排。
+- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改技能/能力。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。

@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | `migrate` | `onboard-agent` | — | `confirm_docs_migration` | 迁移清单/更新后的路径 | `mount` | 停在本步/升级 |
 | 2 | `mount` | `onboard-agent` | — | — | 项目根 AGENTS.md 包挂载段（已存在则追加，不覆盖） | `profile` | 停在本步/升级 |
-| 3 | `profile` | `onboard-agent` | — | — | product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板 rules/templates/） | `materials` | 停在本步/升级 |
+| 3 | `profile` | `onboard-agent` | — | — | product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板见 §7） | `materials` | 停在本步/升级 |
 | 4 | `materials` | `onboard-agent` | — | `confirm_iteration_close`、`confirm_docs_migration` | 【入站分析】（确认后登记/A0～A2/发布 materials） | `lifecycle` | 停在本步/升级 |
 | 5 | `lifecycle` | `onboard-agent` | — | `confirm_docs_migration` | 【文档治理检查】（确认后执行更新/归档/清理） | `gitignore` | 停在本步/升级 |
 | 6 | `gitignore` | `onboard-agent` | — | `confirm_gitignore` | .gitignore 更新 + `git check-ignore` 证据 | `capabilities` | 停在本步/升级 |

@@ -85,8 +85,8 @@ python wf-testing/verify/tools/selftest_gate.py
 - **最低能力**：入口自动装载、文件读写、shell、对话式确认门；浏览器自动化按需（功能/探索式）；子代理可选（多模块执行/大文档分片；无 Task 降级直跑）。
 - **入口挂载**：AGENTS.md 系按 `root-agents-pointer.md`；CLAUDE.md 系可用 @ 引用本包 AGENTS。
 - **MCP/Skill 配置**：只写宿主本地/用户级配置；实例选型与绑定写 `{workroot}/capabilities/`。
-- **能力（可选）**：槽位见 `capabilities/00-contract.md`；真源 `{workroot}/capabilities/00-能力清单.md`；缺失按契约降级；未接受降级每次触达出【能力缺失】块。纪律 `rules/capabilities/instance-discipline.md`。
-- **体检能力**：口令「体检能力」→ `skill-audit`；能力改实例，技能可改本包 `skills/`。
+- **能力（可选）**：槽位见 `capabilities/00-contract.md`；真源 `{workroot}/capabilities/00-能力清单.md`；缺失按契约降级；未接受降级每次触达出【能力缺失】块（契约 §2）。纪律 `rules/capabilities/instance-discipline.md`。
+- **体检能力**：口令「体检能力」→ `skill-audit`；能力改实例，技能可改本包 `skills/`。业务收尾可附至多 1 条能力/技能建议（有判据）。
 
 ## 6. 质量与成本
 

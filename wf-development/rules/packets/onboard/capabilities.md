@@ -41,6 +41,7 @@
 - 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。
 - 默认静默：不输出全量工具清单、不冒烟。
 - 首次使用按契约降级（如缺陷 preflight）。
+- 业务触达未装槽按本包 `capabilities/00-contract.md`（硬触达出【能力缺失】；软触达走收尾业务建议）。
 - 仅当用户点名「装配能力」时：对照契约+参考目录+现清单，确认后写入 `{workroot}/capabilities/`。
 - 刷档案 索引。
 - 安装指引见 README「宿主适配」。

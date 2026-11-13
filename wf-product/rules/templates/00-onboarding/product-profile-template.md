@@ -92,5 +92,5 @@
 | 适配定义 | 最小契约：认证 / 列表·查重 / 详情 / 备注 / 状态变更（语义→平台取值）/ 指派 / 附件上传·回查 / 用户查询；`内置 zentao` 仅禅道；其它 provider 禁套禅道路径 |
 | solutionChannel | `{{auto / manual；默认 manual}}` |
 | 附件能力 | `{{支持 / 不支持 / 待适配}}` |
-| 浏览器绑定 | `{{复用 docs/testing/capabilities/… ｜ {workroot}/capabilities/绑定/… ｜ 无}}` |
+| 浏览器绑定 | `{{复用=<他轨清单或绑定路径> ｜ {workroot}/capabilities/绑定/… ｜ 无}}` |
 | 状态/指派映射 | `{{平台状态 ↔ 产品处置：待确认/待开发处理中/已确认/下版/关闭}}` |

@@ -2,7 +2,9 @@
 
 > **定位**：每一步的专业方法与手艺，随本包分发。命中步骤 → 步骤包 §6 打开并**整卡读取**对应 `skills/<name>/SKILL.md` → 按技能标准执行。  
 > **目录结构**：`skills/<name>/SKILL.md`；随包复制、无需安装。  
+> **更新**：可就地改本目录。口令「体检能力」检查/优化（确认后应用）；「通用优化技能」按通用最优。外部工具选型写入实例 `{workroot}/capabilities/`（「装配能力」）。  
 > **格式**：每份技能含 `name` / `description` frontmatter；description 写“做什么 + 何时用 + 中文触发词”；正文为方法/步骤/判定/反模式/验证，单文件目标 ≤500 行。质量标准见本文末节。  
+> **与「能力」的区别**：技能=怎么做（随包必用）；能力选型真源=`{workroot}/capabilities/00-能力清单.md`；包内契约/参考目录非真源。  
 > **与规则的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。
 
 ## 步骤 → 技能映射
@@ -57,8 +59,9 @@
 2. 跑 `rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs`；改引用后跑 `Test-DocHygiene.ps1`；必跑 `check_skills.py <包根> --strict`。
 3. 更新包 `AGENTS.md` `template_version`。
 4. 新增技能必须挂到具体步骤。
+5. **生态吸收**：经 `skill-audit` discover（`npx skills find` / find-skills）确认后，只**方法回灌**本目录或登记 `{workroot}/capabilities/`；禁止外部 skill 原样并行第二套编排。
 
-**5. 验收清单**
+**6. 验收清单**
 
 - [ ] name 与目录一致；description 含 what/when/中文触发。
 - [ ] 有适用/不适用、流程、判定、反模式或反合理化、验证。

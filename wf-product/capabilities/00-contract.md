@@ -37,16 +37,41 @@
 | `experimentation` | experimentation | A/B/灰度 | 实验平台 | 手工+BI | 否 |
 | `product-analytics` | product-analytics | 事件/漏斗 | 分析平台 | 事件字典+SQL | 否 |
 
-## 2. 首缺提示（写入实例清单）
+## 2. 缺失提示（触达可见 · 分档）
 
-| 能力 | 触达 | 提示示例 |
+> 降级可续跑，但不得静默。status / 接受降级见 `rules/capabilities/instance-discipline.md`。`git` 核心缺失 → 停并报告（不用本块替代）。
+
+### 2.1 何时出块
+
+| 条件 | 行为 |
+| --- | --- |
+| 清单 `available` | 静默使用 |
+| **硬触达**未装 / `missing` / `undecided` / 仅 `prompted`（无 `accepted`） | 本战役**首次**命中该槽 → 必出【能力缺失】全块；同战役再触达一行短提醒 |
+| **软触达**未装 | 不出全块；本步因缺能力致产出缩水/定稿风险 ↑ → 收尾「适度建议」至多 1 条 |
+| 「接受降级」/「暂不装」 | `degraded` + `accepted=YYYY-MM-DD`；同会话免全块；新会话/新战役短提醒 |
+| 「装配能力」 | 装成后 `available`，停提示 |
+
+**硬触达**：`defect-platform`（defect / 回写）；本步确需页面取证时的 `browser-automation` / `browser-mcp`；本步确需平台同步时的 `issue-tracker`。  
+**软触达**：其余可选增强（如 `pm-skills`、`design-*`、`doc-suite`、`presentation`、`demo-video`、`gtm` 等）。
+
+### 2.2 全块版式
+
+须单独成段；禁塞进路由行或收尾附注冒充：
+
+```
+【能力缺失】
+- 能力：{名}
+- 影响：{本步做不到的增强面}
+- 现行降级：{§1「缺失时」，须实写}
+- 请选：装配能力 ｜ 接受降级
+```
+
+未选也不阻塞已授权的降级执行，但本回合可见回复须出现该块。
+
+### 2.3 硬触达锚点
+
+| 能力 | 触达 | 降级锚点 |
 | --- | --- | --- |
-| `defect-platform` | defect | 未配置缺陷平台，已按粘贴/导出；需要装说「装配能力」 |
-| `pm-skills` / `spec-clarify` | discover / prd | 未装 PM 技能库，已按包内技能；需要装说「装配能力」 |
-| `design-diagram` | prd | 未装 design-diagram，已按文字；需要装说「装配能力」 |
-| `design-intelligence` / `ui-generation` | prototype | 未装设计增强，已按包内技能+脚手架；需要装说「装配能力」 |
-| `design-review` | prototype review | 未装 design-review，已按包内清单；需要装说「装配能力」 |
-| `doc-suite` | prd / 汇报 | 未装文档导出，已按 Markdown；需要装说「装配能力」 |
-| `presentation` | showcase | 未装演示稿增强，已按包内技能；需要装说「装配能力」 |
-| `demo-video` | showcase | 未装演示视频，已用现场+截图；需要装说「装配能力」 |
-| `gtm` | showcase | 未装 GTM 增强，已按包内模板；需要装说「装配能力」 |
+| `defect-platform` | defect / 回写 | 粘贴/导出；无平台读写 |
+| `browser-automation` / `browser-mcp` | 竞品/后台/反馈页取证 | 用户提供链接/截图 |
+| `issue-tracker` | 需求池同步 | 本地 Markdown |

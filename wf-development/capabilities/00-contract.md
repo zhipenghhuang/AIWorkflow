@@ -45,17 +45,41 @@
 | `a11y` | a11y | 可访问性 | a11y 工具 | 人工 WCAG | 否 |
 | `observability` | observability | 日志指标追踪 | OTel 等 | 基础日志指标 | 否 |
 
-## 2. 首缺提示（写入实例清单）
+## 2. 缺失提示（触达可见 · 分档）
 
-| 能力 | 触达 | 提示示例 |
+> 降级可续跑，但不得静默。status / 接受降级见 `rules/capabilities/instance-discipline.md`。`git` 核心缺失 → 停并报告（不用本块替代）。
+
+### 2.1 何时出块
+
+| 条件 | 行为 |
+| --- | --- |
+| 清单 `available` | 静默使用 |
+| **硬触达**未装 / `missing` / `undecided` / 仅 `prompted`（无 `accepted`） | 本战役**首次**命中该槽 → 必出【能力缺失】全块；同战役再触达一行短提醒 |
+| **软触达**未装 | 不出全块；本步因缺能力致 AC/门证据/提测或发布就绪风险 ↑ → 收尾「适度建议」至多 1 条 |
+| 「接受降级」/「暂不装」 | `degraded` + `accepted=YYYY-MM-DD`；同会话免全块；新会话/新战役短提醒 |
+| 「装配能力」 | 装成后 `available`，停提示 |
+
+**硬触达**：`defect-platform`（缺陷拉取/回写）；`security-scan`（review / release 且命中安全面或发版就绪）；本步确需页面验证时的 `browser-automation` / `browser-mcp`。  
+**软触达**：其余可选增强（如 `planning-and-task-breakdown`、`design-*`、`code-review`、`unit-test-gen`、`mutation-gate`、`release-automation` 等）。
+
+### 2.2 全块版式
+
+须单独成段；禁塞进路由行或收尾附注冒充：
+
+```
+【能力缺失】
+- 能力：{名}
+- 影响：{本步做不到的增强面}
+- 现行降级：{§1「缺失时」，须实写}
+- 请选：装配能力 ｜ 接受降级
+```
+
+未选也不阻塞已授权的降级执行，但本回合可见回复须出现该块。
+
+### 2.3 硬触达锚点
+
+| 能力 | 触达 | 降级锚点 |
 | --- | --- | --- |
-| `planning-and-task-breakdown` | plan | 未装外部拆单，已按包内技能；需要装说「装配能力」 |
-| `design-diagram` | design | 未装 design-diagram，已按纯文本；需要装说「装配能力」 |
-| `design-intelligence` | design | 未装 design-intelligence，已按包内 frontend-design；需要装说「装配能力」 |
-| `design-review` | review | 未装 design-review，已按评分卡；需要装说「装配能力」 |
-| `code-review` | review | 未装 code-review，已用独立核验；需要装说「装配能力」 |
-| `security-scan` | review/release | 未装 security-scan，已按人工清单；需要装说「装配能力」 |
-| `browser-automation` / `browser-mcp` | release | 未配置浏览器自动化，已按手工清单；需要装说「装配能力」 |
-| `unit-test-gen` | implement（逻辑结构面命中或 L2+ 核心模块） | 未装 unit-test-gen，已按手写+门禁；需要装说「装配能力」 |
-| `mutation-gate` | implement（逻辑结构面命中且需加强信号） | 未装 mutation-gate，不以变异为门；需要装说「装配能力」 |
-| `release-automation` | 发版 | 未装 release-automation，已按模板；需要装说「装配能力」 |
+| `defect-platform` | defect-fix / 回写 | provider=无 → 降级 change / 导出 |
+| `security-scan` | review / release（安全面或发版） | 人工清单；非自动 SAST |
+| `browser-automation` / `browser-mcp` | UAT / 冒烟 / 页面验证 | 手工清单 + 证据 |

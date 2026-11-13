@@ -69,9 +69,9 @@ steps:
   skills: []
   must_read:
   - rules/packets/onboard/profile.md
-  - rules/templates/00-onboarding/active-context-template.md
+  - rules/templates/00-onboarding/product-profile-template.md
   agent: onboard-agent
-  output: product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板 rules/templates/）
+  output: product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板见 §7）
   notes: '**按实填档（硬）**：建档前有界探查（`{workroot}/`、既有 PRD/计划/用户材料若有）。档案第一节须含一句话定位、目标用户、workroot（未声明按约定）、`integration_level`（绿场默认
     I3，存量必问）、`inbound_structure`（默认 mix）；第二～四节据实填或「无」/「待确认」； `流程偏好` 按计划与 PRD 存量推断（轻量优先/完整优先；用户可改，不额外提问；轻量≠降 AC/门/评审）。**禁止**占位符未换就打「wf-product
     onboard: done」。 有根 `README.md` 则按**其实际结构**择要取用；细则见 `rules/core/project-readme.md`。根 README 按用户偏好选档后写（模板仅素材）；已有不覆盖；点名生成/更新/整理时对照市面高标准给可选补强。
@@ -131,8 +131,9 @@ steps:
   - rules/packets/onboard/capabilities.md
   agent: onboard-agent
   output: '{workroot}/capabilities/00-能力清单.md（默认静默；点名装配时另出建议）'
-  notes: 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。 默认静默：不输出全量工具清单、不冒烟；首次使用按契约降级。
-    仅当用户点名「装配能力」时：对照契约+参考目录+现清单，确认后写入 `{workroot}/capabilities/`；刷档案 索引；安装指引见 README「宿主适配」。 禁强推、禁写回包内契约。
+  notes: 若无 `{workroot}/capabilities/`：自 `rules/templates/00-onboarding/capabilities/` 复制骨架（不覆盖已有清单正文）。 默认静默：不输出全量工具清单、不冒烟；首次使用按契约降级；业务触达未装槽按本包
+    `capabilities/00-contract.md`（硬触达出【能力缺失】；软触达走收尾业务建议）。 仅当用户点名「装配能力」时：对照契约+参考目录+现清单，确认后写入 `{workroot}/capabilities/`；刷档案
+    索引；安装指引见 README「宿主适配」。 禁强推、禁写回包内契约。
 - name: 核验与打标
   id: verify
   skills: []

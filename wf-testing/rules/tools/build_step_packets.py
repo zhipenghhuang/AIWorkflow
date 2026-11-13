@@ -571,6 +571,8 @@ PLAN_DUAL_TEMPLATES = (
 )
 
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
+    ("wf-product", "onboard", "profile"): "rules/templates/00-onboarding/product-profile-template.md",
+    ("wf-development", "onboard", "docs"): "rules/templates/00-onboarding/workspace-index-template.md",
     ("wf-development", "change", "analyze_input"): "rules/templates/10-planning/requirement-understanding-template.md",
     ("wf-development", "handoff", "compose"): "rules/templates/90-handoff/handoff-note-template.md",
     ("wf-development", "handoff", "send"): "rules/templates/90-handoff/handoff-package-brief-template.md",
@@ -1571,7 +1573,7 @@ def process_package(root: Path, pack_label: str, only: set[str] | None = None) -
             emit(packet_path, body)
             new_mr = [packet_rel]
             if pack_key == "wf-testing" and wid == "testing" and sid == "plan":
-                for t in templates:
+                for t in PLAN_DUAL_TEMPLATES:
                     if t and t not in new_mr:
                         new_mr.append(t)
             elif primary and primary not in new_mr:

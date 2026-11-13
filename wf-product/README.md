@@ -101,7 +101,7 @@ wf-product/rules/tools/Test-Template.ps1
 
 - **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；子代理（按 `rules/collaboration/subagents.md`：达阈值分片/适当并行≤3/超时降级）、MCP 按需。  
 - **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-onboarding/root-agents-pointer.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。
-- **能力（可选）**：槽位见 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`。清单 available 即用，否则降级；档案 §6 仅索引；点名「装配能力」写入实例。纪律：`rules/capabilities/instance-discipline.md`。  
-- **体检能力**：口令「体检能力」等 → `skill-audit`：能力改 `{workroot}/capabilities/`，技能可改本包 `skills/`。
+- **能力（可选）**：槽位见 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`。清单 available 即用，否则降级；硬触达未接受降级出【能力缺失】（契约 §2）；档案仅索引；点名「装配能力」写入实例。纪律：`rules/capabilities/instance-discipline.md`。  
+- **体检能力**：口令「体检能力」等 → `skill-audit`：能力改 `{workroot}/capabilities/`，技能可改本包 `skills/`。业务收尾可附至多 1 条能力/技能建议（有判据）。
 - **MCP 配置落点**：只写宿主本地/用户级配置（路径以宿主官方文档为准）；禁项目内配置作规范入口。  
 - **缺陷平台（可选）**：禅道/Jira/ONES 的 MCP/API 配置只写宿主本地/用户级配置；`product-profile.md` §7 只记 provider/凭据来源/适配定义；未配置走粘贴/export，不阻塞。

@@ -69,9 +69,6 @@ steps:
   - rules/packets/testing/plan.md
   - rules/templates/10-planning/test-analysis-template.md
   - rules/templates/10-planning/test-plan-template.md
-  - rules/templates/10-planning/test-plan-lite-template.md
-  - rules/templates/10-planning/user-facing-change-notes-template.md
-  - rules/templates/30-execution/test-change-record-template.md
   agent: test-planner
   gate: coverage-map
   gate_type: machine

@@ -1,12 +1,12 @@
 # AGENTS.md
 
 > **用途**：测试规范 AI 入口。  
-> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §2 口令表。  
+> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（主模板 1 份；配套模板按产出需要读）；未路由时用 §2 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → **先打开** `activeContext.packet=` 步骤卡（未打开=未开跑本步）→ 首行锚按 `rules/core/cold-start.md` §3 字段（`global=dev:…` 表偏离；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.12`  
+> **template_version**：`2026.11.13.14`  
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 
@@ -32,7 +32,7 @@
 步骤门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`；开工档位/读链只认 `global-rules.md`；澄清**方法**按需读 `clarification.md`（参考层）。  
 **路径**：T0～T3 为内部风险标签，按 `gates.md` §4 的事实判定；补丁/单模块、无新增功能面且不承担版本准出可轻量（命中 T3 面按专项），其余默认完整；路径拿不准按完整。勿与开发 L* / 产品 P* 混用。  
 **路由硬门**：无 `{workroot}/{ver}/test-analysis.md` 不得写计划、不得执行；`test-plan.md` 为唯一总排；完成只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`（P0 未过或意图未终态不得整体通过）。缺 `env-baseline` 先接入。  
-**读法（硬）**：路由后只读**当前步骤卡 + §6 必开技能（整卡）+ 步骤卡 §7 点名的模板（通常 1 份；分析/计划成对时按 §7 顺序）**；分析/执行/报告硬门槛以本步步骤卡为准，不跳转拼手册。
+**读法（硬）**：路由后只读**当前步骤卡 + §6 必开技能（整卡）+ 步骤卡 §7 点名的模板（主 1 份 + 配套按需；分析/计划成对时按 §7 顺序）**；分析/执行/报告硬门槛以本步步骤卡为准，不跳转拼手册。
 
 ## 1. 接入
 
@@ -106,5 +106,5 @@
 - **角色边界**：见 `rules/collaboration/roles.md`；出现职责冲突先查此表。
 - **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。
 - **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
-- **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`（常青）；包内 `capabilities/00-contract.md` 只定义槽位。清单 available 即用，否则按契约降级；未接受降级每次触达出【能力缺失】块。能力不替代技能。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 discover，禁外装绕过分析/oracle。
-- **适度建议**：仅当有证据表明技能/能力达不到要求时，收尾附至多 1 条；禁推销、禁未确认改 skills/capabilities。能力缺失全块不受限制。
+- **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`（常青）；包内 `capabilities/00-contract.md` 只定义槽位。清单 available 即用，否则按契约降级；未接受降级每次触达出【能力缺失】块（契约 §2）。能力不替代技能。纪律 `rules/capabilities/instance-discipline.md`。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 discover，禁外装绕过分析/oracle。
+- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改 skills/capabilities。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。

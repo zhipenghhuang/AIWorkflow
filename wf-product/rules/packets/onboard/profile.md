@@ -14,7 +14,7 @@
 ## 2. 本步目标
 
 - **目标**：产品档案与上下文
-- **产出**：product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板 rules/templates/）
+- **产出**：product-profile.md · activeContext.md · {workroot}/work-log.md（如无）·（模板见 §7）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -90,8 +90,8 @@
 
 ## 7. 模板与证据
 
-- **填写模板（主）**：`rules/templates/00-onboarding/active-context-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/00-onboarding/workspace-index-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/00-onboarding/product-profile-template.md`；`rules/templates/00-onboarding/project-readme-template.md`。
+- **填写模板（主）**：`rules/templates/00-onboarding/product-profile-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/active-context-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/00-onboarding/workspace-index-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/00-onboarding/project-readme-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

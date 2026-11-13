@@ -1,12 +1,12 @@
 # AGENTS.md
 
 > **用途**：开发协作 AI 入口。  
-> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §3 口令表。  
+> **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（主模板 1 份；配套模板按产出需要读）；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚按 `rules/core/cold-start.md` §3 字段（`global=dev:…` 表偏离；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.10`  
+> **template_version**：`2026.11.13.12`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：门末自动输出 `CLAIM: ALLOWED`（`-Claim` 仅复核）；无 ALLOWED 不写完成。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
@@ -116,9 +116,13 @@
 
 工作根/原件根/换迭代：`doc-governance.md`。根 `CHANGELOG.md`=产品发版史；`{workroot}/work-log.md`=岗位里程碑。
 
-## 6. 技能与能力
+## 6. 技能与能力（按步加载）
 
-命中步必读 `skills/<name>/SKILL.md`（整卡读取）。能力实例 SSOT=`{workroot}/capabilities/00-能力清单.md`。
+- **角色边界**：见 `rules/collaboration/roles.md`；职责冲突先查此表。
+- **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。体检能力确认后可就地改本包 `skills/`。
+- **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
+- **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`；包内 `capabilities/00-contract.md`+`capabilities/reference.md` 非真源。纪律 `rules/capabilities/instance-discipline.md`。清单 `available` 即用，否则按契约降级；硬触达未接受降级须出【能力缺失】（契约 §2）。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 discover → 方法回灌或能力候选，禁外装并行编排。
+- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改 skills/capabilities。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。
 
 ## 7. 多包
 

@@ -549,6 +549,8 @@ STEP_CARDS_APPEND: dict[tuple[str, str, str], str] = {
 }
 
 TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
+    ("wf-product", "onboard", "profile"): "rules/templates/00-onboarding/product-profile-template.md",
+    ("wf-development", "onboard", "docs"): "rules/templates/00-onboarding/workspace-index-template.md",
     ("wf-development", "change", "analyze_input"): "rules/templates/10-planning/requirement-understanding-template.md",
     ("wf-development", "handoff", "compose"): "rules/templates/90-handoff/handoff-note-template.md",
     ("wf-development", "handoff", "send"): "rules/templates/90-handoff/handoff-package-brief-template.md",
