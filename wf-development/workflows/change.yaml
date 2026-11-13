@@ -77,8 +77,8 @@ steps:
   hitl: confirm_requirements
   hitl_when: requirements_need_confirm
   output: 需求基线（{workroot}/10-requirements/）
-  notes: 以理解包为输入、引用不重写；基线每条 AC 带方案来源（文件+章节/画板），供实施按方案→分析理解→实施择优（DEV-IQ-22）；只收 DEV-AC；GAP/冲突必须继承；未签收不得进设计/排期；L2+ 跳过 design
-    时基线仍须经 review-docs。
+  notes: 以理解包为输入、引用不重写；基线每条 AC 带方案来源（文件+章节/画板），供实施按方案→分析理解→实施择优（DEV-IQ-22）；只收 DEV-AC；GAP/冲突必须继承；未签收不得进设计/排期；L2+ 若 design 因
+    when 假被跳过，基线仍须经 review-docs。
 - name: 方案与设计
   id: design
   skills:
@@ -86,6 +86,8 @@ steps:
   - engineering-quality
   skills_conditional:
     cross-layer-consistency: 命中权限/状态/数据基数/多表面
+    threat-modeling: 命中鉴权/权限/敏感数据/上传/回调/公共 API/资金/AI
+    performance-and-capacity: 命中列表/批量/导出/循环查库/无界集合/统计/首屏/高并发
   must_read:
   - rules/packets/change/design.md
   - rules/templates/20-design/solution-template.md

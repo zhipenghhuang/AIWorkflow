@@ -30,7 +30,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | --- | --- | --- | --- |
 | `analysis-structure` | coverage/execute/report | `test-analysis.md`：来源盘点、章节回执、依据覆盖、**§2.1 意图台账**、§2.1.1 设计点账本、覆盖/方法矩阵、细节维、影响面、核心链路、风险、§6；**账本不得为空表**；§1.1 的已映射/总数须被 §1.2/§1.3/§2.1.1 实际行数支撑；§2.2/§2.3/§2.4 的 INT 须∈台账；§4 缺口表、§5.2 变更追溯、§6 11 项齐全 | FAIL（三模式同硬） |
 | `env-baseline` | coverage/execute/report | `env-baseline.md` 存在且含项目身份/§1 登录/§4 或 §2.2 账号/§8 浏览器结构；缺失或空壳 → 不跑 | FAIL |
-| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 章程数；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
+| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 风险面/假设；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
 | `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`（写「全部」视为覆盖）；T1+ 功能细节维不得全否 | FAIL |
 | `plan-state` | execute/report | §0 计划状态 ∈ 已确认/执行中/待关闭 | FAIL |
 | `batch-coverage` | execute | 记录 §0 批次 ID 在计划 §3.1；该批意图范围已被场景覆盖（写「全部」的批只校验批次存在） | FAIL |
@@ -43,7 +43,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `intent-scenes` | report | 每个 `处置=测` 意图在场景表出现；只有 §3 结论无场景 → FAIL | FAIL |
 | `intent-conclusion` | execute/report | 每个意图有终态（通过/失败/阻塞/待实现/N/A）；P1/P2 未测同样失败 | FAIL |
 | `p0-missing` | report | 分析中 P0 意图无场景执行 | FAIL；execute 仅批内 |
-| `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（章程+风险点/会话；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
+| `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（风险假设+检查点/会话；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
 | `report-structure` | report | 报告 §0～§5、§2.1/§2.2 计数、§2.3 覆盖与收口、§4 缺口；§2.2 通过/失败/阻塞/待实现与执行记录一致；细节维 x/16 对分析适用数；原文对账未关>0 不得 PASS；suite/depth 对计划；结论唯一 | FAIL |
 | `report-verdict` | report | 准出可解析；与 P0/意图终态/失败一致；发版 PASS 须 full/full | FAIL |
 | `conditional-acceptor` | report | CONDITIONAL 须 §4 缺口表非空接受人（须用户确认口径，Q19；门检结构非空） | FAIL |

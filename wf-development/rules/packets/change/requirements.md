@@ -49,7 +49,7 @@
 - 只收 DEV-AC。
 - GAP/冲突必须继承。
 - 未签收不得进设计/排期。
-- L2+ 跳过 design 时基线仍须经 review-docs。
+- L2+ 若 design 因 when 假被跳过，基线仍须经 review-docs。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
 

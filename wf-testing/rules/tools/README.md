@@ -14,7 +14,7 @@
 | `playwright/config.template.mjs` | 脚本档适配配置模板（复制为项目 `{workroot}/scripts/case-executor.config.mjs`） |
 | `validate_testcase.py` | 功能执行记录机检（原文对账/场景表/Oracle/证据/结果） |
 | `validate_api_testcase.py` | 接口执行记录机检（原文对账/契约表/场景表/§2.1 维表/成功字段 Oracle/depth 底线/证据） |
-| `validate_defect_steps.py` | 缺陷十段 steps 交平台前机检（十段+§5.0.1b 标记+路径泄漏+HTML 版式；0 ERROR 才可 POST/PUT） | `python rules/tools/validate_defect_steps.py <steps.html\|txt\|->` |
+| `validate_defect_steps.py` | 缺陷十段 steps 交平台前机检（顺序/唯一/非空+厚度：摘要四行/环境三行/复现≥3/实际·预期≥2/设计对照/技术附记+标题+HTML 版式+路径泄漏；0 ERROR 才可 POST/PUT） | `python rules/tools/validate_defect_steps.py <steps.html\|txt\|->` |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner testing`；按基线 `workroot`，未声明按约定） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner testing` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） |
 | `validate_semantics.py` | 语义自检：开局卡结构/global-rules 节/双入口/残句/角色边/预算 | `python rules/tools/validate_semantics.py .` |

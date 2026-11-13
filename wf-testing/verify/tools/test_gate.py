@@ -26,7 +26,7 @@ STATUSES = {"未执行", "通过", "失败", "阻塞", "待实现", "不适用",
 FAIL_STATUSES = {"失败", "阻塞", "待实现"}
 FAIL_DETAIL_LABELS = (
     "**问题标题**", "**分类", "**一句话影响**", "**最小复现**", "**环境**",
-    "**测试数据", "**问题**", "**复现**", "**实际**", "**预期**",
+    "**测试数据", "**问题**", "**业务后果**", "**复现**", "**实际**", "**预期**",
     "**接口判定**", "**设计对照**", "**入口指纹**", "**技术附记**",
 )
 INT_ID_RE = re.compile(r"\bINT-[A-Z0-9-]+\b")
@@ -366,7 +366,25 @@ def track_record_substance(path: Path, kind: str) -> bool:
     if len(body) < 80:
         return False
     if kind == "exploratory":
-        return ("章程" in body) and (("覆盖" in body) or ("会话" in body) or ("风险点" in body))
+        has_basis = ("章程" in body) or ("风险假设" in body)
+        t = None
+        for headers, data_rows in tables(body):
+            if any(("检查点" in h or "风险点" in h) for h in headers) and any("结论" in h for h in headers):
+                t = (headers, data_rows)
+                break
+        if not t:
+            return False
+        headers, _data = t
+        rows = table_rows(t)
+        if len(rows) < 3:
+            return False
+        if any(is_blank(cell(r, headers, "结论")) for r in rows):
+            return False
+        has_close = bool(
+            re.search(r"(保留|换题|补测|沉淀)\s*[：:]\s*(?!\{)\S", body)
+            or re.search(r"拟补(锚点|意图)\s*[：:]\s*(?!\{)\S", body)
+        )
+        return has_basis and has_close
     if kind == "api":
         has_ep = ("契约" in body) or bool(re.search(r"\bEP[-_A-Z0-9]", body))
         has_sc = ("场景" in body) or bool(re.search(r"\bSC[-_A-Z0-9]", body))
@@ -780,6 +798,24 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
             if not row_has_int:
                 issues.append(f"§2.2「{row[0]}」整行 N/A（至少一个面须有 INT/场景）")
 
+    # §2.2.1 quality characteristics (ISO 25010, risk-scoped)
+    block221 = subsection(text, "2.2.1")
+    t221 = pick_table(block221, ["质量特性", "适用"])
+    if not t221:
+        issues.append("§2.2.1 质量特性适用性表缺失（八类按风险裁剪；不适用写依据）")
+    else:
+        headers, rows = t221
+        rows_n = len(table_rows(t221))
+        if rows_n < 4:
+            issues.append(f"§2.2.1 质量特性表仅 {rows_n} 行（至少覆盖适用类；漏整类须依据）")
+        for row in table_rows(t221):
+            app = cell(row, headers, "适用")
+            if is_blank(app):
+                issues.append(f"§2.2.1「{row[0]}」缺适用判断")
+            elif re.search(r"否|N/A|不适用", app, re.I):
+                if is_blank(cell(row, headers, "不适用依据")):
+                    issues.append(f"§2.2.1「{row[0]}」不适用须写依据")
+
     # §2.3 method matrix
     block23 = subsection(text, "2.3")
     t23 = pick_table(block23, ["规则/计算", "算例"])
@@ -804,7 +840,7 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                     for ref in longest_int_refs(val):
                         if not intent_ref_ok(ref, intents):
                             issues.append(f"§2.3「{row[0]}」第{j}列 INT {ref} 不在 §2.1 台账")
-            method_cols = ("等价类", "边界", "判定表/组合", "状态迁移", "场景", "算例")
+            method_cols = ("等价类", "边界", "判定表/组合", "状态迁移", "场景", "算例", "其他方法")
             if not any("INT-" in cell(row, headers, name).upper() for name in method_cols):
                 issues.append(f"§2.3「{row[0]}」方法列无 INT（只填意图列不算方法覆盖）")
 
@@ -987,6 +1023,8 @@ def parse_plan(path: Path) -> dict[str, Any]:
     tracks: dict[str, str] = {}
     charter_rows = 0
     charter_done = 0
+    charter_missing_records: list[str] = []
+    charter_unclosed: list[str] = []
     mtier = re.search(r"plan_tier\s*=\s*(full|lite)", text[:3000], re.I)
     tier = (mtier.group(1).lower() if mtier
             else ("lite" if "测试计划（轻量）" in text[:3000] else "full"))
@@ -1052,6 +1090,9 @@ def parse_plan(path: Path) -> dict[str, Any]:
             risk_tier = "T0"
         else:
             issues.append("§0 缺风险档 T0～T3")
+    basis_cell = next((v for k, v in kv0.items() if "档位依据" in k), "")
+    if not basis_cell or len(basis_cell) < 6 or "{" in basis_cell:
+        issues.append("§0 缺档位依据（T?/suite/depth/发布前风险级事实句；降档写依据+接受人）")
     counts: dict[str, int] = {}
     analysis_cell = next((v for k, v in kv0.items() if "分析文件" in k), "")
     if not analysis_cell:
@@ -1363,23 +1404,43 @@ def parse_plan(path: Path) -> dict[str, Any]:
                     issues.append(f"§4.3 缺 {axis} 收口行")
                 elif is_blank(cell(hit, headers, "着落")):
                     issues.append(f"§4.3 {axis} 缺着落（写 INT/章程/不测+接受人）")
-    # §3.2 charters: T1+ full plan must list enough charters
+    # §3.2 risk surfaces: T1+ full plan lists risk surfaces; count follows risk, not a fixed floor
     if tier == "full" and outing != "补丁" and risk_tier in ("T1", "T2", "T3"):
-        t_charter = pick_table(subsection(text, "3.2"), ["轴", "章程"])
+        t_charter = (
+            pick_table(subsection(text, "3.2"), ["风险面", "状态"])
+            or pick_table(subsection(text, "3.2"), ["轴", "章程"])
+        )
         if not t_charter:
-            issues.append("§3.2 探索式章程表缺失（T1+ 须 ≥3 条，T2/T3 ≥4 条，或 N/A+依据+接受人）")
+            issues.append("§3.2 探索风险面表缺失（T1+ 须列风险面/假设；整轨 N/A 须 §0+接受人）")
         else:
             headers, rows = t_charter
+            joined = " ".join(headers)
             charter_rows = len(table_rows(t_charter))
+            if charter_rows == 0:
+                issues.append("§3.2 探索风险面表为空（须列高风险面/假设）")
+            elif charter_rows < 4:
+                sec32 = subsection(text, "3.2")
+                if not re.search(r"按事实|接受人\s*[=:：]|用户确认", sec32):
+                    issues.append(f"§3.2 探索风险面仅 {charter_rows} 行（T1+ 最少 4 行；确实更少须写「按事实仅 N 面+用户确认」）")
             for row in table_rows(t_charter):
-                if is_blank(cell(row, headers, "章程")):
-                    issues.append(f"§3.2「{row[0]}」缺章程")
-                st = cell(row, headers, "状态")
-                if re.search(r"已跑|完成|闭环", st):
+                if "章程" in joined:
+                    if is_blank(cell(row, headers, "章程")):
+                        issues.append(f"§3.2「{row[0]}」缺章程")
+                else:
+                    if is_blank(cell(row, headers, "风险假设")) and is_blank(cell(row, headers, "检查点")):
+                        issues.append(f"§3.2「{row[0]}」缺风险假设/检查点")
+                st = cell(row, headers, "状态") if "状态" in headers else ""
+                if re.search(r"已跑|本场|完成|闭环", st):
                     charter_done += 1
-            need = 4 if risk_tier in ("T2", "T3") else 3
-            if charter_rows < need:
-                issues.append(f"§3.2 探索章程仅 {charter_rows} 条，{risk_tier} 须 ≥{need} 条")
+                    if "记录" in joined and is_blank(cell(row, headers, "记录")):
+                        charter_missing_records.append(str(row[0]))
+                elif re.search(r"下场|待跑|未跑", st):
+                    charter_unclosed.append(str(row[0]))
+                elif not st:
+                    issues.append(f"§3.2「{row[0]}」缺状态")
+            for axis in ("S6", "S7", "S11"):
+                if axis not in subsection(text, "3.2"):
+                    issues.append(f"§3.2 高风险面缺 {axis}（无面对写 N/A+事实句+接受人）")
     if tier == "full":
         for label in ("构建封板", "数据快照"):
             if not re.search(rf"^\|\s*{label}\s*\|\s*\S", text, re.M):
@@ -1413,7 +1474,9 @@ def parse_plan(path: Path) -> dict[str, Any]:
             "counts": counts, "suite": suite, "depth": depth,
             "batch_intents": batch_intents, "batch_all": batch_all,
             "batches": batches, "batch_all_ids": batch_all_ids, "tracks": tracks,
-            "charter_rows": charter_rows, "charter_done": charter_done}
+            "charter_rows": charter_rows, "charter_done": charter_done,
+            "charter_missing_records": charter_missing_records,
+            "charter_unclosed": charter_unclosed}
 
 
 # ---------- records ----------
@@ -1642,9 +1705,11 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                 if "**证据**" not in sec:
                     issues.append(f"{path.name}: {sc} 产品缺陷缺证据（相符证明须绑定证据）")
 
-    # 功能记录 §1.1：正向/负向/状态/权限/幂等/UI 至少给 SC 或 N/A+依据
+    # 功能记录 §1.1：正向/负向/状态/权限/幂等/UI + 同源/入口空态/终态 + 方法
     if table and not is_api:
-        for cat in ("正向", "关键负向/失败", "状态/非法跃迁", "权限/数据域", "幂等/并发/恢复/对账", "UI/视觉"):
+        if not re.search(r"(?m)^\s*[-*]\s*方法\s*[:：]\s*\S", text):
+            issues.append(f"{path.name}: 缺 §1.1 方法行（SC=方法；P0 至少两种或单方法依据）")
+        for cat in ("正向", "关键负向/失败", "状态/非法跃迁", "权限/数据域", "幂等/并发/恢复/对账", "UI/视觉", "同源对账", "入口/空态", "终态"):
             mline = re.search(rf"(?m)^\s*[-*]\s*{re.escape(cat)}\s*[:：]\s*(.+)$", text)
             if not mline:
                 issues.append(f"{path.name}: 缺 §1.1 场景覆盖说明「{cat}」")
@@ -2171,6 +2236,8 @@ def parse_writeback(test_root: Path) -> dict[str, Any]:
             issues.append("新建/平台交单回执缺 surface=ui|api|ui+api")
         if not re.search(r"十段\s*[=:：]\s*(齐|缺)", text):
             issues.append("新建/平台交单回执缺 十段=齐|缺")
+        if not re.search(r"厚度\s*[=:：]\s*(过|未过)", text):
+            issues.append("新建/平台交单回执缺 厚度=过|未过（机检 validate_defect_steps 0 ERROR 才可标过）")
     issues.extend(_regression_card_issues(text))
     return {"issues": issues, "path": str(receipt)}
 
@@ -2544,8 +2611,14 @@ def main() -> int:
                 if exp_bad:
                     missing_tracks.append("探索空壳：" + "、".join(exp_bad[:3]))
                 done = int(plan.get("charter_done") or 0)
-                if done and len(exp_ok) < done:
-                    missing_tracks.append(f"探索已跑{done}但实质记录{len(exp_ok)}")
+                if done and not exp_ok:
+                    missing_tracks.append("探索已跑但无实质记录")
+                miss_rec = plan.get("charter_missing_records") or []
+                if miss_rec:
+                    missing_tracks.append("探索已跑缺记录列：" + "、".join(miss_rec[:3]))
+                unclosed = plan.get("charter_unclosed") or []
+                if unclosed and plan.get("risk_tier") in ("T1", "T2", "T3"):
+                    missing_tracks.append("探索风险面未闭环：" + "、".join(unclosed[:3]))
             if track_on("发布前"):
                 pr_scheme = [p for p in current_md if "/pre-release/" in rel(p) and p.name.endswith("测试方案.md")]
                 pr_report = [p for p in current_md if "/pre-release/" in rel(p) and p.name.endswith("test-report.md")]

@@ -5,7 +5,7 @@
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.04`  
+> **template_version**：`2026.11.13.05`  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -25,12 +25,12 @@
 
 门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`（不依赖 step）；开工档位/读链只认 `global-rules.md`；澄清**方法**按需读 `clarification.md`（参考层；理解→方案双确认门仍硬）。
 
-> P0～P3 为内部风险标签，按 `gates.md` §2「P 档推导」的事实判定（不凭感觉），**路径拿不准走全量**；档位不替代用户确认。
+> P0～P3 为内部风险标签，按 `gates.md` §2「P 档推导」的事实判定（不凭感觉），**路径拿不准走全量**；档位不替代用户确认。P0～P3 ≠ 开发 L0～L3 / 测试 T0～T3，别混用。
 
 | 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
 | 轻量受理 | 纯文案/配置，无 AC/范围变化 | intake→triage→就地更新→verify/关闭 | 全量 PRD、独立评审 |
-| 标准产品 | AC/范围/状态/权限变化，或计划内小需求 | intake→triage→理解双确认→PRD→评审→交付 | 独立评审（P0/普通 P1 可作者自检；P1↑ 结构门硬、默认可 A/`SELF_CHECKED`；P2+ 必问 A/B）；PRD 可轻量，门不降 |
+| 标准产品 | AC/范围/状态/权限变化，或计划内小需求 | intake→triage→理解双确认→PRD→评审→交付 | 独立评审（P0/普通 P1 可作者自检；P1↑ 默认 B，选 A 须用户明确+独立复核；P2+ 必问 A/B）；PRD 可轻量，门不降 |
 | 新版本/0→1 | 新产品/新版本/战略 | new-product→plan→PRD→原型→交付→发布 | 无 |
 | 高风险 | 权限/资金/数据/合规/不可逆 | 标准产品 + 专项/独立评审/发布门 | 无 |
 

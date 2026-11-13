@@ -38,9 +38,9 @@
 通用纪律：
 
 - 状态变更与 comment **同轮**；禁删缺陷对象；禁密码/绝对路径/场景路径入备注或 steps。  
-- `steps` 正文 = 执行失败详情投影（协作 §5「同源/投影」；Schema：`defect-writeup-template.md` §5.0.1a）；禁交单现查补事实。  
+- `steps` 正文 = 执行失败卡逐槽位搬运（协作 §5「同源/搬运」；Schema：`defect-writeup-template.md` §5.0.1a）；禁交单现查补事实。  
 - **surface 写法只认文案模板 §5.0.1**：有页面却只写 API 不合格；入口指纹（ui/network/contract）≠surface。  
-- 写平台文本版式按 §13「备注格式」：`html` → **每块一个** `<p>…</p>`、块间 `</p>\n<p>`（禁 `\n\n`、禁粘连）、块内仅单 `<br>` 且 `<br>` 后无 `\n`（禁 `<br><br>`）、禁空 `<p></p>`、禁每行外包 `<p>`。`markdown`/`text` → 块内单换行、块间空一行。细则真源：`defect-writeup-template.md` §5.0.1。写入前：`python rules/tools/validate_defect_steps.py <steps>` 须 0 ERROR（覆盖十段+§5.0.1b 标记+路径泄漏+版式）；最低人工复核同机检项。  
+- 写平台文本版式按 §13「备注格式」：`html` → **每块一个** `<p>…</p>`、块间 `</p>\n<p>`（禁 `\n\n`、禁粘连）、块内单 `<br>`（禁 `<br><br>`）、禁空 `<p></p>`、禁每行外包 `<p>`。`markdown`/`text` → 块内单换行、块间空一行。细则真源：`defect-writeup-template.md` §5.0.1。写入前：`python rules/tools/validate_defect_steps.py <steps>` 须 0 ERROR（覆盖十段+§5.0.1b 标记+路径泄漏+版式）；最低人工复核同机检项。  
 - 读单：按缺陷协作语义字段经 §13 映射读取；api 读不全 → `browser`；仍不全 → 请用户补关键备注/附件，禁只看标题分析。  
 - 读者过滤：只写事实、证据、请求；场景 ID/路径、执行记录/计划/报告/`evidence` 路径、未上传本地叶名、测试脚本、内部分类/评级理由、内部过程、无关测试数据、未标注猜测、PII/密钥不写入。观测须在正文 `字段=值` 或已挂载附件中自洽。  
 - 端点只认 §13（或已声明的内置）；缺映射禁猜、禁探活冒充适配。  
@@ -56,6 +56,7 @@
 - 附件：`POST /api.php/v2/files`，字段 **`file`** + `objectType=bug` + `objectID`（禁 v1）；非 ASCII 文件名按 UTF-8 原字节写入 multipart `filename`；回查优先 bug 详情 `files` 或 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`。  
 - 备注（关/激/解决等）：`POST /api.php/v1/bugs/{id}/assign`，body=`assignedTo`+`comment`（可同指派）；勿仅 `PUT /bugs/{id}`+`{comment}`。  
 - 读/回查：详情与列表用 v1；写后 `GET /api.php/v1/bugs/{id}` 核对 `status/resolution/assignedTo/lastEditedDate` 与最新 action（本轮若写备注则 `comment` 须可回读）；附件以 v2 元数据或详情 `files` 为准。  
+- **写后回读 steps（硬）**：回读正文并与本地搬运稿做块级比对——十段缺任一、末段 `【技术附记】` 缺失、或块内明显截断 → 判交单失败，重试或标失败；禁只凭 HTTP 成功写「已交单」。  
 - resolution 常用取值（写回前仍以 §13 为准）：`fixed` / `notrepro` / `bydesign` / `duplicate` / `external` / `postponed` / `willnotfix` / `tostory`。
 
 ### 列表 / 查重（Zentao · 节流）

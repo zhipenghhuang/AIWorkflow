@@ -114,7 +114,7 @@ description: Use when writing or updating a PRD. Produce a complete, testable, t
 | P2 / P3 | 全量 + 摘要 | **必跑**；定稿前须非 BLOCKED（选 A 亦同） |
 
 **P1↑ 判定（命中任一条即升级，不得当普通 P1 light 蒙混）**：权限/角色数据域｜资金/支付/计价｜个人隐私/合规｜不可逆数据变更｜跨系统主数据规则。  
-P1↑ **仍可**免独立评审（默认 A / SELF_CHECKED），但作者自检与结构门与 P2 同级。
+P1↑ **默认 B（AI 独立评审）**；选 A 须用户明确 + 独立复核（reviewer 抽核或用户书面接受），作者自检与结构门与 P2 同级。
 
 ## 10. 质量评分卡（12 项，0～2 分）
 

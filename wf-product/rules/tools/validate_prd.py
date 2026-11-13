@@ -104,6 +104,67 @@ def main() -> int:
     if not has_cols(text, ["类型", "问题/决策", "责任人", "期限"]):
         warnings.append("DECISIONS: 待确认/决策表建议含 类型/问题/责任人/期限")
 
+    # Content completeness for full PRDs (skip template/light).
+    is_template = "{{" in text
+    level_m = re.search(r"^prd_level\s*:\s*([A-Za-z]+)", text[:2000], re.M)
+    level = level_m.group(1).lower() if level_m else "full"
+    if not is_template and level not in ("light", "lite"):
+
+        def block(num: str) -> str:
+            m = re.search(rf"^## {num}\.(.*?)(?=^## |\Z)", text, re.S | re.M)
+            return m.group(1) if m else ""
+
+        def data_rows(b: str) -> list[list[str]]:
+            lines = b.splitlines()
+            for i, line in enumerate(lines[:-1]):
+                if not line.strip().startswith("|"):
+                    continue
+                if not re.match(r"^\|[\s:|-]+\|$", lines[i + 1].strip()):
+                    continue
+                rows: list[list[str]] = []
+                j = i + 2
+                while j < len(lines) and lines[j].strip().startswith("|"):
+                    vals = [c.strip() for c in lines[j].strip().strip("|").split("|")]
+                    if any(vals) and not set("".join(vals)) <= {"-", ":"}:
+                        rows.append(vals)
+                    j += 1
+                return rows
+            return []
+
+        checks = (
+            ("4", "功能需求", ["功能", "优先级", "AC"]),
+            ("7", "权限矩阵", ["角色", "数据域"]),
+            ("8", "数据与字段来源", ["字段", "来源"]),
+            ("9", "校验规则", ["规则", "失败表现"]),
+            ("11", "非功能需求", ["质量要求", "验收方式"]),
+            ("12", "埋点与成功指标", ["事件名", "指标"]),
+            ("13", "验收场景", ["场景", "Given", "Then"]),
+        )
+        for num, name, cols in checks:
+            b = block(num)
+            if not b.strip():
+                errors.append(f"CONTENT: §{num} {name} 为空")
+                continue
+            if re.search(r"不适用|无数据字段|无规则|本轮无", b):
+                continue
+            if not data_rows(b):
+                errors.append(f"CONTENT: §{num} {name} 无数据行")
+                continue
+            if not has_cols(b, cols):
+                warnings.append(f"CONTENT: §{num} {name} 表头建议含 " + "/".join(cols))
+        b3 = block("3")
+        if b3 and not re.search(r"不做|非目标|排除", b3):
+            errors.append("CONTENT: §3 范围未写「不做/非目标」")
+        b10 = block("10")
+        if b10 and not re.search(r"不适用", b10) and not re.search(r"[-*]\s*\S", b10):
+            errors.append("CONTENT: §10 异常与边界为空")
+        b2 = block("2")
+        if b2 and not has_cols(b2, ["角色", "核心任务"]):
+            warnings.append("CONTENT: §2 用户场景表建议含 角色/核心任务")
+        b1 = block("1")
+        if b1 and not re.search(r"\d{4}[-/年]\d{1,2}", b1):
+            warnings.append("SOURCE: §1 背景依据来源建议含日期")
+
     if "原型" not in text:
         warnings.append("PROTOTYPE: 未见原型链接/路径")
     if re.search(r"(技术架构|技术栈|数据库设计|API 设计|部署拓扑)", text):

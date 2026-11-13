@@ -6,7 +6,7 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.09`  
+> **template_version**：`2026.11.13.10`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
 > **完成口径**：门末自动输出 `CLAIM: ALLOWED`（`-Claim` 仅复核）；无 ALLOWED 不写完成。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
@@ -36,7 +36,7 @@
 | --- | --- | --- | --- |
 | 文档 | 团队正式迭代内的纯文档/文案/注释 | clarify→implement→verify→closeout | 需求/方案/任务/评审/测试命令（门只核 docs-links/docs-placeholders） |
 | 自包含完整链 | 无正式迭代/正式协作（单人或团队，含大改动/高风险）；需正式发布/QA/交接 → 完整链 | `solo`：产品分析→方案→评审→完整开发→评审→测试→完成门 | 无（产品分析/评审/测试不省；正式协作产物有则消费） |
-| 标准代码 | 团队正式迭代内的代码/配置变更，单点/≤3 文件/≤1 模块，且不改 API/数据模型/权限 | clarify→implement→verify→closeout | requirements/design/review-docs/plan/review（须记录理由与风险接受人） |
+| 标准代码 | 团队正式迭代内的代码/配置变更，单点/≤3 文件/≤1 模块，且不改 API/数据模型/权限，未命中权限/状态机/数据基数/多表面/共享契约/迁移 | clarify→implement→verify→closeout | requirements/design/review-docs/plan/review（须记录理由与风险接受人；命中 `review_required` 必审条件时 review 不可省） |
 | 完整交付 | 团队正式迭代/正式协作内的 >3 文件 / >1 模块 / 新功能/接口/数据 / 改 API·数据·权限 | clarify→requirements→design?→review-docs→plan→implement→review→verify→deliver→closeout | 仅 `when` 为假的步可跳，收尾 `skip=` |
 | 高风险 | 团队正式迭代/正式协作内的权限/资金/迁移/公共 API/破坏性；或需要正式安全/发布审批 | 完整交付 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
 | 缺陷 | 平台缺陷/修复# | `defect-fix` | 无平台→change |
@@ -135,7 +135,7 @@
 
 - **产品**：需求/范围/AC/影响面/非目标/风险；输入含文档/原型 → `product-doc-analysis`；方向不清列选项+推荐；不是只开发。用本包 `requirements-and-spec` / `product-shaping` / `acceptance-and-launch`。
 - **测试**：分析/计划（`solo.test_plan`）→ 执行 → 报告；AC 走查/P0/P1/P2/覆盖/证据/缺口；大改动/高风险全节 + 独立 verifier；用本包 `test-design-and-execution` / `implementation-and-selftest`。不代写版本级测试计划/准出结论。
-- **评审**：`solo.review_docs`（条件）审方案卡/验收表/用户版；`solo.review`（条件）审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级可 false + 理由；不冒充已评审。
+- **评审**：`solo.review_docs`（条件）审方案卡/验收表/用户版；`solo.review`（条件）审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L1 命中安全/性能/并发/数据面/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级/安全/性能/并发/数据面可 false + 理由；不冒充已评审。
 - **链路**：产品分析 → 方案 → 评审 → 完整开发 → 评审 → 测试 → 收尾；产物按 `10-requirements`/`20-design`/`40-tasks`/`50-verification`/`60-release` 落位。
 - **有独立产品/测试且已按迭代/版本正式介入本轮交付时**：以对方职责为准，开发只做本地自测 + 部署冒烟（测环境依赖时相关模块轻验）；完整复测归测试；无正式迭代仍按本节由开发补产品分析与测试。
 

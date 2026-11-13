@@ -118,6 +118,9 @@ quality_gates:
   - frontend-parity   # DEV-IQ-17；parity-matrix + route-coverage + 每路由截图；缺一 BLOCKED
   - evidence-integrity # DEV-VER-14/15；测试日志/截图哈希/新鲜度/base_commit
   - reviewer-independence # DEV-VER-16；复审必须实际复跑最小断言
+  - reliability        # 超时/重试/熔断/降级/健康检查/SLO/告警；验收清单短句或债项
+  - data-lifecycle     # 保留/删除/PII/备份恢复/对账；验收清单短句或债项
+  - supply-chain       # 锁文件/可复现构建/SBOM/漏洞 SLA/许可证
 
 # 高价值低成本（默认；L1+ 适用；L0 纯文档只跑 docs-links/docs-placeholders）
 always:

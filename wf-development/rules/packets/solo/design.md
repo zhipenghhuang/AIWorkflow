@@ -39,6 +39,8 @@
 
 - **本步必开技能（质量不降）**：`solution-design`、`task-breakdown`、`engineering-quality` → 见 §6 闭环。
 
+- **条件技能**：`threat-modeling`（命中鉴权/权限/敏感数据/上传/回调/公共 API/资金/AI）、`performance-and-capacity`（命中列表/批量/导出/循环查库/无界集合/统计/首屏/高并发） → 命中则同样走 §6 闭环。
+
 ### 本步动作清单
 
 - 技能见 §6 `solution-design` 当前节 + §6 `task-breakdown`（任务拆分）+ §6 `engineering-quality`。
@@ -75,6 +77,8 @@
 | `solution-design` | **必开** | 进入本步即开（质量不降） | `skills/solution-design/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 | `task-breakdown` | **必开** | 进入本步即开（质量不降） | `skills/task-breakdown/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `threat-modeling` | 条件开 | 命中鉴权/权限/敏感数据/上传/回调/公共 API/资金/AI | `skills/threat-modeling/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `performance-and-capacity` | 条件开 | 命中列表/批量/导出/循环查库/无界集合/统计/首屏/高并发 | `skills/performance-and-capacity/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
 - 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。

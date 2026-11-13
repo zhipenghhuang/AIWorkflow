@@ -86,7 +86,10 @@ def main() -> int:
         warnings.append("TRACE: §15 追溯矩阵无 F/R/A/AC/RP/T 编号")
 
     # Current status
-    for key in ("当前阶段", "健康度", "下一步 3 件事"):
+    for key in (
+        "计划状态", "当前阶段", "当前门", "门状态", "下一动作", "需人工确认",
+        "当前版本/迭代", "当前焦点", "当前阻塞", "健康度", "下一步 3 件事",
+    ):
         if key not in text:
             errors.append(f"MISSING_STATUS: {key}")
     if not re.search(r"健康度[：:]\s*(绿|黄|红)", text):

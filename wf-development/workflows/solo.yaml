@@ -67,6 +67,9 @@ steps:
   - solution-design
   - task-breakdown
   - engineering-quality
+  skills_conditional:
+    threat-modeling: 命中鉴权/权限/敏感数据/上传/回调/公共 API/资金/AI
+    performance-and-capacity: 命中列表/批量/导出/循环查库/无界集合/统计/首屏/高并发
   must_read:
   - rules/packets/solo/design.md
   - rules/templates/30-planning-tasks/solution-card-template.md

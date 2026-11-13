@@ -54,7 +54,7 @@ frame（方向不清/新产品时）
 
 - **产品切片**：frame 做产品定义；product 做产品行为/AC/影响面/风险；输入含文档/原型 → `product-doc-analysis`；一句话输入用五字段 + 假设。产品分析不是只开发。
 - **方案切片**：design 做技术/任务/验收/风险；`task-breakdown` 必开；写 `review_required`/`do_landing_doc_review`；不写产品分析/测试计划。
-- **评审切片**：`review_docs` 条件审方案卡/验收表/用户版；`review` 条件审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级可 false + 理由。
+- **评审切片**：`review_docs` 条件审方案卡/验收表/用户版；`review` 条件审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L1 命中安全/性能/并发/数据面/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级/安全/性能/并发/数据面可 false + 理由。
 - **开发切片**：与正式协作同一要求（iq 预检、StartTask、前端硬门、独立评审、completion-gate、Claim 不降）。
 - **测试切片**：`test_plan` 做分析/计划（来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测）；`test` 做执行 → 报告；AC 走查、证据、缺口；L1+ 前端/API 独立 verifier；大改动/高风险按 §2 全节 + 回归/安全/回滚证据。
 - **产品/方案/测试/评审分开**：方案卡不写测试计划；测试分析与计划独立落 `50-verification`；测试报告只写执行结果；评审只写缺口/结论。
