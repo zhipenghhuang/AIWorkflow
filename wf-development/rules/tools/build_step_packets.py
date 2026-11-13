@@ -1293,7 +1293,7 @@ def render_packet(
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
         _need_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
         verify_line = (
-            "- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）"
+            "- 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）"
             if _need_claim
             else "- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）"
         )

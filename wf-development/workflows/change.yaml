@@ -171,8 +171,8 @@ steps:
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 验证回执
-  notes: '按 AC 追溯来源走查方案对应段（DEV-IQ-22）；合看原型/接口/现有实现；理解包接在方案后不抢入口；示例/死边界在实施择优中记偏离；Invoke-Gate → -Claim；只认 CLAIM: ALLOWED。非 COMPLETE
-    不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。'
+  notes: 按 AC 追溯来源走查方案对应段（DEV-IQ-22）；合看原型/接口/现有实现；理解包接在方案后不抢入口；示例/死边界在实施择优中记偏离；Invoke-Gate 门末自动 Claim（-Claim 仅复核）；只认 ALLOWED。非
+    COMPLETE 不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。
 - name: 提测与发布文档
   id: deliver
   skills:

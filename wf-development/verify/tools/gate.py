@@ -17,11 +17,15 @@ Options:
   --start-task <id>                       write .gate/task.json (task_id/started_at/base_commit) and exit
   --json                                  print JSON summary
   --dry-run                               select checks only; verdict=DRY_RUN; never writes
+  --reset-attempts                        clear per-check failure budget (after changing approach)
   --allow-missing-acceptance              L0 bootstrap only; L1+ is always blocked
 
 Notes:
   - StartTask freezes base_commit; changed_files = diff(base)..工作区 + untracked（中途 commit 不丢任务窗口）。
   - 定向：profile 的 lint_scoped/test_scoped 含 {files} 才注入变更列表；否则跑全仓命令，检查 id 为 project-*。
+  - L1 未配 test_scoped 且有 smoke → 只跑 smoke（不跑全仓 test）；全量 test 留 L2+/发布/L3。
+  - L1 未配 e2e_scoped → 不跑全量 e2e；前端证据（capture/parity/design-qa/console）不降。
+  - 同一检查连续失败 2 次 → STOP，不自动重跑；--reset-attempts 仅换路径后用。
   - shared_globs（profile）命中的文件改动须在验收清单写 impact_map（调用方/依赖模块+回归集）。
 
 Exit: 0 = COMPLETE, 1 = PARTIAL/BLOCKED/NOT_VERIFIED/DRY_RUN, 2 = usage/config error.
@@ -236,9 +240,19 @@ def compute_diff_hash(project_root: Path, files: list[str], base_commit: str = "
         git(project_root, "diff", ref, "--", *code_files)
         if ref and code_files else ""
     )
-    return hashlib.sha256(
-        (diff_text + "\n" + "\n".join(code_files)).encode("utf-8", errors="replace")
-    ).hexdigest()[:16]
+    parts = [diff_text, "\n".join(code_files)]
+    # git diff 不覆盖未跟踪文件的内容：补内容哈希，防止改内容不改名时回执不失效。
+    tracked = set(git_z(project_root, "ls-files", "-z"))
+    for rel in code_files:
+        if rel in tracked:
+            continue
+        full = project_root / rel
+        try:
+            if full.is_file():
+                parts.append(rel + ":" + hashlib.sha256(full.read_bytes()).hexdigest())
+        except OSError:
+            parts.append(rel + ":unreadable")
+    return hashlib.sha256("\n".join(parts).encode("utf-8", errors="replace")).hexdigest()[:16]
 
 
 def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[str]]:
@@ -496,11 +510,12 @@ def check_acceptance(items: list[dict[str, str]], project_root: Path) -> dict[st
     return {"total": len(items), "covered": len(items) - len(missing), "missing": missing, "duplicates": duplicates}
 
 
-def check_evidence(items: list[dict[str, str]], project_root: Path, task_started: str = "") -> list[str]:
+def check_evidence(items: list[dict[str, str]], project_root: Path, task_started: str = "",
+                   min_ts: float = 0.0) -> list[str]:
     """Evidence paths are verified after checks have run (screenshots may be produced by the gate)."""
     missing: list[str] = []
-    started_ts = 0.0
-    if task_started:
+    started_ts = min_ts
+    if not started_ts and task_started:
         try:
             started_ts = datetime.fromisoformat(task_started.replace("Z", "+00:00")).timestamp()
         except Exception:
@@ -882,7 +897,10 @@ def resolve_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str) -> s
 
 
 def _files_for_scope(files: list[str], key: str) -> list[str]:
-    """Pick paths suitable for lint/test injection (cap length for argv)."""
+    """Pick paths suitable for lint/test injection (cap length for argv).
+
+    超过 40 个匹配文件时返回空，调用方回退到全仓命令：宁可跑全仓，也不能只测前 40 个。
+    """
     if key == "lint":
         exts = (".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte", ".py", ".go", ".java", ".cs")
     elif key == "e2e":
@@ -899,8 +917,8 @@ def _files_for_scope(files: list[str], key: str) -> list[str]:
             continue
         seen.add(f)
         out.append(f)
-        if len(out) >= 40:
-            break
+        if len(out) > 40:
+            return []
     return out
 
 
@@ -993,7 +1011,7 @@ def frontend_tier(evidence_dir: Path, fe: dict[str, Any]) -> str:
 
 
 def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
-                      acceptance_mtime: float, task_started_at: str = "",
+                      freshness_floor: float, task_started_at: str = "",
                       base_commit: str = "", require_generated: bool = False) -> dict[str, Any]:
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
@@ -1029,7 +1047,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         problems.append("缺少桌面截图（文件名含 desktop/1280/1440）")
     if tier != "C" and not any(x in names for x in ("mobile", "360", "375", "390")):
         problems.append("缺少移动截图（文件名含 mobile/360/375/390）")
-    floor = max(acceptance_mtime or 0.0, _parse_iso_mtime(task_started_at))
+    floor = max(freshness_floor or 0.0, _parse_iso_mtime(task_started_at))
     if floor:
         stale = [p.name for p in images if p.stat().st_mtime + 1 < floor]
         if stale:
@@ -1156,6 +1174,74 @@ def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:
     return out
 
 
+MAX_FAILED_ATTEMPTS = 2
+
+
+def attempts_path(project_root: Path) -> Path:
+    return project_root / RECEIPT_DIR / "attempts.json"
+
+
+def load_attempts(project_root: Path, task_id: str) -> dict[str, Any]:
+    p = attempts_path(project_root)
+    if not p.is_file():
+        return {"task_id": task_id, "checks": {}}
+    try:
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
+    except Exception:
+        return {"task_id": task_id, "checks": {}}
+    if not isinstance(data, dict) or str(data.get("task_id") or "") != task_id:
+        return {"task_id": task_id, "checks": {}}
+    checks = data.get("checks")
+    data["checks"] = checks if isinstance(checks, dict) else {}
+    return data
+
+
+def save_attempts(project_root: Path, data: dict[str, Any]) -> None:
+    checks: dict[str, int] = {}
+    for key, value in (data.get("checks") or {}).items():
+        try:
+            n = int(value)
+        except (TypeError, ValueError):
+            continue
+        if n > 0:
+            checks[str(key)] = n
+    p = attempts_path(project_root)
+    if not checks:
+        try:
+            p.unlink()
+        except FileNotFoundError:
+            pass
+        return
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(
+        json.dumps(
+            {
+                "task_id": data.get("task_id", ""),
+                "checks": checks,
+                "updated": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def code_mtime_floor(project_root: Path, files: list[str]) -> float:
+    """本轮代码/配置的最新 mtime；截图与证据须晚于它（文档回写不算）。"""
+    newest = 0.0
+    for rel in files:
+        if rel.lower().endswith(DOC_EXTS):
+            continue
+        p = project_root / rel
+        try:
+            if p.is_file():
+                newest = max(newest, p.stat().st_mtime)
+        except OSError:
+            pass
+    return newest
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--package-root", default=str(Path(__file__).resolve().parents[2]))
@@ -1166,6 +1252,7 @@ def main() -> int:
     ap.add_argument("--start-task", default="")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--reset-attempts", action="store_true")
     ap.add_argument("--allow-missing-acceptance", action="store_true")
     args = ap.parse_args()
 
@@ -1185,6 +1272,10 @@ def main() -> int:
         task_file = project_root / ".gate" / "task.json"
         task_file.parent.mkdir(parents=True, exist_ok=True)
         cleared = clear_expired_gate_media(project_root, args.start_task)
+        try:
+            attempts_path(project_root).unlink()
+        except FileNotFoundError:
+            pass
         base_commit = git(project_root, "rev-parse", "HEAD") or ""
         payload = {
             "task_id": args.start_task,
@@ -1231,6 +1322,23 @@ def main() -> int:
     acc = check_acceptance(meta["items"], project_root)
     process = check_process(meta, level, project_root, files)
     docs_only = bool(files) and all(f.lower().endswith(DOC_EXTS) for f in files)
+    freshness_floor = max(_parse_iso_mtime(task_started), code_mtime_floor(project_root, files))
+    attempts: dict[str, Any] = {"task_id": task_id, "checks": {}}
+    if not args.dry_run and task_id and files and not docs_only:
+        if args.reset_attempts:
+            save_attempts(project_root, {"task_id": task_id, "checks": {}})
+        attempts = load_attempts(project_root, task_id)
+        exhausted: list[str] = []
+        for cid, n in (attempts.get("checks") or {}).items():
+            try:
+                if int(n) >= MAX_FAILED_ATTEMPTS:
+                    exhausted.append(str(cid))
+            except (TypeError, ValueError):
+                continue
+        if exhausted:
+            print("RETRY_BUDGET_EXCEEDED: " + ", ".join(sorted(exhausted)) + " 已连续失败 2 次；停止自动重跑。")
+            print("  换路径/缩小范围/请人确认后，加 -ResetAttempts 再跑；不得原样重复。")
+            return 1
     nfr = check_nfr(meta, level, project_root, files)
     iq = check_iq_fields(meta, level, files, docs_only, profile)
     acceptance_unusable = acceptance_path is None or not meta["items"]
@@ -1258,35 +1366,70 @@ def main() -> int:
     timeouts = profile.get("timeouts", {}) if isinstance(profile.get("timeouts"), dict) else {}
     checks: list[dict[str, Any]] = []
 
+    def scoped_configured(key: str) -> bool:
+        tmpl = profile.get(f"{key}_scoped")
+        return isinstance(tmpl, str) and "{files}" in tmpl
+
     if not files:
         checks = []
     elif docs_only:
         checks += check_docs(project_root, files)
     else:
+        smoke_cmd = resolve_cmd(profile, scripts, "smoke")
+        l1 = level_rank(level) <= 1
+        build_failed = False
+        test_failed = False
         for key in ("build", "lint", "test", "smoke"):
-            if key in ("lint", "test"):
-                cmd, scoped = resolve_check_cmd(profile, scripts, key, files)
-                cid = check_id_for(key, scoped)
+            if key in ("test", "smoke") and build_failed:
+                cid = check_id_for("test", scoped_configured("test")) if key == "test" else "smoke"
+                checks.append({"id": cid, "status": "deferred",
+                               "detail": "build 失败；跳过，修复后重跑门"})
+                continue
+            if key == "test":
+                cmd, scoped = resolve_check_cmd(profile, scripts, "test", files)
+                cid = check_id_for("test", scoped)
+                if l1 and not scoped and smoke_cmd:
+                    checks.append({"id": cid, "status": "deferred",
+                                   "detail": "L1 未配 test_scoped：已跑 smoke + 验收证据；全量 test 留 L2+/发布"})
+                    continue
+            elif key == "lint":
+                cmd, scoped = resolve_check_cmd(profile, scripts, "lint", files)
+                cid = check_id_for("lint", scoped)
             else:
                 cmd = resolve_cmd(profile, scripts, key)
                 cid = key
             if args.dry_run:
                 checks.append({"id": cid, "status": "dry-run", "command": cmd})
-            else:
-                checks.append(run_cmd_check(cid, cmd, project_root, int(timeouts.get(key, 600))))
+                continue
+            res = run_cmd_check(cid, cmd, project_root, int(timeouts.get(key, 600)))
+            checks.append(res)
+            if key == "build" and res.get("status") == "fail":
+                build_failed = True
+            if key == "test" and res.get("status") == "fail":
+                test_failed = True
         if "frontend" in types or args.mode == "frontend":
-            e2e, e2e_scoped = resolve_check_cmd(profile, scripts, "e2e", files)
-            e2e_id = check_id_for("e2e", e2e_scoped)
-            if args.dry_run:
-                checks.append({"id": e2e_id, "status": "dry-run", "command": e2e})
+            if build_failed or test_failed:
+                checks.append({"id": "frontend", "status": "deferred",
+                               "detail": "build/test 失败；跳过 e2e/capture/前端证据，修复后重跑门"})
             else:
-                checks.append(run_cmd_check(e2e_id, e2e, project_root, int(timeouts.get("e2e", 900))))
+                e2e, e2e_scoped = resolve_check_cmd(profile, scripts, "e2e", files)
+                e2e_id = check_id_for("e2e", e2e_scoped)
+                if l1 and not e2e_scoped:
+                    checks.append({"id": e2e_id, "status": "deferred",
+                                   "detail": "L1 未配 e2e_scoped：不跑全量 e2e；前端证据仍必"})
+                elif args.dry_run:
+                    checks.append({"id": e2e_id, "status": "dry-run", "command": e2e})
+                else:
+                    checks.append(run_cmd_check(e2e_id, e2e, project_root, int(timeouts.get("e2e", 900))))
                 fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
                 require_generated = bool(fe.get("requireGeneratedEvidence", level_rank(level) >= 2))
                 capture = resolve_cmd(profile, scripts, "capture")
                 if capture:
-                    checks.append(run_cmd_check("frontend-capture", capture, project_root,
-                                                int(timeouts.get("capture", 900))))
+                    if args.dry_run:
+                        checks.append({"id": "frontend-capture", "status": "dry-run", "command": capture})
+                    else:
+                        checks.append(run_cmd_check("frontend-capture", capture, project_root,
+                                                    int(timeouts.get("capture", 900))))
                 elif require_generated and level_rank(level) >= 2:
                     checks.append({
                         "id": "frontend-capture",
@@ -1297,12 +1440,18 @@ def main() -> int:
                     checks.append({"id": "frontend-capture", "status": "warn",
                                    "detail": "未配置 frontend.capture，仅校验手写证据（L1 允许）"})
                 checks.append(prototype_manifest(project_root, profile))
-                checks.append(frontend_evidence(project_root, profile, level, acceptance_mtime,
+                checks.append(frontend_evidence(project_root, profile, level, freshness_floor,
                                                 task_started, base_commit, require_generated))
         if level_rank(level) >= 2:
+            heavy_blocked = build_failed or test_failed
             integration = resolve_cmd(profile, scripts, "integration")
             if integration:
-                checks.append(run_cmd_check("integration", integration, project_root, int(timeouts.get("integration", 900))))
+                if heavy_blocked:
+                    checks.append({"id": "integration", "status": "deferred",
+                                   "detail": "build/test 失败；跳过集成/性能/安全命令"})
+                else:
+                    checks.append(run_cmd_check("integration", integration, project_root,
+                                                int(timeouts.get("integration", 900))))
             problems, stats = validate_plan_coverage(project_root, level, files)
             checks.append({
                 "id": "plan-coverage",
@@ -1311,36 +1460,36 @@ def main() -> int:
             })
             # 企业级基线：项目声明 perf/security 命令时，L2+ 一律执行；L3 仍须安全证据。
             # dry-run 只列出命令，不执行（避免误触发压测/扫描）。
-            perf = resolve_cmd(profile, scripts, "perf")
-            if perf:
-                if args.dry_run:
-                    checks.append({"id": "perf", "status": "dry-run", "command": perf})
-                else:
-                    checks.append(run_cmd_check("perf", perf, project_root, int(timeouts.get("perf", 900))))
-            security = resolve_cmd(profile, scripts, "security")
-            if security:
-                if args.dry_run:
-                    checks.append({"id": "security", "status": "dry-run", "command": security})
-                else:
-                    checks.append(run_cmd_check("security", security, project_root, int(timeouts.get("security", 900))))
-            elif level_rank(level) >= 3:
-                process_meta = meta.get("process") if isinstance(meta.get("process"), dict) else {}
-                if not process_meta.get("security"):
-                    checks.append({"id": "security", "status": "blocked",
-                                   "detail": "L3 需要 security 命令或 process.security 证据"})
+            for key in ("perf", "security"):
+                cmd = resolve_cmd(profile, scripts, key)
+                if cmd:
+                    if heavy_blocked:
+                        checks.append({"id": key, "status": "deferred",
+                                       "detail": "build/test 失败；跳过"})
+                    elif args.dry_run:
+                        checks.append({"id": key, "status": "dry-run", "command": cmd})
+                    else:
+                        checks.append(run_cmd_check(key, cmd, project_root, int(timeouts.get(key, 900))))
+                elif key == "security" and level_rank(level) >= 3:
+                    process_meta = meta.get("process") if isinstance(meta.get("process"), dict) else {}
+                    if not process_meta.get("security"):
+                        checks.append({"id": "security", "status": "blocked",
+                                       "detail": "L3 需要 security 命令或 process.security 证据"})
 
-    evidence_missing = check_evidence(meta["items"], project_root, task_started) if meta["items"] else []
+    evidence_missing = (check_evidence(meta["items"], project_root, task_started, freshness_floor)
+                        if meta["items"] else [])
     if evidence_missing:
         acc["missing"].extend(evidence_missing)
 
     if args.dry_run:
         verdict = "DRY_RUN"
         reasons = ["dry-run：未执行检查，不代表完成"]
+        deferred: list[dict[str, Any]] = []
     else:
-        applicable = [c for c in checks if c.get("status") not in ("skip", "dry-run")]
         failed = [c for c in checks if c.get("status") == "fail"]
         blocked = [c for c in checks if c.get("status") == "blocked"]
         skipped = [c for c in checks if c.get("status") == "skip"]
+        deferred = [c for c in checks if c.get("status") == "deferred"]
         verdict = "COMPLETE"
         reasons: list[str] = []
         if not files:
@@ -1366,12 +1515,25 @@ def main() -> int:
             reasons += [f"{c['id']} failed" for c in failed]
         if blocked:
             reasons += [f"{c['id']} blocked: {c.get('detail', '')}" for c in blocked]
+        if task_id and files and not docs_only and not args.dry_run:
+            cur = dict(attempts.get("checks") or {})
+            for c in checks:
+                cid = str(c.get("id") or "")
+                if not cid:
+                    continue
+                if c.get("status") == "pass":
+                    cur.pop(cid, None)
+                elif c.get("status") == "fail":
+                    cur[cid] = int(cur.get(cid, 0)) + 1
+            if verdict == "COMPLETE":
+                cur = {}
+            save_attempts(project_root, {"task_id": task_id, "checks": cur})
 
     diff_hash = compute_diff_hash(project_root, files, base_commit)
     commit = git(project_root, "rev-parse", "--short", "HEAD")
     gate_id = f"{commit or 'nogit'}-{diff_hash}"
     completion = {
-        "gate_version": "2.2",
+        "gate_version": "2.3",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "gate_id": gate_id,
@@ -1391,6 +1553,7 @@ def main() -> int:
                "missing": iq["missing"]},
         "nfr": nfr,
         "checks": checks,
+        "deferred": [{"id": c.get("id"), "detail": c.get("detail", "")} for c in deferred],
         "blocked": reasons,
         "timestamp": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
         "commit": commit,
@@ -1411,6 +1574,10 @@ def main() -> int:
         for c in checks:
             extra = c.get("command") or c.get("detail") or ""
             print(f"- {c['id']}: {c.get('status')} {extra}".rstrip())
+        if deferred:
+            print("deferred（按风险裁剪，不阻断 Claim）:")
+            for c in deferred[:10]:
+                print(f"  - {c.get('id')}: {c.get('detail', '')}")
         if reasons:
             print("blocked/notes:")
             for r in reasons[:10]:

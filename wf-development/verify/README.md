@@ -8,7 +8,7 @@
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
 | L0 | 纯文档/文案/注释，无代码/配置/行为/契约/权限/数据变化 | `docs-links` + `docs-placeholders` | 链接/占位检查结果；空任务窗口 = NOT_VERIFIED |
-| L1 | 多文件、普通功能、代码或配置变更、前端行为变化 | build + lint（定向或全仓）+ test（定向或全仓）+ 冒烟 + E2E（前端）+ 前端十五项 QA（含交互诚实与视觉协调）+ 路由覆盖 | 命令+退出码；每条变更路由桌面+移动截图、route-coverage.json、console/network |
+| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；每条变更路由桌面+移动截图、route-coverage.json、console/network |
 | L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、plan-coverage、`nfr.security`/`nfr.performance` |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
@@ -27,18 +27,18 @@
 
 1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
    > **L2+ 非功能**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）；缺省或空写 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
-   > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、test、smoke 中已配置的命令；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
+   > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、smoke 中已配置的命令；L1 未配 `test_scoped` 且有 smoke → 不跑全仓 test；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`（优先配 `*_scoped`）。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
 3. 收尾：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "{workroot}/40-tasks/任务清单-xxx.md" -Tasklist "{workroot}/40-tasks/任务清单-xxx.md"
-# 完成表述前取口令（只有 ALLOWED 才能写“完成/通过/可提测”）
+# 门末自动输出 CLAIM: ALLOWED；写完成前只需复核（-Claim），不要重复跑全量
 powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Claim -ProjectRoot "."
 ```
 
-4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
+4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。门 COMPLETE 时末行自动给 `CLAIM: ALLOWED`；`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
    > `diff_hash` 只覆盖代码/配置/测试/迁移等非文档文件；计划、`activeContext`、INDEX、验收报告等收尾文档回写不会使回执失效；代码/测试/证据文件变更仍会。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** closeout 均跑）；无门/阶段收尾用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`，只校验版式不读 completion.json。
 
@@ -90,6 +90,8 @@ python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/front
 ## 5. 成本纪律
 
 - 配了 `*_scoped` → 定向；未配 → 全仓 `project-*`（诚实标 id）。全量回归仍留给发布/L3。
+- **L1 不全量**：未配 `test_scoped` 且有 smoke → 跑 smoke + 验收证据，不跑全仓 test；未配 `e2e_scoped` 的 L1 不跑全量 e2e（前端证据不降）。
+- **失败不空转**：同一检查连续失败 2 次 → 停，换路径/请人确认；`-ResetAttempts` 仅换路径后用。build/test 失败时门跳过 e2e/capture/integration/perf/security。
 - 配了 `perf`/`security` 命令 → L2+ 必跑；失败即 BLOCKED，不降级为“人工看过”。
 - 全量测试单实例串行，日志落 `.gate/logs/`；中断/并发/超时 = 未验证，不得用旧数字补报告。
 - 截图桌面+移动各 1/页；JPEG/WebP；不默认 HTML/trace/video；同一截图哈希不得跨路由复用。

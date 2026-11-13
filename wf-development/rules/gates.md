@@ -32,7 +32,7 @@
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
 | `confirm_skill_changes` | capabilities/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
-| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 `rules/core/frontend-gate.md`，改后须 `build_step_packets.py` 重生）；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
+| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 `rules/core/frontend-gate.md`，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
@@ -97,7 +97,7 @@
 
 同一会话同一确认点只问一次；inbound/迁移/清理清单确认后本轮不再重复。
 
-**L 档推导（按事实，不靠自评）**：L0 纯文档/文案/注释；L1 代码/配置且 ≤3 文件、≤1 模块、无接口/数据/权限变化；L2 新功能/接口/数据，或 >3 文件，或 >1 模块；L3 权限/资金/迁移/公共 API/破坏性。`route` 的 `level=` 必须给事实依据（文件数/模块数/是否改接口或数据）；两条路径都能解释时取高一档。
+**L 档推导（按事实，不靠自评）**：L0 纯文档/文案/注释；L1 代码/配置且 ≤3 文件、≤1 模块、无接口/数据/权限变化；L2 新功能/接口/数据，或 >3 文件，或 >1 模块；L3 权限/资金/迁移/公共 API/破坏性。**机检按文件数/路径类型兜底；模块数无法机检，由验收清单 `level` 声明并与机检取高**。`route` 的 `level=` 必须给事实依据（文件数/模块数/是否改接口或数据）；两条路径都能解释时取高一档。
 
 **评审模式**：`review_required` 在 clarify/plan 判定并写入计划/任务清单；**不单独设 hitl**——用户确认计划/清单后，AI 自动执行 review（或记录免审），不再逐次问“要不要评审”。评审记录的范围必须覆盖本轮完成门 diff；范围小于 diff → 该门不得判 `COMPLETE`。
 

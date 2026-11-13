@@ -67,7 +67,7 @@
 ## 7. 模板与证据
 
 - **填写模板（仅此一份）**：`rules/templates/40-delivery/qa-handoff-template.md`；只读本步用到的节，禁止整文件通读。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
+- 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）。
 
 ## 8. 完成与退出
 

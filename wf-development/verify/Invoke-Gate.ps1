@@ -11,7 +11,10 @@
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Acceptance "{workroot}/40-tasks/任务清单.md" -Tasklist "{workroot}/40-tasks/任务清单.md" -ProjectRoot "."
 .EXAMPLE
-  # 完成表述前先取口令：只有 CLAIM: ALLOWED 才能写“完成/通过/可提测”
+  # 同一检查已连续失败 2 次时，换路径/请人确认后再清预算重跑
+  powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -ResetAttempts -ProjectRoot "."
+.EXAMPLE
+  # 完成表述前复核：只有 CLAIM: ALLOWED 才能写“完成/通过/可提测”（门末已自动输出，此命令用于复核）
   powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Claim -ProjectRoot "."
 #>
 [CmdletBinding()]
@@ -26,6 +29,7 @@ param(
     [switch]$Json,
     [switch]$DryRun,
     [switch]$AllowMissingAcceptance,
+    [switch]$ResetAttempts,
     [switch]$Claim
 )
 
@@ -88,7 +92,18 @@ if ($TaskId) { $gateArgs += @('--task-id', $TaskId) }
 if ($StartTask) { $gateArgs += @('--start-task', $TaskId) }
 if ($Json) { $gateArgs += '--json' }
 if ($DryRun) { $gateArgs += '--dry-run' }
+if ($ResetAttempts) { $gateArgs += '--reset-attempts' }
 if ($AllowMissingAcceptance) { $gateArgs += '--allow-missing-acceptance' }
 
 & $python.Source -B @gateArgs
-exit $LASTEXITCODE
+$gateExit = $LASTEXITCODE
+
+# 门通过即自动取 Claim：一条命令同时给回执与 CLAIM 口令；改代码后可用 -Claim 复核。
+if ($gateExit -eq 0 -and -not $DryRun -and -not $StartTask -and -not $Json) {
+    $claimTool = Join-Path $PSScriptRoot 'tools/claim_check.py'
+    if (Test-Path -LiteralPath $claimTool) {
+        & $python.Source -B $claimTool --project-root $root --receipt '.gate/wf-development/completion.json'
+        if ($LASTEXITCODE -ne 0) { exit 1 }
+    }
+}
+exit $gateExit

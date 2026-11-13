@@ -31,7 +31,7 @@
 
 ## 4. 本步门
 
-- **GATE `completion-gate`**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 本包前端硬门，改后须 `build_step_packets.py` 重生）；**写完成前 `-Claim`，只认 `CLAIM: ALLOWED`**；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
+- **GATE `completion-gate`**：任务开始 `-StartTask`；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 本包前端硬门，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -44,6 +44,7 @@
 - 本批无代码/配置改动 → 跳过。
 - 有改动默认跑定向 completion（profile `*_scoped` + 受影响前端证据）。
 - 升全量条件见 verification §7。
+- 门末自动 Claim。
 - L1+ 无验收表先补。
 - `task_id=BUG-*` 须含原单红证与回归/同类路径。
 - 用户明示跳过 Claim → 本步可记 `deviation=skip_claim` 并以本地验证摘要代替 COMPLETE（禁再开全量空转）。
@@ -100,7 +101,7 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 # 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
 python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
 
-# 4) 完成口令
+# 4) 完成口令：门末自动输出 CLAIM；仅复核时执行（本步无 completion-gate 则跳过）
 powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ```
 
@@ -142,7 +143,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 7. 模板与证据
 
 - **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）；有 UI 遵 §5 前端硬门（已内嵌）。
+- 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）；有 UI 遵 §5 前端硬门（已内嵌）。
 
 ## 8. 完成与退出
 

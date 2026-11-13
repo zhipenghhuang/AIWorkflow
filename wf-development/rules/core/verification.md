@@ -141,10 +141,12 @@ L1+ 前端还必须通过 `verify/tools/frontend_parity.py`（parity-matrix + ro
 ## 7. 成本纪律
 
 - 定向仅当 profile 配 `*_scoped`（`{files}`）；否则 `project-*` 全仓，勿假称受影响。全量回归留给发布/L3。
+- **L1 不全量（硬）**：L1 代码/配置未配 `test_scoped` 且已有 `smoke` → 跑 smoke + 验收证据，不跑全仓 test；全量 test 只在 L2+/发布/L3。未配 smoke 才回退全仓 test。L1 未配 `e2e_scoped` → 不跑全量 e2e，前端证据（截图/parity/design-qa/console）不降。
+- **失败重试（硬）**：同一检查连续失败 2 次 → 停，换路径/请人确认；`-ResetAttempts` 仅换路径后用。build/test 失败时门跳过 e2e/capture/integration/perf/security，避免空转。
 - **定向覆盖（硬）**：`*_scoped` 必须覆盖本轮改动模块及新增/修改的测试模块；配置遗漏 → 补映射或改跑全量，不得因映射缺失漏测。新增测试模块默认加入日常定向集。
 - **升全量（硬）**：仅发布/L3、破坏性结构变更（如设置/依赖锁/破坏性迁移），或映射无法覆盖且已记理由。业务模块默认进映射表，不因「曾改过某文件」整仓。升全量须在日志打印命中路径/条件；工作区夹带无关变更 → 先收窄任务窗口或排除路径，**禁止静默升全量**。
 - 全量测试只跑一个实例，禁止并发/中途重启；日志落 `.gate/logs/`（命令/起止/耗时/退出码/测试数），中断即 `未验证`，不得用旧数字补报告。
 - **环境隔离（硬）**：重型测试/capture 前停掉本机后台写入（worker/daemon）或改用独立库/端口；由锁、端口、并发导致的失败按未验证处理并重跑，不得写通过。
-- `-StartTask` 冻结 `base_commit`；门按 base..工作区计 diff（防中途 commit 空门）。截图新鲜度 = max(验收 mtime, task `started_at`)；截图哈希跨路由复用 = 无效。
+- `-StartTask` 冻结 `base_commit`；门按 base..工作区计 diff（防中途 commit 空门）。截图新鲜度 = max(本轮代码 mtime, task `started_at`)；截图哈希跨路由复用 = 无效。
 - 不复用旧 `completion.json`；高价值低成本默认做（见 `verify/checks.yaml`）。
 - 不为 L0/L1 新增文档；不每个任务通读rules/技能。

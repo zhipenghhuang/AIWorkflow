@@ -49,7 +49,7 @@ description: Use when executing tests or exploratory testing. Execute from the s
 | 脚本 fail | 有界复核 1 次：产品/脚本/环境分诊 | 脚本红直接交平台；反复深挖 |
 | Flake | 同方案无效 2 次换手段；记频率 | 一次绿即稳；静默跳过 |
 
-**落账前四问**：① 被测入口本轮已定位（`入口指纹`：ui/network/contract 三选一有证，见 `classification.md` §0.4）？② 证据可开且钉断言点？③ 结果态按 §0.4（失败/阻塞/待实现不混标；未定位禁写「入口不存在」）？④ 写操作 Network 见 METHOD+path 且**回查字段=值**（禁只认 200）？四问未过不落账。
+**落账前四问**：① 被测入口本轮已定位（`入口指纹`：ui/network/contract 三选一有证，见 `classification.md` §0.4）？② 证据可开且钉断言点（失败含页面→截图；接口可另附终态 json，**不**用 json 顶替 UI 断言面）？失败块含 `surface=ui|api|ui+api`；有 UI 面须 UI 路径+截图，纯 API 才可请求链？③ 结果态按 §0.4（失败/阻塞/待实现不混标；未定位禁写「入口不存在」）？④ 写操作 Network 见 METHOD+path 且**回查字段=值**（禁只认 200）？四问未过不落账。
 
 ## 2.5 自主与不确定
 

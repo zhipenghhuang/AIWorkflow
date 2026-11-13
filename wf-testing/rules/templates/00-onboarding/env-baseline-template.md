@@ -211,6 +211,7 @@
 | 能力清单 | `{workroot}/capabilities/00-能力清单.md` |
 | 绑定详情 | `{workroot}/capabilities/bindings/browser-automation.md`（无则仅清单行） |
 | 启用/status 摘要 | `{以清单为准：启用 · kind · impl · status}` |
+| 截图落盘（若用 chrome-devtools + lazy 代理） | `filePath` 用**绝对路径**写入 `{ver}/evidence/...`；代理默认需放开写盘（见实例绑定）；禁相对路径/画字图顶替 |
 
 ### 8.3 产品版本/字段口径（按需）
 

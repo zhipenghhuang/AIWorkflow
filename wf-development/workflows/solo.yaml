@@ -164,7 +164,7 @@ steps:
     前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）；纯文档/无行为可 `na`；前端门第 7 项的独立评审 → 走 review 步（review_required）；有
     review → 核 `.gate/review.md` 缺口闭环；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。 先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原用例
     + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期。 测试报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发测试/自验）；P0
-    未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；读 `.gate/wf-development/completion.json`；非
+    未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<方案卡路径>"`；门末自动 Claim；读 `.gate/wf-development/completion.json`；非
     COMPLETE 不得进 closeout 报完成。 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/检查/结果/证据/缺口），不跑 completion-gate；closeout 写 `verification=not_applicable`。
     纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；closeout 写 `verification=not_applicable` + 依据。
 - name: 收尾与提交

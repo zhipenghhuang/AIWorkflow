@@ -6,10 +6,10 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.05`  
+> **template_version**：`2026.11.13.06`  
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
-> **完成口径**：自称完成/通过/可提测只认 `-Claim` → `CLAIM: ALLOWED`。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
+> **完成口径**：门末自动输出 `CLAIM: ALLOWED`（`-Claim` 仅复核）；无 ALLOWED 不写完成。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
 
 ## 0. 开工
 
@@ -57,7 +57,7 @@
 
 ### 0.4 验证与汇报
 
-自称完成/通过/可提测只认 `-Claim` → `CLAIM: ALLOWED`；验证与回写/部署分离见 `global-rules.md` §9。细则随当前步骤包 / `verify`，开局不预读。
+自称完成/通过/可提测只认门末自动（或 `-Claim` 复核）的 `CLAIM: ALLOWED`；验证与回写/部署分离见 `global-rules.md` §9。细则随当前步骤包 / `verify`，开局不预读。
 
 ### 0.5 工程与执行
 

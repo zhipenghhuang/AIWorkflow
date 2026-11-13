@@ -182,7 +182,7 @@ steps:
   gate_type: machine
   precondition: 缺陷修复卡/任务清单含本轮 AC 验收表（L1+）；无则先补
   on_fail: 停止本批；不得进入 menu/close，先修复、补证据或报阻塞
-  notes: 本批无代码/配置改动 → 跳过。有改动默认跑定向 completion（profile `*_scoped` + 受影响前端证据）；升全量条件见 verification §7。L1+ 无验收表先补；`task_id=BUG-*`
+  notes: 本批无代码/配置改动 → 跳过。有改动默认跑定向 completion（profile `*_scoped` + 受影响前端证据）；升全量条件见 verification §7。门末自动 Claim；L1+ 无验收表先补；`task_id=BUG-*`
     须含原单红证与回归/同类路径。用户明示跳过 Claim → 本步可记 `deviation=skip_claim` 并以本地验证摘要代替 COMPLETE（禁再开全量空转）。日志分诊：原始日志落盘；仅多文件语义归因才派子代理（≤30 行）。
 - name: 总结菜单
   id: menu

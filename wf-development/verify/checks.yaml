@@ -1,6 +1,7 @@
 # 检查矩阵（开发轨 · 人读策略）
 # 机器执行以 tools/gate.py 为准；本文件用于评审与调整，不要求 gate 解析。
 # 原则：高价值低成本默认做；高价值中成本按风险做；低价值高成本不做。
+# L1 无 test_scoped 且有 smoke → 只跑 smoke；无 smoke 才回退全仓 test。deferred=按风险裁剪不跑，不阻断 Claim。
 
 version: 1
 # 检查 id 名实：profile 配了 lint_scoped/test_scoped/e2e_scoped（含 {files}）→ targeted-* / affected-e2e；
@@ -12,10 +13,12 @@ levels:
     optional: []
     # 交叉：触及权限/状态/数据基数/唯一约束/多表面 → 升 L1+，并按 skills/cross-layer-consistency；代码/配置至少 L1（见 AGENTS §0.1 / DEV-VER 相关）
   L1:
-    description: 代码/配置，≤3 文件且≤1 模块，无接口/数据/权限变化（>3 文件或 >1 模块 → L2；与 rules/gates.md 的 L 档推导一致）
-    required: [build, lint-or-targeted-lint, test-or-targeted-test, smoke]
+    description: 代码/配置，≤3 文件且≤1 模块，无接口/数据/权限变化（模块数由验收 level 声明；>3 文件机检升 L2）
+    required: [build, lint-or-targeted-lint, smoke]
+    # 未配 smoke 时 test 回退为必跑；配 test_scoped 时定向 test 优先（见 rules/core/verification.md §7）
     frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, evidence-integrity]
-    optional: [a11y-basic, visual-diff]
+    # L1 未配 e2e_scoped → e2e 不跑全量；前端证据仍必
+    optional: [test-or-targeted-test, a11y-basic, visual-diff]
   L2:
     description: >3 文件或 >1 模块，或接口/数据/新功能变更
     required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage, nfr-baseline]
@@ -120,11 +123,11 @@ quality_gates:
 always:
   - acceptance-checklist
   - build
-  - test-or-targeted-test
   - smoke
 
 # 高价值中成本（按风险）
 risk_based:
+  - test-or-targeted-test
   - lint-or-targeted-lint
   - e2e-or-affected-e2e
   - frontend-screenshots
@@ -139,6 +142,7 @@ risk_based:
 # 低价值高成本（不做/少做）
 avoid:
   - full-regression-every-change   # 未配 *_scoped 时 project-* 已是全仓；发布/L3 另跑全量
+  - full-test-for-L1               # L1 有 smoke 时用 smoke + 验收证据，不跑全仓 test
   - pixel-diff-every-page
   - exhaustive-a11y-every-change
   - multiple-approval-layers

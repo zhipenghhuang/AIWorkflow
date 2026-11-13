@@ -94,7 +94,8 @@ steps:
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 门禁摘要/文档同步
-  notes: Invoke-Gate → Claim；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无 UI 标 na）。
+  notes: Invoke-Gate 门末自动 Claim（-Claim 仅复核）；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无
+    UI 标 na）。
 - name: 提测与发布文档
   id: deliver
   skills:

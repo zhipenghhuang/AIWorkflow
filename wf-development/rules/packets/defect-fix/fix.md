@@ -139,7 +139,7 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 # 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
 python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
 
-# 4) 完成口令
+# 4) 完成口令：门末自动输出 CLAIM；仅复核时执行（本步无 completion-gate 则跳过）
 powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ```
 
