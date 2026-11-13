@@ -18,7 +18,7 @@ modes:
     manual: [gap-accepted, release-gate, defect-regression, coverage-matrix, exploration-close, s6-s7-s11, p0-conclusion]
   writeback:
     required: [writeback-receipt]
-    manual: [note-status-same-round, attachment-check, platform-id]
+    manual: [note-status-same-round, attachment-check, platform-id, regression-range-card]
 
 # 高价值低成本（默认）
 always:

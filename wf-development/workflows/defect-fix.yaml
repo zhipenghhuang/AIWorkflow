@@ -144,15 +144,16 @@ steps:
   when: implementation_required
   agent: defect-fixer
   output: 修复/方案/验证结果
-  notes: '**前置**：本批 triage【分类表】已输出；未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行；待产品行不扩写。开跑声明 mode=（同文件集→单写手）。 修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归细则见
-    fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。 **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md`，不另造表。
-    L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id: BUG-<id>）或任务清单 AC 表；须含原单复现/红证与回归/同类路径。 **动手前**：先 `verify/Invoke-Gate.ps1
-    -StartTask -TaskId "BUG-<id>" -ProjectRoot "."`（冻结 `base_commit`；截图须晚于 `started_at`/验收清单）→ 来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→
-    短【实施预检】（DEV-IQ-09；**命中须先扩 SC/债项**）；命中重要面同批硬补（DEV-IQ-10）；勾选 `iq-checklist.md`；单元=一条 SC；方法 `skills/implementation-and-selftest/SKILL.md`。
-    按 `skills/cross-layer-consistency/SKILL.md` 做同类路径扫描：同模型其他写入口、同谓词其他消费方、同权限端点/菜单、同状态其他表面；逐条判「同defects/已正确/不适用」，原单+同类路径各补一条回归；记录根因层/规则缺口。
-    **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改 rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。 实现缺陷→按缺陷修复协作修；产品已认可/修改后认可→按新产品文档/评估单实施；产品改判实现缺陷→按产品说明修，备注引用产品结论。
-    复杂实施再按 `rules/templates/20-design/solution-template.md` 展开，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`；简单修复不强制完整方案，但须更新受影响文档/任务清单。
-    L1+ UI 命中前端硬门 A 级、L2+ / 高风险/大改/破坏性：核验者≠实施者（派 `reviewer-agent` 独立核验或走 `code-review` 技能；只给原单＋diff＋红绿命令；核验不替代门禁），并写 `.gate/review.md`
+  notes: '**前置**：本批 triage【分类表】已输出；未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行；待产品行不扩写。开跑声明 mode=（同文件集→单写手）。 修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归/验证站轻验见
+    fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。修后：本地硬验；测环境依赖且已部署验证站→相关模块轻验（原入口+同模块≤2）；完整复测归测试。 **先写缺陷修复卡**（原单口径/SC
+    差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md`，不另造表。 L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id:
+    BUG-<id>）或任务清单 AC 表；须含原单复现/红证与回归/同类路径。 **动手前**：先 `verify/Invoke-Gate.ps1 -StartTask -TaskId "BUG-<id>" -ProjectRoot "."`（冻结
+    `base_commit`；截图须晚于 `started_at`/验收清单）→ 来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→ 短【实施预检】（DEV-IQ-09；**命中须先扩 SC/债项**）；命中重要面同批硬补（DEV-IQ-10）；勾选
+    `iq-checklist.md`；单元=一条 SC；方法 `skills/implementation-and-selftest/SKILL.md`。 按 `skills/cross-layer-consistency/SKILL.md`
+    做同类路径扫描：同模型其他写入口、同谓词其他消费方、同权限端点/菜单、同状态其他表面；逐条判「同defects/已正确/不适用」，原单+同类路径各补一条回归；记录根因层/规则缺口。 **DEV-IQ-08**：同根因族 ≥2 → 除回归外须拟改
+    rules/skills/检查项缺口（先拟改+原因+影响，用户确认后改母版或项目适配）；禁止只关单号。 实现缺陷→按缺陷修复协作修；产品已认可/修改后认可→按新产品文档/评估单实施；产品改判实现缺陷→按产品说明修，备注引用产品结论。 复杂实施再按
+    `rules/templates/20-design/solution-template.md` 展开，文件名 `方案-BUG-{id}-{主题}-{yyyyMMdd}.md`；简单修复不强制完整方案，但须更新受影响文档/任务清单。 L1+
+    UI 命中前端硬门 A 级、L2+ / 高风险/大改/破坏性：核验者≠实施者（派 `reviewer-agent` 独立核验或走 `code-review` 技能；只给原单＋diff＋红绿命令；核验不替代门禁），并写 `.gate/review.md`
     供完成门核对。 **修复分片**（子代理编排）：≥3 单且文件不重叠 → 一组一子代理（worker-agent；文件不相交可并行≤3；同文件/同根因合并组；「同为实现缺陷」alone 不够）；达阈值未分片→deviation=subagent_skipped:<理由>；不达阈值直做；子代理禁
     commit/push/改平台，返回 ≤30 行可直填备注的事实素材（`rules/defects/fix-collaboration.md`）。'
 - name: 澄清/非缺陷回写
@@ -225,8 +226,8 @@ steps:
   when: has_deployed
   agent: defect-fixer
   output: 发布后verify/发布记录
-  notes: 条件步：本轮含部署才走。按发布说明跑主链路冒烟与关键回归；观察日志/指标/告警。 触发回滚条件 → 按发布说明回滚，不恋战；更新 {workroot}/60-release/发布记录-{版本}.md、发布说明、`{workroot}/INDEX.md`、`activeContext`。
-    失败/回滚不重复回写已回写项；需要时转 retro。
+  notes: 条件步：本轮含部署才走。按发布说明跑主链路冒烟；原单依赖测环境时做相关模块轻验（fix-collaboration §4.5：原入口+同模块≤2）；完整复测归测试。观察日志/指标/告警。 触发回滚条件 → 按发布说明回滚，不恋战；更新
+    {workroot}/60-release/发布记录-{版本}.md、发布说明、`{workroot}/INDEX.md`、`activeContext`。 失败/回滚不重复回写已回写项；需要时转 retro。
 - name: 复盘
   id: retro
   skills:

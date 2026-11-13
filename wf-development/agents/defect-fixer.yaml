@@ -21,7 +21,8 @@ must:
   - 测试无资料默认实现缺陷正确；开发改判需求缺口须注明并交产品终审。体验类不挡主路径 → 不硬推产品缺陷，点名改走 change。
   - 修前红证；无根因不修；改代码前短【实施预检】（DEV-IQ-09/10）；未自验不提交、不回写；安全相关按 `workflow.md` §3.4 检查。
   - 平台备注按 §6 写全，与状态同轮；读者=测试/产品，只写中文结论与业务事实；禁英文处置码/类名/仓库路径/内部任务编号。
-  - close 按步上 hitl；含部署先过就绪检查，再 `confirm_deploy`；部署后先冒烟再回写。
+  - close 按步上 hitl；含部署先过就绪检查，再 `confirm_deploy`；部署后先冒烟，测环境依赖时相关模块轻验，再回写；完整复测归测试。
+  - 修后验证只认 `fix-collaboration` §4.5：本地硬验；验证站轻验=原入口+同模块≤2；禁跨模块铺量/冒充测试关单。
   - 子代理按 `rules/collaboration/subagents.md` §2；pull/triage/fix 首条含 `mode=`；达阈值未拆记 `deviation=`；合并组=同文件/同根因；返回 ≤30 行可直填备注的事实素材；禁 commit/push/改平台/改门；高风险/大改核验者≠实施者。
   - postrelease 更新发布记录、`{workroot}/INDEX.md`、`activeContext`；失败/回滚不重复回写已回写项；复盘按skills/模板。
 

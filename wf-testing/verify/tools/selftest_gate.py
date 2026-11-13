@@ -31,6 +31,43 @@ GOOD["docs/capabilities/00-能力清单.md"] = (
 )
 
 
+WB_RECEIPT = """# 写回回执 · 回归写回
+
+| 单号 | 动作 | 写回后状态 | 备注 | 附件回查 |
+| --- | --- | --- | --- | --- |
+| #2004 | close | closed | 回归通过：原问题已消除 | 无附件；actionId=1 |
+
+## 回归范围卡
+
+- 构建=2.8.4 · 0159dce
+- 回归范围=默认
+- 冒烟=批 B-01 一次（SMK-01 通过）
+- 影响面=直接 列表口径；邻接 详情口径（共 2 条，2 通过/0 失败）
+- 未覆盖=无
+"""
+
+WB_PLAIN = """# 写回回执 · 补充澄清
+
+| 单号 | 动作 | 写回后状态 | 备注 | 附件回查 |
+| --- | --- | --- | --- | --- |
+| #2004 | comment | active | 已补充环境信息 | 无附件；actionId=2 |
+"""
+
+WB_NO_CARD = WB_RECEIPT.split("## 回归范围卡")[0]
+WB_SMOKE_UNWAIVED = WB_RECEIPT.replace(
+    "冒烟=批 B-01 一次（SMK-01 通过）", "冒烟=未跑"
+)
+WB_SMOKE_WAIVED = WB_RECEIPT.replace(
+    "冒烟=批 B-01 一次（SMK-01 通过）", "冒烟=未跑（原因=无冒烟清单；接受人=用户）"
+)
+WB_NO_UNCOVERED = WB_RECEIPT.replace("- 未覆盖=无\n", "")
+WB_TEMPLATE_RANGE = WB_RECEIPT.replace("回归范围=默认", "回归范围=默认|扩大")
+WB_TEMPLATE_SMOKE = WB_RECEIPT.replace(
+    "冒烟=批 B-01 一次（SMK-01 通过）", "冒烟=批 {id} 一次（SMK-… 通过）"
+)
+WB_IMPLICIT = WB_PLAIN.replace("comment", "close").replace("已补充环境信息", "回归通过：原问题已消除")
+
+
 def _upgrade_plan(text: str) -> str:
     text = text.replace(
         "| 构建 / 版本 | b1 |",
@@ -308,6 +345,16 @@ def main() -> int:
             GOOD,
         ), "coverage", "FAIL", None,
     ))
+
+    cases.append(("good-writeback-regression", {"docs/写回回执.md": WB_RECEIPT}, "writeback", "PASS", None))
+    cases.append(("writeback-plain-comment", {"docs/写回回执.md": WB_PLAIN}, "writeback", "PASS", None))
+    cases.append(("writeback-no-card", {"docs/写回回执.md": WB_NO_CARD}, "writeback", "FAIL", None))
+    cases.append(("writeback-smoke-unwaived", {"docs/写回回执.md": WB_SMOKE_UNWAIVED}, "writeback", "FAIL", None))
+    cases.append(("writeback-smoke-waived", {"docs/写回回执.md": WB_SMOKE_WAIVED}, "writeback", "PASS", None))
+    cases.append(("writeback-no-uncovered", {"docs/写回回执.md": WB_NO_UNCOVERED}, "writeback", "FAIL", None))
+    cases.append(("writeback-template-range", {"docs/写回回执.md": WB_TEMPLATE_RANGE}, "writeback", "FAIL", None))
+    cases.append(("writeback-template-smoke", {"docs/写回回执.md": WB_TEMPLATE_SMOKE}, "writeback", "FAIL", None))
+    cases.append(("writeback-implicit-regression", {"docs/写回回执.md": WB_IMPLICIT}, "writeback", "FAIL", None))
 
     failed = 0
     for name, files, mode, expected, scope in cases:

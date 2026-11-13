@@ -51,7 +51,10 @@
 - 开跑声明 mode=（同文件集→单写手）。
 - 修前红证。
 - 无根因不修。
-- 复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归细则见 fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。
+- 复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归/验证站轻验见 fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。
+- 修后：本地硬验。
+- 测环境依赖且已部署验证站→相关模块轻验（原入口+同模块≤2）。
+- 完整复测归测试。
 - **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码。
 - 矩阵与判定只认 本包 §5 规则卡（矩阵见 `rules/core/implementation-quality.md` 当前节），不另造表。
 - L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id: BUG-<id>）或任务清单 AC 表。

@@ -2024,6 +2024,47 @@ def _writeback_receipt_rank(path: Path) -> tuple:
     return (tier, -mtime)
 
 
+_REGRESSION_WRITEBACK = re.compile(r"回归写回|回归范围卡|回归结论|resolve_fixed", re.I)
+_REGRESSION_SIGNAL = re.compile(r"回归|复测", re.I)
+_STATUS_ACTION = re.compile(r"关闭|激活|(?<!方案)解决|close|activate", re.I)
+
+
+def _filled(val: str) -> bool:
+    v = (val or "").strip()
+    return bool(v) and v not in ("—", "-", "无") and "{" not in v and not v.startswith(("…", "..."))
+
+
+def _regression_card_issues(text: str) -> list[str]:
+    """回归写回须暴露构建/范围/冒烟/影响面/未覆盖；未跑或未覆盖须有接受人。"""
+    if not (_REGRESSION_WRITEBACK.search(text)
+            or (_REGRESSION_SIGNAL.search(text) and _STATUS_ACTION.search(text))):
+        return []
+    issues: list[str] = []
+    m = re.search(r"构建\s*[=:：]\s*([^\n]*)", text)
+    if not _filled(m.group(1) if m else ""):
+        issues.append("回归写回缺构建")
+    if not re.search(r"回归范围\s*[=:：]\s*(默认|扩大)(?=\s|$|[；;，,。.（(）)])", text, re.M):
+        issues.append("回归写回缺范围（默认|扩大）")
+    checks = (
+        ("冒烟", r"冒烟\s*[=:：]\s*([^\n]*)", r"^(未跑|未执行|未另跑|N/?A|不适用)"),
+        ("影响面", r"影响面\s*[=:：]\s*([^\n]*)", r"^(无|未跑|未执行|未测|N/?A|不适用)"),
+    )
+    for label, pattern, no_run in checks:
+        m = re.search(pattern, text)
+        val = m.group(1).strip() if m else ""
+        if not _filled(val):
+            issues.append(f"回归写回缺{label}")
+        elif re.match(no_run, val, re.I) and not re.search(r"接受人|确认人|用户确认", val):
+            issues.append(f"{label}未跑/未覆盖须写接受人")
+    m = re.search(r"未覆盖\s*[=:：]\s*([^\n]*)", text) or re.search(r"豁免\s*[=:：]\s*([^\n]*)", text)
+    val = m.group(1).strip() if m else ""
+    if not val or "{" in val or val.startswith(("…", "...")):
+        issues.append("回归写回缺未覆盖/豁免结论")
+    elif not val.startswith("无") and not re.search(r"接受人|确认人|用户确认", val):
+        issues.append("未覆盖项须写接受人")
+    return issues
+
+
 def parse_writeback(test_root: Path) -> dict[str, Any]:
     receipts: list[Path] = []
     if test_root.is_dir():
@@ -2045,6 +2086,7 @@ def parse_writeback(test_root: Path) -> dict[str, Any]:
         issues.append("回写凭据缺附件回查")
     if "已回写" in text and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", text, re.I):
         issues.append("声称已回写但缺回执")
+    issues.extend(_regression_card_issues(text))
     return {"issues": issues, "path": str(receipt)}
 
 
