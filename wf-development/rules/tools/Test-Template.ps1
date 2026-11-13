@@ -152,6 +152,13 @@ if (Test-Path -LiteralPath $skillDir) {
     Get-ChildItem -LiteralPath $skillDir -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue |
         ForEach-Object { $scanFiles.Add($_.FullName) }
 }
+foreach ($rel in @('workflows', 'verify')) {
+    $d = Join-Path $Root $rel
+    if (Test-Path -LiteralPath $d) {
+        Get-ChildItem -LiteralPath $d -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue |
+            ForEach-Object { $scanFiles.Add($_.FullName) }
+    }
+}
 
 # ---------- [1/4] 引用可解析 ----------
 foreach ($file in $scanFiles) {

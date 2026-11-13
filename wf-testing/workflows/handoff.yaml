@@ -84,8 +84,9 @@ steps:
   - name: confirm_plan
     when: plan_needs_confirm
   output: 变更影响分析 + 测试计划/用例调整 + 回执
-  notes: 读变更包 00/01/02；按 判级别；核对 CR、影响矩阵、生效版本、回归范围。 先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。 更新 `{workroot}/changes/CR-*.md`、测试计划、受影响用例/脚本；C2/C3
-    回计划门。 更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
+  notes: 读变更包 00/01/02；按 `rules/collaboration/handoff.md` 判级别；核对 CR、影响矩阵、生效版本、回归范围。 先做影响分析：需求/AC、范围/准出、用例/脚本、执行编排、缺陷、报告、数据/环境。
+    更新 `{workroot}/changes/CR-*.md`、测试计划、受影响用例/脚本；C2/C3 回计划门。 更新 `handoff-ledger.md`、 `{workroot}/INDEX.md`、activeContext；填写回执。
+    与现有计划/用例冲突 → 列冲突，不静默选一边；未裁决前不执行。
 - name: 重规划
   id: replan
   skills: []

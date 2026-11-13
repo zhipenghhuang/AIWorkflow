@@ -94,8 +94,8 @@ steps:
   notes: 只改受影响章节；保留稳定 ID；正式产物直接替换旧结论（不留“已作废/旧方案”说明），变更前后与原因只记 CR/变更记录。 更新：需求台账/PRD、迭代计划/任务清单、方案/ADR、DB/API/前端、测试/发布文档（按影响）。
     更新：`开发计划` （计划状态/当前门/下一动作）、（受影响阶段/范围）、/、 执行日志；`{workroot}/INDEX.md`、`activeContext`。 更新 `handoff-ledger.md`：受影响交接包标 `已取代/需重发`；C1+
     **建议**发 `CHG`（先问后发）；未正式签收场景不以缺回执阻塞日常吸收完成判定。 不新建重复文档；同一主题就地更新；不同工作先问用户。 本步只准备，不实施代码；实施走 change/iterate。 **换迭代/关版本（强制）**：新迭代文档已采纳或换主题/换代
-    → 按 `rules/doc-governance.md`；不确定当前是否结束 → STOP `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 关账（T2/T4 保留仍被引用的基础设计/流程图/原型；分析分类/归档/清理/修链；跳过仅发版项）。用户说并行不关
-    → 只落新资料。
+    → 按 `rules/doc-governance.md`；不确定当前是否结束 → STOP `confirm_iteration_close`；确认后先判 T1/T2/T4，再按 `rules/doc-governance.md` 关账（T2/T4
+    保留仍被引用的基础设计/流程图/原型；分析分类/归档/清理/修链；跳过仅发版项）。用户说并行不关 → 只落新资料。
 - name: 吸收报告
   id: report
   skills: []

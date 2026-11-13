@@ -70,8 +70,8 @@ steps:
   - name: confirm_handoff
     when: handoff_send_required
   output: '{workroot}/handoff/outbound/变更/{CHG-HO-ID}/ + 更新后的受影响文档'
-  notes: 先按 `workflows/change.yaml` 完成受理/影响/处置/变更单；本步只负责“通知包”。 按 判 C0～C3；C2/C3 先过 `confirm_change`/`confirm_plan`。 **CHG 包同样先问后发**：`confirm_handoff`
-    出示拟发摘要，确认后才生成。 必带：变更单、更新后 PRD/AC/原型、影响矩阵、必做事项/截止、兼容/回滚、生效版本。 多包同仓直读，禁止转发；仓外发文件夹/ZIP。
+  notes: 先按 `workflows/change.yaml` 完成受理/影响/处置/变更单；本步只负责“通知包”。 按 `rules/collaboration/handoff.md` 判 C0～C3；C2/C3 先过 `confirm_change`/`confirm_plan`。
+    **CHG 包同样先问后发**：`confirm_handoff` 出示拟发摘要，确认后才生成。 必带：变更单、更新后 PRD/AC/原型、影响矩阵、必做事项/截止、兼容/回滚、生效版本。 多包同仓直读，禁止转发；仓外发文件夹/ZIP。
 - name: 接收变更并适配
   id: change_receive
   skills: []
@@ -84,8 +84,9 @@ steps:
   - name: confirm_plan
     when: plan_level_change
   output: 变更影响分析 + 产品计划/文档调整 + 回执
-  notes: 读变更包 00/01/02；按 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。 先做影响分析：PRD/AC、原型、范围/优先级、里程碑、UAT/发布、需求池、通知对象。 C0 → 就地更新并书面答复；C1 → 更新受影响文档/计划，回执；C2/C3
-    → 重基线并过门，必要时反向发 `CHG`。 更新 `handoff-ledger.md`、产品计划、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有 PRD/计划冲突 → 列冲突，不静默选一边；未裁决前不进入实施/排期。
+  notes: 读变更包 00/01/02；按 `rules/collaboration/handoff.md` 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。 先做影响分析：PRD/AC、原型、范围/优先级、里程碑、UAT/发布、需求池、通知对象。
+    C0 → 就地更新并书面答复；C1 → 更新受影响文档/计划，回执；C2/C3 → 重基线并过门，必要时反向发 `CHG`。 更新 `handoff-ledger.md`、产品计划、 `{workroot}/INDEX.md`、activeContext；填写回执。
+    与现有 PRD/计划冲突 → 列冲突，不静默选一边；未裁决前不进入实施/排期。
 - name: 重规划
   id: replan
   skills: []

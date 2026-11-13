@@ -14,15 +14,15 @@
 
 ### 1.2 执行路径（默认完整，轻量需条件）
 
-> T0～T3 仅为内部风险标签，按事实判定；只有补丁/单模块且不承担版本准出才轻量，其余默认完整。
+> T0～T3 仅为内部风险标签，按事实判定；只有补丁/单模块、无新增功能面且不承担版本准出才轻量，其余默认完整。
 
 | 路径 | 触发 | 计划 | 执行 |
 | --- | --- | --- | --- |
-| 轻量 | 补丁/单模块，不承担版本准出，无跨模块/权限/数据/安全 | 轻量计划（`plan_tier=lite`） | P0 冒烟 + 命中意图 + 影响面 + 已脚本化回归 |
+| 轻量 | 补丁/单模块，无新增功能面，不承担版本准出，无跨模块/权限/数据/安全 | 轻量计划（`plan_tier=lite`） | P0 冒烟 + 命中意图 + 影响面 + 已脚本化回归 |
 | 完整 | 版本/发布列车/对外发布/版本准出（默认） | 完整计划 | R0～R2 按计划 |
 | T3 专项 | 权限/资金/数据/迁移/安全 | 完整计划 + 专项 | 全量命中 + 性能/安全/兼容/迁移 |
 
-**不确定**：事实不足或轻量/完整都能解释 → 先问 1 个关键问题；不得静默用轻量。YAML `when` 不满足可跳过相应步，但须在收尾 `skip=` 记录理由。
+**不确定**：事实不足或轻量/完整都能解释 → 先问 1 个关键问题；不得静默用轻量。YAML `when` 不满足可跳过相应步，须在收尾 `when_eval=假:<依据>`；手工跳过须用户同意并记 `skip=user:<理由>`。
 **走链**：单步口令按「入口即止」只做该步；完整任务用「按计划/继续」推进到本轮终态。不得无提示断链，也不得越过门自动跑完。
 **机器下限**：轻量计划写 `plan_tier=lite` + `版本准出=否`；声明 `版本准出=是` 必须完整计划。
 
@@ -39,8 +39,8 @@
 > 功能/接口=`{NN}-{短名}-执行记录.md`；探索=`{主题}-{yyyyMMdd-HHmm}-探索记录.md`；随机=`{主题}-{戳}-随机记录.md`；发布前=`{专项}-测试方案.md` + `{专项}-test-report.md`。
 > 证据默认 `{ver}/evidence/`（叶名含 SC/发现号；**只放断言终态**）；过程/中间态进 `{ver}/.draft/`（或轨内 `.draft/`）。共享执行器 `{workroot}/scripts/`。
 > `{ver}` 取环境基线「当前版本/主题」或 `INDEX`/`activeContext` 指针；开跑只打开当前版夹。
-> **证据终态制**：每场景正式证据通常 1～2 叶（绿证或失败终态+钉点截图）；重试/探查/半成品 JSON **禁止**升格进 `evidence/`（见 `global-rules` §9、`doc-quality` §1.2.1）。
-> **缺陷提交回执**：优先 `functional/缺陷*回执*.md`（或 `api/`）；亦可 `evidence/*回执*.md`；勿放 `.draft`。
+> **证据终态制**：每场景正式证据通常 1～2 叶（绿证或失败终态+钉点截图）；重试/探查/半成品 JSON **禁止**升格进 `evidence/`（见 `global-rules` §9、`doc-quality` §1 第 2.2 条）。
+> **缺陷写回回执**：`{ver}/写回回执.md`（本轮覆盖；有写回才建）；禁按日另建、禁另开夹、禁塞 `functional/`；勿放 `.draft`。
 
 ```text
 {workroot}/
@@ -49,11 +49,11 @@
 ├─ _archive/{yyyyMMdd}-{ver}/
 └─ {ver}/
    ├─ test-analysis.md / test-plan.md / test-report.md
+   ├─ 写回回执.md                     # 本轮平台写回凭据（覆盖；有写回才建）
    ├─ changes/CR-*.md
    ├─ .draft/                         # 过程/中间态（不参与对账）
    ├─ evidence/                       # 断言终态叶 only
    ├─ functional/{NN}-{短名}-执行记录.md
-   ├─ functional/缺陷*回执*.md          # 写回/提交回执（优先）
    ├─ api/{NN}-{短名}-执行记录.md
    ├─ exploratory/{主题}-{戳}-探索记录.md
    ├─ random-flows/_覆盖账本.md + {主题}-{戳}-随机记录.md
@@ -63,7 +63,8 @@
 | 轨 | 正式产物（均相对 `{workroot}/{ver}/`） | 过程 | 契约 |
 | --- | --- | --- | --- |
 | 跨轨 | `test-analysis.md`、`test-plan.md`；准出 SSOT=`rules/special/multi-track-quality.md` | `{ver}/.draft/` | Q0～Q10 |
-| 功能 | `functional/{NN}-{短名}-执行记录.md`；缺陷回执 `functional/*回执*.md` | `.draft/` | `templates/20-test-cases/test-case-template.md` |
+| 缺陷协作 | `写回回执.md`（本轮覆盖；提交/状态写回） | `.draft/` | `defects/collaboration.md` |
+| 功能 | `functional/{NN}-{短名}-执行记录.md` | `.draft/` | `templates/20-test-cases/test-case-template.md` |
 | 接口 | `api/{NN}-{短名}-执行记录.md` | `.draft/` | `tracks/api.md` |
 | 探索式 | `exploratory/{主题}-{戳}-探索记录.md` | `.draft/` | `tracks/exploratory.md` |
 | 随机业务流程 | `random-flows/{主题}-{戳}-随机记录.md` + `_覆盖账本.md` | `.draft/` | `tracks/random-flows.md`（计划外） |
@@ -142,7 +143,7 @@
 
 ### 2.6 接口
 
-见 `tracks/api.md`；迭代默认纳入（`multi-track-quality` §0）。使用 `api-test-case-template.md`（执行记录）。落盘 `{ver}/api/{NN}-{短名}-执行记录.md`；脚本 `{workroot}/scripts/`；契约清单 + 适用维 + 判定三要素 + 脚本默认；迭代 depth=standard、发版 full、补丁 core；UI 探针 ≠ 本轨。
+见 `tracks/api.md`；迭代必须纳入（整轨否仅 `multi-track-quality` §0 白名单+用户确认）。使用 `api-test-case-template.md`（执行记录）。落盘 `{ver}/api/{NN}-{短名}-执行记录.md`；脚本 `{workroot}/scripts/`；契约清单 + 适用维 + 判定三要素 + 脚本默认；迭代 depth=standard、发版 full、补丁 core；UI 探针 ≠ 本轨。
 
 ### 2.7 发布前
 

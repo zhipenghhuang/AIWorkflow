@@ -23,7 +23,7 @@
 | 对象 | 需求依据 / 分析 / 计划 / 执行记录 / 报告 / 缺陷 / 交接 | … |
 | 结果 | 结束时交付什么 | 分析+计划 / 执行记录 / 准出 / 平台提交 / 交接 |
 | 连续 | 新开、续跑、回归、纠正？ | new / resume / regress / correct |
-| 体量 | 补丁/模块/版本/高风险？哪条轨？ | 不选级别；只有补丁/单模块且不承担版本准出才轻量 |
+| 体量 | 补丁/模块/版本/高风险？哪条轨？ | 不选级别；只有补丁/单模块、无新增功能面且不承担版本准出才轻量 |
 
 **快速启发**：
 
@@ -72,7 +72,7 @@
 ## 5. 首条格式
 
 ```text
-route=workflow:<id> | step=<id> | role=<agent> | mode=… | reason=<意图类+信号> | next_action=…
+route=workflow:<id> | step=<id> | agent=<agent> | mode=… | reason=<意图类+信号> | next_action=…
 ```
 
 - 纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=…`。

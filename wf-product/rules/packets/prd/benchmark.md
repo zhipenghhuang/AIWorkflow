@@ -11,7 +11,6 @@
 - **后续**：`prioritize`（进 `prioritize` 前的 `when=new_requirement_or_scope_change`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:benchmark_or_mode_p`**：口令为竞品对标/功能对标/对标分析/功能差距，或 discover 已分诊为模式 P；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 

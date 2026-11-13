@@ -4,8 +4,8 @@
 > **新会话必读顺序（硬）**：入口已是本文 → ① 开局卡 → ② `activeContext` → ③ `global-rules.md` → ④ `workflows/<id>.md` → ⑤ 当前步骤卡 → ⑥ §6 skill（整卡）→ ⑦ 步骤卡 §7 点名的模板（通常 1 份）；未路由时用 §3 口令表。  
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
-> **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；用户冲突见 §0 第 5 条。  
-> **template_version**：`2026.11.12.02`  
+> **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
+> **template_version**：`2026.11.13.01`  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
@@ -34,7 +34,7 @@
 | 新版本/0→1 | 新产品/新版本/战略 | new-product→plan→PRD→原型→交付→发布 | 无 |
 | 高风险 | 权限/资金/数据/合规/不可逆 | 标准产品 + 专项/独立评审/发布门 | 无 |
 
-**不确定**：事实不足或两条路径都能解释 → 先问 1 个关键问题；不得静默降档；用户明确要求从简才可降，并记录 `deviation=`。YAML `when` 不满足可跳过相应步，但须在收尾 `skip=` 记录理由。  
+**不确定**：事实不足或两条路径都能解释 → 先问 1 个关键问题；不得静默降档；用户明确要求从简才可降，并记录 `deviation=`。YAML `when` 不满足可跳过相应步，须在收尾 `when_eval=假:<依据>`；手工跳过须用户同意并记 `skip=user:<理由>`。  
 **走链**：路径表是完整任务链/能力边界；单步口令按「入口即止」只做该步；完整任务用「按链/按计划/继续」推进到下一个门/停点。不得无提示断链，也不得越过门自动跑完。
 
 ### 0.2 硬红线

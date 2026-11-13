@@ -181,7 +181,7 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     text = re.sub(r"按实施质量门[^\n；。]*", "按本包 §5 实施预检卡", text)
     text = re.sub(
         r"`?implementation-quality\.md`?(?:\s*§[\d.]+)?",
-        "本包 §5 规则卡",
+        "本包 §5 规则卡（矩阵见 `rules/core/implementation-quality.md` 当前节）",
         text,
     )
     text = re.sub(
@@ -361,7 +361,7 @@ def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
     text = re.sub(r"按实施质量门[^\n；。]*", "按本包 §5 实施预检卡", text)
     text = re.sub(
         r"`?implementation-quality\.md`?(?:\s*§[\d.]+)?",
-        "本包 §5 规则卡",
+        "本包 §5 规则卡（矩阵见 `rules/core/implementation-quality.md` 当前节）",
         text,
     )
     text = re.sub(
@@ -494,6 +494,7 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛�
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
 - **DEV-IQ-22（顺序硬）**：方案 → 分析理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。**方法**见 §6 `implementation-and-selftest`。
 - **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then；验收清单写 `implement_preflight`/`sc_trace`（缺则 Claim BLOCKED）。
+- **矩阵/词表**：命中权限/状态/数据基数/多表面或需判定时，按需打开 `rules/core/implementation-quality.md` 当前节；本卡只列门槛，不重复矩阵。
 - **自测硬门槛**：每条 SC 有验证；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
 - 独立评审 → 本链 `review`；不在本步自称已评审。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（阈值与隔离见 `rules/collaboration/subagents.md`；达阈值未拆记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。"""
 
@@ -779,11 +780,17 @@ def render_chain_packet(
             "其余跨链走重新路由或 handoff；诊断可读对方状态图。"
         )
     else:
-        full_note = (
-            "本链为全链入口；按表推进到下一个门/停点。"
-            if chain_full
-            else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
-        )
+        if chain_full and wid == "onboard":
+            full_note = (
+                "本链按入口分级：接入/重新接入/基线/生成档案/装配能力入口推进到 `verify` 打标；"
+                "资料收取/文档治理/清理入口只做该步 + 收尾，不连带其余接入步。"
+            )
+        else:
+            full_note = (
+                "本链为全链入口；按表推进到下一个门/停点。"
+                if chain_full
+                else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
+            )
         cross_line = "跨链：重新路由或 handoff；诊断可读对方状态图，不打开对方 packet。"
     track_line = (
         "- **轨道**：只接无正式迭代/正式协作（单人或团队，含大改动/高风险）；有正式协作/迭代或需正式发布/QA/交接 → 完整链；大改动/高风险按 `lightweight.md` §2 提高严谨度，不换链。\n"
@@ -806,7 +813,7 @@ def render_chain_packet(
 ## 3. 推进
 
 - {full_note}
-- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `skip=理由`。
+- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `when_eval=假:<依据>`（手工跳过记 `skip=user:<理由>`）。
 - 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
 - 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。
 - 失败：按状态表“失败/跳过”回退或停下；不静默跳过。
@@ -1183,14 +1190,9 @@ def render_packet(
     risk = ""
     if when:
         risk += when_line(str(when), when_map, "when", "跳过本步（不打开本包）") + "\n"
-    if (root / "rules" / "core" / "frontend-gate.md").is_file():
+    if needs_frontend_gate(root, wid, sid):
         risk += (
-            "- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；"
-            "**必开技能与 Claim/HITL 不降**。\n"
-        )
-    else:
-        risk += (
-            "- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；"
+            "- **轻量路径**：纯文档/无行为/无 UI 时，可将预检、前端硬门标 `na`（一句理由）；"
             "**必开技能与 Claim/HITL 不降**。\n"
         )
 

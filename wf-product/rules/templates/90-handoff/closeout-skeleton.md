@@ -9,7 +9,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={可定稿|草稿|阻塞|不适用} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 待确认={n|列表|无}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | when_eval={假:<依据>|无} | deviation={…|无}
 ```
 
 - 有门产物 → 回执与 `.gate/wf-product/{mode}.json` 一致（`READY/DRAFT/BLOCKED`）；无门 → `结论=不适用` + 自检依据，**不伪造**门回执。  

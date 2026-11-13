@@ -4,14 +4,14 @@
 
 > **适用**：产品侧处理禅道/Jira/ONES 等平台的缺陷，尤其是测试直接提交并指派给产品、开发提交产品缺陷评估单待产品评审、产品缺陷待处置。  
 > **来源两类**：`测试直提`（测试判定产品缺陷，直接指派产品，不经开发）与 `开发评估单`（开发判定产品缺陷，提交评估单并指派产品）。  
-> **步骤顺序**以 `../workflows/defect.yaml` 为准；分析/处置方法见 `../skills/change-management/SKILL.md`；平台配置见 `product-profile.md` §7。  
+> **步骤顺序**以 `workflows/defect.yaml` 为准；分析/处置方法见 `skills/change-management/SKILL.md`；平台配置见 `product-profile.md` §7。  
 > **确认门只认步上 hitl**：`confirm_remark`（平台回写）、`confirm_change`（处置）、`confirm_plan`（计划级）；本文不另造门。  
 > **三包独立**：不假设开发/测试包同目录；产品处置单落本包目录，附件上传平台；开发/测试从平台读取，不引用本包内部路径。
 
 ## 0. 启动与输出门
 
 ```text
-route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|ANALYZE|AWAIT_CONFIRM|WRITEBACK|…
+route=workflow:defect | step=… | agent=pm-lead | next_action=LOGIN|LIST|PULL|ANALYZE|AWAIT_CONFIRM|WRITEBACK|…
 ```
 
 | 时机 | 输出 |
@@ -19,7 +19,7 @@ route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|AN
 | 启动 | 启动回执；缺平台配置时说明降级方式，禁只回「请提供编号」 |
 | 拉取后 | 缺陷清单摘要（空清单也要输出）；标明来源=测试直提/开发评估单 |
 | 开发评估单 | 已读评估单 + 复核结论（认可/修改后认可/不认可/判定实现/判定非问题） |
-| 测试直提 | 分诊结论（产品缺陷/实现defects/非问题/重复/信息不足）+ 依据 |
+| 测试直提 | 分诊结论（产品缺陷/实现缺陷/非问题/重复/信息不足）+ 依据 |
 | 每条分析后 | 分诊/依据/处置建议（写入受理单）、指派对象、目标版本 |
 | 回写前 | 缺陷 id + 结论 + **备注全文** + 附件名 + 状态/指派变更 + 来源 |
 | 回写后 | 回写结果 + 批末总结（成功/待回写/失败） |
@@ -63,23 +63,23 @@ route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|AN
 ### 2.3 建档
 
 每条缺陷落一份 `{workroot}/{ver}/30-changes/受理-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/intake-disposition-template.md`），编号用平台单号（如 `BUG-123`），并记录平台、来源类型、提交人、指派、状态、附件清单、开发评估单。批末输出清单摘要。  
-判定/处置完成后，落 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/product-defect-disposition-template.md`），作为平台附件指派开发/测试；产品缺陷必落，实现defects/非问题/重复/信息不足也至少给说明+指派。
+判定/处置完成后，落 `{workroot}/{ver}/30-changes/缺陷处置-{BUG-ID}-{主题}-{yyyyMMdd}.md`（模板 `rules/templates/30-review-change/product-defect-disposition-template.md`），作为平台附件指派开发/测试；产品缺陷必落，实现缺陷/非问题/重复/信息不足也至少给说明+指派。
 
 ## 3. 分析
 
-按 `../skills/change-management/SKILL.md` §2/§3：
+按 `skills/change-management/SKILL.md` §2/§3：
 
 - 先分来源：**测试直提** → 产品独立定性；**开发评估单** → 产品复核开发判定与方案选项，不重做技术设计。
 - 现网 ≠ PRD/设计 → **实现缺陷**：退回开发/测试，不改 PRD；给依据、复现/验收要求。
 - 现网 = PRD/设计，但口径不合理/有风险 → **产品缺陷**：必须有 PRD/设计原文 + 现网/测试证据 + **相符证明**。
 - 无设计依据 → 默认实现缺陷或补充信息；禁把实现缺陷甩成产品缺陷。  
   例外：来源=开发评估单且开发给出「需求缺口/设计口径不明」依据与业务影响 + **实现核对** → 按需求缺口受理，产品确认是否补 PRD/设计；不以「没有 PRD」直接否定；**不责备测试无资料时的默认实现缺陷分类**。
-- 开发评估单 → 读全文，先核「实现核对」是否已排除未做/做错/缺段/接口错误/环境；缺核对 → 退回开发补齐，不直接改 PRD。再评：是否解决原问题、影响哪些 AC/范围/数据/合规/回归/回滚；**技术架构/实现细节不替开发评审**；结论五选一：认可方案/修改后认可/不认可方案/判定实现defects/判定非问题。
-- 测试直提产品缺陷 → 结论五选一：产品缺陷/实现defects/非问题/重复/信息不足；产品缺陷必须给新口径/新文档/AC。
+- 开发评估单 → 读全文，先核「实现核对」是否已排除未做/做错/缺段/接口错误/环境；缺核对 → 退回开发补齐，不直接改 PRD。再评：是否解决原问题、影响哪些 AC/范围/数据/合规/回归/回滚；**技术架构/实现细节不替开发评审**；结论五选一：认可方案/修改后认可/不认可方案/判定实现缺陷/判定非问题。
+- 测试直提产品缺陷 → 结论五选一：产品缺陷/实现缺陷/非问题/重复/信息不足；产品缺陷必须给新口径/新文档/AC。
 - **体验类**：不挡主路径且无重大风险 → 不在本轨硬开产品缺陷；转 `change` 按新需求/变更受理（对话或文档）。
 - 技术不确定 → 开发 ADR/Spike；涉及产品取舍才回产品。
 
-处置选项：立即修 / 下版 / 不修 / 退回开发 / 补充信息；开发评估单另加：认可方案 / 修改后认可 / 不认可方案 / 判定实现缺陷 / 判定非问题。影响评估与联动更新按 `../workflows/change.yaml` 的 assess/apply 执行。无平台时粘贴/`export`/文档输入走同一分析与处置，禁只认单一厂商平台。
+处置选项：立即修 / 下版 / 不修 / 退回开发 / 补充信息；开发评估单另加：认可方案 / 修改后认可 / 不认可方案 / 判定实现缺陷 / 判定非问题。影响评估与联动更新按 `workflows/change.yaml` 的 assess/apply 执行。无平台时粘贴/`export`/文档输入走同一分析与处置，禁只认单一厂商平台。
 
 ## 4. 处置与联动
 
@@ -115,7 +115,7 @@ route=workflow:defect | step=… | role=pm-lead | next_action=LOGIN|LIST|PULL|AN
 | 重复 | 测试（关联主单） | 开发（关联主单） |
 | 信息不足 | 测试/提交人 | 开发/提交人 |
 
-联动清单、重审、验证按 `../workflows/change.yaml`；产品侧只出产品结论/变更单/评审意见，不修改代码或技术方案。
+联动清单、重审、验证按 `workflows/change.yaml`；产品侧只出产品结论/变更单/评审意见，不修改代码或技术方案。
 
 ## 5～7. 回写/附件/批末（指针）
 

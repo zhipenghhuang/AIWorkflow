@@ -11,7 +11,6 @@
 - **后续**：`fix`（进 `fix` 前的 `when=implementation_required`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:product_decision_requires_alignment`**：产品结论需再对齐范围/方案；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 

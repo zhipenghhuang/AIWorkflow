@@ -1,5 +1,5 @@
 {
-  "_comment": "复制为项目根 .gate/project-profile.json；勿写入wf-development/verify/。缺项时尝试 package.json；仍缺则 SKIP/BLOCKED。定向：仅当 *_scoped 含 {files} 时注入本任务变更路径，检查 id=targeted-*；否则跑下方全仓命令，id=project-*。",
+  "_comment": "复制为项目根 .gate/project-profile.json；勿写入 wf-development/verify/。缺项时尝试 package.json；仍缺则 SKIP/BLOCKED。定向：仅当 *_scoped 含 {files} 时注入本任务变更路径，检查 id=targeted-*；否则跑下方全仓命令，id=project-*。*_scoped 脚本升全量须符合 rules/core/verification.md §7（破坏性结构/映射无法覆盖+理由；禁夹带无关 diff 静默升全量）。",
   "build": "npm run build",
   "lint": "npm run lint",
   "test": "npm test",

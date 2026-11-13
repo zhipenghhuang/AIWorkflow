@@ -69,8 +69,8 @@ steps:
   - name: confirm_handoff
     when: handoff_send_required
   output: '{workroot}/handoff/outbound/变更/{CHG-HO-ID}/ + 更新后的受影响文档'
-  notes: 先按 change/intake 完成变更分析；本步只负责“通知包”。 按 判 C0～C3；C2/C3 先过确认门。 **CHG 包同样先问后发**：确认后才生成 HO。 必带：变更单、更新后需求/方案/接口、影响矩阵、必做事项/截止、兼容/回滚、生效版本。
-    多包同仓直读，禁止转发。
+  notes: 先按 change/intake 完成变更分析；本步只负责“通知包”。 按 `rules/collaboration/handoff.md` 判 C0～C3；C2/C3 先过确认门。 **CHG 包同样先问后发**：确认后才生成
+    HO。 必带：变更单、更新后需求/方案/接口、影响矩阵、必做事项/截止、兼容/回滚、生效版本。 多包同仓直读，禁止转发。
 - name: 接收变更并适配
   id: change_receive
   skills: []
@@ -83,9 +83,9 @@ steps:
   - name: confirm_plan
     when: plan_needs_confirm
   output: 变更影响分析 + 开发计划/文档调整 + 回执
-  notes: 读变更包 00/01/02；按 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。 先做影响分析：需求/AC、原型/设计、架构/DB/API/前端、任务/排期、测试/发布、依赖。 更新需求基线/方案/ADR/任务清单/开发计划；C0
-    就地更新并答复；C1 更新并回执；C2/C3 重基线并过门，必要时反向发 `CHG`。 更新 `handoff-ledger.md`、开发计划、 `{workroot}/INDEX.md`、activeContext；填写回执。 与现有方案/代码冲突
-    → 列冲突，不静默选一边；未裁决前不实施。
+  notes: 读变更包 00/01/02；按 `rules/collaboration/handoff.md` 判级别；核对变更单、影响矩阵、生效版本、回滚/兼容。 先做影响分析：需求/AC、原型/设计、架构/DB/API/前端、任务/排期、测试/发布、依赖。
+    更新需求基线/方案/ADR/任务清单/开发计划；C0 就地更新并答复；C1 更新并回执；C2/C3 重基线并过门，必要时反向发 `CHG`。 更新 `handoff-ledger.md`、开发计划、 `{workroot}/INDEX.md`、activeContext；填写回执。
+    与现有方案/代码冲突 → 列冲突，不静默选一边；未裁决前不实施。
 - name: 重规划
   id: replan
   skills: []

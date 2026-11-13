@@ -112,7 +112,7 @@ steps:
   output: 【入站分析】（确认后登记 / A0～A2 吸收 / 定稿发布 materials）
   notes: 扫描 `inbound/` + 项目根散落；按 `rules/doc-governance.md` 分类与覆盖对照，输出【入站分析】；确认前不改索引、不改名、不移动、不归档。 确认后同批：`inbound/INDEX.md`
     登记 → 按需 A0～A2 吸收到 `{workroot}/` → 定稿发布 `docs/materials/`。 外部输入主副本只在 `inbound/`；materials 只放定稿、正确、完整、可发送内容。 冲突/无法判断 → 停问；S1/S2/S3
-    只归档工作区旧稿；`inbound/` 不归档。 换代/关版本按；关账时**必做**覆盖刷新关闭版 materials→superseded 再开新版；旧目录保留，不设 `_archive`；日常发布默认 overwrite-latest。
+    只归档工作区旧稿；`inbound/` 不归档。 换代/关版本按文档治理规则 §7.1；关账时**必做**覆盖刷新关闭版 materials→superseded 再开新版；旧目录保留，不设 `_archive`；日常发布默认 overwrite-latest。
 - name: 文档治理检查
   id: lifecycle
   skills: []

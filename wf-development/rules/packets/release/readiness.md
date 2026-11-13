@@ -10,7 +10,6 @@
 - **上游**：无（链首）
 - **后续**：`acceptance`（进 `acceptance` 前的 `when=has_uat`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 
@@ -43,7 +42,7 @@
 
 ### 本步动作清单
 
-- **先判目标环境（硬前置）**：test/staging/UAT → 立即停止本工作流，按 S7 环境部署（版本按项目策略），不触发 `confirm_deploy`。
+- **先判目标环境（硬前置）**：test/staging/UAT → 不进入本链：按项目档案命令部署并出环境部署记录（`rules/templates/40-delivery/env-deployment-record-template.md`，版本按项目策略），不触发 `confirm_deploy`。
 - 只有 prod/生产/正式才继续。
 - 无法判断 → 只问一次“目标环境是 test/staging 还是生产？”，不得默认生产。
 - 技能见 §6 `qa-handoff-and-release`、§6 `acceptance-and-launch`（先读再核）。
@@ -90,6 +89,7 @@
 ## 7. 模板与证据
 
 - **填写模板（仅此一份）**：`rules/templates/40-delivery/go-live-checklist-template.md`；只读本步用到的节，禁止整文件通读。
+- **参考模板（命中再开，不默认读）**：`rules/templates/40-delivery/env-deployment-record-template.md`。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
 
 ## 8. 完成与退出

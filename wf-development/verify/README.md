@@ -11,19 +11,21 @@
 | L1 | 多文件、普通功能、代码或配置变更、前端行为变化 | build + lint（定向或全仓）+ test（定向或全仓）+ 冒烟 + E2E（前端）+ 前端十三项 QA（含交互诚实）+ 路由覆盖 | 命令+退出码；每条变更路由桌面+移动截图、route-coverage.json、console/network |
 | L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、plan-coverage、`nfr.security`/`nfr.performance` |
 
-**定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。
+**定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
 前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出按风险完整集并实测（大改动/高风险全节），报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
 
 **任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md> --root .`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，来源文件不存在、`§x` 在目标文档无对应编号标题，方案 §4.1 设计要点 `D-xx` 未被 SC 覆盖，§4.1 漏 `R-xx` 或引用不存在的 `T-xx`，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 在准出前再硬拦一次；存在 `.gate/plan-coverage.md` 时同轮核 SC ↔ 覆盖矩阵双向闭合。
 **实施质量字段**：L1+ 有代码时验收清单须含 `implement_preflight` + `sc_trace`（Markdown 可用「实施预检」行 + SC 表）；缺或 `missing` → BLOCKED。
+
+**缺陷修复字段**：`task_id=BUG-*` 时验收表须含「原单复现/红证」与「回归/同类路径」项；缺项 → BLOCKED（词项是下限，证据仍按 `rules/defects/fix-collaboration.md` §4.5）。
 **方案覆盖矩阵**：`tools/plan_coverage.py` 校验 §1 来源行非空且可解析（禁凭空虚设）、§2/§3 行状态、结论；前端无变更按模板写一行「不适用：…」，该行视为已填而非未完成。
 
 
 ## 2. 一次任务怎么跑
 
-1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`。
+1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把 `.gate/frontend/` 旧媒体与 `.gate/wf-development/` 下误放的媒体**归档**到 `.gate/archive/<task_id>/`（JSON 回执保留；不删除，避免文档引用失效）。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
    > **L2+ 非功能**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）；缺省或空写 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
    > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、test、smoke 中已配置的命令；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`。
 2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十三项含交互诚实 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于 `started_at` 与验收清单 mtime 的较晚者**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。
@@ -65,7 +67,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 
 ## 4. 完成状态
 
-> 状态语义、报告措辞与 COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED/DRY_RUN 条件见 `rules/core/verification.md` §4；本文件不重复，避免两套状态表漂移。
+> 状态语义、报告措辞与 COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED 条件见 `rules/core/verification.md` §4（`DRY_RUN` 仅 `-DryRun` 运行态，不是完成状态）；本文件不重复，避免两套状态表漂移。
 
 ### 4.1 前端视觉验收（DEV-IQ-13/14/17，硬）
 

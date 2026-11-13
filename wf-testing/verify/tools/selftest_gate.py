@@ -36,6 +36,11 @@ def _upgrade_plan(text: str) -> str:
         "| 构建 / 版本 | b1 |",
         "| 构建 / 版本 | b1 |\n| 构建封板 | build-b1 / 2026-11-10 10:00 |\n| 数据快照 | SEED-1 / 登录账号样本 |",
     )
+    text = text.replace(
+        "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN | 直跑 | 串行 | 共享·串行 | R0 全绿 | 执行记录+证据 |",
+        "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN | 直跑 | 串行 | 共享·串行 | R0 全绿 | 执行记录+证据 |\n"
+        "| B-R1-EX | 探索（登录体验） | 本章程（无意图） | 直跑 | 串行 | 共享·串行 | B-R1-01 | 探索记录 |",
+    )
     block = (
         "\n### 3.3 冒烟清单\n\n"
         "| SMK ID | 入口/路由 | 检查点 | 期望 | 证据 |\n"
@@ -51,6 +56,7 @@ GOOD["docs/test-plan.md"] = _upgrade_plan(GOOD["docs/test-plan.md"])
 _rec_path = "docs/functional/01-登录-执行记录.md"
 _rec = GOOD[_rec_path]
 _rec = _rec.replace("| 原文对账 |", "| 原文 / 对照 | PRD / 原型 #/login、#/home |\n| 原文对账 |")
+_rec = _rec.replace("| 构建 | b1 |", "| 构建 | b1 |\n| 分析索引 | docs/test-analysis.md §2.1 |")
 _rec = _rec.replace("PRD §2 / AC-01", "PRD §2 / 原型 #/login")
 _rec = _rec.replace("PRD §3 / AC-02", "PRD §3 / 原型 #/home")
 _rec = _rec.replace(
@@ -92,11 +98,38 @@ def mutated(path: str, old: str, new: str, files: dict[str, str]) -> dict[str, s
     return out
 
 
+def template_like(files: dict[str, str]) -> dict[str, str]:
+    """Use the published Markdown formatting (backticks / parenthetical counters).
+
+    The positive fixture must exercise what users copy from templates, not a
+    hand-cleaned variant that hides parser drift.
+    """
+    out = dict(files)
+    rec_path = "docs/functional/01-登录-执行记录.md"
+    rec = out[rec_path]
+    rec = rec.replace("| SC-001 |", "| `SC-001` |").replace("| SC-002 |", "| `SC-002` |")
+    rec = rec.replace("| INT-001-LOGIN |", "| `INT-001-LOGIN` |").replace("| INT-002-LOGIN |", "| `INT-002-LOGIN` |")
+    rec = rec.replace(
+        "可验收单元 5 / 已覆盖 5 / 本轮补录 0 / 未关 0",
+        "可验收单元（章节/AC/F/R/字段规则/入口）`5`；分析已覆盖 `5`；本轮补录 `0`；未关 `0`",
+    )
+    out[rec_path] = rec
+    ana = out["docs/test-analysis.md"]
+    ana = ana.replace("| INT-001-LOGIN | PRD §2 / AC-01 |", "| `INT-001-LOGIN` | PRD §2 / AC-01 |")
+    ana = ana.replace("| INT-002-LOGIN | PRD §3 / AC-02 |", "| `INT-002-LOGIN` | PRD §3 / AC-02 |")
+    out["docs/test-analysis.md"] = ana
+    plan = out["docs/test-plan.md"]
+    out["docs/test-plan.md"] = plan.replace("| B-R1-01 |", "| `B-R1-01` |")
+    return out
+
+
 def main() -> int:
     cases: list[tuple[str, dict[str, str], str, str, str | None]] = []
     cases.append(("good-coverage", GOOD, "coverage", "PASS", None))
     cases.append(("good-execute", GOOD, "execute", "PASS", "functional"))
     cases.append(("good-report", GOOD, "report", "PASS", None))
+    cases.append(("template-format-execute", template_like(GOOD), "execute", "PASS", "functional"))
+    cases.append(("template-format-report", template_like(GOOD), "report", "PASS", None))
     cases.append((
         "count-vs-ledger", mutated(
             "docs/test-analysis.md",
@@ -214,12 +247,12 @@ def main() -> int:
         ), "coverage", "FAIL", None,
     ))
     cases.append((
-        "batch-all-shortcut", mutated(
+        "batch-all-allowed", mutated(
             "docs/test-plan.md",
             "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN |",
             "| B-R1-01 | 登录 | 全部 |",
             GOOD,
-        ), "coverage", "FAIL", None,
+        ), "coverage", "PASS", None,
     ))
     cases.append((
         "plan-no-freeze", mutated(
@@ -266,6 +299,14 @@ def main() -> int:
                 GOOD,
             ),
         ), "coverage", "PASS", None,
+    ))
+    cases.append((
+        "track-no-batch", mutated(
+            "docs/test-plan.md",
+            "\n| B-R1-EX | 探索（登录体验） | 本章程（无意图） | 直跑 | 串行 | 共享·串行 | B-R1-01 | 探索记录 |",
+            "",
+            GOOD,
+        ), "coverage", "FAIL", None,
     ))
 
     failed = 0

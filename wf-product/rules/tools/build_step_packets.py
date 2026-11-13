@@ -509,8 +509,6 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
     ("wf-development", "solo", "build"): IMPLEMENT_CARD,
     ("wf-development", "defect-fix", "fix"): IMPLEMENT_CARD,
     ("wf-development", "change", "clarify"): CLARIFY_CARD,
-    ("wf-product", "change", "apply"): WRITEBACK_CARD,
-    ("wf-product", "defect", "apply"): WRITEBACK_CARD,
     ("wf-product", "defect", "writeback"): WRITEBACK_CARD,
 }
 
@@ -730,7 +728,13 @@ def render_chain_packet(
         )
     entries = "；".join(f"`{k}` → `{v}`" for k, v in entry_points.items()) or "按 AGENTS 口令表"
     terminal = wf_meta.get("terminal") or "closeout"
-    full_note = "本链为全链入口；按表推进到下一个门/停点。" if chain_full else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
+    full_note = (
+        "本链按入口分级：接入/重新接入/基线/生成档案/装配能力入口推进到 `verify` 打标；"
+        "资料收取/文档治理/清理入口只做该步 + 收尾，不连带其余接入步。"
+    ) if (chain_full and wid == "onboard") else (
+        "本链为全链入口；按表推进到下一个门/停点。" if chain_full
+        else "默认入口即止；仅按链/继续/按计划执行时向后推进。"
+    )
     return f"""# {wf_name} · `{wid}` 状态机
 
 > 全局规则见 `rules/core/global-rules.md`（遵守全文；重读按 §7）。每步先读当前步骤卡；进本 workflow 读一次；当前状态以 `activeContext` 运行状态为准。**只读当前 packet**，不通读全链。
@@ -748,7 +752,7 @@ def render_chain_packet(
 ## 3. 推进
 
 - {full_note}
-- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `skip=理由`。
+- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `when_eval=假:<依据>`（手工跳过记 `skip=user:<理由>`）。
 - 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
 - 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。
 - 失败：按状态表“失败/跳过”回退或停下；不静默跳过。
@@ -1152,14 +1156,9 @@ def render_packet(
     risk = ""
     if when:
         risk += when_line(str(when), when_map, "when", "跳过本步（不打开本包）") + "\n"
-    if (root / "rules" / "core" / "frontend-gate.md").is_file():
+    if needs_frontend_gate(root, wid, sid):
         risk += (
-            "- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；"
-            "**必开技能与 Claim/HITL 不降**。\n"
-        )
-    else:
-        risk += (
-            "- **轻量路径**：纯文档/无行为/未命中时，可将预检标 `na`（一句理由）；"
+            "- **轻量路径**：纯文档/无行为/无 UI 时，可将预检、前端硬门标 `na`（一句理由）；"
             "**必开技能与 Claim/HITL 不降**。\n"
         )
 

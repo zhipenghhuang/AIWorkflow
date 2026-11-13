@@ -23,8 +23,8 @@
 | 9 | `fix` | `defect-fixer` | `implementation_required` | — | 修复/方案/验证结果 | `clarify` | 停在本步/升级 |
 | 10 | `clarify` | `defect-fixer` | `need_clarification` | `confirm_remark` | 回写结果（【无法确认·待澄清】/重复/设计如此/非defects/外部/已在其它构建修复） | `gates` | 停在本步/升级 |
 | 11 | `gates` | `verifier-agent` | `has_code_change` | `gate:completion-gate` | .gate/wf-development/completion.json + 门禁摘要 | `menu` | 停止本批；不得进入 menu/close，先修复、补证据或报阻塞 |
-| 12 | `menu` | `defect-fixer` | `implementation_required` | `select_menu` | 【缺陷修复处理总结】+【用户选择菜单】 | `close` | 门禁未过先回 gates/fix；不得输出提交/回写菜单 |
-| 13 | `close` | `defect-fixer` | `implementation_required` | `confirm_deploy`、`confirm_remark` | 提交/部署/回写结果 | `postrelease` | 门禁未过先回 gates/fix；不得提交/部署/回写 |
+| 12 | `menu` | `defect-fixer` | `implementation_required` | `select_menu` | 【缺陷修复处理总结】+【用户选择菜单】 | `close` | 门禁未过且未获 skip_claim → 先回 gates/fix；不得输出提交/回写菜单 |
+| 13 | `close` | `defect-fixer` | `implementation_required` | `confirm_commit`、`confirm_deploy`、`confirm_remark` | 提交/部署/回写结果 | `postrelease` | 门禁未过且未获 skip_claim → 先回 gates/fix；不得提交/部署/回写 |
 | 14 | `postrelease` | `defect-fixer` | `has_deployed` | — | 发布后verify/发布记录 | `retro` | 停在本步/升级 |
 | 15 | `retro` | `defect-fixer` | `recurring_defect_or_incident` | — | 复盘（{workroot}/80-retrospectives/） | `closeout` | 停在本步/升级 |
 | 16 | `closeout` | `defect-fixer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
@@ -32,7 +32,7 @@
 ## 3. 推进
 
 - 默认入口即止；仅按链/继续/按计划执行时向后推进。
-- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `skip=理由`。
+- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `when_eval=假:<依据>`（手工跳过记 `skip=user:<理由>`）。
 - 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
 - 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。
 - 失败：按状态表“失败/跳过”回退或停下；不静默跳过。

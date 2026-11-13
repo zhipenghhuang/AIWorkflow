@@ -38,7 +38,7 @@
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 | `gate: release-readiness` | 生产/正式发布就绪 | **checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用 |
 
-> `confirm_task_intent` 是全局开工门（`AGENTS.md` §0 第一问），不依赖 step；其余门仍只认步上声明。
+> `confirm_task_intent` 是全局开工门（`AGENTS.md` 首轮硬门/§0.2），不依赖 step；其余门仍只认步上声明。
 
 > **`gate_type`（步上字段）**：`machine` = 有脚本回执（读 `.gate/` JSON，verdict 可机器判定）；`checklist` = 按清单/工具核验并留证据，不假装机器可判。未标默认 `checklist`；`gate` 只表示检查点，不等于自动门。新增 gate 必须同时声明 `gate_type` 与证据来源；禁止只写 `gate:` 而无检查方法。
 
@@ -117,4 +117,4 @@
 
 低风险动作不要升级为 approve；高风险动作不得降为 notify。红线不被“少问/直跑”覆盖。
 
-**自包含链（solo）**：只 `confirm_spec` + `completion-gate` + `confirm_commit`；产品定义不单独设门，方向不清在方案卡里列选项一次性确认（见 `rules/core/lightweight.md` §5）。
+**自包含链（solo）**：只 `confirm_understanding`（when `solo_understanding_needs_confirm`）+ `confirm_spec` + `select_review_mode`（when `need_select_review_mode`）+ `completion-gate` + `confirm_commit`；产品定义不单独设门，方向不清在方案卡里列选项一次性确认（见 `rules/core/lightweight.md` §5）。

@@ -1,7 +1,7 @@
 # 验证（产品轨）
 
 > 目的：让“PRD 定稿/评审通过/UAT 通过/变更关闭/回写完成”有可对账的证据。门读现有 PRD/评审/UAT/受理单，不新增产品文档。
-> 读取时机：`prd.review`、`deliver.uat`、`change.apply`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。
+> 读取时机：`prd.review`、`prototype.review`、`deliver.uat`、`change.verify`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。
 
 ## 1. 什么时候跑
 

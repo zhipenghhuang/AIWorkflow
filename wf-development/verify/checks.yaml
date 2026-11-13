@@ -31,6 +31,7 @@ levels:
 post_gate:
   - report-lint   # iterate/change/defect-fix closeout 后由 verify/Test-Report.ps1；不属于 implementation gate
 
+# 类型只对代码/配置生效；纯文档/文案优先 L0
 change_types:
   frontend:
     globs:
@@ -52,7 +53,12 @@ change_types:
   api:
     globs:
       - "**/api/**"
+      - "**/controllers/**"
+      - "**/handlers/**"
+      - "**/routes/**"
       - "**/*controller*"
+      - "**/*routes.*"
+      - "**/*handler.*"
       - "**/*.proto"
       - "**/openapi*"
       - "**/swagger*"
@@ -62,6 +68,14 @@ change_types:
       - "**/migrations/**"
       - "**/*.sql"
     min_level: L3
+  data_model:
+    globs:
+      - "**/models/**"
+      - "**/entities/**"
+      - "**/schema.prisma"
+      - "**/*models.py"
+      - "**/*entity.*"
+    min_level: L2
   auth_payment:
     globs:
       - "**/auth/**"
@@ -71,6 +85,10 @@ change_types:
       - "**/security/**"
       - "**/permission/**"
       - "**/role/**"
+      - "**/*permission*"
+      - "**/*rbac*"
+      - "**/*acl*"
+      - "**/*roles*"
     min_level: L3
   docs:
     globs:

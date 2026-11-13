@@ -11,7 +11,6 @@
 - **后续**：`review-docs`（进 `review-docs` 前的 `when=do_landing_doc_review`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested`**：新功能/架构/破坏性/高风险，或点名做 design；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 

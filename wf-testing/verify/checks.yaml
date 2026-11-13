@@ -43,7 +43,6 @@ risk_based:
 # 软项（人读；不单独机器 hard-fail）
 soft:
   - scope-required
-  - p0-missing
   - gap-accepted
   - autonomy-log
 

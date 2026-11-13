@@ -94,14 +94,14 @@
 
 1. **有界补强（通用，不规定 README 章节）**：若存在根 `README.md` → 按**其实际结构**择要取用；不够或没有 → 探查仓库/`{workroot}/`/需求池/计划/PRD（合计约 1～3 源）；必要时再问 1 题。  
 2. **同轮回写工作流文档（硬）**：`产品档案` §1（及命中场景行）+ `activeContext` 总览 + 本包 `洞见与易踩坑`（或偏好，按 `context-memory.md`）；推断标「假设/待验证」。跨会话真源在此，**禁止**只改 README 不回写档案。  
-3. **根 README（按门面矩阵）**：无文件且接入/用户点名 → 可按 `project-readme-template.md` 新建；已有 → 仅合并补缺口或同步已核实对外句，**禁止整文件覆盖**；大改一问确认。有缺口则 `facade=aligned`，无缺口=`facade=na`。  
+3. **根 README（按门面矩阵）**：无文件且接入/用户点名 → 可按 `project-readme-template.md` 新建；已有 → 仅合并补缺口或同步已核实对外句，**禁止整文件覆盖**；大改一问确认。有缺口则补已核实句（收尾 `sync=冷层:ok`），无缺口=`sync=冷层:na`。  
 4. 缺「谁是用户/当前版本」且影响分诊 → 一问。无完整接入标记 → 建议事后「接入产品规范」；不阻塞 A/B。  
-5. 收尾【资料补强】：回写了哪些工作流字段；`facade=`；若改了 README 注明句级变更；后续会话如何直接受益。
+5. 收尾【资料补强】：回写了哪些工作流字段；门面是否补句（`sync=冷层:ok|na`）；若改了 README 注明句级变更；后续会话如何直接受益。
 
 ## 6. 首条格式
 
 ```text
-route=workflow:<id> | step=<id> | role=<agent> | mode=… | reason=<意图类+信号> | next_action=…
+route=workflow:<id> | step=<id> | agent=<agent> | mode=… | reason=<意图类+信号> | next_action=…
 ```
 
 - 纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`，不要求 workflow id。

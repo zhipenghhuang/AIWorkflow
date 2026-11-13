@@ -10,7 +10,7 @@
 【任务收尾】
 【验证回执】结论={通过|部分通过|阻塞|未验证} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 未验证={n|列表|无}
 【开发自验】verdict={PASS|CONDITIONAL|FAIL|N/A} | AC走查={齐|缺口} | 报告={路径或方案卡节/无} | 说明={一句；禁写准出}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | deviation={…|无}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | when_eval={假:<依据>|无} | deviation={…|无}
 ```
 
 - 回执须与 `.gate/wf-development/completion.json` 一致；无回执不得写「完成/通过」。中文结论 ↔ `COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED`。  

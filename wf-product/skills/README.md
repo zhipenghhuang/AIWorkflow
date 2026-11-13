@@ -13,7 +13,7 @@
 
 | 步骤 | 技能 |
 | --- | --- |
-| plan：goals / roadmap | `skills/zero-to-one-product-definition/SKILL.md`（0→1）+ `skills/requirement-discovery-and-prioritization/SKILL.md`（迭代）+ `skills/customer-needs-discovery/SKILL.md`（目标依据）+ `skills/analytics-and-experimentation/SKILL.md`（指标树） |
+| plan：goals / roadmap | `skills/zero-to-one-product-definition/SKILL.md` + `skills/requirement-discovery-and-prioritization/SKILL.md`（目标依据/指标树按需读 `customer-needs-discovery`、`analytics-and-experimentation`） |
 | new-product：discover / go / define | `skills/zero-to-one-product-definition/SKILL.md` + `skills/customer-needs-discovery/SKILL.md` + `skills/competitive-intelligence-and-learning/SKILL.md`（模式 S） |
 | prd：discover | `skills/customer-needs-discovery/SKILL.md` + `skills/requirement-discovery-and-prioritization/SKILL.md`；竞品分析口令加 `competitive-intelligence-and-learning`（S） |
 | prd：benchmark | `skills/competitive-intelligence-and-learning/SKILL.md`（模式 P）+ `skills/requirement-discovery-and-prioritization/SKILL.md` |
@@ -29,7 +29,7 @@
 | prototype：context / ia / wireframe / engineering / review / usability / handoff | `skills/prototype-and-interaction/SKILL.md`（设计策略/项目适配/交接边界）；context 竞品借鉴按需 + `competitive-intelligence-and-learning` §5 |
 | prototype：visual / hi-fi | `skills/ui-visual-design-system/SKILL.md`（设计系统策略/设计方向/tokens） |
 | deliver：schedule / followup（变更转 change） | `skills/change-management/SKILL.md` |
-| deliver：uat / release（含复盘） | `skills/uat-and-retrospective/SKILL.md` + `skills/analytics-and-experimentation/SKILL.md`（发布度量/实验） |
+| deliver：uat / release（含复盘） | `skills/uat-and-retrospective/SKILL.md` +（uat 有指标/埋点/实验时）`skills/analytics-and-experimentation/SKILL.md` |
 | showcase：audience / story / demo / dryrun | `skills/demo-storytelling/SKILL.md` |
 | showcase：materials | `skills/presentation-design/SKILL.md` |
 | showcase：docs | `skills/product-docs/SKILL.md` |

@@ -12,6 +12,7 @@ entry_points:
   发版: readiness
   生产部署: readiness
   正式部署: readiness
+  发布后验证: verify
   回滚: rollback
 trigger:
 - 发布 / 上线 / 发版
@@ -33,8 +34,8 @@ steps:
   gate: release-readiness
   gate_type: checklist
   output: 上线检查单（{workroot}/60-release/）
-  notes: '**先判目标环境（硬前置）**：test/staging/UAT → 立即停止本工作流，按 S7 环境部署（版本按项目策略），不触发 `confirm_deploy`；只有 prod/生产/正式才继续。无法判断 → 只问一次“目标环境是
-    test/staging 还是生产？”，不得默认生产。 技能：`skills/qa-handoff-and-release/SKILL.md`、`skills/acceptance-and-launch/SKILL.md`（先读再核）。
+  notes: '**先判目标环境（硬前置）**：test/staging/UAT → 不进入本链：按项目档案命令部署并出环境部署记录（`rules/templates/40-delivery/env-deployment-record-template.md`，版本按项目策略），不触发
+    `confirm_deploy`；只有 prod/生产/正式才继续。无法判断 → 只问一次“目标环境是 test/staging 还是生产？”，不得默认生产。 技能：`skills/qa-handoff-and-release/SKILL.md`、`skills/acceptance-and-launch/SKILL.md`（先读再核）。
     读 `{workroot}/development-plan.md`（旧项目可 `{workroot}/00-governance/development-plan.md`；L2+；无则提示缺口，不阻塞单包发布）。 收到产品发布决策/UAT
     交接包 → 先按 `workflows/handoff.yaml` receive 签收并回执；未签收不得把业务验收当已通过。 按 `rules/templates/40-delivery/go-live-checklist-template.md`
     逐项核：需求/AC、提测单/构建交接（无 QA 项目用自测报告/构建记录替代）、评审、 测试报告/准出、UAT（如适用）、安全/依赖/密钥、配置/迁移、回滚预案、监控/告警/值班、通知、变更审批。 **硬项**：有代码/配置改动的发布，必须读本轮
@@ -84,7 +85,8 @@ steps:
   - release-automation
   output: 部署记录
   notes: 技能：`skills/acceptance-and-launch/SKILL.md`（先读再执行）。 按项目档案 发布方式/命令执行；部署前记录版本/构建/配置/数据快照/健康基线。 **仅生产/正式环境**；test/staging
-    部署不走本步，记录归 S7/`{workroot}/60-release/`。 按发布说明步骤逐步执行，每步可核对；失败即停，按回滚预案处置，不继续后续步骤。 部署成功后先跑主链路冒烟，再跑关键回归；不要先跑全量。 发布说明/发布记录纳入拟提交（如尚未提交）；密钥零入库。
+    部署不走本步，记录归 S7/`{workroot}/60-release/`（环境部署记录见 readiness 前置说明）。 按发布说明步骤逐步执行，每步可核对；失败即停，按回滚预案处置，不继续后续步骤。 部署成功后先跑主链路冒烟，再跑关键回归；不要先跑全量。
+    发布说明/发布记录纳入拟提交（如尚未提交）；密钥零入库。
 - name: 发布验证
   id: verify
   skills:

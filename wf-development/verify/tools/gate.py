@@ -59,13 +59,17 @@ def default_project_root(package_root: Path) -> Path:
 GATE_MEDIA_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".webm"}
 FRONTEND_GLOBS = (
     ".tsx", ".jsx", ".vue", ".svelte", ".css", ".scss", ".less", ".html", ".htm",
-    "/pages/", "/components/", "/views/", "/app/", "/templates/", "/layouts/",
+    "/pages/", "/components/", "/views/", "/templates/", "/layouts/",
     "static/", "/static/", "public/", "/public/", "frontend/", "/frontend/",
     "assets/", "/assets/", "workbench/",
 )
-API_GLOBS = ("/api/", "controller", ".proto", "openapi", "swagger")
+API_GLOBS = ("/api/", "/controllers/", "/handlers/", "/routes/", "controller", "routes.", "handler.", ".proto", "openapi", "swagger")
 DB_GLOBS = ("/migrations/", ".sql")
-AUTH_GLOBS = ("/auth/", "/login/", "/payment/", "/pay/", "/security/", "/permission/", "/role/", "auth.", "login.")
+DATA_MODEL_GLOBS = ("/models/", "/entities/", "schema.prisma", "models.py", "entity.")
+AUTH_PATH_RE = re.compile(
+    r"(^|[/_.-])(auth|login|permission|permissions|rbac|acl|role|roles|payment|pay|security)([/_.-]|$)",
+    re.I,
+)
 DOC_EXTS = (".md", ".txt")
 EXCLUDE_PARTS = {
     ".git", ".gate", "node_modules", "__pycache__", ".venv", "venv", "dist", "build",
@@ -241,7 +245,7 @@ def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[s
     types: list[str] = []
     lower = [f.lower() for f in files]
     if all(f.endswith(DOC_EXTS) for f in lower):
-        types.append("docs")
+        return "L0", ["docs"]
     frontend_globs = FRONTEND_GLOBS
     if frontend_hint:
         # 普通 .js/.ts 可能是后端；仅在项目档案声明了 frontend 时按前端处理。
@@ -252,7 +256,9 @@ def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[s
         types.append("api")
     if any(any(g in f for g in DB_GLOBS) for f in lower):
         types.append("db")
-    if any(any(g in f for g in AUTH_GLOBS) for f in lower):
+    if any(any(g in f for g in DATA_MODEL_GLOBS) for f in lower):
+        types.append("data_model")
+    if any(AUTH_PATH_RE.search(f) for f in lower):
         types.append("auth_payment")
     if not types:
         types.append("code")
@@ -260,7 +266,7 @@ def classify(files: list[str], frontend_hint: bool = False) -> tuple[str, list[s
     level = "L0"
     if "auth_payment" in types or "db" in types:
         level = "L3"
-    elif "api" in types or len(files) > 3:
+    elif "api" in types or "data_model" in types or len(files) > 3:
         level = "L2"
     elif "frontend" in types or "code" in types:
         level = "L1"
@@ -487,17 +493,28 @@ def check_acceptance(items: list[dict[str, str]], project_root: Path) -> dict[st
     return {"total": len(items), "covered": len(items) - len(missing), "missing": missing, "duplicates": duplicates}
 
 
-def check_evidence(items: list[dict[str, str]], project_root: Path) -> list[str]:
+def check_evidence(items: list[dict[str, str]], project_root: Path, task_started: str = "") -> list[str]:
     """Evidence paths are verified after checks have run (screenshots may be produced by the gate)."""
     missing: list[str] = []
+    started_ts = 0.0
+    if task_started:
+        try:
+            started_ts = datetime.fromisoformat(task_started.replace("Z", "+00:00")).timestamp()
+        except Exception:
+            started_ts = 0.0
     for item in items:
         item_id = item.get("id", "?")
         for token in _evidence_tokens(item.get("evidence", "")):
             if COMMANDISH.match(token):
                 continue
-            if PATHISH.search(token) and not resolve_path(project_root, token).exists():
-                missing.append(f"{item_id}: 证据不存在 {token}")
-                break
+            if PATHISH.search(token):
+                p = resolve_path(project_root, token)
+                if not p.exists():
+                    missing.append(f"{item_id}: 证据不存在 {token}")
+                    break
+                if started_ts and p.is_file() and p.stat().st_mtime < started_ts:
+                    missing.append(f"{item_id}: 证据早于任务开始 {token}")
+                    break
     return missing
 
 
@@ -700,8 +717,16 @@ def check_nfr(meta: dict[str, Any], level: str, project_root: Path,
     if not isinstance(nfr, dict):
         return {"missing": ["L2+ 缺少 nfr（安全/性能影响结论；done 或 na+理由）"],
                 "declared": declared}
-    auth_hit = any(any(tok in f.replace("\\", "/").lower() for tok in AUTH_GLOBS) for f in files)
-    perf_hit = any(PERF_HINT_RE.search(f.replace("\\", "/")) for f in files)
+    auth_hit = any(
+        AUTH_PATH_RE.search(f.replace("\\", "/").lower())
+        for f in files
+        if not f.lower().endswith(DOC_EXTS)
+    )
+    perf_hit = any(
+        PERF_HINT_RE.search(f.replace("\\", "/"))
+        for f in files
+        if not f.lower().endswith(DOC_EXTS)
+    )
     for key, label in (("security", "安全"), ("performance", "性能")):
         raw = str(nfr.get(key) or "").strip()
         if not raw:
@@ -1180,6 +1205,15 @@ def main() -> int:
         acc["missing"].append("--allow-missing-acceptance 仅允许 L0；L1+ 必须提供验收清单")
     if iq["missing"]:
         acc["missing"].extend(iq["missing"])
+    bug_task_id = (task_id or str(meta.get("task_id") or "")).strip().upper()
+    if bug_task_id.startswith("BUG-") and meta["items"]:
+        blob = " ".join(f"{i.get('statement', '')} {i.get('check', '')}" for i in meta["items"])
+        if not re.search(r"原单|复现|红证", blob):
+            acc["missing"].append("缺陷修复验收须含原单复现/红证项")
+        if not re.search(r"回归|同类", blob):
+            acc["missing"].append("缺陷修复验收须含回归/同类路径项")
+    if level_rank(level) >= 1 and not docs_only and not task_file.is_file():
+        acc["missing"].append("有代码/配置变更须先 -StartTask 冻结任务窗口（.gate/task.json）")
 
     scripts = package_json_scripts(project_root)
     timeouts = profile.get("timeouts", {}) if isinstance(profile.get("timeouts"), dict) else {}
@@ -1256,7 +1290,7 @@ def main() -> int:
                     checks.append({"id": "security", "status": "blocked",
                                    "detail": "L3 需要 security 命令或 process.security 证据"})
 
-    evidence_missing = check_evidence(meta["items"], project_root) if meta["items"] else []
+    evidence_missing = check_evidence(meta["items"], project_root, task_started) if meta["items"] else []
     if evidence_missing:
         acc["missing"].extend(evidence_missing)
 

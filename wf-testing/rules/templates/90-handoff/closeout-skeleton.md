@@ -9,12 +9,12 @@
 ```text
 【任务收尾】
 【验证回执】结论={可准出|有条件准出|不准出|阻塞|未验证|不适用} | 校验={名（代号/时间）} | 检查={通过}/{总数} | 未验证={n|列表|无}
-【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | deviation={…|无} | exec_mode={脚本|直跑|模块子代理|拆分|na} | pg={PG-xx|na} | econ={脚本优先;同页簇;造数一次|na}
+【遵守自检】route={workflow:step} | mode={execute|analyze|stop} | packet={rules/packets/<wf>/<step>.md} | global={ok|dev:<原因>} | skills={name=done|na；…} | reads={≤5 或 +n} | gates={id=verdict} | confirm={gate=approved@yyyy-MM-dd HH:mm；…|无} | sync={…|无} | skip={…|无} | when_eval={假:<依据>|无} | deviation={…|无} | exec_mode={脚本|直跑|模块子代理|拆分|na} | pg={PG-xx|na} | econ={脚本优先;同页簇;造数一次|na}
 ```
 
 - 有报告门 → 与 `.gate/wf-testing/report.json` 一致（`PASS/CONDITIONAL/FAIL/BLOCKED`）；无门 → `不适用` + 依据，不伪造。  
 - 标题按场景可换【生成收尾】/【执行收尾】。无更新写 `sync=无`；命中被测版本 bump/关闭/准出衔接/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`）。  
-- **execute 收尾**：`exec_mode=` / `pg=` 必填（无并行写 `pg=na`）；`econ=` 写本批经济要点或 `na`+理由。非执行步三者可 `na`。  
+- **execute 收尾**：`exec_mode=` / `pg=` 必填（无并行写 `pg=na`）；建议附 `surface=api|ui|ui+api`；`econ=` 写本批经济要点或 `na`+理由。非执行步三者可 `na`。拟交「未交付/列表空」时自检须含入口指纹+误用已排除。  
 - `python verify/tools/check_compliance.py --report <本文件>`。
 
 ## 0.5 表达（可复制块）
@@ -105,9 +105,9 @@
 - **测试内容只此一组**：功能/接口/探索批次行平铺其下，按计划批次号排序；不按域/模块再拆多个「测试内容」小标题。
 - **结果组只留**「新发现问题」「已关闭 / 激活」；无则整组省略。不设「缺陷协作」组。
 - **新发现问题**：当日新发现（含已交平台的新建单）；编号用平台单号；短标题中文。
-- **已关闭 / 激活**：本区间关闭或激活的回归结论。
+- **已关闭 / 激活**：本区间已关闭或已激活；未激活的复测失败不进本组（进收尾第 4/5 点）。
 - 阻塞/待澄清**不单列组**：阻塞数落各行 `阻{b}`，需处置的进【任务收尾】第 4/5 点。
-- 缺陷回归/计划外随机仍可另起总标题（另轨）。
+- **另起总标题**：仅本区间无同 ver 计划批、且主体为平台缺陷回归或计划外随机时；须同骨架齐套。已有主测标题则关闭/激活只入该标题；禁副标题、禁简陋块、禁同单号跨标题重复。写回清单→【任务收尾】第 1 点。
 
 ## 3. 输出分级
 

@@ -17,7 +17,7 @@
 | `confirm_design` | 设计方向 | IA/线框/2～3 个视觉方向/tokens；确认后才做高保真 |
 | `confirm_prototype` | 原型交接 | 原型路径/设计评审结论/交接要点；**评审前必须有 `prototype-coverage.md`（覆盖矩阵硬）+ 浏览器走查证据**；浏览器不可用时记 `browser=unavailable` 并用用户走查证据过门前评审；确认后才交开发 |
 | `confirm_narrative` | 展示叙事 | 受众/目标/故事线/演示范围已成形后确认；仅叙事不明或首次对外演示时停 |
-| `confirm_materials` | 对外材料 | 一页纸/Deck/user/发布说明；数字/截图/流程与当前项目一致；仅对外发送、承诺或发布前触发 |
+| `confirm_materials` | 对外材料 | 一页纸/Deck/user/资料库/整包导出/发布说明；数字/截图/流程与当前项目一致；仅对外发送、承诺或发布前触发 |
 | `confirm_scope` | 单需求立项范围 | 范围（MVP）/排除项/粗排期/风险 一行摘要；条件门：仅跨版本/高价值/未确认范围时停 |
 | `select_review_mode` | 落地文档评审方式 | **STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（异人量规+评审记录）。适用 PRD/产品计划/设计交接等（`skills/artifact-review`）；同产物只问一次；点名「AI 评审」=B、「我审/自行通过」=A；未选不得宣称通过/定稿/交开发 |
 | `confirm_prd` | PRD 定稿/实质变更重审 | 评审结论为「通过（可定稿）」且用户点名定稿/进入排期时出示；**出示前**须有【完稿自检摘要】且 `-Mode prd` 非 BLOCKED；定稿前不排期；仅评审不弹门 |
@@ -37,7 +37,7 @@
 | `gate: writeback-receipt` | 平台回写门禁 | `Invoke-Gate.ps1 -Mode writeback -Artifact …`；单号+备注实质+状态取值+fileId/无附件；禁标题刷绿；无回执不得声称已回写 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
 
-> `confirm_task_intent` 是全局开工门（`AGENTS.md` §0 第一问），不依赖 step；其余门仍只认步上声明。
+> `confirm_task_intent` 是全局开工门（`AGENTS.md` 首轮硬门/§0.1），不依赖 step；其余门仍只认步上声明。
 
 > **`gate_type`**：`machine`=有脚本回执（读 `.gate/` JSON）；`checklist`=按清单/工具核验并留证据。未标默认 `checklist`；新增 gate 必须写 `gate_type` + 证据来源，禁止空门。
 
@@ -70,7 +70,7 @@
 | `needs_impact_assessment` | 变更/缺陷/新需求需影响评估 | 未命中该条件 |
 | `needs_linked_update` | 需联动回写与回执（除纯答疑外均为真） | 未命中该条件 |
 | `decision_required` | 需处置确认（P2+/P3、改已定稿基线、产品缺陷、影响版本/里程碑/KPI；P0/P1 且不改基线=false） | 未命中该条件 |
-| `change_apply_required` | 处置结论为接受/下期/立即修且确有联动项（拒绝/重复/不修/退回开发/补充信息=false） | 未命中该条件 |
+| `change_apply_required` | 处置结论为接受/下期/立即修且确有联动项；或 P0/P1 轻量受理（无 AC/范围变化）确有联动项（无需 `decide`）（拒绝/重复/不修/退回开发/补充信息=false） | 未命中该条件 |
 | `go_decision_go` | 立项结论=Go（Hold/Kill=false） | 未命中该条件 |
 | `substantive_change` | 实质变更需重审 | 未命中该条件 |
 | `plan_level_change` | 影响版本范围/里程碑/KPI | 未命中该条件 |

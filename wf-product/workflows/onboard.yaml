@@ -98,8 +98,9 @@ steps:
   notes: 按 `rules/doc-governance.md`：入站意图分析（T1～T9）+ 覆盖对照 → 输出【入站分析】；确认前不改文件。 有候选 → `docs_migration_needed=true`，停本门；无候选继续。
     确认后：原件留/落入原件根 `inbound/`并**全量可查索引** → 仅对确认需要的文件复制进 `inbound/` → 按 A0～A2 吸收 → 失效只动包内副本/工作区旧稿。存量默认仅索引，不强制全复制。对话/根散落须先留主副本于原件根
     `inbound/`。 部分覆盖/增量/参考保留；冲突停下问。无候选 → 报「无未登记/失效候选」。归档前做引用检查：被当前产品计划/PRD/原型/交付/UAT 引用的文档保留原位或标“基线”，不标失效。 **换迭代/关版本（强制）**：确认采纳新迭代/换主题后按
-    `rules/doc-governance.md`；不确定则 `confirm_iteration_close`；确认后先按 判 T1/T2/T4，再按 关账（跳过仅发版项）；T2/T4 保留仍被引用的 PRD/原型基线，只归档被替代增量与旧稿。不依赖发版。
-    关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认 overwrite-latest）。
+    `rules/doc-governance.md`；不确定则 `confirm_iteration_close`；确认后先按 `rules/doc-governance.md` 判 T1/T2/T4，再按 `rules/doc-governance.md`
+    关账（跳过仅发版项）；T2/T4 保留仍被引用的 PRD/原型基线，只归档被替代增量与旧稿。不依赖发版。 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认
+    overwrite-latest）。
 - name: 文档治理检查
   id: lifecycle
   skills: []

@@ -104,6 +104,8 @@ steps:
   - rules/templates/40-delivery/qa-handoff-template.md
   when: has_qa_or_deploy_or_requested
   agent: implementer
+  hitl: confirm_intent
+  hitl_when: intent_needs_confirm
   gate: s6-admission
   gate_type: checklist
   output: 提测单/发布说明/回滚预案

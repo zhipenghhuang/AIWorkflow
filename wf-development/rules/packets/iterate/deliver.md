@@ -11,7 +11,6 @@
 - **后续**：`retro`（进 `retro` 前的 `when=iteration_done_or_incident`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:has_qa_or_deploy_or_requested`**：本轮有提测/QA/部署交付，或点名 deliver；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 
@@ -30,6 +29,8 @@
 
 ## 4. 本步门
 
+- **HITL `confirm_intent`**：仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff`
+- **条件判定 `hitl:intent_needs_confirm`**：给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付；满足→真，否则跳过该门。
 - **GATE `s6-admission`**：**checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 

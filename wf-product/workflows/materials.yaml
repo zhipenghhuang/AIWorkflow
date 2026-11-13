@@ -25,11 +25,12 @@ steps:
   must_read:
   - rules/packets/materials/select.md
   agent: pm-lead
+  hitl: confirm_materials
+  hitl_when: materials_for_external
   output: 【材料库发布范围】版本/受众/域/包含/排除
   notes: 先按 `rules/doc-governance.md` 定位工作根，再读 `{workroot}/INDEX.md`、`{workroot}` 当前定稿与 `docs/materials/INDEX.md`。 版本取项目/迭代版本；缺则问一次，不硬造。默认只收定稿、正确、完整、可独立阅读的文档；
     草稿/过程/证据/密钥/PII/未授权第三方文档不进库。域默认：`01-requirements` `02-design` `06-release`（业务决策）。 **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升
-    rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。 换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（文档治理关账）。 外发前按现有 `confirm_handoff` `confirm_intent`
-    确认，不新造门。
+    rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。 换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（文档治理关账）。 对外发送/承诺前走 `confirm_materials`（仅内部入库不触发）。
 - name: 同步权威文档
   id: sync
   skills: []

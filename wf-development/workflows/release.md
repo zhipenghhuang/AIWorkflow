@@ -4,7 +4,7 @@
 
 ## 1. 入口与终止
 
-- **入口**：`发布` → `readiness`；`上线` → `readiness`；`发版` → `readiness`；`生产部署` → `readiness`；`正式部署` → `readiness`；`回滚` → `rollback`
+- **入口**：`发布` → `readiness`；`上线` → `readiness`；`发版` → `readiness`；`生产部署` → `readiness`；`正式部署` → `readiness`；`发布后验证` → `verify`；`回滚` → `rollback`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
 - **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
@@ -26,7 +26,7 @@
 ## 3. 推进
 
 - 默认入口即止；仅按链/继续/按计划执行时向后推进。
-- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `skip=理由`。
+- `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `when_eval=假:<依据>`（手工跳过记 `skip=user:<理由>`）。
 - 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
 - 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。
 - 失败：按状态表“失败/跳过”回退或停下；不静默跳过。

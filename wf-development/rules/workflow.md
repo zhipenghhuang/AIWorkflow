@@ -54,7 +54,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 - 变更分级见 `AGENTS.md` §0.1；L0 微改不强制方案/清单/评审文档，L2+ 走完整链路。  
 - 目标/范围/验收按 `AGENTS.md` §0.1；架构级/新子系统先方案（`rules/templates/20-design/solution-template.md`；design 步 `confirm_spec`）批准再改；大改/高风险走 review 步（§4.4）。  
 - 多文件/新功能先拆任务清单（`rules/templates/30-planning-tasks/task-list-template.md`；技能 `skills/task-breakdown/SKILL.md`），确认后实施。  
-- 有 QA 交接或含部署 → deliver 步产提测单/发布说明（§4.5/§4.7）；含部署 → 转 `release` 工作流。  
+- 有 QA 交接或含部署 → deliver 步产提测单/发布说明（§4.5/§4.7）；prod 部署 → 转 `release`；test/staging 不转 release，按项目档案执行并出环境部署记录。  
 - 动手前说明拟改文件；有产品方案/缺陷预期时用验收点自检勾完。  
 - 无文件变更 → 跳过 `verify` 门禁与 `confirm_commit`。
 
@@ -130,7 +130,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ### 3.1 证据
 
 完成/通过类结论须附**本任务内**验证命令与结果；「应该通过 / 之前跑过 / 看起来正常」不构成证据；部分验证须显式写明未覆盖路径为「未验证」。  
-证据落点：任务清单状态记录、提测单 §3、发布记录 §8、测试台账（测试包）；聊天里的口头结论不算唯一证据。  
+证据落点：任务清单状态记录、提测单 §2.7、发布记录 §4、测试台账（测试包）；聊天里的口头结论不算唯一证据。  
 实施质量：实施预检、重要面硬补、SC 追溯、自测对方案、跨层矩阵、裁剪债项、沿用基线冒烟 → `rules/core/implementation-quality.md`（DEV-IQ）；有行为缺预检或取重缺项不得报全覆盖完成。
 
 ### 3.2 红绿与测试诚信（defects/修复）

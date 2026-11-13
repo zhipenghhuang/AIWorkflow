@@ -49,7 +49,7 @@ $instanceLeafs = @(
     '00-交接说明.md', '01-交接清单.md', '接收回执.md', 'INDEX.md',
     # 实例产物
     '测试方案.md', 'test-report.md',
-    '00-发布前索引.md', '00-专项索引.md', '00-smoke-checklist.md', 'smoke-checklist.md', '_覆盖账本.md'
+    '00-发布前索引.md', '00-专项索引.md', '00-smoke-checklist.md', 'smoke-checklist.md', '_覆盖账本.md', '写回回执.md'
 )
 $instanceLeafs += @('文档索引.md', '工作日志.md', '开发计划.md', '产品计划.md', '测试计划.md', '项目档案.md', '产品档案.md', '环境基线.md', '资料索引.md', '交接台账.md', '变更记录.md', '待决项.md', '决策记录.md', '需求台账.md')
 $instanceLeafs += @('计划执行看板.md', 'versioning.md', 'change-log.md', '改进项.md', 'requirement-pool.md', 'open-items.md', 'decisions.md', 'specials-index.md', 'coverage-ledger.md', '00-能力清单.md')
@@ -166,6 +166,13 @@ $skillDir = Join-Path $Root 'skills'
 if (Test-Path -LiteralPath $skillDir) {
     Get-ChildItem -LiteralPath $skillDir -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue |
         ForEach-Object { $scanFiles.Add($_.FullName) }
+}
+foreach ($rel in @('workflows', 'verify')) {
+    $d = Join-Path $Root $rel
+    if (Test-Path -LiteralPath $d) {
+        Get-ChildItem -LiteralPath $d -Recurse -File -Filter '*.md' -ErrorAction SilentlyContinue |
+            ForEach-Object { $scanFiles.Add($_.FullName) }
+    }
 }
 
 # ---------- [1/4] 引用可解析 ----------

@@ -11,7 +11,6 @@
 - **后续**：`test_plan`（进 `test_plan` 前的 `when=plan_has_code_change`）
 - **失败去向**：回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build
 - **条件判定 `when:do_landing_doc_review`**：L2+ 有新增/变更落地文档或点名文档评审（不依赖是否已选 A/B）；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 

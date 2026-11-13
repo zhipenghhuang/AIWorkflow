@@ -31,10 +31,10 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `analysis-structure` | coverage/execute/report | `test-analysis.md`：来源盘点、章节回执、依据覆盖、**§2.1 意图台账**、§2.1.1 设计点账本、覆盖/方法矩阵、细节维、影响面、核心链路、风险、§6；**账本不得为空表**；§1.1 的已映射/总数须被 §1.2/§1.3/§2.1.1 实际行数支撑；§2.2/§2.3/§2.4 的 INT 须∈台账；§4 缺口表、§5.2 变更追溯、§6 11 项齐全 | FAIL（三模式同硬） |
 | `env-baseline` | coverage/execute/report | `env-baseline.md` 存在且含项目身份/§1 登录/§4 或 §2.2 账号/§8 浏览器结构；缺失或空壳 → 不跑 | FAIL |
 | `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 章程数；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
-| `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`；T1+ 功能细节维不得全否 | FAIL |
+| `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`（写「全部」视为覆盖）；T1+ 功能细节维不得全否 | FAIL |
 | `plan-state` | execute/report | §0 计划状态 ∈ 已确认/执行中/待关闭 | FAIL |
 | `batch-coverage` | execute | 记录 §0 批次 ID 在计划 §3.1；该批意图范围已被场景覆盖（写「全部」的批只校验批次存在） | FAIL |
-| `execution-record` | execute/report | 场景表非空；每场景有 INT/优先级/场景；**三步序：方案原文 → 结合分析理解 → 现场择优**；**`原文/依据` = 原文对应段（有互补源则对照；无则单源+理由+接受人；分析不作互补源）**；§0「原文 / 对照」+ 原文对账 `可验收单元 N` 且 `已覆盖+补录 ≥ N`、未关0/接受人；功能 §1.1 六类各有 SC 或 N/A+依据；接口 §2.1 适用维有 SC 或不适用+依据；优先级与 §2.1 一致（仅 P0 记账，测试依据仍原文）；功能步骤 3～7；失败/待实现有缺陷号或拟提交处置；通过须可观测 Oracle；§3 意图结论表有场景 ID 且回指 §1 | FAIL |
+| `execution-record` | execute/report | 场景表非空；每场景有 INT/优先级/场景/实际/差异；**§0 有分析索引（`test-analysis.md` 命中节）**；**`原文/依据` = 原文对应段（有互补源则对照；分析不作互补源）**；§0「原文 / 对照」+ 原文对账 `可验收单元 N` 且 `已覆盖+补录 ≥ N`、未关0/接受人；功能 §1.1 六类各有 SC 或 N/A+依据；接口 §2.1 适用维有 SC 或不适用+依据；优先级与 §2.1 一致（仅 P0 记账，测试依据仍原文）；功能步骤 3～7；失败/待实现有缺陷号或拟提交处置；通过须可观测 Oracle；§3 意图结论表有场景 ID 且回指 §1 | FAIL |
 | `evidence-exists` | execute/report | 失败/阻塞/待实现证据可打开；P0 通过有证据 | FAIL |
 | `intent-analysis-link` | execute/report | 执行 INT 须在 **§2.1 台账**（设计点不能冒充）；分析只作索引，**不作 Oracle 来源、不作互补源** | FAIL |
 | `p0-status` | execute/report | P0 场景/意图失败 → execute 在过程完整时可为 CONDITIONAL（可下批）；report 不得 PASS；P0 以分析 §2.1 优先级为准 | execute: CONDITIONAL；report: 不得 PASS |
@@ -53,9 +53,9 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 
 - **分析**：§2.1 台账完整（具体 INT+可观测 Oracle）；来源/章节/依据/AC 账本非空，且 §1.1 计数被实际账本行数支撑；每个 AC/F/R/N 映射台账或 N/A+接受人；覆盖矩阵/方法矩阵/细节维/影响面/核心链路无未接受空格且 INT 回指台账；风险逐类有结论。**目标=完整覆盖方案可验收单元，正确检出缺陷。**
 - **计划**：范围/轨道/轮次/批次/探索/准入准出可执行；引用分析与 env-baseline；§0 计数/版本准出/准出口径/批次意图范围与 §2.1 联动；suite/depth 已声明且 core 仅补丁；覆盖闸 PASS 后才称可执行。
-- **执行**：过程（分析/计划/链接/证据/终态/证伪）不过 → FAIL 禁下批；`未执行`/`未本轮验证` 仍在 → FAIL（批未关）；过程完整且仅产品红 → CONDITIONAL 可下批继续找缺陷（须入库）。三步序：方案原文 → 结合分析理解 → 现场择优（有互补源则对照）；优先级以分析 §2.1 为准；§3 意图结论须有场景 ID；P0 须证伪；功能记录 3～7 步且可复核。
+- **执行**：过程（分析/计划/链接/证据/终态/证伪）不过 → FAIL 禁下批；`未执行`/`未本轮验证` 仍在 → FAIL（批未关）；过程完整且仅产品红 → CONDITIONAL 可下批继续找缺陷（须入库）。**三步序方法**：方案原文 → 结合分析理解 → 现场择优（有互补源则对照）；门检要求 §0 有分析索引、每场景有实际/差异；优先级以分析 §2.1 为准；§3 意图结论须有场景 ID；P0 须证伪；功能记录 3～7 步且可复核。
 - **报告**：台账处置=测有实际场景且全终态；§2.2 通过/失败/阻塞/待实现与记录一致；P0 全过且有证伪；细节维 x/16 对分析适用数；计划纳入轨道有对应记录；CONDITIONAL 认 §4 接受人；非 PASS/CONDITIONAL 禁用“全部通过/可发布”。
-- **回写**：单号/备注/状态/附件回执；`writeback` 不覆盖 report。回执优先 `{ver}/functional/*回执*.md`（或 `api/`）；亦认 `evidence/*回执*.md` / `*回写*.md`（排除 `_archive`/`.draft`）；同批多份时优先正式轨较新文件。
+- **回写**：单号/备注/状态/附件回执；`writeback` 不覆盖 report。回执优先 `{ver}/写回回执.md`（本轮覆盖）；亦认存量 `functional|api|evidence` 下含 `回执`/`回写` 的 md（排除 `_archive`/`.draft` 与按日散落）；多份时优先固定名。
 
 ## 4. 成本纪律
 

@@ -64,16 +64,15 @@ steps:
   on_fail: 不提交/不回写；补证据、补探查或问用户；不得为交平台改标失败
   gate: writeback-receipt
   gate_type: machine
-  gate_when: remark_writeback
   hitl:
   - name: confirm_remark
     when: remark_writeback
   - name: confirm_platform
     when: platform_submit
   notes: remark_writeback＝拟关/激/解决/标重复/补充澄清/回归写回备注；先出 id+备注全文再执行。 platform_submit＝拟新建单且命中 collaboration §6.1（发现即提交｜批末/阶段末/收尾确认｜用户口令提交到平台）；执行批
-    ID 与计划对齐；修复批可另立 `B-FIX-xx` 并在计划登记。 细则见 `rules/defects/collaboration.md`。 **交前复判（硬）**：§5.1 Q15 + §6.0；投影交单禁现网补证；回执优先 functional/*回执*。
-    产品缺陷直提产品；建单标题 `[V?][类型]+正文`。 列表/仅查重/仅建单（无状态回写）→ 跳过 remark 门；拟新建仍走 platform_submit。 **缺陷通道**完整交平台即完成（writeback 回执+台账单号）；禁同轮导出包。
-    未回执不得写“已接收”。
+    ID 与计划对齐；修复批可另立 `B-FIX-xx` 并在计划登记。 细则见 `rules/defects/collaboration.md`。 **交前复判（硬）**：collaboration §5.1 Q15 + Q21–Q22
+    + §6.0；无 `入口指纹` 或（空列表/404/未交付且）`误用已排除≠是` → 禁建单，回 execute；投影交单禁现网补证；回执=`{ver}/写回回执.md`（本轮覆盖）。 产品缺陷直提产品；建单标题 `[V?][类型]+正文`。
+    列表/仅查重/仅建单（无状态回写）→ 跳过 remark 门；拟新建仍走 platform_submit。 **缺陷通道**完整交平台即完成（writeback 回执+台账单号）；禁同轮导出包。 未回执不得写“已接收”。
   output: 平台单号（或待确认后的统一导出路径）· 备注与状态同轮 · 可复制汇总块（collaboration.md §5.2）
 - name: 收尾与提交
   id: closeout

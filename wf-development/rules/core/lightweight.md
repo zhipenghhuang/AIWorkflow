@@ -147,7 +147,7 @@ frame（方向不清/新产品时）
 
 ## 5. 门策略
 
-- 只保留确认点：`confirm_spec`（方案卡批准）、`select_review_mode`（review_docs 条件步）、`completion-gate`（完成门）、`confirm_commit`（拟提交）。
+- 只保留确认点：`confirm_understanding`（when `solo_understanding_needs_confirm`）、`confirm_spec`（方案卡批准）、`select_review_mode`（review_docs 条件步）、`completion-gate`（完成门）、`confirm_commit`（拟提交）。
 - 产品定义不单独设门：方向不清在方案卡里列选项一次性确认；需要正式产品评审 → 转正式协作/完整链；solo 内仍列选项 + 推荐。
 - **completion-gate 仍必须过**；轻量不等于免验证。门命令未配置/不可用 → 记 `BLOCKED`/`未验证`，不得写通过。
 - 不单独走 `confirm_requirements`、`confirm_backlog`；这些在完整链使用。

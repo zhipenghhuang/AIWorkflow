@@ -11,7 +11,6 @@
 - **后续**：`align`（进 `align` 前的 `when=product_decision_requires_alignment`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:product_decision_received`**：已收到产品处置结论；满足→真，否则跳过本步（不打开本包）。
-- **轻量路径**：纯文档/无行为/无 UI/未命中时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
 
@@ -44,7 +43,7 @@
 - 未读产品回复/附件前不得进 fix。
 - 平台仍无产品回复/仍指派产品 → 输出 AWAIT_PRODUCT，不重复 handoff。
 - 按 rules/defects/fix-collaboration.md 读全单：状态/解决码/指派人/全部备注/附件/新产品文档/关联需求。
-- 归类：认可方案/修改后认可/判定实现defects/判定非问题/要求补充信息。
+- 归类：认可方案/修改后认可/判定实现缺陷/判定非问题/要求补充信息。
 - 仅“回派”无备注/附件说明 → 视为未确认，输出 AWAIT_PRODUCT 请产品补结论。
 - 认可或修改后认可或改判实现 → implementation_required + product_decision_requires_alignment。
 - 要求补充/非问题 → need_clarification。

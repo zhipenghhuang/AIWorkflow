@@ -154,6 +154,15 @@ def is_blank(s: str) -> bool:
     return s in {"", "—", "-", "…", "...", "待补", "待确认"} or (s.startswith("{") and s.endswith("}"))
 
 
+def norm_id(value: str) -> str:
+    """Strip Markdown emphasis/backticks before ID comparison.
+
+    Templates format IDs as `SC-001` / `INT-001-PAY`; the parser must not
+    require the author to remove Markdown just to pass the gate.
+    """
+    return (value or "").strip().strip("`*_ ")
+
+
 def has_open_gap(s: str) -> bool:
     """True only when a conclusion explicitly leaves a gap open."""
     s = (s or "").strip()
@@ -215,7 +224,7 @@ def looks_falsify(scene: str, source: str = "", gap: str = "") -> bool:
 
 def is_concrete_int(iid: str) -> bool:
     """具体意图 ID：至少 INT-段-段（如 INT-240-CHK / INT-G240-00）；禁把簇名 INT-240 当台账行。"""
-    return bool(re.fullmatch(r"INT-[A-Z0-9]+(?:-[A-Z0-9]+)+", (iid or "").strip()))
+    return bool(re.fullmatch(r"INT-[A-Z0-9]+(?:-[A-Z0-9]+)+", norm_id(iid)))
 
 
 def intent_ref_ok(ref: str, intents: dict[str, Any] | set[str]) -> bool:
@@ -589,7 +598,7 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
         for row in rows:
             if not row or not row[0] or row[0] in ("INT", "—"):
                 continue
-            iid = row[0].strip()
+            iid = norm_id(row[0])
             if not is_concrete_int(iid):
                 issues.append(f"§2.1 台账行 ID 须为具体 INT-*-*（禁簇名）：{iid}")
                 continue
@@ -1216,7 +1225,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 if is_blank(mod):
                     issues.append(f"§3.1「{row[0]}」缺模块/域")
                 scope_cell = cell(row, headers, "意图范围")
-                bid = str(row[0]).strip()
+                bid = norm_id(str(row[0]))
                 row_ints = set(longest_int_refs(expand_int_ranges(scope_cell)))
                 if "全部" in scope_cell:
                     batch_all = True
@@ -1252,6 +1261,34 @@ def parse_plan(path: Path) -> dict[str, Any]:
                     if not re.search(r"模块子代理|拆分", mode):
                         issues.append(
                             f"§3.1「{bid}」同并行组({wkey})≥2 装填模块时执行形态应为模块子代理/拆分（当前={mode}）"
+                        )
+            # 独立记录轨（接口/探索/发布前）：§2 纳入=是 → §3.1 须有对应批次（multi-track §0）
+            if outing != "补丁":
+                batch_blobs = [
+                    " ".join([
+                        cell(r, headers, "批次"),
+                        cell(r, headers, "模块/域") or cell(r, headers, "模块"),
+                        cell(r, headers, "意图范围"),
+                    ])
+                    for r in table_rows(t_batch)
+                ]
+                for kw, pat, label in (
+                    ("接口", r"接口|\bAPI\b|EP-\d+", "接口/契约"),
+                    ("探索", r"探索", "探索式"),
+                    ("发布前", r"发布前", "发布前"),
+                ):
+                    inc = next((v for k, v in tracks.items() if "::" not in k and kw in k), "")
+                    if "是" not in (inc or ""):
+                        continue
+                    hit = any(re.search(pat, b, re.I) for b in batch_blobs)
+                    if kw == "发布前" and not hit:
+                        hit = any(
+                            re.search(r"性能", b, re.I) and re.search(r"安全", b, re.I)
+                            for b in batch_blobs
+                        )
+                    if not hit:
+                        issues.append(
+                            f"§3.1 缺「{label}」轨道批（§2 纳入=是；须独立批次，模块/域写轨道词或 EP 编号）"
                         )
     else:
         b3 = h2(text, "3.")
@@ -1390,7 +1427,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
     itable_ids: set[str] = set()
     reconcile_open = 0
     mb = re.search(r"批次[^\n]*?(B-[A-Z0-9-]+)", text)
-    batch_id = mb.group(1) if mb else ""
+    batch_id = norm_id(mb.group(1)) if mb else ""
 
     def eff_pri(iid: str, recorded: str) -> str:
         ap = pri_key(analysis_intents.get(iid, {}).get("pri", ""))
@@ -1405,22 +1442,27 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
     else:
         rec_line = ""
         for mline in re.finditer(r"[^\n]*原文对账[^\n]*", text):
-            if re.search(r"未关\s*[:：]?\s*\d+", mline.group(0)):
+            if "未关" in mline.group(0):
                 rec_line = mline.group(0)
                 break
+        if not rec_line:
+            mline = re.search(r"[^\n]*原文对账[^\n]*", text)
+            rec_line = mline.group(0) if mline else ""
         if rec_line:
-            mo = re.search(r"未关\s*[:：]?\s*(\d+)", rec_line)
-            if mo:
+            mo = re.search(r"未关\s*[:：]?\s*`?\s*(\d+)", rec_line)
+            if not mo:
+                issues.append(f"{path.name}: 原文对账缺「未关 N」（未关 0 或缺口接受人）")
+            else:
                 reconcile_open = int(mo.group(1))
                 if reconcile_open > 0 and not re.search(r"接受|accepted", rec_line, re.I):
                     issues.append(f"{path.name}: 原文对账未关 {reconcile_open} 但未写接受人")
-            mn = re.search(r"可验收单元\s*(\d+)", rec_line)
+            mn = re.search(r"可验收单元\s*(?:[（(][^）)\n]{0,60}[）)])?\s*[:：]?\s*`?\s*(\d+)", rec_line)
             if not mn:
                 issues.append(f"{path.name}: 原文对账缺「可验收单元 N」")
             else:
                 n_units = int(mn.group(1))
-                mc = re.search(r"已覆盖\s*(\d+)", rec_line)
-                ma = re.search(r"补录\s*(\d+)", rec_line)
+                mc = re.search(r"已覆盖\s*`?\s*(\d+)", rec_line)
+                ma = re.search(r"补录\s*`?\s*(\d+)", rec_line)
                 covered = int(mc.group(1)) if mc else 0
                 added = int(ma.group(1)) if ma else 0
                 if n_units <= 0:
@@ -1431,6 +1473,9 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
     mref = re.search(r"原文\s*/\s*对照[^\n]*", text)
     if not mref:
         issues.append(f"{path.name}: 缺 §0「原文 / 对照」行（主读 + 对照；有互补源则写）")
+    section0 = text.split("## 1.", 1)[0]
+    if not re.search(r"test-analysis\.md", section0, re.I):
+        issues.append(f"{path.name}: §0 缺分析索引（须写 test-analysis.md 命中节）")
 
     table = None
     for headers, rows in tables(text):
@@ -1449,7 +1494,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             if not row or not row[0] or row[0] in ("SC", "—"):
                 continue
             seen += 1
-            sc = row[0].strip()
+            sc = norm_id(row[0])
             source = cell(row, headers, "原文/依据") or cell(row, headers, "原文/契约")
             scene = cell(row, headers, "场景")
             steps = cell(row, headers, "步骤")
@@ -1507,6 +1552,8 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             if status not in STATUSES:
                 issues.append(f"{path.name}: {sc} 结果不可识别：{status or '空'}")
                 continue
+            if status in ("通过", "失败", "阻塞", "待实现") and is_blank(actual):
+                issues.append(f"{path.name}: {sc} 缺实际/差异（现场执行结果）")
             counts[status] += 1
             first_int = INT_ID_RE.findall(intent)[0] if INT_ID_RE.findall(intent) else ""
             key = eff_pri(first_int, pri) if first_int else (pri_key(pri) or "其他")
@@ -1544,7 +1591,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             if not val or val in ("—", "-", "…"):
                 issues.append(f"{path.name}: §1.1「{cat}」未写 SC 或 N/A+依据")
                 continue
-            scs = re.findall(r"SC-[A-Z0-9-]+", val, re.I)
+            scs = [norm_id(x) for x in re.findall(r"SC-[A-Z0-9-]+", val, re.I)]
             for sc in scs:
                 if sc not in scene_ids:
                     issues.append(f"{path.name}: §1.1「{cat}」引用不存在的场景 {sc}")
@@ -1565,7 +1612,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                 if not disp or disp in ("—", "-", "…"):
                     issues.append(f"{path.name}: §2.1「{row[0]}」缺处置")
                     continue
-                scs = re.findall(r"SC-[A-Z0-9-]+", disp, re.I)
+                scs = [norm_id(x) for x in re.findall(r"SC-[A-Z0-9-]+", disp, re.I)]
                 for sc in scs:
                     if sc not in scene_ids:
                         issues.append(f"{path.name}: §2.1「{row[0]}」引用不存在的场景 {sc}")
@@ -1588,7 +1635,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
         if not any("场景" in h for h in headers):
             issues.append(f"{path.name}: §3 意图结论表缺「场景 ID」列（结论须回指 §1 场景）")
         for row in table_rows(itable):
-            iid = row[0].strip()
+            iid = norm_id(row[0])
             if not INT_ID_RE.fullmatch(iid):
                 continue
             itable_ids.add(iid)
@@ -1692,6 +1739,8 @@ def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | N
 
 # ---------- report ----------
 def parse_verdict(text: str) -> tuple[str, str]:
+    if re.search(r"verdict\s*=\s*(?:PASS|CONDITIONAL|FAIL|BLOCKED)\s*\|\s*(?:PASS|CONDITIONAL|FAIL|BLOCKED)", text, re.I):
+        return "", "verdict 仍是占位符（须填单一结论）"
     m = re.search(r"准出评估\s*[|｜:：]\s*\**\s*(通过|有条件通过|不通过|阻塞|PASS|CONDITIONAL|FAIL|BLOCKED)", text, re.I)
     if m:
         raw = m.group(1).upper()
@@ -1935,34 +1984,39 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
 
 # ---------- writeback ----------
 def _is_writeback_receipt_name(name: str) -> bool:
-    u = name.upper()
-    return ("回执" in name) or ("回写" in name) or ("缺陷" in name) or ("BUG" in u)
+    """只认文件名含回执/回写；禁靠「缺陷/BUG」误匹配其它 md。"""
+    return ("回执" in name) or ("回写" in name)
 
 
 def _writeback_receipt_allowed(path: Path) -> bool:
-    """正式轨优先；允许 evidence 下文件名含回执/回写（排除归档与 .draft）。"""
+    """认固定名写回回执.md；存量 functional|api|evidence；拒 .draft/_archive 与按日散落。"""
     parts = set(path.parts)
     if parts & {"_archive", ".draft"}:
         return False
     if not _is_writeback_receipt_name(path.name):
         return False
-    if is_current(path):
+    # 正式：固定名（本轮覆盖）；拒 缺陷回归-写回回执-yyyyMMdd 等散落
+    if path.name == "写回回执.md":
+        return not (parts & {"functional", "api", "evidence", "证据", "defects"})
+    if parts & {"evidence", "证据"}:
         return True
-    # 例外：evidence/证据 内的回执/回写叶（正式证据树旁放回执时仍可过门）
-    if parts & {"evidence", "证据"} and (("回执" in path.name) or ("回写" in path.name)):
+    if ("functional" in parts or "api" in parts) and is_current(path):
         return True
     return False
 
 
 def _writeback_receipt_rank(path: Path) -> tuple:
-    """优先 functional/api 正式轨回执，再 evidence 回执；同级取较新 mtime。"""
+    """优先 {ver}/写回回执.md，再存量 functional|api，再 evidence；同级取较新 mtime。"""
     parts = path.parts
-    if "functional" in parts or "api" in parts:
-        tier = 0
-    elif "evidence" in parts or "证据" in parts:
-        tier = 1
-    else:
+    if path.name == "写回回执.md":
+        # 版本根固定名优于子夹内同名残留
+        tier = 0 if not ({"functional", "api", "evidence", "证据", "defects"} & set(parts)) else 1
+    elif "functional" in parts or "api" in parts:
         tier = 2
+    elif "evidence" in parts or "证据" in parts:
+        tier = 3
+    else:
+        tier = 4
     try:
         mtime = path.stat().st_mtime
     except OSError:
@@ -2038,11 +2092,10 @@ def cross_check_plan_analysis(analysis: dict[str, Any], plan: dict[str, Any],
             and int(analysis.get("detail_yes", 0)) == 0):
         issues.append("T1+ 功能计划的分析细节维全部为否（至少一个适用维，或调整轨道/口径）")
     required = {iid for iid, meta in intents.items() if is_test_disp(meta.get("disp", ""))}
-    if plan.get("tier") == "full" and required:
+    if plan.get("tier") == "full" and required and not plan.get("batch_all"):
         missing = sorted(required - set(plan.get("batch_intents", set())))
         if missing:
-            hint = "（写「全部」须同时列明或展开意图）" if plan.get("batch_all") else ""
-            issues.append("计划 §3.1 批次意图范围未覆盖" + hint + "：" + "、".join(missing[:8]))
+            issues.append("计划 §3.1 批次意图范围未覆盖：" + "、".join(missing[:8]))
     return issues
 
 
