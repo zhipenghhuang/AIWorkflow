@@ -1619,6 +1619,8 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                         issues.append(f"{path.name}: {sc} 步骤过少（功能记录须 3～7 短步，当前 {n_steps}）")
                     elif n_steps > 7:
                         issues.append(f"{path.name}: {sc} 步骤过多（功能记录须 3～7 短步，当前 {n_steps}）")
+                    if re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", steps, re.I) or re.search(r"\bcurl\s", steps, re.I):
+                        issues.append(f"{path.name}: {sc} 步骤是接口请求链；功能记录步骤应为业务 UI，API 放技术核对/归 api 轨")
             if status == "通过" and weak_oracle(oracle):
                 issues.append(f"{path.name}: {sc} 通过但 Oracle 过弱/缺失（须对照原文/分析的可观测断言，禁「通过/正常」）")
             for m in INT_ID_RE.findall(intent):
@@ -1648,6 +1650,8 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                 fail_scs.add(sc)
             if status in ("通过", "失败", "阻塞", "待实现") and is_blank(actual):
                 issues.append(f"{path.name}: {sc} 缺实际/差异（现场执行结果）")
+            if not is_api and status == "通过" and actual.strip().strip("`") in {"符合", "通过", "正常", "OK", "ok", "pass", "PASS"}:
+                issues.append(f"{path.name}: {sc} 通过行实际只写「{actual}」；须写页面/状态/字段值/提示")
             counts[status] += 1
             first_int = INT_ID_RE.findall(intent)[0] if INT_ID_RE.findall(intent) else ""
             key = eff_pri(first_int, pri) if first_int else (pri_key(pri) or "其他")
@@ -1684,7 +1688,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             missing = [label for label in FAIL_DETAIL_LABELS if label not in sec]
             if missing:
                 issues.append(f"{path.name}: {sc} 失败详情缺 " + "、".join(missing))
-            ms = re.search(r"surface\**\s*[：:=]\s*(ui|api|ui\+api)\b", sec, re.I)
+            ms = re.search(r"surface\**\s*[：:=]\s*(ui\+api|ui|api)\b", sec, re.I)
             if not ms:
                 issues.append(f"{path.name}: {sc} 失败详情缺 surface=ui|api|ui+api")
             elif ms.group(1).lower() in ("ui", "ui+api") and scene_status.get(sc) == "失败":
@@ -1694,9 +1698,26 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                         f"{path.name}: {sc} surface={ms.group(1)} 须有断言点截图"
                         "（§2/§3 证据或 §1 证据）"
                     )
+                repro = re.search(r"\*\*复现\*\*[：:](.*?)(?=\n\s*[-*]\s*\*\*|$)", sec, re.S)
+                rtext = repro.group(1) if repro else ""
+                if not re.search(r"菜单|页面|列表|详情|按钮|点击|输入|选择|勾选|打开|「|」", rtext):
+                    issues.append(f"{path.name}: {sc} surface={ms.group(1)} 复现须写 UI 路径")
+                if re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", rtext, re.I):
+                    issues.append(f"{path.name}: {sc} surface={ms.group(1)} 复现不应是请求链；接口放接口判定")
+                if ms.group(1).lower() == "ui+api":
+                    api = re.search(r"\*\*接口判定\*\*[：:](.*?)(?=\n\s*[-*]\s*\*\*|$)", sec, re.S)
+                    atext = api.group(1) if api else ""
+                    if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", atext, re.I):
+                        issues.append(f"{path.name}: {sc} surface=ui+api 接口判定须有 method+path")
+                    if "本轮无相关接口" in atext:
+                        issues.append(f"{path.name}: {sc} surface=ui+api 接口判定不得写本轮无相关接口")
             elif ms.group(1).lower() == "api":
                 if not re.search(r"无\s*UI|无菜单|无页面|仅接口|纯接口|无可见控件|纯\s*API|仅\s*API", sec, re.I):
                     issues.append(f"{path.name}: {sc} surface=api 须一句无 UI 面依据")
+                repro = re.search(r"\*\*复现\*\*[：:](.*?)(?=\n\s*[-*]\s*\*\*|$)", sec, re.S)
+                rtext = repro.group(1) if repro else ""
+                if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", rtext, re.I):
+                    issues.append(f"{path.name}: {sc} surface=api 复现须写请求链")
             mcat = re.search(r"分类[^\n]*[:：]\s*`?([^；;\n|]+)", sec)
             category = mcat.group(1).strip().strip("`") if mcat else ""
             if category.startswith("产品缺陷"):
@@ -1884,7 +1905,7 @@ def aggregate(records: list[Path], test_root: Path, analysis: dict[str, Any] | N
 def parse_verdict(text: str) -> tuple[str, str]:
     if re.search(r"verdict\s*=\s*(?:PASS|CONDITIONAL|FAIL|BLOCKED)\s*\|\s*(?:PASS|CONDITIONAL|FAIL|BLOCKED)", text, re.I):
         return "", "verdict 仍是占位符（须填单一结论）"
-    m = re.search(r"准出评估\s*[|｜:：]\s*\**\s*(通过|有条件通过|不通过|阻塞|PASS|CONDITIONAL|FAIL|BLOCKED)", text, re.I)
+    m = re.search(r"准出评估\**\s*[|｜:：]\s*\**\s*(通过|有条件通过|不通过|阻塞|PASS|CONDITIONAL|FAIL|BLOCKED)", text, re.I)
     if m:
         raw = m.group(1).upper()
         return {"通过": "PASS", "PASS": "PASS", "有条件通过": "CONDITIONAL", "CONDITIONAL": "CONDITIONAL",
@@ -1930,10 +1951,7 @@ def intent_stats_from_report(text: str) -> dict[str, dict[str, int]] | None:
 def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
                  plan: dict[str, Any] | None = None) -> dict[str, Any]:
     text = read(path)
-    plan = plan or {}
     issues: list[str] = []
-    if not re.search(r"report_format\**\s*[:：]\s*`?intent-v1`?", text[:4000], re.I):
-        issues.append("报告缺 report_format=intent-v1")
     for key in ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5."):
         if key not in text:
             issues.append(f"报告缺 {key} 标题")
@@ -1942,99 +1960,16 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
     verdict, reason = parse_verdict(text)
     if not verdict:
         issues.append(reason)
-    if not re.search(r"runId|运行ID|版本\s*/\s*构建", text, re.I):
-        issues.append("报告缺 runId/构建声明")
-    if "env-baseline" not in text:
-        issues.append("报告缺 env-baseline.md / 环境基线声明")
-    report_suite = ""
-    report_depth = ""
-    ms = re.search(r"suite\s*[=:：]\s*`?([a-zA-Z]+)", text)
-    if ms:
-        report_suite = ms.group(1).lower()
-    if not report_suite:
-        t1 = pick_table(h2(text, "1."), ["项", "值"])
-        if t1:
-            headers1, rows1 = t1
-            for row in rows1:
-                label = cell(row, headers1, "项")
-                if "suite" in label.lower() or "档位" in label:
-                    parts = [p.strip().strip("`") for p in re.split(r"[/｜|]", cell(row, headers1, "值"))]
-                    if parts and parts[0].lower() in {"core", "module", "full"}:
-                        report_suite = parts[0].lower()
-                    if len(parts) > 1 and parts[1] in {"core", "standard", "full", "不适用"}:
-                        report_depth = parts[1]
-                    break
-    if not report_suite:
-        issues.append("报告缺 suite 声明")
-    elif report_suite not in {"core", "module", "full"}:
-        issues.append(f"报告 suite 不可识别：{report_suite}")
-    elif plan.get("suite") and report_suite != plan["suite"]:
-        issues.append(f"报告 suite={report_suite} 与计划 {plan['suite']} 不一致")
-    if "接口" in text:
-        if not report_depth:
-            md = re.search(r"depth\s*[=:：]\s*`?([a-zA-Z不适用]+)", text)
-            if md:
-                report_depth = md.group(1)
-        if not report_depth:
-            issues.append("报告含接口但缺 depth 声明")
-        elif report_depth not in {"core", "standard", "full", "不适用"}:
-            issues.append(f"报告 depth 不可识别：{report_depth}")
-        elif plan.get("depth") and report_depth != plan["depth"]:
-            issues.append(f"报告 depth={report_depth} 与计划 {plan['depth']} 不一致")
+    for marker in (
+        "INT-", "SC-", "SMK-", "runId", "suite=", "depth=",
+        "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08",
+        "D09", "D10", "D11", "D12", "D13", "S6", "S7", "S11",
+        "原文对账", "四轨", "锚点",
+    ):
+        if marker in text:
+            issues.append(f"报告含测试内部标记：{marker}（正文应给开发/产品直接读）")
     if verdict == "PASS" and analysis.get("pending_gaps"):
         issues.append("分析 §4 仍有待确认缺口，报告不得写 PASS：" + "、".join(analysis["pending_gaps"][:4]))
-    block23 = subsection(text, "2.3")
-    if not block23:
-        issues.append("报告缺 §2.3 覆盖与收口探针")
-    else:
-        for token in (
-            "来源",
-            "章节回执",
-            "原文对账",
-            "依据覆盖",
-            "设计点账本",
-            "模块×面",
-            "方法×规则",
-            "细节维",
-            "影响面",
-            "核心链路",
-            "S6",
-            "S7",
-            "S11",
-            "探索式",
-            "P0 意图",
-            "风险清单",
-        ):
-            if token not in block23:
-                issues.append(f"报告 §2.3 缺「{token}」")
-        t23 = pick_table(block23, ["项", "结论"])
-        if not t23:
-            issues.append("报告 §2.3 覆盖与收口表缺失（需 项/结论）")
-        else:
-            headers, rows = t23
-            for label in ("原文对账", "设计点账本", "细节维", "影响面", "核心链路", "S6", "S7", "S11"):
-                hit = next((row for row in rows if label in cell(row, headers, "项")), None)
-                if hit is None:
-                    issues.append(f"报告 §2.3 缺「{label}」行")
-                elif is_blank(cell(hit, headers, "结论")):
-                    issues.append(f"报告 §2.3「{label}」无结论")
-            detail_hit = next((row for row in rows if "细节维" in cell(row, headers, "项")), None)
-            if detail_hit is not None:
-                val = cell(detail_hit, headers, "结论")
-                mnum = re.search(r"(\d+)\s*/\s*(\d+)", val)
-                yes_n = int(analysis.get("detail_yes", 0))
-                if mnum:
-                    got_n, den = int(mnum.group(1)), int(mnum.group(2))
-                    if den != 16:
-                        issues.append(f"报告 §2.3 细节维分母={den}，应为 16（D01–D13+S6/S7/S11）")
-                    if got_n > yes_n:
-                        issues.append(f"报告 §2.3 细节维覆盖 {got_n} > 分析适用 {yes_n}（虚报）")
-                    elif verdict == "PASS" and got_n < yes_n:
-                        issues.append(f"报告 §2.3 细节维覆盖 {got_n}/{yes_n} 未全覆盖但写 PASS")
-                elif verdict == "PASS":
-                    issues.append("报告 §2.3 细节维须写 x/16（当前无法核对）")
-            if recs.get("reconcile_open") and verdict == "PASS":
-                issues.append(f"执行记录原文对账仍有未关 {recs['reconcile_open']} 项，报告不得写 PASS")
     if verdict in ("PASS", "CONDITIONAL") and recs["p0_fail"]:
         issues.append("P0 未过但报告写通过/有条件通过")
     if verdict == "PASS" and any(recs["counts"].get(k, 0) for k in ("失败", "阻塞", "待实现", "未执行", "未本轮验证")):
@@ -2067,33 +2002,7 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
                     continue
                 if got.get(label, 0) != expected.get(key, 0):
                     issues.append(f"报告 §2.1 {pri} {label}={got.get(label, 0)} 与执行记录 {expected.get(key, 0)} 不一致")
-    istats = intent_stats_from_report(text)
-    if istats is None:
-        issues.append("报告 §2.2 意图结论表缺失")
-    elif not istats:
-        issues.append("报告 §2.2 意图结论表无数据行")
-    else:
-        intents = analysis.get("intents", {})
-        results = recs.get("intent_results", {})
-        for pri in ("P0", "P1", "P2"):
-            group = {iid: m for iid, m in intents.items() if (is_p0(m.get("pri", "")) and pri == "P0")
-                     or (pri == "P1" and "P1" in m.get("pri", "").upper())
-                     or (pri == "P2" and "P2" in m.get("pri", "").upper())}
-            expected_total = len(group)
-            tested = sum(1 for iid in group
-                         if terminal_status(results.get(iid, "")) and results.get(iid, "") != "不适用")
-            na = sum(1 for m in group.values() if is_na_disp(m.get("disp", "")))
-            untested = max(0, expected_total - tested - na)
-            passed = sum(1 for iid in group if results.get(iid) == "通过")
-            failed = sum(1 for iid in group if results.get(iid) == "失败")
-            blocked = sum(1 for iid in group if results.get(iid) == "阻塞")
-            pending = sum(1 for iid in group if results.get(iid) == "待实现")
-            got = istats.get(pri, {})
-            for label, exp in (("意图数", expected_total), ("已测", tested), ("通过", passed),
-                               ("失败", failed), ("阻塞", blocked), ("待实现", pending),
-                               ("N/A", na), ("未测", untested)):
-                if got.get(label, 0) != exp:
-                    issues.append(f"报告 §2.2 {pri} {label}={got.get(label, 0)} 与执行记录 {exp} 不一致")
+
     if recs["missing_evidence"]:
         issues.append("证据缺失：" + "、".join(recs["missing_evidence"][:6]))
     if recs["blocked_bad"]:
@@ -2117,49 +2026,24 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
     missing_p0 = sorted(p0_required - scene_ok)
     if missing_p0:
         issues.append("P0 意图无场景执行：" + "、".join(missing_p0[:8]))
-    if verdict == "PASS" and plan.get("outing") == "发版":
-        if report_suite != "full":
-            issues.append("计划准出口径=发版，报告 PASS 须 suite=full")
-        if "接口" in text and report_depth != "full":
-            issues.append("计划准出口径=发版，报告 PASS 须 depth=full（含接口时）")
     return {"issues": issues, "verdict": verdict}
 
 
 # ---------- writeback ----------
-def _is_writeback_receipt_name(name: str) -> bool:
-    """只认文件名含回执/回写；禁靠「缺陷/BUG」误匹配其它 md。"""
-    return ("回执" in name) or ("回写" in name)
-
-
 def _writeback_receipt_allowed(path: Path) -> bool:
-    """认固定名写回回执.md；存量 functional|api|evidence；拒 .draft/_archive 与按日散落。"""
+    """只认 {ver}/缺陷台账.md；拒 .draft/_archive 与子夹散落。"""
     parts = set(path.parts)
     if parts & {"_archive", ".draft"}:
         return False
-    if not _is_writeback_receipt_name(path.name):
+    if path.name != "缺陷台账.md":
         return False
-    # 正式：固定名（本轮覆盖）；拒 缺陷回归-写回回执-yyyyMMdd 等散落
-    if path.name == "写回回执.md":
-        return not (parts & {"functional", "api", "evidence", "证据", "defects"})
-    if parts & {"evidence", "证据"}:
-        return True
-    if ("functional" in parts or "api" in parts) and is_current(path):
-        return True
-    return False
+    return not (parts & {"functional", "api", "evidence", "证据", "defects"})
 
 
 def _writeback_receipt_rank(path: Path) -> tuple:
-    """优先 {ver}/写回回执.md，再存量 functional|api，再 evidence；同级取较新 mtime。"""
+    """版本根固定名优先；同级取较新 mtime。"""
     parts = path.parts
-    if path.name == "写回回执.md":
-        # 版本根固定名优于子夹内同名残留
-        tier = 0 if not ({"functional", "api", "evidence", "证据", "defects"} & set(parts)) else 1
-    elif "functional" in parts or "api" in parts:
-        tier = 2
-    elif "evidence" in parts or "证据" in parts:
-        tier = 3
-    else:
-        tier = 4
+    tier = 0 if not ({"functional", "api", "evidence", "证据", "defects"} & set(parts)) else 1
     try:
         mtime = path.stat().st_mtime
     except OSError:
@@ -2209,37 +2093,65 @@ def _regression_card_issues(text: str) -> list[str]:
 
 
 def parse_writeback(test_root: Path) -> dict[str, Any]:
-    receipts: list[Path] = []
+    ledgers: list[Path] = []
     if test_root.is_dir():
-        for p in test_root.rglob("*.md"):
+        for p in test_root.rglob("缺陷台账.md"):
             if _writeback_receipt_allowed(p):
-                receipts.append(p)
-    if not receipts:
-        return {"issues": ["未找到回写凭据"], "path": None}
-    receipt = sorted(receipts, key=_writeback_receipt_rank)[0]
-    text = read(receipt)
-    issues = []
-    if not re.search(r"(BUG[-_]?\d+|#\d+)", text, re.I):
-        issues.append("回写凭据缺平台单号")
-    if "备注" not in text:
-        issues.append("回写凭据缺备注")
-    if not re.search(r"状态|resolution", text, re.I):
-        issues.append("回写凭据缺状态")
-    if not re.search(r"附件|fileId|无附件", text, re.I):
-        issues.append("回写凭据缺附件回查")
-    if "已回写" in text and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", text, re.I):
-        issues.append("声称已回写但缺回执")
-    if re.search(r"(?:\|\s*submit\s*\||动作\s*[=:：]\s*submit|新建|建单|提交到平台|platform_submit)", text, re.I):
-        if not re.search(r"来源\s*[=:：]\s*(记录投影|现网补采)", text):
-            issues.append("新建/平台交单回执缺 来源=记录投影|现网补采")
-        if not re.search(r"surface\s*[=:：]\s*(ui|api|ui\+api)", text, re.I):
-            issues.append("新建/平台交单回执缺 surface=ui|api|ui+api")
-        if not re.search(r"十段\s*[=:：]\s*(齐|缺)", text):
-            issues.append("新建/平台交单回执缺 十段=齐|缺")
-        if not re.search(r"厚度\s*[=:：]\s*(过|未过)", text):
-            issues.append("新建/平台交单回执缺 厚度=过|未过（机检 validate_defect_steps 0 ERROR 才可标过）")
-    issues.extend(_regression_card_issues(text))
-    return {"issues": issues, "path": str(receipt)}
+                ledgers.append(p)
+    if not ledgers:
+        return {"issues": ["未找到缺陷台账.md"], "path": None}
+    ledger = sorted(ledgers, key=_writeback_receipt_rank)[0]
+    text = read(ledger)
+    issues: list[str] = []
+
+    sec0 = h2(text, "0.")
+    if not sec0:
+        issues.append("缺陷台账缺 §0 本轮写回")
+        sec0 = ""
+    if not re.search(r"(BUG[-_]?\d+|#\d+)", sec0, re.I):
+        issues.append("§0 缺平台单号")
+    if "备注" not in sec0:
+        issues.append("§0 缺备注")
+    if not re.search(r"状态|resolution", sec0, re.I):
+        issues.append("§0 缺状态")
+    if not re.search(r"附件|fileId|无附件", sec0, re.I):
+        issues.append("§0 缺附件回查")
+    if "已回写" in sec0 and not re.search(r"(noteId|备注ID|actionId|回写时间|回执)", sec0, re.I):
+        issues.append("§0 声称已回写但缺回执")
+    if re.search(r"(?:\|\s*submit\s*\||动作\s*[=:：]\s*submit|新建|建单|提交到平台|platform_submit)", sec0, re.I):
+        if not re.search(r"来源\s*[=:：]\s*(记录投影|现网补采)", sec0):
+            issues.append("§0 新建/平台交单缺 来源=记录投影|现网补采")
+        if not re.search(r"surface\s*[=:：]\s*(ui|api|ui\+api)", sec0, re.I):
+            issues.append("§0 新建/平台交单缺 surface=ui|api|ui+api")
+        if not re.search(r"十段\s*[=:：]\s*(齐|缺)", sec0):
+            issues.append("§0 新建/平台交单缺 十段=齐|缺")
+        if not re.search(r"厚度\s*[=:：]\s*(过|未过)", sec0):
+            issues.append("§0 新建/平台交单缺 厚度=过|未过（机检 validate_defect_steps 0 ERROR 才可标过）")
+    issues.extend(_regression_card_issues(sec0))
+
+    sec1 = h2(text, "1.")
+    if not sec1:
+        issues.append("缺陷台账缺 §1 版本台账")
+    else:
+        t = pick_table(sec1, ["平台单号", "状态", "发现记录/场景", "严重度"])
+        if not t:
+            if not re.search(r"无\s*(缺陷|记录)?", sec1):
+                issues.append("§1 版本台账缺表或「无」")
+        else:
+            headers, rows = t
+            status_enum = {"待提交", "已提交", "修复中", "待回归", "回归通过", "回归失败", "延期", "不修", "重复", "非问题", "已关闭"}
+            for row in rows:
+                if not row or not row[0] or row[0] in ("平台单号", "—"):
+                    continue
+                for name in ("平台单号", "状态", "发现记录/场景", "严重度"):
+                    if is_blank(cell(row, headers, name)):
+                        issues.append(f"§1「{row[0]}」缺 {name}")
+                status = cell(row, headers, "状态")
+                if status and status not in status_enum:
+                    issues.append(f"§1「{row[0]}」状态不可识别：{status}")
+                if "{" in " ".join(row):
+                    issues.append(f"§1「{row[0]}」含未替换占位符")
+    return {"issues": issues, "path": str(ledger)}
 
 
 def write_receipt(project_root: Path, mode: str, data: dict[str, Any]) -> Path:

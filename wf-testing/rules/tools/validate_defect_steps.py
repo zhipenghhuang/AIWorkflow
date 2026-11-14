@@ -187,6 +187,26 @@ def validate(text: str) -> list[str]:
     if not re.search(r"入口指纹\s*=", text):
         errs.append("missing_field:入口指纹=")
 
+    surface = ""
+    ms = re.search(r"surface\s*=\s*(ui\+api|ui|api)\b", text, re.I)
+    if ms:
+        surface = ms.group(1).lower()
+    if surface in ("ui", "ui+api"):
+        if not re.search(r"菜单|页面|列表|详情|表单|按钮|点击|输入|选择|勾选|打开|「|」|Tab|区域|弹窗|提示", repro):
+            errs.append("repro:ui_need_ui_steps")
+        if re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", repro, re.I):
+            errs.append("repro:ui_should_not_be_api_chain")
+    if surface == "ui+api":
+        if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", api, re.I):
+            errs.append("api:ui_plus_api_need_method_path")
+        if "本轮无相关接口" in api:
+            errs.append("api:ui_plus_api_cannot_be_no_api")
+    if surface == "api":
+        if not re.search(r"无\s*UI|无菜单|无页面|仅接口|纯接口|无可见控件|纯\s*API|仅\s*API", text, re.I):
+            errs.append("api:need_no_ui_evidence")
+        if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", repro, re.I):
+            errs.append("repro:api_need_request_chain")
+
     if re.search(r"evidence/[A-Za-z0-9_\-./]+", text) or re.search(
         r"(?<![A-Za-z])docs/[A-Za-z0-9_\-./]+", text
     ):

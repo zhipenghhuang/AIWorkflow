@@ -40,7 +40,7 @@
 > 证据默认 `{ver}/evidence/`（叶名含 SC/发现号；**只放断言终态**）；过程/中间态进 `{ver}/.draft/`（或轨内 `.draft/`）。共享执行器 `{workroot}/scripts/`。
 > `{ver}` 取环境基线「当前版本/主题」或 `INDEX`/`activeContext` 指针；开跑只打开当前版夹。
 > **证据终态制**：每场景正式证据通常 1～2 叶（绿证或失败终态+钉点截图）；重试/探查/半成品 JSON **禁止**升格进 `evidence/`（见 `global-rules` §9、`doc-quality` §1 第 2.2 条）。
-> **缺陷写回回执**：`{ver}/写回回执.md`（本轮覆盖；有写回才建）；禁按日另建、禁另开夹、禁塞 `functional/`；勿放 `.draft`。
+> **缺陷台账**：`{ver}/缺陷台账.md`（§0 本轮写回每轮覆盖；§1 版本台账累计；有写回才建）；禁按日另建、禁另开夹、禁塞 `functional/`；勿放 `.draft`。
 
 ```text
 {workroot}/
@@ -49,7 +49,7 @@
 ├─ _archive/{yyyyMMdd}-{ver}/
 └─ {ver}/
    ├─ test-analysis.md / test-plan.md / test-report.md
-   ├─ 写回回执.md                     # 本轮平台写回凭据（覆盖；有写回才建）
+   ├─ 缺陷台账.md                     # §0 本轮写回（覆盖）+ §1 版本缺陷台账（累计）
    ├─ changes/CR-*.md
    ├─ .draft/                         # 过程/中间态（不参与对账）
    ├─ evidence/                       # 断言终态叶 only
@@ -63,7 +63,7 @@
 | 轨 | 正式产物（均相对 `{workroot}/{ver}/`） | 过程 | 契约 |
 | --- | --- | --- | --- |
 | 跨轨 | `test-analysis.md`、`test-plan.md`；准出 SSOT=`rules/special/multi-track-quality.md` | `{ver}/.draft/` | Q0～Q10 |
-| 缺陷协作 | `写回回执.md`（本轮覆盖；提交/状态写回） | `.draft/` | `defects/collaboration.md` |
+| 缺陷协作 | `缺陷台账.md`（§0 本轮写回；§1 版本台账） | `.draft/` | `defects/collaboration.md` |
 | 功能 | `functional/{NN}-{短名}-执行记录.md` | `.draft/` | `templates/20-test-cases/test-case-template.md` |
 | 接口 | `api/{NN}-{短名}-执行记录.md` | `.draft/` | `tracks/api.md` |
 | 探索式 | `exploratory/{主题}-{戳}-探索记录.md` | `.draft/` | `tracks/exploratory.md` |
@@ -220,7 +220,7 @@
 
 ### 3.4 发布前
 
-见 `tracks/pre-release.md`；过程专项 `.draft/`；工具测量 + 指标/门槛；结果写 `*-test-report.md`；缺口/接受人进计划 §4 与报告 §5；安全 critical/high 未闭环不得发布通过。
+见 `tracks/pre-release.md`；过程专项 `.draft/`；工具测量 + 指标/门槛；结果写 `*-test-report.md`；缺口/接受人进计划 §4 与报告 §4；安全 critical/high 未闭环不得发布通过。
 
 ### 3.6 计划驱动执行
 
@@ -264,7 +264,7 @@
   → 分析：来源盘点 + AC/设计点账本 + 意图台账 + 风险清单 + Oracle
   → 计划：范围/轨道/轮次/准入准出/缺陷策略/状态
   → 执行：按计划全部在范围 P0/P1/P2 意图；AI 对照来源+意图生成场景；边执行边写执行记录
-  → 报告：按意图/优先级/轨道汇总 → 准出/缺口
+  → 报告：按业务模块/优先级汇总 → 结论/缺陷/风险/建议
   → handoff：提交/交平台/交接
 ```
 

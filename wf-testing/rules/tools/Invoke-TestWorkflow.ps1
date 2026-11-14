@@ -46,7 +46,7 @@ $anchorCount = 0
 $instanceLeafs = @(
     'activeContext.md', 'env-baseline.md', 'CHANGELOG.md', 'work-log.md',
     'test-plan.md', 'test-report.md', 'test-analysis.md', 'handoff-ledger.md',
-    '00-交接说明.md', '01-交接清单.md', '接收回执.md', 'INDEX.md',
+    '00-交接说明.md', '01-交接清单.md', '接收回执.md', 'INDEX.md', '缺陷台账.md',
     # 实例产物
     '测试方案.md', 'test-report.md',
     '00-发布前索引.md', '00-专项索引.md', '00-smoke-checklist.md', 'smoke-checklist.md', '_覆盖账本.md', '写回回执.md'

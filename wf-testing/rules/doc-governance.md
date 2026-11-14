@@ -84,7 +84,7 @@ docs/materials/
 
 - 测试工作区：
   - **常青（根）**：`INDEX.md`、`work-log.md`、`smoke-checklist.md`、`scripts/`、`capabilities/`、`handoff/`、`_archive/`
-  - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`写回回执.md`（有写回才建；本轮覆盖）、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
+  - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`缺陷台账.md`（§0 本轮写回覆盖；§1 版本台账累计；有写回才建）、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
 - 测试材料库写入域：`05-testing`。
 
 - **组织轴**：版本/迭代 = `{ver}/` 大夹；模块与场次默认进文件名。轨名并列、不编号、不表示执行先后；执行顺序只认 `{ver}/test-plan.md` §0/§3。

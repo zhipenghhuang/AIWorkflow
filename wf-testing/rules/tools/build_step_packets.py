@@ -525,7 +525,7 @@ DEFECT_SUBMIT_CARD = """### 本步规则卡：逐槽位搬运与回执
 - **附件门（硬）**：`surface=ui`/`ui+api` → ≥1 钉点截图已挂本单；`surface=api` → 响应文件已挂**或**正文关键片段齐；回查 `files` 后再写回执（禁「有 json 叶=已交证」）。
 - **写入自检（硬 · 新建/正式交平台）**：十段齐 + §5.0.1b 厚度 + `surface` 一致；**POST/PUT 前** `python rules/tools/validate_defect_steps.py <steps>` 须 0 ERROR（结构+厚度；缺项按 ERROR 回补）；HTML/文本版式按适配「写入前自检」；建单 body 带 `assignedTo`（禁建后再 assign+comment 刷首条备注）。
 - **入口门（硬）**：搬运前核执行详情含 `入口指纹=`；写接口单须有回查字段=值（Q22）；细则 `collaboration` §5.0.1c / `classification` §0.4。
-- **回执**：`{ver}/写回回执.md`（本轮覆盖）；新建单写 `来源=记录投影|现网补采`、`surface=`、`结构=齐|缺`、`厚度=过|未过`（厚度未过禁标交单成功）；回归写回附范围卡（构建/回归范围/冒烟/影响面/未覆盖；未跑/未覆盖写接受人，槽位见 `collaboration` §7.0）；过 writeback 门。"""
+- **台账**：`{ver}/缺陷台账.md`（§0 本轮写回每轮覆盖；§1 版本台账累计）；新建单写 `来源=记录投影|现网补采`、`surface=`、`结构=齐|缺`、`厚度=过|未过`（厚度未过禁标交单成功）；回归写回附范围卡（构建/回归范围/冒烟/影响面/未覆盖；未跑/未覆盖写接受人，槽位见 `collaboration` §7.0）；过 writeback 门。"""
 
 
 def step_card(pack_key: str, wid: str, sid: str) -> str:

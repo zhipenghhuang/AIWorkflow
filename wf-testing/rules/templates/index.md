@@ -55,7 +55,7 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `40-report-review/test-report-template.md` | testing.report | 结论/意图覆盖/缺陷/缺口/发布建议 |
+| `40-report-review/test-report-template.md` | testing.report | 给开发/产品/协作方的报告：结论/范围/结果/缺陷/未测风险/建议/证据 |
 
 ## 90-handoff
 

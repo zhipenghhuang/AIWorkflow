@@ -10,7 +10,7 @@
 | 分析与计划 | `Invoke-Gate.ps1 -Mode coverage` | 分析结构/来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路 + 计划结构 |
 | 执行批末 | `Invoke-Gate.ps1 -Mode execute -Scope "{模块/域}"` | 分析/计划结构硬判 + Scope 内记录/证据/INT∈§2.1/终态/证伪；过程完整且仅产品红 → CONDITIONAL |
 | 报告/准出 | `Invoke-Gate.ps1 -Mode report` | 分析/计划/记录/报告一致；全部 P0/P1/P2 意图终态；场景/意图计数；缺口 |
-| 交平台/回写 | `Invoke-Gate.ps1 -Mode writeback` | 平台回执（单号/备注/状态/附件）；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖） |
+| 交平台/回写 | `Invoke-Gate.ps1 -Mode writeback` | `缺陷台账.md` §0（单号/备注/状态/附件回查）；§1 版本台账；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖） |
 | 材料库发布 | `Invoke-Gate.ps1 -Mode materials -Version "{ver}"` | README/INDEX 齐、文件全登记、无草稿/证据、无密钥、链接自包含；来源与旧版本状态人工核 |
 | 完成口令 | `Invoke-Gate.ps1 -Claim -Mode report` | 读 `.gate/wf-testing/report.json`；输出 `CLAIM: ALLOWED/DENIED` |
 
@@ -44,10 +44,10 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `intent-conclusion` | execute/report | 每个意图有终态（通过/失败/阻塞/待实现/N/A）；P1/P2 未测同样失败 | FAIL |
 | `p0-missing` | report | 分析中 P0 意图无场景执行 | FAIL；execute 仅批内 |
 | `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（风险假设+检查点/会话；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
-| `report-structure` | report | 报告 §0～§5、§2.1/§2.2 计数、§2.3 覆盖与收口、§4 缺口；§2.2 通过/失败/阻塞/待实现与执行记录一致；细节维 x/16 对分析适用数；原文对账未关>0 不得 PASS；suite/depth 对计划；结论唯一 | FAIL |
-| `report-verdict` | report | 准出可解析；与 P0/意图终态/失败一致；发版 PASS 须 full/full | FAIL |
+| `report-structure` | report | 报告 §0～§5、§2.1 计数与执行记录一致、结论唯一、正文无内部 ID；P0/失败/有条件接受；内部覆盖由分析/计划/记录核 | FAIL |
+| `report-verdict` | report | 准出可解析；与 P0/意图终态/失败一致；正文无内部 ID | FAIL |
 | `conditional-acceptor` | report | CONDITIONAL 须 §4 缺口表非空接受人（须用户确认口径，Q19；门检结构非空） | FAIL |
-| `writeback-receipt` | writeback | 单号/备注/状态/附件/回执；回归写回须构建/范围/冒烟/影响面/未覆盖（未跑须接受人） | FAIL |
+| `writeback-receipt` | writeback | `缺陷台账.md` §0 单号/备注/状态/附件回查；§1 版本台账行齐；回归写回须构建/范围/冒烟/影响面/未覆盖（未跑须接受人） | FAIL |
 
 ## 3. 检查什么
 
@@ -55,7 +55,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 - **计划**：范围/轨道/轮次/批次/探索/准入准出可执行；引用分析与 env-baseline；§0 计数/版本准出/准出口径/批次意图范围与 §2.1 联动；suite/depth 已声明且 core 仅补丁；覆盖闸 PASS 后才称可执行。
 - **执行**：过程（分析/计划/链接/证据/终态/证伪）不过 → FAIL 禁下批；`未执行`/`未本轮验证` 仍在 → FAIL（批未关）；过程完整且仅产品红 → CONDITIONAL 可下批继续找缺陷（须入库）。**三步序方法**：方案原文 → 结合分析理解 → 现场择优（有互补源则对照）；门检要求 §0 有分析索引、每场景有实际/差异；优先级以分析 §2.1 为准；§3 意图结论须有场景 ID；P0 须证伪；功能记录 3～7 步且可复核。
 - **报告**：台账处置=测有实际场景且全终态；§2.2 通过/失败/阻塞/待实现与记录一致；P0 全过且有证伪；细节维 x/16 对分析适用数；计划纳入轨道有对应记录；CONDITIONAL 认 §4 接受人；非 PASS/CONDITIONAL 禁用“全部通过/可发布”。
-- **回写**：单号/备注/状态/附件回执；`writeback` 不覆盖 report。回执优先 `{ver}/写回回执.md`（本轮覆盖）；亦认存量 `functional|api|evidence` 下含 `回执`/`回写` 的 md（排除 `_archive`/`.draft` 与按日散落）；多份时优先固定名。回归写回另核范围卡：构建/范围（默认|扩大）/冒烟/影响面/未覆盖；未跑或未覆盖须有接受人。
+- **回写**：`{ver}/缺陷台账.md` §0 本轮写回（单号/备注/状态/附件回查）；§1 版本台账（平台单号/标题/严重度/状态/发现记录/修复构建/回归结论/负责人/下一步）；`writeback` 不覆盖 report。回归写回另核 §0 范围卡：构建/范围（默认|扩大）/冒烟/影响面/未覆盖；未跑或未覆盖须有接受人。
 
 ## 4. 成本纪律
 
