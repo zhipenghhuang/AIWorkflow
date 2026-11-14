@@ -6,7 +6,7 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.13.16`  
+> **template_version**：`2026.11.14.01`  
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
 

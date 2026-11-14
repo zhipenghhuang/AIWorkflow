@@ -55,11 +55,53 @@ WEAK_ORACLE_RE = re.compile(
     r"[.。!！]*$",
     re.I,
 )
+# 机检认语义，不因 Markdown 加粗/反引号误杀（质量门槛不降）
+HTTP_VERB_PATH_RE = re.compile(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s*`?\s*/", re.I)
+SURFACE_VAL_RE = re.compile(r"surface\**\s*[：:=]\s*`?(ui\+api|ui|api)`?\b", re.I)
+EVIDENCE_LEAF_RE = re.compile(
+    r"(?:evidence/|\.?/?[\w./\\-]+)\.(?:json|png|jpe?g|webp|txt|md|html|har|log)",
+    re.I,
+)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
 except Exception:
     pass
+
+
+def md_plain(s: str) -> str:
+    """剥常见 Markdown 标记，供数字/关键字匹配；不改变质量语义。"""
+    t = s or ""
+    t = re.sub(r"\*\*([^*]+)\*\*", r"\1", t)
+    t = re.sub(r"__([^_]+)__", r"\1", t)
+    t = re.sub(r"(?<!\*)\*([^*]+)\*(?!\*)", r"\1", t)
+    return t.replace("`", "")
+
+
+def evidence_paths(evidence: str) -> list[str]:
+    """证据格可多叶：`;`/`；`/`+`/逗号分隔；逐叶存在才过。"""
+    ev = (evidence or "").strip()
+    if not ev or ev in ("—", "-", "无"):
+        return []
+    parts = re.split(r"\s*[;；,+＋]\s*|\s+and\s+", ev, flags=re.I)
+    out: list[str] = []
+    for part in parts:
+        p = part.strip().strip("`").strip()
+        if not p or p in ("—", "-"):
+            continue
+        leaves = EVIDENCE_LEAF_RE.findall(p)
+        if len(leaves) >= 2 or (leaves and (" " in p or "+" in part)):
+            out.extend(x.strip().strip("`") for x in leaves)
+        else:
+            out.append(p)
+    # 去重且保序
+    seen: set[str] = set()
+    uniq: list[str] = []
+    for x in out:
+        if x not in seen:
+            seen.add(x)
+            uniq.append(x)
+    return uniq
 
 
 def read(path: Path) -> str:
@@ -129,8 +171,19 @@ def tables(block: str) -> list[tuple[list[str], list[list[str]]]]:
             headers = [c.strip() for c in line.strip().strip("|").split("|")]
             rows: list[list[str]] = []
             j = i + 2
-            while j < len(lines) and lines[j].strip().startswith("|"):
-                rows.append([c.strip() for c in lines[j].strip().strip("|").split("|")])
+            while j < len(lines):
+                raw = lines[j]
+                if not raw.strip():
+                    k = j + 1
+                    while k < len(lines) and not lines[k].strip():
+                        k += 1
+                    if k < len(lines) and lines[k].strip().startswith("|"):
+                        j = k
+                        continue
+                    break
+                if not raw.strip().startswith("|"):
+                    break
+                rows.append([c.strip() for c in raw.strip().strip("|").split("|")])
                 j += 1
             out.append((headers, rows))
             i = j
@@ -485,8 +538,8 @@ def find_test_root(project_root: Path) -> Path:
     return wr
 
 
-def resolve_evidence(record: Path, test_root: Path, evidence: str) -> bool:
-    ev = (evidence or "").strip().strip("`").strip()
+def _resolve_one_evidence(record: Path, test_root: Path, ev: str) -> bool:
+    ev = (ev or "").strip().strip("`").strip()
     if not ev or ev in ("—", "-", "无"):
         return False
     p = Path(ev)
@@ -497,6 +550,13 @@ def resolve_evidence(record: Path, test_root: Path, evidence: str) -> bool:
             return True
     name = p.name
     return bool(name) and any(x.is_file() and x.name == name for x in test_root.rglob(name))
+
+
+def resolve_evidence(record: Path, test_root: Path, evidence: str) -> bool:
+    paths = evidence_paths(evidence)
+    if not paths:
+        return False
+    return all(_resolve_one_evidence(record, test_root, p) for p in paths)
 
 
 def has_matrix_marker(s: str) -> bool:
@@ -1536,20 +1596,21 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             mline = re.search(r"[^\n]*原文对账[^\n]*", text)
             rec_line = mline.group(0) if mline else ""
         if rec_line:
-            mo = re.search(r"未关\s*[:：]?\s*`?\s*(\d+)", rec_line)
+            rec_plain = md_plain(rec_line)
+            mo = re.search(r"未关\s*[:：]?\s*(\d+)", rec_plain)
             if not mo:
                 issues.append(f"{path.name}: 原文对账缺「未关 N」（未关 0 或缺口接受人）")
             else:
                 reconcile_open = int(mo.group(1))
-                if reconcile_open > 0 and not re.search(r"接受|accepted", rec_line, re.I):
+                if reconcile_open > 0 and not re.search(r"接受|accepted", rec_plain, re.I):
                     issues.append(f"{path.name}: 原文对账未关 {reconcile_open} 但未写接受人")
-            mn = re.search(r"可验收单元\s*(?:[（(][^）)\n]{0,60}[）)])?\s*[:：]?\s*`?\s*(\d+)", rec_line)
+            mn = re.search(r"可验收单元\s*(?:[（(][^）)\n]{0,60}[）)])?\s*[:：]?\s*(\d+)", rec_plain)
             if not mn:
                 issues.append(f"{path.name}: 原文对账缺「可验收单元 N」")
             else:
                 n_units = int(mn.group(1))
-                mc = re.search(r"已覆盖\s*`?\s*(\d+)", rec_line)
-                ma = re.search(r"补录\s*`?\s*(\d+)", rec_line)
+                mc = re.search(r"已覆盖\s*(\d+)", rec_plain)
+                ma = re.search(r"补录\s*(\d+)", rec_plain)
                 covered = int(mc.group(1)) if mc else 0
                 added = int(ma.group(1)) if ma else 0
                 if n_units <= 0:
@@ -1619,7 +1680,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                         issues.append(f"{path.name}: {sc} 步骤过少（功能记录须 3～7 短步，当前 {n_steps}）")
                     elif n_steps > 7:
                         issues.append(f"{path.name}: {sc} 步骤过多（功能记录须 3～7 短步，当前 {n_steps}）")
-                    if re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", steps, re.I) or re.search(r"\bcurl\s", steps, re.I):
+                    if HTTP_VERB_PATH_RE.search(steps) or re.search(r"\bcurl\s", steps, re.I):
                         issues.append(f"{path.name}: {sc} 步骤是接口请求链；功能记录步骤应为业务 UI，API 放技术核对/归 api 轨")
             if status == "通过" and weak_oracle(oracle):
                 issues.append(f"{path.name}: {sc} 通过但 Oracle 过弱/缺失（须对照原文/分析的可观测断言，禁「通过/正常」）")
@@ -1688,7 +1749,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             missing = [label for label in FAIL_DETAIL_LABELS if label not in sec]
             if missing:
                 issues.append(f"{path.name}: {sc} 失败详情缺 " + "、".join(missing))
-            ms = re.search(r"surface\**\s*[：:=]\s*(ui\+api|ui|api)\b", sec, re.I)
+            ms = SURFACE_VAL_RE.search(sec)
             if not ms:
                 issues.append(f"{path.name}: {sc} 失败详情缺 surface=ui|api|ui+api")
             elif ms.group(1).lower() in ("ui", "ui+api") and scene_status.get(sc) == "失败":
@@ -1702,12 +1763,12 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                 rtext = repro.group(1) if repro else ""
                 if not re.search(r"菜单|页面|列表|详情|按钮|点击|输入|选择|勾选|打开|「|」", rtext):
                     issues.append(f"{path.name}: {sc} surface={ms.group(1)} 复现须写 UI 路径")
-                if re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", rtext, re.I):
+                if HTTP_VERB_PATH_RE.search(rtext):
                     issues.append(f"{path.name}: {sc} surface={ms.group(1)} 复现不应是请求链；接口放接口判定")
                 if ms.group(1).lower() == "ui+api":
                     api = re.search(r"\*\*接口判定\*\*[：:](.*?)(?=\n\s*[-*]\s*\*\*|$)", sec, re.S)
                     atext = api.group(1) if api else ""
-                    if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", atext, re.I):
+                    if not HTTP_VERB_PATH_RE.search(atext):
                         issues.append(f"{path.name}: {sc} surface=ui+api 接口判定须有 method+path")
                     if "本轮无相关接口" in atext:
                         issues.append(f"{path.name}: {sc} surface=ui+api 接口判定不得写本轮无相关接口")
@@ -1716,7 +1777,7 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                     issues.append(f"{path.name}: {sc} surface=api 须一句无 UI 面依据")
                 repro = re.search(r"\*\*复现\*\*[：:](.*?)(?=\n\s*[-*]\s*\*\*|$)", sec, re.S)
                 rtext = repro.group(1) if repro else ""
-                if not re.search(r"\b(?:GET|POST|PUT|PATCH|DELETE)\s+/", rtext, re.I):
+                if not HTTP_VERB_PATH_RE.search(rtext):
                     issues.append(f"{path.name}: {sc} surface=api 复现须写请求链")
             mcat = re.search(r"分类[^\n]*[:：]\s*`?([^；;\n|]+)", sec)
             category = mcat.group(1).strip().strip("`") if mcat else ""
@@ -2121,7 +2182,7 @@ def parse_writeback(test_root: Path) -> dict[str, Any]:
     if re.search(r"(?:\|\s*submit\s*\||动作\s*[=:：]\s*submit|新建|建单|提交到平台|platform_submit)", sec0, re.I):
         if not re.search(r"来源\s*[=:：]\s*(记录投影|现网补采)", sec0):
             issues.append("§0 新建/平台交单缺 来源=记录投影|现网补采")
-        if not re.search(r"surface\s*[=:：]\s*(ui|api|ui\+api)", sec0, re.I):
+        if not re.search(r"surface\s*[=:：]\s*`?(ui|api|ui\+api)`?", sec0, re.I):
             issues.append("§0 新建/平台交单缺 surface=ui|api|ui+api")
         if not re.search(r"十段\s*[=:：]\s*(齐|缺)", sec0):
             issues.append("§0 新建/平台交单缺 十段=齐|缺")
