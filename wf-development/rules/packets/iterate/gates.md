@@ -121,7 +121,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - **实施纪律（编码时，非事后补勾）**：状态词/KPI 单一映射源跨表面引用；有阻断先不可用再可点；方案点名的明细/下钻/证据入口须可发现（≠仅汇总/JSON）。细则 `iq-checklist.md` + `frontend-implementation` §2。
 - 新用受限 Web/平台 API → 目标环境冒烟或 polyfill；console error 阻断本门。
 - 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
-- 浏览器实例生命周期（默认不预启动、按需拉起、结束显式退程）按 实例纪律（按需拉起、结束显式退程）。
+- 浏览器实例生命周期：按当前 agent 已挂载选用，优先绑定、表内空闲套可借；按需拉起、结束退程；细则 实例纪律（按需拉起、结束显式退程）。
 
 ### 前端门 5. 禁做
 

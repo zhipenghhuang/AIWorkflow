@@ -23,10 +23,10 @@
 
 清单行：`能力名` · `启用` · `kind`（`mcp`｜`skill-cli`｜`builtin`｜`none`）· `impl` · `status`（available｜missing｜degraded｜prompted｜undecided）· `详情` · `绑定` · `verified`。
 
-- `kind=mcp`：按 MCP 稳态（挂载、Restart、禁静默换 server）；绑定见 `绑定/`。  
+- `kind=mcp`：按 MCP 稳态（挂载、Restart）；禁静默改用**未登记** server/impl；绑定见 `绑定/`。  
 - `kind=skill-cli`：按该实现手册（如 ego-browser / Playwright CLI+Skills）；不适用 CDP 套件则绑定文件写明。  
 - `kind=builtin`：包内脚本执行器等。  
-- **禁**未确认改启用集或换 `impl`。
+- **禁**未确认改启用集或换清单 `impl`。
 - **status 语义（提示相关）**：
   - `available`：可用，不提示。
   - `missing` / `undecided`：未决缺失 → 按契约 §2 **每次触达出【能力缺失】全块**。
@@ -57,4 +57,7 @@
 
 ## 7. 外部工具/浏览器生命周期
 
-按 `rules/special/multi-agent-output.md` §2.2：默认不预启动、仅按需拉起、任务链结束全链终局退程；多实例只用绑定登记的隔离套，首选占用用空闲套，未登记停问。同一 MCP 内部并行需支持独立会话/请求级路由或每 worker 独占 server 进程；只读可同上下文/账号，写需独立 profile/context、账号/数据/写域隔离，否则串行。
+> 执行稳态与退程细则只认 `rules/special/multi-agent-output.md` §2.2（按需读该节，禁通读全本）。本节只给选用摘要。
+
+1. **选用**：当前 agent 已挂载工具中，优先绑定表优先套；占用时用绑定表内其它已挂载空闲套，收尾记 `browser_mcp=`；表外实现停问。
+2. **拉起/退程/并行**：按 §2.2；默认不预启动；UI 写默认串行，有登记互斥隔离套才可并行。

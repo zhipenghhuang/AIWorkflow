@@ -203,7 +203,8 @@
 > **详情 SSOT**：`{workroot}/capabilities/00-能力清单.md` 槽 `browser-automation`（别名 `browser-mcp`）及按需 `{workroot}/capabilities/bindings/browser-automation.md`。  
 > **本节只索引**，禁止在基线维护完整 server/端口/拉起命令正文。  
 > 执行纪律见 `rules/special/multi-agent-output.md` **§2.2**；实例字段只读 `{workroot}/capabilities/`。  
-> **新项目首次**：盘点宿主已挂载浏览器能力 → 确认单（复用/新建/暂降级）→ **写入 `{workroot}/capabilities/`**，本节只填指针。  
+> **新项目首次**：盘点当前 agent 已挂载浏览器能力 → 确认单（复用/新建/暂降级）→ **写入 `{workroot}/capabilities/`**，本节只填指针。选用见 `instance-discipline` §7。  
+
 > 最低能力面（契约）：navigate · snapshot · network（功能/探索式）；`kind` 可为 `mcp` / `skill-cli` / `builtin`。
 
 | 项 | 值 |

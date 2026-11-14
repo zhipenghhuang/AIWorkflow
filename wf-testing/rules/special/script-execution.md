@@ -171,7 +171,7 @@ export default {
 | 制品 | jsonl（`{workroot}/{ver}/functional/.draft/`）+ 证据（截图 / net json，默认 `{workroot}/{ver}/evidence/`）留存为构建制品；**CI 不改执行记录/基线/平台**（合并与结论仍按本包流程由 AI/人执行） |
 | 范围 | 仅已脚本化的 **P0-Smoke 冒烟行与稳定回归**（对照 §1 判定=是）；探查/口径/判定型不上 CI |
 | 失败处置 | CI 红 ≠ 直接交平台：仍按 §3 有界复核定性；可先通知人，由 AI 通道走复核与分流（冒烟未过按 `rules/special/multi-agent-output.md` §1.1.1） |
-| 并发 | 与本地/AI 通道互斥同一 profile 与 runStamp（对照 §3-5；多套并行见基线 §8.2） |
+| 并发 | 与本地/AI 通道互斥同一 profile 与 runStamp（对照 §3-5；多套并行见绑定隔离套 + `multi-agent-output` §1.5.3） |
 
 **CI 能力（可选）**：本机可用 `ci`（见 `capabilities/00-contract.md`）时由 AI 读取构建状态/触发复跑；不可用=流水线按本表配置执行。  
 **报告渲染（可选）**：装配 `report-render` 时可把 jsonl/执行器输出渲染为明细报告；准出仍以 `{workroot}/{ver}/test-report.md` 为准。

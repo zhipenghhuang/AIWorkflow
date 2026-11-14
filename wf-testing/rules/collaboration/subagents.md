@@ -59,7 +59,9 @@
 
 ## 3. 并行与隔离
 
-共享写域定义与并行表 → `multi-agent-output.md` §1.5.3。要点：只读/draft/隔离套可并行≤3；同 MCP 实例需支持独立会话/路由或独占实例；共享 profile/账号/写域串行或隔离；**一次一个 PG**；Worker∥Reviewer 禁并行。
+> **子代理 ≠ 并行**。决策序：工具 → 直跑 → 已拆且写集不相交才并行 → UI 默认串行（绑定互斥隔离套才并行）。详表 → `multi-agent-output.md` §1.5.3（按需读该节）。
+
+要点：只读/draft/隔离套可并行≤3；共享 profile/账号/写域串行或隔离；**一次一个 PG**；Worker∥Reviewer 禁并行；浏览器选用见 `instance-discipline` §7。
 
 ## 4. 失败降级（不可让）
 
