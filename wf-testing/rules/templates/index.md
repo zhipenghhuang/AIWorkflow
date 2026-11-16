@@ -27,7 +27,7 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `10-planning/test-analysis-template.md` | testing.plan（必做） | 来源/章节/依据/AC 设计点/意图/覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11/风险/影响面/核心链路；落 `{workroot}/{ver}/test-analysis.md` |
+| `10-planning/test-analysis-template.md` | testing.plan（必做） | 来源/章节/依据/AC 设计点/意图/覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11/风险/影响面/核心链路；落 `{workroot}/{ver}/test-analysis.md`；存量行为基线读 `project-guide.md`（若有） |
 | `10-planning/test-plan-template.md` | testing.plan（总排） | 范围/引用分析/影响面/核心链路摘要/轨道/轮次/批次/探索/准入准出；落 `{workroot}/{ver}/test-plan.md` |
 | `10-planning/test-plan-lite-template.md` | testing.plan（补丁/单模块） | 轻量总排；分析仍必做 |
 | `10-planning/user-facing-change-notes-template.md` | testing.plan / 用户点名 | 用户可读变化说明；按需 |

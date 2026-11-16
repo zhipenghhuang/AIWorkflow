@@ -79,6 +79,9 @@
 - 同步按 文档治理规则（工作根/原件根/索引/关版整夹） （仅本步关版本/结项时，非日常收尾）：先判 T1/T2/T4，T2/T4 保留仍被引用的 PRD/原型基线。
 - 长期主档就地更新、版本绑定目录归档、已完结临时/失败/重复列清理候选。
 - 确认后执行。
+- 发布前核对 `{workroot}/project-guide.md` 当前状态。
+- 跑 `rules/tools/validate_project_guide.py --strict`。
+- 不一致先修再发。
 
 ### 本步规则卡：文档治理
 
@@ -103,7 +106,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/60-retro/retro-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/40-delivery/gtm-template.md`；`rules/templates/50-showcase-docs/release-notes-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/10-planning/project-guide-template.md`；`rules/templates/40-delivery/gtm-template.md`；`rules/templates/50-showcase-docs/release-notes-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 

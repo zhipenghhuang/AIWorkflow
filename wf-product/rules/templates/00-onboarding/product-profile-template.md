@@ -14,7 +14,8 @@
 | 流程偏好 | `{{轻量优先 / 完整优先；默认按计划与 PRD 存量推断}}`（影响入口；轻量≠降 AC/门/评审，见 `rules/core/routing.md` §3） |
 | 负责人（我） | `{{姓名/账号}}` |
 | 产品要点载体 | 本档案 §3（项目事实摘要）；对 AI 的额外要求由项目根 `AGENTS.md` 自写 |
-| 文档分类 | `{workroot}/`：`product-plan.md`、`requirement-pool.md`、`work-log.md`、`00-governance/`、`user/`、`{ver}/10-requirements`、`{ver}/20-design`、`{ver}/30-changes`、`{ver}/40-delivery`、`{ver}/50-showcase`、`{ver}/90-retrospectives`、`handoff/`、`capabilities/`、`_archive/`；项目级权威文档库 `docs/materials/`（细则 `rules/doc-governance.md`） |
+| 文档分类 | `{workroot}/`：`product-plan.md`、`project-guide.md`、`requirement-pool.md`、`work-log.md`、`00-governance/`、`user/`、`{ver}/10-requirements`、`{ver}/20-design`、`{ver}/30-changes`、`{ver}/40-delivery`、`{ver}/50-showcase`、`{ver}/90-retrospectives`、`handoff/`、`capabilities/`、`_archive/`；项目级权威文档库 `docs/materials/`（细则 `rules/doc-governance.md`） |
+| 项目说明 | `{workroot}/project-guide.md`（长期；当前状态唯一正文；就地更新；不随迭代归档） |
 | workroot | 默认为 docs/；非标准时写实际路径 |
 | integration_level | `{{I0 / I1 / I2 / I3；默认 I3}}` |
 | inbound_structure | `{{keep / mix / replace；默认 mix}}` |
@@ -44,6 +45,7 @@
 ## 3. 产品要点（事实摘要 · 内联）
 
 > **定位**：本产品原则/范围/合规/体验的**事实摘要**，不是对 AI 的偏好指令；长期偏好与特殊要求由落地项目自写于根 `AGENTS.md`，短期/计划内偏好按 `rules/core/context-memory.md` 记入 `activeContext`。已有外部规范文档 → 写引用指针，要点仍汇总本节。
+> **与项目说明的分界**：本档案只保留身份/原则/范围/合规/体验摘要；完整功能/流程/规则/状态/权限/边界写 `{workroot}/project-guide.md`；两处不复制同一段。
 
 - 产品原则：`{{…}}`
 - 范围边界：`{{做什么 / 不做什么}}`

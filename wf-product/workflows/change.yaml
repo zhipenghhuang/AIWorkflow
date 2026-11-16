@@ -93,7 +93,8 @@ steps:
   agent: pm-lead
   on_fail: 回 decide/受理单；拒绝/重复/实现缺陷/补充信息不得更新基线
   output: 更新后的 PRD/AC/原型/计划等 + 受理单 §6
-  notes: 仅接受/下期/立即修且有联动项，或 P0/P1 轻量受理（无 AC/范围变化）确有联动项（无需 decide）；逐项闭合并写受理单 §6。平台回写走 `defect.writeback`（本步不写平台）；CHG 包走 handoff。
+  notes: 仅接受/下期/立即修且有联动项，或 P0/P1 轻量受理（无 AC/范围变化）确有联动项（无需 decide）；逐项闭合并写受理单 §6。平台回写走 `defect.writeback`（本步不写平台）；CHG 包走 handoff。受影响功能/规则/状态/权限同轮并入
+    `{workroot}/project-guide.md` 对应章节；禁止追加版本节；历史留受理/变更单。
 - name: 重审（条件）
   id: review
   skills:

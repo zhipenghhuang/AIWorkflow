@@ -45,6 +45,9 @@
 - 多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 保留既有目录时在总览登记「既有项目目录」）。
 - 索引只做导航，不写阶段/门。
 - 另建控制面：`docs/materials/INDEX.md`、`inbound/INDEX.md`、`{workroot}/handoff/handoff-ledger.md`。
+- 建 `{workroot}/project-guide.md` 骨架（模板 `rules/templates/10-planning/project-guide-template.md`；单包/无产品包时）。
+- 已有不覆盖。
+- 多包且产品包已有同名文件时只加索引指针，不复制正文。
 - 可运行 `rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single|multi -Owner development` 建骨架（只建不删）。
 - 根 `CHANGELOG.md`：有开发规范时为本项目**产品发版史**（开发维护）。
 - 无则按 `rules/templates/00-onboarding/changelog-template.md` 建空骨架。
@@ -74,7 +77,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/00-onboarding/workspace-index-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/changelog-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/10-planning/requirement-ledger-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/project-guide-template.md`；`rules/templates/00-onboarding/changelog-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/10-planning/requirement-ledger-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

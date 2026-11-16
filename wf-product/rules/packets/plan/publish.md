@@ -69,6 +69,9 @@
 - 按模板登记计划/PRD/设计/变更/UAT/发布节点。
 - 变更分级与重规划触发写入计划执行日志/变更记录。
 - 稳定真值（愿景/用户/北极星/指标口径）留在主档与 `product-profile.md`，不随季度归档。
+- 建/刷新 `{workroot}/project-guide.md`：只写当前状态。
+- 版本史/验收证据/实现细节不写入。
+- 无内容不建空节。
 
 ### 本步规则卡：文档治理
 
@@ -84,7 +87,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/10-planning/product-plan-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-plan-template.md`；`rules/templates/90-handoff/handoff-ledger-template.md`；`rules/templates/00-onboarding/work-log-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-plan-template.md`；`rules/templates/90-handoff/handoff-ledger-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/10-planning/project-guide-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

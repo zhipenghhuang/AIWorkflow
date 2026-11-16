@@ -83,12 +83,14 @@ docs/materials/
 ### 2.4 工作区（{workroot}）
 
 - 产品工作区：
-  - `product-plan.md`、`requirement-pool.md`、`work-log.md`
+  - `product-plan.md`、`project-guide.md`、`requirement-pool.md`、`work-log.md`
   - `00-governance/`（接入核验、能力/技能体检等）
   - `user/`（用户手册、FAQ、发布说明等对外文档）
   - `{ver}/10-requirements/`、`{ver}/20-design/`、`{ver}/30-changes/`、`{ver}/40-delivery/`、`{ver}/50-showcase/`、`{ver}/90-retrospectives/`
   - `handoff/`、`capabilities/`、`_archive/`
 - 产品材料库写入域：`00-overview`、`01-requirements`、`02-design`、`06-release`（业务发布/决策）。
+
+- **项目说明**：`{workroot}/project-guide.md` 是项目当前状态的唯一正文；长期、就地更新；版本史/验收证据/实现细节不进正文；不随迭代归档。
 
 - **编号约定**：版本域 `10`～`90` 是稳定地址，不代表阶段/门；新增域用中间号（如 `25-`），不重编号；`00-governance/`、`user/`、`capabilities/`、`handoff/`、`_archive/` 不编号。
 - **工作根**：读产品档案 §1 的 `workroot`；未声明按约定：单包 `docs/`，多包 `docs/{owner}/`；非标准必须在档案声明，不另建根文件。
@@ -158,6 +160,7 @@ docs/materials/
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
 | `{workroot}/product-plan.md`、`requirement-pool.md` | 长期主档 | 关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`，主档不移动 |
+| `{workroot}/project-guide.md` | 长期 | 当前状态唯一正文；就地更新；不随迭代归档；历史进 `CHANGELOG`/变更单，证据进测试报告/UAT，实现细节进方案/ADR |
 | `{workroot}/00-governance/` | 长期 | 变更/待决/决策/缺陷评估；就地更新 |
 | `{workroot}/user/` | 长期 | 用户手册/FAQ 等对外文档；就地更新 |
 | `{workroot}/{ver}/10-requirements/` | 绑定 | 按实施入口归档；台账常青 |
@@ -204,7 +207,7 @@ docs/materials/
 
 ## 6. 更新还是归档
 
-主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → 绑定文档归档；`00-governance/`、`user/`、台账、计划主档保留。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。
+主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → 绑定文档归档；`00-governance/`、`user/`、台账、计划主档、`project-guide.md` 保留。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。`project-guide.md` 不随版本关闭归档；仅被新文件替代时归档并留指针。
 
 归档前做**引用检查**：被当前计划、技术设计、测试/验收引用的文档不得标记失效；先修引用或保留原位。归档清单写明“替代关系/仍被谁引用”。
 

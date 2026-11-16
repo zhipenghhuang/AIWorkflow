@@ -85,11 +85,13 @@ docs/materials/
 ### 2.4 工作区（{workroot}）
 
 - 开发工作区：
-  - `development-plan.md`、`work-log.md`
+  - `development-plan.md`、`project-guide.md`、`work-log.md`
   - `00-governance/`（变更记录、待决项、决策记录、缺陷评估）
   - `10-requirements/`、`20-design/`、`30-architecture/ADR/`、`40-tasks/`、`50-verification/`、`60-release/`、`70-ops/`、`80-retrospectives/`
   - `handoff/`、`capabilities/`、`_archive/`
 - 开发材料库写入域：`03-technical`、`04-implementation`、`06-release`（工程发布）、`07-appendix`。
+
+- **项目说明**：`{workroot}/project-guide.md` 是项目当前状态的唯一正文；长期、就地更新；版本史/验收证据/实现细节不进正文；不随迭代归档。**多包且产品包已有同名文件时只读产品工作根，不在开发工作根复制第二份**；单包/无产品包时由开发维护。
 
 - **编号约定**：`00`～`80` 是稳定地址，只表示浏览顺序，不代表阶段/门/执行顺序；新增域用中间号（如 `15-`、`25-`），不重编号；`capabilities/`、`handoff/`、`_archive/` 属并列/跨切面，不编号；`00-governance/` 放变更/待决/决策/接入核验；**产品缺陷评估**进子夹 `缺陷评估/`（夹内平铺）。
 - **建夹**：一类多份或父夹已有异类 → 专夹 + 夹内平铺（如 `缺陷评估/`、`BUG优化修复方案/`、`ADR/`）；勿一文件空夹，也勿把评审类与其它治理/方案文件混堆。
@@ -162,6 +164,7 @@ docs/materials/
 | `activeContext.md`、`{workroot}/INDEX.md` | 长期 | 就地更新；本包只改本责；`docs/INDEX.md` 多包时只改本包一行 |
 | `{workroot}/work-log.md` | 长期 | 追加里程碑；过长确认后移块到 `_archive/work-log/` |
 | `{workroot}/product-plan.md` / `development-plan.md` / `{workroot}/{ver}/test-plan.md`（测试包） | 长期主档 | 关闭时快照到 `_archive/{yyyyMMdd}-{ver}/`，主档不移动 |
+| `{workroot}/project-guide.md` | 长期 | 当前状态唯一正文；就地更新；不随迭代归档；历史进根 `CHANGELOG`/变更单，证据进 `50-verification/`/测试报告，实现细节进 `20-design/`/`30-architecture/`/ADR |
 | `{workroot}/00-governance/` | 长期 | 变更/待决/决策/缺陷评估；就地更新 |
 | `{workroot}/10-requirements/` | 绑定 | 按实施入口归档；台账常青（路径以根上 `10…80` 为准，不另建 `{ver}/10-…`） |
 | `{workroot}/20-design/` | 绑定 | 关闭或非实施入口 → 归档；被后续引用的基础设计保留 |
@@ -208,7 +211,7 @@ docs/materials/
 
 ## 6. 更新还是归档
 
-主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → 绑定文档归档；`00-governance/`、`30-architecture/`、`70-ops/`、台账、计划主档保留。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。
+主档/局部 → 就地更新（覆盖终态）。T1/失去实施入口 → 确认后归档。T4 → 增量就地或专项件，禁并排双最终方案。版本关闭 → 绑定文档归档；`00-governance/`、`30-architecture/`、`70-ops/`、台账、计划主档、`project-guide.md` 保留。正式文档只写现行有效；档案/索引等常青格不写接入·迁移·归档事件（过程进工作日志/归档清单）。`project-guide.md` 不随版本关闭归档；仅被新文件替代时归档并留指针。
 
 归档前做**引用检查**：被当前计划、技术设计、测试验收引用的文档不得标记失效；先修引用或保留原位。归档清单写明“替代关系/仍被谁引用”。
 

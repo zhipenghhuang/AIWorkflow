@@ -145,7 +145,8 @@ steps:
   on_fail: 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过
   output: 代码/配置改动
   notes: 本步任务：按已确认基线/方案/SC 实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC/债项）→ 按 SC 自证（单元=一条 SC）→ 自测。无 UI
-    本包前端硬门 `na`。条件技能见 §6。禁刷绿/主路径先合。子代理见 `rules/collaboration/subagents.md`。DEV-IQ-22 与预检硬门槛见本包规则卡；方法见 §6。
+    本包前端硬门 `na`。条件技能见 §6。禁刷绿/主路径先合。子代理见 `rules/collaboration/subagents.md`。DEV-IQ-22 与预检硬门槛见本包规则卡；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入
+    `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。
 - name: 代码评审
   id: review
   skills:

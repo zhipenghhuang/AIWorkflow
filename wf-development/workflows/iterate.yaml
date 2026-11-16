@@ -64,7 +64,7 @@ steps:
   agent: implementer
   output: 代码/配置改动 + 任务状态回写
   notes: 本步任务：按清单实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC）→ 按 SC 自证 → 回写。无 UI 本包前端硬门 `na`。超出清单先停；未验证不得标完成。硬门槛同
-    change.implement；方法见 §6。
+    change.implement；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。
 - name: 代码评审
   id: review
   skills:

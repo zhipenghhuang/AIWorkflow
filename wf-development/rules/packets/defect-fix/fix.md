@@ -88,6 +88,7 @@
 - **矩阵/词表**：命中权限/状态/数据基数/多表面或需判定时，按需打开 `rules/core/implementation-quality.md` 当前节；本卡只列门槛，不重复矩阵。
 - **自测硬门槛**：每条 SC 有验证；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
 - 独立评审 → 本链 `review`；不在本步自称已评审。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（阈值与隔离见 `rules/collaboration/subagents.md`；达阈值未拆记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。
+- **项目说明（单包/无产品包）**：实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`；多包读产品包同文件；不追加版本节；历史留方案/CR。
 
 ### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
@@ -193,6 +194,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/20-design/solution-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/project-guide-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）；有 UI 遵 §5 前端硬门（已内嵌）。
 

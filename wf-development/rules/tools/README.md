@@ -10,6 +10,7 @@
 | `check_skills.py` | 技能质量：frontmatter/≤500 行/反模式/README 映射 | `python rules/tools/check_skills.py . --strict` |
 | `validate_tasklist.py` | 任务清单模板/实例校验：章节/列/ID/状态/依赖/任务卡字段/SC 表与来源/RP 覆盖 | `python rules/tools/validate_tasklist.py <清单路径>` |
 | `validate_dev_plan.py` | 开发计划校验：阶段/门/状态/下一步/关键节/链接 | `python rules/tools/validate_dev_plan.py <开发计划路径>` |
+| `validate_project_guide.py` | 项目说明校验：必需章节/状态/历史词/版本行/表格列数/链接 | `python rules/tools/validate_project_guide.py <项目说明.md> --strict` |
 | `extract_prototype_modules.py` | 解码单 HTML 原型中的 `data:`/base64 模块并枚举路由/导航/组件 | `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` |
 | `Initialize-Docs.ps1` | 初始化文档树/索引骨架（只建不删；`-Mode single / multi -Owner development`；按档案 `workroot`，未声明按约定；搬迁仍需确认） | `powershell -File rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single -Owner development` |
 | `check_secrets.py` | 扫描硬编码口令/Token 字面量（不打印值） | `python rules/tools/check_secrets.py .` |

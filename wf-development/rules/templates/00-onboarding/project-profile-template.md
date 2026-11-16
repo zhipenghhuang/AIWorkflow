@@ -24,6 +24,8 @@
 | workroot | 默认为 docs/；非标准时写实际路径 |
 | integration_level | `{{I0 / I1 / I2 / I3；默认 I3}}` |
 | inbound_structure | `{{keep / mix / replace；默认 mix}}` |
+
+> **与项目说明的分界**：本档案只保留项目身份/环境/命令/代码地图/规范/交付治理；完整功能/流程/规则/边界写 `{workroot}/project-guide.md`；两处不复制同一段。
 | 原件根 | `inbound/` + `INDEX.md` |
 | 权威文档库 | `docs/materials/` |
 | 文档分类 | `{{标准分类 ｜ 现行目录映射（类别→目录；无则「无」；不写迁移动作与日期）}}`（细则 `rules/workflow.md` §5） |
@@ -193,15 +195,16 @@
 | 项 | 值 |
 | --- | --- |
 | 工作文档根 | `{workroot}/`（按 §1 `workroot`：默认单包 `docs/`，多包 `docs/development/`） |
-| 目录结构 | `development-plan.md / work-log.md / 00-governance/ / 10-requirements/ / 20-design/ / 30-architecture/ADR/ / 40-tasks/ / 50-verification/ / 60-release/ / 70-ops/ / 80-retrospectives/ / capabilities/ / handoff/ / _archive/`（有内容才建；既有目录名不同写映射） |
+| 目录结构 | `development-plan.md / project-guide.md / work-log.md / 00-governance/ / 10-requirements/ / 20-design/ / 30-architecture/ADR/ / 40-tasks/ / 50-verification/ / 60-release/ / 70-ops/ / 80-retrospectives/ / capabilities/ / handoff/ / _archive/`（有内容才建；既有目录名不同写映射） |
 | 索引 | `{workroot}/INDEX.md` |
 | 交接 | `{workroot}/handoff/outbound/{category}/`（实拷+升包 HO）+ `{workroot}/handoff/inbound/{category}/`（收件；须分析吸收）+ `handoff-ledger.md`；`inbound/` 为原件 |
 | 开发计划 | `{workroot}/development-plan.md`（L2+；L0/L1 可「不适用」） |
+| 项目说明 | `{workroot}/project-guide.md`（单包/无产品包；长期；当前状态唯一正文；多包读产品包同名文件） |
 | 版本记录 | 根 `CHANGELOG.md`（产品发版史：用户可见能力/破坏性/迁移/安全，开发维护；模板 `changelog-template.md`）；岗位侧记 `{workroot}/work-log.md`；单版叙事用 `{workroot}/60-release/发布说明-{版本}.md` |
 | 治理记录 | `{workroot}/00-governance/change-log.md`、`open-items.md`、`decisions.md`；`{workroot}/10-requirements/requirement-ledger.md` |
 | 原件根 | `inbound/` + `INDEX.md`；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档 |
 | 权威文档库 | `docs/materials/`（项目级；定稿/完整/可发送；每版自包含；不设 `_archive`；旧版本保留） |
 | 命名 | `{类别}-{主题}-{版本或yyyyMMdd}.md`；缺陷评估 `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md`；发布说明一版一档 |
-| 归档 | 工作区迭代绑定文档：`{workroot}/_archive/{yyyyMMdd}-{版本}/`；材料库旧版本保留，不归档；`30-architecture/ADR/`、`70-ops/` 常青文就地更新 |
+| 归档 | 工作区迭代绑定文档：`{workroot}/_archive/{yyyyMMdd}-{版本}/`；材料库旧版本保留，不归档；`30-architecture/ADR/`、`70-ops/`、`project-guide.md` 常青文就地更新 |
 | 根目录白名单 | 代码/构建文件、README、`CHANGELOG.md`、`project-profile.md`、`activeContext.md`、`wf-*`/`wf/`、`docs/`、`inbound/`；**禁止**方案/清单/报告/截图/临时文件堆根 |
 | 目录映射（现行） | `{{旧名→现行路径；无则「无」；不写迁移动作与日期}}` |

@@ -94,6 +94,7 @@ steps:
     `10-requirements/` `20-design/` `30-architecture/ADR/` `40-tasks/` `50-verification/` `60-release/` `70-ops/` `80-retrospectives/`
     `capabilities/` `handoff/` `_archive/`；无内容不建空目录。 建索引：单包 `docs/INDEX.md`（即工作区索引）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2
     保留既有目录时在总览登记「既有项目目录」）。索引只做导航，不写阶段/门。 另建控制面：`docs/materials/INDEX.md`、`inbound/INDEX.md`、`{workroot}/handoff/handoff-ledger.md`。
+    建 `{workroot}/project-guide.md` 骨架（模板 `rules/templates/10-planning/project-guide-template.md`；单包/无产品包时）；已有不覆盖；多包且产品包已有同名文件时只加索引指针，不复制正文。
     可运行 `rules/tools/Initialize-Docs.ps1 -ProjectRoot <项目根> -Mode single|multi -Owner development` 建骨架（只建不删）。 根 `CHANGELOG.md`：有开发规范时为本项目**产品发版史**（开发维护）；无则按
     `rules/templates/00-onboarding/changelog-template.md` 建空骨架；**禁止**写接入/文档树条目。 `{workroot}/work-log.md`：无则按 `rules/templates/00-onboarding/work-log-template.md`
     创建；接入完成可追加一条事件=`接入/治理`。 L2+ 建治理记录：`{workroot}/00-governance/change-log.md`、`open-items.md`、`decisions.md`；`{workroot}/10-requirements/requirement-ledger.md`。

@@ -82,7 +82,8 @@ steps:
     `confirm_docs_migration` 确认后执行；未确认不改。 **禁止**创建/修改/补链项目根 `CHANGELOG.md`（仅开发维护）。无开发包 → 不建根 CHANGELOG；岗位史只用本包工作日志。用户点名要项目发版史
     → 建议接入开发包或由其指定写手；本包默认不替建。 按 `rules/doc-governance.md` 定位工作根；登记原件根 `inbound/INDEX.md`；权威文档库 `docs/materials/`。 建 `docs/materials/INDEX.md`
     骨架；外部输入先入 `inbound/`。 建索引：单包 `docs/INDEX.md`（含工作区导航）；多包 `{workroot}/INDEX.md` + 总览 `docs/INDEX.md`（I2 在总览登记既有目录）；不写阶段/门。
-    产品档案 增记工作根 `inbound/` 原件根 `docs/materials/` 权威文档库。 对外用户文档固定 `{workroot}/user/`，不混入 `inbound/`。'
+    产品档案 增记工作根 `inbound/` 原件根 `docs/materials/` 权威文档库。 对外用户文档固定 `{workroot}/user/`，不混入 `inbound/`。 建 `{workroot}/project-guide.md`
+    骨架（模板 `rules/templates/10-planning/project-guide-template.md`）；已有不覆盖；无内容不建空节。'
 - name: 资料收取与归档
   id: materials
   skills: []

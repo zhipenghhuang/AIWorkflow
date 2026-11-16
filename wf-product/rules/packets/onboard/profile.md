@@ -76,6 +76,9 @@
 - 不写阶段/门。
 - 产品档案 增记工作根 `inbound/` 原件根 `docs/materials/` 权威文档库。
 - 对外用户文档固定 `{workroot}/user/`，不混入 `inbound/`。
+- 建 `{workroot}/project-guide.md` 骨架（模板 `rules/templates/10-planning/project-guide-template.md`）。
+- 已有不覆盖。
+- 无内容不建空节。
 
 ### 本步规则卡：文档治理
 
@@ -91,7 +94,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/00-onboarding/product-profile-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/active-context-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/00-onboarding/workspace-index-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/00-onboarding/project-readme-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/active-context-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/10-planning/project-guide-template.md`；`rules/templates/00-onboarding/workspace-index-template.md`；`rules/templates/00-onboarding/project-overview-index-template.md`；`rules/templates/00-onboarding/project-readme-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

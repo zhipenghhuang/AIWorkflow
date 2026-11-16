@@ -29,6 +29,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `10-planning/development-plan-template.md` | control.init / onboard.control | L2+ 开发计划 |
+| `10-planning/project-guide-template.md` | onboard.docs / change.implement / iterate.implement / solo.build / defect-fix.fix / release.record | `{workroot}/project-guide.md` 当前状态唯一正文（单包/无产品包；长期；就地更新；多包读产品包同名文件） |
 | `10-planning/requirement-ledger-template.md` | onboard.docs / change.requirements | {workroot}/10-requirements/ |
 | `10-planning/requirement-understanding-template.md` | change.analyze_input / intake.parse | §0 Brief+Delta 门面 + 下钻理解包；solo 不产独立理解包（理解摘要并入方案卡） |
 | `10-planning/user-facing-change-notes-template.md` | change.analyze_input；solo.product（L1+ 用户可见，条件） | 用户可读变化说明；AI 业务全景索引；L1+ 用户可见变化必出 |

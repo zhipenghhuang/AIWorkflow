@@ -102,7 +102,7 @@ steps:
     `inbound/_archive/{ver}/` + 归档清单；部分/增量/参考不动；未确认不移动。 同步按 `rules/doc-governance.md` （仅本步关版本/结项时，非日常收尾）：长期主档就地更新、版本绑定目录关闭时归档、已完结临时/失败/重复列清理候选；确认后执行。
     **换代/新版本主题（即使不结项发版）** → 不确定则 `confirm_iteration_close`；确认后按 `rules/doc-governance.md` 判 T1/T2/T4，再按 `rules/doc-governance.md`
     关账（T2/T4 保留仍被引用的 PRD/原型基线；跳过仅发版项）。 建/更新 `{workroot}/handoff/handoff-ledger.md`（模板 `rules/templates/90-handoff/handoff-ledger-template.md`）；按模板登记计划/PRD/设计/变更/UAT/发布节点；变更分级与重规划触发写入计划执行日志/变更记录。
-    稳定真值（愿景/用户/北极星/指标口径）留在主档与 `product-profile.md`，不随季度归档。
+    稳定真值（愿景/用户/北极星/指标口径）留在主档与 `product-profile.md`，不随季度归档。 建/刷新 `{workroot}/project-guide.md`：只写当前状态；版本史/验收证据/实现细节不写入；无内容不建空节。
 - name: 计划续跑
   id: next
   skills: []

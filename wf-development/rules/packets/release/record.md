@@ -54,6 +54,9 @@
 - 细则 文档治理规则（工作根/原件根/索引/关版整夹） 版本记录。
 - **同时**追加 `{workroot}/work-log.md` 事件=`发版`（索引+条目；链到发布说明与根 CHANGELOG 版本节）。
 - 无则按模板建。
+- 发布记录后核对 `{workroot}/project-guide.md` 当前状态。
+- 跑 `rules/tools/validate_project_guide.py --strict`。
+- 不一致先修再发。
 - **三分清**：根 CHANGELOG＝发版史。
 - 工作日志＝里程碑。
 - 计划执行日志＝过程——功能清单勿只写工作日志却漏根/发布说明。
@@ -89,7 +92,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/40-delivery/release-record-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/changelog-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/40-delivery/release-notes-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/changelog-template.md`；`rules/templates/00-onboarding/work-log-template.md`；`rules/templates/10-planning/project-guide-template.md`；`rules/templates/40-delivery/release-notes-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

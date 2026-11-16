@@ -87,6 +87,8 @@ docs/materials/
   - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`缺陷台账.md`（§0 本轮写回覆盖；§1 版本台账累计；有写回才建）、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
 - 测试材料库写入域：`05-testing`。
 
+- **项目说明（只读引用）**：项目级 `project-guide.md`（产品/开发工作根）是存量行为基线；测试只读引用，不复制到测试工作根；本期变化仍以 PRD/方案/提测单为准。
+
 - **组织轴**：版本/迭代 = `{ver}/` 大夹；模块与场次默认进文件名。轨名并列、不编号、不表示执行先后；执行顺序只认 `{ver}/test-plan.md` §0/§3。
 - **建夹**：一类多份且与父夹其它文件异类 → 专夹 + 夹内平铺；轨内单份执行记录不另套模块夹。
 - **工作根**：读环境基线「项目身份」的 `workroot`；未声明按约定：单包 `docs/`，多包 `docs/{owner}/`；非标准必须在基线声明，不另建根文件。`{ver}` 取基线「当前版本/主题」或 INDEX/`activeContext` 指针。

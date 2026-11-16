@@ -27,6 +27,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `10-planning/product-plan-template.md` | plan.publish | `{workroot}/product-plan.md` 常青主档（含 §3.0 Brief+Delta） |
+| `10-planning/project-guide-template.md` | plan.publish / change.apply / deliver.release / onboard.profile | `{workroot}/project-guide.md` 当前状态唯一正文（长期；就地更新；不写历史/证据） |
 | `10-planning/iteration-plan-template.md` | plan.publish / prd.prd（多需求版本） | 版本级迭代方案：范围、功能覆盖、验收矩阵、执行记录、发布条件；验收资产 ≠ 开发任务 |
 | `10-planning/iteration-change-summary-template.md` | plan.scope / publish（按需） | 默认用计划 §3.0；仅仓外/版本归档/点名才落独立文件为唯一权威 |
 | `10-planning/requirement-pool-template.md` | prd.discover / change.new_requirement | `{workroot}/requirement-pool.md`（含证据/方案/确认列） |

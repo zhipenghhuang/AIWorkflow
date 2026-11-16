@@ -105,7 +105,8 @@ steps:
     1～5 条产品语言或链到发布说明，供开发写根 CHANGELOG）；有 UAT 结论写=`UAT 结论`；有复盘写=`复盘`。无文件则按模板建。 **不是**根 `CHANGELOG.md`、也不是计划 执行日志。本门=`confirm_release`
     业务决策；根发版史由开发在工程发版时写（有开发包时）。 **禁止**创建/修改/补链项目根 `CHANGELOG.md`；无开发包则不建根。 版本关闭/结项：按 `rules/doc-governance.md`；先判 T1/T2/T4，T2/T4
     保留仍被引用的 PRD/原型基线，不整夹归档；失效资料 → `inbound/_archive/` + 清单；部分/增量/参考不归档；未确认不移动。 同步按 `rules/doc-governance.md` （仅本步关版本/结项时，非日常收尾）：先判
-    T1/T2/T4，T2/T4 保留仍被引用的 PRD/原型基线；长期主档就地更新、版本绑定目录归档、已完结临时/失败/重复列清理候选；确认后执行。
+    T1/T2/T4，T2/T4 保留仍被引用的 PRD/原型基线；长期主档就地更新、版本绑定目录归档、已完结临时/失败/重复列清理候选；确认后执行。 发布前核对 `{workroot}/project-guide.md` 当前状态；跑 `rules/tools/validate_project_guide.py
+    --strict`；不一致先修再发。
 - name: 收尾与提交
   id: closeout
   skills: []
