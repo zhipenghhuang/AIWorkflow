@@ -50,7 +50,7 @@ description: Use when executing tests or exploratory testing. Execute from the s
 | 脚本 fail | 有界复核 1 次：产品/脚本/环境分诊 | 脚本红直接交平台；反复深挖 |
 | Flake | 同方案无效 2 次换手段；记频率 | 一次绿即稳；静默跳过 |
 
-**落账前四问**：① 被测入口本轮已定位（`入口指纹`：ui/network/contract 三选一有证，见 `classification.md` §0.4）？② 证据可开且钉断言点（失败含页面→截图；接口可另附终态 json，**不**用 json 顶替 UI 断言面）？失败块含 `surface=ui|api|ui+api`；有 UI 面须 UI 路径+截图，纯 API 才可请求链？③ 结果态按 §0.4（失败/阻塞/待实现不混标；未定位禁写「入口不存在」）？④ 写操作 Network 见 METHOD+path 且**回查字段=值**（禁只认 200）？四问未过不落账。
+**落账前四问**：① 被测入口本轮已定位（`入口指纹`：ui/network/contract 三选一有证；`contract:` 须 bundle/OpenAPI 已出现该 path，见 `classification.md` §0.4）？② 证据可开且钉断言点（失败含页面→截图；接口可另附终态 json，**不**用 json 顶替 UI 断言面）？失败块含 `surface=ui|api|ui+api`；有 UI 面须 UI 路径+截图，纯 API 才可请求链？③ 结果态按 §0.4（失败/阻塞/待实现不混标；未定位禁写「入口不存在」；验收手段缺失→盯办勿标待实现；过滤/乱参须已对照契约参数集）？④ 写操作 Network 见 METHOD+path 且**回查字段=值**（禁只认 200）？四问未过不落账。
 
 ## 2.5 自主与不确定
 
@@ -142,6 +142,7 @@ description: Use when executing tests or exploratory testing. Execute from the s
 | “入口一时找不到就 blocked” | 先换入口/路由/契约写口/基线路径；未穷尽换入口不得阻塞。 |
 | “猜几个 API 404 就待实现/入口不存在” | 未钉入口指纹（ui/network/contract）=未定位；禁交未交付单；先同源抓写口。 |
 | “试迁移/故障注入/回退扫不到就待实现” | 先判验收载体：未钉产品入口或手段在脚本/配置 → 可测性盯办；勿与产品面未交付抢标（`classification.md` §0.4）。 |
+| “乱参/未知 query 仍全集就开过滤缺陷” | 对照契约参数集；契约外忽略≠实现缺陷（`classification.md` §0.4）。 |
 | “写接口 200 就算停用/生效” | 必须回查资源状态字段；未变=假成功=失败。 |
 | “检查/校验 API 绿了就算关联能力过了” | 否；还须配置面字段/键可达，且有生效上游数据时消费端读入或阻断定位。 |
 | “有 failReason/两状态字段都在就算过” | 须语义一致且可读；冲突或异常原文当原因=失败（`testcase-design` §3.1）。 |

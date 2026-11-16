@@ -11,7 +11,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 ## 0. 必做
 
 1. 读主读/OpenAPI/Network/前端契约 + 计划 §2 接口意图；禁猜 path/字段（禁按模块名对称拼 path）。
-2. 建契约清单：EP、方法+path、鉴权、关键参数、成功码/关键字段、错误码、来源。
+2. 建契约清单：EP、方法+path、鉴权、关键参数、成功码/关键字段、错误码、来源。列表/查询负向只测清单内参数（+非法枚举）；禁拿契约外键证「过滤坏了」。
 3. **先填 §2.1 维表**（每 EP：适用维 → `SC-*` 或 `不适用+依据`；depth 底线见 `tracks/api`），再按表生成场景；禁先探活后补空表。
 4. 执行时写 `{workroot}/{ver}/api/{NN}-{短名}-执行记录.md`；确定性同轮脚本；探活只进 `.draft`。
 5. 跑 `python rules/tools/validate_api_testcase.py <域文件>`；ERROR 未清=未完成。
@@ -34,6 +34,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 - 三要素：HTTP 状态码 + 业务码/信号 + **点名关键字段=值**；仅 2xx 不算通过；假成功/200 空壳=失败；「message 非空/有 data」≠通过。
 - 写条写后回查（列表/详情/**状态字段=期望值**）；配置/账号类写口同此；方案要求的版本/来源/幂等键等追溯字段在命中响应中断言；同义多字段冲突=失败。
 - 无 token/越权用隔离上下文；请求摘要不含密钥；证据含响应码/字段/脚本 jsonl。失败/待实现留 `入口指纹`；空列表/404/未交付须先排除测侧误用。
+- **过滤/忽略类**：断言前先列本 EP 契约参数集；契约外键被忽略不得单独判缺陷；契约内有效键应收窄，非法枚举应拒绝（细则 `classification.md` §0.4）。
 - 错误语义对齐：预期业务阻断时实际须同类门禁/阻断码；入口错配/指纹过期/参数门禁错类不算“符合预期”；失败原因须业务可读，SQL/堆栈原文可作缺陷证、不得当合格错误契约。
 
 ## 4. 缺陷谱系
@@ -62,6 +63,7 @@ description: Use for API and contract testing. Prefer script-first execution, co
 | “2xx 就算通过” | 状态码+业务信号+关键字段=值；假成功=失败。 |
 | “有 message/failReason 就算错误契约过” | 须业务可读且与门禁同类；异常原文当合格错误=失败。 |
 | “对称猜 path 404 就未交付” | path 须契约/Network；未钉指纹禁交「入口不存在」。 |
+| “乱参 total 不变=过滤坏了” | 先对契约参数集；契约外忽略≠缺陷；须契约内可收窄或非法枚举拒绝。 |
 | “覆盖对照做成全维矩阵才完整” | 按适用维；不适用写依据；不要求全维空表。 |
 | “功能执行记录里已有 API 证据” | 那是探针；接口轨完成仍要本域 `api/` 记录+契约清单+§2.1 维表。 |
 | “depth=full 太重，先只跑关键写口” | 须改计划声明更低 depth 并经确认；禁静默缩 full。 |
