@@ -28,7 +28,7 @@
 
 ## 4. 本步门
 
-- **GATE `materials-validate`**：按 `rules/gates.md` 该门清单；链接自包含与「本包未完成」为空为硬项。
+- **GATE `materials-validate`**：**checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**链接自包含**（正文无未改写的工作区/`inbound/` 路径）；完整包含 `00-overview` 现行状态+阅读顺序；`本包未完成` 为空；旧版本状态正确；不过不称完整。
 - **推进**：本流程为 `chain: full`；本步完成后进入下一未跳过步，直至 closeout。
 
 ## 5. 本步动作
@@ -38,11 +38,23 @@
 
 ### 本步动作清单
 
-- README：版本、范围、包含/不包含、阅读顺序、来源；缺失分 `产品缺口`｜`故意不收录`｜`本包未完成`；记是否覆盖刷新。
-- INDEX 登记全部文件；刷新 `last_published_at`；状态仅 `current`／`superseded`。
-- **门（materials-validate）**：README/INDEX 齐；来源可解析；无草稿/证据/密钥/PII；**正文链接自包含**；`00-overview` 有现行状态+阅读顺序；无「本包未完成」；旧版本状态正确。不过不称完整。
+- README 写版本、范围、包含/不包含、阅读顺序、来源、缺失/待补、本次是否覆盖刷新。
+- INDEX 登记所有文件：版本/域/文档/来源（IN-xxxx、docs/... 或 generated）/状态/更新时间。
+- 刷新 `last_published_at`。
+- 状态只写 `current superseded`。
+- 默认覆盖同 ver。
+- 仅显式保留历史时升 `rev` 或 `{ver}-r2`。
+- **门（materials-validate）**：README/INDEX 齐。
+- 所有文件有登记。
+- 来源可解析。
+- 无草稿/证据/密钥/PII。
+- 链接自包含，只发 `{ver}/` 不缺文件。
 - 测试数据默认不外发。
-- 多包：README/INDEX 由本包统一刷新；只改本域与索引行；`06-release/` 业务文件不动。
+- 旧版本状态正确。
+- 待补项列明，不把“已生成”说成“已完整”。
+- 多包：README/INDEX 由本包统一刷新。
+- 只改本域与索引行，不重建他域。
+- `06-release/` 业务文件不动。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
 
