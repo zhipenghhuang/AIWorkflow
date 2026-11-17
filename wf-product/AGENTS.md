@@ -5,7 +5,7 @@
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.16.06`
+> **template_version**：`2026.11.17.01`
 >
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
 
@@ -18,7 +18,7 @@
 3. **接入**：`wf-product onboard: done` 则跳过，否则 onboard-agent 一次判定。  
 4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1；会话首次必整卡，同会话已读见 §7）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）；理解→方案双确认按域门。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 

@@ -206,7 +206,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 ### 4.5 提测（deliver 步）
 
 - 触发只认步上 `has_qa_or_deploy_or_requested`；为假（无 QA 交接且无部署/发版、未点名）跳过并记 `when_eval=假:<依据>`。  
-- **跳过 deliver ≠ 跳过自验**：无 QA 时仍须 verify/gates 的开发测试/自验（报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
+- **跳过 deliver ≠ 跳过自验**：无 QA 时仍须「验证/门」的开发测试/自验（报告或验收附录含 verdict/P0/AC 走查）；见 `rules/core/lightweight.md` §4.1。  
 - 产出：提测单（`rules/templates/40-delivery/qa-handoff-template.md`）——部署版本、改动点/影响面、自测结论、已知问题、**裁剪债项、沿用基线再验摘要**、回归指引、测试设计输入；发布说明+回滚预案（`rules/templates/40-delivery/release-notes-template.md`）。  
 - 落盘：真源 `{workroot}/60-release/`；同轮实拷 `{workroot}/handoff/outbound/提测/`（发布说明→`handoff/outbound/发布/`）；提测单单点滚动，发布说明一版一档。  
 - 纪律：自测证据不足不交 QA；已知问题不瞒报；口头裁剪无债项不交 QA；沿用模块无基线冒烟（且未写不适用）不交 QA；开发自验 ≠ 版本准出；若同项目有测试包，提测单可作为其计划的可选输入（不强制）。

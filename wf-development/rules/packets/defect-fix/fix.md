@@ -40,7 +40,7 @@
 
 - **本步必开技能（质量不降）**：`debugging-and-error-recovery`、`implementation-and-selftest` → 见 §6 闭环。
 
-- **条件技能**：`cross-layer-consistency`（命中权限/状态/数据基数/多表面） → 命中则同样走 §6 闭环。
+- **条件技能**：`cross-layer-consistency`（命中权限/状态/数据基数/多表面）、`frontend-implementation`（有 UI / 有原型）、`backend-implementation`（后端/接口/数据访问/任务/集成/迁移） → 命中则同样走 §6 闭环。
 
 ### 本步动作清单
 
@@ -186,6 +186,8 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 | `debugging-and-error-recovery` | **必开** | 进入本步即开（质量不降） | `skills/debugging-and-error-recovery/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 | `implementation-and-selftest` | **必开** | 进入本步即开（质量不降） | `skills/implementation-and-selftest/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 | `cross-layer-consistency` | 条件开 | 命中权限/状态/数据基数/多表面 | `skills/cross-layer-consistency/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `frontend-implementation` | 条件开 | 有 UI / 有原型 | `skills/frontend-implementation/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `backend-implementation` | 条件开 | 后端/接口/数据访问/任务/集成/迁移 | `skills/backend-implementation/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
 - 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。

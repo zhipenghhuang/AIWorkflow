@@ -6,7 +6,7 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.16.06`
+> **template_version**：`2026.11.17.01`
 >
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
@@ -20,7 +20,7 @@
 3. **接入**：`wf-testing onboard: done` 则跳过；计划/执行/缺陷无标记时核验一次。  
 4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（**遵守**；重读分级见 §7，中段禁全文通读充数）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7 主从）；**本步第一步工具读**须含当前 `packet=` 路径；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；**本步第一步工具读**须含当前 `packet=` 路径；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1；会话首次必整卡，同会话已读见 §7）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】）。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚；`global=ok`=本步已按 §7 复核且已实读当前步骤卡）。
 
@@ -108,4 +108,4 @@
 - **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。
 - **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
 - **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`（常青）；包内 `capabilities/00-contract.md` 只定义槽位。清单 available 即用，否则按契约降级；未接受降级每次触达出【能力缺失】块（契约 §2）。能力不替代技能。纪律 `rules/capabilities/instance-discipline.md`。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 discover，禁外装绕过分析/oracle。
-- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改 skills/capabilities。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。
+- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改「技能/能力」。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。

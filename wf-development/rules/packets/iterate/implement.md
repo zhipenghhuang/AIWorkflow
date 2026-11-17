@@ -40,6 +40,8 @@
 
 - **本步必开技能（质量不降）**：`implementation-and-selftest`、`engineering-quality` → 见 §6 闭环。
 
+- **条件技能**：`frontend-implementation`（有 UI / 有原型）、`backend-implementation`（后端/接口/数据访问/任务/集成/迁移） → 命中则同样走 §6 闭环。
+
 ### 本步规则卡：实施预检与自测（本步门槛；实施类共用）
 
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
@@ -145,6 +147,8 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 | --- | --- | --- | --- | --- |
 | `implementation-and-selftest` | **必开** | 进入本步即开（质量不降） | `skills/implementation-and-selftest/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 | `engineering-quality` | **必开** | 进入本步即开（质量不降） | `skills/engineering-quality/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `frontend-implementation` | 条件开 | 有 UI / 有原型 | `skills/frontend-implementation/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
+| `backend-implementation` | 条件开 | 后端/接口/数据访问/任务/集成/迁移 | `skills/backend-implementation/SKILL.md` | 整卡读取（必做 → 方法/判定 → 反模式/DoD）→ 回本包 |
 
 - 必开未整卡实读 / 未按方法执行 = **未遵守**（不得用「包内已有摘要」代替）。
 - 条件未命中 → 该行 `na` + 一句理由。

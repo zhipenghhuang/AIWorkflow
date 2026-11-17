@@ -76,14 +76,7 @@
 
 ## 5. 规则卫生检查（维护时）
 
-```powershell
-powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-DocHygiene.ps1"
-powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Template.ps1"
-python "wf-development/rules/tools/validate_workflow.py" "wf-development"
-```
-
-检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板、语义（重复入口/残句/读预算/不可达步/步骤卡标识/无条件跳过）。
-维护者人工核对：token 预算、重复句、同范围「必须/可跳过」冲突、孤儿规则。
+命令与通过标准只认 `rules/core/maintenance.md` §2（单一出处）；规则层另核：token 预算、重复句、同范围「必须/可跳过」冲突、孤儿规则（人工）。
 
 ## 6. 规则 eval（改规则时）
 

@@ -29,7 +29,7 @@
 ## 4. 本步门
 
 - **HITL `confirm_skill_changes`**：出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动
-- **条件判定 `hitl:skill_changes_pending`**：skill-audit 拟改 skills/capabilities 且未确认；满足→真，否则跳过该门。
+- **条件判定 `hitl:skill_changes_pending`**：skill-audit 拟改「技能/能力」且未确认；满足→真，否则跳过该门。
 - **推进**：本流程为 `chain: full`；本步完成后进入下一未跳过步，直至 closeout。
 
 ## 5. 本步动作

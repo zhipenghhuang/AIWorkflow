@@ -138,6 +138,8 @@ steps:
   - implementation-and-selftest
   skills_conditional:
     cross-layer-consistency: 命中权限/状态/数据基数/多表面
+    frontend-implementation: 有 UI / 有原型
+    backend-implementation: 后端/接口/数据访问/任务/集成/迁移
   must_read:
   - rules/packets/defect-fix/fix.md
   - rules/templates/20-design/solution-template.md

@@ -137,6 +137,7 @@ steps:
   - engineering-quality
   skills_conditional:
     frontend-implementation: 有 UI / 有原型
+    backend-implementation: 后端/接口/数据访问/任务/集成/迁移
     product-doc-analysis: 输入含 PRD/原型/产品文档
   must_read:
   - rules/packets/change/implement.md

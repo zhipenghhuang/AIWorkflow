@@ -6,7 +6,7 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.16.06`
+> **template_version**：`2026.11.17.01`
 >
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
@@ -21,7 +21,7 @@
 3. **接入**：`wf-development onboard: done` 则跳过，否则按 onboard-agent 一次判定。  
 4. **行为契约**：理解/澄清/检查/择优/冲突按 `rules/core/global-rules.md`（遵守全文；重读见 §7）。  
 5. **覆盖优先级**：只认 `rules/core/global-rules.md` §11。  
-6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1）。  
+6. **读取**：分级读链（global-rules §7 主从）；YAML 非规则正文；技能按步骤包 §6 **整卡读取**（同时 ≤1；会话首次必整卡，同会话已读见 §7）。  
 7. **契约**：`rules/core/global-rules.md` §1/§4（开工档位【需求与意图理解】+【动作前分析】；只读分析）。  
 8. **心跳**：`rules/core/global-rules.md` §8（切步/过门一行锚）。
 
@@ -31,7 +31,7 @@
 
 ### 0.1 执行路径
 
-> L0～L3 仅为内部风险标签，不由 AI 选档；**轨道只看正式协作/正式流程，体量/风险不换链**（`lightweight.md` §1～§2）。
+> L0～L3 为内部风险标签，由**变更事实**推导（非自评选档；见 `gates.md`「L 档推导」）。**无正式协作 → `solo`**（体量大/高风险只提高严谨度，不换链）；正式协作再按体量/风险选标准代码 / 完整交付 / 高风险（`lightweight.md` §1～§2）。
 
 | 路径 | 触发 | 完整任务必走 | 可省 |
 | --- | --- | --- | --- |
@@ -123,7 +123,7 @@
 - **技能（必用）**：`skills/<name>/SKILL.md`，随包复制、命中步必用；方法见 `skills/README.md`。体检能力确认后可就地改本包 `skills/`。
 - **技能质量**：新增/大改按 `skills/README.md` 末节；description 含中文触发词；≤500 行；须有反模式/反合理化；改后 `check_skills.py --strict`。
 - **能力（可选 · 实例 SSOT）**：真源 `{workroot}/capabilities/00-能力清单.md`；包内 `capabilities/00-contract.md`+`capabilities/reference.md` 非真源。纪律 `rules/capabilities/instance-discipline.md`。清单 `available` 即用，否则按契约降级；硬触达未接受降级须出【能力缺失】（契约 §2）。「装配能力」写实例；「接受降级」写 `degraded`+`accepted=`；「体检能力」含 discover → 方法回灌或能力候选，禁外装并行编排。
-- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改 skills/capabilities。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。
+- **适度建议（业务会话）**：仅当命中 `rules/capabilities/instance-discipline.md`「业务建议」判据时，收尾附 **至多 1 条**（对象+现象+「装配能力」或「体检能力」）；禁推销、禁未确认改「技能/能力」。同会话同类只提一次。【能力缺失】全块不受「至多 1 条」限制。
 
 ## 7. 多包
 

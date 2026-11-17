@@ -68,16 +68,9 @@
 - 门语义只认 `gates.md`；新增确认门须有 YAML 载体 + `gates.md` 词条；能用门禁/检查表判定的不靠追问。
 - 条件门由外部事实优先；模型自评不确定按触发处理。**T2/T3、发布前、外部文档输入：禁止用恒假条件跳过高风险门；跳过须写理由。**
 
-## 4. 规则卫生（维护时）
+## 4. 规则卫生检查（维护时）
 
-```powershell
-powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
-powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Test-DocHygiene.ps1"
-python "wf-testing/rules/tools/validate_workflow.py" "wf-testing"
-```
-
-检查：引用/锚点、YAML、workflows→agents、版本单点、AGENTS/规则行数、孤立模板、语义（重复入口/残句/读预算/不可达步/步骤卡标识/无条件跳过）。
-维护者人工核对：token 预算、重复句、同范围「必须/可跳过」冲突、孤儿规则。
+命令与通过标准只认 `rules/core/maintenance.md` §2（单一出处）；规则层另核：token 预算、重复句、同范围「必须/可跳过」冲突、孤儿规则（人工）。
 
 ## 5. 规则 eval（改规则时）
 

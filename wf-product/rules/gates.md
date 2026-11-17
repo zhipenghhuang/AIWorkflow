@@ -80,7 +80,7 @@
 | `handoff_change_substantive` | 交接包内变更达 C2/C3 或改定稿基线 | 低于该阈值 |
 | `prd_ready_for_handoff` | PRD 已 APPROVED 且门 READY，本轮定稿/进排期，台账无同版本 REQ 已发/已收；仅评审不触发 | 未定稿或已发过 |
 | `docs_migration_needed` | 有未登记资料、拟改名/搬迁/归档、工作文档清理或旧结构迁移 | 无此类动作或已确认 |
-| `skill_changes_pending` | skill-audit 拟改 skills/capabilities 且未确认 | 无拟改或已确认/拒绝 |
+| `skill_changes_pending` | skill-audit 拟改「技能/能力」且未确认 | 无拟改或已确认/拒绝 |
 | `iteration_close_needed` | 探测到下一期/换主题/升级且是否关本期不明 | 已确认结束或并行不关 |
 
 未写 `when` 视为无条件。`gate_when: ai_review_chosen` 不满足 → 跳过该 gate（步骤可走 A 路径）。同一确认点只问一次；固定骨架不得省略。

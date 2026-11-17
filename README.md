@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.16.06-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.17.01-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -394,6 +394,9 @@ AIWorkflow/
 powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-Template.ps1"
 powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Invoke-TestWorkflow.ps1" -Action ValidateTemplateRefs
+powershell -ExecutionPolicy Bypass -File "wf-product/rules/tools/Test-DocHygiene.ps1"
+powershell -ExecutionPolicy Bypass -File "wf-development/rules/tools/Test-DocHygiene.ps1"
+powershell -ExecutionPolicy Bypass -File "wf-testing/rules/tools/Test-DocHygiene.ps1"
 python wf-product/rules/tools/check_skills.py wf-product --strict
 python wf-development/rules/tools/check_skills.py wf-development --strict
 python wf-testing/rules/tools/check_skills.py wf-testing --strict

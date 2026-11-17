@@ -4,7 +4,7 @@
 
 > **单一出处**：验收清单、证据、完成状态、报告措辞。`AGENTS.md` 只留指针；`verify/README.md` 是操作入口；`verify/checks.yaml` 是策略表。
 > **定位**：验证是**兜底与证明**——证明落地与 SC/AC 一致；**不替代** `implementation-quality.md` DEV-IQ-12 的抽全与忠实编码。理解/语义错误应在 plan/implement 消掉，不得指望本步「捞回」。
-> **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`closeout` 前；`review` 只读证据标准，不读门回执（门在 verify/gates 跑）。维护时读 `rules/core/rule-governance.md`。
+> **读取时机**：`clarify`/`plan` 定验收；`implement` 收尾、`verify`、`closeout` 前；`review` 只读证据标准，不读门回执（门在 「验证/门」 跑）。维护时读 `rules/core/rule-governance.md`。
 
 ## 1. 不变量（带 ID）
 
@@ -18,7 +18,7 @@
 | DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L1+ 用户可见 UI 命中前端硬门 A 级、**L1 命中安全/性能/并发/数据面**、L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险/单点且未命中 A 级/安全/性能/并发/数据面的 L1 可免独立评审，但须记录理由与风险接受人。 |
 | DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、**桌面+移动截图**，并与同类页面/原型对照（导航层级/文案、复用组件、列/区块、空态/错误态）；无证据不报完成。浏览器/MCP/截图不可用 → 前端项 `BLOCKED`/`UNVERIFIED`，不得口头放行；**接口 200、DOM 文本、class 名正确不能替代视觉完成证据**。单 HTML 原型须先解码 `data:`/base64 模块再核对（DEV-IQ-13），原始文本搜索无结果不能作为“原型无此页”的依据。 |
 | DEV-VER-08 | 报告先写中文回执结论（通过/部分通过/阻塞/未验证），再写完成内容；非“通过”禁用“完成/通过/已修复/正常”。 |
-| DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=wf-development`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 verify/gates 跑。 |
+| DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=wf-development`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 「验证/门」 跑。 |
 | DEV-VER-10 | 免审不免自检：L0 纯文档核相对链接/未认领占位；代码或配置至少 L1，必须有本轮测试/冒烟/证据（定向或全仓，以 profile 为准）。多波次先选“每波独立评审+过门”或“只 S5 全量评审”，不得混用。 |
 | DEV-VER-11 | 实施质量对账：有行为变化须核对 `implement_preflight`；命中取重时另核 SC 追溯、跨层、基线冒烟、债项；重要面命中须有同批硬补证据。缺项不得报全覆盖「通过/完成」。细则只认 `implementation-quality.md`（§8）。 |
 | DEV-VER-12 | 验收分层：产品验收矩阵先分 `DEV-AC / QA-AC / REL-AC`；只有 `DEV-AC` 进入开发任务与 S5 门禁；`QA-AC` 由测试在 S6/S7 执行，`REL-AC` 由 UAT/发布在 S8 执行。 |

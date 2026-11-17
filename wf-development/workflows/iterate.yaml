@@ -58,6 +58,9 @@ steps:
   skills:
   - implementation-and-selftest
   - engineering-quality
+  skills_conditional:
+    frontend-implementation: 有 UI / 有原型
+    backend-implementation: 后端/接口/数据访问/任务/集成/迁移
   must_read:
   - rules/packets/iterate/implement.md
   when: implementation_required
