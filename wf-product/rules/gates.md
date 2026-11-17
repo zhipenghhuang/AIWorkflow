@@ -35,7 +35,7 @@
 | `gate: uat-evidence` | UAT 门禁 | 运行 `verify/Invoke-Gate.ps1 -Mode uat`；AC 覆盖、证据、有条件通过的责任人/接受人；未 READY 不得写 UAT 通过。无 UAT 要求可写 `verdict: 不适用` + 依据/批准人，门放行但记警告 |
 | `gate: change-closure` | 变更/缺陷联动闭合 | 运行 `verify/Invoke-Gate.ps1 -Mode change`；§6 每项“已更新/不适用/待补”，待补有责任人/截止；未闭合不得关闭 |
 | `gate: writeback-receipt` | 平台回写门禁 | `Invoke-Gate.ps1 -Mode writeback -Artifact …`；单号+备注实质+状态取值+fileId/无附件；禁标题刷绿；无回执不得声称已回写 |
-| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；所有文件有登记；来源可解析；无草稿/证据/密钥/PII；链接自包含；旧版本状态正确；不通过不称完整。 |
+| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**正文链接自包含**（无未改写的工作区/`inbound` 路径）；`00-overview` 有现行状态入口+阅读顺序；README 无「本包未完成」；旧版本状态正确；不通过不称完整。 |
 
 > `confirm_task_intent` 是全局开工门（`AGENTS.md` 首轮硬门/§0.1），不依赖 step；其余门仍只认步上声明。
 

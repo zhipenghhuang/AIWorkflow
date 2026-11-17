@@ -16,7 +16,7 @@
 | 备注门 | `confirm_remark`（when: `remark_writeback`） | 拟关/激/解决/标重复/补充澄清/回归写回 → 先列 id+结论+备注全文；确认后执行。 |
 | 入库门 | `confirm_gitignore`（when: `gitignore_needed`） | 四选一确认资产范围；规范包默认不跟踪，写已装包行与运行态 `.gate/`；接入时一次。 |
 | 技能变更门 | `confirm_skill_changes`（when: `skill_changes_pending`） | 出示拟变更清单；确认后才改；未确认零改动。 |
-| 材料库闸 | `gate: materials-validate` | README/INDEX 齐；文件有登记；来源可解析；无草稿/证据/密钥/PII；不通过不称完整。 |
+| 材料库闸 | `gate: materials-validate` | README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；正文链接自包含；`00-overview` 有现行状态入口+阅读顺序；无「本包未完成」；旧版本状态正确；不通过不称完整。 |
 | 理解门 | `confirm_understanding`（when: `understanding_needs_confirm`） | **主屏**：分析 §0 摘要、来源盘点计数（含 UI/文案类）、AC/设计点/UI/文案覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。 |
 | 计划门 | `confirm_plan`（when: `plan_needs_confirm`） | 版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）+ **数据前置**（造数项数/无造数依据）。**待确认只列需用户裁决的范围/准出/接受人**；造数/建号/开通/专项方案编制属执行期自助（`rules/defects/classification.md` §0.4），不得挂待确认。同会话同载体只一次；补丁/单模块、无新增功能面轻量可不设门。 |
 | 执行门 | `confirm_execution_scope`（when: `scope_needs_confirm`） | 开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。 |

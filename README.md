@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.17.01-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.17.02-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -248,7 +248,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 验证层 | `verify/`（运行态 → 项目根 `.gate/`） |
 | 文档治理 | `rules/doc-governance.md` + `rules/templates/` |
 | 工作根 | 项目档案 §1 的 `workroot`；默认单包 `docs/`、多包 `docs/{owner}/` |
-| 权威文档库 | 项目级 `docs/materials/{ver}/`（00-overview～07-appendix；README + INDEX） |
+| 权威文档库 | 项目级 `docs/materials/{ver}/`（00～07；自包含现行状态；README + INDEX） |
 
 执行宿主是任意支持 `AGENTS.md` 自动装载的 AI 编码工具，**不自研编排引擎**。
 
@@ -318,7 +318,7 @@ AIWorkflow/
 | 产品版本目录 | `docs/product/{ver}/`（单包 `docs/{ver}/`）：`10-requirements` · `20-design` · `30-changes` · `40-delivery` · `50-showcase` · `90-retrospectives`；`00-governance/` · `user/` · `capabilities/` 不编号 |
 | 测试轨 | `{workroot}/` 常青（`smoke-checklist`/`scripts`/`capabilities`/`handoff`）+ `{ver}/` 本期（分析/计划/报告 + 轨内平铺执行/探索/随机/发布前记录） |
 | 原件根 | `inbound/` + `INDEX.md`（全量外部输入；不归档/不迁出） |
-| 权威文档库 | `docs/materials/{ver}/`（项目级；00-overview～07-appendix；README + INDEX；自包含；不归档） |
+| 权威文档库 | `docs/materials/{ver}/`（项目级；完整包默认 00～07；正文相对路径自洽；不归档） |
 | 交接 | `{workroot}/handoff/outbound\|inbound/{category}/` + `handoff-ledger.md`（升包含 `{HO-ID}/`） |
 | 索引 | 工作区 `{workroot}/INDEX.md`（单包即 `docs/INDEX.md`）；多包或保留原目录另有总览 `docs/INDEX.md`（不写状态） |
 | 编号 | 生命周期域用 `00`～`80`/`10`～`90` 稳定地址，跳号插入不重编；并列/跨切面（`capabilities`/`handoff`/`_archive`、测试轨）不编号；编号不代表阶段/门 |

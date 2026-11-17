@@ -106,7 +106,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 - **三层**：`inbound/` 原件；`{workroot}/` 工作区；`docs/materials/` 项目权威文档库。工作根读项目档案 §1 `workroot`；未声明按单包 `docs/`、多包 `docs/development/`。
 - **工作区**：`development-plan.md`、`project-guide.md`、`work-log.md`、`00-governance/`（变更/待决/决策/缺陷评估）、`10-requirements/`、`20-design/`、`30-architecture/ADR/`、`40-tasks/`、`50-verification/`、`60-release/`、`70-ops/`、`80-retrospectives/`、`capabilities/`、`handoff/`、`_archive/`；按需建，无内容不建空目录。
 - **项目说明**：`{workroot}/project-guide.md` 是项目当前状态唯一正文（单包/无产品包；长期；就地更新）；多包且产品包已有同名文件时只读引用，不复制第二份。
-- **权威文档库**：项目级 `docs/materials/`；每版 `{ver}/` 自包含，域 `00-overview`～`07-appendix`；`README.md` + `INDEX.md`；不设 `_archive`，旧版本保留；正文从工作区发布，不直接改。  
+- **权威文档库**：项目级 `docs/materials/`；每版 `{ver}/` **自包含现行状态**（正文相对路径；完整包默认 00～07）；`README.md` + `INDEX.md`；不设 `_archive`；从工作区发布，发布时改写链接／补拷依赖。  
 - **原件**：`inbound/INDEX.md` 全量登记；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档。  
 - **版本记录**：根 `CHANGELOG.md`＝仅开发维护的产品发版史（用户可见能力/破坏性/迁移·兼容/安全；禁过程项）；`{workroot}/work-log.md`＝岗位里程碑；发布说明一版一档。  
 - 细则与命名/根目录白名单见 `rules/workflow.md` §5、`rules/doc-governance.md`。
