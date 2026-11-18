@@ -57,7 +57,13 @@ def main() -> int:
     }
     match = re.search(r'<script type="importmap">(.*?)</script>', html, re.S)
     if not match:
-        print("no <script type=importmap> found; treat as ordinary HTML")
+        print(
+            "no <script type=importmap> found. If this is a built single-file SPA "
+            "(open it in a browser: routes render), do NOT grep the raw HTML. "
+            "Follow frontend-gate §3-1b: open it with the project browser/Playwright, "
+            "walk hash routes, capture the prototype change list, nav/routes, main-area "
+            "structure text and screenshots into .gate/prototype/<ver>/."
+        )
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "prototype.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         return 0

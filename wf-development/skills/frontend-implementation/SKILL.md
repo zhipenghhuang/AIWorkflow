@@ -12,12 +12,13 @@ description: Use when implementing frontend pages, routes, components, forms, or
 ## 0. 必做（先于编码）
 
 1. 读本步包内「前端硬门」；L0 无 UI → 整技能 na。  
-2. 有单 HTML 原型 → 先 `extract_prototype_modules.py` 解码，禁只搜原始 HTML。  
+2. 有单 HTML 原型 → 先 `extract_prototype_modules.py` 解码；已构建 SPA → 浏览器按 hash 路由提取「改动清单/导航/主区结构/截图」到 `.gate/prototype/`；禁反写矩阵。**无原型** → 读 `frontend-design` §3/§4，先写设计基线再实现。  
 3. 写/更新 `.gate/frontend/parity-matrix.md`（含字段网格；冲突裁决）。  
 4. 实现时不自造一级导航/页面壳；优先复用现有列表/详情壳。  
 5. 每页做完立即对照矩阵；深链直达；菜单视口可达。  
-6. L2+：`frontend.capture` → `evidence.json`；再 `frontend_parity`；手写通过无效。  
-7. 回执 `skills=frontend-implementation`（+ 分析步则含 product-doc-analysis）。
+6. L2+：`frontend.capture` → `evidence.json`；再 `frontend_parity`；手写通过无效。capture 降级 → 该波 `degraded`，不得标完成，S5 前必须重拍复评。  
+7. 能力可达：列「后端写端点 → 页面入口/动作」，无入口标 `non-ui:<理由>` 并确认；不得以接口可调替代页面。  
+8. 回执 `skills=frontend-implementation`（+ 分析步则含 product-doc-analysis）。
 
 ## 0.1 禁做
 
@@ -28,7 +29,7 @@ description: Use when implementing frontend pages, routes, components, forms, or
 ## 1. 结构与路由
 
 - 先读产品设计/交接；需要补设计时读前端设计说明，不另起视觉。
-- **原型单源（DEV-IQ-13）**：单 HTML 原型可能把模块以 `data:`/base64 嵌在 importmap；先跑 `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` 解码模块并枚举路由/导航/组件，禁止只搜原始 HTML 文本就判断“原型没有该页”。
+- **原型单源（DEV-IQ-13）**：单 HTML 原型可能把模块以 `data:`/base64 嵌在 importmap；先跑 `python rules/tools/extract_prototype_modules.py <原型.html> <输出目录>` 解码模块并枚举路由/导航/组件，禁止只搜原始 HTML 文本就判断“原型没有该页”。**已构建 SPA**（无 importmap、浏览器直接打开可运行）按 `frontend-gate` §3-1b 运行解码，矩阵只引用解码结果。
 - 开工前给出「原型对齐矩阵」：路由→导航层级/文案→复用组件→列/区块/字段网格→交互/筛选/日期→状态/空态/权限；**冲突以方案/PRD 为主**（业务口径/命名/单实体与多实体语义/权限/路由），布局/组件/视觉以原型为主；现有同类页面/设计系统一并对照，择优复用；按方案偏离原型要在矩阵标 `按方案`，重大偏离先 `OPEN-*` 确认。
 - **路由/菜单/深链台账（DEV-IQ-17）**：同步写 `.gate/frontend/route-coverage.json`；一级/二级菜单在 1440×900 与 1280×720 下必须可见或可滚动到达，展开项不得把同级挤出；新建/详情/授权/统计钻取等关键深链必须直达；每条路由配桌面+移动截图，哈希不得跨路由复用。
 - **持续回指**：每条 SC/AC 标注来源文件+章节；编码、review、verify 都回看原文，并与原型/现有同类页面对照，不凭记忆；到波次检查点/来源更新时重跑矩阵并更新差异。
@@ -95,6 +96,8 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - 状态与导航：筛选/Tab/分页等状态可深链/刷新保持；危险操作二次确认或可撤销；长文本有截断/换行，空态不出现坏 UI。
 - 性能：LCP/INP/CLS 或项目预算；首屏资源、图片尺寸、字体、长列表虚拟化。
 - 证据：至少一组关键页面截图（含空/错/权限态）+ 键盘/焦点证据 + 控制台/网络摘要；有设计说明时做差异清单。
+- **无样例数据**：正式入口不得用固定样例/演示数兜底；缺数据显示空态/未配置。
+- **能力可达**：新增/变更写接口须有页面入口或 `non-ui:<理由>`；页面动作能指到同权限 API。
 - 文案减法：无标语/重复说明/装饰标签；必要操作/状态/风险/金额/权限/错误文案齐全；删后首屏仍可理解。
 - 删后不清楚 → 改布局/层级/分组/渐进披露/默认值/就地提示，不加回说明文字。
 - 三维影响：UX（截图/走查）、DX（命令/可维护）、AX（路径/单一出处）各一句；净退化须说明取舍。
@@ -118,6 +121,9 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - [ ] 请求走统一层，错误提示不泄露内部信息；无重复提交/竞态覆盖。
 - [ ] 组件边界/状态归属清楚；无超大组件与散落全局状态。
 - [ ] 设计 tokens/组件复用；无内联样式复制原型。
+- [ ] 有原型时已解码；operations 来自原型并逐项点通，未从实现反抄。
+- [ ] 后端写端点均有页面入口或已确认 `non-ui`；正式页无固定样例数据。
+- [ ] capture 未降级，或降级已登记并在本门/S5 前复评。
 - [ ] 移动端/目标浏览器/可访问性（键盘/焦点/对比度）已核；新 Web API 已冒烟或 polyfill。
 - [ ] 每条路由桌面+移动截图、菜单/深链台账、`route-coverage.json` 已齐；哈希不重复、无旧图。
 - [ ] 截图/console/network 证据齐；`design-qa` #3/#14/#20 按条文通过；设计缺口已回写。

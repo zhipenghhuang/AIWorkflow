@@ -46,6 +46,8 @@
 - 非 COMPLETE 不得 deliver/closeout。
 - 同步清单/plan/activeContext。
 - 无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无 UI 标 na）。
+- 完成门核前端交付物、原型解码与能力可达。
+- 缺则 BLOCKED。
 
 ### 前端硬门（本步内嵌 · 有 UI 必遵；无 UI 整节 `na`）
 
@@ -61,15 +63,17 @@
 
 | # | 产物 | 要求 |
 | ---: | --- | --- |
-| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选 |
+| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选。SPA 原型按 §3-1b 解码；矩阵只引解码结果。**无原型**：按方案＋设计系统＋同模块基线页写设计基线（规格/状态矩阵），矩阵对照。 |
 | 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
 | 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
-| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED |
+| 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED。**能力可达行（硬）**：写端点→页面入口/动作/证据；无入口标 `non-ui` 并确认；只写接口可调=BLOCKED。 |
 | 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
+>
+> **降级**：capture 降级记 `degraded`，不得完成；S5前补。
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
@@ -91,6 +95,8 @@
 # 1) 原型解码（单 HTML + base64/importmap 时）
 python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/prototype
 
+# 1b) SPA 原型：浏览器按 hash 路由提取结构/截图 → .gate/prototype/。
+
 # 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
 # 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
@@ -105,10 +111,13 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 ### 前端门 4. 验收底线（人眼 + 门）
 
-- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉以**原型**为准；按方案偏离须在矩阵标 `按方案`。
+- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉有原型以原型为准、无原型以**设计基线**为准；按方案偏离须在矩阵标 `按方案`。
 - 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
 - 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
-- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations`（原型按钮/操作名）必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
+- **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations` 必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
+- `operations` 逐项点通（入口→点击→结果/权限/错误）；静态图不算。
+- 写接口须有页面入口或已确认 `non-ui`；接口替代页面=未完成。
+- 正式入口禁用固定样例（demo 关）；缺数据显示空态。
 - **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
 - **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
 - **组件复用（硬）**：新增/改页面前先盘点项目既有组件（`ui.js`/设计系统）与至少 1 个相邻页面；日期区间、筛选、弹窗、状态戳等优先复用既有组件与交互；原生控件仅在无既有组件时使用；自造须在 parity-matrix/design-qa 写理由。
@@ -127,7 +136,9 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 - 只搜原始 HTML 断言「原型没有该页」（须先解码模块）。
 - 手写「通过」但无本轮 `evidence.json` / 哈希对不上。
-- MCP 不可用时不做 Playwright/内置浏览器兜底仍标完成。
+- 写 UI 缺口债项化/以接口替代换过门。
+- 固定样例/演示数据填充正式入口。
+- MCP 不可用不做浏览器兜底仍标完成。
 - 对带状态的共享模块只 bump 部分引用的 `?v=`/hash（易双例：确认挂死、权限态分裂）。
 
 > L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。

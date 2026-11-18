@@ -41,7 +41,7 @@ steps:
   agent: iterate-lead
   output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
   notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ closeout。 无 PRD 先 `skills/product-shaping`；L2+ 读 development-plan。禁本步
-    -StartTask。
+    -StartTask。AC 须含能力可达（写端点→页面入口）与原型操作对账；样例数据不得进正式页。
 - name: 确认清单与节奏
   id: confirm
   skills: []
@@ -67,7 +67,8 @@ steps:
   agent: implementer
   output: 代码/配置改动 + 任务状态回写
   notes: 本步任务：按清单实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC）→ 按 SC 自证 → 回写。无 UI 本包前端硬门 `na`。超出清单先停；未验证不得标完成。硬门槛同
-    change.implement；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。
+    change.implement；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。有原型先解码（SPA
+    运行提取）；写能力须有页面入口或 `non-ui`；禁用固定样例。
 - name: 代码评审
   id: review
   skills:
@@ -83,9 +84,9 @@ steps:
   - design-review
   output: 评审结论/缺口 + `.gate/review.md`
   precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
-    存在且后端/功能/前端行有效；非前端/低档→无。
-  on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa。
+    存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺 = 回 implement。
+  on_fail: 回 implement 补前端交付物/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
+  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa；有 UI 核原型解码+能力可达；抽核方案章节闭合。
 - name: 全量门禁与文档同步
   id: gates
   skills:
@@ -98,7 +99,7 @@ steps:
   gate_type: machine
   output: .gate/wf-development/completion.json + 门禁摘要/文档同步
   notes: Invoke-Gate 门末自动 Claim（-Claim 仅复核）；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无
-    UI 标 na）。
+    UI 标 na）。完成门核前端交付物、原型解码与能力可达；缺则 BLOCKED。
 - name: 提测与发布文档
   id: deliver
   skills:
