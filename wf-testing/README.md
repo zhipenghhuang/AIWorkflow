@@ -27,7 +27,7 @@
 | `rules/gates.md` | 门/`when`/`gate_when` 语义 |
 | `rules/workflow.md` | 参考：产物路径/轨道/执行规则（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
 | `rules/tracks/` | `api.md`、`exploratory.md`、`random-flows.md`、`pre-release.md` |
-| `rules/templates/` | 分析/计划/执行记录/报告/交接模板；先看 `templates/index.md` |
+| `rules/templates/` | 分析/计划/执行记录/报告/交接模板；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 + 脚本档工具 + 执行记录校验 |
 | `verify/` | 覆盖/执行/报告门；运行态写 `.gate/wf-testing/` |
 

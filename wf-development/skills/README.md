@@ -9,6 +9,9 @@
 > **与「规则」的区别**：技能给方法；红线/口径/门以 `AGENTS.md` 与 `rules/` 为准（冲突时规则优先）。  
 > **整合来源**（方法参考，已改写适配为中文随包版，非逐字复制）：Agent Skills 规范（agentskills.io；frontmatter/渐进披露/≤500 行）、anthropics/skills、addyosmani/agent-skills（MIT；skill anatomy/反合理化/验证门）、obra/superpowers（MIT；系统化调试/计划/评审）、github/spec-kit（MIT）、bmad-code-org/BMAD-METHOD（MIT）、wshobson/agents（MIT）、alibaba/open-code-review（Apache-2.0）、Google Engineering Practices、Google AIP、Microsoft REST API Guidelines、OWASP ASVS 5.0、OWASP WSTG、OWASP Top 10 for LLM 2025、SLSA v1.2、OpenSSF Scorecard、12-Factor、DORA、C4/arc42/ADR、OpenTelemetry（含 GenAI 语义约定）、Diátaxis、Keep a Changelog/SemVer、WCAG 2.2、Core Web Vitals、NIST AI RMF、ISO/IEC 42001（许可以官方为准）。  
 
+> **按需技能（设计类大技能）**：`api-design`/`database-design`/`technology-selection`/`frontend-design`/`ai-application-engineering` 默认不挂 `skills_conditional`（避免单步预算超限），由步骤 notes 按命中整卡读取；命中即整卡、未命中记 `na`+理由，与挂载等效。
+> **非技能目录**：`_evals/` 为技能抽测用例（无技能主文件），不按技能加载。
+
 ## 步骤 → 技能映射
 
 | 步骤 | 技能 |
@@ -109,7 +112,7 @@
 **4. 修改流程**
 
 1. 改 `skills/<name>/SKILL.md`；同步本 README 映射与相关 workflow `notes`。
-2. 跑 `rules/tools/Test-Template.ps1`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`；技能大改后按 `skills/evals/README.md` 抽测 3 条并记录结果。
+2. 跑 `rules/tools/Test-Template.ps1`；改引用/映射后跑 `rules/tools/Test-DocHygiene.ps1`；必跑 `rules/tools/check_skills.py <包根> --strict`；技能大改后按 `skills/_evals/README.md` 抽测 3 条并记录结果。
 3. 更新包 `AGENTS.md` `template_version`；仅母版仓且有用户可见包能力变化时才更新母版根 `CHANGELOG.md`；业务项目不因改技能写项目根 CHANGELOG；不单独给技能设版本号。
 4. 新增技能必须在本表挂到具体步骤；跨阶段技能挂到所有适用阶段。
 5. **收敛**：长期无 step/`skills_required` 挂载、与相邻技能高度重复 → 并入 `references/` 或合并技能；经「体检能力/通用优化技能」确认后再删目录，禁止静默删技能。
