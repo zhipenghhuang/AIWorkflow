@@ -3,6 +3,7 @@
   "build": "npm run build",
   "lint": "npm run lint",
   "test": "npm test",
+  "_test_note": "必须覆盖本项目全部测试入口（多 runner 串联，如 node --test + vitest）；不得只列部分测试文件；各 runner 的命令与计数分别留证。",
   "lint_scoped": "",
   "test_scoped": "",
   "e2e_scoped": "",

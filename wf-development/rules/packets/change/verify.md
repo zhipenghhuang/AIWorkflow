@@ -30,7 +30,7 @@
 
 ## 4. 本步门
 
-- **GATE `completion-gate`**：任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**（维护真源 本包前端硬门，改后须 `build_step_packets.py` 重生）；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
+- **GATE `completion-gate`**：任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：先提交后过门，门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -122,7 +122,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - 写接口须有页面入口或已确认 `non-ui`；接口替代页面=未完成。
 - 正式入口禁用固定样例（demo 关）；缺数据显示空态。
 - **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
-- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜，源码变更后必须重拍受影响路由。
+- **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜。**顺序**：代码/测试/脚本定稿→重拍→回写→提交→过门；改脚本/测试同重拍。
 - **组件复用（硬）**：新增/改页面前先盘点项目既有组件（`ui.js`/设计系统）与至少 1 个相邻页面；日期区间、筛选、弹窗、状态戳等优先复用既有组件与交互；原生控件仅在无既有组件时使用；自造须在 parity-matrix/design-qa 写理由。
 - **共享模块单例（硬 · DEV-IQ-19）**：带模块级可变状态的共享 JS（store、确认/弹窗 Promise、会话权限等）须单一入口；禁止多 chunk 各写不同 `./xxx.js?v=`。改文件或 bump 戳 → 改入口真源并核对引用；有项目 token 自检须跑过。确认后无请求/偶发丢权限 → 先查是否双例加载。
 - 至少达到原型标准，再谈择优：协调（设计系统/同类页一致，无第二套 tokens）、实用（密度与操作路径不劣于同类页）、美观（层级/留白/对齐/对比度）——按 `design-qa` #7/#8/#9/#18 验收（对比度另见 #13）；禁止「能跑就行」的简化单列/自创壳。

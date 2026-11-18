@@ -232,11 +232,16 @@ def main() -> int:
                 "（重新跑门禁）"
             )
 
-        # 回执后已提交的代码同样会让回执过期（工作区干净也拦得住）。
+        # 回执后已提交的代码同样会让回执过期（工作区干净也拦得住）；收尾文档提交不影响（与 verify/README 一致）。
         commit = str(receipt.get("commit") or "").strip()
         if commit and run_git_rc(root, "rev-parse", "--verify", f"{commit}^{{commit}}") == 0:
-            if run_git_rc(root, "diff", "--quiet", f"{commit}..HEAD", "--", ".") != 0:
-                problems.append(f"回执提交 {commit} 之后 HEAD 又有代码/产物变更（重新跑门禁）")
+            raw = run_git(root, "diff", "--name-only", "-z", f"{commit}..HEAD")
+            code_after = [p for p in raw.split("\x00") if p and is_code_file(p)]
+            if code_after:
+                problems.append(
+                    f"回执提交 {commit} 之后又有代码/产物变更: {', '.join(code_after[:3])}"
+                    "（重新跑门禁；文档提交不影响）"
+                )
 
     return report(problems, receipt, args.json)
 

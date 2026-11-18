@@ -552,7 +552,7 @@ def check_evidence(items: list[dict[str, str]], project_root: Path, task_started
                     missing.append(f"{item_id}: 证据不存在 {token}")
                     break
                 if started_ts and p.is_file() and p.stat().st_mtime < started_ts:
-                    missing.append(f"{item_id}: 证据早于任务开始 {token}")
+                    missing.append(f"{item_id}: 证据早于本轮任务开始/最新源码变更 {token}")
                     break
     return missing
 

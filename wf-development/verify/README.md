@@ -25,9 +25,10 @@
 
 ## 2. 一次任务怎么跑
 
-1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把当前任务态（`.gate/frontend/`、`.gate/review.md`、旧任务或无本轮 `task_id` 的 `.gate/plan-coverage.md`/`.gate/acceptance.yaml`、`.gate/wf-development/` 回执）**归档**到 `.gate/archive/<task_id>/`；本轮已写好且 `task_id` 匹配的 acceptance/coverage 保留。不删除，保留追溯。门按 **base..工作区** 算变更（中途 commit 不丢窗口）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
+1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把当前任务态（`.gate/frontend/`、`.gate/review.md`、旧任务或无本轮 `task_id` 的 `.gate/plan-coverage.md`/`.gate/acceptance.yaml`、`.gate/wf-development/` 回执）**归档**到 `.gate/archive/<task_id>/`；本轮已写好且 `task_id` 匹配的 acceptance/coverage 保留。不删除，保留追溯。门按 **base..工作区** 算变更（中途 commit 不丢窗口；回执绑定提交，见第 4 步）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
    > **L2+ 非功能与任务绑定**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）和本轮 `task_id`；`.gate/plan-coverage.md` 也须含本轮 `task_id`；缺省、空写或与 `.gate/task.json` 不一致 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
    > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、smoke 中已配置的命令；L1 未配 `test_scoped` 且有 smoke → 不跑全仓 test；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`（优先配 `*_scoped`）。
+   > **命令覆盖（硬）**：`test` 须覆盖本项目全部测试入口（多 runner 串联，如 `npm test && npx vitest run src/__tests__`），不得只列部分文件；各 runner 的命令与计数分别落证据，不得合并成一句“全绿”。
 2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
 3. 收尾：
@@ -40,6 +41,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 
 4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。门 COMPLETE 时末行自动给 `CLAIM: ALLOWED`；`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
    > `diff_hash` 只覆盖代码/配置/测试/迁移等非文档文件；计划、`activeContext`、INDEX、验收报告等收尾文档回写不会使回执失效；代码/测试/证据文件变更仍会。
+   > **顺序**：先提交代码/产物再跑门；门后只提交文档（不改代码/证据）。门后若要改代码/证据，重跑门，不靠解释。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** closeout 均跑）；无门/阶段收尾用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`，只校验版式不读 completion.json。
 
 **落盘**：`wf-development/verify/` 只读；运行态写项目根 `.gate/wf-development/`（JSON 回执）、`.gate/frontend/`（截图 + design-qa）与 `.gate/` 根任务态（`.gate/review.md`/`.gate/plan-coverage.md`/`.gate/acceptance.yaml`）；`-StartTask` 轮换到 `.gate/archive/<task_id>/`。

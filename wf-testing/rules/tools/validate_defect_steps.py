@@ -227,6 +227,8 @@ def validate(text: str) -> list[str]:
             errs.append(f"html:b_unclosed({b_close}/{b_open})")
         if re.search(r"<br\s*/?>\s*<br\s*/?>", text, re.I):
             errs.append("html:double_br")
+        if re.search(r"<br\s*/?>\s*\n", text, re.I):
+            errs.append("html:br_followed_by_newline")
         if re.search(r"</p>\s*<p>", text, re.I) and not re.search(r"</p>\n<p>", text, re.I):
             errs.append("html:paragraphs_glued")
         if re.search(r"</p>\n\n+<p>", text, re.I):
