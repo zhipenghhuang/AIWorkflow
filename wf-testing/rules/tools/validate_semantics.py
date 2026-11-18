@@ -165,14 +165,24 @@ def main() -> int:
             if sec6 and "本步无技能指向" in sec6.group(0):
                 if "本步必开技能" in text:
                     warnings.append(f"SKILL_CONTRADICTION: {wid}/{sid} §6 无技能但 §5 标必开")
-            # budget: packet + all §6 skills（worst case; 条件未命中时实际更低）
+            # budget: 步骤卡 + 必开技能（条件开按计划轨道命中时另计，不计入 cap）
             listed_skills = set()
+            conditional_skills = set()
             if sec6:
-                listed_skills = set(re.findall(r"\| `([a-z0-9-]+)` \|", sec6.group(0)))
+                for m in re.finditer(r"^\|\s*`([a-z0-9-]+)`\s*\|\s*([^|]+)\|", sec6.group(0), re.M):
+                    name, level = m.group(1), m.group(2)
+                    if "条件" in level:
+                        conditional_skills.add(name)
+                    else:
+                        listed_skills.add(name)
             total = len(text.encode("utf-8"))
             for name in listed_skills:
                 total += skill_full_bytes(root, name)
+            cond_total = 0
+            for name in conditional_skills:
+                cond_total += skill_full_bytes(root, name)
             tok = int(total / 3.6)
+            cond_tok = int(cond_total / 3.6)
             cap = STEP_CAPS.get(sid, args.max_tokens)
             soft = STEP_SOFT.get(sid, args.soft_tokens)
             pkt_tok = int(len(text.encode("utf-8")) / 3.6)
@@ -182,12 +192,20 @@ def main() -> int:
                 )
             if tok > cap:
                 warnings.append(
-                    f"BUDGET: {wid}/{sid} ~{tok} tokens > {cap}（超重步上限，须拆）"
+                    f"BUDGET: {wid}/{sid} 必开 ~{tok} tokens > {cap}（超重步上限，须拆）"
                 )
             elif tok > soft:
                 infos.append(
                     f"HEAVY: {wid}/{sid} ~{tok} tokens（重步；默认允许，超 {cap} 才拆）"
                 )
+            if cond_tok:
+                infos.append(
+                    f"CONDITIONAL: {wid}/{sid} 条件开 ~{cond_tok} tokens（按计划轨道命中时另计，不计入 cap）"
+                )
+                if tok + cond_tok > int(cap * 1.2):
+                    warnings.append(
+                        f"CONDITIONAL_BUDGET: {wid}/{sid} 必开+条件 ~{tok + cond_tok} > {int(cap * 1.2)}（条件技能过多，须复核挂载）"
+                    )
 
     for w in warnings:
         print(f"WARN  {w}")

@@ -912,9 +912,9 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
     else:
         headers, rows = t24
         seen = {row[0].split()[0] for row in rows if row and row[0] and row[0] not in ("细节维", "—")}
-        for dim in [f"D{i:02d}" for i in range(1, 14)] + ["S6", "S7", "S11"]:
+        for dim in [f"D{i:02d}" for i in range(1, 14)] + ["S6", "S7", "S11", "T1", "T2", "T3", "T4"]:
             if dim not in seen:
-                issues.append(f"§2.4 缺细节维 {dim}")
+                issues.append(f"§2.4 缺细节维/通用面 {dim}")
         for row in rows:
             if not row or not row[0] or row[0] in ("细节维", "—"):
                 continue
