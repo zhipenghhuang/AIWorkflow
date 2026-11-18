@@ -13,7 +13,7 @@ description: Use when a change needs new tables, fields, indexes, transactions, 
 
 - 实体、关系、基数（1:1/1:N/N:N）、聚合边界。
 - 主键策略：自增/雪花/UUID/业务键；全局唯一与可读性。
-- 外键/唯一/检查约束；软删除与唯一索引冲突。
+- 外键/唯一/检查约束；软删除与唯一索引冲突（占用语义与分配策略见 `cross-layer-consistency` §2.4，此处不另扩细则）。
 - 多租户：租户字段、隔离级别、越权面。
 - 数据生命周期：创建/更新/归档/删除/留存/合规。
 

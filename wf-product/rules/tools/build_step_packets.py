@@ -56,15 +56,23 @@ def load_gates_table(root: Path) -> dict[str, str]:
         if cells[0] in ("标记", "门", "---") or set(cells[0]) <= {"-"}:
             continue
         # row may be: | 理解门 | `confirm_understanding`（when…） | 说明 |
+        # or: | 材料库闸 | `gate: materials-validate` | 说明 |
         desc = cells[-1] if len(cells) >= 3 else cells[1]
-        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", " | ".join(cells))
+        joined = " | ".join(cells)
+        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", joined)
         for name in names:
             if name.startswith(("confirm_", "select_")) or "-" in name:
                 out[name] = desc
+        for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", joined):
+            gid = m.group(1)
+            out[f"gate: {gid}"] = desc
+            out[gid] = desc
         # also allow first cell if it is already a gate id
         key0 = cells[0].strip("`")
         if key0.startswith(("confirm_", "select_")) or key0.startswith("gate:"):
             out[key0] = desc
+            if key0.startswith("gate:"):
+                out[key0.split(":", 1)[1].strip()] = desc
     return out
 
 

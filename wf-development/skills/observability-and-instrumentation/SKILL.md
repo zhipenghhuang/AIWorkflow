@@ -42,8 +42,9 @@ description: Use when a change touches production-critical paths, on-call, SLOs,
 - 成本：日志保留分级、指标基数预算、span 属性白名单；可观测成本进容量评估。
 - AI/LLM 链路：记录模型/提示词版本、token 用量、首 token/总延迟、检索命中、工具调用、护栏触发、评测分；**不记录完整敏感 prompt/用户数据**。
 
-## 5. 仪表盘与告警
+## 5. 探活与仪表盘
 
+- **探活（硬 · 有运行时服务）**：提供运维可调用的 liveness/readiness（或项目等价探活）；方案/验收写清路径与判定（版本/依赖/存储可写等按项目裁剪）；禁仅写「健康检查有结论」而无探针或债项；路径名不强制 `/healthz`。
 - 每个服务/关键路径一张“黄金信号”面板：流量、错误、延迟、饱和度、依赖、发布标记。
 - 告警必须**可行动**：症状而非原因、阈值有依据、附 runbook/负责人/升级路径；无行动项的告警删除。
 - 发布看板叠加版本/提交标记；能对比发布前后。
@@ -69,6 +70,7 @@ description: Use when a change touches production-critical paths, on-call, SLOs,
 ## 8. 红旗
 
 - 关键路径无错误率/延迟指标，或指标无单位/窗口。
+- 有运行时服务却无探活/等价探针且无债项。
 - 日志打印 token、密码、身份证、银行卡、完整请求体。
 - trace id 不跨服务/队列，断在第一个异步边界。
 - 告警无 runbook、无 owner、长期忽略。
@@ -79,4 +81,4 @@ description: Use when a change touches production-critical paths, on-call, SLOs,
 
 - 方案：SLI/SLO、关键路径信号、日志字段、指标/标签、trace 边界、告警与 runbook、成本预算。
 - 实施：代码/配置 + 仪表盘/告警 + 验证证据（查询链接/截图/触发记录）。
-- DoD：关键路径可回答“是否受影响/哪段失败/为什么”；无敏感信息泄露；告警可行动；发布前后可对比；成本有上限。
+- DoD：关键路径可回答“是否受影响/哪段失败/为什么”；无敏感信息泄露；告警可行动；发布前后可对比；成本有上限；有运行时服务则探活可调用或已债项化。
