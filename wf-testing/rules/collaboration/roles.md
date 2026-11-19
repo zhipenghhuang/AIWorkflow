@@ -9,7 +9,7 @@
 | `test-orchestrator` | testing.execute、materials.* | 执行顺序/批次、阻塞判定、子代理派工 | 范围/环境/P0/安全 → 用户；blocked 四问未过 → 停 | 不写分析/计划正文、不替报告下准出结论、不平台回写 |
 | `report-agent` | testing.report、defect.closeout、handoff.closeout | 报告结构、准出评估建议、缺口分级 | 报告门未过/P0 失败/数字不一致 → 停；准出 → 用户 | 不改执行记录、不伪造回执、不替产品决策 |
 | `bug-agent` | defect.classify/search/submit | 查重、子类、严重度建议、回写内容 | 提交/回写 → confirm；产品判定 → 产品；平台不可用 → 一问后本批统一导出 | 交平台零导出；不重复建单、不无证据提交 |
-| `reviewer-agent` | 独立复核（按派工） | 复核结论、缺口分级；可当场改笔误/格式 | 终态/证据不可信 → 重测或交编排；需修/阻断 → 编排 | 不抬高通过率、不改主台账/计划、不代替门、不收 Worker 推理 |
+| `reviewer-agent` | testing.review-plan（计划文档独立评审）；执行拆分档独立复核（按派工） | 文档评审：按 `test-doc-review` 量规只报缺口；执行复核：结论/缺口分级，可改笔误 | 文档需修 → 回 plan；终态/证据不可信 → 重测或交编排 | 不抬高通过率、不改主台账/计划正文、不代替门、不收作者/Worker 自评推理 |
 | `worker-agent` | 子代理分片执行（单模块/只读） | 步内方法、探查顺序 | 连续失败、越界、需跨模块 → 交回编排 | 不 git、不平台、不改共享执行记录/计划 |
 | `onboard-agent` | onboard.* | 接入判定、基线完整性、体检建议 | 迁移/清理/技能变更/基线缺失 → 用户 | 不改测试资产、不替业务定范围 |
 

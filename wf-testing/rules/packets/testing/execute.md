@@ -7,8 +7,8 @@
 - **workflow / step**：`testing` / `execute`（按计划执行）
 - **packet**：`rules/packets/testing/execute.md`
 - **角色**：`test-orchestrator`（计划驱动执行编排（功能/接口/探索/发布前/回归））。按 {workroot}/{ver}/test-plan.md §3 轮次/§4 准出执行全部在范围意图与轨道；生成场景、记录结果、管理证据/缺陷/回归；本步只做该角色职责；越界交回或升级。
-- **前置**：分析表与测试计划已确认；按计划执行全部在范围意图
-- **上游**：`plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **前置**：分析表与测试计划已确认；landing_doc_review_needed 曾为真 → review-plan 已通过（或 when 假已跳过）；按计划执行全部在范围意图
+- **上游**：`review-plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`report`
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 

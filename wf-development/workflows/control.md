@@ -4,7 +4,7 @@
 
 ## 1. 入口与终止
 
-- **入口**：`开发计划` → `init`；`项目计划` → `init`；`排期` → `init`；`生成计划` → `init`；`根据文档出计划` → `init`；`按开发计划执行` → `run`；`继续开发计划` → `run`；`进度` → `sync`；`当前阶段` → `sync`；`当前状态` → `sync`；`下一步` → `next`；`阶段检查` → `check`
+- **入口**：`开发计划` → `init`；`项目计划` → `init`；`排期` → `init`；`生成计划` → `init`；`根据文档出计划` → `init`；`开发计划评审` → `review-plan`；`按开发计划执行` → `run`；`继续开发计划` → `run`；`进度` → `sync`；`当前阶段` → `sync`；`当前状态` → `sync`；`下一步` → `next`；`阶段检查` → `check`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
 - **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
@@ -12,12 +12,13 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `init` | `iterate-lead` | — | `confirm_plan`、`confirm_iteration_close` | 开发计划（{workroot}/development-plan.md） | `run` | 停在本步/升级 |
-| 2 | `run` | `iterate-lead` | — | — | 切包声明（目标 workflow/step/packet）+ activeContext 运行状态更新；实施/方案/任务正文只在目标步骤卡产出 | `目标步骤卡` | 停在本步/升级 |
-| 3 | `sync` | `iterate-lead` | — | — | 更新后的开发计划 | `check` | 停在本步/升级 |
-| 4 | `check` | `reviewer-agent` | — | `gate:dev-plan` | 阶段门检查结论/缺口 | `next` | 停在本步/升级 |
-| 5 | `next` | `iterate-lead` | — | — | 当前阶段/下一步 3 件事/建议入口 | `closeout` | 停在本步/升级 |
-| 6 | `closeout` | `iterate-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 1 | `init` | `iterate-lead` | — | `confirm_plan`、`confirm_iteration_close` | 开发计划（{workroot}/development-plan.md） | `review-plan` | 停在本步/升级 |
+| 2 | `review-plan` | `doc-reviewer` | `need_select_review_mode` | `select_review_mode` | 评审-文档-*.md 或 HUMAN_APPROVED；计划状态=已确认（通过后） | `run` | 回 init 修订开发计划；未过不得 control/run |
+| 3 | `run` | `iterate-lead` | — | — | 切包声明（目标 workflow/step/packet）+ activeContext 运行状态更新；实施/方案/任务正文只在目标步骤卡产出 | `目标步骤卡` | 回 control/init 或 review-plan；不得未审切包 |
+| 4 | `sync` | `iterate-lead` | — | — | 更新后的开发计划 | `check` | 停在本步/升级 |
+| 5 | `check` | `reviewer-agent` | — | `gate:dev-plan` | 阶段门检查结论/缺口 | `next` | 停在本步/升级 |
+| 6 | `next` | `iterate-lead` | — | — | 当前阶段/下一步 3 件事/建议入口 | `closeout` | 停在本步/升级 |
+| 7 | `closeout` | `iterate-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

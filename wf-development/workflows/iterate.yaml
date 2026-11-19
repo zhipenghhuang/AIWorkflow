@@ -86,7 +86,8 @@ steps:
   precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
     存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺 = 回 implement。
   on_fail: 回 implement 补前端交付物/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa；有 UI 核原型解码+能力可达；抽核方案章节闭合。
+  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；`self_review` 不作正式过门证据；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa；有 UI 核原型解码+能力可达；抽核方案章节闭合（先读方案段再对
+    diff；P0 告警/拒单挂债=阻断）。
 - name: 全量门禁与文档同步
   id: gates
   skills:

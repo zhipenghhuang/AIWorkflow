@@ -1,46 +1,47 @@
 ---
 name: design-doc-review
-description: Use when reviewing development landing documents (requirements baseline, solution design, ADR, frontend design notes, task plan). Ask human vs AI review mode first; apply enterprise design-doc rubric when AI review is chosen. 中文触发：设计文档评审、需求基线、技术方案、ADR、前端设计说明、任务计划、A/B 评审。
+description: Use when reviewing development landing documents (requirements baseline, solution design, ADR, frontend design notes, development plan, solo test plan). Ask human vs AI review mode first; apply enterprise design-doc rubric when AI review is chosen. 中文触发：设计文档评审、需求基线、技术方案、ADR、前端设计说明、开发计划评审、solo 测试计划评审、任务计划、A/B 评审。
 ---
 
 # 开发落地文档评审（技能 · 随包生效）
 
-> 用于：需求基线 / 技术方案 / ADR / 前端设计说明 /（可选）任务清单与开发计划中**将直接指导编码实施**的产物。  
-> **不替代**代码评审（`code-review` / `reviewer-agent` 的 diff 步）。  
-> 门：`select_review_mode` → A 自行通过｜B AI 独立评审 → 实施前授权仍认 `confirm_*`。
+> 用于：需求基线 / 技术方案 / ADR / 前端设计说明 / 开发计划 / solo 测试计划等**将指导实施或排期**的产物。  
+> **不替代**代码评审（`code-review` / `reviewer-agent` 的 diff 步）；**不替代** `gate: dev-plan` 结构机检。  
+> 门：`select_review_mode` → A 自行通过｜B AI 独立评审 → 授权仍认 `confirm_*`。
 
 ## 1. 必须先停问
 
-落地设计类文档落盘、进入 implement 前，**STOP**：
+落地文档落盘、宣称可驱动实施/切包/开跑前，**STOP**：
 
 ```text
-【评审方式】产物={方案/基线/ADR/前端设计说明路径}｜级别={L0～L3}
+【评审方式】产物={路径/短名}｜级别={L0～L3}
 请二选一：
 A. 自行评审通过 — 你过目后放行；AI 只附结构/评分卡自检摘要；review_status=HUMAN_APPROVED
 B. AI 独立评审 — 另起文档评审身份按量规审；产出 {workroot}/.../评审-文档-{主题}-{时间}.md
 （回复 A 或 B；不得未问自选）
 ```
 
-- 用户点名「方案评审」且要 AI → B；「我看过了/自行通过」→ A。  
-- L0 微改无新方案文档 → 本门跳过。  
-- L2+ 有新方案/基线/破坏性 ADR → **必问**。
+- 点名「方案评审/开发计划评审/AI 评审」→ B；「我看过了/自行通过」→ A。  
+- L0 微改无新落地文档 → 本门跳过（记 `when_eval`）。  
+- L2+ 新基线/方案/破坏性 ADR/开发计划首版或实质变更/solo 测试计划 → **必问**。
 
 ## 2. 强制适用
 
-> **是否合理**：基线/方案/ADR/前端说明决定「做什么、怎么做」——强制 A/B；任务清单偏执行拆解，默认 A 即可，避免每页都停问。选 B 时主动找范围漂移/不可verify/回滚空洞。
+> 选 B 时主动找范围漂移、不可验证、回滚空洞、计划不可执行。
 
 | 产物 | 强制选模式 |
 | --- | --- |
 | 需求基线（新功能/范围变） | 是（可与 `confirm_requirements` 同轮：先选模式再签收） |
-| 技术方案（30-architecture/契约/高风险） | 是 |
+| 技术方案（契约/高风险） | 是 |
 | ADR（架构/破坏性） | 随方案 |
-| 前端设计说明（补 UI 设计时） | 随方案一并向用户出示 |
+| 前端设计说明 | 随方案一并出示 |
+| 开发计划（首版或范围·版本·里程碑实质变更） | 是（`control.review-plan`）；结构另走 `gate: dev-plan` |
+| solo 测试计划（L2+/高风险且有代码/配置面） | 是（`solo.test_plan`） |
 | 任务清单 L2+ | 可选（默认 A + `confirm_backlog`）；点名 AI 则 B |
-| 开发计划实质变更 | 可选结构核验走 `gate: dev-plan`；内容审可选 B |
 
-## 3. 量规（IEEE 1028 / ISO 20246 技术评审取向）
+## 3. 量规
 
-### 单文档轴
+### 3.1 设计类（基线/方案/ADR/前端说明）
 
 | ID | 轴 | PASS | FAIL |
 | --- | --- | --- | --- |
@@ -51,48 +52,54 @@ B. AI 独立评审 — 另起文档评审身份按量规审；产出 {workroot}/
 | D5 | 安全隐私 | 鉴权/输入/敏感数据有说 | L3 面缺失 |
 | D6 | 观测与测试 | 日志/指标/测试策略 | 无观测无测略 |
 | D7 | 一致性 | 与基线/ADR/前端说明无矛盾 | 三处口径冲突 |
-| D8 | 三维体验 | UX/DX/AX 无净退化；开发阶段不背旧数据 | 为兼容堆双写（开发阶段） |
-| D9 | 能力词可追溯 | 前端说明中的每个能力词（导出/打印/批量/导入/筛选/列/按钮）都能映射到任务/AC/矩阵行 | 只写能力词，无任务/AC/矩阵落点 |
+| D8 | 三维体验 | UX/DX/AX 无净退化 | 为兼容堆双写（开发阶段） |
+| D9 | 能力词可追溯 | 能力词映射到任务/AC/矩阵行 | 只写能力词无落点 |
 
-### 套件
+套件：ADR↔方案一致；前端说明↔原型/PRD 状态矩阵；engineering-quality 阻断项满分且 ≥20/24。
 
-- ADR 与方案结论一致；前端说明与原型/PRD 状态矩阵对齐。  
-- 前端说明的每个能力词（导出/打印/批量/导入/筛选/列/按钮）必须有任务/AC/矩阵落点（D9）；缺一不得通过。  
-- engineering-quality 评分卡：阻断项满分；≥20/24。
+### 3.2 开发计划（控制面）
+
+| 轴 | PASS | FAIL |
+| --- | --- | --- |
+| 目标可证伪 | 本期目标/成功标准可判定 | 空泛「推进开发」 |
+| 阶段/门可执行 | S0～S9 与当前门/下一动作可切包 | 只有日期无入口条件 |
+| 范围边界 | 本期做/不做 ≥2 条或显式 N/A | 无反范围 |
+| 依赖风险 | 阻塞/外部依赖列出 | 静默假设全就绪 |
+| 证据可打开 | 阶段产出/证据链接有效 | 断链或「见别处」无路径 |
+| 下一步 | 下一动作含 `workflow/step` | 只写「继续」 |
+
+### 3.3 solo 测试计划
+
+| 轴 | PASS | FAIL |
+| --- | --- | --- |
+| AC 账本 | 来源/AC/检查/证据可回指 | 主题句充数 |
+| 覆盖 | 影响面/核心链路/P0～P2 或 N/A+依据 | 无覆盖口径 |
+| 边界 | 写明不测；**禁**写版本准出/已准出 | 冒充测试包准出 |
 
 ## 4. A / B 路径
 
 | | A 自行 | B AI |
 | --- | --- | --- |
-| 执行 | 出示自检摘要 + 等用户「通过」 | 独立上下文审 → 严重度缺口表 |
-| 留痕 | HUMAN_APPROVED + 确认人/时间 | `评审-文档-*.md` + 量规表 |
-| 需修 | 用户指出 → 回 20-design/requirements | 回作者修订 → 重审 ≤1 |
-| 之后 | 仍走原 `confirm_spec`/`confirm_requirements`（若尚未签收） | 同左；AI 通过 ≠ 自动实施 |
+| 执行 | 自检摘要 + 用户「通过」 | 独立上下文 → 缺口表（阻断/重要/建议） |
+| 留痕 | HUMAN_APPROVED + 确认人/时间 | `评审-文档-*.md` |
+| 需修 | 回作者步修订 | 同左；同回合重审 ≤1 |
+| 之后 | 仍走原 `confirm_*`；AI 通过 ≠ 自动实施/切包 | 同左 |
 
-## 5. 与代码评审边界
+开发计划：评审通过后才可将计划状态写「已确认」。solo 测试计划：需审未过不得进 `build`。
 
-| | design-doc-review | code-review |
-| --- | --- | --- |
-| 时机 | 实施前 | 实施后 |
-| 对象 | 方案/基线/ADR/设计说明 | diff + 证据 |
-| 产物 | 评审-文档-*.md | `.gate/review.md` |
+## 5. 与代码评审 / 结构闸边界
 
-## 6. GitHub / 行业方法（内化）
-
-| 来源 | 吸收 |
-| --- | --- |
-| IEEE 1028 / ISO/IEC 20246 | 技术评审找缺陷；角色分离 |
-| arXiv LLM design-doc review | 结构完备 + 一致性 + 可追溯自动辅助 |
-| Google Eng Practices / 小 CL | 设计先于大改；评审可扫描 |
-| NIST AI RMF | AI 生成设计须人责；B 路径 AI 不终裁实施权 |
-| engineering-quality / solution-design | 本包质量条与方案结构 |
-
-可选能力：`code-review`/`design-review` 不替代本文档审；未装不阻塞。
+| | design-doc-review | code-review | `gate: dev-plan` |
+| --- | --- | --- | --- |
+| 时机 | 实施/切包/开跑前 | 实施后 | 阶段检查 |
+| 对象 | 落地文档内容 | diff + 证据 | 阶段表/门/证据结构 |
+| 产物 | 评审-文档-* / HUMAN_APPROVED | `.gate/review.md` | 检查结论 |
 
 ## 常见合理化与反驳
 
 | 合理化 | 现实 |
 | --- | --- |
-| 「方案写了就能开工」 | L2+ 新基线须 A/B 评审放行；未 READY 不拆单实施。 |
-| 「技术细节评审时再说」 | 变更面（DB/API/威胁/性能）未点名加载=缺口。 |
-| 「和代码不一致以后对齐」 | 文档是实施依据；冲突先 OPEN，禁静默选边。 |
+| 「方案/计划写了就能开工」 | 强制产物须 A/B 放行；未过不拆单/不切包。 |
+| 「有 validate_dev_plan 就够」 | 结构闸 ≠ 内容独立评审。 |
+| 「solo 自测计划随便写」 | L2+/高风险须审；禁冒充版本准出。 |
+| 「和代码不一致以后对齐」 | 文档是实施依据；冲突先 OPEN。 |

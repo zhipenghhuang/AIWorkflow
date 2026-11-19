@@ -6,7 +6,7 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.19.01`
+> **template_version**：`2026.11.19.06`
 >
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
@@ -93,12 +93,13 @@
 | 6.1 | 分析 PRD/方案/原型 | `change` | analyze_input |
 | 7 | 出方案/只出方案 | `change` | design |
 | 7.1 | 方案/文档评审 | `change` | review-docs |
+| 7.2 | 开发计划评审 | `control` | review-plan |
 | 8 | 代码评审 | `change` | review |
 | 9 | 提测/发布说明/回滚预案 | `change` | deliver |
 | 10 | 发布/上线（生产） | `release` | readiness |
 | 11 | 回滚 | `release` | rollback |
 | 12 | 复盘 | `retro` | gather |
-| 13 | 开发计划/下一步/按计划执行 | `control` | init/sync/next/check/run |
+| 13 | 开发计划/下一步/按计划执行 | `control` | init/review-plan/sync/next/check/run |
 | 14 | 维护/查询 | 本文 + `maintenance.md` | — |
 | 15 | 写交接单/交接包/接收/变更/重规划 | `handoff` | compose（默认） |
 | 16 | 交接状态 | —（只读） | 直接读 `{workroot}/handoff/handoff-ledger.md` + `activeContext`；不启动 workflow |
@@ -106,7 +107,7 @@
 **部署**：裸「部署」先判环境；test/staging 不进入 `release`，按项目档案命令执行并用 `rules/templates/40-delivery/env-deployment-record-template.md` 出记录，按收尾骨架输出；prod→`release`。提交/推送≠部署。  
 **缺陷批入口不豁免开工门**：「指派给我」「我的待修」「修复#N」「#N」走 `defect-fix`，但须先输出【需求与意图理解】并等确认；未确认不得拉单后直接改码。仅「一次性/直接跑完/中途不停」可免等待（理解照常先输出）。  
 **续跑有计划**：「下一步/继续开发计划」优先 `control`。  
-**单步口令即停**：口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/只提测/只出清单）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
+**单步口令即停**：口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/开发计划评审/只提测/只出清单）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
 **路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。裸「方案/出方案」走 `change.design`；点名「轻量」才走 `solo.design`。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。
 
 ## 4. 维护

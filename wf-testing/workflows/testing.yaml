@@ -4,7 +4,7 @@
 workflow:
   id: testing
   name: AI测试流程（分析驱动）
-  version: 22
+  version: 23
   terminal: closeout
 entry_points:
   分析需求: plan
@@ -48,6 +48,9 @@ entry_points:
   测试报告: report
   出报告: report
   准出评估: report
+  测试计划评审: review-plan
+  分析评审: review-plan
+  计划文档评审: review-plan
 trigger:
 - 生成测试计划 / 根据迭代生成测试计划 / 根据版本生成测试计划
 - 按测试计划执行 / 执行测试计划 / 继续测试计划
@@ -79,19 +82,38 @@ steps:
   - name: confirm_understanding
     when: understanding_needs_confirm
   - name: confirm_plan
-    when: plan_needs_confirm
+    when: plan_confirm_without_doc_review
   - name: confirm_exploratory_scope
     when: exploratory_scope_reduced
   - name: confirm_iteration_close
     when: iteration_close_needed
   - name: confirm_docs_migration
     when: docs_migration_needed
-  next: execute
+  next: review-plan
   output: '{workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排）'
   notes: 本步任务：先完整分析入账再计划总排（分析+计划两份模板见 §7）。硬门槛：方案为主参考；主读+≥1 互补源；读 env-baseline 命中节；方案每一个应测细节/设计点入账；§2.1 INT+字段级 Oracle（禁主题句充数，见
-    testcase-design §3.1）；覆盖面/方法矩阵无未接受空格；计数被行数支撑；禁「先粗计划、执行再补分析」；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1 与分析联动；§3.2 探索每行有主责/同路径
-    SC/为什么不能固化；准出/轨道纳入见 multi-track-quality §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。 读 `project-guide.md`（若有）作为存量行为基线；本期变化仍以
-    PRD/方案/提测单为准；冲突记 GAP。
+    testcase-design §3.1）；可独立证伪的设计规则默认分列 INT（映射≠合并；覆盖深度与发现问题优先，禁为通过率折叠）；覆盖面/方法矩阵无未接受空格；计数被行数支撑；禁「先粗计划、执行再补分析」；分析未确认不写计划；覆盖闸未过不得称分析完整；版本级可执行授权在
+    `review-plan`（独立评审+`confirm_plan`）；lite 无落地评审时本步 `confirm_plan`。§0/§3.1 与分析联动；§3.2 探索每行有主责/同路径 SC/为什么不能固化；准出/轨道纳入见 multi-track-quality
+    §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。 读 `project-guide.md`（若有）作为存量行为基线；本期变化仍以 PRD/方案/提测单为准；冲突记 GAP。
+- name: 测试计划独立评审
+  id: review-plan
+  skills:
+  - test-doc-review
+  must_read:
+  - rules/packets/testing/review-plan.md
+  when: landing_doc_review_needed
+  agent: reviewer-agent
+  prev: plan
+  next: execute
+  on_fail: 回 plan 修订分析/计划；未过不得 execute
+  hitl:
+  - name: select_review_mode
+    when: landing_doc_review_needed
+  - name: confirm_plan
+    when: plan_needs_confirm
+  output: 评审-测试计划-*.md 或 HUMAN_APPROVED；计划可执行确认
+  notes: 技能：`skills/test-doc-review/SKILL.md`（整卡）。版本级分析+计划落盘且覆盖闸可 PASS 后：STOP 选 A｜B；选 B 按量规只报缺口。通过后再 `confirm_plan`（可执行授权）。lite/T0
+    无新增功能面 → when 假跳过，确认留在 plan。不替代 coverage/execute/report 机检；不与执行拆分档证据复核混用。
 - name: 按计划执行
   id: execute
   skills:
@@ -106,8 +128,8 @@ steps:
   - rules/packets/testing/execute.md
   - rules/templates/20-test-cases/test-case-template.md
   agent: test-orchestrator
-  prev: plan
-  precondition: 分析表与测试计划已确认；按计划执行全部在范围意图
+  prev: review-plan
+  precondition: 分析表与测试计划已确认；landing_doc_review_needed 曾为真 → review-plan 已通过（或 when 假已跳过）；按计划执行全部在范围意图
   gate: execute-batch
   gate_type: machine
   gate_when: module_batch_complete

@@ -6,11 +6,11 @@
 
 - **workflow / step**：`solo` / `review_docs`（落地文档评审）
 - **packet**：`rules/packets/solo/review_docs.md`
-- **角色**：`doc-reviewer`（开发落地文档独立评审（实施前 · 与代码 Reviewer 分轨））。按 design-doc-review 量规独立复核需求基线/方案/ADR/前端设计说明等；只报缺口；不替写；不替代 confirm_* 授权与完成门；本步只做该角色职责；越界交回或升级。
+- **角色**：`doc-reviewer`（开发落地文档独立评审（实施前 · 与代码 Reviewer 分轨））。按 design-doc-review 量规独立复核需求基线/方案/ADR/前端设计说明/开发计划/solo 测试计划等；只报缺口；不替写；本步只做该角色职责；越界交回或升级。
 - **上游**：`design`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`test_plan`（进 `test_plan` 前的 `when=plan_has_code_change`）
 - **失败去向**：回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build
-- **条件判定 `when:do_landing_doc_review`**：L2+ 有新增/变更落地文档或点名文档评审（不依赖是否已选 A/B）；满足→真，否则跳过本步（不打开本包）。
+- **条件判定 `when:do_landing_doc_review`**：L2+ 有新增/变更落地文档，或开发计划首版/实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审（不依赖是否已选 A/B）；满足→真，否则跳过本步（不打开本包）。
 
 ## 2. 本步目标
 
@@ -29,8 +29,8 @@
 
 ## 4. 本步门
 
-- **HITL `select_review_mode`**：**STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施。适用需求基线/方案/ADR/前端设计说明等（见 `skills/design-doc-review`）
-- **条件判定 `hitl:need_select_review_mode`**：L2+ 新产出落地文档或点名文档评审，且本会话未选 A/B；满足→真，否则跳过该门。
+- **HITL `select_review_mode`**：**STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施/切包/写计划「已确认」。适用需求基线/方案/ADR/前端设计说明/开发计划/solo 测试计划等（见 `skills/design-doc-review`）
+- **条件判定 `hitl:need_select_review_mode`**：（L2+ 新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作

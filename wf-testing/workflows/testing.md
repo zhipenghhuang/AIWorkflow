@@ -4,7 +4,7 @@
 
 ## 1. 入口与终止
 
-- **入口**：`分析需求` → `plan`；`梳理测试依据` → `plan`；`理解PRD` → `plan`；`理解 PRD` → `plan`；`需求建模` → `plan`；`测试计划` → `plan`；`生成测试计划` → `plan`；`根据迭代生成测试计划` → `plan`；`按迭代生成测试计划` → `plan`；`根据版本生成测试计划` → `plan`；`根据需求生成测试计划` → `plan`；`根据方案生成测试计划` → `plan`；`功能测试计划` → `plan`；`更新计划` → `plan`；`本期变更` → `plan`；`计划变更` → `plan`；`增量变更` → `plan`；`新文档更新测试计划` → `plan`；`按测试计划执行` → `execute`；`按计划执行` → `execute`；`继续测试计划` → `execute`；`执行测试计划` → `execute`；`执行测试` → `execute`；`执行` → `execute`；`跑` → `execute`；`按计划回归` → `execute`；`回归重跑` → `execute`；`重跑` → `execute`；`执行专项` → `execute`；`执行接口测试` → `execute`；`执行探索式测试` → `execute`；`执行探索式` → `execute`；`执行随机业务流程` → `execute`；`执行性能测试` → `execute`；`执行安全测试` → `execute`；`执行兼容性测试` → `execute`；`执行兼容性` → `execute`；`执行发布前` → `execute`；`测试报告` → `report`；`出报告` → `report`；`准出评估` → `report`
+- **入口**：`分析需求` → `plan`；`梳理测试依据` → `plan`；`理解PRD` → `plan`；`理解 PRD` → `plan`；`需求建模` → `plan`；`测试计划` → `plan`；`生成测试计划` → `plan`；`根据迭代生成测试计划` → `plan`；`按迭代生成测试计划` → `plan`；`根据版本生成测试计划` → `plan`；`根据需求生成测试计划` → `plan`；`根据方案生成测试计划` → `plan`；`功能测试计划` → `plan`；`更新计划` → `plan`；`本期变更` → `plan`；`计划变更` → `plan`；`增量变更` → `plan`；`新文档更新测试计划` → `plan`；`按测试计划执行` → `execute`；`按计划执行` → `execute`；`继续测试计划` → `execute`；`执行测试计划` → `execute`；`执行测试` → `execute`；`执行` → `execute`；`跑` → `execute`；`按计划回归` → `execute`；`回归重跑` → `execute`；`重跑` → `execute`；`执行专项` → `execute`；`执行接口测试` → `execute`；`执行探索式测试` → `execute`；`执行探索式` → `execute`；`执行随机业务流程` → `execute`；`执行性能测试` → `execute`；`执行安全测试` → `execute`；`执行兼容性测试` → `execute`；`执行兼容性` → `execute`；`执行发布前` → `execute`；`测试报告` → `report`；`出报告` → `report`；`准出评估` → `report`；`测试计划评审` → `review-plan`；`分析评审` → `review-plan`；`计划文档评审` → `review-plan`
 - **终端**：`closeout`（共享 `rules/packets/_shared/closeout.md`）
 - **读链**：按 `rules/core/global-rules.md` §7；本图进链读一次；每步先读当前 packet。
 
@@ -12,10 +12,11 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_plan`、`confirm_exploratory_scope`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `execute` | 停在本步/升级 |
-| 2 | `execute` | `test-orchestrator` | — | `confirm_execution_scope`、`gate:execute-batch` | 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态 | `report` | 停在本步/升级 |
-| 3 | `report` | `report-agent` | — | `gate:report-consistency` | {workroot}/{ver}/test-report.md + 【任务收尾】 | `closeout` | 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 closeout |
-| 4 | `closeout` | `report-agent` | — | `confirm_platform`、`confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_plan`、`confirm_exploratory_scope`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `review-plan` | 停在本步/升级 |
+| 2 | `review-plan` | `reviewer-agent` | `landing_doc_review_needed` | `select_review_mode`、`confirm_plan` | 评审-测试计划-*.md 或 HUMAN_APPROVED；计划可执行确认 | `execute` | 回 plan 修订分析/计划；未过不得 execute |
+| 3 | `execute` | `test-orchestrator` | — | `confirm_execution_scope`、`gate:execute-batch` | 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态 | `report` | 停在本步/升级 |
+| 4 | `report` | `report-agent` | — | `gate:report-consistency` | {workroot}/{ver}/test-report.md + 【任务收尾】 | `closeout` | 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 closeout |
+| 5 | `closeout` | `report-agent` | — | `confirm_platform`、`confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

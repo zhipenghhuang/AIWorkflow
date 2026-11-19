@@ -44,7 +44,10 @@
 
 - 技能见 §6 `code-review` + §6 `engineering-quality`。
 - 核验者≠实施者。
+- `self_review` 不作正式过门证据。
 - 覆盖本轮 diff+AC/SC。
+- 先读方案段再对 diff。
+- P0 告警/拒单挂债=阻断。
 - 写 .gate/review.md。
 - 评审记录路径回写方案卡 §9 过程证据。
 - 有 UI 核 parity 产物。

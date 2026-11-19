@@ -5,7 +5,7 @@ description: Use when writing a test plan after the test analysis is confirmed. 
 
 # 测试计划（技能 · 随包生效）
 
-> 用于：`testing.plan`。**分析必做，计划是总排**；分析未确认不写计划；**覆盖闸未 PASS 不得称可执行**；计划未确认不执行。  
+> 用于：`testing.plan`。**分析必做，计划是总排**；分析未确认不写计划；**覆盖闸未 PASS 不得称分析完整**；版本级可执行须 `review-plan`（独立评审）+ `confirm_plan`；lite 无落地评审时计划未确认不执行。  
 > **先后（硬）**：先完整覆盖方案每一个应测细节入分析账，再写计划；执行期自主（造数/择优/加场景）不替代本步入账，也不回补空账。  
 > 分析真源：`{workroot}/{ver}/test-analysis.md`（**§2.1 意图台账为链接 SSOT**）。准出/轨道真源：`rules/special/multi-track-quality.md` **§0** + 文首 + §3。  
 > 模板：`test-analysis-template.md` + `test-plan-template.md` 两份都填。
@@ -13,7 +13,7 @@ description: Use when writing a test plan after the test analysis is confirmed. 
 ## 0. 必做
 
 1. **读分析**：§2.1 意图台账（具体 INT+**字段级** Oracle+处置；主题句 Oracle 先退回分析）→ 来源盘点/章节回执/依据覆盖 → §2.1.1 设计点（只映射台账 ID）→ §2.2.1 质量特性/覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11/风险/影响面/核心链路；任一空格/缺口或缺台账 → 停，先补分析。
-1.1 **覆盖闸**：本轮新建/更新分析或计划后跑 `-Mode coverage`；未 PASS 不得写「计划可执行/开跑」。
+1.1 **覆盖闸**：本轮新建/更新分析或计划后跑 `-Mode coverage`；未 PASS 不得写「分析完整」。版本级开跑另须 `review-plan` 通过。
 1.2 **读基线**：`env-baseline.md` 命中节；计划 §2.2 写命中节/差异/核验。
 1.3 **执行预告**：后续执行须方案原文 → 结合本分析理解 → 现场择优；禁只读分析、禁先看分析再找原文。
 2. **范围**：范围内/明确排除/假设/约束；排除有接受人；含直接+邻接+上游+下游+共享数据+回归。
@@ -79,6 +79,7 @@ description: Use when writing a test plan after the test analysis is confirmed. 
 | “主路径绿=迭代完整” | 质量特性/细节/方法矩阵/发布前未闭环=缺口。 |
 | “台账有意图就算可执行” | P0 Oracle 须字段可复核；专用负向与造数配方要进计划/造数批，否则执行必浅。 |
 | “缺结构阻断一条 INT 就够了” | 方案若还要求「须能关联/绑定」，配置契约与结果门禁须分列；见 `test-basis-analysis` 意图分列。 |
+| “AC 齐了、设计点都挂上就算细” | 否；可独立证伪的设计规则须有独立 INT+Oracle；发现问题优先于少行数/通过率。 |
 | “没有接口文档=无接口轨” | 必须纳入；否仅 §0 白名单（无服务端/HTTP 等）；UI 探针≠接口轨。 |
 | “小改不做发布前” | 仍纳入；风险级用基础级；整轨否仅永不部署/无运行时面。 |
 | “功能测完就不用探索” | T1+ 强制探索；功能不替代探索。 |

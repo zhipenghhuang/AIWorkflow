@@ -15,10 +15,10 @@
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
 | `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决；未签收不进设计/排期 |
-| `select_review_mode` | 落地文档评审方式 | **STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施。适用需求基线/方案/ADR/前端设计说明等（见 `skills/design-doc-review`） |
+| `select_review_mode` | 落地文档评审方式 | **STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施/切包/写计划「已确认」。适用需求基线/方案/ADR/前端设计说明/开发计划/solo 测试计划等（见 `skills/design-doc-review`） |
 | `confirm_spec` | 方案评审 | 出示范围/接口/兼容与回滚/验收；批准后才实施（可在选模式 + 可选 AI 审之后） |
 | `confirm_replan` | C2/C3 重基线 | 出示变更等级/影响矩阵/重基线范围（基线/任务/计划/测试）/里程碑与资源影响；确认后才重基线；禁止拆成 C0/C1 绕过 |
-| `confirm_plan` | 开发计划/版本范围 | 首次创建或范围·版本·里程碑实质变更；确认后计划状态=已确认；未关闭 S 或阻塞实施的 P 未答复时不得确认（`clarification.md` §1.1） |
+| `confirm_plan` | 开发计划/版本范围 | 首次创建或范围·版本·里程碑实质变更；确认范围/阶段后：若本轮须独立文档评审 → 状态=待评审（评审通过后再=已确认）；否则可直接=已确认。未关闭 S 或阻塞实施的 P 未答复时不得确认（clarification §1.1） |
 | `confirm_backlog` | 迭代清单与节奏 | 出示任务数/RP 覆盖/依赖/风险 + 节奏三选；确认后才实施 |
 | `confirm_commit` | 拟提交/推送 | 【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；≠收尾第 2 点「待提交摘要」 |
 | `confirm_handoff` | 交接包发送 | **凡拟生成任一 HO 包必停**：出示类型/接收方/必带摘要/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「定稿门/评审门/发布门已过」代替本门。未收回执不得称「已接收」；可称「已发送」 |
@@ -78,8 +78,8 @@
 | `has_pending_commit` | 有文件变更待提交 | 无待提交 |
 | `work_changed_or_requested` | 本轮有代码/配置/文档改动，或点名验证 | 只读不动 |
 | `implementation_required` | 非「只出任务清单」且清单已确认 | 只出清单或未确认 |
-| `need_select_review_mode` | L2+ 新产出落地文档或点名文档评审，且本会话未选 A/B | L0 无新文档；已选 A/B |
-| `do_landing_doc_review` | L2+ 有新增/变更落地文档或点名文档评审（不依赖是否已选 A/B） | L0/无新文档 |
+| `need_select_review_mode` | （L2+ 新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B | L0 无新文档；该产物已选 A/B；L1 小改无新落地件 |
+| `do_landing_doc_review` | L2+ 有新增/变更落地文档，或开发计划首版/实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审（不依赖是否已选 A/B） | L0/无新文档；L1 小改无新落地件 |
 | `design_needs_spec_approval` | L1 有新方案/ADR/前端设计且未进 review-docs | L0；或 L2+ 由 review-docs 接管 |
 | `review_required` | 有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或 **L1+ 用户可见 UI 命中前端硬门 A 级**，或 **L1 命中安全/性能/并发/数据面**，或点名） | L0 单文件，或确实低风险 L1 单点且未命中前端硬门 A 级/安全/性能/并发/数据面（免审须记理由；免审不免自测） |
 | `product_defect` | triage 判定为产品缺陷 | 工程缺陷或其他 |

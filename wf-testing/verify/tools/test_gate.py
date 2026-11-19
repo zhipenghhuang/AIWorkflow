@@ -813,6 +813,30 @@ def parse_analysis_v2(path: Path) -> dict[str, Any]:
                         f"§2.1.1「{row[0]}」处置=测 但映射的 INT 在 §2.1 均非处置=测（台账处置矛盾）"
                     )
 
+        # 反折叠：多条「设计*」来源仅挂同一 INT → 疑似把不同 Oracle 塞进一条
+        sole_hit: dict[str, list[str]] = {}
+        for row in ac_data:
+            if not row or not row[0]:
+                continue
+            typ = cell(row, headers, "类型")
+            disp = cell(row, headers, "处置")
+            if not disp.startswith("测") or disp.startswith("不测"):
+                continue
+            if not re.search(r"设计", typ):
+                continue
+            refs = longest_int_refs(cell(row, headers, "意图") or cell(row, headers, "意图簇"))
+            if len(refs) != 1:
+                continue
+            sole_hit.setdefault(refs[0], []).append(str(row[0]))
+        for iid, srcs in sole_hit.items():
+            if len(srcs) >= 6:
+                sample = "、".join(srcs[:4])
+                more = f" 等{len(srcs)}条" if len(srcs) > 4 else ""
+                issues.append(
+                    f"§2.1.1 有 {len(srcs)} 条设计类来源仅映射 {iid}（{sample}{more}）；"
+                    "可独立证伪规则须分列 INT（Oracle 完全同一才可合并并写依据）"
+                )
+
     # 来源声明 ↔ 账本行数：章节/AC/设计点的自报计数必须被实际账本行支撑
     ledger_rows = chapter_rows + basis_rows + ac_rows
     ledger_specs = [(n, t, m, na) for (n, t, m, na) in src_specs

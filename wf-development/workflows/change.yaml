@@ -165,7 +165,8 @@ steps:
   precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
     存在且后端/功能/前端行有效；非前端/低档→无。
   on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 核验者≠实施者；覆盖本轮 diff+AC/SC；写 .gate/review.md。有 UI 核 parity 产物。 免审须记理由；免审不免自测。方法只认 code-review。
+  notes: 核验者≠实施者；`self_review` 不作正式过门证据；覆盖本轮 diff+AC/SC；先读方案段再对 diff；P0 告警/拒单挂债=阻断；写 .gate/review.md。有 UI 核 parity 产物。免审须记理由；免审不免自测。方法只认
+    code-review。
 - name: 自验与完成门
   id: verify
   skills:

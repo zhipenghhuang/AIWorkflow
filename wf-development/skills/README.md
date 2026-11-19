@@ -17,6 +17,7 @@
 | 步骤 | 技能 |
 | --- | --- |
 | 开发计划 / 进度 / 阶段检查 | `skills/development-plan/SKILL.md` |
+| control：review-plan（开发计划独立评审） | `skills/design-doc-review/SKILL.md`（先选 A/B） |
 | change：review-docs（落地文档评审） | `skills/design-doc-review/SKILL.md`（先选 A/B）+ `engineering-quality` §5 |
 | 新文档 / 新变化 / 确认项 / 收件箱 / 变更吸收 | `skills/change-intake/SKILL.md` + `skills/product-doc-analysis/SKILL.md`（PRD/原型/文档） |
 | change：clarify / requirements | `skills/requirements-and-spec/SKILL.md` |
@@ -34,7 +35,7 @@
 | solo.product（产品分析） | `skills/product-shaping/SKILL.md` + `skills/product-doc-analysis/SKILL.md`（输入含文档/原型） |
 | solo.design（方案与验收） | `skills/solution-design/SKILL.md` + `skills/task-breakdown/SKILL.md` + `skills/engineering-quality/SKILL.md` |
 | solo.review_docs（落地文档评审） | `skills/design-doc-review/SKILL.md` |
-| solo.test_plan（测试分析与计划） | `skills/test-design-and-execution/SKILL.md` |
+| solo.test_plan（测试分析与计划） | `skills/test-design-and-execution/SKILL.md`；L2+/高风险加 `design-doc-review`（A/B） |
 | solo.build（完整开发与自测） | `skills/implementation-and-selftest/SKILL.md`（§0.5 预检；自包含不降硬补）+ `skills/engineering-quality/SKILL.md`；有 UI → `frontend-implementation`；有 PRD/原型 → `product-doc-analysis` |
 | 实施（按端） | `skills/frontend-implementation/SKILL.md`（有 UI）+ `skills/backend-implementation/SKILL.md`（后端/接口/数据） |
 | solo.review（代码评审） | `skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md` |
@@ -55,7 +56,7 @@
 | product | `product-shaping` + `product-doc-analysis`（输入含文档/原型） | 产品分析/理解；有文档/多源/高风险时先 `confirm_understanding`；不写技术/测试 |
 | design | `solution-design` + `task-breakdown` + `engineering-quality` | 方案/任务/验收；`confirm_spec`；写 review_required/do_landing_doc_review；不写产品/测试 |
 | review_docs | `design-doc-review` | 条件审方案卡/验收表/用户版；`select_review_mode`；缺口回 design |
-| test_plan | `test-design-and-execution` | 测试分析与计划；来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测 |
+| test_plan | `test-design-and-execution` +（L2+/高风险）`design-doc-review` | 测试分析与计划；L2+/高风险落盘后 `select_review_mode`；禁冒充版本准出 |
 | build | `implementation-and-selftest`（§0.5 预检）+ `engineering-quality`；有 UI → `frontend-implementation`；有 PRD/原型 → `product-doc-analysis` | 预检→硬补→完整开发；失败时加 `debugging-and-error-recovery` |
 | review | `code-review` + `engineering-quality` | 条件审 diff/AC/SC/前端产物；`.gate/review.md`；缺口回 build |
 | test | `test-design-and-execution` | 执行→报告；测试分析与计划见 test_plan；大改动/高风险全节 + 独立 verifier；P0 未过 = FAIL |

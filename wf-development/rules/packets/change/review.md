@@ -44,7 +44,10 @@
 ### 本步动作清单
 
 - 核验者≠实施者。
+- `self_review` 不作正式过门证据。
 - 覆盖本轮 diff+AC/SC。
+- 先读方案段再对 diff。
+- P0 告警/拒单挂债=阻断。
 - 写 .gate/review.md。
 - 有 UI 核 parity 产物。
 - 免审须记理由。

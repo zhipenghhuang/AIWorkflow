@@ -58,12 +58,13 @@ def load_gates_table(root: Path) -> dict[str, str]:
         # row may be: | 理解门 | `confirm_understanding`（when…） | 说明 |
         # or: | 材料库闸 | `gate: materials-validate` | 说明 |
         desc = cells[-1] if len(cells) >= 3 else cells[1]
-        joined = " | ".join(cells)
-        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", joined)
+        # 只从「标记/门名」列取 id，禁扫说明列（说明里反引号门名会误绑整段描述）
+        name_cell = cells[1] if len(cells) >= 3 else cells[0]
+        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", name_cell)
         for name in names:
             if name.startswith(("confirm_", "select_")) or "-" in name:
                 out[name] = desc
-        for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", joined):
+        for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", name_cell):
             gid = m.group(1)
             out[f"gate: {gid}"] = desc
             out[gid] = desc
@@ -473,7 +474,8 @@ PLAN_CARD = """### 本步规则卡：拆单与 SC
 - 每条 SC 必填可打开的路径+章节/画板/锚点、非空原文、落点、入口类型；`validate_tasklist.py` FAIL → 不得 `confirm_backlog`。
 - **来源可解析（硬）**：SC 来源的文件须存在、`§x` 须在目标文档有同名编号标题；`validate_tasklist.py` 解析不到即 FAIL，不得写自述来源。
 - **设计要点闭环（硬）**：方案 §4.1 设计要点 `D-xx` 每条至少被一条 SC 引用；缺一条 = 覆盖不完整，不得 `confirm_backlog`。
-- **覆盖矩阵闭环（硬）**：§4.1 须覆盖总表全部 `R-xx`，引用的 `T-xx` 必须存在；**方案节覆盖账本 0 缺**（每节：SC / 债项 / 不适用+依据；见 `skills/task-breakdown` §2.7）。
+- **覆盖矩阵闭环（硬）**：§4.1 须覆盖总表全部 `R-xx`，引用的 `T-xx` 必须存在；**方案节覆盖账本 0 缺**（每节：SC / 债项 / 不适用+依据；见 `skills/task-breakdown` §2.7）；对照**方案原文**逐节，不得只对照任务摘要。
+- **P0/主路径**：不得预置「告警/拒单/挂债」替代实现行；产品未决标 OPEN，不写进可实施 SC 的完成态。
 - 任务卡含 DoR/DoD/依赖/并行；并行 >3 或文件重叠 → 拆批。
 - 只读不改代码；清单经 `confirm_backlog` 后实施。"""
 
@@ -502,11 +504,12 @@ WORKFLOW_CARD = """### 本步规则卡：变更与提交
 IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛；实施类共用）
 
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
-- **DEV-IQ-22（顺序硬）**：方案 → 分析理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。
-- **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then；验收清单写 `implement_preflight`/`sc_trace`，命中 `shared_globs` 另写 `impact_map`（缺则 Claim BLOCKED）。
+- **一次完善（主）**：本期范围内方案条款同批落地；验证/评审是兜底，不把「以后补/挂债过门」当默认路径。
+- **DEV-IQ-22（顺序硬）**：方案 → 分析/技术方案理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。
+- **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then；P0 禁告警/拒单挂债冒充闭合（DEV-IQ-05）；验收清单写 `implement_preflight`/`sc_trace`，命中 `shared_globs` 另写 `impact_map`（缺则 Claim BLOCKED）。
 - **矩阵/词表**：命中权限/状态/数据基数/多表面或需判定时，按需打开 `rules/core/implementation-quality.md` 当前节；本卡只列门槛，不重复矩阵。
-- **自测硬门槛**：每条 SC 有验证；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
-- 独立评审 → 本链 `review`；不在本步自称已评审。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（阈值与隔离见 `rules/collaboration/subagents.md`；达阈值未拆记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。
+- **自测硬门槛**：每条 SC 有验证（含负面/边界）；断言指回方案；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
+- 独立评审 → 本链 `review`；不在本步自称已评审；`self_review` 不作过门证据（DEV-VER-06）。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（频率与隔离见 `rules/collaboration/subagents.md`；达频率未拆记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。
 - **项目说明（单包/无产品包）**：实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`；多包读产品包同文件；不追加版本节；历史留方案/CR。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
