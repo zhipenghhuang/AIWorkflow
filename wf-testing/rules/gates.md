@@ -1,6 +1,6 @@
 # 门（测试轨）
 
-> 单一出处：主读门、理解门、计划门、执行门、报告门、提交/平台/交接门，以及 `when` / `gate_when` 词表。
+> 单一出处：主读门、理解门、计划门、探索范围门、执行门、报告门、提交/平台/交接门，以及 `when` / `gate_when` 词表。
 > 步骤顺序以 `../workflows/*.yaml` 为准；只认步上 `when` / `hitl` / `hitl_when` / `gate_when`。
 > 读取时机：当前步有门时只读对应行；写/改 YAML 时才读全表。不变量/完成状态（TEST-VER）见 `core/verification.md`。
 
@@ -12,22 +12,23 @@
 | 主读门 | `select_mainread`（when: `mainread_unspecified`） | 主读路径未确认 → STOP 一问；已点名/唯一正式版已在依据清单写明 → 可续，不重问。 |
 | 意图门 | `confirm_intent`（when: `intent_needs_confirm`） | 口令无法唯一确定给谁·做什么·形态，或跨角色外发未对齐 → 先对齐；意图已清跳过。 |
 | 交接门 | `confirm_handoff`（when: `handoff_send_required`） | 拟生成 HO/统一导出缺陷 → 出示类型/接收方/摘要/落点；确认后落盘；未确认零发包。 |
+| 材料门 | `confirm_materials`（when: `materials_for_external`） | 资料库/整包导出/发布说明等对外发送、承诺或发布前 → 出示范围/受众/数字与截图一致；确认后发送；仅内部入库不触发。 |
 | 平台门 | `confirm_platform`（when: `platform_ask_required` / `platform_submit`） | 有拟交平台/新建缺陷单 → STOP；新建单出示 `caseId｜标题｜类型｜surface｜结构/厚度｜附件` 清单并抽一单正文（须见设计对照标记+字段级实际）；`validate_defect_steps` 未过禁进确认；回写走备注门；≠ git；无平台动作跳过。 |
 | 备注门 | `confirm_remark`（when: `remark_writeback`） | 拟关/激/解决/标重复/补充澄清/回归写回 → 先列 id+结论+备注全文；确认后执行。 |
 | 入库门 | `confirm_gitignore`（when: `gitignore_needed`） | 四选一确认资产范围；规范包默认不跟踪，写已装包行与运行态 `.gate/`；接入时一次。 |
 | 技能变更门 | `confirm_skill_changes`（when: `skill_changes_pending`） | 出示拟变更清单；确认后才改；未确认零改动。 |
-| 材料库闸 | `gate: materials-validate` | README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；正文链接自包含；`00-overview` 有现行状态入口+阅读顺序；无「本包未完成」；旧版本状态正确；不通过不称完整。 |
+| 材料库闸 | `gate: materials-validate` | README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；正文链接自包含；缺失三分类分列；完整包须 `00-overview` 含现行入口（`project-guide` 或等价）+ 阅读顺序（有冲突须效力说明）；`本包未完成` 为空；旧版本状态正确；不过不称完整。 |
 | 理解门 | `confirm_understanding`（when: `understanding_needs_confirm`） | **主屏**：分析 §0 摘要、来源盘点计数（含 UI/文案类）、AC/设计点/UI/文案覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。 |
 | 落地文档评审方式 | `select_review_mode`（when: `landing_doc_review_needed`） | **STOP 二选一**：A 自行通过（HUMAN_APPROVED）｜B AI 独立评审（`test-doc-review` + `reviewer-agent`）；同产物只问一次；未选不得宣称可执行。适用版本级分析+计划（见 `skills/test-doc-review`）。 |
 | 计划门 | `confirm_plan`（when: `plan_needs_confirm` / `plan_confirm_without_doc_review`） | 版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）+ **数据前置**（造数项数/无造数依据）。**待确认只列需用户裁决的范围/准出/接受人**；造数/建号/开通/专项方案编制属执行期自助（`rules/defects/classification.md` §0.4），不得挂待确认。同会话同载体只一次。须独立评审时本门在 `review-plan`（选 A/B 之后）；lite 无落地评审时在 `plan`。 |
-| 探索范围门 | `confirm_exploratory_scope`（when: `exploratory_scope_reduced`） | 探索整轨否/N/A/风险面<4/主责=探索面为 0 → STOP 一行：范围/原因/接受人；确认后写计划 §3.2；未确认不得以“探索已闭环”准出。 |
+| 探索范围门 | `confirm_exploratory_scope`（when: `exploratory_scope_reduced`） | 探索整轨否 / §3.2 四行缺任一 / 有面对标 N/A / 主责=探索可跑面<4（T1 可 2～3 面）→ STOP 一行：范围/原因/接受人；确认后定稿计划 §3.2；未确认不得以“探索已闭环”准出。条件只认 §2 词表。 |
 | 执行门 | `confirm_execution_scope`（when: `scope_needs_confirm`） | 开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。 |
 | git 提交门 | `confirm_commit` | 【拟提交·仓库】；默认仅本地提交，推送须点名并单独确认；≠ 收尾摘要；≠ 平台门。 |
 | 迁移/资料门 | `confirm_docs_migration`（when: `docs_migration_needed`） | 资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。 |
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。 |
 | 覆盖闸 | `gate: coverage-map`（when: `analysis_coverage_required`） | 分析与计划完成后跑 `-Mode coverage`：§2.1 具体 INT 台账+可观测 Oracle；**账本非空且 §1.1 计数被账本行数支撑**；设计点只映射台账，矩阵/细节维 INT 回指台账；来源/章节/依据/覆盖矩阵/方法矩阵/细节维（含 T1–T4 通用面）/影响面/核心链路/§4/§5.2/§6 齐；计划 §0 计数/版本准出/准出口径/批次意图范围与分析联动；**§2.2 有造数项时 §3.1 须有数据准备批**；**§2 接口/探索/发布前 纳入=是须有 §3.1 批次**；**§3.2 探索每行有主责/同路径 SC/为什么不能固化**。未 PASS 不得称分析完整/覆盖齐；版本级可执行仍须独立评审（适用时）+ 计划确认门。 |
-| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 计划状态/联动 + **记录批次 ID ∈ 计划 §3.1 且该批意图跑齐** + 本批记录/证据/阻塞理由/**失败/待实现行失败详情块（含 surface；surface=ui 的失败须截图）**/**§0 分析索引 + 每场景实际/差异（三步序方法在步骤卡/技能）**/**§0 原文/对照与对账计数**/**§1.1 六类（接口 §2.1 适用维）有 SC/N/A+依据；UI/视觉禁弱 N/A（API 主断言/脚本/契约充数）**/INT∈§2.1 台账/**优先级取分析仅作 P0 记账**/**§3 结论回指场景**/意图终态/P0 证伪；原文锚点+可观测 Oracle。实现≠方案的偏差分型与证据在记录「实际/差异」（classification §0.5）。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。 |
-| 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图须有实际场景**/P0/证伪/缺口对账；**计划纳入轨道须有对应记录（功能/接口/探索/发布前）**；报告 §0～§5、§2.1 计数与记录一致、§2.4 探索概况与计划 §3.2 主责一致、结论唯一、正文无内部 ID；CONDITIONAL 认 §4 接受人行；未 PASS/CONDITIONAL 不得写整体通过。 |
+| 执行批末闸 | `gate: execute-batch`（when: `module_batch_complete`） | 本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 计划状态/联动 + **记录批次 ID ∈ 计划 §3.1 且该批意图跑齐** + 本批记录/证据/阻塞理由/**失败/待实现行失败详情块（含 surface；surface=ui 的失败须截图）**/**§0 分析索引 + 每场景实际/差异（三步序方法在步骤卡/技能）**/**§0 原文/对照与对账计数**/**§1.1 九项（六类+同源/入口空态/终态；接口 §2.1 适用维）有 SC/N/A+依据；UI/视觉禁弱 N/A（API 主断言/脚本/契约充数）**/INT∈§2.1 台账/**优先级取分析仅作 P0 记账**/**§3 结论回指场景**/意图终态/P0 证伪；原文锚点+可观测 Oracle。实现≠方案的偏差分型与证据在记录「实际/差异」（classification §0.5）。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。 |
+| 报告闸 | `gate: report-consistency` | 报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图须有实际场景**/P0/证伪/缺口对账；**计划纳入轨道须有对应记录（功能/接口/探索/发布前）**；报告 §0～§5、§2.1 计数与记录一致、§2.2 模块合计与 §2.1 一致、§2.4 探索行数/功能化与计划已跑探索面数量一致（报告用业务名，不做名称比对）、结论唯一、正文无内部 ID；CONDITIONAL 认 §4 接受人行；未 PASS/CONDITIONAL 不得写整体通过。 |
 | 回写闸 | `gate: writeback-receipt` | 提交/回写前跑 `-Mode writeback`：`{ver}/缺陷台账.md` §0 有单号/备注/状态/附件回查；新建单另查来源/surface/`结构`/`厚度`（厚度未过→FAIL）；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖；未跑须接受人）；§1 版本台账行齐；只写 `writeback.json`，不覆盖 report。 |
 
 ## 2. `when` / `gate_when` 词表
@@ -37,10 +38,12 @@
 | token | 为真 | 为假 |
 | --- | --- | --- |
 | `mainread_unspecified` | plan/探索 execute 主读未确认 | 已选定/唯一正式版已写明 |
-| `exploratory_scope_reduced` | 计划探索轨=否，或 §3.2 风险面<4，或 S6/S7/S11/状态误读有面标 N/A，或主责=探索面为 0 | 探索轨=是且风险面≥4、有面对均有主责/结论 |
+| `materials_for_external` | 材料/文档将对外发送、承诺或发布 | 仅内部留档，不对外发送/承诺/发布 |
+| `exploratory_scope_reduced` | 计划探索轨=否；或 §3.2 四行（S6/S7/S11/状态误读）缺任一；或四行中「有面对但主责=N/A」；或主责=探索可跑面（状态=本场/已跑/下场）<4（含 0；T1 可按事实 2～3 面+用户确认） | 探索轨=是、四行齐、无「有面 N/A」、主责=探索可跑面≥4 |
 | `understanding_needs_confirm` | 输入含 PRD/方案/原型/接口，存在 2 个以上实质歧义/冲突，T2/T3，或用户要求计划/准出且未确认分析 | 同一范围分析已确认；纯查询/机械低风险；T0 范围已钉 |
 | `plan_needs_confirm` | 版本级首版/换代，或范围/准出/缺陷策略实质变化 | 同会话已确认且未实质变；补丁/单模块、无新增功能面轻量 |
 | `landing_doc_review_needed` | 版本级分析+计划已落盘，且（首版/换代或范围·准出·缺陷策略实质变更或点名评审），本会话尚未选 A/B | lite/T0 无新增功能面；已选 A/B；同范围无实质变 |
+| `plan_doc_review_required` | 版本级分析+计划已落盘，且（首版/换代或范围·准出·缺陷策略实质变更或点名评审）；不依赖是否已选 A/B | lite/T0 无新增功能面；同范围无实质变 |
 | `plan_confirm_without_doc_review` | `plan_needs_confirm` 为真且 `landing_doc_review_needed` 为假 | 走 `review-plan` 确认，或无需确认 |
 | `scope_needs_confirm` | 非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化 | 计划驱动且 §0 已确认/执行中/待关闭 |
 | `analysis_coverage_required` | 本轮创建/更新分析或计划 | 纯只读/无分析/计划变更 |

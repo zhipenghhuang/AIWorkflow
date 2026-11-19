@@ -16,7 +16,7 @@
 | 2 | `profile` | `onboard-agent` | — | — | project-profile.md（含 §7 技术要点事实摘要 / §8 交付治理 / §9 文档归档）· activeContext.md | `migrate` | 停在本步/升级 |
 | 3 | `migrate` | `onboard-agent` | — | `confirm_docs_migration` | 迁移清单/更新后的路径 | `docs` | 停在本步/升级 |
 | 4 | `docs` | `onboard-agent` | — | — | {workroot}/ 标准树 + {workroot}/INDEX.md + inbound/INDEX.md + docs/materials/INDEX.md + 根 CHANGELOG.md + {workroot}/work-log.md | `materials` | 停在本步/升级 |
-| 5 | `materials` | `onboard-agent` | — | `confirm_iteration_close`、`confirm_docs_migration` | 【入站分析】（确认后登记 / A0～A2 吸收 / 定稿发布 materials） | `lifecycle` | 停在本步/升级 |
+| 5 | `materials` | `onboard-agent` | — | `confirm_iteration_close`、`confirm_docs_migration` | 【入站分析】（确认后登记 / 按需吸收 / 定稿发布 materials） | `lifecycle` | 停在本步/升级 |
 | 6 | `lifecycle` | `onboard-agent` | — | `confirm_docs_migration` | 【文档治理检查】（确认后执行更新/归档/清理） | `control` | 停在本步/升级 |
 | 7 | `control` | `onboard-agent` | — | — | 开发计划（{workroot}/development-plan.md） | `gitignore` | 停在本步/升级 |
 | 8 | `gitignore` | `onboard-agent` | — | `confirm_gitignore` | .gitignore 更新 + `git check-ignore` 证据 | `capabilities` | 停在本步/升级 |
@@ -26,7 +26,7 @@
 
 ## 3. 推进
 
-- 本链按入口分级：接入/重新接入/基线/生成档案/装配能力入口推进到 `verify` 打标；资料收取/文档治理/清理入口只做该步 + 收尾，不连带其余接入步。
+- 默认入口即止；仅按链/继续/按计划执行时向后推进。
 - `when` 不满足 → 跳过该状态（不打开其 packet），收尾记 `when_eval=假:<依据>`（手工跳过记 `skip=user:<理由>`）。
 - 切步/过门：更新 `activeContext` 运行状态 + 一行锚；不重读本图。
 - 续跑：读运行状态里的 `packet=`，从该步继续；packet 丢失用本表定位。

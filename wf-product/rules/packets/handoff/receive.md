@@ -30,7 +30,7 @@
 
 - **HITL `confirm_change`**：出示分诊依据、影响与变更单要点（**含 §2.1 差量表** Now→Proposed）；产品缺陷须有相符证明；无单不实施
 - **条件判定 `hitl:handoff_change_substantive`**：交接包内变更达 C2/C3 或改定稿基线；满足→真，否则跳过该门。
-- **HITL `confirm_plan`**：首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**§3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期
+- **HITL `confirm_plan`**：首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**计划 §3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期
 - **条件判定 `hitl:plan_level_change`**：影响版本范围/里程碑/KPI；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=receive | agent=pm-lead | packet=rules/packets/handoff/receive.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=receive | agent=pm-lead | packet=rules/packets/handoff/receive.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -44,7 +44,9 @@
 - 缺则问一次，不硬造。
 - 默认只收定稿、正确、完整、可独立阅读的文档。
 - 草稿/过程/证据/密钥/PII/未授权第三方文档不进库。
-- 域默认：`00-overview` `01-requirements` `02-design` `06-release`（业务发布/决策）。
+- **完整项目材料包**（发资料／完整／可发送等）→ 域 00-07。
+- 仅补本包域须写明「非完整」，不得称完整。
+- 本包域默认（非完整）：`00-overview` `01-requirements` `02-design` `06-release`（业务发布/决策）。
 - **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升 rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。
 - 换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（文档治理关账）。
 - 对外发送/承诺前走 `confirm_materials`（仅内部入库不触发）。
@@ -74,5 +76,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:materials | step=select | agent=pm-lead | packet=rules/packets/materials/select.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:materials | step=select | agent=pm-lead | packet=rules/packets/materials/select.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

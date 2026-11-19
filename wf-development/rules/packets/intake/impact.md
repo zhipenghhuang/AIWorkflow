@@ -83,5 +83,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=impact | agent=iterate-lead | packet=rules/packets/intake/impact.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=impact | agent=iterate-lead | packet=rules/packets/intake/impact.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

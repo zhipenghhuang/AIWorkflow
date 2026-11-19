@@ -5,9 +5,9 @@
 > **每轮协议**：先判新任务/续跑/只读 → 新任务重路由并复述 → 首行锚 `route=…|step=…|packet=…|global=ok`（偏离 `global=dev:…`；只读 `mode=analyze`）→ 结束给收口（六点或 2～3 行）。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-product/`。与根 `AGENTS.md` 冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.18.03`
+> **template_version**：`2026.11.19.09`
 >
-> **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`。
+> **完成口径**：有 Claim 门的步骤只认 `verify/Invoke-Gate.ps1 -Claim -Mode <prd|review|design-review|uat|change|writeback>` → `CLAIM: ALLOWED`；无门步骤按 `global-rules` §9 记 `claim=na`。
 
 ## 0. 开工
 
@@ -92,7 +92,7 @@
 | 26 | 交接状态 | —（只读） | 直接读 `{workroot}/handoff/handoff-ledger.md` + `activeContext`；不启动 workflow |
 | 27 | 变更通知/同步变更/重规划 | `handoff` | change_* / replan |
 
-**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停（不含提交/推送/部署/回写）；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口走 `chain: full` 到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。中段以当前链图「推进」与步骤卡 §4 为准，口径与本段相同。
+**入口即止**：除 `workflow.chain: full`/表中标「按链」/「继续/按计划执行」外，从入口 step 执行到产出完成即停（不含提交/推送/部署/回写）；不自动进入后续 step 或门。`onboard` 仅「接入/重新接入/生成档案/装配能力」入口按链跑到 `verify` 打标；「资料/文档治理」入口只执行该步 + 收尾，不连带跑接入核验。单步入口结束仍按 `rules/templates/90-handoff/closeout-skeleton.md` 输出。中段以当前链图「推进」与步骤卡 §4 为准，口径与本段相同。
 **路由消歧**：裸「产品缺陷」未带平台/单号/对话限定时先问或按 `change` 受理；明确平台/单号 → `defect`。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。
 **单条 vs 批量**：单条需求/问题/缺陷→`change`；平台缺陷→`defect`；批量洞察/需求池盘点→`prd` discover；**竞品分析/学习竞品**→`prd` discover（模式 S）；**竞品对标/功能差距**→`prd` benchmark（模式 P）；0→1→`new-product`（含模式 S）。分不清先 `change` 受理再分诊。
 **需求理解前置**：`收集需求`/`立项`/`写 PRD`/`产品计划` 前必须先完成客户需求**理解复述 + 方案要点**双确认（门硬；方法按需读 `rules/core/clarification.md`）；换迭代/定本期范围须在计划 **§3.0** 落 Brief+本期差量表（默认唯一权威；独立迭代变更摘要仅仓外handoff/版本归档/点名时用，且与 §3.0 互指禁双份）；缺口未齐须继续问用户；`写 PRD` 还要求范围已确认；未确认推断标「假设」。

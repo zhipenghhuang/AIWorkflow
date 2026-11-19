@@ -14,7 +14,7 @@
 ## 2. 本步目标
 
 - **目标**：资料收取与归档
-- **产出**：【入站分析】（确认后登记 / A0～A2 吸收 / 定稿发布 materials）
+- **产出**：【入站分析】（确认后登记 / 按需吸收 / 定稿发布 materials）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -44,7 +44,7 @@
 - 扫描 `inbound/` + 项目根散落。
 - 按 文档治理规则（工作根/原件根/索引/关版整夹） 分类与覆盖对照，输出【入站分析】。
 - 确认前不改索引、不改名、不移动、不归档。
-- 确认后同批：`inbound/INDEX.md` 登记 → 按需 A0～A2 吸收到 `{workroot}/` → 定稿发布 `docs/materials/`。
+- 确认后同批：`inbound/INDEX.md` 登记 → 按需吸收到 `{workroot}/` → 定稿发布 `docs/materials/`。
 - 外部输入主副本只在 `inbound/`。
 - materials 只放定稿、正确、完整、可发送内容。
 - 冲突/无法判断 → 停问。
@@ -84,5 +84,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=materials | agent=onboard-agent | packet=rules/packets/onboard/materials.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=materials | agent=onboard-agent | packet=rules/packets/onboard/materials.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

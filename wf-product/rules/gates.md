@@ -12,7 +12,7 @@
 | `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 按 `global-rules.md` §1 分级：新开交付/歧义/外发=完整六段等确认；计划内续跑/意图已清=一行回执；纯只读=一句话。未确认（完整档）不得写/执行/对外/下结论。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。≠ `confirm_intent`。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
 | `confirm_understanding` | 需求理解 + 方案要点 | 出示【理解复述】（谁/场景/问题/现有替代/代价/目标/范围/非目标/证据/假设）+【推荐方案要点】（主路径/关键规则/异常期望/验收口径/不做）+ 缺口清单；涉及换迭代/相对上版时附**本期差量要点**（增/改/删或「首版全部为增」）。用户须对理解与方案均表态；仅回 OK 未对复述/方案表态不算过；确认后才分诊/入池承诺/写正式 PRD/计划/排期 |
-| `confirm_plan` | 产品计划 | 首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**§3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期 |
+| `confirm_plan` | 产品计划 | 首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**计划 §3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期 |
 | `confirm_change` | 需求变更/产品缺陷处置/实现缺陷退回 | 出示分诊依据、影响与变更单要点（**含 §2.1 差量表** Now→Proposed）；产品缺陷须有相符证明；无单不实施 |
 | `confirm_design` | 设计方向 | IA/线框/2～3 个视觉方向/tokens；确认后才做高保真 |
 | `confirm_prototype` | 原型交接 | 原型路径/设计评审结论/交接要点；**评审前必须有 `prototype-coverage.md`（覆盖矩阵硬）+ 浏览器走查证据**；浏览器不可用时记 `browser=unavailable` 并用用户走查证据过门前评审；确认后才交开发 |
@@ -33,9 +33,9 @@
 | `gate: product-review` | PRD 评审门禁（when: `ai_review_chosen`） | 仅选 B（AI）时运行 `-Mode review`；评审人≠作者；READY 后取 `gate_id`；选 A 不跑本门，须 HUMAN_APPROVED + `approved_by` + 自检摘要 + 复跑 `-Mode prd` 至 READY |
 | `gate: design-review` | 原型设计评审门禁（when: `ai_review_chosen`） | 仅选 B（AI）时运行 `-Mode design-review`；评审人≠作者、结论=通过；同目录必须有 `prototype-coverage.md`（覆盖矩阵硬；浏览器不可用时 `browser=unavailable` + 用户走查证据可过）且结论=通过；未 READY 不得交开发 |
 | `gate: uat-evidence` | UAT 门禁 | 运行 `verify/Invoke-Gate.ps1 -Mode uat`；AC 覆盖、证据、有条件通过的责任人/接受人；未 READY 不得写 UAT 通过。无 UAT 要求可写 `verdict: 不适用` + 依据/批准人，门放行但记警告 |
-| `gate: change-closure` | 变更/缺陷联动闭合 | 运行 `verify/Invoke-Gate.ps1 -Mode change`；§6 每项“已更新/不适用/待补”，待补有责任人/截止；未闭合不得关闭 |
-| `gate: writeback-receipt` | 平台回写门禁 | `Invoke-Gate.ps1 -Mode writeback -Artifact …`；单号+备注实质+状态取值+fileId/无附件；禁标题刷绿；无回执不得声称已回写 |
-| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**正文链接自包含**（无未改写的工作区/`inbound` 路径）；`00-overview` 有现行状态入口+阅读顺序；README 无「本包未完成」；旧版本状态正确；不通过不称完整。 |
+| `gate: change-closure` | 变更/缺陷联动闭合 | 运行 `verify/Invoke-Gate.ps1 -Mode change`；受理单/变更单 **§6 联动表**逐项“已更新/不适用/待补”，待补有责任人/截止；单内 **§7** 写验证结果；未闭合不得关闭 |
+| `gate: writeback-receipt` | 平台回写门禁 | `Invoke-Gate.ps1 -Mode writeback -Artifact <受理单/缺陷处置单>`；回写节须有 备注：≥8 字实质 / 状态：取值 / 附件：fileId 或无附件；禁标题刷绿；无回执不得声称已回写 |
+| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**正文链接自包含**；缺失三分类分列；完整包须 `00-overview` 含现行入口（`project-guide` 或等价）+ 阅读顺序（有冲突须效力说明）；`本包未完成` 为空；旧版本状态正确；不过不称完整。 |
 
 > `confirm_task_intent` 是全局开工门（`AGENTS.md` 首轮硬门/§0.1），不依赖 step；其余门仍只认步上声明。
 
@@ -76,6 +76,7 @@
 | `plan_level_change` | 影响版本范围/里程碑/KPI | 不影响版本范围/里程碑/KPI |
 | `release_decision_needed` | 未发布或发布内容/窗口变更 | 已发布且仅做复盘 |
 | `remark_writeback` | 有拟回写缺陷平台的备注/附件/状态/指派 | 无拟回写缺陷平台的备注/附件/状态/指派 |
+| `needs_platform_close` | 验证通过且平台单仍待关闭（未在平台侧关闭/未标重复） | 平台已关闭/不关单/无平台 |
 | `handoff_send_required` | 拟生成/点名 HO 且未确认类型/接收方/摘要（仅说「要交接包」未确认摘要仍真；不得因它门已过置假） | 用户已确认该摘要未变 |
 | `handoff_change_substantive` | 交接包内变更达 C2/C3 或改定稿基线 | 低于该阈值 |
 | `prd_ready_for_handoff` | PRD 已 APPROVED 且门 READY，本轮定稿/进排期，台账无同版本 REQ 已发/已收；仅评审不触发 | 未定稿或已发过 |

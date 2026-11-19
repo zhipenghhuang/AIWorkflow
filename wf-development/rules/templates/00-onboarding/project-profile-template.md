@@ -203,7 +203,7 @@
 | 版本记录 | 根 `CHANGELOG.md`（产品发版史：用户可见能力/破坏性/迁移/安全，开发维护；模板 `changelog-template.md`）；岗位侧记 `{workroot}/work-log.md`；单版叙事用 `{workroot}/60-release/发布说明-{版本}.md` |
 | 治理记录 | `{workroot}/00-governance/change-log.md`、`open-items.md`、`decisions.md`；`{workroot}/10-requirements/requirement-ledger.md` |
 | 原件根 | `inbound/` + `INDEX.md`；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档 |
-| 权威文档库 | `docs/materials/`（项目级；定稿/完整/可发送；每版自包含；不设 `_archive`；旧版本保留） |
+| 权威文档库 | `docs/materials/`（项目级；现行完整权威快照，非整史；完整包默认 00～07；发布须改写包内相对路径；细则 `doc-governance` §2.2/§5.2；workflow `materials`） |
 | 命名 | `{类别}-{主题}-{版本或yyyyMMdd}.md`；缺陷评估 `缺陷评估-{BUG-ID}-{主题}-{yyyyMMdd}.md`；发布说明一版一档 |
 | 归档 | 工作区迭代绑定文档：`{workroot}/_archive/{yyyyMMdd}-{版本}/`；材料库旧版本保留，不归档；`30-architecture/ADR/`、`70-ops/`、`project-guide.md` 常青文就地更新 |
 | 根目录白名单 | 代码/构建文件、README、`CHANGELOG.md`、`project-profile.md`、`activeContext.md`、`wf-*`/`wf/`、`docs/`、`inbound/`；**禁止**方案/清单/报告/截图/临时文件堆根 |

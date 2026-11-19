@@ -86,5 +86,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect | step=analyze | agent=pm-lead | packet=rules/packets/defect/analyze.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect | step=analyze | agent=pm-lead | packet=rules/packets/defect/analyze.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

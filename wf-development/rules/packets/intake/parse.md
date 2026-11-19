@@ -28,7 +28,7 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_understanding`**：**主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定
+- **HITL `confirm_understanding`**：**主屏**：理解包 §0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定
 - **条件判定 `hitl:understanding_needs_confirm`**：外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -50,7 +50,7 @@
 - 重点：本期差量、目标与非目标、角色/场景、F/R/AC、状态机、权限、字段口径、异常/NFR、原型、文档间/原型/代码冲突、缺口与假设。
 - 原型只作 UI/交互依据，不反推后端规则。
 - 冲突列双方原文，待用户裁决。
-- 一次一问至无实质缺口（先查事实；仍不明一次一问（附候选/推荐）；未确认不升格）。
+- 一次一问至无实质缺口（本包澄清口径（先查事实→仍不明一次一问→未确认不升格））。
 - 未确认不得进入 impact/absorb。
 - confirm_understanding：出示 Brief+差量表 + 来源/目标/范围/非目标/F-R-AC/冲突/GAP/置信度。
 - 用户明确确认后才继续。
@@ -92,5 +92,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=parse | agent=iterate-lead | packet=rules/packets/intake/parse.md | global=ok | skills=change-intake|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=parse | agent=iterate-lead | packet=rules/packets/intake/parse.md | global=ok | skills=change-intake=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

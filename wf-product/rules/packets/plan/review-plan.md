@@ -76,5 +76,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=review-plan | agent=reviewer-agent | packet=rules/packets/plan/review-plan.md | global=ok | skills=artifact-review|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=review-plan | agent=reviewer-agent | packet=rules/packets/plan/review-plan.md | global=ok | skills=artifact-review=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

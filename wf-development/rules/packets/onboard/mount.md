@@ -74,5 +74,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=mount | agent=onboard-agent | packet=rules/packets/onboard/mount.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=mount | agent=onboard-agent | packet=rules/packets/onboard/mount.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

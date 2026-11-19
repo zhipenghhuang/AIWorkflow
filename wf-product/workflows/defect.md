@@ -19,9 +19,10 @@
 | 5 | `decide` | `pm-lead` | — | `confirm_change`、`confirm_plan` | 处置决策（受理单 §5 / 变更单 §4 / 缺陷处置单） | `apply` | 停在本步/升级 |
 | 6 | `apply` | `pm-lead` | — | — | 受理单 §6 + 变更单/最新 PRD/AC/计划/UAT + 缺陷处置单 + 附件清单 | `review` | 回 decide；非产品缺陷只产处置单，不改 PRD/AC/计划 |
 | 7 | `review` | `reviewer-agent` | `substantive_change` | `select_review_mode`、`confirm_prd`、`gate:product-review` | 评审记录（{workroot}/{ver}/10-requirements/评审-{主题}-{yyyyMMdd}.md） | `writeback` | 停在本步/升级 |
-| 8 | `writeback` | `pm-lead` | `remark_writeback` | `confirm_remark`、`gate:writeback-receipt` | 平台回写结果（备注/附件/状态/指派） | `verify` | 停在本步/升级 |
-| 9 | `verify` | `pm-lead` | `needs_linked_update` | `gate:change-closure` | 验证结果 + 批末总结 | `closeout` | 停在本步/升级 |
-| 10 | `closeout` | `pm-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 8 | `writeback` | `pm-lead` | `remark_writeback` | `confirm_remark`、`gate:writeback-receipt` | 平台回写结果写入受理单/缺陷处置单 §平台回写（备注实质 / 状态 / 附件 fileId 或无附件 / 指派） | `verify` | 停在本步/升级 |
+| 9 | `verify` | `pm-lead` | `needs_linked_update` | `gate:change-closure` | 验证结果 + 批末总结 | `close_platform` | 停在本步/升级 |
+| 10 | `close_platform` | `pm-lead` | `needs_platform_close` | `confirm_remark`、`gate:writeback-receipt` | 平台关闭回写结果（状态/备注/附件） | `closeout` | 停在本步/升级 |
+| 11 | `closeout` | `pm-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

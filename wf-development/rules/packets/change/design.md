@@ -87,5 +87,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=design | agent=implementer | packet=rules/packets/change/design.md | global=ok | skills=solution-design,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=design | agent=implementer | packet=rules/packets/change/design.md | global=ok | skills=solution-design=done|na,engineering-quality=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -88,5 +88,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=intake | agent=pm-lead | packet=rules/packets/change/intake.md | global=ok | skills=customer-needs-discovery,change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=intake | agent=pm-lead | packet=rules/packets/change/intake.md | global=ok | skills=customer-needs-discovery=done|na,change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

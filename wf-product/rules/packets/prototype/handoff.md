@@ -9,7 +9,7 @@
 - **角色**：`ux-designer`（产品设计（信息架构/线框/视觉/高保真原型/评审/handoff/展示材料））。没有专职设计师时，由产品经理戴“设计帽子”，产出可用、可评审、可交付开发的高保真原型；本步只做该角色职责；越界交回或升级。
 - **前置**：prototype.review 已通过；选 B 时 design-review 已 READY；或有用户明确豁免与依据
 - **上游**：`usability`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`closeout`
+- **后续**：`closeout`；由 `prd.prototype/new-product 子链` 进入者 → `review`
 - **失败去向**：回 review 补评审/覆盖矩阵/截图；未过不得交开发
 
 ## 2. 本步目标
@@ -52,16 +52,8 @@
 - 标注“原型≠生产代码”。
 - confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认。
 - 确认后交开发。
-- PRD 追溯矩阵「原型/页面」列回填。
-- 拟提交按 本步编排以当前步骤卡为准。
-- 方法见 §6。
-- 勿通读手册拼流程。
-
-### 本步规则卡：变更与提交
-
-- 变更/影响：先判事实与影响面；实质变更走 intake/CR，不静默改基线。
-- 提交：默认仅本地提交；推送单独确认；禁 force push/切主干/擅自开 PR。
-- 无文件变更 → 不硬造提交。
+- **子链回程（硬）**：由 `prd.prototype` `new-product` 子链进入者，交接与 `confirm_prototype` 完成后回写 `activeContext` 指针并返回调用链的 `review` 步（`prd.review`），不执行本链 `closeout`。
+- 拟提交按收尾骨架与收尾步。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -80,7 +72,6 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/20-design/dev-handoff-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/90-handoff/handoff-package-brief-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出
@@ -94,5 +85,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=handoff | agent=ux-designer | packet=rules/packets/prototype/handoff.md | global=ok | skills=prototype-and-interaction|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=handoff | agent=ux-designer | packet=rules/packets/prototype/handoff.md | global=ok | skills=prototype-and-interaction=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

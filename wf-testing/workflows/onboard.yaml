@@ -5,7 +5,6 @@ workflow:
   id: onboard
   name: 测试规范接入
   version: 5
-  chain: full
   terminal: closeout
 entry_points:
   接入: baseline

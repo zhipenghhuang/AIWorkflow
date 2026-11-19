@@ -101,133 +101,18 @@ def resolve_skills_for_step(
     return found
 
 
-def step_requires_claim(pack_key: str, gate: str | None, notes: str) -> bool:
-    if not gate:
-        # notes mentioning -Claim with an explicit claimable mode still count
-        if re.search(r"-Claim\b", notes or "") and re.search(
-            r"Mode\s+(report|writeback|prd|review|design-review|uat|change)",
-            notes or "",
-            re.I,
-        ):
-            return True
-        return False
-    g = str(gate).strip().lower()
-    allowed = CLAIMABLE_GATES.get(pack_key, set())
-    if g in allowed:
-        return True
-    # product gates often named product-prd / uat-evidence etc.
-    for a in allowed:
-        if a in g or g in a:
-            return True
-    return False
 
 
-def expand_inline_rules(text: str) -> str:
-    """Replace peripheral rule refs with a self-contained sentence (no doc hop)."""
-    for pattern, replacement in INLINE_RULES:
-        text = re.sub(pattern, replacement, text)
-    return text
 
 
-def rewrite_workflow_refs(text: str, current_wid: str | None = None) -> str:
-    """Keep cross-chain targets as `other.step` / `other` 流程; same-chain → 本 workflow."""
-
-    def _wid_of(fname: str) -> str:
-        return re.sub(r"\.ya?ml$", "", fname.strip())
-
-    def repl_bt(m: re.Match[str]) -> str:
-        wid = _wid_of(m.group(1))
-        step = m.group(2)
-        if current_wid and wid == current_wid:
-            return f"本 workflow{(' ' + step) if step else ''}"
-        if step:
-            return f"`{wid}.{step}`"
-        return f"`{wid}` 流程"
-
-    # `workflows/foo.yaml` [step]
-    text = re.sub(
-        r"`workflows/([^`]+)`(?:\s+(?:的\s*)?([A-Za-z0-9_-]+))?",
-        repl_bt,
-        text,
-    )
-    # bare workflows/foo.yaml [step] (no backticks)
-    def repl_bare(m: re.Match[str]) -> str:
-        wid = _wid_of(m.group(1) + ".yaml")
-        step = m.group(2)
-        if current_wid and wid == current_wid:
-            return f"本 workflow{(' ' + step) if step else ''}"
-        if step:
-            return f"`{wid}.{step}`"
-        return f"`{wid}` 流程"
-
-    text = re.sub(
-        r"(?<![`/\w])workflows/([a-z0-9_-]+)\.ya?ml(?:\s+(?:的\s*)?([A-Za-z0-9_-]+))?",
-        repl_bare,
-        text,
-    )
-    return text
 
 
-def neutralize_pointers(text: str, current_wid: str | None = None) -> str:
-    """Inline peripheral rules; keep templates/skills as first-class packet sections."""
-    text = expand_inline_rules(text)
-    text = re.sub(r"遵守\s*`frontend-gate`", "遵守本包「前端硬门」节（有 UI）", text)
-    text = re.sub(r"`?rules/core/frontend-gate\.md`?", "本包前端硬门", text)
-    text = re.sub(r"`frontend-gate`", "本包前端硬门", text)
-    text = re.sub(r"`?frontend-gate\.md`?", "本包前端硬门", text)
-    text = re.sub(
-        r"`?rules/core/implementation-quality\.md`?(?:\s*§[\d.]+)?",
-        "本包 §5 规则卡",
-        text,
-    )
-    text = re.sub(
-        r"\*{0,2}命中则加载\*{0,2}[：:][^\n]*",
-        "命中面：按本包 §6 条件开技能闭环（打开→执行→回包）",
-        text,
-    )
-    text = re.sub(r"实施质量门\s*§[\d.]+", "本包 §5 实施预检卡", text)
-    text = re.sub(r"按实施质量门[^\n；。]*", "按本包 §5 实施预检卡", text)
-    text = re.sub(
-        r"`?implementation-quality\.md`?(?:\s*§[\d.]+)?",
-        "本包 §5 规则卡",
-        text,
-    )
-    text = re.sub(
-        r"已加载\s*product-doc-analysis",
-        "已按 §6 闭环执行 product-doc-analysis",
-        text,
-    )
-    text = re.sub(
-        r"加载\s*product-doc-analysis",
-        "打开 product-doc-analysis 走 §6 闭环",
-        text,
-    )
-    text = re.sub(
-        r"`execution-contract\.md`(?:\s*§[\d.]+)?",
-        "开局卡分级与动作前分析约定",
-        text,
-    )
-    text = re.sub(r"`contract\.md`", "规则心跳一行格式", text)
-    text = re.sub(
-        r"`rules/capabilities/instance-discipline\.md`\s*§[\d.]+",
-        "实例纪律（按需拉起、结束显式退程）",
-        text,
-    )
-    # Skills → §6（本包技能表）；模板保留真实路径，由 §7 列出。
-    text = re.sub(r"`skills/([a-z0-9-]+)/SKILL\.md`", r"§6 `\1`", text)
-    text = re.sub(r"`skills/README\.md`", "技能体检（盘点→适配→拟变更→确认→复检）", text)
-    text = rewrite_workflow_refs(text, current_wid)
-    text = re.sub(r"技能[：:]\s*§6", "技能见 §6", text)
-    text = re.sub(r"技能[：:]\s+(?!§6)", "技能见 §6：", text)
-    text = text.replace("按 本包", "按本包").replace("见 本包", "见本包")
-    text = text.replace("按 技能体检", "按技能体检").replace("与 技能体检", "与技能体检")
-    return text
 
 
 INLINE_RULES = (
     (
         r"`?rules/core/clarification\.md`?(?:\s*§[\d.]+)?",
-        "先查事实；仍不明一次一问（附候选/推荐）；未确认不升格",
+        "本包澄清口径（先查事实→仍不明一次一问→未确认不升格）",
     ),
     (
         r"`?rules/doc-governance\.md`?(?:\s*§[\d.]+)?",
@@ -496,6 +381,7 @@ CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 WRITEBACK_CARD = """### 本步规则卡：平台回写
 
 - 先出【回写拟稿】：单号 + 结论 + 备注全文 + 状态/指派/resolvedBuild + 附件名；用户确认后才写。
+- **落盘（硬）**：回写结果写回本单 §7「平台回写」：平台单号 / 备注：≥8 字实质 / 状态：新值 / 附件：fileId 或无附件；运行 `-Mode writeback -Artifact <本单>`。
 - 备注须实质（现象/根因/修复/验证），禁只写「已修复/已处理」；未验证只写「待验证」。
 - 平台不支持附件 → 出 export，不假装已回写。"""
 
@@ -1073,6 +959,8 @@ def step_edges(steps: list, step: dict) -> dict:
         "prev": prev_id,
         "next": next_id,
         "next_when": nxt.get("when"),
+        "next_alt": step.get("next_alt"),
+        "next_alt_cond": step.get("next_alt_cond"),
         "terminal": not next_id,
         "on_fail": step.get("on_fail"),
     }
@@ -1144,8 +1032,11 @@ def render_packet(
     prev_id = edges.get("prev")
     next_id = edges.get("next")
     next_when = edges.get("next_when")
+    next_alt = edges.get("next_alt")
+    next_alt_cond = edges.get("next_alt_cond")
     on_fail = edges.get("on_fail")
     terminal = bool(edges.get("terminal"))
+    claim_from = str(step.get("claim_from") or "")
 
     identity = ""
     if agent_id:
@@ -1168,7 +1059,12 @@ def render_packet(
         identity += "- **后续**：链末出口（完成本步即收尾，不再打开节点）\n"
     else:
         cond = f"（进 `{next_id}` 前的 `when={next_when}`）" if next_when else ""
-        identity += f"- **后续**：`{next_id}`{cond}\n"
+        alt = (
+            f"；由 `{next_alt_cond}` 进入者 → `{next_alt}`"
+            if next_alt and next_alt_cond
+            else ""
+        )
+        identity += f"- **后续**：`{next_id}`{cond}{alt}\n"
     identity += (
         f"- **失败去向**：{on_fail}\n" if on_fail
         else "- **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。\n"
@@ -1210,7 +1106,10 @@ def render_packet(
         if gw:
             gate_lines.append(when_line(str(gw), when_map, "gate", "跳过该闸（步骤不跳过）"))
     if not gate_lines:
-        gate_lines.append("- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。")
+        if claim_from == "subchain":
+            gate_lines.append("- 本步不设独立门：以子链门回执为准；子链未 `ALLOWED` 不得写完成。")
+        else:
+            gate_lines.append("- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。")
     gate_lines.append(packet_advance(pack_key, wid, sid))
 
     card = step_card(pack_key, wid, sid)
@@ -1269,14 +1168,14 @@ def render_packet(
         verify_line = (
             "- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）"
             if _need_claim
-            else "- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）"
+            else "- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）"
         )
         if needs_frontend_gate(root, wid, sid):
             verify_line += "；有 UI 遵 §5 前端硬门（已内嵌）"
         open_lines.append(verify_line + "。")
 
     rel = f"rules/packets/{wid}/{sid}.md"
-    skill_names = ",".join(skills) if skills else "na"
+    skill_names = ",".join(f"{s}=done|na" for s in skills) if skills else "na"
     done_line = (
         "- §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。"
         if skills
@@ -1284,7 +1183,9 @@ def render_packet(
     )
     requires_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
     gate_when = str(step.get("gate_when") or "")
-    if requires_claim and gate_when:
+    if claim_from == "subchain":
+        claim_line = "- 本步不设独立 Claim 门：以子链门回执为准；子链有 Claim 门时须 `CLAIM: ALLOWED`，不得以 `claim=na` 写完成。"
+    elif requires_claim and gate_when:
         claim_line = (
             f"- 本步 Claim 门受 `gate_when: {gate_when}` 约束："
             "门执行时须 `CLAIM: ALLOWED` 才可写完成态；门被跳过 → 不产门回执，"
@@ -1339,7 +1240,7 @@ def render_packet(
 ## 9. 回执
 
 ```text
-route=workflow:{wid} | step={sid} | agent={agent_id or "na"} | packet={rel} | global=ok | skills={skill_names}|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:{wid} | step={sid} | agent={agent_id or "na"} | packet={rel} | global=ok | skills={skill_names} | claim=ALLOWED|DENIED|na | next=…
 ```
 """
 

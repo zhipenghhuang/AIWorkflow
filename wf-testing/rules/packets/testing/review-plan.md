@@ -10,7 +10,7 @@
 - **上游**：`plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`execute`
 - **失败去向**：回 plan 修订分析/计划；未过不得 execute
-- **条件判定 `when:landing_doc_review_needed`**：版本级分析+计划已落盘，且（首版/换代或范围·准出·缺陷策略实质变更或点名评审），本会话尚未选 A/B；满足→真，否则跳过本步（不打开本包）。
+- **条件判定 `when:plan_doc_review_required`**：版本级分析+计划已落盘，且（首版/换代或范围·准出·缺陷策略实质变更或点名评审）；不依赖是否已选 A/B；满足→真，否则跳过本步（不打开本包）。
 
 ## 2. 本步目标
 
@@ -80,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:testing | step=review-plan | agent=reviewer-agent | packet=rules/packets/testing/review-plan.md | global=ok | skills=test-doc-review|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=review-plan | agent=reviewer-agent | packet=rules/packets/testing/review-plan.md | global=ok | skills=test-doc-review=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

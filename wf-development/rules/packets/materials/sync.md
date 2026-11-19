@@ -39,18 +39,24 @@
 ### 本步动作清单
 
 - 从 `{workroot}` 选当前定稿，按域**覆盖复制**到 `docs/materials/{ver}/`。
-- 从 `inbound/` 选权威正确外部输入， 按域放入同一版本。
+- 从 `inbound/` 选权威正确外部输入，按域放入同一版本。
 - 不按 inputs/deliverables 分栏，来源写 `docs/materials/INDEX.md`。
+- **链接改写（硬）**：复制后把正文交叉引用改为包内相对路径。
+- 缺依赖补拷进包，或标「本包不收录」。
+- 禁止正文残留须打开工作区/`inbound/` 的路径。
+- 未改写不得进 `index`。
+- 完整包：`00-overview` 须有 `project-guide`（或等价）+ 阅读顺序。
+- 定稿冲突须效力说明或文首覆盖标记。
 - 每个 `{ver}/` 自包含。
-- 不建外挂 `_common/`。
+- 不建 `_common/`。
 - 不设 `_archive/`。
-- 旧版本目录保留。
-- 默认就地覆盖已有文件。
-- 仅显式保留历史时写入 `{ver}-r2` 或升 rev，不覆盖旧目录。
-- 不直接编辑材料库正文。
-- 需要改先改 `{workroot}` 再重新发布（默认仍覆盖同 ver）。
+- 旧版目录保留。
+- 默认就地覆盖。
+- 仅显式保留历史时 `{ver}-r2`/升 rev。
+- 改内容回 `{workroot}` 再发。
+- 本步仅允许对副本改写链接／补拷。
 - 多包：只覆盖本包域。
-- 他域文件不动。
+- 他域不动。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
 
@@ -73,5 +79,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:materials | step=sync | agent=delivery-lead | packet=rules/packets/materials/sync.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:materials | step=sync | agent=delivery-lead | packet=rules/packets/materials/sync.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

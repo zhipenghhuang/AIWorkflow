@@ -7,7 +7,7 @@
 - **workflow / step**：`deliver` / `schedule`（排期与交接）
 - **packet**：`rules/packets/deliver/schedule.md`
 - **角色**：`pm-lead`（交付编排与变更处置（排期/跟进/受理/变更/缺陷平台/UAT/发布/复盘/展示））。统一受理需求与问题 → 分诊定性 → 影响评估 → 处置确认 → 联动更新 → 验证关闭；平台缺陷可拉取、分析并回写；本步只做该角色职责；越界交回或升级。
-- **前置**：PRD 头部 status=APPROVED，或用户明确确认本次无需完整 PRD/带缺口排期并记录依据与责任人
+- **前置**：PRD 头部 status=APPROVED；或用户明确确认本次无需完整 PRD/带缺口排期，记 `skip=user:<理由>` + 依据与责任人
 - **上游**：无（链首）
 - **后续**：`review-plan-deliver`
 - **失败去向**：回 prd.review 补定稿/评审；未定稿且未获明确豁免不排期
@@ -79,5 +79,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:deliver | step=schedule | agent=pm-lead | packet=rules/packets/deliver/schedule.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:deliver | step=schedule | agent=pm-lead | packet=rules/packets/deliver/schedule.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

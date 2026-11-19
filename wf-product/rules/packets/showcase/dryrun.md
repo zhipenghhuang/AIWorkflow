@@ -77,5 +77,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:showcase | step=dryrun | agent=pm-lead | packet=rules/packets/showcase/dryrun.md | global=ok | skills=demo-storytelling|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:showcase | step=dryrun | agent=pm-lead | packet=rules/packets/showcase/dryrun.md | global=ok | skills=demo-storytelling=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

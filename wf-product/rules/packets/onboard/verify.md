@@ -43,7 +43,7 @@
 - BLOCKED 不得打标。
 - 核验通过后写「wf-product onboard: done」。
 - 此后按 AGENTS 第 3 点（接入状态）跳过落地检查。
-- 文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理。
+- 文档根有平铺/根目录有文档残留 → 不通过，回 lifecycle 步整理。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -64,5 +64,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=verify | agent=onboard-agent | packet=rules/packets/onboard/verify.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=verify | agent=onboard-agent | packet=rules/packets/onboard/verify.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

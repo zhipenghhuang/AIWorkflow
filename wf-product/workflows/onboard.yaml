@@ -5,7 +5,6 @@ workflow:
   id: onboard
   name: 产品规范接入
   version: 3
-  chain: full
   terminal: closeout
 entry_points:
   接入产品规范: mount
@@ -143,7 +142,7 @@ steps:
   agent: onboard-agent
   output: '{workroot}/00-governance/接入核验-{yyyyMMdd}.md（①～⑥ 逐项 通过/缺口 + 证据）'
   notes: '按 onboard-agent 接入清单核验（①～⑥，含写接入标记），逐项给「通过/缺口 + 证据路径」，不得只写“已核验”。 跑 `rules/tools/Test-Template.ps1`；BLOCKED 不得打标。
-    核验通过后写「wf-product onboard: done」；此后按 AGENTS 第 3 点（接入状态）跳过落地检查。 文档根有平铺/根目录有文档残留 → 不通过，回 docs 步整理。'
+    核验通过后写「wf-product onboard: done」；此后按 AGENTS 第 3 点（接入状态）跳过落地检查。 文档根有平铺/根目录有文档残留 → 不通过，回 lifecycle 步整理。'
 - name: 收尾与提交
   id: closeout
   skills: []

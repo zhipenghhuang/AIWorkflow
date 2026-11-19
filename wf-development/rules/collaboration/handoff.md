@@ -164,6 +164,7 @@
 ```
 
 **outbound 类别（开发发出）**：`提测`←QA；`发布`←REL；`验收`←UAT；`变更`←CHG；`缺陷`←BUG/FIX；`复盘`←RETRO；`确认`←ENV/DEMO/NOTE/DEC/OTHER 等。  
+**命名**：目录名固定中文（`提测/`…）；台账/单号用英文 category id（`qa`…），对照见 `rules/path-aliases.md`；禁把 category id 当目录名。  
 **inbound 类别**：按**实际内容**归入上列同名夹（分不清→`待分拣/`，当轮须归类或一问）；不因「不是 HO」拒收。
 
 **与原件根 `inbound/` `docs/`（不冲突）**：

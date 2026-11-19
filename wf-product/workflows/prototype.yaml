@@ -133,10 +133,13 @@ steps:
   on_fail: 回 review 补评审/覆盖矩阵/截图；未过不得交开发
   hitl: confirm_prototype
   output: '{workroot}/{ver}/20-design/开发交接-{主题}.md'
+  next_alt: review
+  next_alt_cond: prd.prototype/new-product 子链
   notes: 按 `rules/templates/20-design/dev-handoff-template.md` 产 `开发交接-{主题}.md`：组件/状态/交互/动效/tokens/响应式/无障碍证据/验收对照；覆盖矩阵与版本元数据；
     评审通过后默认交付自洽开发交接文档（真源版本目录 + 实拷 `handoff/outbound/设计/`）；`DES` 包仅多文件/签收/仓外/点名时停问建议，确认后走 `workflows/handoff.yaml` 的 `send`（落
     `handoff/outbound/设计/{HO-ID}/`）；**不得在本步直接写 HO 包**。 必须写清设计意图、必须保留、可优化、未提供、需开发决策；开发补充/差异化设计不得静默改主流程。 回链 PRD 追溯矩阵「原型/页面」列；标注“原型≠生产代码”。
-    confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。 PRD 追溯矩阵「原型/页面」列回填；拟提交按 `rules/workflow.md`。
+    confirm_prototype：出示原型路径/设计评审与可用性结论/交接要点请确认；确认后交开发。 **子链回程（硬）**：由 `prd.prototype` `new-product` 子链进入者，交接与 `confirm_prototype`
+    完成后回写 `activeContext` 指针并返回调用链的 `review` 步（`prd.review`），不执行本链 `closeout`。 拟提交按收尾骨架与收尾步。
 - name: 收尾与提交
   id: closeout
   skills: []

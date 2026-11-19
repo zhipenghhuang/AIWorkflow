@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/release/postrelease.md`
 - **角色**：`delivery-lead`（交付/发布/验收编排）。提测就绪 → UAT/验收 → 发布审批 → 部署 → 冒烟/监控 → 发布记录/复盘；本步只做该角色职责；越界交回或升级。
 - **上游**：`rollback`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`record`（进 `record` 前的 `when=has_deployed`）
+- **后续**：`record`
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:has_deployed`**：本轮部署步骤已成功执行；满足→真，否则跳过本步（不打开本包）。
 
@@ -80,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=postrelease | agent=delivery-lead | packet=rules/packets/release/postrelease.md | global=ok | skills=acceptance-and-launch,observability-and-instrumentation|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=postrelease | agent=delivery-lead | packet=rules/packets/release/postrelease.md | global=ok | skills=acceptance-and-launch=done|na,observability-and-instrumentation=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

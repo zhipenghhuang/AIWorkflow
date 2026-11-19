@@ -90,5 +90,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=hi-fi | agent=ux-designer | packet=rules/packets/prototype/hi-fi.md | global=ok | skills=ui-visual-design-system,prototype-and-interaction|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=hi-fi | agent=ux-designer | packet=rules/packets/prototype/hi-fi.md | global=ok | skills=ui-visual-design-system=done|na,prototype-and-interaction=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

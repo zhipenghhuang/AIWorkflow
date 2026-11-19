@@ -91,5 +91,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=classify | agent=iterate-lead | packet=rules/packets/intake/classify.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=classify | agent=iterate-lead | packet=rules/packets/intake/classify.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -75,5 +75,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=approval | agent=delivery-lead | packet=rules/packets/release/approval.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=approval | agent=delivery-lead | packet=rules/packets/release/approval.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

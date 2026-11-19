@@ -59,11 +59,12 @@ docs/materials/
 - **项目级一份**，不按包拆；各包只写自己负责的域。
 - **多包共享文件**：`README.md`/`INDEX.md` 由已装开发包统一刷新；无开发包由已装产品包；均无则由当前发布包。非主责包只提交本域文件与索引行，不重建他域；`06-release/` 业务文件归产品、工程文件归开发，不互相覆盖。
 - 每个 `{ver}/` **自包含**：只发该目录即可了解项目**现行**状态；不设外挂 `_common/`。包内交叉引用须相对路径、在包内可解析。INDEX「来源」可写 `IN-xxxx`／工作区路径（溯源）；**正文不得依赖**打开包外路径才能读懂。
+- **边界**：材料包 = 现行完整权威快照；**不是**版本编年史。全史 → 根 `CHANGELOG` + `{workroot}/_archive/` + `inbound/`。当前状态短入口 → `{workroot}/project-guide.md`（发布进 `00-overview`）。
 - **不设 `_archive/`**；旧版本保留，`INDEX.md` 标 `current / superseded`。
 - `README.md` 写版本、范围、包含/不包含、阅读顺序、来源；缺失分三类：`产品缺口`｜`故意不收录`｜`本包未完成`（有「本包未完成」不得标完整）。
 - `INDEX.md` 登记所有文件；来源列写 `IN-xxxx`、`docs/...` 或 `generated`。
 - 只放**可外发**内容：无草稿、证据、密钥、真实 PII、未授权第三方文档。
-- 正文不在材料库当写作区改；定稿从 `{workroot}/` 发布。**发布时对副本改写链接／补拷依赖属发布步骤**；改内容仍回工作区再发。
+- 正文不在材料库当写作区改；定稿从 `{workroot}/` 发布。**发布时对副本改写链接／补拷依赖属发布步骤（未改写不得过 `materials-validate`）**；改内容仍回工作区再发。
 - **默认覆盖最新**：未明确「保留历史 / 不覆盖 / 升 rev / 另存快照」时，对目标 `{ver}/` **就地覆盖**为工作区当前定稿（README/INDEX 按 §2.2 多包主责规则刷新，`last_published_at` 同步）。
 - **显式例外**：用户点名保留已外发副本、不覆盖、升 rev、另存 `{ver}-r2`、或正式签收锁定 → 才新建 `{ver}-r2`/升 rev，不覆盖旧目录。
 - 材料库不是交接包；发送/交接只是它的用途，回执/台账仍走 `handoff/`。
@@ -132,7 +133,7 @@ docs/materials/
 | T8 冲突 | 未裁决矛盾（含产品补充与既有确认/决策冲突） | `inbound/` 状态=`pending`；先交叉核对既有确认/决策并登记 OPEN | 停下问 | 不覆盖现行 |
 | T9 交接类 | 跨角色交付/提测/签收/对方材料 | 主副本 `inbound/`；工作副本 `{workroot}/handoff/inbound/{category}/` | 打开分析 + A0～A2；台账/计划回写 | 出站快照不可改；入站非 SSOT |
 
-- 交接类别用英文 id（`requirements/plan/design/qa/report/bug/fix/clarification/release/uat/change/retro/decision/unsorted`），口令别名见 `rules/path-aliases.md`。
+- 交接目录名用中文（`提测/`、`发布/`…，见 `rules/collaboration/handoff.md` §4.0）；类别 id 用英文（`requirements/plan/design/qa/report/bug/fix/clarification/release/uat/change/retro/decision/unsorted`），只用于台账/单号；二者对照见 `rules/path-aliases.md`。
 - 同仓优先直读对方 `handoff/outbound/`；不重复拷贝。
 
 ## 4. 资料收取步骤
@@ -184,10 +185,10 @@ docs/materials/
 
 1. 选版本、范围、受众；版本取项目/迭代版本，缺则问一次，不硬造。**完整项目材料包**（发资料／完整／可发送等）默认 `00`～`07` 收齐现行定稿；仅补本包域须写明范围，不得称完整项目材料包。
 2. **发布模式**：默认 `overwrite-latest`（就地覆盖目标 `{ver}/`）；仅用户明确「保留历史 / 不覆盖 / 升 rev / 另存快照 / 签收锁定」时用 `rev` 或 `{ver}-r2`。未说明 → 不询问、直接覆盖最新。
-3. 从 `{workroot}/` 选**定稿** → 对应域；从 `inbound/` 选**权威正确**输入 → 对应域。`00-overview` 至少含现行状态入口（`project-guide` 或等价）与阅读顺序；包内定稿冲突须有效力说明或文首覆盖标记。
-4. 同步后：正文链接改为包内相对路径；缺依赖则补拷或标「本包不收录」——**禁止**留下必须打开工作区／`inbound/` 才能用的正文路径。
-5. 写/刷新 `{ver}/README.md`；更新 `docs/materials/INDEX.md`（含 `last_published_at`）。
-6. 校验：README/INDEX、来源可解析、无草稿/证据/密钥/PII、**链接自包含**、`本包未完成` 为空、单版本可直接发送；不过不称完整。
+3. 从 `{workroot}/` 选**定稿** → 对应域；从 `inbound/` 选**权威正确**输入 → 对应域。**完整包** `00-overview` 硬项：`project-guide`（或等价现行入口）+ 阅读顺序；有多份定稿冲突时加效力说明或文首覆盖标记。仅补本包域 → 写明「非完整」，overview 硬项可免，仍不得称完整项目材料包。
+4. 同步后：**必须**改写正文为包内相对路径；缺依赖则补拷或标「本包不收录」——**禁止**正文残留须打开工作区／`inbound/` 的路径；未改写 = 未完成 sync。
+5. 写/刷新 `{ver}/README.md`（缺失三分类分列）；更新 `docs/materials/INDEX.md`（含 `last_published_at`）。
+6. 校验：README/INDEX、来源可解析、无草稿/证据/密钥/PII、**链接自包含**、`本包未完成` 为空、完整包 overview 硬项齐、单版本可直接发送；不过不称完整。
 7. 外发前按现有 `confirm_handoff` / `confirm_intent` 确认；材料库本身不设新门。正式交接：`handoff/` 记台账/回执；材料库作 payload，不重复整套。
 
 材料库内容规则：

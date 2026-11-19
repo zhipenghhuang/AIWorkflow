@@ -82,5 +82,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=control | agent=onboard-agent | packet=rules/packets/onboard/control.md | global=ok | skills=development-plan|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=control | agent=onboard-agent | packet=rules/packets/onboard/control.md | global=ok | skills=development-plan=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

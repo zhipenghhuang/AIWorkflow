@@ -19,7 +19,7 @@
 | 5 | `verify` | `delivery-lead` | `has_deployed` | — | 发布验证结果/发布记录 | `rollback` | 触发回滚/事故流程；未验证不得称发布成功 |
 | 6 | `rollback` | `delivery-lead` | `release_failed_or_direct_rollback` | `confirm_rollback` | 回滚记录 | `postrelease` | 升级事故处理；不重复无效操作，不掩盖数据/业务影响 |
 | 7 | `postrelease` | `delivery-lead` | `has_deployed` | — | 发布后verify/观察记录 | `record` | 停在本步/升级 |
-| 8 | `record` | `delivery-lead` | `has_deployed` | — | 发布汇报/发布记录（{workroot}/60-release/） | `retro` | 停在本步/升级 |
+| 8 | `record` | `delivery-lead` | — | — | 发布记录（{workroot}/60-release/；已发布 / NO-GO / 回滚 三态） | `retro` | 停在本步/升级 |
 | 9 | `retro` | `delivery-lead` | `incident_or_major_release` | — | 复盘（{workroot}/80-retrospectives/） | `closeout` | 停在本步/升级 |
 | 10 | `closeout` | `delivery-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 

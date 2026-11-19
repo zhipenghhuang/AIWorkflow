@@ -89,5 +89,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=review | agent=reviewer-agent | packet=rules/packets/solo/review.md | global=ok | skills=code-review,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=review | agent=reviewer-agent | packet=rules/packets/solo/review.md | global=ok | skills=code-review=done|na,engineering-quality=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

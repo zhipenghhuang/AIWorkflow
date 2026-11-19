@@ -52,7 +52,7 @@
 | 模板 | `rules/templates/index.md` → 当前组 | 只读当前要填的一份 |
 | 验证 | `verify/` | 收尾/过门时读；运行态写 `.gate/wf-development/` |
 
-> 读取预算（目标，非硬上限）：单步读取 = 当前步骤包 + §6 技能整卡（另加每步 `global-rules`）；普通步 ≤12k，复杂步可至 22k（超出在 `reads=` 说明）；按节读的规则手册不设整文件上限。预算约束技能长度与拆分，不把技能截断成行窗；技能确实过长时拆 `references/`，不靠少读降本。
+> 读取预算（目标，非硬上限）：单步读取 = 当前步骤包 + §6 技能整卡（另加每步 `global-rules`）；口径见 `rules/core/execution-contract.md` §5（核心来源 ≤3～4、≤8k tokens），超出在 `reads=` 说明；按节读的规则手册不设整文件上限。预算约束技能长度与拆分，不把技能截断成行窗；技能确实过长时拆 `references/`，不靠少读降本。
 
 ## 3. 上手（快速开始）
 
@@ -106,7 +106,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 - **三层**：`inbound/` 原件；`{workroot}/` 工作区；`docs/materials/` 项目权威文档库。工作根读项目档案 §1 `workroot`；未声明按单包 `docs/`、多包 `docs/development/`。
 - **工作区**：`development-plan.md`、`project-guide.md`、`work-log.md`、`00-governance/`（变更/待决/决策/缺陷评估）、`10-requirements/`、`20-design/`、`30-architecture/ADR/`、`40-tasks/`、`50-verification/`、`60-release/`、`70-ops/`、`80-retrospectives/`、`capabilities/`、`handoff/`、`_archive/`；按需建，无内容不建空目录。
 - **项目说明**：`{workroot}/project-guide.md` 是项目当前状态唯一正文（单包/无产品包；长期；就地更新）；多包且产品包已有同名文件时只读引用，不复制第二份。
-- **权威文档库**：项目级 `docs/materials/`；每版 `{ver}/` **自包含现行状态**（正文相对路径；完整包默认 00～07）；`README.md` + `INDEX.md`；不设 `_archive`；从工作区发布，发布时改写链接／补拷依赖。  
+- **权威文档库**：项目级 `docs/materials/`；每版 `{ver}/` **自包含现行状态**（≠编年史；完整包默认 00～07；overview 硬项含 `project-guide`+阅读顺序）；`README.md` + `INDEX.md`；不设 `_archive`；从工作区发布，**须**改写链接／补拷依赖后过 `materials-validate`。  
 - **原件**：`inbound/INDEX.md` 全量登记；`keep/mix/replace` 只整理原件结构；不迁出、不删除、不归档。  
 - **版本记录**：根 `CHANGELOG.md`＝仅开发维护的产品发版史（用户可见能力/破坏性/迁移·兼容/安全；禁过程项）；`{workroot}/work-log.md`＝岗位里程碑；发布说明一版一档。  
 - 细则与命名/根目录白名单见 `rules/workflow.md` §5、`rules/doc-governance.md`。

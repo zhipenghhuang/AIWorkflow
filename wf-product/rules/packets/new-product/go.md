@@ -84,5 +84,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:new-product | step=go | agent=pm-analyst | packet=rules/packets/new-product/go.md | global=ok | skills=zero-to-one-product-definition,customer-needs-discovery,competitive-intelligence-and-learning|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:new-product | step=go | agent=pm-analyst | packet=rules/packets/new-product/go.md | global=ok | skills=zero-to-one-product-definition=done|na,customer-needs-discovery=done|na,competitive-intelligence-and-learning=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

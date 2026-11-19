@@ -19,7 +19,7 @@
 | 5 | `test_plan` | `test-planner` | `plan_has_code_change` | `select_review_mode` | 测试分析与计划（{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md）+ 适用时评审留痕 | `build` | 回 design 修方案卡；AC/范围不清先停下说明；评审需修同回合修订 ≤1 |
 | 6 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `review` | 回 design 或 test_plan；范围超出先停下说明 |
 | 7 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + .gate/review.md | `test` | 回 build 补前端交付物/方案覆盖；不得以代码/测试/API 200 代替，不得判通过 |
-| 8 | `test` | `verifier-agent` | — | `gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
+| 8 | `test` | `verifier-agent` | — | `confirm_commit`、`gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面 |
 | 9 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/问用户 |
 
 ## 3. 推进

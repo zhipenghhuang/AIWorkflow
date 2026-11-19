@@ -15,7 +15,7 @@
 ## 2. 本步目标
 
 - **目标**：平台回写
-- **产出**：平台回写结果（备注/附件/状态/指派）
+- **产出**：平台回写结果写入受理单/缺陷处置单 §平台回写（备注实质 / 状态 / 附件 fileId 或无附件 / 指派）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -30,7 +30,7 @@
 ## 4. 本步门
 
 - **HITL `confirm_remark`**：出示 id+结论+备注全文+附件名+状态/指派变更；备注与状态同轮；平台不支持出 export
-- **GATE `writeback-receipt`**：`Invoke-Gate.ps1 -Mode writeback -Artifact …`；单号+备注实质+状态取值+fileId/无附件；禁标题刷绿；无回执不得声称已回写
+- **GATE `writeback-receipt`**：`Invoke-Gate.ps1 -Mode writeback -Artifact <受理单/缺陷处置单>`；回写节须有 备注：≥8 字实质 / 状态：取值 / 附件：fileId 或无附件；禁标题刷绿；无回执不得声称已回写
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -43,6 +43,7 @@
 ### 本步规则卡：平台回写
 
 - 先出【回写拟稿】：单号 + 结论 + 备注全文 + 状态/指派/resolvedBuild + 附件名；用户确认后才写。
+- **落盘（硬）**：回写结果写回本单 §7「平台回写」：平台单号 / 备注：≥8 字实质 / 状态：新值 / 附件：fileId 或无附件；运行 `-Mode writeback -Artifact <本单>`。
 - 备注须实质（现象/根因/修复/验证），禁只写「已修复/已处理」；未验证只写「待验证」。
 - 平台不支持附件 → 出 export，不假装已回写。
 
@@ -77,5 +78,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect | step=writeback | agent=pm-lead | packet=rules/packets/defect/writeback.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect | step=writeback | agent=pm-lead | packet=rules/packets/defect/writeback.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

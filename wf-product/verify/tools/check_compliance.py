@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 同源脚本：产品/开发/测试三包一致；改一处需同步。
+# 同源骨架：产品/开发/测试按包微调（sync/能力/准出措辞）；公共段改动需三包同步。
 """Check a 收尾/报告 file for the mandatory 遵守自检 block and six-point layout.
 
 Checks: title/receipt/self-check one per line; 汇报（可直接复制）block; 1～6
@@ -163,7 +163,7 @@ def _check_self_check(text: str, errors: list[str], warnings: list[str]) -> None
         errors.append("缺少【遵守自检】")
         return
     body = m.group(1)
-    for key in ("route=", "mode=", "packet=", "global=", "skills=", "reads=", "gates=", "confirm=", "sync=", "skip=", "deviation="):
+    for key in ("route=", "mode=", "packet=", "global=", "skills=", "reads=", "gates=", "confirm=", "sync=", "skip=", "when_eval=", "deviation="):
         if key not in body:
             errors.append(f"【遵守自检】缺少 {key}")
     mp = re.search(r"packet=([^|]+)", body)

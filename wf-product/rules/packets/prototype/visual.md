@@ -79,5 +79,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=visual | agent=ux-designer | packet=rules/packets/prototype/visual.md | global=ok | skills=ui-visual-design-system|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=visual | agent=ux-designer | packet=rules/packets/prototype/visual.md | global=ok | skills=ui-visual-design-system=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

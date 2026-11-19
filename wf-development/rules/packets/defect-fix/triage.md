@@ -55,7 +55,7 @@
 - 混批含产品缺陷+实现缺陷：两轨并行——实现项照常 fix（可先提交），产品项出评估单/评审版方案并 AWAIT_PRODUCT。
 - 仅当实现项依赖产品结论时该实现项等待，不整批阻塞。
 - pull 已标「待产品」→ 直接输出 AWAIT_PRODUCT，不重新评估/不重复 handoff。
-- 分类结论须引用原单 steps/数据/环境/设计依据，禁只看标题。
+- 分类结论须引用原单 steps/数据/环境 + 现行口径（fix-collaboration §4.0#8；依据含现行出处或「无现行可引」），禁只看标题/禁仅旧版或开发自写方案定真假。
 - 批量时以侦察回执为输入，**分类/五选一/处置集中**，不采信子代理终态。
 - 拟标 product_defect 前须完成实现核对（相关代码路径与/或接口行为），只凭页面观感不得判产品缺陷。
 - 测试无设计文档默认实现缺陷属正确。
@@ -96,5 +96,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=triage | agent=defect-fixer | packet=rules/packets/defect-fix/triage.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=triage | agent=defect-fixer | packet=rules/packets/defect-fix/triage.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

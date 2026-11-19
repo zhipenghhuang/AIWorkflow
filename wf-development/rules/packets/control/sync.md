@@ -96,5 +96,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:control | step=sync | agent=iterate-lead | packet=rules/packets/control/sync.md | global=ok | skills=development-plan|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:control | step=sync | agent=iterate-lead | packet=rules/packets/control/sync.md | global=ok | skills=development-plan=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

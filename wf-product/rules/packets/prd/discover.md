@@ -45,9 +45,7 @@
 - 每条入 `{workroot}/requirement-pool.md`（价值/成本/风险初判 + 状态）。
 - **先还原需求**：技能 §6 `customer-needs-discovery`（先读）——区分想要/需要/方案。
 - 单个客户/领导/竞品说法标样本与证据等级，不直接当市场结论。
-- 按 先查事实。
-- 仍不明一次一问（附候选/推荐）。
-- 未确认不升格。
+- 按本包澄清口径（先查事实→仍不明一次一问→未确认不升格）。
 - 正式访谈用 `interview-guide-template.md`，综合用 `insight-synthesis-template.md`。
 - **未双确认不得**入池承诺/排优先级。
 - 未确认推断标「假设」并写验证方式。
@@ -107,5 +105,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prd | step=discover | agent=pm-analyst | packet=rules/packets/prd/discover.md | global=ok | skills=customer-needs-discovery,requirement-discovery-and-prioritization|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=discover | agent=pm-analyst | packet=rules/packets/prd/discover.md | global=ok | skills=customer-needs-discovery=done|na,requirement-discovery-and-prioritization=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -17,7 +17,7 @@
 | 3 | `confirm` | `iterate-lead` | `implementation_required` | `confirm_backlog` | 已确认清单/节奏 | `implement` | 停在本步/升级 |
 | 4 | `implement` | `implementer` | `implementation_required` | — | 代码/配置改动 + 任务状态回写 | `review` | 停在本步/升级 |
 | 5 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `gates` | 回 implement 补前端交付物/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。 |
-| 6 | `gates` | `verifier-agent` | `implementation_required` | `gate:completion-gate` | .gate/wf-development/completion.json + 门禁摘要/文档同步 | `deliver` | 停在本步/升级 |
+| 6 | `gates` | `verifier-agent` | `implementation_required` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 门禁摘要/文档同步 | `deliver` | 停在本步/升级 |
 | 7 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案 | `retro` | 停在本步/升级 |
 | 8 | `retro` | `delivery-lead` | `iteration_done_or_incident` | — | 复盘（{workroot}/80-retrospectives/） | `closeout` | 停在本步/升级 |
 | 9 | `closeout` | `iterate-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

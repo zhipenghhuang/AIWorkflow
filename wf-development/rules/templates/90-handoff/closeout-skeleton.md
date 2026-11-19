@@ -33,7 +33,7 @@
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 未验证={…}
 【开发自验】verdict={…} | AC走查={…} | 报告={…} | 说明={…}
-【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | deviation={…}
+【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | when_eval={假:<依据>|无} | deviation={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，{完成}/{总数}，{P%}）：{覆盖面；主链路；遗留/风险；未验证不得写「无阻断」}

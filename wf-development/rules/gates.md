@@ -13,29 +13,29 @@
 | `confirm_change` | 变更吸收/影响 | 出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线 |
 | `confirm_task_intent` | 任务开工需求/意图确认（全局硬门） | 任何任务开工前先输出【需求与意图理解】并等用户确认；未确认不得写/执行/对外/下结论；纯只读问答可一句话复述后直接回答。确认后进入 execute，不重复问；范围/AC/目标变化重新确认。**缺陷/批量入口（指派给我、我的待修、修复#N、#N）不豁免本门**；仅用户明说「一次性/直接跑完/中途不停」可免等待（理解仍须先输出）。细则 `global-rules.md` §1。 |
 | `confirm_intent` | 意图理解（择优·防自作主张） | 仅当 `intent_needs_confirm`：出示【意图理解】，确认后才落盘。意图已清 → 跳过本门（可一行回执即做）。细则 `clarification.md` §0。≠ `confirm_understanding`；≠ `confirm_handoff` |
-| `confirm_understanding` | 需求理解 | **主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定 |
+| `confirm_understanding` | 需求理解 | **主屏**：理解包 §0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定 |
 | `confirm_requirements` | 需求基线/范围 | 出示范围/AC/NFR/非目标/未决；未签收不进设计/排期 |
 | `select_review_mode` | 落地文档评审方式 | **STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施/切包/写计划「已确认」。适用需求基线/方案/ADR/前端设计说明/开发计划/solo 测试计划等（见 `skills/design-doc-review`） |
 | `confirm_spec` | 方案评审 | 出示范围/接口/兼容与回滚/验收；批准后才实施（可在选模式 + 可选 AI 审之后） |
 | `confirm_replan` | C2/C3 重基线 | 出示变更等级/影响矩阵/重基线范围（基线/任务/计划/测试）/里程碑与资源影响；确认后才重基线；禁止拆成 C0/C1 绕过 |
 | `confirm_plan` | 开发计划/版本范围 | 首次创建或范围·版本·里程碑实质变更；确认范围/阶段后：若本轮须独立文档评审 → 状态=待评审（评审通过后再=已确认）；否则可直接=已确认。未关闭 S 或阻塞实施的 P 未答复时不得确认（clarification §1.1） |
 | `confirm_backlog` | 迭代清单与节奏 | 出示任务数/RP 覆盖/依赖/风险 + 节奏三选；确认后才实施 |
-| `confirm_commit` | 拟提交/推送 | 【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；≠收尾第 2 点「待提交摘要」 |
+| `confirm_commit` | 拟提交/推送 | 【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」 |
 | `confirm_handoff` | 交接包发送 | **凡拟生成任一 HO 包必停**：出示类型/接收方/必带摘要/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「定稿门/评审门/发布门已过」代替本门。未收回执不得称「已接收」；可称「已发送」 |
 | `confirm_deploy` | 工程部署审批（生产/正式） | 出示版本/窗口/影响面/回滚决策人；并核 **干净工作区 + 已提交或已打 tag + 本轮 `completion.json=COMPLETE`**；未批准不部署，禁止从脏工作区部署；**仅生产/正式环境**，test/staging 部署不触发本门；生产版本必须无 prerelease |
 | `confirm_rollback` | 回滚 | 出示触发信号/步骤/数据影响/预计时长；确认后执行 |
 | `confirm_acceptance` | UAT/业务验收 | 出示 AC 覆盖/失败项/遗留风险/发布建议；确认后进审批 |
 | `confirm_actions` | 复盘行动项 | 出示行动项/负责人/截止/验收；确认后落盘 |
-| `confirm_remark` | 回写前备注 | 出示 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」 |
+| `confirm_remark` | 回写前备注 | 出示回写备注模板 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」 |
 | `confirm_gitignore` | 入库策略 | 四选一确认资产范围；规范包默认不跟踪，`.gitignore` 写已装包行（多包 `/wf/`）与运行态 `.gate/`，无注释、不预列未装包；其它项只列路径；写档案 §1 并改 `.gitignore` |
 | `confirm_docs_migration` | inbound/工作文档归档、搬迁或临时清理 | 出示分类/覆盖对照/拟归档或清理清单与目标；确认后执行 |
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
 | `confirm_skill_changes` | 能力/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
-| `gate: completion-gate` | 完成门（开发轨） | 任务开始 `-StartTask`（归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：先提交后过门，门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
+| `gate: completion-gate` | 完成门（开发轨） | **实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
-| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**链接自包含**（正文无未改写的工作区/`inbound/` 路径）；完整包含 `00-overview` 现行状态+阅读顺序；`本包未完成` 为空；旧版本状态正确；不过不称完整。 |
+| `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**链接自包含**（正文无未改写的工作区/`inbound/` 路径）；缺失三分类分列；完整包须 `00-overview` 含现行入口（`project-guide` 或等价）+ 阅读顺序（有冲突须效力说明）；`本包未完成` 为空；旧版本状态正确；不过不称完整。 |
 | `gate: release-readiness` | 生产/正式发布就绪 | **checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用 |
 
 > `confirm_task_intent` 是全局开工门（`AGENTS.md` 首轮硬门/§0.2），不依赖 step；其余门仍只认步上声明。
@@ -67,19 +67,19 @@
 | `docs_migration_needed` | 将搬迁/归档/清理且清单未确认 | 已确认或无搬迁 |
 | `requirements_need_confirm` | 需求基线实质变且未确认 | 已确认或无实质变 |
 | `new_product_or_unclear_idea` | 自包含链：方向不清/新产品（正式协作/迭代 → 完整链） | 小改/需求已清 |
-| `solo_gate_required` | 自包含链：有方案卡/验收表且已 StartTask | 单独测试/纯文档 |
+| `solo_gate_required` | 自包含链：有方案卡/验收表且本轮有代码/配置改动 | 单独测试/纯文档 |
 | `intent_needs_confirm` | 给谁·做什么·形态无法唯一确定，或跨角色外发未对齐，或新开对外交付 | 查询/机械/同任务已确认/意图写死/任务内续跑；**歧义拿不准**按真 |
 | `understanding_needs_confirm` | 外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算 | 当前任务已理解确认；纯查询/机械低风险 |
 | `solo_understanding_needs_confirm` | 自包含链：输入含文档/原型/多源，或大改动/高风险 | 一句话/无文档小改 |
 | `has_product_docs_or_prototypes` | 输入含 PRD/迭代方案/需求/原型/截图/接口或技术文档 | 无此类输入 |
 | `change_is_substantive` | 改已定稿 AC/范围/对外承诺（未达 C2 也可真） | 纯答疑/文案/无基线改动 |
 | `backlog_approval_required` | L2+，或清单/范围/节奏实质变化 | L1 小批只通知 |
-| `plan_needs_confirm` | 计划/范围/节奏实质变且未确认 | 已确认未变 |
+| `plan_needs_confirm` | 计划尚未确认（首次创建），或计划/范围/节奏实质变且未确认 | 已确认且未实质变 |
 | `has_pending_commit` | 有文件变更待提交 | 无待提交 |
 | `work_changed_or_requested` | 本轮有代码/配置/文档改动，或点名验证 | 只读不动 |
 | `implementation_required` | 非「只出任务清单」且清单已确认 | 只出清单或未确认 |
-| `need_select_review_mode` | （L2+ 新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B | L0 无新文档；该产物已选 A/B；L1 小改无新落地件 |
-| `do_landing_doc_review` | L2+ 有新增/变更落地文档，或开发计划首版/实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审（不依赖是否已选 A/B） | L0/无新文档；L1 小改无新落地件 |
+| `need_select_review_mode` | （L2+ 新产出落地文档，或 L1 高风险/新功能的新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B | L0 无新文档；该产物已选 A/B；L1 小改无新落地件 |
+| `do_landing_doc_review` | L2+ 有新增/变更落地文档，或 L1 高风险/新功能的新产出落地文档，或开发计划首版/实质变更，或点名文档评审（不依赖是否已选 A/B） | L0/无新文档；L1 小改无新落地件 |
 | `design_needs_spec_approval` | L1 有新方案/ADR/前端设计且未进 review-docs | L0；或 L2+ 由 review-docs 接管 |
 | `review_required` | 有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或 **L1+ 用户可见 UI 命中前端硬门 A 级**，或 **L1 命中安全/性能/并发/数据面**，或点名） | L0 单文件，或确实低风险 L1 单点且未命中前端硬门 A 级/安全/性能/并发/数据面（免审须记理由；免审不免自测） |
 | `product_defect` | triage 判定为产品缺陷 | 工程缺陷或其他 |

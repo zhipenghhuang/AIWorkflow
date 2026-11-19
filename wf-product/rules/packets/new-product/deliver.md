@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
+- 本步不设独立门：以子链门回执为准；子链未 `ALLOWED` 不得写完成。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -72,11 +72,11 @@
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
+- 本步不设独立 Claim 门：以子链门回执为准；子链有 Claim 门时须 `CLAIM: ALLOWED`，不得以 `claim=na` 写完成。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执
 
 ```text
-route=workflow:new-product | step=deliver | agent=pm-lead | packet=rules/packets/new-product/deliver.md | global=ok | skills=change-management,uat-and-retrospective|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:new-product | step=deliver | agent=pm-lead | packet=rules/packets/new-product/deliver.md | global=ok | skills=change-management=done|na,uat-and-retrospective=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

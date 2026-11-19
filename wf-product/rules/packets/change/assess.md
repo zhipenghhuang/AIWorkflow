@@ -74,5 +74,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=assess | agent=pm-lead | packet=rules/packets/change/assess.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=assess | agent=pm-lead | packet=rules/packets/change/assess.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -63,5 +63,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:showcase | step=environment | agent=pm-lead | packet=rules/packets/showcase/environment.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:showcase | step=environment | agent=pm-lead | packet=rules/packets/showcase/environment.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

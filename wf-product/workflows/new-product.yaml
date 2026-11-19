@@ -72,10 +72,11 @@ steps:
   - rules/templates/10-planning/prd-template.md
   when: go_decision_go
   agent: prd-writer
+  claim_from: subchain
   output: PRD + 评审记录/原型（{workroot}/{ver}/10-requirements/、20-design/）
-  notes: '**子链**：按 `workflows/prd.yaml` 的 prd → prototype（如需界面）→ review 逐步执行（只读当前 step 块）；不执行其 closeout。 **门权威在子链**：理解门/定稿门以
-    prd.yaml hitl 为准；本步不重复弹门；未定稿不排期。 PRD 落 `{workroot}/{ver}/10-requirements/PRD-{主题}.md`。 技能：`skills/prd-writing/SKILL.md`
-    `skills/review-and-finalize/SKILL.md`；界面原型见 `skills/prototype-and-interaction/SKILL.md` `skills/ui-visual-design-system/SKILL.md`。'
+  notes: '**子链**：按 `prd` 子链的 prd → prototype（如需界面）→ review 逐步执行（只读当前 step 块）；不执行其 closeout。 **门权威在子链**：理解门/定稿门以 prd.yaml hitl
+    为准；本步不重复弹门；未定稿不排期。 PRD 落 `{workroot}/{ver}/10-requirements/PRD-{主题}.md`。 技能：`skills/prd-writing/SKILL.md` `skills/review-and-finalize/SKILL.md`；界面原型见
+    `skills/prototype-and-interaction/SKILL.md` `skills/ui-visual-design-system/SKILL.md`。'
 - name: 交付与验收
   id: deliver
   skills:
@@ -85,6 +86,7 @@ steps:
   - rules/packets/new-product/deliver.md
   when: go_decision_go
   agent: pm-lead
+  claim_from: subchain
   output: 交付计划 + UAT 记录（{workroot}/{ver}/40-delivery/）
   notes: '**子链**：按 `workflows/deliver.yaml` 的 schedule followup uat 逐步执行（只读当前 step 块）；需求/问题/产品缺陷 → `workflows/change.yaml`
     受理与处置。 **门权威在子链**：UAT/评审门以 deliver.yaml（及 change）hitl 为准；本步不重复跑门。 UAT 按 PRD 验收标准逐条对照（结果 + 证据）；产品缺陷 vs 实现缺陷要有依据。 技能：`skills/change-management/SKILL.md`

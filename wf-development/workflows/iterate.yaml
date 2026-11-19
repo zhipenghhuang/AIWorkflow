@@ -40,8 +40,9 @@ steps:
   - rules/templates/30-planning-tasks/task-list-template.md
   agent: iterate-lead
   output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
-  notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。「只出清单」→ closeout。 无 PRD 先 `skills/product-shaping`；L2+ 读 development-plan。禁本步
-    -StartTask。AC 须含能力可达（写端点→页面入口）与原型操作对账；样例数据不得进正式页。
+  notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。 **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review；task_id
+    与 implement 的 `-StartTask` 同值）。「只出清单」→ closeout。 无 PRD 先 `skills/product-shaping`；L2+ 读 development-plan。禁本步 -StartTask。AC
+    须含能力可达（写端点→页面入口）与原型操作对账；样例数据不得进正式页。
 - name: 确认清单与节奏
   id: confirm
   skills: []
@@ -96,6 +97,9 @@ steps:
   - rules/packets/iterate/gates.md
   when: implementation_required
   agent: verifier-agent
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 门禁摘要/文档同步

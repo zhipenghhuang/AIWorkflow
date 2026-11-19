@@ -96,5 +96,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=frame | agent=implementer | packet=rules/packets/solo/frame.md | global=ok | skills=product-shaping|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=frame | agent=implementer | packet=rules/packets/solo/frame.md | global=ok | skills=product-shaping=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

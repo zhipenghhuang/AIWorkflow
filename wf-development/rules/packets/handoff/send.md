@@ -78,5 +78,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=send | agent=iterate-lead | packet=rules/packets/handoff/send.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=send | agent=iterate-lead | packet=rules/packets/handoff/send.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

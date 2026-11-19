@@ -65,5 +65,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect | step=preflight | agent=pm-lead | packet=rules/packets/defect/preflight.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect | step=preflight | agent=pm-lead | packet=rules/packets/defect/preflight.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

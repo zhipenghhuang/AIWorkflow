@@ -39,7 +39,7 @@
 ### 本步动作清单
 
 - 读项目档案 provider。
-- 若为「无」或未配置： route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更。
+- 若为「无」或未配置：按 `rules/core/routing.md` A 判轨（无正式协作 → `solo`；否则 `change`），`route=workflow:<该链>` | `reason=no_defect_platform` | `next_action=按现象走对应链`。
 - 终止本 workflow（不执行 next: pull）。
 - 禁止向用户索要编号、禁止空转拉平台。
 - **勿在本步 `-StartTask`**。
@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=preflight | agent=defect-fixer | packet=rules/packets/defect-fix/preflight.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=preflight | agent=defect-fixer | packet=rules/packets/defect-fix/preflight.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

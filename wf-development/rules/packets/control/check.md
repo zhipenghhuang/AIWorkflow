@@ -81,7 +81,7 @@
 ## 7. 模板与证据
 
 - **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 
@@ -93,5 +93,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:control | step=check | agent=reviewer-agent | packet=rules/packets/control/check.md | global=ok | skills=development-plan|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:control | step=check | agent=reviewer-agent | packet=rules/packets/control/check.md | global=ok | skills=development-plan=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

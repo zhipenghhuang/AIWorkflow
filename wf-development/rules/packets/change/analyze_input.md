@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_understanding`**：**主屏**：§0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定
+- **HITL `confirm_understanding`**：**主屏**：理解包 §0【业务与变更简报】+【本期差量表】（增/改/删）+ 待确认单摘要（冲突·GAP·开发择优/置信度）；理解摘要/完整理解包按链选择。无 §0/差量表不得过门（L0 迷你 Delta 除外）。确认后才进下一门/实施；是否写需求基线/设计由链决定
 - **条件判定 `hitl:understanding_needs_confirm`**：外部文档/原型、≥2 实质歧义、L2+，或点名方案/排期/估算；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -84,5 +84,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=analyze_input | agent=implementer | packet=rules/packets/change/analyze_input.md | global=ok | skills=product-doc-analysis,requirements-and-spec|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=analyze_input | agent=implementer | packet=rules/packets/change/analyze_input.md | global=ok | skills=product-doc-analysis=done|na,requirements-and-spec=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

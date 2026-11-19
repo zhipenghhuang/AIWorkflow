@@ -30,7 +30,7 @@
 ## 4. 本步门
 
 - **HITL `select_review_mode`**：**STOP 二选一**：A 自行评审通过（HUMAN_APPROVED）｜B AI 独立评审（`doc-reviewer`）；同产物只问一次；未选不得进实施/切包/写计划「已确认」。适用需求基线/方案/ADR/前端设计说明/开发计划/solo 测试计划等（见 `skills/design-doc-review`）
-- **条件判定 `hitl:need_select_review_mode`**：（L2+ 新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B；满足→真，否则跳过该门。
+- **条件判定 `hitl:need_select_review_mode`**：（L2+ 新产出落地文档，或 L1 高风险/新功能的新产出落地文档，或开发计划首版/范围·版本·里程碑实质变更，或 solo 新产出测试计划且 L2+/高风险，或点名文档评审）且**本产物**本会话未选 A/B；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -89,5 +89,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:solo | step=test_plan | agent=test-planner | packet=rules/packets/solo/test_plan.md | global=ok | skills=test-design-and-execution|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:solo | step=test_plan | agent=test-planner | packet=rules/packets/solo/test_plan.md | global=ok | skills=test-design-and-execution=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

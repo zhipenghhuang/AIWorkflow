@@ -156,6 +156,7 @@
 ```
 
 **outbound 类别**：`报告`←TEST；`计划`←PLAN；`缺陷`←BUG；`回归`←FIX；`澄清`←CLAR；`发布`←REL；`变更`←CHG；`复盘`←RETRO；`确认`←DEC/OTHER。  
+**命名**：目录名固定中文（`提测/`…）；台账/单号用英文 category id（`qa`…），对照见 `rules/path-aliases.md`；禁把 category id 当目录名。  
 **inbound**：按内容归类；打开→分析→吸收→同步。与 `docs/`：原件主副本固定 `inbound/{ver|topic}`；交接工作副本进 `handoff/inbound/{category}/`；定稿进 `docs/materials/`。同仓直读对方 outbound。
 
 ### 4.1 标准包（HO）

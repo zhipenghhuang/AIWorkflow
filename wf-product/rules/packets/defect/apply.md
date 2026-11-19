@@ -100,5 +100,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect | step=apply | agent=pm-lead | packet=rules/packets/defect/apply.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect | step=apply | agent=pm-lead | packet=rules/packets/defect/apply.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

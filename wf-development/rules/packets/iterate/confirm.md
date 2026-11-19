@@ -66,5 +66,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:iterate | step=confirm | agent=iterate-lead | packet=rules/packets/iterate/confirm.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:iterate | step=confirm | agent=iterate-lead | packet=rules/packets/iterate/confirm.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

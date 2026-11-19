@@ -81,5 +81,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=clarify | agent=implementer | packet=rules/packets/change/clarify.md | global=ok | skills=requirements-and-spec,product-shaping|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=clarify | agent=implementer | packet=rules/packets/change/clarify.md | global=ok | skills=requirements-and-spec=done|na,product-shaping=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

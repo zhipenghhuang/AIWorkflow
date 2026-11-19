@@ -78,5 +78,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:deliver | step=review-plan-deliver | agent=reviewer-agent | packet=rules/packets/deliver/review-plan-deliver.md | global=ok | skills=artifact-review|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:deliver | step=review-plan-deliver | agent=reviewer-agent | packet=rules/packets/deliver/review-plan-deliver.md | global=ok | skills=artifact-review=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

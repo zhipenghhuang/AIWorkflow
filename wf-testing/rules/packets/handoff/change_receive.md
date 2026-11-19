@@ -71,5 +71,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=change_receive | agent=test-planner | packet=rules/packets/handoff/change_receive.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=change_receive | agent=test-planner | packet=rules/packets/handoff/change_receive.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

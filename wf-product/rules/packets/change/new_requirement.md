@@ -66,5 +66,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=new_requirement | agent=pm-analyst | packet=rules/packets/change/new_requirement.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=new_requirement | agent=pm-analyst | packet=rules/packets/change/new_requirement.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

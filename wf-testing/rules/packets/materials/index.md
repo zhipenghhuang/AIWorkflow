@@ -28,7 +28,7 @@
 
 ## 4. 本步门
 
-- **GATE `materials-validate`**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；正文链接自包含；`00-overview` 有现行状态入口+阅读顺序；无「本包未完成」；旧版本状态正确；不通过不称完整。
+- **GATE `materials-validate`**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；正文链接自包含；缺失三分类分列；完整包须 `00-overview` 含现行入口（`project-guide` 或等价）+ 阅读顺序（有冲突须效力说明）；`本包未完成` 为空；旧版本状态正确；不过不称完整。
 - **推进**：本流程为 `chain: full`；本步完成后进入下一未跳过步，直至 closeout。
 
 ## 5. 本步动作
@@ -38,22 +38,24 @@
 
 ### 本步动作清单
 
-- README 写版本、范围、包含/不包含、阅读顺序、来源、缺失/待补、本次是否覆盖刷新。
+- README 写版本、范围、包含/不包含、阅读顺序、来源、缺失三类（产品缺口｜故意不收录｜本包未完成）、本次是否覆盖刷新。
 - INDEX 登记所有文件：版本/域/文档/来源（IN-xxxx、docs/... 或 generated）/状态/更新时间。
 - 刷新 `last_published_at`。
-- 状态只写 `current superseded`。
+- 状态只写 `current`/`superseded`。
 - 默认覆盖同 ver。
-- 仅显式保留历史时升 `rev` 或 `{ver}-r2`。
+- 仅显式保留历史时升 `rev`/`{ver}-r2`。
 - **门（materials-validate）**：README/INDEX 齐。
-- 所有文件有登记。
+- 全文件已登记。
 - 来源可解析。
 - 无草稿/证据/密钥/PII。
-- 链接自包含，只发 `{ver}/` 不缺文件。
+- 链接自包含。
+- 完整包 overview 硬项齐（`project-guide` 或等价 + 阅读顺序；有冲突须效力说明）。
+- `本包未完成` 为空。
+- 旧版状态正确。
+- 有「本包未完成」或链接未改写 → 不过门、不称完整。
 - 测试数据默认不外发。
-- 旧版本状态正确。
-- 待补项列明，不把“已生成”说成“已完整”。
 - 多包：README/INDEX 由开发包（无则产品包）刷新。
-- 本包只提交 `05-testing` 与索引行，不重建他域。
+- 本包只提交 `05-testing` 与索引行。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -65,7 +67,7 @@
 - **填写模板（主）**：`rules/templates/00-onboarding/materials-index-template.md`；只读本步用到的节，禁止整文件通读。
 - **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/00-onboarding/materials-version-readme-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 
@@ -78,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:materials | step=index | agent=test-orchestrator | packet=rules/packets/materials/index.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:materials | step=index | agent=test-orchestrator | packet=rules/packets/materials/index.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

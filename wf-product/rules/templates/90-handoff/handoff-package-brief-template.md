@@ -14,7 +14,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| 交接 ID | `{HO-yyyyMMdd-NN-类型-发起2接收标签；多收用 2ALL 或短拼}` |
+| 交接 ID | `HO-yyyyMMdd-NN-TYPE-FROM2TO`（TYPE=REQ/DES/PLAN/QA/REL/CHG/UAT/BUG/FIX/CLAR/RETRO/DEC/OTHER；FROM/TO=PRD/DEV/QA/ALL；多收用 `2ALL`） |
 | 类型 | `{REQ / DES / PLAN / QA / TEST / BUG / FIX / REL / UAT / CHG / CLAR / DEC / RISK / RETRO}` |
 | 发起方 | `{角色/姓名（负责人）}` |
 | 接收方 | `{测试；产品；… — 全列，可多人}` |

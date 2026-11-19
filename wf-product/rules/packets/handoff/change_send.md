@@ -69,5 +69,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=change_send | agent=pm-lead | packet=rules/packets/handoff/change_send.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=change_send | agent=pm-lead | packet=rules/packets/handoff/change_send.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

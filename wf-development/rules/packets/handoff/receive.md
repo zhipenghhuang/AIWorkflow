@@ -31,7 +31,7 @@
 - **HITL `confirm_change`**：出示变更类型/影响矩阵/待更新文档/待确认项；实质变更确认后才更新基线
 - **条件判定 `hitl:handoff_change_substantive`**：交接包内达 C2/C3 或改定稿基线；满足→真，否则跳过该门。
 - **HITL `confirm_plan`**：首次创建或范围·版本·里程碑实质变更；确认范围/阶段后：若本轮须独立文档评审 → 状态=待评审（评审通过后再=已确认）；否则可直接=已确认。未关闭 S 或阻塞实施的 P 未答复时不得确认（clarification §1.1）
-- **条件判定 `hitl:plan_needs_confirm`**：计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
+- **条件判定 `hitl:plan_needs_confirm`**：计划尚未确认（首次创建），或计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -41,7 +41,7 @@
 
 ### 本步动作清单
 
-- **硬**：打开→T1～T9 分析→A0～A2 吸收→同步。
+- **硬**：打开→按文档治理做覆盖/冲突分析→按需吸收→同步。
 - 禁止只投放。
 - `inbound/` 为原件、`handoff/inbound/` 为收件工作副本。
 - 单文档/任意夹：直接读。
@@ -75,5 +75,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=receive | agent=iterate-lead | packet=rules/packets/handoff/receive.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=receive | agent=iterate-lead | packet=rules/packets/handoff/receive.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -81,5 +81,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=engineering | agent=ux-designer | packet=rules/packets/prototype/engineering.md | global=ok | skills=prototype-and-interaction|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=engineering | agent=ux-designer | packet=rules/packets/prototype/engineering.md | global=ok | skills=prototype-and-interaction=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

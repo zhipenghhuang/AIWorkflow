@@ -16,7 +16,7 @@
 | DEV-VER-04 | 失败不声称完成；工具/环境缺失记 `BLOCKED`，不得降级为“人工清单已过”。 |
 | DEV-VER-05 | 风险不降级：L0～L3 由变更事实判定；前端行为/布局变化最低 L1。 |
 | DEV-VER-06 | 实施者不自证：L1+ 前端/API 变更由 fresh-context verifier 抽核；L1+ 用户可见 UI 命中前端硬门 A 级、**L1 命中安全/性能/并发/数据面**、L2+、L3、高风险/大改/破坏性变更必须独立评审；L0 或确实低风险/单点且未命中 A 级/安全/性能/并发/数据面的 L1 可免独立评审，但须记录理由与风险接受人。同源复核（含 `agent:self_review` / `user:self_review`）只作预检或补充，**不得**作为波门/G4/G5/完成门的独立评审证据，也不得据此写 `verdict=通过` 关阻断；确无独立条件须用户当轮书面同意并记 `skip=user:`，该范围标未验证。复审关闭阻断须跑能证伪该修复的检查（DEV-VER-16）。 |
-| DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、**桌面+移动截图**，并与同类页面/原型对照（导航层级/文案、复用组件、列/区块、空态/错误态）；无证据不报完成。浏览器/MCP/截图不可用 → 前端项 `BLOCKED`/`UNVERIFIED`，不得口头放行；**接口 200、DOM 文本、class 名正确不能替代视觉完成证据**。单 HTML 原型须先解码 `data:`/base64 模块再核对（DEV-IQ-13），原始文本搜索无结果不能作为“原型无此页”的依据。 |
+| DEV-VER-07 | 前端必须浏览器验证：状态、视口、console、network、**桌面+移动截图**，并与同类页面/原型对照（导航层级/文案、复用组件、列/区块、空态/错误态）；无证据不报完成。**证据按 `frontend-gate.md` §2.1 分级**：A/B 每路由桌面+移动；C 档 1 张桌面截图、免移动/parity。浏览器/MCP/截图不可用 → 前端项 `BLOCKED`/`UNVERIFIED`，不得口头放行；**接口 200、DOM 文本、class 名正确不能替代视觉完成证据**。单 HTML 原型须先解码 `data:`/base64 模块再核对（DEV-IQ-13），原始文本搜索无结果不能作为“原型无此页”的依据。 |
 | DEV-VER-08 | 报告先写中文回执结论（通过/部分通过/阻塞/未验证），再写完成内容；非“通过”禁用“完成/通过/已修复/正常”。 |
 | DEV-VER-09 | 读 `.gate/wf-development/completion.json` 前核对 `package=wf-development`、`mode`、`task_id`、`diff_hash`/`timestamp`；旧任务/其它包/空 diff = 未验证。review 步不读门回执，门统一在 「验证/门」 跑。 |
 | DEV-VER-10 | 免审不免自检：L0 纯文档核相对链接/未认领占位；代码或配置至少 L1，必须有本轮测试/冒烟/证据（定向或全仓，以 profile 为准）。多波次先选“每波独立评审+过门”或“只 S5 全量评审”，不得混用；选「只 S5」时前波不得宣称 G4/波门独立评审已过。自检须按 SC 对方案原文（含负面/边界），不得只测绿冒充条款覆盖。 |
@@ -98,7 +98,7 @@
 
 - 门自己跑关键检查并写 `completion.json`；不信任“已通过”文本。
 - 证据类型：命令+退出码、测试报告、Playwright trace/截图、console/network 日志、设计 QA、评审记录。
-- 前端证据与矩阵：按**当前步骤包内「前端硬门」**（含每路由桌面+移动截图、`evidence.json`、console/network、design-qa）；L2+ 另按该节计划覆盖项提供 `verify/templates/plan-coverage.md`。截图必须晚于本轮验收清单，否则视为旧证据。维护真源仍为 `rules/core/frontend-gate.md`。
+- 前端证据与矩阵：按**当前步骤包内「前端硬门」**与 `frontend-gate.md` §2.1 分档（A/B 每路由桌面+移动截图、`evidence.json`、console/network、design-qa、parity；C 档 1 张桌面截图、免 parity；L2+ 另按该节计划覆盖项提供 `verify/templates/plan-coverage.md`）。截图必须晚于本轮验收清单，否则视为旧证据。维护真源仍为 `rules/core/frontend-gate.md`。
 - **证据新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区），不能只比 `base_commit`；源码改动后必须重拍受影响路由并更新哈希。
 - **证据复用**：同一任务、同一源码 diff 的已通过证据可直接引用，不重复执行；代码变更后只重跑受影响集、重拍受影响路由；全量回归同一 diff 至多一次，再次全量须记录变更与理由。门禁实例的 `test`/`capture`/`e2e` 不得对同一路由重复全量执行。
 - 原始测试日志落 `.gate/logs/`（命令、起止、耗时、退出码、测试数）；对话只放 ≤30 行摘要；报告数字必须与本轮日志一致。
@@ -123,7 +123,7 @@
 
 > 前端分级、必产物与命令只认 `rules/core/frontend-gate.md` §2.1（A/B/C）与 §3；本节不另立第二套分档。
 
-- L1+ 前端必须过 `verify/tools/frontend_parity.py`（parity-matrix + route-coverage + 截图哈希/新鲜度）；未通过 = `BLOCKED`。
+- L1+ 前端 **A/B 档**必须过 `verify/tools/frontend_parity.py`（parity-matrix + route-coverage + 截图哈希/新鲜度）；**C 档免 parity**（1 张桌面截图 + console/network）。未过 = `BLOCKED`。
 - 设计合理性由 `verify/frontend/design-qa.md` 判断：L1 十五项（含 #3/#14/#20 交互诚实、#8/#9 视觉协调），L2+ 二十项 + 独立目检；不追求每页像素级 diff。
 - 产品设计不完整 → 先出 1 页前端设计说明（布局/层级/tokens/状态），确认后再写代码。
 

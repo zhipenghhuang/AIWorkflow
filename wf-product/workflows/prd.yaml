@@ -106,7 +106,7 @@ steps:
     when: scope_unconfirmed
   output: '{workroot}/{ver}/10-requirements/PRD-{主题}.md（模板 rules/templates/10-planning/prd-template.md）'
   notes: 本步任务：写可评审 PRD。前置：已确认计划或 `confirm_scope`；否则先一行范围确认。未定性新输入 → 先 `change` intake。硬门槛：理解门双确认后才落正式 PRD；F/R/AC 可追溯；写不出 AC=未定义完；完稿须【完稿自检摘要】+
-    `-Mode prd` 非 BLOCKED（P0 纯文案可跳结构门）。级别：P0/普通 P1 轻量；P1↑/P2+ 按门槛补齐。方法见 §6 `prd-writing`（可选 analytics）；模板见 §7；澄清/交接索引 `rules/core/clarification.md`
+    `-Mode prd` 非 BLOCKED（P0 纯文案可跳结构门）。级别：P0/普通 P1 轻量；P1↑/P2+ 按门槛补齐。方法见 §6 `prd-writing`（可选 analytics）；模板见 §7；澄清方法见 `rules/core/clarification.md`；交接见
     `rules/collaboration/handoff.md`。
 - name: 页面原型（条件）
   id: prototype

@@ -41,7 +41,7 @@
 - 仅由「下一步/当前状态/继续」入口触发。
 - 正常「产品计划」链到 publish 止，不执行本步。
 - 只读 `{workroot}/product-plan.md`：报备当前阶段、当前门、下一动作、需人工项。
-- 「按产品计划执行」= 按 路由到 plan prd deliver change 对应 step，执行到下一个 `hitl` 停止。
+- 「按产品计划执行」= 按 `{workroot}/product-plan.md` 路由到 plan/prd/deliver/change 对应 step，执行到下一个 `hitl` 停止。
 - 「下一步」只报动作与入口，不执行。
 - 「当前状态」只读，不重写计划。
 - 有未吸收的新文档/变化 → 先走 `change.intake`，不直接改 PRD/计划。
@@ -71,5 +71,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=next | agent=pm-lead | packet=rules/packets/plan/next.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=next | agent=pm-lead | packet=rules/packets/plan/next.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

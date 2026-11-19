@@ -8,7 +8,7 @@
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
 | L0 | 纯文档/文案/注释，无代码/配置/行为/契约/权限/数据变化 | `docs-links` + `docs-placeholders` | 链接/占位检查结果；空任务窗口 = NOT_VERIFIED |
-| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；每条变更路由桌面+移动截图、route-coverage.json、console/network |
+| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；前端按 `rules/core/frontend-gate.md` §2.1 分级：C 档 1 张桌面截图、免 parity，A/B 档按档取证（每条变更路由桌面+移动、route-coverage.json、console/network） |
 | L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、plan-coverage、`nfr.security`/`nfr.performance` |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
@@ -73,13 +73,13 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 
 ### 4.1 前端视觉验收（DEV-IQ-13/14/17，硬）
 
-- L1+ 前端页面必须提供：**每条变更/新增路由的桌面截图 + 移动截图**，并与现有同类页面/原型逐项对照（导航层级/文案、复用组件、列/区块/字段网格、状态/空态/交互/权限）。
+- L1+ 前端 **A/B 档**必须提供：**每条变更/新增路由的桌面截图 + 移动截图**，并与现有同类页面/原型逐项对照（导航层级/文案、复用组件、列/区块/字段网格、状态/空态/交互/权限）；**C 档 1 张桌面截图 + console/network、免 parity**（按 `frontend-gate.md` §2.1）。
 - **接口 200、DOM 有文字、class 名正确、测试绿，均不能替代视觉验收**。
 - 截图不可用/窗口不可见 → `UNVERIFIED`，不得写 `COMPLETE` 或“页面正确”。
 - 单 HTML 原型若将模块嵌入 `data:`/base64 importmap：先解码模块再判断页面是否存在；只搜原始 HTML 文本得出的“原型没有”结论无效（DEV-IQ-13）。
-- L1+ 必须另交 `.gate/frontend/parity-matrix.md` + `.gate/frontend/route-coverage.json`：
+- L1+ **A/B 档**必须另交 `.gate/frontend/parity-matrix.md` + `.gate/frontend/route-coverage.json`（C 档免 parity）：
   - 覆盖全部一级/二级菜单、深链、变更/新增路由；
-  - 每条路由桌面+移动截图，路径/哈希/时间可追溯；同一截图哈希不得跨路由复用；
+  - A/B 每条路由桌面+移动截图，路径/哈希/时间可追溯；同一截图哈希不得跨路由复用；
   - console error / failed request 为 0；菜单可见或可滚动到达；深链无 404；
   - 详情/表单类页面字段网格、日期/期间控件语义按原型核对，不得简化单列或生搬通用筛选。
 - **L2+ 证据必须由 capture 生成**（`frontend.capture`）：`evidence.json` 需含 `generator`、逐路由 `ready=true`、桌面/移动截图哈希；门用哈希对回 `route-coverage.json`。手写截图、骨架页截图、只跑 DOM 文本都不算。

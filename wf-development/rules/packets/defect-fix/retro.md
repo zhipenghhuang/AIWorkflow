@@ -78,5 +78,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=retro | agent=defect-fixer | packet=rules/packets/defect-fix/retro.md | global=ok | skills=retrospective-and-improvement|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=retro | agent=defect-fixer | packet=rules/packets/defect-fix/retro.md | global=ok | skills=retrospective-and-improvement=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -126,11 +126,14 @@ def main() -> int:
         wid = (data.get("workflow") or {}).get("id") or y.stem
         steps = [s for s in (data.get("steps") or []) if isinstance(s, dict) and "id" in s]
         ids = [s["id"] for s in steps]
+        entry_targets = {
+            str(v) for v in (data.get("entry_points") or {}).values() if v
+        }
         # unreachable: previous step jumps over it and nobody targets it
         for i, step in enumerate(steps):
             sid = step["id"]
             targeted = any(str(s.get("next") or "") == sid for s in steps)
-            if i == 0 or targeted:
+            if i == 0 or sid in entry_targets or targeted:
                 continue
             prev = steps[i - 1]
             if prev.get("next") and prev["next"] != sid:

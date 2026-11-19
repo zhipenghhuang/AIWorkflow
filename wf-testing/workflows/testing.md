@@ -12,8 +12,8 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_plan`、`confirm_exploratory_scope`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `review-plan` | 停在本步/升级 |
-| 2 | `review-plan` | `reviewer-agent` | `landing_doc_review_needed` | `select_review_mode`、`confirm_plan` | 评审-测试计划-*.md 或 HUMAN_APPROVED；计划可执行确认 | `execute` | 回 plan 修订分析/计划；未过不得 execute |
+| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_exploratory_scope`、`confirm_plan`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `review-plan` | 停在本步/升级 |
+| 2 | `review-plan` | `reviewer-agent` | `plan_doc_review_required` | `select_review_mode`、`confirm_plan` | 评审-测试计划-*.md 或 HUMAN_APPROVED；计划可执行确认 | `execute` | 回 plan 修订分析/计划；未过不得 execute |
 | 3 | `execute` | `test-orchestrator` | — | `confirm_execution_scope`、`gate:execute-batch` | 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态 | `report` | 停在本步/升级 |
 | 4 | `report` | `report-agent` | — | `gate:report-consistency` | {workroot}/{ver}/test-report.md + 【任务收尾】 | `closeout` | 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 closeout |
 | 5 | `closeout` | `report-agent` | — | `confirm_platform`、`confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

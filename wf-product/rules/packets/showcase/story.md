@@ -76,5 +76,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:showcase | step=story | agent=pm-lead | packet=rules/packets/showcase/story.md | global=ok | skills=demo-storytelling|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:showcase | step=story | agent=pm-lead | packet=rules/packets/showcase/story.md | global=ok | skills=demo-storytelling=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

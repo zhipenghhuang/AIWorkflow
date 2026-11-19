@@ -128,8 +128,8 @@ steps:
   hitl: confirm_backlog
   hitl_when: backlog_approval_required
   output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/）
-  notes: 只读不改代码；拆 SC 后自检 + validate_tasklist.py；写入 review_required。 IQ 词典见 `rules/core/implementation-quality.md`；L1 小批 notify，L2+
-    实质变化才 approve。
+  notes: 只读不改代码；拆 SC 后自检 + validate_tasklist.py；写入 review_required。 **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review；task_id
+    与 implement 的 `-StartTask` 同值）。 IQ 词典见 `rules/core/implementation-quality.md`；L1 小批 notify，L2+ 实质变化才 approve。
 - name: 实施
   id: implement
   skills:
@@ -175,6 +175,9 @@ steps:
   - rules/packets/change/verify.md
   when: work_changed_or_requested
   agent: verifier-agent
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
   gate: completion-gate
   gate_type: machine
   output: .gate/wf-development/completion.json + 验证回执

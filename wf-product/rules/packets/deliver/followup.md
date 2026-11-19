@@ -47,7 +47,7 @@
 - 收到开发提测/测试报告/澄清/变更包 → 先按 `handoff.receive` 核对+回执，再更新跟进记录。
 - 未回执不得把下游标为已接收。
 - 节奏：默认每周一次状态更新。
-- 关键依赖延期 >2 个工作日或 > 阶段工期 10% → 升级（计划 ），并同步。
+- 关键依赖延期 >2 个工作日或 > 阶段工期 10% → 升级（按 `{workroot}/product-plan.md`/§8 更新并同步）。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -77,5 +77,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:deliver | step=followup | agent=pm-lead | packet=rules/packets/deliver/followup.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:deliver | step=followup | agent=pm-lead | packet=rules/packets/deliver/followup.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

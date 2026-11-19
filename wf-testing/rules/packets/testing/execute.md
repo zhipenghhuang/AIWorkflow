@@ -31,7 +31,7 @@
 
 - **HITL `confirm_execution_scope`**：开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。
 - **条件判定 `hitl:scope_needs_confirm`**：非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化；满足→真，否则跳过该门。
-- **GATE `execute-batch` when=module_batch_complete**：本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 计划状态/联动 + **记录批次 ID ∈ 计划 §3.1 且该批意图跑齐** + 本批记录/证据/阻塞理由/**失败/待实现行失败详情块（含 surface；surface=ui 的失败须截图）**/**§0 分析索引 + 每场景实际/差异（三步序方法在步骤卡/技能）**/**§0 原文/对照与对账计数**/**§1.1 六类（接口 §2.1 适用维）有 SC/N/A+依据；UI/视觉禁弱 N/A（API 主断言/脚本/契约充数）**/INT∈§2.1 台账/**优先级取分析仅作 P0 记账**/**§3 结论回指场景**/意图终态/P0 证伪；原文锚点+可观测 Oracle。实现≠方案的偏差分型与证据在记录「实际/差异」（classification §0.5）。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。
+- **GATE `execute-batch` when=module_batch_complete**：本批意图终态齐后跑 `-Mode execute -Scope "{模块/域}"`：**硬判**环境/分析/计划结构 + 计划状态/联动 + **记录批次 ID ∈ 计划 §3.1 且该批意图跑齐** + 本批记录/证据/阻塞理由/**失败/待实现行失败详情块（含 surface；surface=ui 的失败须截图）**/**§0 分析索引 + 每场景实际/差异（三步序方法在步骤卡/技能）**/**§0 原文/对照与对账计数**/**§1.1 九项（六类+同源/入口空态/终态；接口 §2.1 适用维）有 SC/N/A+依据；UI/视觉禁弱 N/A（API 主断言/脚本/契约充数）**/INT∈§2.1 台账/**优先级取分析仅作 P0 记账**/**§3 结论回指场景**/意图终态/P0 证伪；原文锚点+可观测 Oracle。实现≠方案的偏差分型与证据在记录「实际/差异」（classification §0.5）。过程不完整 → FAIL/BLOCKED（禁下批）。过程完整且仅产品失败/P0 红 → CONDITIONAL（exit 0，可下批继续找缺陷，须入库）。PASS=本批过程与产品均干净。
 - **条件判定 `gate:module_batch_complete`**：本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据；P0 失败须有缺陷/解释（非「零红灯才推进」）；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -46,12 +46,14 @@
 
 ### 本步动作清单
 
-- 本步任务：按计划执行全部在范围 P0/P1/P2 意图与轨道（功能/接口/探索/发布前/回归）。**记录写法（硬）**：功能记录步骤=业务 UI；API/脚本/Network 只进「技术核对」列或失败卡接口判定；纯 API 场景归 `api/` 轨；通过行实际写可见事实，禁只写「符合」。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**门槛以机检为 SSOT**：批末跑 `-Mode execute -Scope "{模块/域}"`，按其输出逐条清零；包内与本闸冲突时以闸为准。**机检覆盖（包内不复述）**：原文对账与 §0 分析索引/每场景实际差异；§1.1 六类 SC（UI/视觉禁弱 N/A）；处置=测意图终态/P0 证据；INT∈分析 §2.1；接口 `api/` 记录+depth+维表；探索主责面有非空记录+功能化、功能主责面不重复；失败/待实现失败卡（含 surface；surface=ui 须截图）；缺口仅用户确认（Q19）。**人工必守（机检不覆盖）**：
+- 本步任务：按计划执行全部在范围 P0/P1/P2 意图与轨道（功能/接口/探索/发布前/回归）。**记录写法（硬）**：功能记录步骤=业务 UI；API/脚本/Network 只进「技术核对」列或失败卡接口判定；纯 API 场景归 `api/` 轨；通过行实际写可见事实，禁只写「符合」。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**门槛以机检为 SSOT**：批末跑 `-Mode execute -Scope "{模块/域}"`，按其输出逐条清零；包内与本闸冲突时以闸为准。**机检覆盖（包内不复述）**：原文对账与 §0 分析索引/每场景实际差异；§1.1 九项（六类+同源/入口空态/终态）SC（UI/视觉禁弱 N/A）；处置=测意图终态/P0 证据；INT∈分析 §2.1；失败/待实现失败卡（含 surface；surface=ui 须截图）。**人工必守（机检不覆盖）**：
   - ① 记录步骤写业务 UI，API/Network 只进「技术核对」。
   - ② 命中页面·路由·控件·布局·导出时 UI 面须 ≥1 条浏览器实点（E1），无面对才写事实句。
   - ③ 缺数据/账号/入口先自助造数/换样/换角（有界），阻塞摘要须卡点+已尝试+恢复条件，专用负向无配方不得标通过。
   - ④ 深度与 Oracle 按 `testcase-design` §3/§3.1（禁浅打勾、禁删负向 Q9、禁主题句撑 P0）。
-  - ⑤ 批末更新计划 §0/§6、失败进缺陷、对人进度（global-rules §8）。
+  - ⑤ 探索主责面批末自查：主责=探索面有非空记录+功能化，功能主责面不重复；空壳/缺功能化在报告门 FAIL。
+  - ⑥ 接口 `api/` 记录、depth、维表与缺口 N/A 批末自查（缺口仅用户确认，Q19）；报告门复核。
+  - ⑦ 批末更新计划 §0/§6、失败进缺陷、对人进度（global-rules §8）。
 
 ### 本步规则卡：计划驱动执行编排（本步门槛）
 
@@ -94,7 +96,7 @@
 - **填写模板（按轨）**：功能/探索 → `rules/templates/20-test-cases/test-case-template.md`；接口 → `rules/templates/20-test-cases/api-test-case-template.md`；发布前 → 本轨专项方案/报告。只读本轨用到的节，禁整文件通读；禁混用模板。
 - **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/20-test-cases/api-test-case-template.md`；`rules/templates/20-test-cases/exploratory-case-template.md`；`rules/templates/20-test-cases/random-flow-case-template.md`；`rules/templates/20-test-cases/a11y-ux-checklist.md`；`rules/templates/30-execution/stable-smoke-checklist-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 
@@ -107,5 +109,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:testing | step=execute | agent=test-orchestrator | packet=rules/packets/testing/execute.md | global=ok | skills=testcase-design,test-execution-and-exploration,test-data-and-environment|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=execute | agent=test-orchestrator | packet=rules/packets/testing/execute.md | global=ok | skills=testcase-design=done|na,test-execution-and-exploration=done|na,test-data-and-environment=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

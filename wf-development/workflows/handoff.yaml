@@ -14,7 +14,7 @@ entry_points:
   同步变更: change_receive
   重规划: replan
 trigger:
-- 写交接单 / 生成交接包 / 接收交接包 / 交接状态
+- 写交接单 / 生成交接包 / 接收交接包
 - 变更通知 / 同步变更 / 重规划
 steps:
 - name: 写交接单文档
@@ -57,7 +57,7 @@ steps:
   - name: confirm_plan
     when: plan_needs_confirm
   output: 入站分析/吸收 + 接收回执（按需）+ 开发计划/文档更新 + 台账状态
-  notes: '**硬**：打开→T1～T9 分析→A0～A2 吸收→同步；禁止只投放。`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。 单文档/任意夹：直接读；标准包：00→01→02→03。 定位：多包同仓
+  notes: '**硬**：打开→按文档治理做覆盖/冲突分析→按需吸收→同步；禁止只投放。`inbound/` 为原件、`handoff/inbound/` 为收件工作副本。 单文档/任意夹：直接读；标准包：00→01→02→03。 定位：多包同仓
     → 直读对方 `…/handoff/outbound/…`，不强制拷入站；仓外 → 主副本原件根 `inbound/` + 工作副本 `{workroot}/handoff/inbound/{类别}/`（内容分类；非 HO 亦收）。 核对/吸收后按类型更新基线/计划；正式签收才回执三选一。更新台账（已吸收/已接收等）、计划、索引、activeContext。'
 - name: 发送变更通知
   id: change_send

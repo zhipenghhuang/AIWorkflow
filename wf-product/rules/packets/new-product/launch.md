@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:new-product | step=launch | agent=pm-lead | packet=rules/packets/new-product/launch.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:new-product | step=launch | agent=pm-lead | packet=rules/packets/new-product/launch.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

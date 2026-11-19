@@ -44,7 +44,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `20-design/design-review-template.md` | prototype.review | 12 项评分卡 |
-| `20-design/prototype-coverage.md` | prototype.review / prd.prototype | PRD F/A/AC → 页面/路由/状态/交互/字段 → 截图证据矩阵 |
+| `20-design/prototype-coverage.md` | prototype.review | PRD F/A/AC → 页面/路由/状态/交互/字段 → 截图证据矩阵 |
 | `20-design/prototype-spec-template.md` | prototype.context / wireframe | 小项目可合并单文件 |
 | `20-design/dev-handoff-template.md` | prototype.handoff | 设计意图/必须保留/可优化/未提供/验收对照 |
 | `20-design/prototype-engineering-checklist-template.md` | prototype.engineering | 路由/状态/响应式/a11y/打印 |
@@ -56,7 +56,7 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `30-review-change/review-record-template.md` | prd.review / change.review | 独立评审记录 |
-| `30-review-change/intake-disposition-template.md` | change.intake / defect.pull | 受理单/分诊/影响/联动/验证 |
+| `30-review-change/intake-disposition-template.md` | change.intake / defect.pull / change.verify | 受理单/分诊/影响/联动/验证 |
 | `30-review-change/change-request-template.md` | change.assess / decide | 改动已定稿基线时（含 §2.1 Now→Proposed 差量表） |
 | `30-review-change/product-defect-disposition-template.md` | defect.apply | 产品缺陷处置单 |
 | `30-review-change/defect-writeup-template.md` | defect.writeback / 缺陷处置 | 平台备注/附件/状态/指派文案骨架 |
@@ -92,7 +92,7 @@
 | --- | --- | --- |
 | `90-handoff/closeout-skeleton.md` | closeout / 工作流末步 / 工作总结口令 | 【任务收尾】/【今日工作总结】固定骨架；工作总结须围栏外 `范围：from～to` + 读/写 activeContext 本包锚点 |
 | `90-handoff/handoff-note-template.md` | **handoff.compose（默认）** | **择优写法**（五问→A/B/C/D）；非填空卷；禁整表套用、禁外印元数据 |
-| `90-handoff/handoff-package-brief-template.md` | handoff.send（仅升包） / prd.handoff / prototype.handoff | `{workroot}/handoff/outbound/{category}/{HO-ID}/00-交接说明.md` |
+| `90-handoff/handoff-package-brief-template.md` | handoff.send（仅升包） | `{workroot}/handoff/outbound/{category}/{HO-ID}/00-交接说明.md` |
 | `90-handoff/handoff-checklist-template.md` | handoff.send | `01-交接清单.md`（包内文件/版本/必读） |
 | `90-handoff/receipt-template.md` | handoff.receive / 签收 | `04-回执/接收回执.md`（接受/有条件/退回） |
 | `90-handoff/handoff-ledger-template.md` | 交接初始化 / 状态只读 | `{workroot}/handoff/handoff-ledger.md`（唯一登记） |

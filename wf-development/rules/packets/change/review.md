@@ -68,7 +68,7 @@
 
 | # | 产物 | 要求 |
 | ---: | --- | --- |
-| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选。SPA 原型按 §3-1b 解码；矩阵只引解码结果。**无原型**：按方案＋设计系统＋同模块基线页写设计基线（规格/状态矩阵），矩阵对照。 |
+| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID（完整链）；solo 链改引方案卡 §0.1/§1；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选。SPA 原型按 §3-1b 解码；矩阵只引解码结果。**无原型**：按方案＋设计系统＋同模块基线页写设计基线（规格/状态矩阵），矩阵对照。 |
 | 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
 | 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
@@ -78,7 +78,7 @@
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 >
-> **降级**：capture 降级记 `degraded`，不得完成；S5前补。
+> **降级**：capture 降级记 `degraded`，不得完成；评审/完成门前补。
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
@@ -86,7 +86,7 @@
 
 | 级别 | 适用 | 必产物 |
 | --- | --- | --- |
-| **A 关键** | S1/崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + 独立评审 |
+| **A 关键** | 崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + 独立评审 |
 | **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network |
 | **C 轻量** | 纯文案/列名/单位/排序/灰显/颜色等呈现调整，无行为变化 | **受影响路由 1 张桌面截图** + 文案/状态核对表（可并入 design-qa）+ console error=0；不要求移动截图与 parity-matrix |
 
@@ -123,7 +123,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - `operations` 逐项点通（入口→点击→结果/权限/错误）；静态图不算。
 - 写接口须有页面入口或已确认 `non-ui`；接口替代页面=未完成。
 - 正式入口禁用固定样例（demo 关）；缺数据显示空态。
-- **附条件不覆盖前端门**：S5/评审的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
+- **附条件不覆盖前端门**：评审/完成门的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
 - **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜。**顺序**：代码/测试/脚本定稿→重拍→回写→提交→过门；改脚本/测试同重拍。
 - **组件复用（硬）**：新增/改页面前先盘点项目既有组件（`ui.js`/设计系统）与至少 1 个相邻页面；日期区间、筛选、弹窗、状态戳等优先复用既有组件与交互；原生控件仅在无既有组件时使用；自造须在 parity-matrix/design-qa 写理由。
 - **共享模块单例（硬 · DEV-IQ-19）**：带模块级可变状态的共享 JS（store、确认/弹窗 Promise、会话权限等）须单一入口；禁止多 chunk 各写不同 `./xxx.js?v=`。改文件或 bump 戳 → 改入口真源并核对引用；有项目 token 自检须跑过。确认后无请求/偶发丢权限 → 先查是否双例加载。
@@ -177,5 +177,5 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 ## 9. 回执
 
 ```text
-route=workflow:change | step=review | agent=reviewer-agent | packet=rules/packets/change/review.md | global=ok | skills=code-review,engineering-quality|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=review | agent=reviewer-agent | packet=rules/packets/change/review.md | global=ok | skills=code-review=done|na,engineering-quality=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -61,5 +61,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:skill-audit | step=fit | agent=onboard-agent | packet=rules/packets/skill-audit/fit.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:skill-audit | step=fit | agent=onboard-agent | packet=rules/packets/skill-audit/fit.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

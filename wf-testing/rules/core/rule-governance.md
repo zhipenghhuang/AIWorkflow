@@ -46,7 +46,7 @@
   → Q4 完全未覆盖？ → 才新开：优先扩现有 owner；须单一职责、预算内、有载体、有降级；并删除被替代正文
 ```
 
-- workflow step `notes`：**≤3 行指针**；方法进 skills / must_read / special 当前节；禁止 notes 复述门/准出口径全文。
+- workflow step `notes`：只写本步差异/阈值/失败去向（≤12 行）；方法进 skills / must_read / special 当前节；门与准出口径只认 `gates.md`/verify，禁复述全文。
 - 能力体检方法：`rules/special/skill-audit.md`（仅 skill-audit 链点名读）。
 
 ## 2.1 自适应规则写法（防过拟合）

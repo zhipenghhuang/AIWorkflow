@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=capabilities | agent=onboard-agent | packet=rules/packets/onboard/capabilities.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=capabilities | agent=onboard-agent | packet=rules/packets/onboard/capabilities.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

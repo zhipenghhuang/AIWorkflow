@@ -80,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=compose | agent=iterate-lead | packet=rules/packets/handoff/compose.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=compose | agent=iterate-lead | packet=rules/packets/handoff/compose.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

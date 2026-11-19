@@ -73,5 +73,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=assess_product | agent=defect-fixer | packet=rules/packets/defect-fix/assess_product.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=assess_product | agent=defect-fixer | packet=rules/packets/defect-fix/assess_product.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

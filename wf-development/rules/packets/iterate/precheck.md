@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:iterate | step=precheck | agent=iterate-lead | packet=rules/packets/iterate/precheck.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:iterate | step=precheck | agent=iterate-lead | packet=rules/packets/iterate/precheck.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

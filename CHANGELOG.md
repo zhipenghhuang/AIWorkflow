@@ -7,10 +7,10 @@
 
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
-| 产品规范 | `2026.11.18.03` | 边界与滥用口径 | PRD 异常/边界补文件、数值、日期、回执；导出不可执行入 NFR |
-| 开发规范 | `2026.11.19.06` | 一次完善与方案对账 | 禁告警挂债冒充 P0；self_review 不过正式门；方案原文节对账 |
-| 测试规范 | `2026.11.19.05` | 落地文档独立评审 | 分析+计划 `review-plan` + `test-doc-review` |
-| 母版仓 | `2026.11.19.06` | 取三包最高 | 同分齐升 |
+| 产品规范 | `2026.11.19.09` | 架构/链路复核 | 缺陷关闭链、计划出口、原型回程、子链门、when_eval |
+| 开发规范 | `2026.11.19.09` | 缺陷现行口径闸 + 架构复核 | triage 真缺陷对账；提交门序/L2+ 验收/前端 C 档 |
+| 测试规范 | `2026.11.19.09` | 报告门与评审入口复核 | 证据链接扫描、评审入口 token、§2.4/执行记录口径 |
+| 母版仓 | `2026.11.19.09` | 取三包最高 | 同分齐升 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
 
@@ -20,7 +20,10 @@
 
 | 迭代 | 主要变化 |
 | --- | --- |
-| 开发规范 `2026.11.19.06` | 就地补强（不新开流程）：① DEV-IQ-05/§6：P0 禁告警/拒单/挂债冒充闭合；fail-closed≠条款交付；② DEV-IQ-22/iq-checklist：方案原文节对账、一次完善为主；③ DEV-VER-06/10：`self_review` 不作波门/G5/完成门证据；④ plan/implement 卡与 code-review/task-breakdown/自测反合理化同步；⑤ 规则 eval 42～45。 |
+| 三包 `2026.11.19.09` | 架构/链路复核补强（不改分层）：① 产品缺陷 verify→平台关闭回写补 `close_platform` 条件步；计划 publish→closeout（`next` 仅入口）；原型 handoff 子链回 `review`/独立 `closeout` 双出口入卡与链图；new-product 子链完成以子链门为准；② 开发提交门移到 verify/gates/test（代码/产物先确认后过门，closeout 只提文档）；change/iterate plan 落 `.gate/acceptance.yaml` 并与 StartTask 同 task_id；solo 门不再依赖 StartTask；preflight 无平台按 routing 判 solo/change；前端 C 档免 parity/移动证据；release NO-GO 不写发版史；③ 测试报告标记扫描跳过证据链接、review-plan 入口改用不翻转 token、execute depth/Q19 归人工、执行记录失败行查缺陷号；④ 跨包 `when_eval` 入收尾骨架与机检、`chain: full` 语义澄清、交接目录占位符/ID 格式、旧字段句清理。 |
+| 开发规范 `2026.11.19.09` | 缺陷 triage 现行口径对账（就地补强，无新流程）：① `fix-collaboration` §4.0#8 真缺陷闸——应然只认现行产品原件/已确认结论，旧版与开发自写方案不作 Oracle；现网符合现行且预期过时→`by_design`，不符现行→按现行修；② 分类表依据须含现行出处；fix 中发现过时回 triage；③ agent/YAML/回写模板/评估单短指针；规则 eval #46。 |
+| 三包 `2026.11.19.08` | materials 发布可执行补强（不改定位/无新流程）：① 边界钉死——材料包=现行完整快照≠编年史；短入口=`project-guide`；② 完整包口令→域 00-07，仅补本包域须标「非完整」；③ `sync` 硬要求复制后改写包内相对路径／补拷，未改写不得进 `index`；④ 完整包 overview 硬项（`project-guide`+阅读顺序，冲突须效力说明）；⑤ `materials-validate`/三包门表对齐缺失三分类与 overview 硬项；⑥ `project-profile` 模板与 README 指回 §2.2/§5.2。`check_lean` 绿。 |
+| 三包 `2026.11.19.07` | 全量语义校正与执行链补强（不改架构）：① 三包收尾卡六点标题/子字段对齐 closeout-skeleton 与 `check_compliance`；② 三包交接目录命名单源（目录中文/category id 英文）；③ 产品：缺陷回写三字段+产物、原型子链回程、onboard 回退步、P1↑ 评审口径、生成器残句；④ 开发：缺陷路由交叉口径、solo L2+ `.gate/acceptance.yaml`、StartTask 入实施卡与提交/过门顺序、release NO-GO 记录、materials 外发边界、回执字段；⑤ 测试：报告 suite/内部标识口径、探索门单源与四行固定、报告 §2.4/§2.2 机检（自测 60/60）、execute 机检声明校正、计划表结构；⑥ 跨包：activeContext 机读 status/next、收尾自检字段单源、读取预算单源、生成器重复函数清理。 |
 | 开发规范 `2026.11.19.04` | 落地文档独立评审（并入 A/B，不平行造门）：① `design-doc-review` 强制开发计划/solo L2+ 测试计划；控制面与 solo 量规；② `control.review-plan`（`doc-reviewer`）— 通过后计划才「已确认」；`run` 前置未审不切包；③ `solo.test_plan` 条件挂评审；`gates`/`AGENTS` 口令对齐。任务清单仍可选。 |
 | 测试规范 `2026.11.19.05` | 落地文档独立评审：① 新技能 `test-doc-review`；② `testing.review-plan`（A/B + `confirm_plan`）；lite/T0 可跳过；③ `plan` 只留 lite 确认；覆盖闸与「可执行」解耦；④ roles/`reviewer-agent` 分轨计划审与执行复核。 |
 | 开发规范 `2026.11.19.02` | 鉴权缺省与安全债门禁（就地补强，无新流程/文件）：① `threat-modeling` S2/§3：未显式授权默认拒绝；兼容「空=全开」须 ADR/OPEN+确认，禁埋大包签认；空配置负例进测试；② DEV-IQ-05/兼容过渡层：空配置不得归一全开；安全语义债提测前关闭或书面接受，禁只挂开账前；③ 跨层/后端/工程质量/API/方案设计/评审同句落地；④ 提测技能与提测单模板：该类债未关闭且无接受人 → 不可提测；⑤ 规则 eval 增 40～41。 |

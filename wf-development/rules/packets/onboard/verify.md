@@ -67,5 +67,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:onboard | step=verify | agent=onboard-agent | packet=rules/packets/onboard/verify.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:onboard | step=verify | agent=onboard-agent | packet=rules/packets/onboard/verify.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

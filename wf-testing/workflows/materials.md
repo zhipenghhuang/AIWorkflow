@@ -12,7 +12,7 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `select` | `test-orchestrator` | — | — | 【材料库发布范围】版本/受众/域/包含/排除 | `sync` | 停在本步/升级 |
+| 1 | `select` | `test-orchestrator` | — | `confirm_materials` | 【材料库发布范围】版本/受众/域/包含/排除 | `sync` | 停在本步/升级 |
 | 2 | `sync` | `test-orchestrator` | — | — | docs/materials/{ver}/（00-overview～07-appendix，按需） | `index` | 停在本步/升级 |
 | 3 | `index` | `test-orchestrator` | — | `gate:materials-validate` | docs/materials/{ver}/README.md + docs/materials/INDEX.md + 【材料库校验】通过/待补 | `closeout` | 停在本步/升级 |
 | 4 | `closeout` | `test-orchestrator` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

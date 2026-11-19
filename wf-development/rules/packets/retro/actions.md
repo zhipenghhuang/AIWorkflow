@@ -77,5 +77,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:retro | step=actions | agent=delivery-lead | packet=rules/packets/retro/actions.md | global=ok | skills=retrospective-and-improvement|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:retro | step=actions | agent=delivery-lead | packet=rules/packets/retro/actions.md | global=ok | skills=retrospective-and-improvement=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

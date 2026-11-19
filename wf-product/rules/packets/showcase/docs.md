@@ -85,5 +85,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:showcase | step=docs | agent=prd-writer | packet=rules/packets/showcase/docs.md | global=ok | skills=product-docs|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:showcase | step=docs | agent=prd-writer | packet=rules/packets/showcase/docs.md | global=ok | skills=product-docs=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

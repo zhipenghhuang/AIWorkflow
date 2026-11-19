@@ -9,7 +9,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| 交接 ID | `{HO-yyyyMMdd-NN-类型-发起方2接收方}` |
+| 交接 ID | `HO-yyyyMMdd-NN-TYPE-FROM2TO`（TYPE=REQ/DES/PLAN/QA/REL/CHG/UAT/BUG/FIX/CLAR/RETRO/DEC/OTHER；FROM/TO=PRD/DEV/QA/ALL） |
 | 类型 | `{REQ/DES/PLAN/QA/TEST/BUG/FIX/REL/UAT/CHG/CLAR/DEC/RISK/RETRO}` |
 | 发起方 → 接收方 | `{…} → {…}` |
 | 生成日期 | `{yyyy-MM-dd HH:mm}` |

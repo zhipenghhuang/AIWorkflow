@@ -84,5 +84,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=acceptance | agent=delivery-lead | packet=rules/packets/release/acceptance.md | global=ok | skills=acceptance-and-launch|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=acceptance | agent=delivery-lead | packet=rules/packets/release/acceptance.md | global=ok | skills=acceptance-and-launch=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

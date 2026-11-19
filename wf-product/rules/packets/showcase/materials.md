@@ -81,5 +81,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:showcase | step=materials | agent=ux-designer | packet=rules/packets/showcase/materials.md | global=ok | skills=presentation-design|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:showcase | step=materials | agent=ux-designer | packet=rules/packets/showcase/materials.md | global=ok | skills=presentation-design=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

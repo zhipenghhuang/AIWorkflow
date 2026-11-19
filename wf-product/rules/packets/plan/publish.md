@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/plan/publish.md`
 - **角色**：`pm-lead`（交付编排与变更处置（排期/跟进/受理/变更/缺陷平台/UAT/发布/复盘/展示））。统一受理需求与问题 → 分诊定性 → 影响评估 → 处置确认 → 联动更新 → 验证关闭；平台缺陷可拉取、分析并回写；本步只做该角色职责；越界交回或升级。
 - **上游**：`review-plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`next`
+- **后续**：`closeout`
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 
 ## 2. 本步目标
@@ -101,5 +101,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=publish | agent=pm-lead | packet=rules/packets/plan/publish.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=publish | agent=pm-lead | packet=rules/packets/plan/publish.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

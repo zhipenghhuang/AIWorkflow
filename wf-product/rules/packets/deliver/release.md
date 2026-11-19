@@ -121,5 +121,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:deliver | step=release | agent=pm-lead | packet=rules/packets/deliver/release.md | global=ok | skills=uat-and-retrospective|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:deliver | step=release | agent=pm-lead | packet=rules/packets/deliver/release.md | global=ok | skills=uat-and-retrospective=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

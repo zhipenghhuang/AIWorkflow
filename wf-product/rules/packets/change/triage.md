@@ -73,5 +73,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=triage | agent=pm-lead | packet=rules/packets/change/triage.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=triage | agent=pm-lead | packet=rules/packets/change/triage.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

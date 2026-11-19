@@ -10,12 +10,11 @@
 - **上游**：`postrelease`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`retro`（进 `retro` 前的 `when=incident_or_major_release`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
-- **条件判定 `when:has_deployed`**：本轮部署步骤已成功执行；满足→真，否则跳过本步（不打开本包）。
 
 ## 2. 本步目标
 
 - **目标**：发布记录
-- **产出**：发布汇报/发布记录（{workroot}/60-release/）
+- **产出**：发布记录（{workroot}/60-release/；已发布 / NO-GO / 回滚 三态）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -42,8 +41,12 @@
 ### 本步动作清单
 
 - 技能见 §6 `acceptance-and-launch`（收尾/记录）。
+- 本步**无条件执行**：按实际记录 已发布 NO-GO 回滚 三态。
+- 未部署写「未发布 + 原因 + 下一步」，不得写“已发布”。
 - 汇总：版本/构建、发布内容、实际步骤、验证结果、观察结论、遗留项、回滚（如有）。
-- readiness=NO-GO 时记录 NO-GO 原因与下一步，不得写“已发布”。
+- readiness=NO-GO 时记录 NO-GO 原因与下一步。
+- **三态分支**：已发布/回滚才写根 `CHANGELOG` 与工作日志=`发版`。
+- NO-GO 只写发布记录+`INDEX`/`activeContext`，不写发版史。
 - 更新 `{workroot}/60-release/发布说明-{版本}.md`、`发布记录-{版本}.md`、根 `CHANGELOG.md`、`{workroot}/INDEX.md`、`activeContext.md`。
 - 根 CHANGELOG：产品发版史（版本/日期 + 用户可见能力/破坏性/迁移·兼容/安全；产品语言；禁验证命令/接入/文档治理/过程项——验证写发布记录）。
 - **多包输入**：优先产品对外变化摘要（工作日志「发布决策」/产品发布说明/范围差量）。
@@ -106,5 +109,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=record | agent=delivery-lead | packet=rules/packets/release/record.md | global=ok | skills=acceptance-and-launch|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=record | agent=delivery-lead | packet=rules/packets/release/record.md | global=ok | skills=acceptance-and-launch=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

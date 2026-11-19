@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
+- 本步不设独立门：以子链门回执为准；子链未 `ALLOWED` 不得写完成。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -41,7 +41,7 @@
 
 ### 本步动作清单
 
-- **子链**：按 `prd.prd` → prototype（如需界面）→ review 逐步执行（只读当前 step 块）。
+- **子链**：按 `prd` 子链的 prd → prototype（如需界面）→ review 逐步执行（只读当前 step 块）。
 - 不执行其 closeout。
 - **门权威在子链**：理解门/定稿门以 prd.yaml hitl 为准。
 - 本步不重复弹门。
@@ -77,11 +77,11 @@
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
 - §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
-- 本步无完成 Claim 门：产出落盘且本步门已过（或 `na`）即可退出；`claim=na`。
+- 本步不设独立 Claim 门：以子链门回执为准；子链有 Claim 门时须 `CLAIM: ALLOWED`，不得以 `claim=na` 写完成。
 - 失败：停在本步补齐或升级；不得静默跳过。
 
 ## 9. 回执
 
 ```text
-route=workflow:new-product | step=prd | agent=prd-writer | packet=rules/packets/new-product/prd.md | global=ok | skills=prd-writing,review-and-finalize,prototype-and-interaction,ui-visual-design-system|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:new-product | step=prd | agent=prd-writer | packet=rules/packets/new-product/prd.md | global=ok | skills=prd-writing=done|na,review-and-finalize=done|na,prototype-and-interaction=done|na,ui-visual-design-system=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

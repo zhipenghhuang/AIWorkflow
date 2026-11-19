@@ -18,7 +18,7 @@
 | PRODUCT-VER-07 | 报告先写中文回执结论（可定稿/草稿/阻塞）；非“可定稿”禁用“已定稿/评审通过/可发布”。 |
 | PRODUCT-VER-08 | 机器查结构/追溯/证据/回执；人判断价值/优先级/设计质量；两者都不可省。 |
 | PRODUCT-VER-09 | 作者侧闭环：写 PRD 收尾必须落【完稿自检摘要】（非目标/假设/GAP/AC 抽验/权限或资金面/评分/结构门路径）；无摘要不得宣称定稿或交开发。 |
-| PRODUCT-VER-10 | P1↑（elevated）：命中权限/资金/隐私/不可逆数据/主数据规则 → 作者自检与 `-Mode prd` 按 P2，可免独立评审但不得用「普通 P1 light」跳过结构与摘要。 |
+| PRODUCT-VER-10 | P1↑（elevated）：命中权限/资金/隐私/不可逆数据/主数据规则 → 作者自检与 `-Mode prd` 按 P2；**评审默认 B（AI 独立评审），选 A 须用户明确 + 独立复核**；不得用「普通 P1 light」跳过结构与摘要。 |
 
 ## 2. 完成状态
 
@@ -30,7 +30,7 @@
 
 > 中文回执映射：可定稿=READY｜草稿=DRAFT｜阻塞=BLOCKED；无门产物写“结论=不适用（verification=not_applicable）”。报告写中文，机器对账仍读 JSON 英文值。
 
-**定稿顺序（作者侧始终）**：落盘 →【完稿自检摘要】→ `-Mode prd`（`.gate/wf-product/prd.json`）→ 选 A/B。**选 B**：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。**选 A**：回填 `review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY → 可 `confirm_prd`。轻量/P1↑：`prd_level=light` 可免独立审，P1↑ 自检按 P2。回执目录 `.gate/wf-product/{mode}.json`。
+**定稿顺序（作者侧始终）**：落盘 →【完稿自检摘要】→ `-Mode prd`（`.gate/wf-product/prd.json`）→ 选 A/B。**选 B**：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。**选 A**：回填 `review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY → 可 `confirm_prd`。轻量（P0/普通 P1）：`prd_level=light` 可作者自检；P1↑ 自检按 P2 + 评审默认 B（选 A 须用户明确 + 独立复核）。回执目录 `.gate/wf-product/{mode}.json`。
 
 ## 3. 分档验证
 
@@ -38,7 +38,7 @@
 | --- | --- |
 | P0 文案/配置 | 压缩摘要 + TBD/留痕；结构门可选 |
 | P1 普通小功能 | 轻量节 +【完稿自检摘要】；交开发前 `-Mode prd` 非 BLOCKED；可不独立审 |
-| **P1↑** | 作者自检=P2（权限/规则/异常/AC）+ 摘要 + `-Mode prd` 必跑；独立审可选 |
+| **P1↑** | 作者自检=P2（权限/规则/异常/AC）+ 摘要 + `-Mode prd` 必跑；评审默认 B（选 A 须用户明确 + 独立复核） |
 | P2 功能/版本 | 完整 PRD + 摘要 + `-Mode prd` + 必问 A/B（选 B 则独立审+gate_id）+ 追溯；UAT 按发布 |
 | P3 0→1/战略 | P2 + 立项/计划门 + 用户签收 + 发布决策 |
 
@@ -56,5 +56,5 @@
 
 - 不新增 PRD/评审/UAT 文档；门读现有产物。
 - 全量 PRD 结构检查用 `validate_prd.py`；轻量 PRD 走 `prd_level=light` 最小校验；语义/独立性/闭合用轻量脚本。
-- P0/普通 P1 轻量；P1↑/P2+ 结构门硬；独立评审仍按 A/B（P2+ 必问）。
+- P0/普通 P1 轻量；P1↑/P2+ 结构门硬；评审按 A/B：P1↑ 默认 B（选 A 须用户明确 + 独立复核），P2+ 必问。
 - 人只看价值/取舍/设计质量；机器查结构/证据/回执；作者摘要防「自检空转」。

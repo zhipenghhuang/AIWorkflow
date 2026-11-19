@@ -28,7 +28,7 @@
 ```text
 【任务收尾】
 【验证回执】结论={…} | 校验={…} | 检查={…}/{…} | 未验证={…}
-【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | deviation={…} | exec_mode={…} | pg={…} | econ={…}
+【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | when_eval={假:<依据>|无} | deviation={…} | exec_mode={…} | pg={…} | econ={…}
 
 汇报（可直接复制）：
 **{短名}**（{结论态}，通过率：{P%}，{通过}/{总数}，败{a}/阻{b}/待实现{c}）：{覆盖；主链路；失败/阻塞影响；未测不得写「无阻断」}

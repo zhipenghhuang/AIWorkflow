@@ -84,5 +84,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prd | step=prioritize | agent=pm-analyst | packet=rules/packets/prd/prioritize.md | global=ok | skills=requirement-discovery-and-prioritization|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=prioritize | agent=pm-analyst | packet=rules/packets/prd/prioritize.md | global=ok | skills=requirement-discovery-and-prioritization=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

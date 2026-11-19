@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **GATE `change-closure`**：运行 `verify/Invoke-Gate.ps1 -Mode change`；§6 每项“已更新/不适用/待补”，待补有责任人/截止；未闭合不得关闭
+- **GATE `change-closure`**：运行 `verify/Invoke-Gate.ps1 -Mode change`；受理单/变更单 **§6 联动表**逐项“已更新/不适用/待补”，待补有责任人/截止；单内 **§7** 写验证结果；未闭合不得关闭
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -41,6 +41,7 @@
 
 ### 本步动作清单
 
+- 按模板 §6 联动表逐项标 已更新/不适用/待补，单内 §7 写验证结果（通过/不通过/待验证/不适用）。
 - Invoke-Gate -Mode change。
 - 未 READY 不得 closeout 冒充完成。
 - 回执未收不得称已接收。
@@ -61,12 +62,14 @@
 
 ## 7. 模板与证据
 
-- **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
+- **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/30-review-change/intake-disposition-template.md`。
+- **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 
 - §2 产出已落盘；§6 必开技能已实读执行（或条件 `na`）。
+- §2 产出已按模板必填节落地；无空节、无未替换占位符。
 - 本步 hitl 已确认，或 when 条件跳过。
 - 本步完成 Claim 门：须 `CLAIM: ALLOWED` 后才可写完成态。
 - 失败：停在本步补齐或升级；不得静默跳过。
@@ -74,5 +77,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=verify | agent=pm-lead | packet=rules/packets/change/verify.md | global=ok | skills=change-management|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=verify | agent=pm-lead | packet=rules/packets/change/verify.md | global=ok | skills=change-management=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

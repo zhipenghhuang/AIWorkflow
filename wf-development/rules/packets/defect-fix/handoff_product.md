@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_remark`**：出示 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」
+- **HITL `confirm_remark`**：出示回写备注模板 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -75,5 +75,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=handoff_product | agent=defect-fixer | packet=rules/packets/defect-fix/handoff_product.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=handoff_product | agent=defect-fixer | packet=rules/packets/defect-fix/handoff_product.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -80,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=retro | agent=delivery-lead | packet=rules/packets/release/retro.md | global=ok | skills=retrospective-and-improvement|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=retro | agent=delivery-lead | packet=rules/packets/release/retro.md | global=ok | skills=retrospective-and-improvement=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

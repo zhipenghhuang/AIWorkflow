@@ -28,7 +28,8 @@
 
 ## 4. 本步门
 
-- 本步无额外 hitl/gate；仍遵守开局意图确认与完成口径。
+- **HITL `confirm_materials`**：资料库/整包导出/发布说明等对外发送、承诺或发布前 → 出示范围/受众/数字与截图一致；确认后发送；仅内部入库不触发。
+- **条件判定 `hitl:materials_for_external`**：材料/文档将对外发送、承诺或发布；满足→真，否则跳过该门。
 - **推进**：本流程为 `chain: full`；本步完成后进入下一未跳过步，直至 closeout。
 
 ## 5. 本步动作
@@ -43,10 +44,12 @@
 - 缺则问一次，不硬造。
 - 默认只收定稿、正确、完整、可独立阅读的文档。
 - 草稿/过程/证据/密钥/PII/未授权第三方文档不进库。
-- 域默认：`05-testing`。
+- **完整项目材料包**（发资料／完整／可发送等）→ 域 00-07。
+- 仅补本包域须写明「非完整」，不得称完整。
+- 本包域默认（非完整）：`05-testing`。
 - **发布模式默认 overwrite-latest**：未明确「保留历史/不覆盖/升 rev/另存快照/签收锁定」→ 不询问、直接覆盖目标 `{ver}/`。
 - 换迭代关账触发时：先覆盖刷新关闭版 `{prev}/`，再处理 `{next}/`（文档治理关账）。
-- 外发前按现有 `confirm_handoff` `confirm_intent` 确认，不新造门。
+- 对外发送/承诺/发布前走 `confirm_materials`（仅内部入库不触发）。
 
 ### 本步规则卡：文档治理
 
@@ -73,5 +76,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:materials | step=select | agent=test-orchestrator | packet=rules/packets/materials/select.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:materials | step=select | agent=test-orchestrator | packet=rules/packets/materials/select.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -110,7 +110,7 @@
 7. **状态与导航（硬）**：只认 `global-rules.md` §8。续跑指针＝`activeContext`；阶段语义有计划时＝开发计划 §0，无计划时＝`activeContext`。`INDEX` 只在入口文件增删/改名/归档时改链接，不搬阶段/门/状态；文首已有「代码/制品现行版本」句且 SSOT 变 → 同轮只改该句。阶段语义变化 → 同轮改计划 §0 + `activeContext`（有计划时）；勿为切步改 INDEX。
 8. **项目身份短读**：每新会话开工一次（见 `AGENTS.md` §0）；同会话文件未变不重读；日常优先档案 §1+§2 表，不预防性通读根 README。
 9. **资料不足升级（硬）**：身份/地图空壳、占位、与代码冲突、命令不可用、或缺支撑本任务的关键事实 → 入口判定 §5：有 README 则按实际结构择要，不够则探查仓库实情 → **同轮必回写**档案/`activeContext`（真源）→ 有缺口则按 `doc-facade-sync.md` 补已核实句 → 收尾【资料补强】。死守空资料继续执行=违规；升级读取计入 `reads=`。
-10. **门面同步（硬·事件触发）**：版本 bump、迭代关闭、发布/上线、或本轮核实的对外可见事实变化 → 只认 `rules/core/doc-facade-sync.md`（含 §2.1 冷层定点：版本展示句、部署/入口格；≤3 次打开；禁全扫；`冷层:ok` 须已打开对账，仅热层发版史不算完成）。未命中不扫 README。命中必触发时 `sync=` 须含 `冷层:ok|na|deferred:<因>`；有门面句改动时第 6 点一句说明。**不另造** `facade=` 字段。
+10. **门面同步（硬·事件触发）**：版本 bump、迭代关闭、发布/上线、或本轮核实的对外可见事实变化 → 只认 `rules/core/doc-facade-sync.md`（含 §2.1 冷层定点：版本展示句、部署/入口格；≤3 次打开；禁全扫；`冷层:ok` 须已打开对账，仅热层发版史不算完成）。未命中不扫 README。命中必触发时 `sync=` 须含 `冷层:ok|na|deferred:<因>`；有门面句改动时第 6 点一句说明。
 
 ## 5. 时间 / Token 纪律
 
@@ -122,7 +122,7 @@
 ## 6. 遵守自检（收尾必写）
 
 ```text
-【遵守自检】route=workflow:step | mode=execute/analyze/stop | packet=rules/packets/<wf>/<step>.md | skills=name=done|na,... | reads=... | gates=... | confirm=gate=approved@yyyy-MM-dd HH:mm,...|无 | sync=... | skip=... | deviation=...
+【遵守自检】route=workflow:step | mode=execute/analyze/stop | packet=rules/packets/<wf>/<step>.md | global=ok|dev:<原因> | skills=name=done|na,... | reads=... | gates=... | confirm=gate=approved@yyyy-MM-dd HH:mm,...|无 | sync=... | skip=... | when_eval=... | deviation=...
 ```
 
 - `packet` 必须是本轮实际步骤包；`skills` 列必开/条件开技能结果；`confirm` 列本轮确认门 `gate=结论@时间`（无则写无）。

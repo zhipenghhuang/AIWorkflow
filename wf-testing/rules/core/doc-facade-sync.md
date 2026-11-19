@@ -1,9 +1,9 @@
 # 门面与对外事实同步（测试）
 
-> **读取级别：参考**（事件触发时读；收尾不再强制 `facade=` 字段）。
+> **读取级别：参考**（事件触发时读）。
 
 > **定位**：根 `README.md` 与基线/档案中**对外可见句**的事件触发同步。  
-> **不替代**：状态「三处同拍」（计划 §0 ↔ 导航 INDEX ↔ `activeContext`）只认 `global-rules.md` §8；事件级同步矩阵见 `execution-contract.md` §4（参考）；关账/materials 仍认 `doc-governance.md` §7。  
+> **不替代**：状态同拍（计划 §0 ↔ `activeContext`；INDEX 只做导航、不写状态）只认 `global-rules.md` §8；事件级同步矩阵见 `execution-contract.md` §4（参考）；关账/materials 仍认 `doc-governance.md` §7。  
 > **禁每轮全扫**：未命中下表触发 → 不打开、不对账根 README；日常身份短读仍只读档案/基线。  
 > **写法**：轻量改已有对应句；结构大动走 `project-readme.md` 偏好确认。实例面禁写工作流包用途/装载/升级（见 `AGENTS.md` 多包·实例面）。  
 > **根 CHANGELOG**：本包**不写**。
@@ -54,4 +54,4 @@
 
 ## 4. 收尾表述
 
-命中矩阵「必」：`sync=` 须含 `冷层:ok|na|deferred:<因>`（`ok`=已打开并对齐）；未命中触发 → 写「无门面变化」。有门面句改动时第 6 点一句说明。**不另造** `facade=` / `triad=` 字段。
+命中矩阵「必」：`sync=` 须含 `冷层:ok|na|deferred:<因>`（`ok`=已打开并对齐）；未命中触发 → 写「无门面变化」。有门面句改动时第 6 点一句说明。

@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/testing/plan.md`
 - **角色**：`test-planner`（测试分析 / 测试计划（总排））。本步只做该角色职责；越界交回或升级。
 - **上游**：无（链首）
-- **后续**：`review-plan`（进 `review-plan` 前的 `when=landing_doc_review_needed`）
+- **后续**：`review-plan`（进 `review-plan` 前的 `when=plan_doc_review_required`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 
 ## 2. 本步目标
@@ -32,10 +32,10 @@
 - **条件判定 `hitl:mainread_unspecified`**：plan/探索 execute 主读未确认；满足→真，否则跳过该门。
 - **HITL `confirm_understanding`**：**主屏**：分析 §0 摘要、来源盘点计数（含 UI/文案类）、AC/设计点/UI/文案覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。
 - **条件判定 `hitl:understanding_needs_confirm`**：输入含 PRD/方案/原型/接口，存在 2 个以上实质歧义/冲突，T2/T3，或用户要求计划/准出且未确认分析；满足→真，否则跳过该门。
+- **HITL `confirm_exploratory_scope`**：探索整轨否 / §3.2 四行缺任一 / 有面对标 N/A / 主责=探索可跑面<4（T1 可 2～3 面）→ STOP 一行：范围/原因/接受人；确认后定稿计划 §3.2；未确认不得以“探索已闭环”准出。条件只认 §2 词表。
+- **条件判定 `hitl:exploratory_scope_reduced`**：计划探索轨=否；或 §3.2 四行（S6/S7/S11/状态误读）缺任一；或四行中「有面对但主责=N/A」；或主责=探索可跑面（状态=本场/已跑/下场）<4（含 0；T1 可按事实 2～3 面+用户确认）；满足→真，否则跳过该门。
 - **HITL `confirm_plan`**：版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）+ **数据前置**（造数项数/无造数依据）。**待确认只列需用户裁决的范围/准出/接受人**；造数/建号/开通/专项方案编制属执行期自助（`rules/defects/classification.md` §0.4），不得挂待确认。同会话同载体只一次。须独立评审时本门在 `review-plan`（选 A/B 之后）；lite 无落地评审时在 `plan`。
 - **条件判定 `hitl:plan_confirm_without_doc_review`**：`plan_needs_confirm` 为真且 `landing_doc_review_needed` 为假；满足→真，否则跳过该门。
-- **HITL `confirm_exploratory_scope`**：探索整轨否/N/A/风险面<4/主责=探索面为 0 → STOP 一行：范围/原因/接受人；确认后写计划 §3.2；未确认不得以“探索已闭环”准出。
-- **条件判定 `hitl:exploratory_scope_reduced`**：计划探索轨=否，或 §3.2 风险面<4，或 S6/S7/S11/状态误读有面标 N/A，或主责=探索面为 0；满足→真，否则跳过该门。
 - **HITL `confirm_iteration_close`**：出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/版本升级且是否关本期不明确；满足→真，否则跳过该门。
 - **HITL `confirm_docs_migration`**：资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。
@@ -80,10 +80,10 @@
 
 ## 7. 模板与证据
 
-- **填写模板（本步两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；`rules/templates/10-planning/test-plan-lite-template.md`；`rules/templates/10-planning/user-facing-change-notes-template.md`；`rules/templates/30-execution/test-change-record-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
+- **填写模板（本步主模板两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；**配套模板（按需，期中变更/用户点名才读）**：`rules/templates/10-planning/test-plan-lite-template.md`；`rules/templates/10-planning/user-facing-change-notes-template.md`；`rules/templates/30-execution/test-change-record-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
 - **轻量档**（`plan_tier=lite`，仅补丁/单模块、无新增功能面且 `版本准出=否`）：计划改用 `rules/templates/10-planning/test-plan-lite-template.md`；分析仍用上表分析模板。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；按 Mode 出回执即可）。
+- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 
@@ -96,5 +96,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:testing | step=plan | agent=test-planner | packet=rules/packets/testing/plan.md | global=ok | skills=test-basis-analysis,test-analysis-and-plan,test-data-and-environment|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=plan | agent=test-planner | packet=rules/packets/testing/plan.md | global=ok | skills=test-basis-analysis=done|na,test-analysis-and-plan=done|na,test-data-and-environment=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

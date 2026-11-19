@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.19.01-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.19.09-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -265,7 +265,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 产品 | 立项 · 计划 · 范围 · PRD · 设计 · 原型交接 · 变更 · 交接 · 发布 · 提交 |
 | 开发 | 计划 · 需求基线 · 方案 · 任务清单 · 交接 · 部署 · 回滚 · 验收 · 提交 |
 | 开发（solo） | 产品分析（按需） · 方案 · 完整开发 · 测试 · 提交 |
-| 测试 | 计划 · 执行范围 · 交接 · 提交 · 缺陷回写 |
+| 测试 | 计划 · 探索范围 · 执行范围 · 交接 · 提交 · 缺陷回写 |
 
 | 闸 | 规则 |
 | --- | --- |

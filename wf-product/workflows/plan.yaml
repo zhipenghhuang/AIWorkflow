@@ -93,6 +93,7 @@ steps:
   - name: confirm_docs_migration
     when: docs_migration_needed
   output: '{workroot}/product-plan.md（模板 rules/templates/10-planning/product-plan-template.md）'
+  next: closeout
   notes: 须已完成 review-plan 选模式（或本轮跳过条件满足）。核对 Brief+差量表已落盘（或独立迭代变更摘要已互指）。总控表状态回写（阶段 产物 门 状态 下一动作）；版本索引挂 PRD 迭代方案（多需求版本）/ 评审
     受理/变更 交付计划 UAT GTM 原型 复盘 迭代变更摘要（若独立文件）。 多需求/多功能版本：在版本目录落 `迭代方案-{ver}.md`（模板 `rules/templates/10-planning/iteration-plan-template.md`），汇总范围、功能覆盖、验收矩阵、执行记录与发布条件；单需求可只用
     PRD，不强制另立。 更新 `{workroot}/work-log.md`（仅本文件）：索引表新增一行 + 一条里程碑条目，事件类型=`计划确认`（结论/产出/遗留；关联产品计划路径）；无文件则先按工作日志模板创建再写。 **不是**根
@@ -111,9 +112,9 @@ steps:
   agent: pm-lead
   output: 当前阶段/门/下一动作
   notes: 仅由「下一步/当前状态/继续」入口触发；正常「产品计划」链到 publish 止，不执行本步。 只读 `{workroot}/product-plan.md`：报备当前阶段、当前门、下一动作、需人工项； 「按产品计划执行」=
-    按 路由到 plan prd deliver change 对应 step，执行到下一个 `hitl` 停止； 「下一步」只报动作与入口，不执行；「当前状态」只读，不重写计划。 有未吸收的新文档/变化 → 先走 `workflows/change.yaml`
-    intake，不直接改 PRD/计划。 有未回执/退回/阻断的交接包 → 先读 `{workroot}/handoff/handoff-ledger.md`；需签收则走 `workflows/handoff.yaml` receive，不直接推进阶段。
-    产品包独立运行；开发/测试包为可选输入/输出，缺则不阻塞。 执行后回写 状态/下一动作、 执行日志；门结论/变更写。
+    按 `{workroot}/product-plan.md` 路由到 plan/prd/deliver/change 对应 step，执行到下一个 `hitl` 停止； 「下一步」只报动作与入口，不执行；「当前状态」只读，不重写计划。
+    有未吸收的新文档/变化 → 先走 `workflows/change.yaml` intake，不直接改 PRD/计划。 有未回执/退回/阻断的交接包 → 先读 `{workroot}/handoff/handoff-ledger.md`；需签收则走
+    `workflows/handoff.yaml` receive，不直接推进阶段。 产品包独立运行；开发/测试包为可选输入/输出，缺则不阻塞。 执行后回写 状态/下一动作、 执行日志；门结论/变更写。
 - name: 收尾与提交
   id: closeout
   skills: []

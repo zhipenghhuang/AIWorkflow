@@ -67,5 +67,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=menu | agent=defect-fixer | packet=rules/packets/defect-fix/menu.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=menu | agent=defect-fixer | packet=rules/packets/defect-fix/menu.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

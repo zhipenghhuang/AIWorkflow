@@ -28,7 +28,7 @@
 
 ## 4. 本步门
 
-- **GATE `report-consistency`**：报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图须有实际场景**/P0/证伪/缺口对账；**计划纳入轨道须有对应记录（功能/接口/探索/发布前）**；报告 §0～§5、§2.1 计数与记录一致、§2.4 探索概况与计划 §3.2 主责一致、结论唯一、正文无内部 ID；CONDITIONAL 认 §4 接受人行；未 PASS/CONDITIONAL 不得写整体通过。
+- **GATE `report-consistency`**：报告正文完成后、宣称准出前跑 `-Mode report`：分析/记录/报告/**全部处置=测意图须有实际场景**/P0/证伪/缺口对账；**计划纳入轨道须有对应记录（功能/接口/探索/发布前）**；报告 §0～§5、§2.1 计数与记录一致、§2.2 模块合计与 §2.1 一致、§2.4 探索行数/功能化与计划已跑探索面数量一致（报告用业务名，不做名称比对）、结论唯一、正文无内部 ID；CONDITIONAL 认 §4 接受人行；未 PASS/CONDITIONAL 不得写整体通过。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。 报告门通过后只追加一次提交或交平台确认，不回到 execute。
 
 ## 5. 本步动作
@@ -53,8 +53,8 @@
 - 报告正文不写内部 ID。
 - 原文对账未关>0 不得 PASS。
 - 计划纳入的功能/接口/探索/发布前四轨记录可复核（发布前须有硬映射行、探索须有主责/同路径 SC/为什么不能固化/检查点结论/功能化）。
-- 报告 §2.4 探索概况与计划 §3.2 主责一致。
-- S6/S7/S11 有落点。
+- 报告 §2.4 探索行/功能化列与计划 §3.2 已跑探索面数量一致。
+- S6/S7/S11 在计划 §3.2/执行记录回指，报告 §2.4 用业务风险名写落点。
 - CONDITIONAL 须 §4 有接受人与复审点。
 - 缺口显式。
 - 先正文再 `-Mode report`。
@@ -91,5 +91,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:testing | step=report | agent=report-agent | packet=rules/packets/testing/report.md | global=ok | skills=test-report|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:testing | step=report | agent=report-agent | packet=rules/packets/testing/report.md | global=ok | skills=test-report=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

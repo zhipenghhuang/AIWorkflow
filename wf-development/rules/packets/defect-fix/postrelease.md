@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=postrelease | agent=defect-fixer | packet=rules/packets/defect-fix/postrelease.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=postrelease | agent=defect-fixer | packet=rules/packets/defect-fix/postrelease.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -45,7 +45,7 @@
 - 未签收不进入吸收。
 - 扫描：`inbound/` 未登记/变化文件、`inbound/INDEX.md` 断链、`{workroot}/INDEX.md`、`git status`。
 - 不再扫 `_收件箱`。
-- 对照 `{workroot}/INDEX.md` `需求台账/待决项/开发计划，列出“未登记/未关联”的候选；不读全量历史，不直接改基线。 多个候选 → 列清单让用户选；无新输入 → 报告“无新增”，不空转。 先按 文档治理规则（工作根/原件根/索引/关版整夹） （T1～T9 + 索引/复制/A0～A2）；**确认前不改文件**。确认后：主副本必留原件根 `inbound/`并索引 → 按需复制 → 按需吸收；未点名可仅索引。放入≠分发他包。 **文档抽取分片**（子代理编排 ）：≥3 份新文档 → 只读扇出（每份返回 DOC/CR/OPEN/DEC 候选＋引用位置＋覆盖关系 ≤30 行）；登记/分类/影响集中；单份直做。
+- 对照 `{workroot}/INDEX.md` `需求台账/待决项/开发计划，列出“未登记/未关联”的候选；不读全量历史，不直接改基线。 多个候选 → 列清单让用户选；无新输入 → 报告“无新增”，不空转。 先按 文档治理规则（工作根/原件根/索引/关版整夹） 做覆盖关系判定（ 索引/复制/吸收）；**确认前不改文件**。确认后：主副本必留原件根 `inbound/`并索引 → 按需复制 → 按需吸收；未点名可仅索引。放入≠分发他包。 **文档抽取分片**（子代理编排 ）：≥3 份新文档 → 只读扇出（每份返回 DOC/CR/OPEN/DEC 候选＋引用位置＋覆盖关系 ≤30 行）；登记/分类/影响集中；单份直做。
 
 ### 本步规则卡：文档治理
 
@@ -83,5 +83,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=scan | agent=iterate-lead | packet=rules/packets/intake/scan.md | global=ok | skills=change-intake|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=scan | agent=iterate-lead | packet=rules/packets/intake/scan.md | global=ok | skills=change-intake=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

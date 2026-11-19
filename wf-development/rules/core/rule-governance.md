@@ -46,7 +46,7 @@
   → Q4 完全未覆盖？ → 才新开：优先扩现有 owner；须单一职责、预算内、有载体、有降级；并删除被替代正文
 ```
 
-- workflow step `notes`：**≤3 行指针**；方法进 skills / must_read；禁止 notes 复述门/完成口径全文。
+- workflow step `notes`：只写本步差异/阈值/失败去向（≤12 行）；方法进 skills / must_read；门与完成口径只认 `gates.md`/verify，禁复述全文。
 - 能力体检方法：`rules/special/skill-audit.md`（仅 skill-audit 链点名读）。
 
 ## 2.1 自适应规则写法（防过拟合）
@@ -125,6 +125,7 @@
 43. fail-closed/拒单无 OPEN「未交付」却写入「已按方案完成」→ DEV-IQ-05/22 失败。
 44. `agent:self_review`/`user:self_review` 作为波门/G5/完成门独立评审证据并关阻断 → DEV-VER-06 失败。
 45. 方案节覆盖账本只对任务摘要勾完成、未打开方案对应节 → DEV-IQ-22 / task-breakdown 失败。
+46. 缺陷 triage 仅凭旧版设计/开发自写修复方案判实现缺陷并改码，或现网已符合现行仍按过时预期硬修 → `fix-collaboration` §4.0#8 失败。
 
 eval 通过才算规则改好；不通过先修规则/脚本，不加新规则。
 

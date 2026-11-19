@@ -30,11 +30,11 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；≠收尾第 2 点「待提交摘要」
+- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」
 - **条件判定 `hitl:menu_includes_commit`**：本轮菜单含提交；满足→真，否则跳过该门。
 - **HITL `confirm_deploy`**：未批准
 - **条件判定 `hitl:menu_includes_deploy`**：本轮菜单含部署；满足→真，否则跳过该门。
-- **HITL `confirm_remark`**：出示 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」
+- **HITL `confirm_remark`**：出示回写备注模板 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」
 - **条件判定 `hitl:menu_includes_writeback`**：本轮菜单含平台回写；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -76,5 +76,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect-fix | step=close | agent=defect-fixer | packet=rules/packets/defect-fix/close.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect-fix | step=close | agent=defect-fixer | packet=rules/packets/defect-fix/close.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

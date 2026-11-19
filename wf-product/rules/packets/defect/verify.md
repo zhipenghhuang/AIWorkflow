@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/defect/verify.md`
 - **角色**：`pm-lead`（交付编排与变更处置（排期/跟进/受理/变更/缺陷平台/UAT/发布/复盘/展示））。统一受理需求与问题 → 分诊定性 → 影响评估 → 处置确认 → 联动更新 → 验证关闭；平台缺陷可拉取、分析并回写；本步只做该角色职责；越界交回或升级。
 - **上游**：`writeback`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`closeout`
+- **后续**：`close_platform`（进 `close_platform` 前的 `when=needs_platform_close`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:needs_linked_update`**：需联动回写与回执（除纯答疑外均为真）；满足→真，否则跳过本步（不打开本包）。
 
@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **GATE `change-closure`**：运行 `verify/Invoke-Gate.ps1 -Mode change`；§6 每项“已更新/不适用/待补”，待补有责任人/截止；未闭合不得关闭
+- **GATE `change-closure`**：运行 `verify/Invoke-Gate.ps1 -Mode change`；受理单/变更单 **§6 联动表**逐项“已更新/不适用/待补”，待补有责任人/截止；单内 **§7** 写验证结果；未闭合不得关闭
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -56,7 +56,7 @@
 - 下版 → 回池/路线图。
 - 不修 → 理由/接受人。
 - 退回开发 → 回执，缺陷状态由开发/测试跟踪。
-- 验证通过后需再次回写平台（入口 writeback）更新状态/关闭。
+- 验证通过后进入 `close_platform` 关闭回写（when 假则跳过）。
 - 批末输出【产品缺陷协作总结】。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
@@ -81,5 +81,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:defect | step=verify | agent=pm-lead | packet=rules/packets/defect/verify.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:defect | step=verify | agent=pm-lead | packet=rules/packets/defect/verify.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

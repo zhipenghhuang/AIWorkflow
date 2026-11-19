@@ -6,11 +6,11 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.19.06`
+> **template_version**：`2026.11.19.09`
 >
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
-> **完成口径**：门末自动输出 `CLAIM: ALLOWED`（`-Claim` 仅复核）；无 ALLOWED 不写完成。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
+> **完成口径**：门末自动输出 `CLAIM: ALLOWED`（`-Claim` 仅复核）；有 Claim 门的步骤无 ALLOWED 不写完成；无门步骤按 `global-rules` §9 记 `claim=na`。验证通过与回写/部署分离见 `global-rules` §9；前端只认当前步骤包「前端硬门」（无 UI=`na`）。
 
 ## 0. 开工
 
@@ -40,7 +40,7 @@
 | 标准代码 | 团队正式迭代内的代码/配置变更，单点/≤3 文件/≤1 模块，且不改 API/数据模型/权限，未命中权限/状态机/数据基数/多表面/共享契约/迁移 | clarify→implement→verify→closeout | requirements/design/review-docs/plan/review（须记录理由与风险接受人；命中 `review_required` 必审条件时 review 不可省） |
 | 完整交付 | 团队正式迭代/正式协作内的 >3 文件 / >1 模块 / 新功能/接口/数据 / 改 API·数据·权限 | clarify→requirements→design?→review-docs→plan→implement→review→verify→deliver→closeout | 仅 `when` 为假的步可跳，收尾 `skip=` |
 | 高风险 | 团队正式迭代/正式协作内的权限/资金/迁移/公共 API/破坏性；或需要正式安全/发布审批 | 完整交付 + 独立审 + 安全 + 回滚 + 发布审批 | 无 |
-| 缺陷 | 平台缺陷/修复# | `defect-fix` | 无平台→change |
+| 缺陷 | 平台缺陷/修复# | `defect-fix` | 无平台→按 `routing.md` §2 A 判轨（无正式协作 solo / 否则 change） |
 
 **L1 单点**：`plan` 步不适用 → `clarify` 产开发卡（含验收/SC，模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`）；`implement` 前 SC 差集=0。  
 **轨道**：只看正式协作/正式流程；无正式协作的大改动/高风险仍走 `solo` 自包含完整链，按 `lightweight.md` §2 提高产品分析与测试证据，不换链。  
@@ -58,7 +58,7 @@
 
 ### 0.4 验证与汇报
 
-自称完成/通过/可提测只认门末自动（或 `-Claim` 复核）的 `CLAIM: ALLOWED`；验证与回写/部署分离见 `global-rules.md` §9。细则随当前步骤包 / `verify`，开局不预读。
+自称完成/通过/可提测只认门末自动（或 `-Claim` 复核）的 `CLAIM: ALLOWED`（有 Claim 门的步骤）；无门步骤按 `global-rules` §9 记 `claim=na`。验证与回写/部署分离见 `global-rules.md` §9。细则随当前步骤包 / `verify`，开局不预读。
 
 ### 0.5 工程与执行
 
@@ -84,7 +84,7 @@
 | 3 | 按方案实施/继续迭代 | `iterate` | precheck |
 | 4 | 接入/档案/文档树/inbound/README 整理 | `onboard` | 对应 step |
 | 4.3 | 技能/能力体检或优化 | `skill-audit` | scope→closeout |
-| 4.4 | 导出资料库/发资料 | `materials` | select→… |
+| 4.4 | 导出资料库（发资料=仅导库；外发走 handoff） | `materials` | select→… |
 | 5 | 提交/推送 | 当前 workflow 末步（`closeout`）或 `change` | 对应角色 |
 | 5.1 | 自包含完整链/无正式迭代/轻量开发 | `solo` | frame |
 | 5.2 | 轻量方案/只出轻量方案 | `solo` | design |
@@ -107,8 +107,8 @@
 **部署**：裸「部署」先判环境；test/staging 不进入 `release`，按项目档案命令执行并用 `rules/templates/40-delivery/env-deployment-record-template.md` 出记录，按收尾骨架输出；prod→`release`。提交/推送≠部署。  
 **缺陷批入口不豁免开工门**：「指派给我」「我的待修」「修复#N」「#N」走 `defect-fix`，但须先输出【需求与意图理解】并等确认；未确认不得拉单后直接改码。仅「一次性/直接跑完/中途不停」可免等待（理解照常先输出）。  
 **续跑有计划**：「下一步/继续开发计划」优先 `control`。  
-**单步口令即停**：口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/开发计划评审/只提测/只出清单）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 全链仅接入/重新接入/基线/装配能力入口；资料/文档治理只做该步+收尾。  
-**路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。裸「方案/出方案」走 `change.design`；点名「轻量」才走 `solo.design`。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。
+**单步口令即停**：口令明确只做单步（只出方案/只出轻量方案/只评审/代码评审/方案评审/开发计划评审/只提测/只出清单）时，执行到该步产出完成即停（不含提交/推送/部署/回写）并按收尾骨架输出；其余按链图「推进」继续。「按开发计划执行」只切到目标步骤卡，不沿 `control` 表继续。`onboard` 接入/重新接入/基线/装配能力入口按链跑到 `verify`；资料/文档治理只做该步+收尾。  
+**路由消歧**：裸「提交」按当前 workflow 末步；只有交接包内的提交才走 `handoff`。**未过完成门**时先到当前步 `verify`/`gates` 的 `confirm_commit` 确认代码/产物提交，过门后才到 `closeout` 确认收尾文档提交。裸「方案/出方案」走 `change.design`；点名「轻量」才走 `solo.design`。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。
 
 ## 4. 维护
 

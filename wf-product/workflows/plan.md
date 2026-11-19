@@ -16,7 +16,7 @@
 | 2 | `roadmap` | `pm-analyst` | — | — | 产品计划工作稿 §2 路线图（Now/Next/Later + 依据/依赖/时间窗） | `scope` | 停在本步/升级 |
 | 3 | `scope` | `pm-lead` | — | `confirm_plan` | 产品计划工作稿 §3 范围/§4 里程碑（确认后同轮并入主档） | `review-plan` | 停在本步/升级 |
 | 4 | `review-plan` | `reviewer-agent` | — | `select_review_mode` | 评审记录（{workroot}/{ver}/10-requirements/评审-计划-{yyyyMMdd}.md）或 HUMAN_APPROVED 声明 | `publish` | 停在本步/升级 |
-| 5 | `publish` | `pm-lead` | — | `confirm_iteration_close`、`confirm_docs_migration` | {workroot}/product-plan.md（模板 rules/templates/10-planning/product-plan-template.md） | `next` | 停在本步/升级 |
+| 5 | `publish` | `pm-lead` | — | `confirm_iteration_close`、`confirm_docs_migration` | {workroot}/product-plan.md（模板 rules/templates/10-planning/product-plan-template.md） | `closeout` | 停在本步/升级 |
 | 6 | `next` | `pm-lead` | — | — | 当前阶段/门/下一动作 | `closeout` | 停在本步/升级 |
 | 7 | `closeout` | `pm-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 

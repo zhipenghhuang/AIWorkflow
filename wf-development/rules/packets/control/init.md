@@ -29,7 +29,7 @@
 ## 4. 本步门
 
 - **HITL `confirm_plan`**：首次创建或范围·版本·里程碑实质变更；确认范围/阶段后：若本轮须独立文档评审 → 状态=待评审（评审通过后再=已确认）；否则可直接=已确认。未关闭 S 或阻塞实施的 P 未答复时不得确认（clarification §1.1）
-- **条件判定 `hitl:plan_needs_confirm`**：计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
+- **条件判定 `hitl:plan_needs_confirm`**：计划尚未确认（首次创建），或计划/范围/节奏实质变且未确认；满足→真，否则跳过该门。
 - **HITL `confirm_iteration_close`**：出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 文档治理规则（工作根/原件根/索引/关版整夹） 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/升级且是否关本期不明；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
@@ -79,7 +79,7 @@
 - 本步不宣称可按计划执行。
 - 范围·版本实质变更或换主题（即使不发版）→ 按 文档治理规则（工作根/原件根/索引/关版整夹）。
 - 不确定则 `confirm_iteration_close`。
-- 确认后先判 T1/T2/T4，再按 文档治理规则（工作根/原件根/索引/关版整夹） 关账（T2/T4 保留仍被引用的基础设计/流程图/原型）。
+- 确认后先判 T1/T2/T4，再按 文档治理规则（工作根/原件根/索引/关版整夹） 关账（保留仍被引用的基础设计/流程图/原型）。
 - 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/` current（默认覆盖最新）。
 - 输出首条：route=workflow:control | step=init | stage=S0 | gate=G0 | next_action=补输入/需求分析或开发计划评审。
 
@@ -124,5 +124,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:control | step=init | agent=iterate-lead | packet=rules/packets/control/init.md | global=ok | skills=development-plan=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

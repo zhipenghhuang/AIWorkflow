@@ -4,7 +4,7 @@
 workflow:
   id: defect-fix
   name: 缺陷修复协作
-  version: 12
+  version: 13
   terminal: closeout
 entry_points:
   缺陷修复: preflight
@@ -33,10 +33,10 @@ steps:
   agent: defect-fixer
   next: pull
   output: 平台可用性/鉴权结果 + 降级路由（route/reason/next_action）
-  notes: '读项目档案 provider。若为「无」或未配置： route=workflow:change | reason=no_defect_platform | next_action=按现象走常规变更；终止本 workflow（不执行
-    next: pull）； 禁止向用户索要编号、禁止空转拉平台。 **勿在本步 `-StartTask`**；有代码修复时在 `fix` 动手前冻结任务窗口。 **开工门（硬）**：进入本 workflow 先按 `confirm_task_intent`
-    输出【需求与意图理解】（目标/范围/验收/不做/假设/风险）并等确认；未确认不得进入 pull、不得改测试或业务代码；批量入口（指派给我/我的待修）不豁免。确认后 pull 首条回执须含【清单摘要】，triage 须先出【分类表】再进
-    fix。'
+  notes: '读项目档案 provider。若为「无」或未配置：按 `rules/core/routing.md` A 判轨（无正式协作 → `solo`；否则 `change`），`route=workflow:<该链>` | `reason=no_defect_platform`
+    | `next_action=按现象走对应链`；终止本 workflow（不执行 next: pull）； 禁止向用户索要编号、禁止空转拉平台。 **勿在本步 `-StartTask`**；有代码修复时在 `fix` 动手前冻结任务窗口。
+    **开工门（硬）**：进入本 workflow 先按 `confirm_task_intent` 输出【需求与意图理解】（目标/范围/验收/不做/假设/风险）并等确认；未确认不得进入 pull、不得改测试或业务代码；批量入口（指派给我/我的待修）不豁免。确认后
+    pull 首条回执须含【清单摘要】，triage 须先出【分类表】再进 fix。'
 - name: 拉取与归组
   id: pull
   skills: []
@@ -47,7 +47,7 @@ steps:
   - defect-platform
   output: 清单摘要/分组
   notes: 首条回执含 mode=（缺陷批加严，见 subagents）。拉取后读全单：提交信息（标题/steps/数据/环境/附件）＋历史备注/讨论＋产品评估/回复附件； **批量侦察**（子代理编排 ）：≥5 单且读单成本高（多备注/附件/评估单）或合计
-    ≥20k token → 逐单只读扇出（一单/小批一子代理），返回「分类候选/证据缺口/查重键/产品评估要点」≤30 行；达阈值未扇出→deviation=subagent_skipped:<理由>；编排集中读回执并读关键单原文；不可用→deviation=subagent_skipped:unavailable，仍进
+    ≥20k token → 逐单只读扇出（一单/小批一子代理），返回「分类候选/证据缺口/查重键/产品评估要点/现行口径候选」≤30 行；达阈值未扇出→deviation=subagent_skipped:<理由>；编排集中读回执并读关键单原文；不可用→deviation=subagent_skipped:unavailable，仍进
     triage 出分类表。 同号重复修复预检；归组后进入 triage（未 triage 禁改码）。 历史预检跳过项：产品缺陷待产品确认 → 跳过标注「待产品」；已修复未再激活 → 跳过标注「已处理」； 无法确认被激活 → 重新分类处置；产品已回复/已退回
     → 直接进 product_decision。
 - name: 分类与处置
@@ -63,10 +63,10 @@ steps:
     **期望拆全**：读完预期全文；多项（主修复+统一错误/同类入口等）→分列或同号切片并进 SC/债项，禁只修标题主路径。 按 rules/defects/fix-collaboration.md 分类： 实现缺陷→implementation_required；产品缺陷/需求缺口/设计口径不明→product_defect；
     信息不足/无法复现/环境数据不一致/预期不明/重复/设计如此/非defects/外部/已在其它构建修复→need_clarification； 延期/不修复须产品/项目确认，不得开发单方关闭。 产品缺陷不得先写完整技术方案，只写评估单；口径存疑但实现路径清晰
     → 出评审版修复方案（solution-template 裁剪，落 20-design/BUG优化修复方案/），评估单与评审版方案二选一，不重复出。 混批含产品缺陷+实现缺陷：两轨并行——实现项照常 fix（可先提交），产品项出评估单/评审版方案并
-    AWAIT_PRODUCT；仅当实现项依赖产品结论时该实现项等待，不整批阻塞。 pull 已标「待产品」→ 直接输出 AWAIT_PRODUCT，不重新评估/不重复 handoff。 分类结论须引用原单 steps/数据/环境/设计依据，禁只看标题；批量时以侦察回执为输入，**分类/五选一/处置集中**，不采信子代理终态。
-    拟标 product_defect 前须完成实现核对（相关代码路径与/或接口行为），只凭页面观感不得判产品缺陷。 测试无设计文档默认实现缺陷属正确；开发改判需求缺口须写明并交产品终审，不与测试争默认。 不挡主路径且无合规/资金/数据风险的体验类
-    → 不硬推 product_defect；点名要改走产品 change/需求池。 每条实现缺陷同时记「根因层（需求/设计/数据模型/实现/测试/契约/文档）+ 同类路径候选（同模型写入口/同谓词消费方/同权限端点/同状态表面；期望写统一错误则纳入）+
-    规则缺口」；按 `skills/cross-layer-consistency/SKILL.md` 取矩阵，不只修表面现象。 内部处置码只用于路由，不写进平台备注。'
+    AWAIT_PRODUCT；仅当实现项依赖产品结论时该实现项等待，不整批阻塞。 pull 已标「待产品」→ 直接输出 AWAIT_PRODUCT，不重新评估/不重复 handoff。 分类结论须引用原单 steps/数据/环境 + 现行口径（fix-collaboration
+    §4.0#8；依据含现行出处或「无现行可引」），禁只看标题/禁仅旧版或开发自写方案定真假；批量时以侦察回执为输入，**分类/五选一/处置集中**，不采信子代理终态。 拟标 product_defect 前须完成实现核对（相关代码路径与/或接口行为），只凭页面观感不得判产品缺陷。
+    测试无设计文档默认实现缺陷属正确；开发改判需求缺口须写明并交产品终审，不与测试争默认。 不挡主路径且无合规/资金/数据风险的体验类 → 不硬推 product_defect；点名要改走产品 change/需求池。 每条实现缺陷同时记「根因层（需求/设计/数据模型/实现/测试/契约/文档）+
+    同类路径候选（同模型写入口/同谓词消费方/同权限端点/同状态表面；期望写统一错误则纳入）+ 规则缺口」；按 `skills/cross-layer-consistency/SKILL.md` 取矩阵，不只修表面现象。 内部处置码只用于路由，不写进平台备注。'
 - name: 产品缺陷评估
   id: assess_product
   skills: []
@@ -147,9 +147,9 @@ steps:
   when: implementation_required
   agent: defect-fixer
   output: 修复/方案/验证结果
-  notes: '**前置**：本批 triage【分类表】已输出；未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行；待产品行不扩写。开跑声明 mode=（同文件集→单写手）。 修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归/验证站轻验见
-    fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。修后：本地硬验；测环境依赖且已部署验证站→相关模块轻验（原入口+同模块≤2）；完整复测归测试。 **先写缺陷修复卡**（原单口径/SC
-    差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md`，不另造表。 L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id:
+  notes: '**前置**：本批 triage【分类表】已输出；未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行；待产品行不扩写。修中发现原预期相对现行过时/冲突→停改回 triage（§4.0#8）；按现行修，禁改回旧口径。开跑声明
+    mode=（同文件集→单写手）。 修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归/验证站轻验见 fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。修后：本地硬验；测环境依赖且已部署验证站→相关模块轻验（原入口+同模块≤2）；完整复测归测试。
+    **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md`，不另造表。 L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id:
     BUG-<id>）或任务清单 AC 表；须含原单复现/红证与回归/同类路径。 **动手前**：先 `verify/Invoke-Gate.ps1 -StartTask -TaskId "BUG-<id>" -ProjectRoot "."`（冻结
     `base_commit`；截图须晚于 `started_at`/验收清单）→ 来源完整性检查=0 缺漏（DEV-IQ-16，含相关方案/原型/接口/同类路径）→ 短【实施预检】（DEV-IQ-09；**命中须先扩 SC/债项**）；命中重要面同批硬补（DEV-IQ-10）；勾选
     `iq-checklist.md`；单元=一条 SC；方法 `skills/implementation-and-selftest/SKILL.md`。 按 `skills/cross-layer-consistency/SKILL.md`
@@ -171,7 +171,7 @@ steps:
   hitl: confirm_remark
   output: 回写结果（【无法确认·待澄清】/重复/设计如此/非defects/外部/已在其它构建修复）
   notes: 按 rules/templates/40-delivery/defect-writeup-template.md /： 先按原单口径复现；一次列清缺什么/谁补/截止；给条件式下一步，避免来回踢皮球。 平台备注用中文结论，禁英文处置码、类名、命令、仓库路径；本条是给测试看的。
-    重复→duplicateBug=主单；设计如此→引用设计原文；外部→给外部证据； 延期/不修复须产品/项目确认，不得开发单方关闭。 不改代码；备注与状态同轮；确认前展示全文。
+    重复→duplicateBug=主单；设计如此→引用现行设计原文（§4.0#8）；外部→给外部证据； 延期/不修复须产品/项目确认，不得开发单方关闭。 不改代码；备注与状态同轮；确认前展示全文。
 - name: 门禁
   id: gates
   skills: []
@@ -180,6 +180,9 @@ steps:
   output: .gate/wf-development/completion.json + 门禁摘要
   when: has_code_change
   agent: verifier-agent
+  hitl:
+  - name: confirm_commit
+    when: has_pending_commit
   gate: completion-gate
   gate_type: machine
   precondition: 缺陷修复卡/任务清单含本轮 AC 验收表（L1+）；无则先补

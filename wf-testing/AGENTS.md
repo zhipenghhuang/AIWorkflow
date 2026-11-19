@@ -6,7 +6,7 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.19.05`
+> **template_version**：`2026.11.19.09`
 >
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
 > **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
@@ -65,7 +65,7 @@
 | 15 | 交接状态 | —（只读） | 直接读 `{workroot}/handoff/handoff-ledger.md` + `activeContext`；不启动 workflow |
 | 16 | 导出项目文档/生成资料库/发资料 | `materials` | select→sync→index→closeout |
 
-**入口即止**：单步入口做到产出即止（不含提交/推送/部署/回写），仍按 `closeout-skeleton.md` 输出；标「按链」到链末停点；「按计划执行」走 execute→report；`report` 门后追加提交/交平台确认；`onboard` / `materials` / `skill-audit` 的 `chain: full` 例外（跑到链末停点）。  
+**入口即止**：单步入口做到产出即止（不含提交/推送/部署/回写），仍按 `closeout-skeleton.md` 输出；标「按链」到链末停点；「按计划执行」走 execute→report；`report` 门后追加提交/交平台确认；`materials`/`skill-audit` 的 `chain: full` 例外（跑到链末停点）；`onboard` 接入类入口跑到 `verify`，治理入口只做该步+收尾。  
 **路由消歧**：裸「回归」先确认 `defect` 单回归还是 `testing.execute` 重跑；确认后走「按计划回归 / 回归重跑 / 重跑」或 `defect`，勿把裸「回归」直接当 execute。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。  
 **主链**：`plan → review-plan → execute → report`（版本级；lite 可跳过 `review-plan`）。  
 **版本级单点**：`test-plan.md` / `test-report.md`；补丁可用 `plan_tier=lite`（不承担版本准出）。  

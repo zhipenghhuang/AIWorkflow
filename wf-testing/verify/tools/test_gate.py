@@ -1112,6 +1112,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
     charter_done = 0
     charter_missing_records: list[str] = []
     charter_unclosed: list[str] = []
+    charter_map: dict[str, dict[str, str]] = {}
     mtier = re.search(r"plan_tier\s*=\s*(full|lite)", text[:3000], re.I)
     tier = (mtier.group(1).lower() if mtier
             else ("lite" if "测试计划（轻量）" in text[:3000] else "full"))
@@ -1516,9 +1517,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
             if charter_rows == 0:
                 issues.append("§3.2 探索风险面表为空（须列高风险面/假设）")
             elif charter_rows < 4:
-                sec32 = subsection(text, "3.2")
-                if not re.search(r"按事实|接受人\s*[=:：]|用户确认", sec32):
-                    issues.append(f"§3.2 探索风险面仅 {charter_rows} 行（T2/T3/发版最少 4 行；T1 可按事实 2～3 面+用户确认）")
+                issues.append(f"§3.2 探索风险面仅 {charter_rows} 行；S6/S7/S11/状态误读四行固定不得删（T1 只减可跑面，不删行）")
             for col in ("主责", "同路径已有 SC", "为什么不能固化"):
                 if col not in headers:
                     issues.append(f"§3.2 探索表缺列「{col}」（主责/反冗余准入）")
@@ -1541,6 +1540,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 if is_blank(why):
                     issues.append(f"§3.2「{row[0]}」缺为什么不能固化")
                 st = cell(row, headers, "状态") if "状态" in headers else ""
+                charter_map[str(row[0])] = {"owner": owner, "status": st}
                 if owner and "探索" not in owner and re.search(r"已跑|本场|完成|闭环", st):
                     issues.append(f"§3.2「{row[0]}」主责={owner} 但状态={st}；非探索主责应标不跑")
                 if "探索" in owner and "功能已覆盖" in why:
@@ -1566,9 +1566,9 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 elif not st:
                     issues.append(f"§3.2「{row[0]}」缺状态")
             axis_col = "风险面" if "风险面" in headers else "轴"
-            for axis in ("S6", "S7", "S11"):
+            for axis in ("S6", "S7", "S11", "状态误读"):
                 if not any(cell(row, headers, axis_col).strip().startswith(axis) for row in table_rows(t_charter)):
-                    issues.append(f"§3.2 高风险面缺 {axis}（无面对写 N/A+事实句+接受人）")
+                    issues.append(f"§3.2 高风险面缺 {axis}（四行固定不得删；无面对写 N/A+事实句+接受人）")
     if tier == "full":
         for label in ("构建封板", "数据快照"):
             if not re.search(rf"^\|\s*{label}\s*\|\s*\S", text, re.M):
@@ -1604,7 +1604,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
             "batches": batches, "batch_all_ids": batch_all_ids, "tracks": tracks,
             "charter_rows": charter_rows, "charter_done": charter_done,
             "charter_missing_records": charter_missing_records,
-            "charter_unclosed": charter_unclosed}
+            "charter_unclosed": charter_unclosed, "charter_map": charter_map}
 
 
 # ---------- records ----------
@@ -1732,6 +1732,8 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
             pri = cell(row, headers, "优先级")
             actual = cell(row, headers, "实际/差异") or cell(row, headers, "实际")
             intent = cell(row, headers, "INT/AC") or cell(row, headers, "INT")
+            if status in ("失败", "待实现") and is_blank(defect) and "拟提交" not in (actual + scene):
+                issues.append(f"{path.name}: {sc} 失败/待实现缺缺陷号或拟提交处置")
             if is_blank(scene):
                 issues.append(f"{path.name}: {sc} 缺场景描述")
             if is_blank(pri):
@@ -2085,22 +2087,48 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
         if key not in text:
             issues.append(f"报告缺 {key} 标题")
     if plan and any("探索" in k and "::" not in k and "是" in (v or "") for k, v in (plan.get("tracks") or {}).items()):
-        if "## 2.4" not in text:
+        sec24 = subsection(text, "2.4")
+        if "## 2.4" not in text or not sec24.strip():
             issues.append("报告缺 §2.4 探索式概况（计划纳入探索轨）")
-        elif not re.search(r"风险面|探索", subsection(text, "2.4")):
-            issues.append("报告 §2.4 探索式概况为空/不可读")
+        else:
+            t24 = pick_table(sec24, ["风险面", "主责"]) or pick_table(sec24, ["主题", "主责"])
+            if not t24:
+                issues.append("报告 §2.4 缺「风险面/主题 + 主责」表")
+            else:
+                h24, _r24 = t24
+                if "功能化" not in " ".join(h24):
+                    issues.append("报告 §2.4 缺「功能化/去向」列")
+                rep_owners = []
+                for row in table_rows(t24):
+                    name = cell(row, h24, "风险面") or cell(row, h24, "主题")
+                    rep_owners.append((name, cell(row, h24, "主责")))
+                cmap = plan.get("charter_map") or {}
+                run_exp = [
+                    n for n, meta in cmap.items()
+                    if "探索" in (meta.get("owner") or "")
+                    and re.search(r"本场|已跑|完成|闭环", meta.get("status") or "")
+                ]
+                rep_exp = [n for n, o in rep_owners if "探索" in (o or "")]
+                if run_exp and not rep_exp:
+                    issues.append("报告 §2.4 无主责=探索行（计划有探索主责面）")
+                elif run_exp and len(rep_exp) < len(run_exp):
+                    issues.append(f"报告 §2.4 探索行 {len(rep_exp)} < 计划已跑探索面 {len(run_exp)}")
+                if not run_exp and rep_exp:
+                    issues.append("报告 §2.4 写探索主责，但计划 §3.2 无已跑探索主责面")
     if not analysis.get("intents"):
         issues.append("分析无意图台账，报告不可判定")
     verdict, reason = parse_verdict(text)
     if not verdict:
         issues.append(reason)
+    scan_text = re.sub(r"\]\([^)]*\)", "]()", text)
+    scan_text = re.sub(r"evidence/[^\s)`]+", "evidence/…", scan_text)
     for marker in (
         "INT-", "SC-", "EXP-", "SMK-", "runId", "suite=", "depth=",
         "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08",
         "D09", "D10", "D11", "D12", "D13", "S6", "S7", "S11",
         "原文对账", "四轨", "锚点",
     ):
-        if marker in text:
+        if marker in scan_text:
             issues.append(f"报告含测试内部标记：{marker}（正文应给开发/产品直接读）")
     if verdict == "PASS" and analysis.get("pending_gaps"):
         issues.append("分析 §4 仍有待确认缺口，报告不得写 PASS：" + "、".join(analysis["pending_gaps"][:4]))
@@ -2136,6 +2164,24 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
                     continue
                 if got.get(label, 0) != expected.get(key, 0):
                     issues.append(f"报告 §2.1 {pri} {label}={got.get(label, 0)} 与执行记录 {expected.get(key, 0)} 不一致")
+
+        # §2.2 module totals must match §2.1 totals
+        sec22 = subsection(text, "2.2")
+        t22 = pick_table(sec22, ["模块", "场景数"])
+        if not t22:
+            issues.append("报告 §2.2 业务模块结果表缺失")
+        else:
+            h22, _r22 = t22
+            sums = {"场景数": 0, "通过": 0, "失败": 0, "阻塞": 0}
+            for row in table_rows(t22):
+                if "合计" in (row[0] or ""):
+                    continue
+                for k in sums:
+                    sums[k] += to_int(cell(row, h22, k))
+            totals = {k: sum(v.get(k, 0) for v in stats.values()) for k in sums}
+            for k, val in sums.items():
+                if val != totals[k]:
+                    issues.append(f"报告 §2.2 {k}合计={val} 与 §2.1 合计={totals[k]} 不一致")
 
     if recs["missing_evidence"]:
         issues.append("证据缺失：" + "、".join(recs["missing_evidence"][:6]))

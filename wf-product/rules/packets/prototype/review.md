@@ -94,5 +94,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prototype | step=review | agent=reviewer-agent | packet=rules/packets/prototype/review.md | global=ok | skills=artifact-review,ui-visual-design-system|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prototype | step=review | agent=reviewer-agent | packet=rules/packets/prototype/review.md | global=ok | skills=artifact-review=done|na,ui-visual-design-system=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

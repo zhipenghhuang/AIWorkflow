@@ -44,9 +44,7 @@
 - 市场 用户 竞品 问题验证。
 - 技能见 §6 `zero-to-one-product-definition` + §6 `customer-needs-discovery`（先读再做）。
 - 竞品向另按 `competitive-intelligence-and-learning` 技能 **模式 S**（命中时打开）。
-- **先问题后方案再确认**：按 先查事实。
-- 仍不明一次一问（附候选/推荐）。
-- 未确认不升格。
+- **先问题后方案再确认**：按本包澄清口径（先查事实→仍不明一次一问→未确认不升格）。
 - **未双确认不得**提 Go 写全量 PRD。
 - 产出须含谁/场景/问题/代价/目标/非目标/方案要点/承诺信号。
 - 单个客户/竞品/领导说法标样本与证据等级。
@@ -97,5 +95,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:new-product | step=discover | agent=pm-analyst | packet=rules/packets/new-product/discover.md | global=ok | skills=zero-to-one-product-definition,customer-needs-discovery|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:new-product | step=discover | agent=pm-analyst | packet=rules/packets/new-product/discover.md | global=ok | skills=zero-to-one-product-definition=done|na,customer-needs-discovery=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

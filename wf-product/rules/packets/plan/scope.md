@@ -28,7 +28,7 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_plan`**：首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**§3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期
+- **HITL `confirm_plan`**：首次计划或范围·指标·版本实质变更：目标/路线图/本期范围/**计划 §3.0 Brief+差量表** /里程碑/风险摘要；无差量表（且非明示首版一行）不过门；未确认不进 PRD/排期
 - **条件判定 `hitl:plan_needs_confirm`**：首次计划或范围·指标·版本实质变更；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -73,5 +73,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=scope | agent=pm-lead | packet=rules/packets/plan/scope.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=scope | agent=pm-lead | packet=rules/packets/plan/scope.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -58,8 +58,8 @@ steps:
     需求台账/变更记录/待决项/决策记录/`inbound/` + `inbound/INDEX.md` 存在；无则按模板补。 每阶段按阶段表“技能”列加载技能；S2 技术方案按变更面加载 technology-selection/database-design/api-design/frontend-design/threat-modeling/performance-and-capacity，不要求全读。
     已存在：不覆盖；读现状后转 sync，避免丢失进度。 L0 微改可写「不适用」；L2+ 新项目/新产品默认启用；不强制引用其它包。 confirm_plan：首次创建/范围·版本·里程碑实质变更时，出示阶段/范围/门/下一步请确认；须独立评审时确认后状态=待评审（`review-plan`
     通过后再=已确认），否则可=已确认。本步不宣称可按计划执行。 范围·版本实质变更或换主题（即使不发版）→ 按 `rules/doc-governance.md`；不确定则 `confirm_iteration_close`；确认后先判
-    T1/T2/T4，再按 `rules/doc-governance.md` 关账（T2/T4 保留仍被引用的基础设计/流程图/原型）。 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建
-    `{next}/` current（默认覆盖最新）。 输出首条：route=workflow:control | step=init | stage=S0 | gate=G0 | next_action=补输入/需求分析或开发计划评审。
+    T1/T2/T4，再按 `rules/doc-governance.md` 关账（保留仍被引用的基础设计/流程图/原型）。 关账 materials：**必做**覆盖刷新关闭版 `{prev}/`→superseded，再建 `{next}/`
+    current（默认覆盖最新）。 输出首条：route=workflow:control | step=init | stage=S0 | gate=G0 | next_action=补输入/需求分析或开发计划评审。
 - name: 开发计划独立评审
   id: review-plan
   skills:

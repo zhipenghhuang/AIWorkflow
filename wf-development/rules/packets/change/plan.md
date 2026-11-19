@@ -87,5 +87,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=plan | agent=iterate-lead | packet=rules/packets/change/plan.md | global=ok | skills=task-breakdown|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=plan | agent=iterate-lead | packet=rules/packets/change/plan.md | global=ok | skills=task-breakdown=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

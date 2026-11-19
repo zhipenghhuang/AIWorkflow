@@ -19,9 +19,10 @@ GOOD = {'.gate/wf-testing/completion.json': '{\n  "gate_version": "3.5",\n  "pac
 GOOD["docs/test-report.md"] = GOOD["docs/test-report.md"].replace(
     "## 3. 缺陷",
     "### 2.4 探索式概况\n\n"
-    "| 风险面/主题 | 主责 | 结论 | 证据/记录 |\n"
-    "| --- | --- | --- | --- |\n"
-    "| 登录失败下一步 | 探索 | 已覆盖 | 探索记录 |\n\n"
+    "| 风险面/主题 | 主责 | 结论 | 功能化/去向 | 证据/记录 |\n"
+    "| --- | --- | --- | --- | --- |\n"
+    "| 登录失败下一步 | 探索 | 已覆盖 | 转常规回归 | 探索记录 |\n"
+    "| 退出后状态回显 | 探索 | 已覆盖 | 转功能回归 | 探索记录 |\n\n"
     "## 3. 缺陷",
 )
 
@@ -326,7 +327,7 @@ def fail_record(base: dict[str, str], with_detail: bool) -> dict[str, str]:
     rec = out[rec_path]
     rec = rec.replace(
         "| 通过 | evidence/sc-001.txt | 页面提示「账号或密码错误」；状态码 401 | — |",
-        "| 失败 | evidence/sc-001.png | 偏差=缺陷：提示与状态不符 | — |",
+        "| 失败 | evidence/sc-001.png | 偏差=缺陷：提示与状态不符 | BUG-123 |",
     )
     rec = rec.replace(
         "| INT-001-LOGIN | P0 | SC-001 | 通过 | evidence/sc-001.txt |",
@@ -558,10 +559,39 @@ def main() -> int:
             **GOOD,
             "docs/test-report.md": GOOD["docs/test-report.md"].replace(
                 "### 2.4 探索式概况\n\n"
-                "| 风险面/主题 | 主责 | 结论 | 证据/记录 |\n"
-                "| --- | --- | --- | --- |\n"
-                "| 登录失败下一步 | 探索 | 已覆盖 | 探索记录 |\n\n",
+                "| 风险面/主题 | 主责 | 结论 | 功能化/去向 | 证据/记录 |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "| 登录失败下一步 | 探索 | 已覆盖 | 转常规回归 | 探索记录 |\n"
+                "| 退出后状态回显 | 探索 | 已覆盖 | 转功能回归 | 探索记录 |\n\n",
                 "",
+            ),
+        }, "report", "FAIL", None,
+    ))
+    cases.append((
+        "report-2.4-no-functionalize-col", {
+            **GOOD,
+            "docs/test-report.md": GOOD["docs/test-report.md"].replace(
+                "| 风险面/主题 | 主责 | 结论 | 功能化/去向 | 证据/记录 |",
+                "| 风险面/主题 | 主责 | 结论 | 证据/记录 |",
+            ),
+        }, "report", "FAIL", None,
+    ))
+    cases.append((
+        "report-2.4-no-exploratory-row", {
+            **GOOD,
+            "docs/test-report.md": GOOD["docs/test-report.md"].replace(
+                "| 登录失败下一步 | 探索 | 已覆盖 | 转常规回归 | 探索记录 |\n"
+                "| 退出后状态回显 | 探索 | 已覆盖 | 转功能回归 | 探索记录 |",
+                "| 登录失败下一步 | 功能测试 | 已覆盖 | 转常规回归 | 功能记录 |\n"
+                "| 退出后状态回显 | 功能测试 | 已覆盖 | 转功能回归 | 功能记录 |",
+            ),
+        }, "report", "FAIL", None,
+    ))
+    cases.append((
+        "report-module-total-mismatch", {
+            **GOOD,
+            "docs/test-report.md": GOOD["docs/test-report.md"].replace(
+                "| 登录 | 1 | 1 | 0 | 0 |", "| 登录 | 2 | 1 | 0 | 0 |"
             ),
         }, "report", "FAIL", None,
     ))

@@ -87,5 +87,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prd | step=benchmark | agent=pm-analyst | packet=rules/packets/prd/benchmark.md | global=ok | skills=competitive-intelligence-and-learning,requirement-discovery-and-prioritization|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=benchmark | agent=pm-analyst | packet=rules/packets/prd/benchmark.md | global=ok | skills=competitive-intelligence-and-learning=done|na,requirement-discovery-and-prioritization=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

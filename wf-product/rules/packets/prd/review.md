@@ -106,5 +106,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prd | step=review | agent=reviewer-agent | packet=rules/packets/prd/review.md | global=ok | skills=artifact-review,review-and-finalize|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=review | agent=reviewer-agent | packet=rules/packets/prd/review.md | global=ok | skills=artifact-review=done|na,review-and-finalize=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

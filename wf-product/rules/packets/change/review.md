@@ -82,5 +82,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:change | step=review | agent=reviewer-agent | packet=rules/packets/change/review.md | global=ok | skills=artifact-review,review-and-finalize|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:change | step=review | agent=reviewer-agent | packet=rules/packets/change/review.md | global=ok | skills=artifact-review=done|na,review-and-finalize=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

@@ -125,7 +125,7 @@ steps:
   gate: change-closure
   gate_type: machine
   output: 验证结果（受理单 §7 / UAT / 变更单 §5）
-  notes: Invoke-Gate -Mode change；未 READY 不得 closeout 冒充完成。回执未收不得称已接收。
+  notes: 按模板 §6 联动表逐项标 已更新/不适用/待补，单内 §7 写验证结果（通过/不通过/待验证/不适用）；Invoke-Gate -Mode change；未 READY 不得 closeout 冒充完成。回执未收不得称已接收。
 - name: 收尾与提交
   id: closeout
   skills: []

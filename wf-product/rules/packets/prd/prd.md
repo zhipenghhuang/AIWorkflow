@@ -59,9 +59,8 @@
 - P1↑/P2+ 按门槛补齐。
 - 方法见 §6 `prd-writing`（可选 analytics）。
 - 模板见 §7。
-- 澄清/交接索引 先查事实。
-- 仍不明一次一问（附候选/推荐）。
-- 未确认不升格 `rules/collaboration/handoff.md`。
+- 澄清方法见本包澄清口径（先查事实→仍不明一次一问→未确认不升格）。
+- 交接见 `rules/collaboration/handoff.md`。
 
 ## 6. 技能指向（打开 → 执行 → 回包）
 
@@ -96,5 +95,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:prd | step=prd | agent=prd-writer | packet=rules/packets/prd/prd.md | global=ok | skills=prd-writing|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:prd | step=prd | agent=prd-writer | packet=rules/packets/prd/prd.md | global=ok | skills=prd-writing=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

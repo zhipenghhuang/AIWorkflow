@@ -79,5 +79,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:release | step=rollback | agent=delivery-lead | packet=rules/packets/release/rollback.md | global=ok | skills=acceptance-and-launch|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:release | step=rollback | agent=delivery-lead | packet=rules/packets/release/rollback.md | global=ok | skills=acceptance-and-launch=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

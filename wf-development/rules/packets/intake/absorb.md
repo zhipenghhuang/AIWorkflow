@@ -57,7 +57,7 @@
 - 实施走 change/iterate。
 - **换迭代/关版本（强制）**：新迭代文档已采纳或换主题/换代 → 按 文档治理规则（工作根/原件根/索引/关版整夹）。
 - 不确定当前是否结束 → STOP `confirm_iteration_close`。
-- 确认后先判 T1/T2/T4，再按 文档治理规则（工作根/原件根/索引/关版整夹） 关账（T2/T4 保留仍被引用的基础设计/流程图/原型；分析分类/归档/清理/修链；跳过仅发版项）。
+- 确认后按 文档治理规则（工作根/原件根/索引/关版整夹） 关账（ 保留仍被引用的基础设计/流程图/原型；分析分类/归档/清理/修链；跳过仅发版项）。
 - 用户说并行不关 → 只落新资料。
 
 ### 本步规则卡：文档治理
@@ -87,5 +87,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:intake | step=absorb | agent=iterate-lead | packet=rules/packets/intake/absorb.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:intake | step=absorb | agent=iterate-lead | packet=rules/packets/intake/absorb.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

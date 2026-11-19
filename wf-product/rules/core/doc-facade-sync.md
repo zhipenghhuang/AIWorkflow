@@ -1,6 +1,6 @@
 # 门面与对外事实同步（产品）
 
-> **读取级别：参考**（事件触发时读；收尾不再强制 `facade=` 字段）。
+> **读取级别：参考**（事件触发时读）。
 
 > **定位**：根 `README.md` 与档案中**对外可见句**的事件触发同步。  
 > **不替代**：状态「三处同拍」（计划 §0 ↔ 导航 INDEX ↔ `activeContext`）只认 `global-rules.md` §8；事件级同步矩阵见 `execution-contract.md` §4（参考）；关账/materials 仍认 `doc-governance.md` §7。  

@@ -28,9 +28,9 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_understanding`**：**主屏**：分析 §0 摘要、来源盘点计数（含 UI/文案类）、AC/设计点/UI/文案覆盖、关键歧义/冲突、P0 意图与 Oracle；确认后才写计划。
+- **HITL `confirm_understanding`**：出示收件类型/来源/完整性/影响面与拟吸收项；确认后才吸收。
 - **条件判定 `hitl:understanding_needs_confirm`**：输入含 PRD/方案/原型/接口，存在 2 个以上实质歧义/冲突，T2/T3，或用户要求计划/准出且未确认分析；满足→真，否则跳过该门。
-- **HITL `confirm_plan`**：版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）+ **数据前置**（造数项数/无造数依据）。**待确认只列需用户裁决的范围/准出/接受人**；造数/建号/开通/专项方案编制属执行期自助（`rules/defects/classification.md` §0.4），不得挂待确认。同会话同载体只一次。须独立评审时本门在 `review-plan`（选 A/B 之后）；lite 无落地评审时在 `plan`。
+- **HITL `confirm_plan`**：需重规划时出示对测试计划/范围的影响与拟变更；确认后才改基线。
 - **条件判定 `hitl:plan_needs_confirm`**：版本级首版/换代，或范围/准出/缺陷策略实质变化；满足→真，否则跳过该门。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -70,5 +70,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:handoff | step=receive | agent=test-planner | packet=rules/packets/handoff/receive.md | global=ok | skills=na|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:handoff | step=receive | agent=test-planner | packet=rules/packets/handoff/receive.md | global=ok | skills=na | claim=ALLOWED|DENIED|na | next=…
 ```

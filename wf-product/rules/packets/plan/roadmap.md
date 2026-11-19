@@ -80,5 +80,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=roadmap | agent=pm-analyst | packet=rules/packets/plan/roadmap.md | global=ok | skills=zero-to-one-product-definition,requirement-discovery-and-prioritization|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=roadmap | agent=pm-analyst | packet=rules/packets/plan/roadmap.md | global=ok | skills=zero-to-one-product-definition=done|na,requirement-discovery-and-prioritization=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

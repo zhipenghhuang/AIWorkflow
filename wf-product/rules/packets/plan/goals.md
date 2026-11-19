@@ -47,9 +47,7 @@
 - **目标有依据**：来自已双确认的客户/业务需求与证据，不自行发明 KPI/北极星。
 - 无基线/无口径标「待验证」并写验证方式。
 - **未双确认不得**进入目标/范围。
-- 口径不明须按 先查事实。
-- 仍不明一次一问（附候选/推荐）。
-- 未确认不升格 问清并确认。
+- 口径不明须按本包澄清口径（先查事实→仍不明一次一问→未确认不升格） 问清并确认。
 - 技能：0→1 读 §6 `zero-to-one-product-definition`。
 - 迭代读 §6 `requirement-discovery-and-prioritization`（先读；迭代路径/需求来源不明时按 `customer-needs-discovery` 技能补洞察）。
 - 能力（可选）：analytics 核对口径。
@@ -84,5 +82,5 @@
 ## 9. 回执
 
 ```text
-route=workflow:plan | step=goals | agent=pm-analyst | packet=rules/packets/plan/goals.md | global=ok | skills=zero-to-one-product-definition,requirement-discovery-and-prioritization|done|na | claim=ALLOWED|DENIED|na | next=…
+route=workflow:plan | step=goals | agent=pm-analyst | packet=rules/packets/plan/goals.md | global=ok | skills=zero-to-one-product-definition=done|na,requirement-discovery-and-prioritization=done|na | claim=ALLOWED|DENIED|na | next=…
 ```

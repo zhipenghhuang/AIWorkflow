@@ -133,12 +133,14 @@
 ```
 
 **出站类别**：`需求`←REQ；`设计`←DES；`计划`←PLAN；`验收`←UAT；`发布`←REL；`变更`←CHG；`缺陷`←BUG；`复盘`←RETRO；`确认`←DEC/OTHER 等。  
+**命名**：目录名固定中文（`需求/`…）；台账/单号用英文 category id（`requirements/…`），对照见 `rules/path-aliases.md`；禁把 category id 当目录名。  
 **入站**：按内容归类（非 HO 亦收）；须打开→T1～T9 分析→A0～A2 吸收并同步。  
 **与 `docs/`**：外来原件主副本固定 `inbound/{ver|topic}`；交接件工作副本进 `{workroot}/handoff/inbound/{category}/`；定稿进 `docs/materials/`。同仓直读对方 outbound，不强制拷入站。
 
 ### 4.1 标准包（HO）
 
-路径：`{workroot}/handoff/outbound/{category}/{HO-ID}/`（`00`～`04` 同前）。确认后才生成；平台已回写不强制 BUG 整包；ID/多收/快照/安全规则同前（快照真源在 `{workroot}/{ver}/`；禁要求对方再拷入站）。
+路径：`{workroot}/handoff/outbound/{category}/{HO-ID}/`（`00`～`04` 同前）。确认后才生成；平台已回写不强制 BUG 整包；ID/多收/快照/安全规则同前（快照真源在 `{workroot}/{ver}/`；禁要求对方再拷入站）。  
+**ID 格式**：`HO-yyyyMMdd-NN-TYPE-FROM2TO`（TYPE=REQ/DES/PLAN/QA/REL/CHG/UAT/BUG/FIX/CLAR/RETRO/DEC/OTHER；FROM/TO=PRD/DEV/QA/ALL；多收 `2ALL`）；与模板、`validate_handoff.py` 同口径。
 
 ### 4.2 生成步骤（`handoff.send`）
 
