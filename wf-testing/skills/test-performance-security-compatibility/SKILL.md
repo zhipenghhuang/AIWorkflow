@@ -92,3 +92,4 @@ description: Use for performance, security, compatibility, migration, and releas
 | “扫描没报就不用威胁建模” | 扫描覆盖不到业务逻辑/越权链；威胁建模定攻击面后再测。 |
 | “发布前一批跑完四份报告一起过” | 否；每专项硬映射清零或该行 Q19；未跑项不得笼统待确认关账。 |
 | “标准级绿了高风险长稳可先挂着” | 高风险级未跑项须跑或短代/豁免+用户确认；禁默认可准出。 |
+| “硬映射写需用户确认就能下批” | 否；须 `confirm_prerelease_gaps` STOP 取得当轮裁决并回写接受人/短代；挂台账≠Q19。 |

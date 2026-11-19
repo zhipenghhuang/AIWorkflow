@@ -14,7 +14,7 @@
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
 前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
-**自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test` 按 `skills/test-design-and-execution` 出按风险完整集并实测（大改动/高风险全节），报告落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 未过不得判通过。
+**自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test_plan` 落 INT+Oracle 意图台账（不预写全量用例）；`solo.test` 按意图生成场景并实测（大改动/高风险全节），报告以意图终态为准，落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 意图未过不得判通过。
 
 **任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md> --root .`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，来源文件不存在、`§x` 在目标文档无对应编号标题，方案 §4.1 设计要点 `D-xx` 未被 SC 覆盖，§4.1 漏 `R-xx` 或引用不存在的 `T-xx`，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 在准出前再硬拦一次；存在 `.gate/plan-coverage.md` 时同轮核 SC ↔ 覆盖矩阵双向闭合。
 **实施质量字段**：L1+ 有代码时验收清单须含 `implement_preflight` + `sc_trace`（Markdown 可用「实施预检」行 + SC 表）；命中 profile `shared_globs`（共享/被引用文件）另须 `impact_map`（调用方/依赖模块 + 回归集）；缺或 `missing` → BLOCKED。

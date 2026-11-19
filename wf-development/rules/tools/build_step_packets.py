@@ -1189,7 +1189,7 @@ def render_packet(
     if pack_key == "wf-development" and wid == "solo" and sid == "build":
         extra_card = (
             extra_card
-            + "\n\n### 测试输入\n- 读本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`；按 P0/P1/P2 与覆盖矩阵实施/自测。"
+            + "\n\n### 测试输入\n- 读本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`；按意图台账（INT+Oracle / P0～P2）实施与自测；不预写全量用例表。"
         ).strip()
     step_conditional = step.get("skills_conditional") or {}
     work = build_work_rules(

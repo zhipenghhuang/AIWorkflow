@@ -68,8 +68,8 @@
 | `40-delivery/go-live-checklist-template.md` | release.readiness | 硬项/NO-GO |
 | `40-delivery/release-record-template.md` | release.record | 实际步骤/verify/观察 |
 | `40-delivery/uat-acceptance-template.md` | release.acceptance | 逐条 AC |
-| `40-delivery/solo-test-plan-template.md` | solo.test_plan | 测试分析与计划：来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测 |
-| `40-delivery/lite-test-report-template.md` | solo.test / 无 QA 的 change.verify·iterate.gates | 开发测试报告：执行结果/证据/verdict；测试分析与计划见测试计划 |
+| `40-delivery/solo-test-plan-template.md` | solo.test_plan | 测试分析与计划：AC 账本、意图台账 INT+Oracle、影响面/覆盖摘要、P0～P2、环境/数据、回归锚点、不测（不预写全量用例） |
+| `40-delivery/lite-test-report-template.md` | solo.test / 无 QA 的 change.verify·iterate.gates | 开发测试报告：AC 走查/意图终态/场景摘录/证据/verdict；计划见测试分析与计划 |
 | `40-delivery/defect-writeup-template.md` | defect-fix.close / 缺陷处置 | 平台备注/附件/状态/指派文案骨架；**close 必读 §6.0/§6.1/§6.9/§6.10** |
 
 ## 60-retro

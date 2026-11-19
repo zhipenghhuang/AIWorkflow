@@ -73,7 +73,7 @@
 
 ## 5. 测试
 
-> 测试分析与计划见 `{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md`（`solo.test_plan`）；执行结果/证据/verdict 见测试报告。本卡不写测试计划/执行结果。
+> 测试分析与计划见 `{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md`（`solo.test_plan`：意图 INT + Oracle，不预写全量用例）；执行结果/意图终态/证据/verdict 见测试报告。本卡不写测试计划/执行结果。
 
 ## 6. 风险与假设
 

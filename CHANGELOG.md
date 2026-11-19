@@ -8,9 +8,9 @@
 | 包/仓 | 当前版本 | 本次变化 | 说明 |
 | --- | --- | --- | --- |
 | 产品规范 | `2026.11.19.09` | 架构/链路复核 | 缺陷关闭链、计划出口、原型回程、子链门、when_eval |
-| 开发规范 | `2026.11.19.09` | 缺陷现行口径闸 + 架构复核 | triage 真缺陷对账；提交门序/L2+ 验收/前端 C 档 |
-| 测试规范 | `2026.11.19.09` | 报告门与评审入口复核 | 证据链接扫描、评审入口 token、§2.4/执行记录口径 |
-| 母版仓 | `2026.11.19.09` | 取三包最高 | 同分齐升 |
+| 开发规范 | `2026.11.19.10` | solo 测试对齐 INT+Oracle | 弃旧用例表思想；意图终态为准 |
+| 测试规范 | `2026.11.19.11` | 分批执行与轨隔离补强 | 探索≠发布前同关；设计基准；易用归探索 |
+| 母版仓 | `2026.11.19.11` | 取三包最高 | 测试升档 |
 
 > 母版仓版本取三包最高版本，不新增第四套版本号；三包仍可独立升级、独立落地。
 
@@ -20,6 +20,8 @@
 
 | 迭代 | 主要变化 |
 | --- | --- |
+| 测试规范 `2026.11.19.11` | 就地补强（无新 workflow）：① execute **分批锁**—`batch=`+`track=`、§3.1 一行一批、禁同会话糊关功能+探索+发布前；② 计划模板探索批≠发布前批、设计基准字段；③ multi-track ⑨ + 易用不另开轨；④ 探索/发布前/workflow/执行技能反合理化对齐；⑤ 重生 testing 步骤包。 |
+| 开发规范 `2026.11.19.10` | solo 测试思想对齐完整测试轨（轻量，不造新流程）：① 真源=意图 INT + 可观测 Oracle；计划**不**预写全量用例表；执行按意图生成场景、以意图终态为准；② 重写 `test-design-and-execution`、`solo-test-plan`/`lite-test-report` 模板；③ `lightweight` §4、`solo.yaml`、test-planner、design-doc-review 量规、方案卡 §5、verify README/AGENTS 同步；④ 重生 solo 步骤包。 |
 | 三包 `2026.11.19.09` | 架构/链路复核补强（不改分层）：① 产品缺陷 verify→平台关闭回写补 `close_platform` 条件步；计划 publish→closeout（`next` 仅入口）；原型 handoff 子链回 `review`/独立 `closeout` 双出口入卡与链图；new-product 子链完成以子链门为准；② 开发提交门移到 verify/gates/test（代码/产物先确认后过门，closeout 只提文档）；change/iterate plan 落 `.gate/acceptance.yaml` 并与 StartTask 同 task_id；solo 门不再依赖 StartTask；preflight 无平台按 routing 判 solo/change；前端 C 档免 parity/移动证据；release NO-GO 不写发版史；③ 测试报告标记扫描跳过证据链接、review-plan 入口改用不翻转 token、execute depth/Q19 归人工、执行记录失败行查缺陷号；④ 跨包 `when_eval` 入收尾骨架与机检、`chain: full` 语义澄清、交接目录占位符/ID 格式、旧字段句清理。 |
 | 开发规范 `2026.11.19.09` | 缺陷 triage 现行口径对账（就地补强，无新流程）：① `fix-collaboration` §4.0#8 真缺陷闸——应然只认现行产品原件/已确认结论，旧版与开发自写方案不作 Oracle；现网符合现行且预期过时→`by_design`，不符现行→按现行修；② 分类表依据须含现行出处；fix 中发现过时回 triage；③ agent/YAML/回写模板/评估单短指针；规则 eval #46。 |
 | 三包 `2026.11.19.08` | materials 发布可执行补强（不改定位/无新流程）：① 边界钉死——材料包=现行完整快照≠编年史；短入口=`project-guide`；② 完整包口令→域 00-07，仅补本包域须标「非完整」；③ `sync` 硬要求复制后改写包内相对路径／补拷，未改写不得进 `index`；④ 完整包 overview 硬项（`project-guide`+阅读顺序，冲突须效力说明）；⑤ `materials-validate`/三包门表对齐缺失三分类与 overview 硬项；⑥ `project-profile` 模板与 README 指回 §2.2/§5.2。`check_lean` 绿。 |

@@ -23,6 +23,7 @@
 | 计划门 | `confirm_plan`（when: `plan_needs_confirm` / `plan_confirm_without_doc_review`） | 版本级首版/换代，或范围/准出/缺陷策略实质变更 → STOP 一行摘要：分析计数、P0/P1/P2、N/A、待确认、准出、**批次形态**（如「N 模块·模块子代理·串行/PG-xx」）+ **数据前置**（造数项数/无造数依据）。**待确认只列需用户裁决的范围/准出/接受人**；造数/建号/开通/专项方案编制属执行期自助（`rules/defects/classification.md` §0.4），不得挂待确认。同会话同载体只一次。须独立评审时本门在 `review-plan`（选 A/B 之后）；lite 无落地评审时在 `plan`。 |
 | 探索范围门 | `confirm_exploratory_scope`（when: `exploratory_scope_reduced`） | 探索整轨否 / §3.2 四行缺任一 / 有面对标 N/A / 主责=探索可跑面<4（T1 可 2～3 面）→ STOP 一行：范围/原因/接受人；确认后定稿计划 §3.2；未确认不得以“探索已闭环”准出。条件只认 §2 词表。 |
 | 执行门 | `confirm_execution_scope`（when: `scope_needs_confirm`） | 开跑前一行：计划范围/环境/构建/轮次 → 确认；计划已确认 → 跳过并附【已预授权执行：按计划】。 |
+| 发布前缺口门 | `confirm_prerelease_gaps`（when: `prerelease_gaps_pending`） | 发布前硬映射有「未跑」/拟短代/拟裁剪且该行无当轮 `接受人=`+日期（或短代+`deviation=`）→ STOP 逐行选项（跑｜短代+deviation｜本轮不测+接受人）；确认后回写映射；未确认禁开下一批、禁用「需用户确认」顶替。 |
 | git 提交门 | `confirm_commit` | 【拟提交·仓库】；默认仅本地提交，推送须点名并单独确认；≠ 收尾摘要；≠ 平台门。 |
 | 迁移/资料门 | `confirm_docs_migration`（when: `docs_migration_needed`） | 资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。 |
 | 迭代关闭门 | `confirm_iteration_close`（when: `iteration_close_needed`） | 出示当前迭代、未完成项、拟归档摘要、下一迭代；确认后关账；可「并行不关」。 |
@@ -46,6 +47,7 @@
 | `plan_doc_review_required` | 版本级分析+计划已落盘，且（首版/换代或范围·准出·缺陷策略实质变更或点名评审）；不依赖是否已选 A/B | lite/T0 无新增功能面；同范围无实质变 |
 | `plan_confirm_without_doc_review` | `plan_needs_confirm` 为真且 `landing_doc_review_needed` 为假 | 走 `review-plan` 确认，或无需确认 |
 | `scope_needs_confirm` | 非计划驱动、计划 §0 非已确认/执行中/待关闭，或范围/环境实质变化 | 计划驱动且 §0 已确认/执行中/待关闭 |
+| `prerelease_gaps_pending` | 本批为发布前（或刚关发布前专项），硬映射存在「未跑」/拟短代/拟裁剪行，且该行尚未落当轮 `接受人=`+日期或短代+`deviation=` | 无此类行；或行已落接受人/短代确认 |
 | `analysis_coverage_required` | 本轮创建/更新分析或计划 | 纯只读/无分析/计划变更 |
 | `module_batch_complete` | 本批计划内意图已执行完、执行记录终态齐（无未执行）、失败/阻塞有证据；P0 失败须有缺陷/解释（非「零红灯才推进」） | 未跑完/记录未齐/证据缺 |
 | `platform_ask_required` | 本轮有拟交平台/新建缺陷单待确认（不含回写） | 无平台动作 |

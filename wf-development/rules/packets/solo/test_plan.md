@@ -6,7 +6,7 @@
 
 - **workflow / step**：`solo` / `test_plan`（测试分析与计划）
 - **packet**：`rules/packets/solo/test_plan.md`
-- **角色**：`test-planner`（测试分析与计划（开发自包含链））。按方案卡写测试分析与计划；不写代码、不执行测试、不判版本准出；本步只做该角色职责；越界交回或升级。
+- **角色**：`test-planner`（测试分析与计划（开发自包含链））。按方案卡写测试分析与计划（INT+Oracle）；不写代码、不执行测试、不判版本准出；本步只做该角色职责；越界交回或升级。
 - **上游**：`review_docs`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`build`
 - **失败去向**：回 design 修方案卡；AC/范围不清先停下说明；评审需修同回合修订 ≤1
@@ -44,11 +44,14 @@
 
 ### 本步动作清单
 
-- 技能见 §6 `test-design-and-execution`（测试卡/设计）。
+- 技能见 §6 `test-design-and-execution`（意图台账/设计）。
 - 模板 `rules/templates/40-delivery/solo-test-plan-template.md`。
+- 思想：INT+可观测 Oracle 为真源。
+- 不预生成全量用例表。
+- 执行时按意图对照原文生成场景。
 - 输入：方案卡 §0/§1/§4（理解/产品行为/AC）。
 - 只做测试分析与计划，不改代码。
-- 产出：来源/AC 账本、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、不测、回归锚点。
+- 产出：来源/AC 账本、意图台账（INT+Oracle/P0～P2）、影响面/覆盖摘要、环境/数据、不测、回归锚点。
 - 纯文档 `plan_has_code_change=false` 跳过。
 - 代码/配置必产。
 - L2+/高风险：落盘后 STOP `select_review_mode`（`design-doc-review` solo 测试计划量规）。

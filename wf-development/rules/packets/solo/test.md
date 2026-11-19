@@ -10,7 +10,7 @@
 - **前置**：review_required=true → review 已通过（.gate/review.md 无阻断）；测试计划已产出；方案卡验收表冻结
 - **上游**：`review`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`closeout`
-- **失败去向**：回 build 修复；P0 未过不得进 closeout，修后重跑原用例 + 冒烟 + 影响面
+- **失败去向**：回 build 修复；P0 意图未过不得进 closeout，修后重跑原失败意图 + 冒烟 + 影响面
 - **轻量路径**：纯文档/无行为/无 UI 时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
 ## 2. 本步目标
@@ -49,8 +49,9 @@
 - 模板 `rules/templates/40-delivery/lite-test-report-template.md`。
 - 口径 `lightweight.md`。
 - 门禁见 `verify/README.md`。
-- **开发测试/自验**（非准出）：按方案卡测试点 + **AC 走查**。
-- 覆盖集（按风险完整，不是只跑一条）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归。
+- **开发测试/自验**（非准出）：按意图台账（INT+Oracle）生成场景 + **AC 走查**。
+- 以意图终态为准绳（非用例通过率）。
+- 覆盖（按风险完整）=主路径 + 1 边界 + 1 异常 + 权限/数据域（适用时）+ 受影响回归。
 - 报告只写执行结果，测试分析与计划见本轮 `测试分析与计划-{主题}-{yyyyMMdd}.md`。
 - P2/回归锚点：高风险必填、纯文档 na。
 - 大改动/高风险：报告全节 + 独立 verifier + 回归/安全/回滚证据。
@@ -64,17 +65,18 @@
 - 先 UI 后 Network。
 - 不猜未见 API。
 - 失败留证。
-- 同一失败修复后跑「原用例 + 冒烟 + 影响面」，2 次无效换路径/升级。
+- 同一失败修复后跑「原失败意图 + 冒烟 + 影响面」，2 次无效换路径/升级。
 - 失败分类：产品/实现/环境/数据/测试问题。
 - 产品范围问题停下问用户，不按现网实现改预期。
-- 测试报告：范围/环境/AC 走查/测试点/结果/证据/defects/缺口/verdict（开发测试/自验）。
-- P0 未过 = FAIL。
+- Oracle 过时先刷新意图台账。
+- 测试报告：范围/环境/AC 走查/意图终态/场景摘录/证据/defects/缺口/verdict（开发测试/自验）。
+- P0 意图未过 = FAIL。
 - 禁写「已准出」。
 - 运行 `verify/Invoke-Gate.ps1 -ProjectRoot "." -Acceptance "<.gate/acceptance.yaml（L2+）或方案卡（L0/L1）>"`。
 - 门末自动 Claim。
 - 读 `.gate/wf-development/completion.json`。
 - 非 COMPLETE 不得进 closeout 报完成。
-- 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/检查/结果/证据/缺口），不跑 completion-gate。
+- 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/意图或检查/结果/证据/缺口），不跑 completion-gate。
 - closeout 写 `verification=not_applicable`。
 - 纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate。
 - closeout 写 `verification=not_applicable` + 依据。
