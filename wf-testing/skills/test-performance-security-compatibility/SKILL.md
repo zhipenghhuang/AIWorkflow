@@ -6,7 +6,8 @@ description: Use for performance, security, compatibility, migration, and releas
 # 性能 / 安全 / 兼容（技能 · 随包生效）
 
 > 边界/字段/阻断项以 `rules/tracks/pre-release.md` 为准；工具选装见 `capabilities/00-contract.md`。  
-> 原则：**工具测量，AI 解读**；不把 AI 当压测器/扫描器，不拿测试机结论冒充生产。
+> 原则：**工具测量，AI 解读**；不把 AI 当压测器/扫描器，不拿测试机结论冒充生产。  
+> **专项独立**：性能/安全/兼容/迁移各自方案+硬映射+报告；合批排期允许，**禁**一会话浅关四专项（`multi-track-quality` §2.3 / `tracks/pre-release`）。
 
 ## 1. 风险分级（先定最小集）
 
@@ -89,3 +90,5 @@ description: Use for performance, security, compatibility, migration, and releas
 | “混沌测试太高级” | 高风险系统至少验证降级/超时/回滚，不一定要全套平台。 |
 | “发布前过了就不用发布后验证” | 生产数据/流量/开关不同；至少生产冒烟 + 观察期 + 回滚触发。 |
 | “扫描没报就不用威胁建模” | 扫描覆盖不到业务逻辑/越权链；威胁建模定攻击面后再测。 |
+| “发布前一批跑完四份报告一起过” | 否；每专项硬映射清零或该行 Q19；未跑项不得笼统待确认关账。 |
+| “标准级绿了高风险长稳可先挂着” | 高风险级未跑项须跑或短代/豁免+用户确认；禁默认可准出。 |
