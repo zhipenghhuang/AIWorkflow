@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-REQUIRED = ("## 1.", "## 2.", "## 3.", "## 4.", "## 5.")
+REQUIRED = ("## 1.", "## 2.", "## 3.", "## 4.", "## 5.", "## 6.")
 HEADER_FIRST = {"方案条款/AC/SC", "页面/路由", "项"}
 FRONTEND_SUFFIXES = (
     ".js", ".mjs", ".css", ".scss", ".sass", ".less", ".html",
@@ -225,6 +225,14 @@ def validate(project_root: Path, level: str, files: list[str],
     bad_frontend = _bad_status_rows(frontend)
     if bad_frontend:
         problems.append("plan-coverage.md 前端覆盖存在未完成行：" + ", ".join(bad_frontend[:5]))
+    enterprise = _section(text, "## 6.")
+    if code_changed or frontend_changed:
+        if not _has_real_row(enterprise):
+            problems.append("plan-coverage.md 企业级完整性（## 6.）无有效行或全为待填")
+        else:
+            bad_enterprise = _bad_status_rows(enterprise)
+            if bad_enterprise:
+                problems.append("plan-coverage.md 企业级完整性存在未完成行：" + ", ".join(bad_enterprise[:5]))
     conclusion = _conclusion_value(_section(text, "## 5."))
     stats["conclusion"] = conclusion
     ok, why = _conclusion_verdict(conclusion)

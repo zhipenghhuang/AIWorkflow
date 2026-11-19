@@ -123,7 +123,7 @@
 
 > 运行时以当前步骤卡/技能为准；达阈值取档细则按需打开 `rules/collaboration/subagents.md`（单一出处，禁通读）。本条只留不可让边界。
 
-- **取档**：工具 → 直做 → 分片 → 拆分；达阈值应拆或 `deviation=subagent_skipped`；开跑声明 `mode=`。  
+- **取档**：工具 → 直做 → 分片 → 拆分；达阈值按净收益取档（直做写 `mode=`+理由，净收益为正却直做记 `deviation=subagent_skipped`）；开跑声明 `mode=`。  
 - **实例**：分片每单元新开；拆分核验 fresh `verifier-agent`（禁 resume Writer）；串行下一批默认新开。  
 - **并行**：只读扇出与文件不相交写分片可并行≤3；同一 PRD/计划/受理单/`index.html` 禁并行写。  
 - **降级**：超时/空产物/违规 → 同回合直做 + `subagent_degraded`；宿主无子代理 → `unavailable`。  

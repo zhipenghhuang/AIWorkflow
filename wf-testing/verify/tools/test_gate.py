@@ -1367,6 +1367,10 @@ def parse_plan(path: Path) -> dict[str, Any]:
             batch_data = table_rows(t_batch)
             if not batch_data:
                 issues.append("§3.1 批次表无数据行")
+            over_capacity = bool(
+                re.search(r"deviation\s*=\s*batch_over_capacity\s*:\s*[^\s<{（`]", text)
+            )
+            in_scope = max(0, counts.get("total", 0) - counts.get("N/A", 0)) if counts else 0
             # 扇出只在「同一并行波次」内计：并行组=串行/空 → 各行独立，不跨批误伤
             wave: dict[str, list[tuple[str, str, str]]] = {}
             for row in batch_data:
@@ -1383,9 +1387,13 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 if "全部" in scope_cell:
                     batch_all = True
                     batch_all_ids.add(bid)
-                if len(row_ints) > 35 and not re.search(r"模块子代理|拆分", mode or ""):
+                    if in_scope > 35 and not over_capacity:
+                        issues.append(
+                            f"§3.1「{bid}」全部覆盖 {in_scope} 意图 > 35；须拆批或写 deviation=batch_over_capacity:<理由>"
+                        )
+                if len(row_ints) > 35 and not over_capacity:
                     issues.append(
-                        f"§3.1「{bid}」意图 {len(row_ints)} > 35，须拆批或形态=模块子代理/拆分"
+                        f"§3.1「{bid}」意图 {len(row_ints)} > 35；须拆批或写 deviation=batch_over_capacity:<理由>"
                     )
                 batch_intents.update(row_ints)
                 batches[bid] = row_ints
@@ -1408,6 +1416,10 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 if wkey.startswith("serial::"):
                     continue
                 uniq_mods = {m for _, m, _ in fanout}
+                if len(uniq_mods) > 3:
+                    issues.append(
+                        f"§3.1 同并行组({wkey}) 装填模块 {len(uniq_mods)} > 3；PG 内并发上限 3，须拆波或改串行"
+                    )
                 if len(uniq_mods) < 2:
                     continue
                 for bid, _mod, mode in fanout:

@@ -75,8 +75,8 @@ steps:
   agent: ux-designer
   output: '{workroot}/{ver}/50-showcase/一页纸-{产品}.md · {workroot}/{ver}/50-showcase/Deck大纲-{受众}.md（按点名类型产出）'
   notes: 一页纸：问题/用户/价值/证据/下一步；Deck：10～12 页，每页一个观点 + 证据 + 图； Mermaid 流程图/业务架构图（不写技术架构）。 **共享事实表 + 分片**（子代理编排 ）：同时产 ≥3 类材料/文档
-    → 先定事实表（功能/版本/截图/数字/边界），再按类型分片（不同文件）；最后 verifier-agent 一致性核对；单类直做。 技能：`skills/presentation-design/SKILL.md`；能力 doc-suite
-    presentation 可选。 **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外发送/承诺前由 `publish` 步 `confirm_materials` 确认，内部草稿不停。
+    → **未定事实表不得分片**；先定事实表（功能/版本/截图/数字/边界），再按类型分片（不同文件）；最后 verifier-agent 一致性核对；单类直做。 技能：`skills/presentation-design/SKILL.md`；能力
+    doc-suite presentation 可选。 **项目对齐**：数字/截图/流程/术语与 PRD/原型/构建一致，引用可回查；对外发送/承诺前由 `publish` 步 `confirm_materials` 确认，内部草稿不停。
 - name: 用户文档
   id: docs
   skills:

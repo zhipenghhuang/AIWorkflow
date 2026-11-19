@@ -1185,6 +1185,10 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             require_matrix=bool(fe.get("requireParityMatrix", True)),
             require_generated=require_generated,
             require_matrix_routes=bool(fe.get("requireMatrixRoutes", False)),
+            # 前端硬门 §2.5：分级声明与原型单源是 A/B 过门的前提，不再默认放行
+            require_tier=True,
+            require_prototype=bool(fe.get("requirePrototype", True)),
+            project_root=project_root,
         )
         problems.extend(parity_problems)
         if not parity_problems:

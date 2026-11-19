@@ -76,9 +76,65 @@ def _check_image(problems: list[str], evidence_dir: Path, rel: Any, label: str,
     return path
 
 
+def _tier_problems(evidence_dir: Path) -> list[str]:
+    """tier.json 必须存在且合法：分级只裁剪证据量，不裁剪质量底。"""
+    path = evidence_dir / "tier.json"
+    if not path.is_file():
+        return ["缺 .gate/frontend/tier.json（实施开工前必须声明 A/B/C + reason + routes）"]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
+    except Exception as exc:
+        return [f"tier.json 不可解析: {exc}"]
+    if not isinstance(data, dict):
+        return ["tier.json 顶层必须是对象"]
+    tier = str(data.get("tier", "")).strip().upper()
+    problems: list[str] = []
+    if tier not in ("A", "B", "C"):
+        problems.append("tier.json: tier 必须是 A/B/C")
+    if not str(data.get("reason", "")).strip():
+        problems.append("tier.json: reason 不能为空（为何可降级）")
+    routes = data.get("routes")
+    if not isinstance(routes, list) or not routes:
+        problems.append("tier.json: routes 至少一条")
+    return problems
+
+
+def _prototype_problems(project_root: Path) -> list[str]:
+    """原型单源：project-profile 声明 prototype=，且已解码到 .gate/prototype。"""
+    profile = project_root / "project-profile.md"
+    if not profile.is_file():
+        return ["缺 project-profile.md：无法解析当前迭代原型（prototype=）"]
+    text = profile.read_text(encoding="utf-8", errors="ignore")
+    proto_raw = ""
+    for line in text.splitlines():
+        if not re.search(r"prototype|原型", line, re.IGNORECASE):
+            continue
+        explicit = re.search(r"prototype\s*[=:]\s*([^\s|]+)", line, re.IGNORECASE)
+        if explicit:
+            proto_raw = explicit.group(1).strip().strip("`\"'")
+            break
+        found = re.search(r"(inbound/[^\s|`\"')]+)", line)
+        if found:
+            proto_raw = found.group(1).strip()
+            break
+    if not proto_raw:
+        return ["project-profile.md 未声明 prototype=<原型路径>（实例数据必须下沉到实例档案）"]
+    proto = Path(proto_raw)
+    if not proto.is_absolute():
+        proto = project_root / proto
+    if not proto.is_file():
+        return [f"原型文件不存在: {proto}（版本/路径可能已过期，换迭代必须更新）"]
+    decoded = project_root / ".gate" / "prototype"
+    if not decoded.is_dir() or not any(p.is_file() for p in decoded.rglob("*")):
+        return [f"未解码原型：{decoded} 为空（先跑 extract_prototype_modules.py）"]
+    return []
+
+
 def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = "",
              require_matrix: bool = True, require_generated: bool = False,
-             require_matrix_routes: bool = False) -> tuple[list[str], dict[str, Any]]:
+             require_matrix_routes: bool = False,
+             require_tier: bool = False, require_prototype: bool = False,
+             project_root: Path | str | None = None) -> tuple[list[str], dict[str, Any]]:
     ev = Path(evidence_dir)
     problems: list[str] = []
     stats: dict[str, Any] = {"routes": 0, "menus": 0, "deep_links": 0, "screenshots": 0}
@@ -86,9 +142,16 @@ def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = ""
     if not ev.is_dir():
         return [f"证据目录不存在: {ev}"], stats
 
+    root = Path(project_root) if project_root else ev.parent.parent
+    if require_tier:
+        problems.extend(_tier_problems(ev))
+    if require_prototype:
+        problems.extend(_prototype_problems(root))
+
     coverage_path = ev / "route-coverage.json"
     if not coverage_path.is_file():
-        return ["缺少 route-coverage.json（前端路由/菜单/深链覆盖清单）"], stats
+        problems.append("缺少 route-coverage.json（前端路由/菜单/深链覆盖清单）")
+        return problems, stats
     try:
         data = json.loads(coverage_path.read_text(encoding="utf-8-sig"))
     except Exception as exc:
@@ -357,13 +420,34 @@ def main() -> int:
                         help="要求 route-coverage 的每条路由在 parity-matrix 有 ### 区块标题")
     parser.add_argument("--require-generated", action="store_true",
                         help="要求 evidence.json（由 capture 生成）；L2+ 门禁默认开启")
+    parser.add_argument("--require-tier", action="store_true",
+                        help="要求 tier.json 存在且合法（实施开工前声明）")
+    parser.add_argument("--require-prototype", action="store_true",
+                        help="要求 project-profile 声明 prototype= 且已解码到 .gate/prototype")
+    parser.add_argument("--project-root", default="",
+                        help="项目根（默认由 evidence-dir 推断）")
+    parser.add_argument("--write", default="", help="把结果 JSON 写入该路径（实施出口回执）")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     problems, stats = validate(Path(args.evidence_dir), parse_ts(args.since),
                                args.base_commit, not args.no_matrix,
                                require_generated=args.require_generated,
-                               require_matrix_routes=args.require_matrix_routes)
+                               require_matrix_routes=args.require_matrix_routes,
+                               require_tier=args.require_tier,
+                               require_prototype=args.require_prototype,
+                               project_root=args.project_root or None)
+    if args.write:
+        receipt = {
+            "ok": not problems,
+            "problems": problems,
+            "stats": stats,
+            "evidence_dir": str(args.evidence_dir),
+            "checked_at": datetime.now().isoformat(timespec="seconds"),
+        }
+        target = Path(args.write)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding="utf-8")
     if args.json:
         print(json.dumps({"ok": not problems, "problems": problems, "stats": stats},
                          ensure_ascii=False, indent=2))

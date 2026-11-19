@@ -79,9 +79,9 @@ steps:
   agent: ux-designer
   output: '{workroot}/{ver}/20-design/prototype/index.html + design-tokens.css'
   notes: 静态 HTML/CSS（可少量 JS），浏览器直接打开；覆盖核心流程、状态、响应式、无障碍基础。 数据模型/seed/重置；导航/历史/返回/未保存提醒；每页状态矩阵逐项落地；单据类 A4 打印/导出。 原型/PRD 版本元数据（页面
-    title/meta 或说明文件）。 不做生产级后端；无设计师时以“清晰、一致、可用”为准，不冒充品牌级视觉。 **分页构建**（子代理编排 ）：≥8 页 → 中心先定 IA/tokens/组件/页面契约；一页或一小批一子代理，只写 `原型/pages/{page}.html`；pages
-    不相交可并行≤3；**禁止并行写 `prototype/index.html`**；超时降级直做；编排组装 index；verifier 一致性/无障碍；<8 页单 agent；声明 `mode=`。 技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`；能力
-    ui-generation 可选增强，未装不影响。
+    title/meta 或说明文件）。 不做生产级后端；无设计师时以“清晰、一致、可用”为准，不冒充品牌级视觉。 **分页构建**（子代理编排 ）：≥8 页且**已写出** IA/tokens/组件/页面契约才分页；未定基线直做；一页或一小批一子代理，只写
+    `原型/pages/{page}.html`；pages 不相交可并行≤3；**禁止并行写 `prototype/index.html`**；超时降级直做；编排组装 index；verifier 一致性/无障碍；<8 页单 agent；声明
+    `mode=`。 技能：`skills/prototype-and-interaction/SKILL.md`、`skills/ui-visual-design-system/SKILL.md`；能力 ui-generation 可选增强，未装不影响。
 - name: 工程化与可访问性
   id: engineering
   skills:

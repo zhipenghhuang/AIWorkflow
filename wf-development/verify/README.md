@@ -61,7 +61,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 | `frontend/route-coverage.example.json` | 路由/菜单/深链/截图机读台账模板；复制为 `.gate/frontend/route-coverage.json` |
 | `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；含本轮 `task_id`，L2+ 门内校验 |
 | `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、行状态、结论；L2+ 自动调用 |
-| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；门内自动调用 |
+| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；`--require-tier` 校验 `tier.json`；`--require-prototype` 校验 `project-profile.md` 的 `prototype=` 且已解码；`--write` 落实施出口回执；门内自动调用 |
 | `frontend/capture_example.py` | capture 参考实现（Playwright）：登录→逐路由→就绪判定（骨架/登录页不算）→桌面/移动截图→`evidence.json`；复制到项目并配 `frontend.capture` |
 | `tools/claim_check.py` | 完成口令锁：回执 verdict/blocked/代码新鲜度三合一，输出 `CLAIM: ALLOWED/DENIED` |
 | `frontend/playwright.config.template.ts` | Playwright 模板；默认 list+json，不生成 HTML/trace/video；证据落 `.gate/frontend/` |
@@ -86,7 +86,10 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 - 自检命令（门内也会跑）：
 
 ```powershell
-python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --since "2026-11-04T10:30:00+08:00" --base-commit 6e4610e
+# 实施出口 / 评审 / 完成门同一命令（前端硬门 §2.5；失败不得提交或标完成）
+python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/frontend `
+  --require-prototype --require-tier --require-generated --require-matrix-routes `
+  --write .gate/frontend/gate.json
 ```
 
 ## 5. 成本纪律

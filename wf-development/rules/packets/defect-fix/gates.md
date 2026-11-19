@@ -73,7 +73,7 @@
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
 | 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED。**能力可达行（硬）**：写端点→页面入口/动作/证据；无入口标 `non-ui` 并确认；只写接口可调=BLOCKED。 |
-| 7 | 独立评审（`review_required`） | 须核上述产物；只看代码/测试/API 200 不得过 |
+| 7 | 独立评审（`review_required`） | 评审前必须按 §2.5 打开当前迭代原型（解码产物），逐路由核对矩阵/截图/操作；未见原型、矩阵缺路由或操作、截图与原型不符 = `DENIED`。只看代码/测试/API 200 不得过 |
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 >
@@ -81,7 +81,7 @@
 
 #### 前端门 2.1. 证据分级（按变更风险裁剪，避免一律重证据）
 
-开工时在 `.gate/frontend/tier.json` 写 `{"tier":"A|B|C","reason":"…","routes":["/路径"]}`；未写按 **A**。分级决定产物范围，**不变的是**：console/network 无阻断错误、截图/报告晚于本轮源码变更、结论可复核。`tier.json` 与 console/network/playwright 结果须晚于本轮任务开始；旧 `tier.json` 不读（按 A 校验），旧报告 BLOCKED。
+开工时在 `.gate/frontend/tier.json` 写 `{"tier":"A|B|C","reason":"…","routes":["/路径"]}`；**未写 = 未开工**：实施步骤开工前必须落盘（缺则 `BLOCKED`，禁先写代码后补）。分级只裁剪证据量，不裁剪质量底（逐字对照、截图新鲜度、console 0 始终生效）；拿不准按 **A**。分级决定产物范围，**不变的是**：console/network 无阻断错误、截图/报告晚于本轮源码变更、结论可复核。`tier.json` 与 console/network/playwright 结果须晚于本轮任务开始；旧 `tier.json` 不读（按 A 校验），旧报告 BLOCKED。
 
 | 级别 | 适用 | 必产物 |
 | --- | --- | --- |
@@ -92,6 +92,15 @@
 - **缺陷族审计**：A 级仍须同波次族审计；B/C 级做**同类路径静态扫描**（同模型/同谓词/同状态表面）+ 受影响路由验证，不要求全站矩阵重拍。
 - **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
 - **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验。
+
+#### 前端门 2.5. 原型单源与实施出口（硬）
+
+- **原型单源**：当前迭代原型的路径与版本只认实例档案 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`。缺声明、文件不存在、或与当前迭代/`VERSION` 不符 = `BLOCKED`，先补实例再动代码；**禁止在入口 `AGENTS`/通用规则里硬编码原型路径**（实例数据下沉，见 `rule-governance.md` §2.1）。
+- **实施出口机检**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes`），并把结果写入 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
+- **唯一例外**：无原型的项目可在 `project-profile.md` 的 `frontend.requirePrototype=false` 写明理由（此时跳原型单源，但仍须设计基线与逐路由截图）；缺省为 `true`，不得口头豁免。
+- **原型可复用优先（硬）**：原型可运行/可解码时，默认**移植**其结构、样式与渲染函数（含图表/表格/弹层/空态）再替换数据接口；不得凭文字描述重写同一交互。移植清单与差异写进矩阵（`移植` / `按方案` / `择优：收益`）；原型不可运行或仅静态稿 → 按设计基线实现。选择依据写一行，不要求新文档。
+- **原样优先、择优留痕**：布局/组件/视觉/文案以原型为准；偏离必须在矩阵标 `按方案` 或 `择优：<收益>`，且不得降低密度、可读性或操作路径（§4）；找不到原型或未对照就自创布局 = 未完成。
+- **图文自检（硬）**：实施者与评审者必须**用图像读取本轮截图**（至少桌面每路由 1 张、关键页移动 1 张）并与原型截图/解码结构逐项对照；**只看 `ready`/console/哈希/接口 200 视为未验证**。原型侧同样落图（§3-1 解码产物或浏览器按路由截图 → `.gate/prototype/`），无原型侧图像不得判 `pass`。视觉缺陷（元素重叠/截断/错位/层级混乱/控件错型）按 `BLOCKED` 处理，不得记债项。
 
 ### 前端门 3. 必命令（RUN）
 
@@ -104,8 +113,10 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 # 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
 # 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
-# 3) 机检（L2+ 另加 --require-generated；项目 profile 打开 requireMatrixRoutes 时加 --require-matrix-routes）
-python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend --require-matrix-routes
+# 3) 机检（实施出口 / 评审 / 完成门同一命令；L2+ 必带 --require-generated）
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend \
+  --require-prototype --require-tier --require-generated --require-matrix-routes \
+  --write .gate/frontend/gate.json
 
 # 4) 完成口令：门末自动输出 CLAIM；仅复核时执行（本步无 completion-gate 则跳过）
 powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
@@ -144,6 +155,9 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - 固定样例/演示数据填充正式入口。
 - MCP 不可用不做浏览器兜底仍标完成。
 - 对带状态的共享模块只 bump 部分引用的 `?v=`/hash（易双例：确认挂死、权限态分裂）。
+- 未跑 §2.5 实施出口机检就提交或标完成；`tier.json` 缺失先写代码后补。
+- 把原型路径/版本等实例数据写进入口 `AGENTS` 或通用规则（应落 `project-profile.md`）。
+- 原型未对照、矩阵无 `###` 路由区块、或截图与原型不符时以「测试绿/接口 200」判通过。
 
 > L0 无 UI：整节标 `na` + 一句理由，勿机械跑 capture。
 

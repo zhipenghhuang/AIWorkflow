@@ -157,7 +157,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 
 > 运行时以当前步骤卡/技能为准；取档/生命周期/并行/降级/派工详版按需打开 `rules/collaboration/subagents.md`（单一出处，禁通读）。本条只留不可让边界。
 
-- 先工具/单上下文；达阈值应拆或声明偏差；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
+- 先工具/单上下文；达阈值按净收益取档（直做写 `mode=`+理由，净收益为正却直做记 `deviation=`）；开跑声明 `mode=`；文件不相交写分片可并行≤3；同一文件/清单/单据禁并行写。  
 - **实例**：分片每任务新开；拆分/波末核验 fresh `reviewer-agent`（禁 resume Writer）；串行下一批默认新开；单写手整波可 1 个 writer，波末仍 fresh 核验。  
 - **`[P]` 机检**：`validate_tasklist.py` 校验文件重叠/相互依赖/并行>3；FAIL 不派工。  
 - 超时/空产物 → 降级直做；子代理禁 commit/push/开 PR/合并/改平台/改确认门；不过 `hitl`/`gate`；核验后再结论。  

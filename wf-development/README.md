@@ -94,7 +94,7 @@ python wf-development/rules/tools/validate_dev_plan.py <开发计划路径>
 
 本包不写死任何宿主（Cursor / opencode / Claude Code 等均可）；换宿主只改实例侧（`project-profile.md`），包零改动。
 
-- **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；子代理（按 `rules/collaboration/subagents.md`：达阈值分片/文件不相交可并行≤3/超时降级）、MCP（如缺陷平台）按需。  
+- **最低能力**：入口自动装载（AGENTS.md 或等价）、文件读写、shell、对话式确认门（hitl）；子代理（按 `rules/collaboration/subagents.md`：达阈值按净收益取档/文件不相交且接口契约不冲突可并行≤3/超时降级）、MCP（如缺陷平台）按需。  
 - **入口挂载**：AGENTS.md 系宿主按 `rules/templates/00-onboarding/root-agents-pointer.md` 挂载；CLAUDE.md 系可用 @ 引用指向本包 AGENTS.md。  
 - **MCP 配置落点**：只写宿主本地/用户级配置（如 Cursor：`%USERPROFILE%\.cursor\mcp.json`；路径以宿主官方文档为准）；禁项目内配置作规范入口。  
 - **能力（可选）**：槽位见 `capabilities/00-contract.md`；候选见 `capabilities/reference.md`；**真源** `{workroot}/capabilities/00-能力清单.md`。清单 available 即用，否则降级；硬触达未接受降级出【能力缺失】（契约 §2）；档案仅索引；点名「装配能力」写入实例。纪律：`rules/capabilities/instance-discipline.md`。  

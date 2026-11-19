@@ -61,7 +61,8 @@ description: Use when an approved requirement or design must be broken into exec
 
 ## 5. 并行与子代理
 
-- `[P]` 只给“不同文件、无未完成依赖、可独立验证”的任务。  
+- `[P]` 只给“不同文件、无未完成依赖、可独立验证”的任务；**接口/契约/schema/配置键/事件码/公共组件/`shared_globs` 相交 → 不并行**（先冻结或合并为一个 writer）。  
+- **体量**：XS 任务不进 `[P]`；XS/S 小任务优先合并给一个 writer。  
 - **机检**：`validate_tasklist.py` 校验 `[P]` 文件重叠、相互依赖、并行数 >3；任一命中 FAIL，先改任务卡或依赖。  
 - 默认串行；一组一子代理；同文件/同函数集归一组；提示词含任务号/路径/RP/AC/verify/禁止事项。  
 - 子代理返回：任务号、文件、RP 覆盖、验证命令+结果、未决项；编排核验后再回写完成。  
