@@ -27,8 +27,8 @@
 
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
-| `10-planning/test-analysis-template.md` | testing.plan（必做） | 来源/章节/依据/AC 设计点/意图/覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11/风险/影响面/核心链路；落 `{workroot}/{ver}/test-analysis.md`；存量行为基线读 `project-guide.md`（若有） |
-| `10-planning/test-plan-template.md` | testing.plan（总排） | 范围/引用分析/影响面/核心链路摘要/轨道/轮次/批次/探索/准入准出；落 `{workroot}/{ver}/test-plan.md` |
+| `10-planning/test-analysis-template.md` | testing.plan（必做） | 来源/章节/依据/AC 设计点/意图/覆盖矩阵/方法矩阵/D01–D13+S6/S7/S11+T1–T4/风险/影响面/核心链路；落 `{workroot}/{ver}/test-analysis.md`；存量行为基线读 `project-guide.md`（若有） |
+| `10-planning/test-plan-template.md` | testing.plan（总排） | 范围/引用分析/影响面/核心链路摘要/轨道/轮次/批次/探索（主责/同路径 SC/为什么不能固化）/准入准出；落 `{workroot}/{ver}/test-plan.md` |
 | `10-planning/test-plan-lite-template.md` | testing.plan（补丁/单模块） | 轻量总排；分析仍必做 |
 | `10-planning/user-facing-change-notes-template.md` | testing.plan / 用户点名 | 用户可读变化说明；按需 |
 
@@ -38,7 +38,7 @@
 | --- | --- | --- |
 | `20-test-cases/test-case-template.md` | testing.execute（功能） | 执行记录：场景薄记；失败 §2=交单素材成稿（§5.0.1a） |
 | `20-test-cases/api-test-case-template.md` | testing.execute（接口） | 接口执行记录；失败 §3=交单素材成稿（§5.0.1a） |
-| `20-test-cases/exploratory-case-template.md` | testing.execute（探索式） | 一场一句+会话记录 |
+| `20-test-cases/exploratory-case-template.md` | testing.execute（探索式） | 一场一条主风险假设+检查点+会话+debrief+功能化/退役 |
 | `20-test-cases/random-flow-case-template.md` | testing.execute（随机·计划外） | 旅程会话+去重窗+分流 |
 | `20-test-cases/a11y-ux-checklist.md` | testing.execute / report（按需） | 无障碍/UX 检查 |
 

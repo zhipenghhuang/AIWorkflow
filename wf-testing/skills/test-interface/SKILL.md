@@ -47,6 +47,11 @@ description: Use for API and contract testing. Prefer script-first execution, co
 - 失败分诊：产品/契约漂移/脚本漂移/环境数据；脚本漂移修脚本，契约漂移更新记录与脚本。
 - 未覆盖维度/限制写清；mock 结论不得冒充真实链路。
 
+## 5.1 探索式补充（可选 · 不替代本轨）
+
+- 有状态/复杂鉴权/契约漂移：按 `tracks/exploratory.md` 开 1 场接口探索；发现转 API SC/维表/脚本。
+- 不替代 §2.1 维表/depth/契约清单；接口轨完成仍认 `api/` 记录。
+
 ## 6. DoD
 
 - 契约清单有来源；§2.1 维表无空白；depth 已声明；机检无 ERROR。

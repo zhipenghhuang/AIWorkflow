@@ -30,7 +30,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | --- | --- | --- | --- |
 | `analysis-structure` | coverage/execute/report | `test-analysis.md`：来源盘点、章节回执、依据覆盖、**§2.1 意图台账**、§2.1.1 设计点账本、覆盖/方法矩阵、细节维、影响面、核心链路、风险、§6；**账本不得为空表**；§1.1 的已映射/总数须被 §1.2/§1.3/§2.1.1 实际行数支撑；§2.2/§2.3/§2.4 的 INT 须∈台账；§4 缺口表、§5.2 变更追溯、§6 11 项齐全 | FAIL（三模式同硬） |
 | `env-baseline` | coverage/execute/report | `env-baseline.md` 存在且含项目身份/§1 登录/§4 或 §2.2 账号/§8 浏览器结构；缺失或空壳 → 不跑 | FAIL |
-| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 风险面/假设；§4.3 S6/S7/S11 | FAIL（三模式同硬） |
+| `plan-structure` | coverage/execute/report | `test-plan.md`：范围/引用分析/env-baseline/影响面摘要/轨道/轮次/批次/探索/准入准出；§0 须有 计划状态/版本准出/准出口径/风险档/分析计数；suite/depth 有效且 core 仅补丁；迭代正式轨硬纳入（整轨否仅 §0 白名单+接受人，拒软理由）；T1+ 风险面/假设；§3.2 每行有主责/同路径 SC/为什么不能固化；§4.3 S6/S7/S11 着落可回指 §3.2 | FAIL（三模式同硬） |
 | `plan-analysis-link` | coverage/execute/report | 计划 §0 计数=分析 §2.1；lite 不得 `版本准出=是`；版本准出/准出口径不冲突；发版须 full+full；完整版本计划须有 P0（§4 可豁免）；§3.1 批次意图范围覆盖全部 `处置=测`（写「全部」视为覆盖）；T1+ 功能细节维不得全否 | FAIL |
 | `plan-state` | execute/report | §0 计划状态 ∈ 已确认/执行中/待关闭 | FAIL |
 | `batch-coverage` | execute | 记录 §0 批次 ID 在计划 §3.1；该批意图范围已被场景覆盖（写「全部」的批只校验批次存在） | FAIL |
@@ -43,8 +43,8 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 | `intent-scenes` | report | 每个 `处置=测` 意图在场景表出现；只有 §3 结论无场景 → FAIL | FAIL |
 | `intent-conclusion` | execute/report | 每个意图有终态（通过/失败/阻塞/待实现/N/A）；P1/P2 未测同样失败 | FAIL |
 | `p0-missing` | report | 分析中 P0 意图无场景执行 | FAIL；execute 仅批内 |
-| `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（风险假设+检查点/会话；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
-| `report-structure` | report | 报告 §0～§5、§2.1 计数与执行记录一致、结论唯一、正文无内部 ID；P0/失败/有条件接受；内部覆盖由分析/计划/记录核 | FAIL |
+| `track-records` | report | 计划纳入轨道有**实质**记录（Q18）：功能→`functional/`；接口→非空 `api/*执行记录`（契约+场景；禁空壳）；探索→非空 `*探索记录`（主责/同路径 SC/为什么不能固化+风险假设+检查点结论+会话+debrief+功能化；已跑数≤实质记录数）；发布前→非空方案+`*test-report` | FAIL |
+| `report-structure` | report | 报告 §0～§5、§2.1 计数与执行记录一致、§2.4 探索概况与计划 §3.2 主责一致、结论唯一、正文无内部 ID；P0/失败/有条件接受；内部覆盖由分析/计划/记录核 | FAIL |
 | `report-verdict` | report | 准出可解析；与 P0/意图终态/失败一致；正文无内部 ID | FAIL |
 | `conditional-acceptor` | report | CONDITIONAL 须 §4 缺口表非空接受人（须用户确认口径，Q19；门检结构非空） | FAIL |
 | `writeback-receipt` | writeback | `缺陷台账.md` §0 单号/备注/状态/附件回查；§1 版本台账行齐；回归写回须构建/范围/冒烟/影响面/未覆盖（未跑须接受人） | FAIL |
@@ -52,9 +52,9 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 ## 3. 检查什么
 
 - **分析**：§2.1 台账完整（具体 INT+可观测 Oracle）；来源/章节/依据/AC 账本非空，且 §1.1 计数被实际账本行数支撑；每个 AC/F/R/N 映射台账或 N/A+接受人；覆盖矩阵/方法矩阵/细节维/影响面/核心链路无未接受空格且 INT 回指台账；风险逐类有结论。**目标=完整覆盖方案可验收单元，正确检出缺陷。**
-- **计划**：范围/轨道/轮次/批次/探索/准入准出可执行；引用分析与 env-baseline；§0 计数/版本准出/准出口径/批次意图范围与 §2.1 联动；suite/depth 已声明且 core 仅补丁；覆盖闸 PASS 后才称可执行。
+- **计划**：范围/轨道/轮次/批次/探索/准入准出可执行；引用分析与 env-baseline；§0 计数/版本准出/准出口径/批次意图范围与 §2.1 联动；suite/depth 已声明且 core 仅补丁；§3.2 主责/同路径 SC/为什么不能固化齐；覆盖闸 PASS 后才称可执行。
 - **执行**：过程（分析/计划/链接/证据/终态/证伪）不过 → FAIL 禁下批；`未执行`/`未本轮验证` 仍在 → FAIL（批未关）；过程完整且仅产品红 → CONDITIONAL 可下批继续找缺陷（须入库）。**三步序方法**：方案原文 → 结合分析理解 → 现场择优（有互补源则对照）；门检要求 §0 有分析索引、每场景有实际/差异；优先级以分析 §2.1 为准；§3 意图结论须有场景 ID；P0 须证伪；功能记录 3～7 步且可复核。
-- **报告**：台账处置=测有实际场景且全终态；§2.2 通过/失败/阻塞/待实现与记录一致；P0 全过且有证伪；细节维 x/20（含 T1–T4） 对分析适用数；计划纳入轨道有对应记录；CONDITIONAL 认 §4 接受人；非 PASS/CONDITIONAL 禁用“全部通过/可发布”。
+- **报告**：台账处置=测有实际场景且全终态；§2.2 通过/失败/阻塞/待实现与记录一致；P0 全过且有证伪；细节维 x/20（含 T1–T4） 对分析适用数；计划纳入轨道有对应记录；§2.4 探索概况与计划 §3.2 主责一致；CONDITIONAL 认 §4 接受人；非 PASS/CONDITIONAL 禁用“全部通过/可发布”。
 - **回写**：`{ver}/缺陷台账.md` §0 本轮写回（单号/备注/状态/附件回查）；§1 版本台账（平台单号/标题/严重度/状态/发现记录/修复构建/回归结论/负责人/下一步）；`writeback` 不覆盖 report。回归写回另核 §0 范围卡：构建/范围（默认|扩大）/冒烟/影响面/未覆盖；未跑或未覆盖须有接受人。
 
 ## 4. 成本纪律

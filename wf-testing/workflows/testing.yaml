@@ -80,6 +80,8 @@ steps:
     when: understanding_needs_confirm
   - name: confirm_plan
     when: plan_needs_confirm
+  - name: confirm_exploratory_scope
+    when: exploratory_scope_reduced
   - name: confirm_iteration_close
     when: iteration_close_needed
   - name: confirm_docs_migration
@@ -87,8 +89,9 @@ steps:
   next: execute
   output: '{workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排）'
   notes: 本步任务：先完整分析入账再计划总排（分析+计划两份模板见 §7）。硬门槛：方案为主参考；主读+≥1 互补源；读 env-baseline 命中节；方案每一个应测细节/设计点入账；§2.1 INT+字段级 Oracle（禁主题句充数，见
-    testcase-design §3.1）；覆盖面/方法矩阵无未接受空格；计数被行数支撑；禁「先粗计划、执行再补分析」；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1 与分析联动；准出/轨道纳入见 multi-track-quality
-    §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。 读 `project-guide.md`（若有）作为存量行为基线；本期变化仍以 PRD/方案/提测单为准；冲突记 GAP。
+    testcase-design §3.1）；覆盖面/方法矩阵无未接受空格；计数被行数支撑；禁「先粗计划、执行再补分析」；分析未确认不写计划；覆盖闸未过不得称可执行；计划未确认不执行；§0/§3.1 与分析联动；§3.2 探索每行有主责/同路径
+    SC/为什么不能固化；准出/轨道纳入见 multi-track-quality §0+文首；不预生成全量用例≠可浅测。做法见 §6；门槛细则见本步规则卡。 读 `project-guide.md`（若有）作为存量行为基线；本期变化仍以
+    PRD/方案/提测单为准；冲突记 GAP。
 - name: 按计划执行
   id: execute
   skills:
@@ -115,8 +118,8 @@ steps:
   notes: 本步任务：按计划执行全部在范围 P0/P1/P2 意图与轨道（功能/接口/探索/发布前/回归）。**记录写法（硬）**：功能记录步骤=业务 UI；API/脚本/Network 只进「技术核对」列或失败卡接口判定；纯 API 场景归
     `api/` 轨；通过行实际写可见事实，禁只写「符合」。开跑前读 `env-baseline.md` 命中节；取档以计划 §3.1 为真值；开跑声明 `exec_mode=`+`pg=`。**门槛以机检为 SSOT**：批末跑 `-Mode
     execute -Scope "{模块/域}"`，按其输出逐条清零；包内与本闸冲突时以闸为准。**机检覆盖（包内不复述）**：原文对账与 §0 分析索引/每场景实际差异；§1.1 六类 SC（UI/视觉禁弱 N/A）；处置=测意图终态/P0
-    证据；INT∈分析 §2.1；接口 `api/` 记录+depth+维表；探索记录非空；失败/待实现失败卡（含 surface；surface=ui 须截图）；缺口仅用户确认（Q19）。**人工必守（机检不覆盖）**：① 记录步骤写业务
-    UI，API/Network 只进「技术核对」。② 命中页面·路由·控件·布局·导出时 UI 面须 ≥1 条浏览器实点（E1），无面对才写事实句。③ 缺数据/账号/入口先自助造数/换样/换角（有界），阻塞摘要须卡点+已尝试+恢复条件，专用负向无配方不得标通过。④
+    证据；INT∈分析 §2.1；接口 `api/` 记录+depth+维表；探索主责面有非空记录+功能化、功能主责面不重复；失败/待实现失败卡（含 surface；surface=ui 须截图）；缺口仅用户确认（Q19）。**人工必守（机检不覆盖）**：①
+    记录步骤写业务 UI，API/Network 只进「技术核对」。② 命中页面·路由·控件·布局·导出时 UI 面须 ≥1 条浏览器实点（E1），无面对才写事实句。③ 缺数据/账号/入口先自助造数/换样/换角（有界），阻塞摘要须卡点+已尝试+恢复条件，专用负向无配方不得标通过。④
     深度与 Oracle 按 `testcase-design` §3/§3.1（禁浅打勾、禁删负向 Q9、禁主题句撑 P0）。⑤ 批末更新计划 §0/§6、失败进缺陷、对人进度（global-rules §8）。
 - name: 输出报告
   id: report
@@ -133,8 +136,8 @@ steps:
   gate_type: machine
   output: '{workroot}/{ver}/test-report.md + 【任务收尾】'
   notes: 本步任务：出准出报告。报告正文按开发/产品可读写；不写内部用例号/意图号/门禁名/测试数据编号；内部追溯留在执行记录/分析。 结论唯一（PASS/CONDITIONAL/FAIL/BLOCKED）；失败与阻塞并存优先 FAIL（用例态见
-    `rules/defects/classification.md`）。硬门槛：P0 全过；全部处置=测意图有终态；报告计数与执行记录一致；对账/细节维在执行记录/分析可回指；报告正文不写内部 ID；原文对账未关>0 不得 PASS；计划纳入的功能/接口/探索/发布前四轨记录可复核（发布前须有硬映射行、探索须有风险假设与结论）；S6/S7/S11
-    有落点；CONDITIONAL 须 §4 有接受人与复审点；缺口显式。先正文再 `-Mode report`。模板见 §7。
+    `rules/defects/classification.md`）。硬门槛：P0 全过；全部处置=测意图有终态；报告计数与执行记录一致；对账/细节维在执行记录/分析可回指；报告正文不写内部 ID；原文对账未关>0 不得 PASS；计划纳入的功能/接口/探索/发布前四轨记录可复核（发布前须有硬映射行、探索须有主责/同路径
+    SC/为什么不能固化/检查点结论/功能化）；报告 §2.4 探索概况与计划 §3.2 主责一致；S6/S7/S11 有落点；CONDITIONAL 须 §4 有接受人与复审点；缺口显式。先正文再 `-Mode report`。模板见 §7。
 - name: 收尾与提交
   id: closeout
   skills: []

@@ -12,7 +12,7 @@
 
 | # | state | 角色 | when | 门 | 产出 | 下一步 | 失败/跳过 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_plan`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `execute` | 停在本步/升级 |
+| 1 | `plan` | `test-planner` | — | `select_mainread`、`confirm_understanding`、`confirm_plan`、`confirm_exploratory_scope`、`confirm_iteration_close`、`confirm_docs_migration`、`gate:coverage-map` | {workroot}/{ver}/test-analysis.md（必做；来源/AC/设计点/意图/风险/覆盖）+ {workroot}/{ver}/test-plan.md（总排） | `execute` | 停在本步/升级 |
 | 2 | `execute` | `test-orchestrator` | — | `confirm_execution_scope`、`gate:execute-batch` | 执行记录（场景+步骤+结果+证据）+ 缺陷 + 计划状态 | `report` | 停在本步/升级 |
 | 3 | `report` | `report-agent` | — | `gate:report-consistency` | {workroot}/{ver}/test-report.md + 【任务收尾】 | `closeout` | 先修数据/证据或报阻塞；未 PASS/CONDITIONAL 不得进入 closeout |
 | 4 | `closeout` | `report-agent` | — | `confirm_platform`、`confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

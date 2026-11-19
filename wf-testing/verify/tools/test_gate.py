@@ -420,6 +420,8 @@ def track_record_substance(path: Path, kind: str) -> bool:
         return False
     if kind == "exploratory":
         has_basis = ("章程" in body) or ("风险假设" in body)
+        has_owner = all(k in body for k in ("主责", "同路径", "为什么不能固化"))
+        has_functionalize = bool(re.search(r"(功能化|charter\s*去向|退役)", body))
         t = None
         for headers, data_rows in tables(body):
             if any(("检查点" in h or "风险点" in h) for h in headers) and any("结论" in h for h in headers):
@@ -431,13 +433,14 @@ def track_record_substance(path: Path, kind: str) -> bool:
         rows = table_rows(t)
         if len(rows) < 3:
             return False
-        if any(is_blank(cell(r, headers, "结论")) for r in rows):
+        weak = {"覆盖", "无", "覆盖/无", "ok", "正常", "通过"}
+        if any(is_blank(cell(r, headers, "结论")) or cell(r, headers, "结论").strip().lower() in weak for r in rows):
             return False
         has_close = bool(
             re.search(r"(保留|换题|补测|沉淀)\s*[：:]\s*(?!\{)\S", body)
             or re.search(r"拟补(锚点|意图)\s*[：:]\s*(?!\{)\S", body)
         )
-        return has_basis and has_close
+        return has_basis and has_owner and has_functionalize and has_close
     if kind == "api":
         has_ep = ("契约" in body) or bool(re.search(r"\bEP[-_A-Z0-9]", body))
         has_sc = ("场景" in body) or bool(re.search(r"\bSC[-_A-Z0-9]", body))
@@ -1458,12 +1461,22 @@ def parse_plan(path: Path) -> dict[str, Any]:
             issues.append("§4.3 功能收口探针表缺失（需 轴/最小探针/着落）")
         else:
             headers, rows = t_probe
+            sec43 = subsection(text, "4.3")
+            sec32 = subsection(text, "3.2")
             for axis in ("S6", "S7", "S11"):
                 hit = next((row for row in rows if cell(row, headers, "轴").strip().startswith(axis)), None)
                 if hit is None:
                     issues.append(f"§4.3 缺 {axis} 收口行")
-                elif is_blank(cell(hit, headers, "着落")):
-                    issues.append(f"§4.3 {axis} 缺着落（写 INT/章程/不测+接受人）")
+                    continue
+                landing = cell(hit, headers, "着落")
+                if is_blank(landing):
+                    issues.append(f"§4.3 {axis} 缺着落（写 INT/SC/EXP/不测+接受人）")
+                    continue
+                for ref in re.findall(r"\b(?:INT|SC)-[A-Z0-9-]+", landing):
+                    if ref not in sec32:
+                        issues.append(f"§4.3 {axis} 着落 {ref} 不在 §3.2 主责台账")
+                if "N/A" in landing and not re.search(r"接受人|用户确认", sec43):
+                    issues.append(f"§4.3 {axis} N/A 须写接受人/用户确认")
     # §3.2 risk surfaces: T1+ full plan lists risk surfaces; count follows risk, not a fixed floor
     if tier == "full" and outing != "补丁" and risk_tier in ("T1", "T2", "T3"):
         t_charter = (
@@ -1481,7 +1494,10 @@ def parse_plan(path: Path) -> dict[str, Any]:
             elif charter_rows < 4:
                 sec32 = subsection(text, "3.2")
                 if not re.search(r"按事实|接受人\s*[=:：]|用户确认", sec32):
-                    issues.append(f"§3.2 探索风险面仅 {charter_rows} 行（T1+ 最少 4 行；确实更少须写「按事实仅 N 面+用户确认」）")
+                    issues.append(f"§3.2 探索风险面仅 {charter_rows} 行（T2/T3/发版最少 4 行；T1 可按事实 2～3 面+用户确认）")
+            for col in ("主责", "同路径已有 SC", "为什么不能固化"):
+                if col not in headers:
+                    issues.append(f"§3.2 探索表缺列「{col}」（主责/反冗余准入）")
             for row in table_rows(t_charter):
                 if "章程" in joined:
                     if is_blank(cell(row, headers, "章程")):
@@ -1489,7 +1505,34 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 else:
                     if is_blank(cell(row, headers, "风险假设")) and is_blank(cell(row, headers, "检查点")):
                         issues.append(f"§3.2「{row[0]}」缺风险假设/检查点")
+                owner = cell(row, headers, "主责")
+                same = cell(row, headers, "同路径已有 SC")
+                why = cell(row, headers, "为什么不能固化")
+                if is_blank(owner):
+                    issues.append(f"§3.2「{row[0]}」缺主责（功能 SC/接口/探索/发布前/N/A）")
+                elif not re.search(r"功能\s*SC|接口|探索|发布前|N/A", owner):
+                    issues.append(f"§3.2「{row[0]}」主责={owner} 不可识别（功能 SC/接口/探索/发布前/N/A）")
+                if is_blank(same):
+                    issues.append(f"§3.2「{row[0]}」缺同路径已有 SC（无则写「无」）")
+                if is_blank(why):
+                    issues.append(f"§3.2「{row[0]}」缺为什么不能固化")
                 st = cell(row, headers, "状态") if "状态" in headers else ""
+                if owner and "探索" not in owner and re.search(r"已跑|本场|完成|闭环", st):
+                    issues.append(f"§3.2「{row[0]}」主责={owner} 但状态={st}；非探索主责应标不跑")
+                if "探索" in owner and "功能已覆盖" in why:
+                    issues.append(f"§3.2「{row[0]}」主责=探索但为什么不能固化=功能已覆盖；应转功能 SC")
+                if "功能" in owner and "功能已覆盖" not in why:
+                    issues.append(f"§3.2「{row[0]}」主责=功能 SC 须写为什么不能固化=功能已覆盖")
+                if "探索" in owner and st == "不跑":
+                    rec = cell(row, headers, "记录") if "记录" in headers else ""
+                    if not re.search(r"不跑|风险已消|已进意图|接受人|用户确认", rec):
+                        issues.append(f"§3.2「{row[0]}」主责=探索 状态=不跑 须写理由/接受人")
+                if "N/A" in owner:
+                    if "无对应面" not in why:
+                        issues.append(f"§3.2「{row[0]}」主责=N/A 须写「无对应面」")
+                    rec = cell(row, headers, "记录") if "记录" in headers else ""
+                    if "接受人" not in rec and "用户确认" not in rec:
+                        issues.append(f"§3.2「{row[0]}」主责=N/A 须写接受人/用户确认")
                 if re.search(r"已跑|本场|完成|闭环", st):
                     charter_done += 1
                     if "记录" in joined and is_blank(cell(row, headers, "记录")):
@@ -1498,8 +1541,9 @@ def parse_plan(path: Path) -> dict[str, Any]:
                     charter_unclosed.append(str(row[0]))
                 elif not st:
                     issues.append(f"§3.2「{row[0]}」缺状态")
+            axis_col = "风险面" if "风险面" in headers else "轴"
             for axis in ("S6", "S7", "S11"):
-                if axis not in subsection(text, "3.2"):
+                if not any(cell(row, headers, axis_col).strip().startswith(axis) for row in table_rows(t_charter)):
                     issues.append(f"§3.2 高风险面缺 {axis}（无面对写 N/A+事实句+接受人）")
     if tier == "full":
         for label in ("构建封板", "数据快照"):
@@ -2016,13 +2060,18 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
     for key in ("## 0.", "## 1.", "## 2.", "## 3.", "## 4.", "## 5."):
         if key not in text:
             issues.append(f"报告缺 {key} 标题")
+    if plan and any("探索" in k and "::" not in k and "是" in (v or "") for k, v in (plan.get("tracks") or {}).items()):
+        if "## 2.4" not in text:
+            issues.append("报告缺 §2.4 探索式概况（计划纳入探索轨）")
+        elif not re.search(r"风险面|探索", subsection(text, "2.4")):
+            issues.append("报告 §2.4 探索式概况为空/不可读")
     if not analysis.get("intents"):
         issues.append("分析无意图台账，报告不可判定")
     verdict, reason = parse_verdict(text)
     if not verdict:
         issues.append(reason)
     for marker in (
-        "INT-", "SC-", "SMK-", "runId", "suite=", "depth=",
+        "INT-", "SC-", "EXP-", "SMK-", "runId", "suite=", "depth=",
         "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08",
         "D09", "D10", "D11", "D12", "D13", "S6", "S7", "S11",
         "原文对账", "四轨", "锚点",
@@ -2557,7 +2606,7 @@ def main() -> int:
             tracks = plan.get("tracks") or {}
 
             def track_on(name: str) -> bool:
-                return any(name in k and "是" in (v or "") for k, v in tracks.items())
+                return any(name in k and "::" not in k and "是" in (v or "") for k, v in tracks.items())
 
             current_md = [p for p in test_root.rglob("*.md") if is_current(p)] if test_root.is_dir() else []
 
@@ -2577,6 +2626,7 @@ def main() -> int:
                     missing_tracks.append("接口空壳：" + "、".join(api_bad[:3]))
             if track_on("探索"):
                 exp_recs = [p for p in current_md if "探索记录" in p.name]
+                exp_recs = [p for p in exp_recs if not re.search(r"计划外\s*[=:：]\s*(是|true|yes)", read(p), re.I)]
                 exp_ok = [p for p in exp_recs if track_record_substance(p, "exploratory")]
                 exp_bad = [p.name for p in exp_recs if p not in exp_ok]
                 if not exp_ok:
