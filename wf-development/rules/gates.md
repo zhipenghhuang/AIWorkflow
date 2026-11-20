@@ -20,7 +20,7 @@
 | `confirm_replan` | C2/C3 重基线 | 出示变更等级/影响矩阵/重基线范围（基线/任务/计划/测试）/里程碑与资源影响；确认后才重基线；禁止拆成 C0/C1 绕过 |
 | `confirm_plan` | 开发计划/版本范围 | 首次创建或范围·版本·里程碑实质变更；确认范围/阶段后：若本轮须独立文档评审 → 状态=待评审（评审通过后再=已确认）；否则可直接=已确认。未关闭 S 或阻塞实施的 P 未答复时不得确认（clarification §1.1） |
 | `confirm_backlog` | 迭代清单与节奏 | 出示任务数/RP 覆盖/依赖/风险 + 节奏三选；确认后才实施 |
-| `confirm_commit` | 拟提交/推送 | 【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」 |
+| `confirm_commit` | 拟提交/推送 | 【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，推送在 close 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」 |
 | `confirm_handoff` | 交接包发送 | **凡拟生成任一 HO 包必停**：出示类型/接收方/必带摘要/阻断/传递方式；用户确认后才落盘；未确认零发包。禁止用「定稿门/评审门/发布门已过」代替本门。未收回执不得称「已接收」；可称「已发送」 |
 | `confirm_deploy` | 工程部署审批（生产/正式） | 出示版本/窗口/影响面/回滚决策人；并核 **干净工作区 + 已提交或已打 tag + 本轮 `completion.json=COMPLETE`**；未批准不部署，禁止从脏工作区部署；**仅生产/正式环境**，test/staging 部署不触发本门；生产版本必须无 prerelease |
 | `confirm_rollback` | 回滚 | 出示触发信号/步骤/数据影响/预计时长；确认后执行 |
@@ -32,7 +32,7 @@
 | `confirm_iteration_close` | 结束当前迭代/版本并进入下一 | 出示当前迭代标识、未完成项、拟归档摘要、下一迭代标识；确认「结束当前并进入下一」后才按 `rules/doc-governance.md` §7.1 关账；选「并行不关」则只落新资料不归档现行绑定主档。**关闭=停止新范围/冻结版本线，不停止测试**：测试与缺陷修复可继续（走 patch），归档待测试完成；测试未完又要开新迭代，优先「并行不关」 |
 | `confirm_skill_changes` | 能力/技能体检拟变更 | 出示【拟变更清单】（改 `skills/`·`capabilities/`·装配项）；确认后才改本包或给安装步骤；未确认零改动 |
 | `select_menu` | 缺陷批末菜单 | 输出总结+【用户选择菜单】，精确执行选项 |
-| `gate: completion-gate` | 完成门（开发轨） | **实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
+| `gate: completion-gate` | 完成门（开发轨） | **实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `<包>/verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
 | `gate: ui-audit` | 界面完善审计（独立） | **checklist**：独立 `ui-auditor`（≠实施者）逐路由/操作/状态/跨页一致性/后端可达实操并落 `.gate/frontend/ui-audit.md`；`frontend_parity.py --require-audit` 通过；缺项/待验/未点通/缺口 = BLOCKED；不得以代码/测试/API 200 代替；UI 缺口不得债项化。 |
@@ -88,7 +88,7 @@
 | `product_decision_received` | 已收到产品处置结论 | 仍在等产品 |
 | `product_decision_requires_alignment` | 产品结论需再对齐范围/方案 | 结论可直接实施或关闭 |
 | `need_clarification` | 缺陷信息不足须澄清 | 可实施 |
-| `menu_includes_commit` | 本轮菜单含提交 | 不含 |
+| `menu_includes_push` | 本轮菜单含推送 | 不含 |
 | `menu_includes_writeback` | 本轮菜单含平台回写 | 不含 |
 | `menu_includes_deploy` | 本轮菜单含部署 | 不含 |
 | `not_awaiting_product` | 非 await_product / 非 AWAIT_PRODUCT 输出 | 正在等产品 |

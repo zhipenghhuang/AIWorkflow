@@ -293,7 +293,7 @@
 
 - 分析：`{workroot}/{ver}/test-analysis.md`
 - 造数台账：`{workroot}/{ver}/functional/00-数据准备-造数台账.md`
-- 执行记录：`{workroot}/{ver}/functional|api/…-执行记录.md`
+- 执行记录：`{workroot}/{ver}/functional|api|frontend/…-执行记录.md`
 - 探索记录：`{workroot}/{ver}/exploratory/…-探索记录.md`
 - 回归锚点：`{workroot}/smoke-checklist.md`
 - 测试报告：`{workroot}/{ver}/test-report.md`
@@ -304,6 +304,6 @@
 
 - 分析：来源项 `{N}`，已映射 `{n}`，N/A `{n}`，缺口 `{0}`；意图 P0/P1/P2 = `{n/n/n}`；覆盖矩阵无空格 `{n}`；方法矩阵 `{n}`；章节/AC `{n/n}`。
 - 范围/排除：`{…}`；上游/下游/共享数据/核心链路：`{…}`；N/A/排除接受人：`{…}`。
-- 轨道/轮次/准出：`{功能/接口/探索/发布前/回归；R0/R1/R2；suite/depth}`；探索场 `{n}`；S6/S7/S11 `{齐/缺口}`。
+- 轨道/轮次/准出：`{功能/接口/前端/探索/发布前/回归；R0/R1/R2；suite/depth}`；探索场 `{n}`；S6/S7/S11 `{齐/缺口}`。
 - 待确认：`{0～1 个关键问题}`。
 - 准出：`{P0 全过 + 逐意图终态 + 覆盖/影响面/核心链路无缺口 + 报告一致}`。

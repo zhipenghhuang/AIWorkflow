@@ -1,7 +1,8 @@
 # 验证（开发轨）
 
 > 目的：把“完成”从 AI 自述变成可复跑的证据。日常只跑一个门；全绿不打断，失败才列阻断项。
-> 读取时机：`implement` 收尾前、`verify` 步、`review` 前、`closeout` 前。维护/改规则时读 `rules/core/rule-governance.md`。
+> 读取时机：`implement` 收尾前、`verify` 步、`review` 前、`closeout` 前。维护/改规则时读 `rules/core/rule-governance.md`。  
+> **命令路径**：均在项目根执行；`<包>` = 单包 `wf-development`，多包 `wf/wf-development`。
 
 ## 1. 三条快路径
 
@@ -16,7 +17,7 @@
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test_plan` 落 INT+Oracle 意图台账（不预写全量用例）；`solo.test` 按意图生成场景并实测（大改动/高风险全节），报告以意图终态为准，落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 意图未过不得判通过。
 
-**任务清单 `[P]`/SC 机检**：`python wf-development/rules/tools/validate_tasklist.py <任务清单.md> --root .`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，来源文件不存在、`§x` 在目标文档无对应编号标题，方案 §4.1 设计要点 `D-xx` 未被 SC 覆盖，§4.1 漏 `R-xx` 或引用不存在的 `T-xx`，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 在准出前再硬拦一次；存在 `.gate/plan-coverage.md` 时同轮核 SC ↔ 覆盖矩阵双向闭合。
+**任务清单 `[P]`/SC 机检**：`python <包>/rules/tools/validate_tasklist.py <任务清单.md> --root .`；SC 表缺行/无来源路径或锚点/空原文/非法入口类型，来源文件不存在、`§x` 在目标文档无对应编号标题，方案 §4.1 设计要点 `D-xx` 未被 SC 覆盖，§4.1 漏 `R-xx` 或引用不存在的 `T-xx`，或 `[P]` 文件重叠/相互依赖/并行>3 → FAIL，不 confirm、不派工。完成门加 `-Tasklist <任务清单.md>` 在准出前再硬拦一次；存在 `.gate/plan-coverage.md` 时同轮核 SC ↔ 覆盖矩阵双向闭合。
 **实施质量字段**：L1+ 有代码时验收清单须含 `implement_preflight` + `sc_trace`（Markdown 可用「实施预检」行 + SC 表）；命中 profile `shared_globs`（共享/被引用文件）另须 `impact_map`（调用方/依赖模块 + 回归集）；缺或 `missing` → BLOCKED。
 
 **缺陷修复字段**：`task_id=BUG-*` 时验收表须含「原单复现/红证」与「回归/同类路径」项；缺项 → BLOCKED（词项是下限，证据仍按 `rules/defects/fix-collaboration.md` §4.5）。
@@ -25,27 +26,28 @@
 
 ## 2. 一次任务怎么跑
 
-1. **StartTask**：`Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把当前任务态（`.gate/frontend/`、`.gate/review.md`、旧任务或无本轮 `task_id` 的 `.gate/plan-coverage.md`/`.gate/acceptance.yaml`、`.gate/wf-development/` 回执）**归档**到 `.gate/archive/<task_id>/`；本轮已写好且 `task_id` 匹配的 acceptance/coverage 保留。不删除，保留追溯。门按 **base..工作区** 算变更（中途 commit 不丢窗口；回执绑定提交，见第 4 步）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
+1. **StartTask**：`<包>/verify/Invoke-Gate.ps1 -StartTask -TaskId "<任务ID>"` → `.gate/task.json`（`task_id`/`started_at`/`base_commit`）；并把当前任务态（`.gate/frontend/`、`.gate/review.md`、旧任务或无本轮 `task_id` 的 `.gate/plan-coverage.md`/`.gate/acceptance.yaml`、`.gate/<包>/` 回执）**归档**到 `.gate/archive/<task_id>/`；本轮已写好且 `task_id` 匹配的 acceptance/coverage 保留。不删除，保留追溯。门按 **base..工作区** 算变更（中途 commit 不丢窗口；回执绑定提交，见第 4 步）。验收：L1 开发卡/任务卡 + `-Acceptance`；L2+ `.gate/acceptance.yaml`。命令写 `.gate/project-profile.json`；**L1+ 有代码/配置变更未 StartTask → 完成门 BLOCKED**。
    > **L2+ 非功能与任务绑定**：`.gate/acceptance.yaml` 必写 `nfr.security` / `nfr.performance`（`done: <路径/命令/指标>` 或 `na: <理由>`）和本轮 `task_id`；`.gate/plan-coverage.md` 也须含本轮 `task_id`；缺省、空写或与 `.gate/task.json` 不一致 → BLOCKED。项目配 `perf`/`security` 命令时，门在 L2+ 自动执行。
+  > **债项**：`.gate/acceptance.yaml` 的 `debts` 显式登记（`[]` 或 `{id,item,owner,decision,blocking}` 列表）；`blocking=true` 未关闭 = BLOCKED，不得 Claim；门回执写入 `debts.missing`。
    > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、smoke 中已配置的命令；L1 未配 `test_scoped` 且有 smoke → 不跑全仓 test；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`（优先配 `*_scoped`）。
    > **命令覆盖（硬）**：`test` 须覆盖本项目全部测试入口（多 runner 串联，如 `npm test && npx vitest run src/__tests__`），不得只列部分文件；各 runner 的命令与计数分别落证据，不得合并成一句“全绿”。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/<包>/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
    - **A/B 独立审计**：implement/build 后、review 前由 `ui-auditor` 落 `.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；逐路由/操作/状态/一致性/后端可达/真实数据；门与钩子以 `--require-audit` 校验，缺/待验 = BLOCKED。
 3. 收尾：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "{workroot}/40-tasks/任务清单-xxx.md" -Tasklist "{workroot}/40-tasks/任务清单-xxx.md"
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -ProjectRoot "." -Acceptance "{workroot}/40-tasks/任务清单-xxx.md" -Tasklist "{workroot}/40-tasks/任务清单-xxx.md"
 # 门末自动输出 CLAIM: ALLOWED；写完成前只需复核（-Claim），不要重复跑全量
-powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1" -Claim -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Claim -ProjectRoot "."
 ```
 
-4. 回执 `.gate/wf-development/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。门 COMPLETE 时末行自动给 `CLAIM: ALLOWED`；`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
+4. 回执 `.gate/<包>/completion.json`；空任务窗口 → `NOT_VERIFIED`；`-DryRun` → `DRY_RUN`。门 COMPLETE 时末行自动给 `CLAIM: ALLOWED`；`-Claim` 再核三件事：verdict 可放行、无 blocked/失败检查、**回执之后代码/产物未被改动（含已提交）**；任何一项不满足 → `CLAIM: DENIED`，此时只能写“未完成/阻塞/部分完成”。
    > `diff_hash` 只覆盖代码/配置/测试/迁移等非文档文件；计划、`activeContext`、INDEX、验收报告等收尾文档回写不会使回执失效；代码/测试/证据文件变更仍会。
    > **顺序**：先提交代码/产物再跑门；门后只提交文档（不改代码/证据）。门后若要改代码/证据，重跑门，不靠解释。
 5. 先写中文 `【验证回执】` + `【遵守自检】`（route/mode/reads/gates/sync/skip/deviation）；`Test-Report.ps1` 对账（iterate/change/**defect-fix** closeout 均跑）；无门/阶段收尾用 `python verify/tools/report_lint.py --format-only --report <收尾文件>`，只校验版式不读 completion.json。
 
-**落盘**：`wf-development/verify/` 只读；运行态写项目根 `.gate/wf-development/`（JSON 回执）、`.gate/frontend/`（截图 + design-qa）与 `.gate/` 根任务态（`.gate/review.md`/`.gate/plan-coverage.md`/`.gate/acceptance.yaml`）；`-StartTask` 轮换到 `.gate/archive/<task_id>/`。
+**落盘**：`<包>/verify/` 只读；运行态写项目根 `.gate/<包>/`（JSON 回执）、`.gate/frontend/`（截图 + design-qa）与 `.gate/` 根任务态（`.gate/review.md`/`.gate/plan-coverage.md`/`.gate/acceptance.yaml`）；`-StartTask` 轮换到 `.gate/archive/<task_id>/`。
 
 ## 3. 文件
 
@@ -90,7 +92,7 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 
 ```powershell
 # 实施出口 / 评审 / 完成门同一命令（前端硬门 §2.5；失败不得提交或标完成）
-python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/frontend `
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend `
   --require-prototype --require-tier --require-generated --require-matrix-routes `
   --require-audit --write .gate/frontend/gate.json
 # 审计前 parity 自检可去掉 --require-audit；进入 ui-audit/评审/提交/完成门必须带

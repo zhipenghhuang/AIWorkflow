@@ -47,7 +47,7 @@ python wf-testing/rules/tools/validate_testcase.py <功能执行记录.md>
 python wf-testing/rules/tools/validate_api_testcase.py <接口执行记录.md>
 ```
 
-> **`check_skills.py` 必须带包根路径**（上例 `wf-testing` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-testing`。
+> **`check_skills.py` 必须带包根路径**（上例 `wf-testing` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把以上命令前缀换成 `wf/wf-testing`。
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；门自测覆盖正例+反例（计数/假 INT/lite 版本/幽灵意图/P0 改写/P0 记不适用/无 P0/计划草稿/批次 ID 不匹配）；另跑文档卫生检查（见 `rules/tools/README.md`）。执行记录/接口记录机检见上两行。
 

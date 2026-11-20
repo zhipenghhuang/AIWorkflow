@@ -104,6 +104,7 @@
 route=workflow:<id> | step=<id> | agent=<agent> | mode=… | reason=<意图类+信号> | next_action=…
 ```
 
+- **首条须带 `reason=`**（意图类+关键信号）；字段与写法以 `cold-start.md` §3 为准。
 - 纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=… | next_action=…`，不要求 workflow id。
 - `change` 加 `type=<初判>`；可附 `intent=<A-L>`、`input=`。
 - 偶然出现「PRD/计划/变更」≠ 口令命中。

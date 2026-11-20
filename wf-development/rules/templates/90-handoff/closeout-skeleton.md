@@ -16,7 +16,7 @@
 - 回执须与 `.gate/wf-development/completion.json` 一致；无回执不得写「完成/通过」。中文结论 ↔ `COMPLETE/PARTIAL/BLOCKED/NOT_VERIFIED`。  
 - **开发自验**：无 QA / 跳过 deliver / solo 实测时必填；有正式测试准出 → `N/A` 并引对方报告。  
 - **遵守自检**：无更新写 `sync=无`；命中版本 bump/关闭/发布·上线/对外可见事实变时 `sync=` 须含 `冷层:ok|na|deferred:<因>`（见 `doc-facade-sync.md`；`ok`=已打开并对齐，禁空写）；产品版本 SSOT 已变时同字段兼记 `ac=ok|半截`（半截=未收尾；CHANGELOG 有用户可见则非 `na` 才算齐；`ac=ok` 无冷层标记=未收齐）；心跳 **不替代**本行。  
-- 发送前：`python verify/tools/check_compliance.py --report <本文件>`（无门可加 `--format-only`）。
+- 发送前：`python <包>/verify/tools/check_compliance.py --report <项目根相对路径>`（在项目根执行；无门可加 `--format-only`）。
 
 ## 0.5 表达（可复制块）
 
@@ -36,7 +36,7 @@
 【遵守自检】route={…} | mode={…} | packet={…} | global={ok|dev:<原因>} | skills={…} | reads={…} | gates={…} | confirm={…} | sync={…} | skip={…} | when_eval={假:<依据>|无} | deviation={…}
 
 汇报（可直接复制）：
-**{短名}**（{结论态}，{完成}/{总数}，{P%}）：{覆盖面；主链路；遗留/风险；未验证不得写「无阻断」}
+**{短名}**（{结论态}，{完成}/{总数}，{P%}）：{覆盖面；主链路；阻断=0 才写「无阻断」}；债项须给 ID/owner/裁决日期，未裁决不得写「已接受」
 
 1. 完成了什么：
    {动作/对象/产出/门禁态；缺陷须真实单号}
@@ -64,7 +64,7 @@
    回复：{编号=选项|全部按建议|无}
    可转发产品：{…|无}
 5. 还存在什么问题或风险（含主动发现：问题+依据+建议+是否阻塞）：
-   {遗留风险|无}
+   {阻断项（必须 0）|已裁决债项：ID/owner/裁决日期}
 6. 当前进度与下一步：
    当前：{阶段/门（代号+中文）/健康度/阻塞/完成门 x/y/下一门}
    下一步：

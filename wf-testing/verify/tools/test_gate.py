@@ -452,6 +452,13 @@ def track_record_substance(path: Path, kind: str) -> bool:
         data = [ln for ln in rows if not re.match(r"^\|\s*[-: ]+\|", ln) and "必测面" not in ln]
         graded = [ln for ln in data if re.search(r"达标|未达标|缺口|待测", ln)]
         return has_hdr and len(graded) >= 3
+    if kind == "frontend":
+        rows = [ln for ln in body.splitlines() if ln.strip().startswith("|")]
+        return (
+            "映射表" in body
+            and bool(re.search(r"符合|等价|偏离|缺失", body))
+            and len(rows) >= 4
+        )
     return True
 
 
@@ -1278,6 +1285,11 @@ def parse_plan(path: Path) -> dict[str, Any]:
                         return bool(re.search(r"补丁口径|\bT0\b|无运行时交付|无运行时产品|纯文档", blob))
                     if kind == "regression":
                         return bool(re.search(r"零变更|无邻接", blob))
+                    if kind == "frontend":
+                        return bool(re.search(
+                            r"无\s*UI|无页面|无界面|无客户端|无前端|纯\s*API|纯接口|纯文档|无运行时",
+                            blob, re.I,
+                        ))
                     return False
 
                 fn_name, fn_inc, fn_scope = _find_track("功能")
@@ -1311,6 +1323,17 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 elif "是" not in reg_inc:
                     if not _na_ok(f"{reg_inc} {reg_scope}", "regression"):
                         issues.append("回归纳入=否 仅认零变更+零邻接+接受人（极少）")
+
+                fe_name, fe_inc, fe_scope = _find_track("前端")
+                if not fe_name:
+                    issues.append(f"{label}计划 §2 缺前端轨道（有 UI 必须纳入；无 UI 须白名单事实+接受人）")
+                elif "是" in fe_inc:
+                    pass
+                elif "否" in fe_inc:
+                    if not _na_ok(f"{fe_inc} {fe_scope}", "frontend"):
+                        issues.append("前端纳入=否 仅认无 UI 面事实句+接受人；禁「功能已点过/能打开=符合原型」")
+                else:
+                    issues.append("§2 前端「纳入」须为是或否")
 
                 exp_name, exp_inc, exp_scope = _find_track("探索")
                 if risk_tier in ("T1", "T2", "T3") or outing == "发版":
@@ -1439,6 +1462,7 @@ def parse_plan(path: Path) -> dict[str, Any]:
                 ]
                 for kw, pat, label in (
                     ("接口", r"接口|\bAPI\b|EP-\d+", "接口/契约"),
+                    ("前端", r"前端", "前端"),
                     ("探索", r"探索", "探索式"),
                     ("发布前", r"发布前", "发布前"),
                 ):
@@ -1627,7 +1651,10 @@ def find_records(test_root: Path, scope: str | None = None) -> list[Path]:
     for p in test_root.rglob("*.md"):
         if not is_current(p) or "执行记录" not in p.name:
             continue
-        if scope and not any(t in str(p).replace("\\", "/") for t in [x.strip() for x in re.split(r"[,;|]", scope) if x.strip()]):
+        rel = str(p).replace("\\", "/")
+        if "/frontend/" in rel:
+            continue
+        if scope and not any(t in rel for t in [x.strip() for x in re.split(r"[,;|]", scope) if x.strip()]):
             continue
         out.append(p)
     return sorted(set(out))
@@ -2138,7 +2165,7 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
         "INT-", "SC-", "EXP-", "SMK-", "runId", "suite=", "depth=",
         "D01", "D02", "D03", "D04", "D05", "D06", "D07", "D08",
         "D09", "D10", "D11", "D12", "D13", "S6", "S7", "S11",
-        "原文对账", "四轨", "锚点",
+        "原文对账", "纳入轨", "锚点",
     ):
         if marker in scan_text:
             issues.append(f"报告含测试内部标记：{marker}（正文应给开发/产品直接读）")
@@ -2275,6 +2302,9 @@ def _regression_card_issues(text: str) -> list[str]:
             issues.append(f"回归写回缺{label}")
         elif re.match(no_run, val, re.I) and not re.search(r"接受人|确认人|用户确认", val):
             issues.append(f"{label}未跑/未覆盖须写接受人")
+    m = re.search(r"复测证据\s*[=:：]\s*([^\n]*)", text)
+    if not _filled(m.group(1) if m else ""):
+        issues.append("回归写回缺复测证据（截图/JSON/执行记录路径）")
     m = re.search(r"未覆盖\s*[=:：]\s*([^\n]*)", text) or re.search(r"豁免\s*[=:：]\s*([^\n]*)", text)
     val = m.group(1).strip() if m else ""
     if not val or "{" in val or val.startswith(("…", "...")):
@@ -2706,6 +2736,14 @@ def main() -> int:
                     missing_tracks.append("接口（api/ 实质执行记录）")
                 if api_bad:
                     missing_tracks.append("接口空壳：" + "、".join(api_bad[:3]))
+            if track_on("前端"):
+                fe_recs = [p for p in current_md if "/frontend/" in rel(p) and "执行记录" in p.name]
+                fe_ok = [p for p in fe_recs if track_record_substance(p, "frontend")]
+                fe_bad = [p.name for p in fe_recs if p not in fe_ok]
+                if not fe_ok:
+                    missing_tracks.append("前端（frontend/ 实质执行记录+映射表）")
+                if fe_bad:
+                    missing_tracks.append("前端空壳：" + "、".join(fe_bad[:3]))
             if track_on("探索"):
                 exp_recs = [p for p in current_md if "探索记录" in p.name]
                 exp_recs = [p for p in exp_recs if not re.search(r"计划外\s*[=:：]\s*(是|true|yes)", read(p), re.I)]

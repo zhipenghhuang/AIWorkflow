@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **GATE `change-closure`**：运行 `verify/Invoke-Gate.ps1 -Mode change`；受理单/变更单 **§6 联动表**逐项“已更新/不适用/待补”，待补有责任人/截止；单内 **§7** 写验证结果；未闭合不得关闭
+- **GATE `change-closure`**：运行 `<包>/verify/Invoke-Gate.ps1 -Mode change`；受理单/变更单 **§6 联动表**逐项“已更新/不适用/待补”，待补有责任人/截止；单内 **§7** 写验证结果；未闭合不得关闭
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -41,7 +41,7 @@
 
 - **单一出处**：通用联动/关闭规则以 `change.verify` 为准。
 - 本步只保留缺陷平台差异。
-- 运行 `verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）。
+- 运行 `<包>/verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）。
 - 受理单联动清单未闭合、验证结果缺失 → 不得关闭。
 - 未 READY → **保持受理单打开，不得进入 closeout 冒充完成**。
 - 先补联动/证据或报阻塞。
@@ -68,7 +68,7 @@
 
 - **填写模板（主）**：`rules/templates/30-review-change/defect-writeup-template.md`；只读本步用到的节，禁止整文件通读。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 

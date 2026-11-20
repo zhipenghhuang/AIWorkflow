@@ -18,7 +18,7 @@
 | 测试分析 | `{ver}/test-analysis.md` |
 | 当前需求基线 | {{路径 / —}} |
 | 当前方案/设计 | {{路径 / —}} |
-| 执行记录 | `{ver}/functional|api/{NN}-{短名}-执行记录.md` |
+| 执行记录 | `{ver}/functional|api|frontend/{NN}-{短名}-执行记录.md` |
 | 回归锚点 | `smoke-checklist.md` |
 | 当前报告 | `{ver}/test-report.md` |
 | 当前交接台账 | `{workroot}/handoff/handoff-ledger.md` |

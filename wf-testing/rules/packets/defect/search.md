@@ -40,6 +40,9 @@
 
 - 提交前查重（先列表再本地过滤，至多1～2次高信号search；禁同质连环search）。
 - 回归/巡检拉单读 status/resolution/assignedTo/resolvedBuild/actions/files/lastEditedDate，按 缺陷协作 做快照 diff。
+- 回归按 `collaboration` §7 复测（默认/扩大范围卡）。
+- 失败当场钉断言截图/JSON，证据落 `{ver}/evidence/` 或执行记录。
+- 未实测不得写回。
 - api 读不全 → browser。
 - 仍不全 → 请用户补关键备注/附件，禁只看标题分析。
 - 批量查重/快照 diff：达只读扇出阈值则按单扇出，未拆记 deviation。

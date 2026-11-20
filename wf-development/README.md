@@ -36,7 +36,7 @@
 | `rules/special/` | 专项方法：`iteration-delivery.md` · `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
-| `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/界面审计校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
+| `verify/` | 完成门 `<包>/verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/界面审计校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
 
 实例在项目根：`project-profile.md`、`activeContext.md`（含 `### 进行中` 快照）、根 `CHANGELOG.md`、`{workroot}/`。跨角色交接：**内容优先、包按需**——提测默认自洽提测单并实拷 `handoff/outbound/提测/`；HO 仅多文件/签收/仓外/同发发版/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。有平台已交不强制 BUG/FIX 整包。多包同仓直读对方出站。
 
@@ -76,10 +76,12 @@
 
 ## 4. 自检
 
+> 在项目根执行；多包布局把 `wf-development/` 换成 `wf/wf-development/`。
+
 ```text
 wf-development/rules/tools/Test-Template.ps1
 wf-development/rules/tools/Test-DocHygiene.ps1
-wf-development/verify/Invoke-Gate.ps1 -ProjectRoot "."
+<包>/verify/Invoke-Gate.ps1 -ProjectRoot "."
 ```
 
 自检内容：引用可解析、章节锚点、workflows→agents、步标记词表、能力名声明、版本单点、**YAML 语法/基本 schema、开发计划模板 schema**；文档卫生检查 AGENTS/开局卡/global-rules 整文件预算、孤立模板、工作流挂载。  

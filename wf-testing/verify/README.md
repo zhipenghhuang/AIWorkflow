@@ -1,25 +1,26 @@
 # 验证（测试轨）
 
 > 目的：让“分析完整/执行通过/准出”有可对账的证据。门读现有分析/计划/执行记录/报告，不新增测试文档。
-> 读取时机：计划门（coverage）、执行批末（execute）、报告（report）、交平台（writeback）、材料库发布（materials）。
+> 读取时机：计划门（coverage）、执行批末（execute）、报告（report）、交平台（writeback）、材料库发布（materials）。  
+> **命令路径**：均在项目根执行；`<包>` = 单包 `wf-testing`，多包 `wf/wf-testing`。
 
 ## 1. 什么时候跑
 
 | 场景 | 命令 | 输出 |
 | --- | --- | --- |
-| 分析与计划 | `Invoke-Gate.ps1 -Mode coverage` | 分析结构/来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路 + 计划结构 |
-| 执行批末 | `Invoke-Gate.ps1 -Mode execute -Scope "{模块/域}"` | 分析/计划结构硬判 + Scope 内记录/证据/INT∈§2.1/终态/证伪；过程完整且仅产品红 → CONDITIONAL |
-| 报告/准出 | `Invoke-Gate.ps1 -Mode report` | 分析/计划/记录/报告一致；全部 P0/P1/P2 意图终态；场景/意图计数；缺口 |
-| 交平台/回写 | `Invoke-Gate.ps1 -Mode writeback` | `缺陷台账.md` §0（单号/备注/状态/附件回查）；§1 版本台账；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖） |
-| 材料库发布 | `Invoke-Gate.ps1 -Mode materials -Version "{ver}"` | README/INDEX 齐、文件全登记、无草稿/证据、无密钥、链接自包含；来源与旧版本状态人工核 |
-| 完成口令 | `Invoke-Gate.ps1 -Claim -Mode report` | 读 `.gate/wf-testing/report.json`；输出 `CLAIM: ALLOWED/DENIED` |
+| 分析与计划 | `<包>/verify/Invoke-Gate.ps1 -Mode coverage` | 分析结构/来源/章节/依据/意图/AC 账本/覆盖矩阵/方法矩阵/细节维/影响面/核心链路 + 计划结构 |
+| 执行批末 | `<包>/verify/Invoke-Gate.ps1 -Mode execute -Scope "{模块/域}"` | 分析/计划结构硬判 + Scope 内记录/证据/INT∈§2.1/终态/证伪；过程完整且仅产品红 → CONDITIONAL |
+| 报告/准出 | `<包>/verify/Invoke-Gate.ps1 -Mode report` | 分析/计划/记录/报告一致；全部 P0/P1/P2 意图终态；场景/意图计数；缺口 |
+| 交平台/回写 | `<包>/verify/Invoke-Gate.ps1 -Mode writeback` | `缺陷台账.md` §0（单号/备注/状态/附件回查）；§1 版本台账；回归写回另查范围卡（构建/范围/冒烟/影响面/未覆盖） |
+| 材料库发布 | `<包>/verify/Invoke-Gate.ps1 -Mode materials -Version "{ver}"` | README/INDEX 齐、文件全登记、无草稿/证据、无密钥、链接自包含；来源与旧版本状态人工核 |
+| 完成口令 | `<包>/verify/Invoke-Gate.ps1 -Claim -Mode report` | 读 `.gate/<包>/report.json`；输出 `CLAIM: ALLOWED/DENIED` |
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode execute -Scope "<模块目录名>" -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Mode materials -Version "{ver}" -ProjectRoot "."
-powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Claim -Mode report -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Mode coverage -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Mode execute -Scope "<模块目录名>" -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Mode report -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Mode materials -Version "{ver}" -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Claim -Mode report -ProjectRoot "."
 ```
 
 **完成口径**：`-Claim -Mode report` 只认 report 回执；verdict 非 PASS/CONDITIONAL、有阻断、或分析/计划/执行记录/报告在回执后又改动 → `CLAIM: DENIED`。`-Mode report` 的 PASS/CONDITIONAL 均可进入 closeout（CONDITIONAL 须报告 §4 有非空接受人）；是否可写“完成/准出”仍只看 `-Claim`。
@@ -66,7 +67,7 @@ powershell -ExecutionPolicy Bypass -File "wf-testing/verify/Invoke-Gate.ps1" -Cl
 ## 5. 门自测
 
 ```powershell
-python wf-testing/verify/tools/selftest_gate.py
+python <包>/verify/tools/selftest_gate.py
 ```
 
 正例（coverage/execute/report PASS）+ 反例：来源计数大于账本行、矩阵写假 INT、lite 声明版本准出、幽灵意图（§3 无场景）、P0 改写、P0 记不适用、无 P0、计划草稿态、批次 ID 不匹配、软性发布前 N/A、软性接口 N/A、空壳探索记录等（以脚本内用例为准）。改 `test_gate.py` 后必须跑；输出 `SELFTEST OK (n/n)` 且 n 与脚本用例数一致才可提交。

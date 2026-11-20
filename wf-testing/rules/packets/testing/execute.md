@@ -6,7 +6,7 @@
 
 - **workflow / step**：`testing` / `execute`（按计划执行）
 - **packet**：`rules/packets/testing/execute.md`
-- **角色**：`test-orchestrator`（计划驱动执行编排（功能/接口/探索/发布前/回归））。按 {workroot}/{ver}/test-plan.md §3 轮次/§4 准出执行全部在范围意图与轨道；生成场景、记录结果、管理证据/缺陷/回归；本步只做该角色职责；越界交回或升级。
+- **角色**：`test-orchestrator`（计划驱动执行编排（功能/接口/前端/探索/发布前/回归））。按 {workroot}/{ver}/test-plan.md §3 轮次/§4 准出执行全部在范围意图与轨道；生成场景、记录结果、管理证据/缺陷/回归；本步只做该角色职责；越界交回或升级。
 - **前置**：分析表与测试计划已确认；landing_doc_review_needed 曾为真 → review-plan 已通过（或 when 假已跳过）；按计划执行全部在范围意图
 - **上游**：`review-plan`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`report`
@@ -100,7 +100,7 @@
 - **填写模板（按轨）**：功能/探索 → `rules/templates/20-test-cases/test-case-template.md`；接口 → `rules/templates/20-test-cases/api-test-case-template.md`；发布前 → 本轨专项方案/报告。只读本轨用到的节，禁整文件通读；禁混用模板。
 - **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/20-test-cases/api-test-case-template.md`；`rules/templates/20-test-cases/exploratory-case-template.md`；`rules/templates/20-test-cases/random-flow-case-template.md`；`rules/templates/20-test-cases/a11y-ux-checklist.md`；`rules/templates/30-execution/stable-smoke-checklist-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 

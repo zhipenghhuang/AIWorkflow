@@ -79,6 +79,7 @@ WB_RECEIPT = """# 缺陷台账 · 回归写回
 - 回归范围卡：构建=b2；回归范围=默认
 - 冒烟=批 B-01 一次（SMK-01 通过）
 - 影响面=直接 列表口径；邻接 详情口径（共 2 条，2 通过/0 失败）
+- 复测证据=docs/evidence/reg-001.png
 - 未覆盖=无
 
 ## 1. 版本缺陷台账
@@ -132,6 +133,7 @@ WB_NO_CARD = WB_RECEIPT.replace(
     "- 回归范围卡：构建=b2；回归范围=默认\n"
     "- 冒烟=批 B-01 一次（SMK-01 通过）\n"
     "- 影响面=直接 列表口径；邻接 详情口径（共 2 条，2 通过/0 失败）\n"
+    "- 复测证据=docs/evidence/reg-001.png\n"
     "- 未覆盖=无\n",
     "",
 )
@@ -172,8 +174,14 @@ def _upgrade_plan(text: str) -> str:
         "| 构建 / 版本 | b1 |\n| 构建封板 | build-b1 / 2026-11-10 10:00 |\n| 数据快照 | SEED-1 / 登录账号样本 |",
     )
     text = text.replace(
+        "| 功能 | 是 | 登录/退出 | R0/R1 | 环境就绪/终态 | 测试 |",
+        "| 功能 | 是 | 登录/退出 | R0/R1 | 环境就绪/终态 | 测试 |\n"
+        "| 前端 | 是 | 登录页结构对照 | R1 | 页面映射表 | 测试 |",
+    )
+    text = text.replace(
         "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN | 直跑 | 串行 | 共享·串行 | R0 全绿 | 执行记录+证据 |",
         "| B-R1-01 | 登录 | INT-001-LOGIN / INT-002-LOGIN | 直跑 | 串行 | 共享·串行 | R0 全绿 | 执行记录+证据 |\n"
+        "| B-R1-FE | 前端 | 页面结构对照（无 INT） | 直跑 | 串行 | 共享·串行 | B-R1-01 | frontend/ 记录+映射表 |\n"
         "| B-R1-EX | 探索（登录体验） | 本章程（无意图） | 直跑 | 串行 | 共享·串行 | B-R1-01 | 探索记录 |",
     )
     text = text.replace(
@@ -241,6 +249,22 @@ _rec = _rec.replace(
     "- 脚本：`N/A+依据：本轮直跑`\n\n## 2. 观察与问题",
 )
 GOOD[_rec_path] = _rec
+
+GOOD["docs/frontend/01-登录-执行记录.md"] = (
+    "# 登录 前端执行记录\n\n"
+    "## 0. 记录信息\n\n| 项 | 值 |\n| --- | --- |\n"
+    "| 轮次/批次 | R1 / B-R1-FE |\n| 原文 / 对照 | 原型 #/login、#/home |\n"
+    "| 分析索引 | docs/test-analysis.md §2.1 |\n\n"
+    "## 1. 页面映射表\n\n"
+    "| 页面/入口 | 设计基准 | 现网路由 | 结论 | 证据 |\n"
+    "| --- | --- | --- | --- | --- |\n"
+    "| 登录 | 原型 #/login | /login | 符合 | evidence/fe-login.png |\n"
+    "| 首页 | 原型 #/home | /home | 符合 | evidence/fe-home.png |\n\n"
+    "## 2. 结构与可用性底线\n\n"
+    "- 结构：登录表单/按钮/错误提示齐；无独立工作台。\n"
+    "- 可用性：空密码禁用并给原因；错误提示给下一步。\n"
+    "- 结论：通过。\n"
+)
 
 
 def write_case(root: Path, files: dict[str, str]) -> None:
@@ -687,12 +711,39 @@ def main() -> int:
         ), "coverage", "FAIL", None,
     ))
 
+    cases.append((
+        "plan-frontend-no-row",
+        mutated("docs/test-plan.md",
+                "| 前端 | 是 | 登录页结构对照 | R1 | 页面映射表 | 测试 |\n", "", GOOD),
+        "coverage", "FAIL", None,
+    ))
+    cases.append((
+        "plan-frontend-no-batch",
+        mutated("docs/test-plan.md",
+                "\n| B-R1-FE | 前端 | 页面结构对照（无 INT） | 直跑 | 串行 | 共享·串行 | B-R1-01 | frontend/ 记录+映射表 |",
+                "", GOOD),
+        "coverage", "FAIL", None,
+    ))
+    fe_missing = dict(GOOD)
+    del fe_missing["docs/frontend/01-登录-执行记录.md"]
+    cases.append(("report-frontend-missing", fe_missing, "report", "FAIL", None))
+    cases.append((
+        "report-frontend-empty",
+        {**GOOD, "docs/frontend/01-登录-执行记录.md": "# 前端\n\n无映射表。\n"},
+        "report", "FAIL", None,
+    ))
+
     cases.append(("good-writeback-regression", {"docs/缺陷台账.md": WB_RECEIPT}, "writeback", "PASS", None))
     cases.append(("ledger-history-only", {"docs/缺陷台账.md": LEDGER_HISTORY_ONLY}, "writeback", "FAIL", None))
     cases.append(("writeback-submit-ok", {"docs/缺陷台账.md": WB_SUBMIT_OK}, "writeback", "PASS", None))
     cases.append(("writeback-submit-no-surface", {"docs/缺陷台账.md": WB_SUBMIT_NO_SURFACE}, "writeback", "FAIL", None))
     cases.append(("writeback-plain-comment", {"docs/缺陷台账.md": WB_PLAIN}, "writeback", "PASS", None))
     cases.append(("writeback-no-card", {"docs/缺陷台账.md": WB_NO_CARD}, "writeback", "FAIL", None))
+    cases.append((
+        "writeback-no-retest-evidence",
+        {"docs/缺陷台账.md": WB_RECEIPT.replace("- 复测证据=docs/evidence/reg-001.png\n", "")},
+        "writeback", "FAIL", None,
+    ))
     cases.append(("writeback-smoke-unwaived", {"docs/缺陷台账.md": WB_SMOKE_UNWAIVED}, "writeback", "FAIL", None))
     cases.append(("writeback-smoke-waived", {"docs/缺陷台账.md": WB_SMOKE_WAIVED}, "writeback", "PASS", None))
     cases.append(("writeback-no-uncovered", {"docs/缺陷台账.md": WB_NO_UNCOVERED}, "writeback", "FAIL", None))

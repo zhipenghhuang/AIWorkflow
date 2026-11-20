@@ -65,7 +65,7 @@
 
 - **填写模板（主）**：`rules/templates/30-review-change/defect-writeup-template.md`；只读本步用到的节，禁止整文件通读。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 

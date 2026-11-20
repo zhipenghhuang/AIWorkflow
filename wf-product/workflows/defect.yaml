@@ -144,7 +144,7 @@ steps:
   hitl: confirm_remark
   output: 平台回写结果写入受理单/缺陷处置单 §平台回写（备注实质 / 状态 / 附件 fileId 或无附件 / 指派）
   notes: 按 `rules/templates/30-review-change/defect-writeup-template.md`：回写前出示 id、来源、结论、备注全文、附件名、状态/指派变更、目标版本；确认后执行。回写结果同轮写回本单
-    §7「平台回写」（平台单号 BUG-#；备注：≥8 字实质；状态：新值；附件：fileId 或无附件）；运行 `verify/Invoke-Gate.ps1 -Mode writeback -Artifact <本单路径>`；无回执/备注状态不同轮/附件未回查
+    §7「平台回写」（平台单号 BUG-#；备注：≥8 字实质；状态：新值；附件：fileId 或无附件）；运行 `<包>/verify/Invoke-Gate.ps1 -Mode writeback -Artifact <本单路径>`；无回执/备注状态不同轮/附件未回查
     → 不得声称已回写。未配置平台/无权限 → 先回 preflight；无既有分析/结论 → 回 pull/analyze，不凭空回写；只改字段未分析 → 先补分析。备注与状态同轮；备注写分诊依据/处置结论/影响 AC/目标版本/下一步/需要谁做什么；回写内容由编排集中生成；子代理只提供事实素材，不写平台、不改状态。禁密钥/绝对路径/用例路径。附件上传后回查挂载；失败重试≤1，禁删缺陷。平台不支持/无权限
     → 出 export 包，标「待回写」。指派：产品缺陷/实现缺陷→开发；非问题/重复/信息不足按来源→测试或开发；补充信息/信息不足→提交人/测试/开发（按来源）。目标版本/截止写清。
 - name: 验证与关闭
@@ -158,10 +158,11 @@ steps:
   gate: change-closure
   gate_type: machine
   output: 验证结果 + 批末总结
-  notes: '**单一出处**：通用联动/关闭规则以 `workflows/change.yaml` verify 为准；本步只保留缺陷平台差异。 运行 `verify/Invoke-Gate.ps1 -Mode change`（读 `.gate/wf-product/change.json`）；受理单联动清单未闭合、验证结果缺失
-    → 不得关闭。 未 READY → **保持受理单打开，不得进入 closeout 冒充完成**；先补联动/证据或报阻塞。 按 `rules/defects/platform-collaboration.md` + `rules/templates/30-review-change/defect-writeup-template.md`：
-    产品缺陷 → 受影响 AC/UAT 重验；开发完成新文档实施后验证；未验证不关单。 实现缺陷 → 产品侧回执后由开发/测试流程跟踪；产品侧不写「已修复」。 非问题/重复/信息不足 → 产品给依据；测试接受后关闭或转需求；未接受转产品复核。
-    下版 → 回池/路线图；不修 → 理由/接受人；退回开发 → 回执，缺陷状态由开发/测试跟踪。 验证通过后进入 `close_platform` 关闭回写（when 假则跳过）；批末输出【产品缺陷协作总结】。'
+  notes: '**单一出处**：通用联动/关闭规则以 `workflows/change.yaml` verify 为准；本步只保留缺陷平台差异。 运行 `<包>/verify/Invoke-Gate.ps1 -Mode change`（读
+    `.gate/wf-product/change.json`）；受理单联动清单未闭合、验证结果缺失 → 不得关闭。 未 READY → **保持受理单打开，不得进入 closeout 冒充完成**；先补联动/证据或报阻塞。 按 `rules/defects/platform-collaboration.md`
+    + `rules/templates/30-review-change/defect-writeup-template.md`： 产品缺陷 → 受影响 AC/UAT 重验；开发完成新文档实施后验证；未验证不关单。 实现缺陷 → 产品侧回执后由开发/测试流程跟踪；产品侧不写「已修复」。
+    非问题/重复/信息不足 → 产品给依据；测试接受后关闭或转需求；未接受转产品复核。 下版 → 回池/路线图；不修 → 理由/接受人；退回开发 → 回执，缺陷状态由开发/测试跟踪。 验证通过后进入 `close_platform` 关闭回写（when
+    假则跳过）；批末输出【产品缺陷协作总结】。'
 - name: 平台关闭回写
   id: close_platform
   skills:

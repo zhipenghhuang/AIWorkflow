@@ -22,7 +22,7 @@ from frontend_parity import audit_problems
 FRONTEND_PREFIXES = ("static/", "templates/", "public/", "frontend/", "assets/")
 FRONTEND_SUFFIXES = (".js", ".mjs", ".css", ".vue", ".html", ".ts", ".tsx")
 CODE_PREFIXES = ("apps/", "config/", "scripts/", "src/")
-DOC_PREFIXES = ("docs/", ".gate/", "wf-development/", "inbound/")
+DOC_PREFIXES = ("docs/", ".gate/", "wf/", "wf-development/", "inbound/")
 
 
 def git(*args: str, cwd: Path) -> str:
@@ -87,7 +87,7 @@ def check_frontend(root: Path, frontend: list[str]) -> list[str]:
     if not receipt.is_file():
         return [
             "前端改动缺少实施出口回执 .gate/frontend/gate.json；"
-            "先跑：python wf-development/verify/tools/frontend_parity.py "
+            "先跑：python <包>/verify/tools/frontend_parity.py "
             "--evidence-dir .gate/frontend --require-prototype --require-tier "
             "--require-generated --require-matrix-routes --require-audit --write .gate/frontend/gate.json"
         ]

@@ -1,5 +1,6 @@
 # 检查矩阵（开发轨 · 人读策略）
 # 机器执行以 tools/gate.py 为准；本文件用于评审与调整，不要求 gate 解析。
+# 回执只认 gate.py 实际执行的检查；本文件列出但 gate 未实现的检查不得在回执中声称已检。
 # 原则：高价值低成本默认做；高价值中成本按风险做；低价值高成本不做。
 # L1 无 test_scoped 且有 smoke → 只跑 smoke；无 smoke 才回退全仓 test。deferred=按风险裁剪不跑，不阻断 Claim。
 
@@ -21,7 +22,7 @@ levels:
     optional: [test-or-targeted-test, a11y-basic, visual-diff]
   L2:
     description: ">3 文件或 >1 模块，或接口/数据/新功能变更"
-    required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage, nfr-baseline]
+    required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage, nfr-baseline, debts]
     frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, ui-audit, evidence-integrity]
     manual: [review]
     optional: [contract-test]

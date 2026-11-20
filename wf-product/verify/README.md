@@ -1,28 +1,29 @@
 # 验证（产品轨）
 
 > 目的：让“PRD 定稿/评审通过/UAT 通过/变更关闭/回写完成”有可对账的证据。门读现有 PRD/评审/UAT/受理单，不新增产品文档。
-> 读取时机：`prd.review`、`prototype.review`、`deliver.uat`、`change.verify`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。
+> 读取时机：`prd.review`、`prototype.review`、`deliver.uat`、`change.verify`、`defect.writeback` 前。维护读 `rules/core/rule-governance.md`。  
+> **命令路径**：均在项目根执行；`<包>` = 单包 `wf-product`，多包 `wf/wf-product`。
 
 ## 1. 什么时候跑
 
 | 场景 | 命令 | 输出 |
 | --- | --- | --- |
-| PRD 定稿 | `Invoke-Gate.ps1 -Mode prd` | 结构/AC/追溯/TBD/定稿状态 |
-| PRD 评审 | `Invoke-Gate.ps1 -Mode review` | 独立评审/评分/阻断项 |
-| 设计评审 | `Invoke-Gate.ps1 -Mode design-review` | 独立评审 + `prototype-coverage.md`（PRD/原型→页面/路由/状态/截图） |
-| UAT | `Invoke-Gate.ps1 -Mode uat` | AC 覆盖/证据/遗留接受人 |
-| 变更关闭 | `Invoke-Gate.ps1 -Mode change` | 联动清单闭合 |
-| 平台回写 | `Invoke-Gate.ps1 -Mode writeback -Artifact <受理单/缺陷处置单>` | 平台单号 + 备注实质 + 状态取值 + 附件回查（fileId/无附件） |
-| 收尾自检 | `python verify/tools/check_compliance.py --report <收尾文件>` | 回执/自检（route/mode/reads/gates/sync/skip/deviation）+ 六点版式、汇报块、第 2/4/6 点固定子字段、附录；头块禁粘行 |
-| 完成口令 | `Invoke-Gate.ps1 -Claim -Mode <对应门>` | 优先读 `.gate/wf-product/{mode}.json`（无则 `completion.json`）：mode 匹配 + verdict 可放行 + 无阻断 + 产物在回执后未改；输出 `CLAIM: ALLOWED/DENIED` |
+| PRD 定稿 | `<包>/verify/Invoke-Gate.ps1 -Mode prd` | 结构/AC/追溯/TBD/定稿状态 |
+| PRD 评审 | `<包>/verify/Invoke-Gate.ps1 -Mode review` | 独立评审/评分/阻断项 |
+| 设计评审 | `<包>/verify/Invoke-Gate.ps1 -Mode design-review` | 独立评审 + `prototype-coverage.md`（PRD/原型→页面/路由/状态/截图） |
+| UAT | `<包>/verify/Invoke-Gate.ps1 -Mode uat` | AC 覆盖/证据/遗留接受人 |
+| 变更关闭 | `<包>/verify/Invoke-Gate.ps1 -Mode change` | 联动清单闭合 |
+| 平台回写 | `<包>/verify/Invoke-Gate.ps1 -Mode writeback -Artifact <受理单/缺陷处置单>` | 平台单号 + 备注实质 + 状态取值 + 附件回查（fileId/无附件） |
+| 收尾自检 | `python <包>/verify/tools/check_compliance.py --report <收尾文件>` | 回执/自检（route/mode/reads/gates/sync/skip/deviation）+ 六点版式、汇报块、第 2/4/6 点固定子字段、附录；头块禁粘行 |
+| 完成口令 | `<包>/verify/Invoke-Gate.ps1 -Claim -Mode <对应门>` | 优先读 `.gate/<包>/{mode}.json`（无则 `completion.json`）：mode 匹配 + verdict 可放行 + 无阻断 + 产物在回执后未改；输出 `CLAIM: ALLOWED/DENIED` |
 | 策略表 | `verify/checks.yaml`（人读） | 每个 Mode 的 required/manual 检查项；评审与调策略时读，机器执行以 `tools/product_gate.py` 为准 |
 
 ```powershell
 # 推荐始终带 -Artifact，避免多版本 mtime 选错
-powershell -ExecutionPolicy Bypass -File "wf-product/verify/Invoke-Gate.ps1" -Mode prd -Artifact "{workroot}/V1/PRD-….md" -ProjectRoot "."
+powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Mode prd -Artifact "{workroot}/V1/PRD-….md" -ProjectRoot "."
 ```
 
-作者侧：落盘 →【完稿自检摘要】→ `-Mode prd`（P2+/P1↑/拟定稿必跑；BLOCKED 不得定稿）。选 B：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。选 A：`review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY。P1↑ 自检按 P2；评审默认 B（选 A 须用户明确 + 独立复核）。回执明细 `.gate/wf-product/{mode}.json`；同内容写 `completion.json` 供兜底读取。
+作者侧：落盘 →【完稿自检摘要】→ `-Mode prd`（P2+/P1↑/拟定稿必跑；BLOCKED 不得定稿）。选 B：评审记录 → `-Mode review` → 回填 `gate_id`/`review_status: APPROVED` → 复跑 `-Mode prd`。选 A：`review_status: HUMAN_APPROVED` + `approved_by` + `status: APPROVED` → 复跑 `-Mode prd` 至 READY。P1↑ 自检按 P2；评审默认 B（选 A 须用户明确 + 独立复核）。回执明细 `.gate/<包>/{mode}.json`；同内容写 `completion.json` 供兜底读取。
 
 **完成口径**：写“定稿/通过/准出”前跑 `-Claim -Mode <对应门>`；`CLAIM: DENIED` 时只能写未完成。产物（PRD/评审/UAT）在回执后又被改动 → 回执过期，必须复跑门禁。
 

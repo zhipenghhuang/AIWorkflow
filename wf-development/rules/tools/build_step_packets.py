@@ -47,7 +47,10 @@ def load_gates_table(root: Path) -> dict[str, str]:
     out: dict[str, str] = {}
     if not p.is_file():
         return out
-    for line in p.read_text(encoding="utf-8").splitlines():
+    lines = p.read_text(encoding="utf-8").splitlines()
+    # 门表在 §1；§2 的 when 词表会把门名写进条件说明，不能参与解析。
+    cutoff = next((i for i, line in enumerate(lines) if re.match(r"^##\s*2\.", line)), len(lines))
+    for line in lines[:cutoff]:
         if not line.startswith("|"):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
@@ -58,22 +61,30 @@ def load_gates_table(root: Path) -> dict[str, str]:
         # row may be: | 理解门 | `confirm_understanding`（when…） | 说明 |
         # or: | 材料库闸 | `gate: materials-validate` | 说明 |
         desc = cells[-1] if len(cells) >= 3 else cells[1]
-        # 只从「标记/门名」列取 id，禁扫说明列（说明里反引号门名会误绑整段描述）
-        name_cell = cells[1] if len(cells) >= 3 else cells[0]
+        name_cell = " ".join(cells[:2])
         names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", name_cell)
         for name in names:
             if name.startswith(("confirm_", "select_")) or "-" in name:
-                out[name] = desc
+                old = out.get(name)
+                if old is None or len(desc) > len(old):
+                    out[name] = desc
         for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", name_cell):
             gid = m.group(1)
-            out[f"gate: {gid}"] = desc
-            out[gid] = desc
+            old = out.get(f"gate: {gid}")
+            if old is None or len(desc) > len(old):
+                out[f"gate: {gid}"] = desc
+                out[gid] = desc
         # also allow first cell if it is already a gate id
         key0 = cells[0].strip("`")
         if key0.startswith(("confirm_", "select_")) or key0.startswith("gate:"):
-            out[key0] = desc
-            if key0.startswith("gate:"):
-                out[key0.split(":", 1)[1].strip()] = desc
+            old = out.get(key0)
+            if old is None or len(desc) > len(old):
+                out[key0] = desc
+                if key0.startswith("gate:"):
+                    out[key0.split(":", 1)[1].strip()] = desc
+    for name, desc in out.items():
+        if name.startswith(("confirm_", "select_")) and len(desc.strip()) < 8:
+            raise ValueError(f"gates.md 解析异常：{name} 的描述过短 {desc!r}")
     return out
 
 
@@ -387,7 +398,7 @@ WORKFLOW_CARD = """### 本步规则卡：变更与提交
 
 IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛；实施类共用）
 
-- **先 StartTask（硬）**：动手前 `verify/Invoke-Gate.ps1 -StartTask -TaskId "<本轮任务ID>" -ProjectRoot "."`（冻结 `base_commit`）；`-TaskId` 用方案/验收清单同一 id（L2+ 与 `.gate/acceptance.yaml` 一致），勿另起新 id；提交在 StartTask 之后；门后只提文档。
+- **先 StartTask（硬）**：动手前 `<包>/verify/Invoke-Gate.ps1 -StartTask -TaskId "<本轮任务ID>" -ProjectRoot "."`（冻结 `base_commit`）；`-TaskId` 用方案/验收清单同一 id（L2+ 与 `.gate/acceptance.yaml` 一致），勿另起新 id；提交在 StartTask 之后；门后只提文档。
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
 - **一次完善（主）**：本期范围内方案条款同批落地；验证/评审是兜底，不把「以后补/挂债过门」当默认路径。
 - **DEV-IQ-22（顺序硬）**：方案 → 分析/技术方案理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。
@@ -1268,9 +1279,9 @@ def render_packet(
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
         _need_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
         verify_line = (
-            "- 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）"
+            "- 验证命令：`<包>/verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）"
             if _need_claim
-            else "- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）"
+            else "- 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）"
         )
         if needs_frontend_gate(root, wid, sid):
             verify_line += "；有 UI 遵 §5 前端硬门（已内嵌）"

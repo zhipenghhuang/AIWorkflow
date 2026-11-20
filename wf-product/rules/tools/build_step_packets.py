@@ -47,7 +47,10 @@ def load_gates_table(root: Path) -> dict[str, str]:
     out: dict[str, str] = {}
     if not p.is_file():
         return out
-    for line in p.read_text(encoding="utf-8").splitlines():
+    lines = p.read_text(encoding="utf-8").splitlines()
+    # 门表在 §1；§2 的 when 词表会把门名写进条件说明，不能参与解析。
+    cutoff = next((i for i, line in enumerate(lines) if re.match(r"^##\s*2\.", line)), len(lines))
+    for line in lines[:cutoff]:
         if not line.startswith("|"):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
@@ -58,21 +61,30 @@ def load_gates_table(root: Path) -> dict[str, str]:
         # row may be: | 理解门 | `confirm_understanding`（when…） | 说明 |
         # or: | 材料库闸 | `gate: materials-validate` | 说明 |
         desc = cells[-1] if len(cells) >= 3 else cells[1]
-        joined = " | ".join(cells)
-        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", joined)
+        name_cell = " ".join(cells[:2])
+        names = re.findall(r"`(confirm_[a-z0-9_]+|select_[a-z0-9_]+|[a-z][a-z0-9-]*)`", name_cell)
         for name in names:
             if name.startswith(("confirm_", "select_")) or "-" in name:
-                out[name] = desc
-        for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", joined):
+                old = out.get(name)
+                if old is None or len(desc) > len(old):
+                    out[name] = desc
+        for m in re.finditer(r"`gate:\s*([a-z][a-z0-9-]*)`", name_cell):
             gid = m.group(1)
-            out[f"gate: {gid}"] = desc
-            out[gid] = desc
+            old = out.get(f"gate: {gid}")
+            if old is None or len(desc) > len(old):
+                out[f"gate: {gid}"] = desc
+                out[gid] = desc
         # also allow first cell if it is already a gate id
         key0 = cells[0].strip("`")
         if key0.startswith(("confirm_", "select_")) or key0.startswith("gate:"):
-            out[key0] = desc
-            if key0.startswith("gate:"):
-                out[key0.split(":", 1)[1].strip()] = desc
+            old = out.get(key0)
+            if old is None or len(desc) > len(old):
+                out[key0] = desc
+                if key0.startswith("gate:"):
+                    out[key0.split(":", 1)[1].strip()] = desc
+    for name, desc in out.items():
+        if name.startswith(("confirm_", "select_")) and len(desc.strip()) < 8:
+            raise ValueError(f"gates.md 解析异常：{name} 的描述过短 {desc!r}")
     return out
 
 
@@ -1166,9 +1178,9 @@ def render_packet(
     if gate or ("Claim" in notes or "Invoke-Gate" in notes):
         _need_claim = step_requires_claim(pack_key, gate if isinstance(gate, str) else None, notes)
         verify_line = (
-            "- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）"
+            "- 验证命令：`<包>/verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）"
             if _need_claim
-            else "- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）"
+            else "- 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）"
         )
         if needs_frontend_gate(root, wid, sid):
             verify_line += "；有 UI 遵 §5 前端硬门（已内嵌）"

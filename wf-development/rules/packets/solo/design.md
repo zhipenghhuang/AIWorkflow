@@ -47,7 +47,7 @@
 - 模板 `rules/templates/30-planning-tasks/solution-card-template.md`。
 - 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。
 - 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡 §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。
-- 验收表必须可被 `verify/Invoke-Gate.ps1` 读取。
+- 验收表必须可被 `<包>/verify/Invoke-Gate.ps1` 读取。
 - 每条 AC 有检查与证据。
 - **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review），方案卡 §4 仅供 L0/L1。
 - 接口/库表/选型：命中即整卡读 `api-design`/`database-design`/`technology-selection`（未命中记 na+理由）。
@@ -90,7 +90,7 @@
 
 - **填写模板（主）**：`rules/templates/30-planning-tasks/solution-card-template.md`；只读本步用到的节，禁止整文件通读。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 

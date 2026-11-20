@@ -13,7 +13,7 @@
 | --- | --- |
 | plan（分析必做 + 计划总排） | `skills/test-basis-analysis/SKILL.md`（来源/AC/设计点/意图/风险/Oracle） + `skills/test-analysis-and-plan/SKILL.md`（范围/轨道/轮次/准入准出） + `skills/test-data-and-environment/SKILL.md` |
 | review-plan（分析+计划独立评审） | `skills/test-doc-review/SKILL.md`（先选 A/B） |
-| execute（功能/接口/探索/发布前/回归） | `skills/testcase-design/SKILL.md`（场景/深度/步骤） + `skills/test-execution-and-exploration/SKILL.md`（执行/记录/证据/回归） + `skills/test-data-and-environment/SKILL.md` + `skills/ai-feature-testing/SKILL.md`（AI 功能时） |
+| execute（功能/接口/前端/探索/发布前/回归） | `skills/testcase-design/SKILL.md`（场景/深度/步骤） + `skills/test-execution-and-exploration/SKILL.md`（执行/记录/证据/回归） + `skills/test-data-and-environment/SKILL.md` + `skills/ai-feature-testing/SKILL.md`（AI 功能时） |
 | 接口轨 | `skills/test-interface/SKILL.md`（契约/适用维/脚本/执行记录；+ `rules/tracks/api.md`） |
 | 发布前轨 | `skills/test-performance-security-compatibility/SKILL.md`（风险级/指标/工具/韧性；+ `rules/tracks/pre-release.md`） |
 | AI/LLM/RAG/Agent 功能 | `skills/ai-feature-testing/SKILL.md`（Oracle/评测集/重复阈值/红队） + `skills/test-performance-security-compatibility/SKILL.md`（安全） |

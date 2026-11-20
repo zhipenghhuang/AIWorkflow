@@ -6,10 +6,10 @@
 > **已路由中段**：`global-rules` 按 §7 **重读分级**（新会话/换链/规则变更→全文；同链中段→按节最小集，**禁**每步预防性通读）；每步实读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准，不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **降本（硬）**：正式证据=断言终态；中间探查进 `.draft`；查重禁同质刷 API；交单只搬运失败卡、禁现网补证。详见 `global-rules` §9、`collaboration` §5/§6.1、`platform-adapter` 查重。  
 > **位置**：`wf-testing/`。与根冲突以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.19.16`
+> **template_version**：`2026.11.20.1`
 >
 > **主链**：方案全细节分析 → 计划（数据/造数清单 + 数据准备批）→ **统一造数** → 执行三步序（方案→分析理解→现场择优）→ 报告；分析必做，计划是总排，造数先于功能批一次完成。  
-> **完成口径**：只认 `verify/Invoke-Gate.ps1 -Claim -Mode report|writeback` → `CLAIM: ALLOWED`。
+> **完成口径**：只认 `powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -Mode report|writeback -ProjectRoot .` → `CLAIM: ALLOWED`。
 
 ## 0. 开工
 
@@ -33,7 +33,7 @@
 步骤门只认 YAML `hitl*` + `gates.md`；开局门 `confirm_task_intent` 见 `gates.md`；开工档位/读链只认 `global-rules.md`；澄清**方法**按需读 `clarification.md`（参考层）。  
 **路径**：T0～T3 为内部风险标签，按 `gates.md` §4 的事实判定；补丁/单模块、无新增功能面且不承担版本准出可轻量（命中 T3 面按专项），其余默认完整；路径拿不准按完整。勿与开发 L* / 产品 P* 混用。  
 **路由硬门**：无 `{workroot}/{ver}/test-analysis.md` 不得写计划、不得执行；`test-plan.md` 为唯一总排；版本级可执行须过独立评审（`testing.review-plan`，适用时）+ 计划确认；完成只认 `-Claim -Mode report|writeback` → `CLAIM: ALLOWED`（P0 未过或意图未终态不得整体通过）。缺 `env-baseline` 先接入。  
-**主责**：功能=已知行为完整覆盖；接口=契约/维表；探索=未知/模糊/体验；发布前=NFR 硬映射；任何轨不得替代他轨（`multi-track-quality` §0）。  
+**主责**：功能=已知行为完整覆盖；接口=契约/维表；前端=页面结构/映射/可用性底线；探索=未知/模糊/体验；发布前=NFR 硬映射；回归=修复/影响面/锚点；任何轨不得替代他轨（`multi-track-quality` §0）。  
 **读法（硬）**：路由后只读**当前步骤卡 + §6 必开技能（整卡）+ 步骤卡 §7 点名的模板（主 1 份 + 配套按需；分析/计划成对时按 §7 顺序）**；分析/执行/报告硬门槛以本步步骤卡为准，不跳转拼手册。
 
 ## 1. 接入
@@ -69,7 +69,7 @@
 **路由消歧**：裸「回归」先确认 `defect` 单回归还是 `testing.execute` 重跑；确认后走「按计划回归 / 回归重跑 / 重跑」或 `defect`，勿把裸「回归」直接当 execute。**发资料 vs 交接**：「发资料/导出」指整库或资料包（`materials`）；把某份文档交给具体角色（确认/知会/提测）走 `handoff.compose`。  
 **主链**：`plan → review-plan → execute → report`（版本级；lite 可跳过 `review-plan`）。  
 **版本级单点**：`test-plan.md` / `test-report.md`；补丁可用 `plan_tier=lite`（不承担版本准出）。  
-**路径**：本期产物在 `{workroot}/{ver}/`；执行记录 `functional|api/{NN}-{短名}-执行记录.md`（平铺，细则 §3）。  
+**路径**：本期产物在 `{workroot}/{ver}/`；执行记录 `functional|api|frontend/{NN}-{短名}-执行记录.md`（平铺，细则 §3）。  
 **无口令**：口语未命中 → `rules/core/routing.md`。  
 首条按 `rules/core/cold-start.md` §3 回执字段，并补 `level=<按事实推导>`、`reason=`、`reads=`、`next_action=`；`mode=execute/analyze/stop` 按判断模式给；无标记预检加 `preflight=onboard`；有主读加 `input=`。只读可 `route=readonly:analysis | step=explain | mode=analyze | …`；字段名不得改别名（如 `role=`）。
 

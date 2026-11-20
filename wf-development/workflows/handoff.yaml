@@ -41,7 +41,7 @@ steps:
   hitl: confirm_handoff
   hitl_when: handoff_send_required
   output: '{workroot}/handoff/outbound/{category}/{HO-ID}/ + 【交接包已生成】'
-  verify: python wf-development/rules/tools/validate_handoff.py "{workroot}/handoff/outbound/{category}/{HO-ID}"
+  verify: python <包>/rules/tools/validate_handoff.py "{workroot}/handoff/outbound/{category}/{HO-ID}"
   on_fail: 缺 00/01/快照/占位符/链接断 → 不发送；补后重跑校验
   notes: '**仅升包**。先读 包触发与 类别；未命中 → 改走 `compose`，不得生 HO。 **先问后发**：`confirm_handoff` 出示【拟发包】；用户确认「要包」后才写盘到 `handoff/outbound/{category}/{HO-ID}/`；未确认零发包。
     确认后：完整包 `00/01/02/03/04`；刷新出站散文件实拷；跑 `validate_handoff.py` → 台账已发送。 回执默认仍可选；仅正式签收/C2·C3/发布要求填写。 传递：多包同仓直读出站路径；仓外文件夹或 ZIP。输出【交接包已生成】。'

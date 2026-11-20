@@ -16,7 +16,7 @@
 | 材料库 | `docs/materials/` |
 | 测试分析 | `{workroot}/{ver}/test-analysis.md` |
 | 测试计划 / 总排 | `{workroot}/{ver}/test-plan.md` |
-| 执行记录 | `{workroot}/{ver}/functional|api/{NN}-{短名}-执行记录.md` |
+| 执行记录 | `{workroot}/{ver}/functional|api|frontend/{NN}-{短名}-执行记录.md` |
 | 探索记录 | `{workroot}/{ver}/exploratory/{主题}-{戳}-探索记录.md` |
 | 随机记录 / 覆盖账本 / 体验建议 | `{workroot}/{ver}/random-flows/{主题}-{戳}-随机记录.md`；账本 `{workroot}/{ver}/random-flows/_覆盖账本.md`；建议 `{workroot}/{ver}/random-flows/_体验建议.md` |
 | 发布前专项 | `{workroot}/{ver}/pre-release/{专项}-…` |

@@ -30,7 +30,7 @@
 | `rules/special/` | 专项方法：`quality-gate.md`（审计参考）· `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 8 组：`00-onboarding` / `10-planning` / `20-design` / `30-review-change` / `40-delivery` / `50-showcase-docs` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`（YAML 语法/schema + 引用/锚点/流程引用/步标记/能力名/版本单点）+ `validate_workflow.py` + `validate_handoff.py`（交接包完整性） |
-| `verify/` | PRD/评审/UAT/变更/回写门 `verify/Invoke-Gate.ps1`、检查矩阵、产物校验脚本；独立可复制 |
+| `verify/` | PRD/评审/UAT/变更/回写门 `<包>/verify/Invoke-Gate.ps1`、检查矩阵、产物校验脚本；独立可复制 |
 
 > 实例在项目根：`product-profile.md`（含 §3 产品规范要点——固定内联）、`activeContext.md`（含 `### 进行中` 快照）；产出统一在 **`{workroot}/`**；权威文档库为项目级 `docs/materials/`。  
 > **项目说明**：`{workroot}/project-guide.md` 是项目当前状态唯一正文（长期；就地更新；不随迭代归档；历史/证据/实现细节不写入）。
@@ -89,6 +89,8 @@
 落地通常只装本包。多包歧义定包见`wf/AGENTS.md` **意图→包**；若同项目装多个包，三包自动探测并共享inbound/上下文，不需要额外协作目录；一次会话只执行一个包的 workflow。长会话中段按 `rules/core/global-rules.md` §8 心跳，不重读 AGENTS §0 全文。
 
 ## 4. 自检
+
+> 在项目根执行；多包布局把 `wf-product/` 换成 `wf/wf-product/`。
 
 ```text
 wf-product/rules/tools/Test-Template.ps1

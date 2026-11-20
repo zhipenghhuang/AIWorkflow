@@ -80,8 +80,8 @@ steps:
   output: 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
   notes: 技能：`skills/solution-design/SKILL.md` + `skills/task-breakdown/SKILL.md`（任务拆分）+ `skills/engineering-quality/SKILL.md`；模板
     `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡
-    §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。 验收表必须可被 `verify/Invoke-Gate.ps1` 读取；每条 AC 有检查与证据。
-    **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review），方案卡
+    §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。 验收表必须可被 `<包>/verify/Invoke-Gate.ps1` 读取；每条 AC
+    有检查与证据。 **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review），方案卡
     §4 仅供 L0/L1。 接口/库表/选型：命中即整卡读 `api-design`/`database-design`/`technology-selection`（未命中记 na+理由）。 自检：AC 可观测；每个任务有文件与验证；不把「应该/正常」写成验收。
     需要正式发布/QA/UAT/交接 → 转完整链；代码/文档评审在本链按条件执行；技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；确认后进
     review_docs（条件）→ test_plan（代码/配置）或 build（纯文档）；「只出轻量方案」→ 本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。 测试分析与计划由
@@ -195,7 +195,7 @@ steps:
     + 独立 verifier + 回归/安全/回滚证据；L1+ 前端/API 变更须 fresh-context verifier 抽核（不可用记 `deviation=subagent_unavailable`）；纯文档/无行为可 `na`；前端门第
     7 项的独立评审 → 走 review 步（review_required）；有 review → 核 `.gate/review.md` 缺口闭环；有 UI 核 `.gate/frontend/ui-audit.md` 结论与缺口闭环；前端看状态/视口/console/network/截图；后端看响应/错误码/日志；数据变更看迁移前后与回滚路径。
     先 UI 后 Network；不猜未见 API；失败留证；同一失败修复后跑「原失败意图 + 冒烟 + 影响面」，2 次无效换路径/升级。 失败分类：产品/实现/环境/数据/测试问题；产品范围问题停下问用户，不按现网实现改预期；Oracle
-    过时先刷新意图台账。 测试报告：范围/环境/AC 走查/意图终态/场景摘录/证据/defects/缺口/verdict（开发测试/自验）；P0 意图未过 = FAIL；禁写「已准出」。 运行 `verify/Invoke-Gate.ps1
+    过时先刷新意图台账。 测试报告：范围/环境/AC 走查/意图终态/场景摘录/证据/defects/缺口/verdict（开发测试/自验）；P0 意图未过 = FAIL；禁写「已准出」。 运行 `<包>/verify/Invoke-Gate.ps1
     -ProjectRoot "." -Acceptance "<.gate/acceptance.yaml（L2+）或方案卡（L0/L1）>"`；门末自动 Claim；读 `.gate/wf-development/completion.json`；非
     COMPLETE 不得进 closeout 报完成。 无方案卡/验收表（单独测试入口）：仍按 `lightweight.md` 出完整证据块（范围/意图或检查/结果/证据/缺口），不跑 completion-gate；closeout
     写 `verification=not_applicable`。 纯文档/无代码改动：只核链接/占位/事实，不跑 completion-gate；closeout 写 `verification=not_applicable` + 依据。

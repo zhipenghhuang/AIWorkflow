@@ -63,7 +63,7 @@
 ## 7. 模板与证据
 
 - **无强制模板**：§5 编排已给出动作/顺序；直接落 §2 产出。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 

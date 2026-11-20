@@ -366,10 +366,64 @@ def _extract_iq_from_text(text: str) -> dict[str, str]:
     return out
 
 
+def _normalize_debts(raw: Any) -> list[dict[str, Any]] | None:
+    """验收清单 debts：字符串或对象数组；对象字段见 check_debts。"""
+    if raw is None:
+        return None
+    if not isinstance(raw, list):
+        return [{"id": "DEBTS_FORMAT", "item": "debts 必须是列表", "owner": "",
+                 "decision": "", "blocking": False}]
+    out: list[dict[str, Any]] = []
+    for index, item in enumerate(raw, 1):
+        if isinstance(item, str):
+            out.append({"id": item.strip(), "item": "", "owner": "", "decision": "",
+                        "blocking": False})
+        elif isinstance(item, dict):
+            out.append({
+                "id": str(item.get("id") or f"DEBT-{index:02d}").strip(),
+                "item": str(item.get("item") or item.get("desc") or "").strip(),
+                "owner": str(item.get("owner") or "").strip(),
+                "decision": str(item.get("decision") or item.get("decided") or "").strip(),
+                "blocking": item.get("blocking") is True,
+            })
+    return out
+
+
+def check_debts(meta: dict[str, Any], level: str) -> dict[str, Any]:
+    """债项收口：blocking 不得带入完成/提测；非 blocking 必须有 owner + 裁决结论。"""
+    missing: list[str] = []
+    warnings: list[str] = []
+    debts = meta.get("debts")
+    if debts is None:
+        if level_rank(level) >= 2:
+            warnings.append("验收清单未声明 debts（显式 [] 或 DEBT 列表；裁剪/豁免须登记）")
+        return {"missing": missing, "warnings": warnings, "items": []}
+    if not isinstance(debts, list):
+        missing.append("debts 必须是列表")
+        return {"missing": missing, "warnings": warnings, "items": []}
+    seen: set[str] = set()
+    for debt in debts:
+        debt_id = str(debt.get("id") or "").strip()
+        if not debt_id:
+            missing.append("debts 存在空 ID 项")
+            continue
+        if debt_id in seen:
+            missing.append(f"debts 重复 ID: {debt_id}")
+            continue
+        seen.add(debt_id)
+        if not debt.get("owner"):
+            missing.append(f"{debt_id} 缺 owner（负责人）")
+        if not debt.get("decision"):
+            missing.append(f"{debt_id} 缺 decision（裁决/接受结论与日期）")
+        if debt.get("blocking") is True:
+            missing.append(f"{debt_id} 为 blocking 债项：完成/提测前必须关闭，不得带 blocking 债项 Claim")
+    return {"missing": missing, "warnings": warnings, "items": debts}
+
+
 def parse_acceptance(path: Path | None) -> dict[str, Any]:
     empty = {
         "items": [], "task_id": "", "level": "", "process": {}, "nfr": None,
-        "scope_files": [], **_iq_empty(),
+        "debts": None, "scope_files": [], **_iq_empty(),
     }
     if path is None:
         return empty
@@ -408,6 +462,7 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
             "level": str(data.get("level") or ""),
             "process": data.get("process") if isinstance(data.get("process"), dict) else {},
             "nfr": data.get("nfr") if isinstance(data.get("nfr"), dict) else None,
+            "debts": _normalize_debts(data.get("debts")),
             "scope_files": [str(x) for x in data.get("scope_files", [])] if isinstance(data.get("scope_files"), list) else [],
             **iq,
         }
@@ -492,7 +547,7 @@ def parse_acceptance(path: Path | None) -> dict[str, Any]:
     scope = list(dict.fromkeys(scope))
     return {
         "items": rows, "task_id": task_id, "level": level, "process": process,
-        "nfr": None, "scope_files": scope, **_extract_iq_from_text(text),
+        "nfr": None, "debts": None, "scope_files": scope, **_extract_iq_from_text(text),
     }
 
 
@@ -1002,11 +1057,12 @@ def _older_than(path: Path, floor: float, tolerance: float = 2.0) -> bool:
 
 
 def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
-    """Verify the prototype was decoded this round (source hash bound manifest)."""
+    """校验 .gate/project-profile.json 声明的原型解码清单；原型单源仍以 project-profile.md 为准。"""
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
     raw = str(fe.get("prototype") or "").strip()
     if not raw:
-        return {"id": "prototype-manifest", "status": "warn", "detail": "未配置 frontend.prototype"}
+        return {"id": "prototype-manifest", "status": "warn",
+                "detail": "未配置 frontend.prototype；原型单源以 project-profile.md 为准（frontend_parity 校验）"}
     proto = resolve_path(project_root, raw)
     if not proto.is_file():
         return {"id": "prototype-manifest", "status": "blocked", "detail": f"原型不存在: {raw}"}
@@ -1023,11 +1079,21 @@ def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str,
     digest = hashlib.sha256(proto.read_bytes()).hexdigest()
     recorded = str(manifest.get("source_sha256") or "").lower()
     modules = manifest.get("modules") or []
+    routes = manifest.get("routes") or []
     if recorded != digest:
         return {"id": "prototype-manifest", "status": "blocked",
                 "detail": "prototype.json 的 source_sha256 与当前原型不一致（原型换了/未重新解码）"}
+    if not modules and not routes:
+        # SPA/手工解码允许没有内嵌模块，但必须有结构清单（structure.md/routes.json），
+        # 否则“解了一个空壳”不得算已解码。
+        decoded_dir = manifest_path.parent
+        structural = any((decoded_dir / name).is_file()
+                         for name in ("structure.md", "routes.json", "README.md"))
+        if not structural:
+            return {"id": "prototype-manifest", "status": "blocked",
+                    "detail": "原型解码产物为空：prototype.json 无 modules/routes，且缺 structure.md/routes.json"}
     return {"id": "prototype-manifest", "status": "pass",
-            "detail": f"modules={len(modules)} sha={digest[:12]}"}
+            "detail": f"modules={len(modules)} routes={len(routes)} sha={digest[:12]}"}
 
 
 def frontend_tier(evidence_dir: Path, fe: dict[str, Any], not_before: float = 0.0) -> str:
@@ -1186,7 +1252,8 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             evidence_dir, since=floor, base_commit=base_commit,
             require_matrix=bool(fe.get("requireParityMatrix", True)),
             require_generated=require_generated,
-            require_matrix_routes=bool(fe.get("requireMatrixRoutes", False)),
+            # 前端硬门 §2.5：矩阵必须覆盖每条路由；C 档不进入本分支。
+            require_matrix_routes=bool(fe.get("requireMatrixRoutes", True)),
             # 前端硬门 §2.5：分级声明与原型单源是 A/B 过门的前提，不再默认放行
             require_tier=True,
             require_prototype=bool(fe.get("requirePrototype", True)),
@@ -1399,6 +1466,7 @@ def main() -> int:
             print("  换路径/缩小范围/请人确认后，加 -ResetAttempts 再跑；不得原样重复。")
             return 1
     nfr = check_nfr(meta, level, project_root, files)
+    debt = check_debts(meta, level)
     iq = check_iq_fields(meta, level, files, docs_only, profile)
     acceptance_unusable = acceptance_path is None or not meta["items"]
     if level_rank(level) >= 1 and not args.allow_missing_acceptance:
@@ -1517,6 +1585,11 @@ def main() -> int:
                 "status": "blocked" if problems else "pass",
                 "detail": "; ".join(problems[:5]) or f"{stats.get('rows', 0)} rows",
             })
+            checks.append({
+                "id": "debts",
+                "status": "blocked" if debt["missing"] else "pass",
+                "detail": "; ".join(debt["missing"][:5]) or f"{len(debt['items'])} debt(s)",
+            })
             # 企业级基线：项目声明 perf/security 命令时，L2+ 一律执行；L3 仍须安全证据。
             # dry-run 只列出命令，不执行（避免误触发压测/扫描）。
             for key in ("perf", "security"):
@@ -1554,7 +1627,7 @@ def main() -> int:
         if not files:
             verdict = "NOT_VERIFIED"
             reasons.append("没有可验证的改动；空 diff 不代表完成")
-        elif failed or blocked or acc["missing"] or process["missing"] or nfr["missing"] or profile_error:
+        elif failed or blocked or acc["missing"] or process["missing"] or nfr["missing"] or debt["missing"] or profile_error:
             verdict = "BLOCKED"
         elif skipped:
             verdict = "PARTIAL"
@@ -1568,6 +1641,8 @@ def main() -> int:
             reasons += process["missing"][:5]
         if nfr["missing"]:
             reasons += nfr["missing"][:5]
+        if debt["missing"]:
+            reasons += debt["missing"][:5]
         if profile_error:
             reasons.append(profile_error)
         if failed:
@@ -1592,7 +1667,7 @@ def main() -> int:
     commit = git(project_root, "rev-parse", "--short", "HEAD")
     gate_id = f"{commit or 'nogit'}-{diff_hash}"
     completion = {
-        "gate_version": "2.3",
+        "gate_version": "2.4",
         "package": PACKAGE_NAME,
         "mode": args.mode,
         "gate_id": gate_id,
@@ -1611,6 +1686,8 @@ def main() -> int:
                "sc_trace": meta.get("sc_trace") or "",
                "missing": iq["missing"]},
         "nfr": nfr,
+        "debts": {"items": debt["items"], "missing": debt["missing"],
+                  "warnings": debt["warnings"]},
         "checks": checks,
         "deferred": [{"id": c.get("id"), "detail": c.get("detail", "")} for c in deferred],
         "blocked": reasons,

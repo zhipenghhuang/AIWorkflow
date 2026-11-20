@@ -32,7 +32,7 @@
 - **未知流程**：AI-MCP 只探路；不要“AI 全量跑一遍 → 再生成脚本 → 再跑一遍”。探路后直接 codegen/trace 固化，最多跑一次脚本验证。  
 - **失败复核**：脚本失败才回 AI 看 trace/Network/日志；AI 不重跑整条稳定流程。
 
-1. 判定在**生成/执行场景时**做，落 `{workroot}/{ver}/functional|api/…-执行记录.md` 的**§1.1 场景覆盖说明**（模板见 `rules/templates/20-test-cases/test-case-template.md` §1.1）；**禁**事后口头判定。
+1. 判定在**生成/执行场景时**做，落 `{workroot}/{ver}/functional|api|frontend/…-执行记录.md` 的**§1.1 场景覆盖说明**（模板见 `rules/templates/20-test-cases/test-case-template.md` §1.1）；**禁**事后口头判定。
 2. 判「否」须**一句理由**（判定型/探查型/动态链路/UI 未定型…）；不得因「暂时没空」判否。
 3. 判定为「是」但本轮未编写脚本的，清单状态记 `待脚本化`——不影响正常 AI 执行；**回归/复跑轮优先补齐（先 P0-Smoke 与首轮稳定项）**。**接口轨例外**：确定性接口场景必须同轮产出脚本，不得标 `待脚本化`（见 `tracks/api.md`）。
 4. **P0-Smoke 冒烟行优先脚本化**（全量轮冒烟前置闸 0 token 复跑；收益最大）。
@@ -44,7 +44,7 @@
 | --- | --- | --- |
 | 执行器 | `{workroot}/scripts/executor.mjs` | 自 `rules/tools/playwright/` 复制；业务无关引擎，**勿改逻辑**（同 RDM 手册「复制而非重写」纪律） |
 | 适配配置 | `{workroot}/scripts/case-executor.config.mjs` | 登录钩子（唯一承接点）/前后置/超时；自 `config.template.mjs` 实例化 |
-| 场景脚本 | `{workroot}/scripts/{NN}-{短名}.script.mjs` | `doc` 指向 `{ver}/functional|api/*-执行记录.md` |
+| 场景脚本 | `{workroot}/scripts/{NN}-{短名}.script.mjs` | `doc` 指向 `{ver}/functional|api|frontend/*-执行记录.md` |
 | 接口脚本（`--mode=api`） | `{workroot}/scripts/{NN}-{短名}.api.script.mjs` | 无浏览器；`apiLogin`；动作限 `api`/`note` |
 | 产出 jsonl | `{workroot}/{ver}/functional/.draft/script-{模块}-{runStamp}.jsonl`（默认落点；接口/发布前轨用 `--draftDir=`/`--evidenceDir=` 指到本轨，见各轨契约） | **与拆分档 Worker jsonl 同格式**（`rules/special/multi-agent-output.md` §3），合并规则沿用 |
 | 证据 | `{workroot}/{ver}/evidence/{模块}/` | UI 失败自动全屏截图；API 失败落现场 json；叶名含 caseId |

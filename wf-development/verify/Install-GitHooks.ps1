@@ -8,8 +8,8 @@
   .gate/plan-coverage.md（含 §6 十三维）。
 
 .EXAMPLE
-  pwsh -File wf-development/verify/Install-GitHooks.ps1
-  pwsh -File wf-development/verify/Install-GitHooks.ps1 -Check
+  pwsh -File <包>/verify/Install-GitHooks.ps1
+  pwsh -File <包>/verify/Install-GitHooks.ps1 -Check
 #>
 param(
   [string]$ProjectRoot = ".",
@@ -17,7 +17,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$root = (Resolve-Path $ProjectRoot).Path
+$root = (Get-Item -LiteralPath $ProjectRoot).FullName
+$packageRoot = (Get-Item -LiteralPath (Split-Path -Parent $PSScriptRoot)).FullName
 $hookDir = Join-Path $root ".git\hooks"
 $hookPath = Join-Path $hookDir "pre-commit"
 
@@ -25,12 +26,19 @@ if (-not (Test-Path (Join-Path $root ".git"))) {
   throw "不是 git 仓库：$root"
 }
 
-$content = @'
+# 单包/多包均按实际位置生成：wf-development 或 wf/wf-development。
+$gatePath = if ($packageRoot.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) {
+  $rel = $packageRoot.Substring($root.Length).TrimStart('\', '/') -replace '\\', '/'
+  "`$root/$rel/verify/tools/precommit_gate.py"
+} else {
+  (($packageRoot -replace '\\', '/') + "/verify/tools/precommit_gate.py")
+}
+$content = @"
 #!/bin/sh
-# 由 wf-development/verify/Install-GitHooks.ps1 生成；实现见 precommit_gate.py
-root="$(git rev-parse --show-toplevel)"
-exec python "$root/wf-development/verify/tools/precommit_gate.py" --project-root "$root"
-'@
+# 由 <包>/verify/Install-GitHooks.ps1 生成；实现见 precommit_gate.py
+root="`$(git rev-parse --show-toplevel)"
+exec python "$gatePath" --project-root "`$root"
+"@
 
 if ($Check) {
   if (-not (Test-Path $hookPath)) { Write-Output "HOOK_MISSING"; exit 1 }

@@ -9,7 +9,7 @@
 - **测试分析** `{workroot}/{ver}/test-analysis.md` 必做：来源盘点、章节回执、依据覆盖、AC/设计点账本、意图台账、覆盖矩阵、方法矩阵、D01–D13 + S6/S7/S11、风险/影响面/核心链路。分析是原文索引；执行三步序在 execute 步骤卡（方案原文 → 结合分析理解 → 现场择优；有互补源则对照；禁只读分析）。
 - **环境基线** `env-baseline.md`：环境/账号/接口/样本真值；分析、计划、执行前读命中节，计划 §2.2 写命中节/差异/核验。
 - **测试计划** `{workroot}/{ver}/test-plan.md` 是唯一总排：范围、分析引用、影响面/核心链路摘要、类型/轨道、轮次/批次（§3.1 执行形态/并行/隔离，填表口径在计划模板该节）、探索安排、准入准出、缺陷策略、状态/日志。计划不重复分析大表；子代理≠并行，无隔离默认串行。
-- **执行记录** `{workroot}/{ver}/functional|api/{NN}-{短名}-执行记录.md`（轨内平铺）：§0 原文对账 + 场景 + 步骤 + 结果 + 证据 + 缺陷，另含每意图终态与原文条目关账。
+- **执行记录** `{workroot}/{ver}/functional|api|frontend/{NN}-{短名}-执行记录.md`（轨内平铺）：§0 原文对账 + 场景 + 步骤 + 结果 + 证据 + 缺陷，另含每意图终态与原文条目关账；前端轨另含页面映射表。
 - **回归锚点** `{workroot}/smoke-checklist.md`：P0 冒烟 + 高价值场景（跨迭代常青）。
 - **报告** `{workroot}/{ver}/test-report.md`：按场景/意图/优先级/轨道汇总。
 - **测试依据**：存量行为先读项目级 `project-guide.md`（若有，产品/开发工作根）；本期变化读 PRD/方案/提测单；两者冲突记 GAP，不静默以分析替代。
@@ -60,7 +60,7 @@
 **新版本迭代执行 6 步**：
 
 1. 读方案/提测影响面/变更点；打开 `{ver}/test-analysis.md` 与 `{ver}/test-plan.md`、根 `smoke-checklist.md`。
-2. 计划按 `multi-track-quality` **§0** 硬纳入正式轨（整轨否仅白名单+接受人）；§3：R0 → R1 功能/接口/探索/发布前 → R2 回归。
+2. 计划按 `multi-track-quality` **§0** 硬纳入正式轨（整轨否仅白名单+接受人）；§3：R0 → R1 功能/接口/前端/探索/发布前 → R2 回归。
 3. 执行：开跑直接打开原文，按原文目录/可验收单元逐项对照；逐场景对照原文对应段（有互补源则对照；分析只作索引）；P0 至少一条证伪场景；按意图/影响面/方法矩阵生成场景；脚本优先；边执行边写执行记录与原文对账；UI 探针 ≠ 接口轨；**失败/待实现行当场按执行模板 §2/§3 失败卡写满（含 `surface`/技术附记），批末门检；交单只逐槽位搬运**。
 4. 缺陷即回归：原单 + 冒烟子集 + 影响面 + 锚点。
 5. 探索式与发布前按计划闭环硬映射；小改用发布前基础级，不整轨取消。
@@ -70,10 +70,12 @@
 
 ## 4. 自检
 
+> 在项目根执行；多包布局把 `wf-testing/` 换成 `wf/wf-testing/`。
+
 ```text
 wf-testing/rules/tools/Invoke-TestWorkflow.ps1 -Action ValidateTemplateRefs
-wf-testing/verify/Invoke-Gate.ps1 -Mode coverage -ProjectRoot "." -Strict
-wf-testing/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
+<包>/verify/Invoke-Gate.ps1 -Mode coverage -ProjectRoot "." -Strict
+<包>/verify/Invoke-Gate.ps1 -Mode report -ProjectRoot "." -Strict
 python wf-testing/verify/tools/selftest_gate.py
 ```
 

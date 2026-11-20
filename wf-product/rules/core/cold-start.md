@@ -24,6 +24,6 @@ route=workflow:<id> | step=<id> | agent=<agent> | packet=<本步步骤卡路径>
 ```
 
 - **回执字段名固定**，不得自造别名（如把 `agent=` 写成 `role=`、把 `route=` 写成 `workflow=`）；`route/step/packet/global` 必填，`agent/skills/claim/next` 按需。`rules/core/global-rules.md` §8 的【心跳】锚另用 `workflow/state/role`，不与本回执混写。
-- **首条锚**（每轮第一行）可加 `level=<按事实推导> | reason=<意图类+信号+轨道依据> | reads=<实际读取来源> | next_action=`；只读写 `route=readonly:analysis | step=explain | mode=analyze`。
+- **首条锚**（每轮第一行）须带 `level=<按事实推导> | reason=<意图类+信号+轨道依据> | reads=<实际读取来源> | next_action=`；只读可 `route=readonly:analysis | step=explain | mode=analyze`。
 - `packet=` 必须是本步已打开的步骤卡相对路径；`global=ok` = 已按 §7 复核且步骤卡已实读。
 - 跳过步骤/门记 `skip=<理由>`；`when` 求值后跳过记 `when_eval=假:<依据>`。收尾【遵守自检】另按本包收尾骨架。

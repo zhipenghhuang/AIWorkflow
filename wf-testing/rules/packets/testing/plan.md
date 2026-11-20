@@ -40,7 +40,7 @@
 - **条件判定 `hitl:iteration_close_needed`**：探测到下一期/换主题/版本升级且是否关本期不明确；满足→真，否则跳过该门。
 - **HITL `confirm_docs_migration`**：资料收取/分类/改名/归档、或结构迁移前列清单与目标；确认后执行。
 - **条件判定 `hitl:docs_migration_needed`**：本步将搬迁/归档/清理 inbound 或工作文档且未确认清单；满足→真，否则跳过该门。
-- **GATE `coverage-map` when=analysis_coverage_required**：分析与计划完成后跑 `-Mode coverage`：§2.1 具体 INT 台账+可观测 Oracle；**账本非空且 §1.1 计数被账本行数支撑**；设计点只映射台账，矩阵/细节维 INT 回指台账；来源/章节/依据/覆盖矩阵/方法矩阵/细节维（含 T1–T4 通用面）/影响面/核心链路/§4/§5.2/§6 齐；计划 §0 计数/版本准出/准出口径/批次意图范围与分析联动；**§2.2 有造数项时 §3.1 须有数据准备批**；**§2 接口/探索/发布前 纳入=是须有 §3.1 批次**；**§3.2 探索每行有主责/同路径 SC/为什么不能固化**。未 PASS 不得称分析完整/覆盖齐；版本级可执行仍须独立评审（适用时）+ 计划确认门。
+- **GATE `coverage-map` when=analysis_coverage_required**：分析与计划完成后跑 `-Mode coverage`：§2.1 具体 INT 台账+可观测 Oracle；**账本非空且 §1.1 计数被账本行数支撑**；设计点只映射台账，矩阵/细节维 INT 回指台账；来源/章节/依据/覆盖矩阵/方法矩阵/细节维（含 T1–T4 通用面）/影响面/核心链路/§4/§5.2/§6 齐；计划 §0 计数/版本准出/准出口径/批次意图范围与分析联动；**§2.2 有造数项时 §3.1 须有数据准备批**；**§2 接口/前端/探索/发布前 纳入=是须有 §3.1 批次**；**§3.2 探索每行有主责/同路径 SC/为什么不能固化**。未 PASS 不得称分析完整/覆盖齐；版本级可执行仍须独立评审（适用时）+ 计划确认门。
 - **条件判定 `gate:analysis_coverage_required`**：本轮创建/更新分析或计划；满足→真，否则跳过该闸（步骤不跳过）。
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
@@ -83,7 +83,7 @@
 - **填写模板（本步主模板两份都填）**：`rules/templates/10-planning/test-analysis-template.md`；`rules/templates/10-planning/test-plan-template.md`；**配套模板（按需，期中变更/用户点名才读）**：`rules/templates/10-planning/test-plan-lite-template.md`；`rules/templates/10-planning/user-facing-change-notes-template.md`；`rules/templates/30-execution/test-change-record-template.md`；**按表定位、随填随读**：先读分析模板首行「必填节」索引与 §0–§6；**分析确认后**再读计划模板（避免先看计划污染分析）；表下 `>` 判定口径填该表时再读；禁整文件通读/预读。
 - **轻量档**（`plan_tier=lite`，仅补丁/单模块、无新增功能面且 `版本准出=否`）：计划改用 `rules/templates/10-planning/test-plan-lite-template.md`；分析仍用上表分析模板。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 
 ## 8. 完成与退出
 

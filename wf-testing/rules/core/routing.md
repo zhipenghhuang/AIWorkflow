@@ -75,6 +75,7 @@
 route=workflow:<id> | step=<id> | agent=<agent> | mode=… | reason=<意图类+信号> | next_action=…
 ```
 
+- **首条须带 `reason=`**（意图类+关键信号）；字段与写法以 `cold-start.md` §3 为准。
 - 纯只读分析可写 `route=readonly:analysis | step=explain | mode=analyze | reason=…`。
 - 可附 `intent=`、`level=T0-T3`、`track=`、`input=`。
 - 不跳过分析、P0 准出、证据；交平台仍 `confirm_platform`。

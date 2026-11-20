@@ -43,7 +43,7 @@ python wf-product/rules/tools/validate_semantics.py wf-product
 python wf-product/rules/tools/validate_prd.py <PRD.md>
 ```
 
-> **`check_skills.py` 必须带包根路径**（上例 `wf-product` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把前缀换成 `wf/wf-product`。
+> **`check_skills.py` 必须带包根路径**（上例 `wf-product` 或包内 `.`）；包中文名不是路径，裸跑会 `SKILL_DIR_MISSING`。多包布局把以上命令前缀换成 `wf/wf-product`。
 
 自检覆盖：引用/锚点/workflows→agents/步标记/能力名/版本单点/YAML/技能（含反模式/反合理化闸）/语义（双入口/残句/角色边标识/预算/不可达步）；文档卫生见 `Test-DocHygiene.ps1`。
 

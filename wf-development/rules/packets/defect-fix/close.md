@@ -4,19 +4,19 @@
 
 ## 1. 元信息
 
-- **workflow / step**：`defect-fix` / `close`（提交推送部署回写）
+- **workflow / step**：`defect-fix` / `close`（推送部署回写）
 - **packet**：`rules/packets/defect-fix/close.md`
 - **角色**：`defect-fixer`（缺陷修复编排）。平台拉取 → 分类 → 红证修复或产品评估 → 门禁 → 菜单 → 按 YAML hitl 提交/部署/回写 → 发布后验证；本步只做该角色职责；越界交回或升级。
 - **前置**：gates 已 COMPLETE，或 skip_claim 且本地验证摘要已落，或本批无代码/配置改动
 - **上游**：`menu`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`postrelease`（进 `postrelease` 前的 `when=has_deployed`）
-- **失败去向**：门禁未过且未获 skip_claim → 先回 gates/fix；不得提交/部署/回写
+- **失败去向**：门禁未过且未获 skip_claim → 先回 gates/fix；不得推送/部署/回写
 - **条件判定 `when:implementation_required`**：非「只出任务清单」且清单已确认；满足→真，否则跳过本步（不打开本包）。
 
 ## 2. 本步目标
 
-- **目标**：提交推送部署回写
-- **产出**：提交/部署/回写结果
+- **目标**：推送部署回写
+- **产出**：推送/部署/回写结果
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -30,9 +30,9 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」
-- **条件判定 `hitl:menu_includes_commit`**：本轮菜单含提交；满足→真，否则跳过该门。
-- **HITL `confirm_deploy`**：未批准
+- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，推送在 close 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」
+- **条件判定 `hitl:menu_includes_push`**：本轮菜单含推送；满足→真，否则跳过该门。
+- **HITL `confirm_deploy`**：出示版本/窗口/影响面/回滚决策人；并核 **干净工作区 + 已提交或已打 tag + 本轮 `completion.json=COMPLETE`**；未批准不部署，禁止从脏工作区部署；**仅生产/正式环境**，test/staging 部署不触发本门；生产版本必须无 prerelease
 - **条件判定 `hitl:menu_includes_deploy`**：本轮菜单含部署；满足→真，否则跳过该门。
 - **HITL `confirm_remark`**：出示回写备注模板 §6 备注全文 + 状态/指派/resolvedBuild；确认后状态+备注同轮写入；未验证只写「待验证」
 - **条件判定 `hitl:menu_includes_writeback`**：本轮菜单含平台回写；满足→真，否则跳过该门。
@@ -47,6 +47,8 @@
 
 - 按菜单精确执行。
 - hitl 只认本步列表。
+- 代码/产物提交已在 gates 步确认。
+- 本步 confirm_commit 只确认推送或 gates 后新增文件，不得重复本地提交。
 - 回写就绪见 fix-collaboration §4.5（含自部署/skip_claim）。
 - 含部署须发布说明+回滚+confirm_deploy。
 - 未验证不得 resolved。

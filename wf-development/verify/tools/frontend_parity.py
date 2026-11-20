@@ -140,7 +140,23 @@ def _prototype_problems(project_root: Path) -> list[str]:
     decoded = project_root / ".gate" / "prototype"
     if not decoded.is_dir() or not any(p.is_file() for p in decoded.rglob("*")):
         return [f"未解码原型：{decoded} 为空（先跑 extract_prototype_modules.py）"]
-    return []
+    problems: list[str] = []
+    structural = [decoded / name for name in ("prototype.json", "structure.md", "routes.json", "README.md")]
+    if not any(p.is_file() for p in structural):
+        problems.append(f"未解码原型：{decoded} 仅有截图/散件，缺少 prototype.json/structure.md/routes.json")
+    manifest = decoded / "prototype.json"
+    if manifest.is_file():
+        try:
+            data = json.loads(manifest.read_text(encoding="utf-8-sig"))
+        except Exception as exc:
+            problems.append(f"prototype.json 不可解析: {exc}")
+        else:
+            if isinstance(data, dict):
+                modules = data.get("modules") or []
+                routes = data.get("routes") or []
+                if not modules and not routes and not (decoded / "structure.md").is_file():
+                    problems.append("prototype.json 解码为空（modules/routes 均空且无 structure.md）")
+    return problems
 
 
 def _section_text(text: str, heading: str) -> str:

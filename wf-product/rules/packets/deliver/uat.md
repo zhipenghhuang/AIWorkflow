@@ -29,7 +29,7 @@
 
 ## 4. 本步门
 
-- **GATE `uat-evidence`**：运行 `verify/Invoke-Gate.ps1 -Mode uat`；AC 覆盖、证据、有条件通过的责任人/接受人；未 READY 不得写 UAT 通过。无 UAT 要求可写 `verdict: 不适用` + 依据/批准人，门放行但记警告
+- **GATE `uat-evidence`**：运行 `<包>/verify/Invoke-Gate.ps1 -Mode uat`；AC 覆盖、证据、有条件通过的责任人/接受人；未 READY 不得写 UAT 通过。无 UAT 要求可写 `verdict: 不适用` + 依据/批准人，门放行但记警告
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -45,7 +45,7 @@
 
 - 技能见 §6 `uat-and-retrospective`。
 - 按 PRD 验收标准**逐条对照**（结果+证据）。
-- 运行 `verify/Invoke-Gate.ps1 -Mode uat`。
+- 运行 `<包>/verify/Invoke-Gate.ps1 -Mode uat`。
 - 未 READY 不得写“UAT 通过/可发布”。
 - **分模块核验**（子代理编排 ）：≥3 模块 → 按模块只读扇出（AC 结果+证据+缺口 ≤30 行）。
 - UAT 结论集中。
@@ -78,7 +78,7 @@
 
 - **填写模板（主）**：`rules/templates/40-delivery/uat-acceptance-template.md`；只读本步用到的节，禁止整文件通读。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（完成须 `-Claim` → `CLAIM: ALLOWED`）。
 
 ## 8. 完成与退出
 

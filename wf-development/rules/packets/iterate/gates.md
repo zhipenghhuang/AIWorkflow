@@ -30,9 +30,9 @@
 
 ## 4. 本步门
 
-- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」
+- **HITL `confirm_commit`**：【拟提交】块（三包统一：文件+`.gitignore`+分支/跟踪+本次动作；本轨扩展：基线/分账/拆分/落点/CI/PR·合并）；**默认仅本地提交**，推送须单独明确并确认；代码/产物提交在 verify/gates 步确认，推送在 close 步确认，收尾文档在 closeout 确认；≠收尾第 2 点「待提交摘要」
 - **条件判定 `hitl:has_pending_commit`**：有文件变更待提交；满足→真，否则跳过该门。
-- **GATE `completion-gate`**：**实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
+- **GATE `completion-gate`**：**实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `<包>/verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED`
 - **推进**：默认本步完成后即停（仍输出收尾骨架），不打开下一步。仅当本会话是按链、继续、按计划执行或全链入口时，才进入阶段表的下一未跳过步。
 
 ## 5. 本步动作
@@ -92,18 +92,27 @@
 - **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
 - **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验，另以 `--require-audit` 校验 `ui-audit`（缺/待验/未点通 = BLOCKED）。
 
-#### 前端门 2.5. 原型单源与实施出口（硬）
+#### 前端门 2.5. 原型对齐与实施出口（硬）
 
-- **原型单源**：当前迭代原型的路径与版本只认实例档案 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`。缺声明、文件不存在、或与当前迭代/`VERSION` 不符 = `BLOCKED`，先补实例再动代码；**禁止在入口 `AGENTS`/通用规则里硬编码原型路径**（实例数据下沉，见 `rule-governance.md` §2.1）。
-- **实施出口机检（硬 · 由 git 钩子强制）**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes --require-audit`）并写 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。本项目须安装 `verify/Install-GitHooks.ps1` 的 pre-commit 钩子：`gate.json` 缺失/ok=false/早于暂存前端文件、或 A/B `ui-audit` 缺失/早于本轮前端改动即阻断提交；绕过仅 `git commit --no-verify` 或 `DSH_GATE_BYPASS=1`（后者写 `.gate/precommit-bypass.log` 留痕，评审必查）。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
-- **唯一例外**：无原型的项目可在 `project-profile.md` 的 `frontend.requirePrototype=false` 写明理由（此时跳原型单源，但仍须设计基线与逐路由截图）；缺省为 `true`，不得口头豁免。
-- **原型可复用优先（硬）**：原型可运行/可解码时，默认**移植**其结构、样式与渲染函数（含图表/表格/弹层/空态）再替换数据接口；不得凭文字描述重写同一交互。移植清单与差异写进矩阵（`移植` / `按方案` / `择优：收益`）；原型不可运行或仅静态稿 → 按设计基线实现。选择依据写一行，不要求新文档。
-- **原样优先、择优留痕**：布局/组件/视觉/文案以原型为准；偏离必须在矩阵标 `按方案` 或 `择优：<收益>`，且不得降低密度、可读性或操作路径（§4）；找不到原型或未对照就自创布局 = 未完成。
-- **以源码为规格（硬）**：原型规格以**解码后的源码**（HTML 结构 / CSS 数值 / JS 行为、文案原文、存储语义、按钮与状态）为准，页面截图只作外观参考；逐项对照必须引用源码位置（函数名/行号）到矩阵，禁止只看截图或只读渲染结果就判 `pass`。弹窗、空态、权限态、持久化语义这类“截图看不出”的必须回代码核对。
-- **原型缺陷识别（硬）**：移植 ≠ 照抄。移植前必须列出原型在该页的**缺陷清单**（数据稀疏导致布局失真、空态缺失、文案错误/写死示例日期、交互死点），逐条标 `照搬`（原型合理）或 `择优：<收益>`（原件有缺陷）；未标注或发现缺陷仍照抄 = 未完成。稀疏/空/大数三种真实数据形态必须各自可读。
-- **独立视觉复核（硬）**：`parity-matrix.md` 的 `pass` 不得由实现者自评——须由非实现者用图像逐路由复核原型与实现截图后确认；本链由 `ui-audit` 步的 `ui-auditor` 执行，reviewer 抽核；实现者自评 `pass` 视为未验证。
-- **界面完善审计（硬 · 独立）**：A/B UI 在 `review` 前由 `ui-auditor`（≠实施者）逐路由逐操作点通，落 `.gate/frontend/ui-audit.md`；只审改动页、只看矩阵截图、接口 200 = 未审计；缺口回 implement 修并回归；UI 缺口不得债项化。C 档免独立审计（文案/状态核对并入 `design-qa`）。
-- **图文自检（硬）**：实施者与评审者必须**用图像读取本轮截图**（至少桌面每路由 1 张、关键页移动 1 张）并与原型截图/解码结构逐项对照；**只看 `ready`/console/哈希/接口 200 视为未验证**。原型侧同样落图（§3-1 解码产物或浏览器按路由截图 → `.gate/prototype/`），无原型侧图像不得判 `pass`。视觉缺陷（元素重叠/截断/错位/层级混乱/控件错型）按 `BLOCKED` 处理，不得记债项。
+**A. 规格来源（先于编码）**
+- **原型单源**：当前迭代原型路径/版本只认 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；缺声明/文件不存在/与迭代不符 = `BLOCKED`。解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`；禁止在入口或通用规则硬编码实例路径。
+- **以源码为规格**：规格以解码后的 HTML 结构 / CSS 数值 / JS 行为（handler、文案原文、存储语义、按钮与状态）为准，截图只作外观参考；逐项对照须引用源码位置（函数名/行号）。原型可运行/可解码时默认移植，不凭描述重写。
+- **解码产物最低要求**：`.gate/prototype/` 至少含 `prototype.json`（`modules`/`routes` 非空），或等价的结构清单（模块/路由/面板，文件名按项目实际）；只有截图/空清单 = `BLOCKED`；矩阵只引解码结果，不得由实现反抄操作名。
+- **无原型例外**：仅当 `frontend.requirePrototype=false` 且写明理由，改用设计基线；仍须逐路由截图与矩阵。
+
+**B. 对照粒度（三个必须）**
+- **逐面板结构**：每面板一行写「原型渲染函数 + 结构类型（列表/横条/环/表/卡/事件）+ 行列 + 数字单位 + 空态文案 + 点击目标」（模板：`ui-audit-template.md` §2.2 / `frontend-prototype-parity-template.md` §3.1）；结构类型不一致 = `BLOCKED`。
+- **逐交互行为**：每个按钮/链接/行操作/排序/复选/下拉/输入/图表点/图例/关闭确认一行写「原型 handler → 行为 → 我方实现 → 实际结果」；行为不一致（弹窗内容、导出范围、筛选生效、状态保持、反馈）= `BLOCKED`。
+- **整页单一 owner**：同页所有面板由同一实施者整体对照；分片只按页面切，不按面板切。
+- **原样优先、择优留痕**：布局/文案以原型为准；偏离标 `按方案` 或 `择优：<收益>`，不得降低密度/可读性/操作路径。原型缺陷（稀疏布局失真、空态缺失、示例日期写死、死交互）须显式列出并逐条决定 `照搬` 或 `择优`；发现缺陷仍照抄 = 未完成。
+
+**C. 自检与复核（完成前）**
+- **图文自检 + 真实数据**：实施者与评审者必须用图像读截图逐面板/逐交互核对，并用稀疏 / 空 / 大数三种真实数据形态各验一次；只看 ready/console/哈希/接口 200 = 未验证。
+- **独立视觉复核**：矩阵与 `ui-audit.md` 的 `pass` 不得实现者自评，须非实现者看图复核确认。
+- **实施出口机检（git 钩子强制）**：UI 改动提交/标完成前必须跑 §3-3 机检并写 `.gate/frontend/gate.json`；缺/`ok=false`/早于暂存文件即阻断。绕过仅 `--no-verify` 或 `DSH_GATE_BYPASS=1`（写 `.gate/precommit-bypass.log`，评审必查）。
+
+**D. 顺序**
+- 先按原型与方案对齐（结构 + 行为）→ 再择优优化（稀疏/空态/移动端/a11y），每处偏离在矩阵留理由。
 
 ### 前端门 3. 必命令（RUN）
 
@@ -146,6 +155,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - **审计未过不得进 review/提交/Claim**；缺口回 implement 修并回归；UI 缺口不得债项化。
 - 正式入口禁用固定样例（demo 关）；缺数据显示空态。
 - **附条件不覆盖前端门**：评审/完成门的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
+- **债项口径**：矩阵/审计中的「待产品/后续优化」等偏离必须落 `.gate/acceptance.yaml` 的 `debts`（id/owner/decision）；`blocking` 债项未关闭 = `BLOCKED`，不得带债 Claim；无 ID 的口头债项视为未登记。
 - **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜。**顺序**：代码/测试/脚本定稿→重拍→回写→提交→过门；改脚本/测试同重拍。
 - **组件复用（硬）**：新增/改页面前先盘点项目既有组件（`ui.js`/设计系统）与至少 1 个相邻页面；日期区间、筛选、弹窗、状态戳等优先复用既有组件与交互；原生控件仅在无既有组件时使用；自造须在 parity-matrix/design-qa 写理由。
 - **共享模块单例（硬 · DEV-IQ-19）**：带模块级可变状态的共享 JS（store、确认/弹窗 Promise、会话权限等）须单一入口；禁止多 chunk 各写不同 `./xxx.js?v=`。改文件或 bump 戳 → 改入口真源并核对引用；有项目 token 自检须跑过。确认后无请求/偶发丢权限 → 先查是否双例加载。
@@ -192,7 +202,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 - **模板（产出该类文件时按此填；门按结构判分的产物须对齐）**：`rules/templates/40-delivery/lite-test-report-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
-- 验证命令：`verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）；有 UI 遵 §5 前端硬门（已内嵌）。
+- 验证命令：`<包>/verify/Invoke-Gate.ps1`（门末自动给 `CLAIM: ALLOWED`；`-Claim` 仅复核）；有 UI 遵 §5 前端硬门（已内嵌）。
 
 ## 8. 完成与退出
 
