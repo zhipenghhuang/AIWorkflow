@@ -35,6 +35,7 @@
 | `gate: completion-gate` | 完成门（开发轨） | **实施前** `-StartTask`（冻结 `base_commit`；归档旧任务态）；L2+ `.gate/acceptance.yaml` 的 `task_id` 须与 `.gate/task.json` 一致；运行 `verify/Invoke-Gate.ps1 -Acceptance ...`；写 `.gate/wf-development/completion.json`；**前端套装与 capture 运行时只认当前步骤包内「前端硬门」**；**门末自动输出 Claim（只认 `CLAIM: ALLOWED`；`-Claim` 仅复核）**；**回执绑定提交**：StartTask → 实施 → 提交 → 过门；门后只提文档；L1 无定向 test 不跑全仓（`verification.md` §7）；同一检查连续失败 2 次停；空 diff=`NOT_VERIFIED`、dry-run=`DRY_RUN`、缺项 → `BLOCKED` |
 | `gate: dev-plan` | 开发计划检查 | **checklist**：跑 `rules/tools/validate_dev_plan.py`（可用时）+ 阶段表/门/证据/下一步人工核；缺项不过 |
 | `gate: s6-admission` | S6 提测准入 | **checklist**：按 `verification.md` §2.2 的 `DEV/QA/PRODUCT` 分流表核；`DEV` 未清零、`QA` 未入提测单、`PRODUCT` 未关闭 → 不得标“可提测”；证据=内部分流表+提测单+评审报告。分流表留在内部质量记录，不写入测试提测单。 |
+| `gate: ui-audit` | 界面完善审计（独立） | **checklist**：独立 `ui-auditor`（≠实施者）逐路由/操作/状态/跨页一致性/后端可达实操并落 `.gate/frontend/ui-audit.md`；`frontend_parity.py --require-audit` 通过；缺项/待验/未点通/缺口 = BLOCKED；不得以代码/测试/API 200 代替；UI 缺口不得债项化。 |
 | `gate: materials-validate` | 材料库发布校验 | **checklist**：README/INDEX 齐；文件均登记；来源可解析；无草稿/证据/密钥/PII；**链接自包含**（正文无未改写的工作区/`inbound/` 路径）；缺失三分类分列；完整包须 `00-overview` 含现行入口（`project-guide` 或等价）+ 阅读顺序（有冲突须效力说明）；`本包未完成` 为空；旧版本状态正确；不过不称完整。 |
 | `gate: release-readiness` | 生产/正式发布就绪 | **checklist**：按上线检查单逐项核；硬项不过 → NO-GO；test/staging 部署不适用 |
 
@@ -82,6 +83,7 @@
 | `do_landing_doc_review` | L2+ 有新增/变更落地文档，或 L1 高风险/新功能的新产出落地文档，或开发计划首版/实质变更，或点名文档评审（不依赖是否已选 A/B） | L0/无新文档；L1 小改无新落地件 |
 | `design_needs_spec_approval` | L1 有新方案/ADR/前端设计且未进 review-docs | L0；或 L2+ 由 review-docs 接管 |
 | `review_required` | 有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或 **L1+ 用户可见 UI 命中前端硬门 A 级**，或 **L1 命中安全/性能/并发/数据面**，或点名） | L0 单文件，或确实低风险 L1 单点且未命中前端硬门 A 级/安全/性能/并发/数据面（免审须记理由；免审不免自测） |
+| `ui_audit_required` | 有用户可见 UI 改动（页面/路由/菜单/表单/布局/交互/静态资源），且 tier=A/B、或未声明 tier、或新增/改页面/路由/菜单/交互 | 仅文案/列名/单位/颜色/排序且 tier=C |
 | `product_defect` | triage 判定为产品缺陷 | 工程缺陷或其他 |
 | `product_decision_received` | 已收到产品处置结论 | 仍在等产品 |
 | `product_decision_requires_alignment` | 产品结论需再对齐范围/方案 | 结论可直接实施或关闭 |
@@ -104,6 +106,8 @@
 **波次评审**：计划选定“每波独立评审+过门”后，每波实施完成 → 该波 diff 独立评审 → 结论通过 → 才开下一波；未通过不得把下一波标完成。最终 S5 只做集成/AC/证据/抽样复核，不得替代波次评审。
 
 **前端评审前置（硬）**：进入 `change.review` / `iterate.review` 前，按当前步骤包内「前端硬门」核验；缺项、`partial/pending` 或未生成证据 → `on_fail` 回 implement，不得以代码/测试/API 200 代替。评审员还须抽全部一级/二级菜单、关键深链与关键业务页（按档案声明）。
+
+**界面审计前置（硬）**：A/B UI 进入 `review` / 提交 / Claim 前必须有本轮 `.gate/frontend/ui-audit.md` 且结论=通过；审计者≠实施者；逐路由逐操作点通、跨页一致、后端可达；缺/待验/未点通 = 回 implement，不得以代码/测试/API 200 代替；C 档免独立审计（文案/状态核对并入 `design-qa`）。
 
 **方案覆盖前置（硬）**：L2+ 进入评审前必须有 `.gate/plan-coverage.md`；后端/功能行覆盖接口/字段/状态/权限/错误码/迁移→实现/测试，前端行覆盖页面/路由/字段/交互→截图；缺行、存在未完成行，或结论为“未通过/不通过/需修/阻塞” → 回 implement，不得判通过。原型/方案是下限：至少达到原型标准；原型有明显缺陷时可择优修正，但必须在矩阵写偏离理由与确认。
 

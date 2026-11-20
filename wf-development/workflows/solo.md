@@ -17,10 +17,11 @@
 | 3 | `design` | `implementer` | — | `confirm_spec` | 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md） | `review_docs` | 回 product 修产品分析；范围/AC 不清先停下说明 |
 | 4 | `review_docs` | `doc-reviewer` | `do_landing_doc_review` | `select_review_mode` | 评审-文档-*.md 或 HUMAN_APPROVED 声明 | `test_plan` | 回 design 修方案卡/文档；不得带未闭环缺口进 test_plan/build |
 | 5 | `test_plan` | `test-planner` | `plan_has_code_change` | `select_review_mode` | 测试分析与计划（{workroot}/50-verification/测试分析与计划-{主题}-{yyyyMMdd}.md）+ 适用时评审留痕 | `build` | 回 design 修方案卡；AC/范围不清先停下说明；评审需修同回合修订 ≤1 |
-| 6 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `review` | 回 design 或 test_plan；范围超出先停下说明 |
-| 7 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + .gate/review.md | `test` | 回 build 补前端交付物/方案覆盖；不得以代码/测试/API 200 代替，不得判通过 |
-| 8 | `test` | `verifier-agent` | — | `confirm_commit`、`gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 意图未过不得进 closeout，修后重跑原失败意图 + 冒烟 + 影响面 |
-| 9 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/问用户 |
+| 6 | `build` | `implementer` | — | — | 代码/配置改动 + 自测证据 | `ui-audit` | 回 design 或 test_plan；范围超出先停下说明 |
+| 7 | `ui-audit` | `ui-auditor` | `ui_audit_required` | `gate:ui-audit` | .gate/frontend/ui-audit.md + 缺口/修复清单 | `review` | 回 build 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替 |
+| 8 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + .gate/review.md | `test` | 回 build 补前端交付物/审计/方案覆盖；不得以代码/测试/API 200 代替，不得判通过 |
+| 9 | `test` | `verifier-agent` | — | `confirm_commit`、`gate:completion-gate` | 测试报告（{workroot}/50-verification/测试报告-{主题}-{yyyyMMdd}.md）+ .gate/wf-development/completion.json | `closeout` | 回 build 修复；P0 意图未过不得进 closeout，修后重跑原失败意图 + 冒烟 + 影响面 |
+| 10 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/问用户 |
 
 ## 3. 推进
 

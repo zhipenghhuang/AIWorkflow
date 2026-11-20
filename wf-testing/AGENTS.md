@@ -51,7 +51,7 @@
 | 1.1 | 测试计划评审；分析评审；计划文档评审 | `testing` | review-plan |
 | 2 | 按测试计划执行；按计划执行；继续测试计划；按计划重跑 | `testing` | execute |
 | 3 | 测试报告；准出评估 | `testing` | report |
-| 4 | 执行专项；执行接口测试；执行探索式；执行随机业务流程；执行发布前；执行性能/安全/兼容 | `testing` | execute（按 track 契约） |
+| 4 | 执行专项；执行接口测试；执行前端测试；执行探索式；执行随机业务流程；执行发布前；执行性能/安全/兼容 | `testing` | execute（按 track 契约） |
 | 5 | 分析需求；梳理测试依据；理解 PRD（用户明确只做分析） | `testing` | plan（分析部分；仍产出分析文件） |
 | 6 | 缺陷协作/提交到平台/缺陷回归 | `defect` | classify（按链至收尾/提交门） |
 | 7 | 当前状态/下一步 | —（只读） | 直接读 `activeContext` + `test-plan.md` §0；不启动 workflow |
@@ -77,7 +77,7 @@
 
 根留 `env-baseline.md`、`activeContext.md` 与原件根 `inbound/`；常青在 `{workroot}/`；**本期**分析/计划/执行/报告在 `{workroot}/{ver}/`；权威文档库为 `docs/materials/`。禁止在项目根堆测试产物。
 - 分析 / 计划 / 报告：`{ver}/test-analysis.md` · `test-plan.md` · `test-report.md`。
-- 执行：`{ver}/functional|api/{NN}-{短名}-执行记录.md`（平铺）；探索/随机：`{ver}/exploratory|random-flows/{主题}-{戳}-…记录.md`；发布前：`{ver}/pre-release/{专项}-…`。
+- 执行：`{ver}/functional|api|frontend/{NN}-{短名}-执行记录.md`（平铺）；探索/随机：`{ver}/exploratory|random-flows/{主题}-{戳}-…记录.md`；发布前：`{ver}/pre-release/{专项}-…`。
 - 缺陷写回回执：`{ver}/写回回执.md`（本轮覆盖；细则 `collaboration`）。
 - 锚点：`{workroot}/smoke-checklist.md`；旅程清单：`{workroot}/journey-map.md`；证据：`{ver}/evidence/`；脚本：`{workroot}/scripts/`。
 

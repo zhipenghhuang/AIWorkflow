@@ -7,10 +7,10 @@
 - **workflow / step**：`solo` / `review`（代码评审）
 - **packet**：`rules/packets/solo/review.md`
 - **角色**：`reviewer-agent`（代码评审/独立核验）。RP/AC/SC↔改动文件↔验证输出对账；只报正确性/需求覆盖/安全/性能/范围/体验三维缺口；核验不替代机器门禁；本步只做该角色职责；越界交回或升级。
-- **前置**：有 UI → .gate/frontend/parity-matrix.md/route-coverage.json/design-qa.md 存在且非空；高风险 → .gate/plan-coverage.md（如已生成）；非前端/低档 → 无
-- **上游**：`build`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **前置**：有 UI（A/B 档）→ .gate/frontend/parity-matrix.md/route-coverage.json/design-qa.md 存在且非空，且 .gate/frontend/ui-audit.md 结论=通过；C 档免独立审计；高风险 → .gate/plan-coverage.md（如已生成）；非前端/低档 → 无
+- **上游**：`ui-audit`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`test`
-- **失败去向**：回 build 补前端交付物/方案覆盖；不得以代码/测试/API 200 代替，不得判通过
+- **失败去向**：回 build 补前端交付物/审计/方案覆盖；不得以代码/测试/API 200 代替，不得判通过
 - **条件判定 `when:review_required`**：有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或 **L1+ 用户可见 UI 命中前端硬门 A 级**，或 **L1 命中安全/性能/并发/数据面**，或点名）；满足→真，否则跳过本步（不打开本包）。
 
 ## 2. 本步目标
@@ -50,7 +50,7 @@
 - P0 告警/拒单挂债=阻断。
 - 写 .gate/review.md。
 - 评审记录路径回写方案卡 §9 过程证据。
-- 有 UI 核 parity 产物。
+- 有 UI 核 parity + ui-audit 产物并抽 2 个操作复点。
 - 免审须记理由。
 - 免审不免自测。
 - 方法只认 code-review。

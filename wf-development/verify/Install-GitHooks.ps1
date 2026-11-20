@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   把 wf-development 的「实施出口机检」接到目标项目的 git pre-commit：
-  前端改动必须有本轮 .gate/frontend/gate.json；L2+ 代码改动必须有完整的
+  前端改动必须有本轮 .gate/frontend/gate.json（A/B 另须 ui-audit 通过）；L2+ 代码改动必须有完整的
   .gate/plan-coverage.md（含 §6 十三维）。
 
 .EXAMPLE
@@ -49,4 +49,4 @@ if (Test-Path $hookPath) {
 }
 Set-Content -Path $hookPath -Value $content -Encoding utf8 -NoNewline
 Write-Output "HOOK_INSTALLED: $hookPath"
-Write-Output "验证：git commit 时若前端改动无本轮 gate.json 会被阻断；绕过用 DSH_GATE_BYPASS=1（留痕）。"
+Write-Output "验证：git commit 时若前端改动无本轮 gate.json/A-B ui-audit 会被阻断；绕过用 DSH_GATE_BYPASS=1（留痕）。"

@@ -85,7 +85,7 @@ docs/materials/
 
 - 测试工作区：
   - **常青（根）**：`INDEX.md`、`work-log.md`、`smoke-checklist.md`、`scripts/`、`capabilities/`、`handoff/`、`_archive/`
-  - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`缺陷台账.md`（§0 本轮写回覆盖；§1 版本台账累计；有写回才建）、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
+  - **迭代大夹** `{ver}/`：`test-analysis.md`、`test-plan.md`、`test-report.md`、`缺陷台账.md`（§0 本轮写回覆盖；§1 版本台账累计；有写回才建）、`changes/`、`evidence/`、轨目录 `functional/` · `api/` · `frontend/` · `exploratory/` · `random-flows/` · `pre-release/`（轨内同类记录平铺；勿一记录一空夹）
 - 测试材料库写入域：`05-testing`。
 
 - **项目说明（只读引用）**：项目级 `project-guide.md`（产品/开发工作根）是存量行为基线；测试只读引用，不复制到测试工作根；本期变化仍以 PRD/方案/提测单为准。

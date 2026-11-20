@@ -4,7 +4,7 @@
 workflow:
   id: defect-fix
   name: 缺陷修复协作
-  version: 13
+  version: 14
   terminal: closeout
 entry_points:
   缺陷修复: preflight
@@ -173,6 +173,21 @@ steps:
   output: 回写结果（【无法确认·待澄清】/重复/设计如此/非defects/外部/已在其它构建修复）
   notes: 按 rules/templates/40-delivery/defect-writeup-template.md /： 先按原单口径复现；一次列清缺什么/谁补/截止；给条件式下一步，避免来回踢皮球。 平台备注用中文结论，禁英文处置码、类名、命令、仓库路径；本条是给测试看的。
     重复→duplicateBug=主单；设计如此→引用现行设计原文或落锤产品结论（§4.0#8），依据可核验（附件优先，文案 §6.5）；外部→给外部证据； 延期/不修复须产品/项目确认，不得开发单方关闭。 不改代码；备注与状态同轮；确认前展示全文。
+- name: 界面完善审计
+  id: ui-audit
+  skills:
+  - frontend-implementation
+  must_read:
+  - rules/packets/defect-fix/ui-audit.md
+  - rules/templates/20-design/ui-audit-template.md
+  when: ui_audit_required
+  agent: ui-auditor
+  gate: ui-audit
+  gate_type: checklist
+  precondition: fix 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 fix
+  on_fail: 回 fix 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
+  output: .gate/frontend/ui-audit.md + 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 fix；不改码、不跑完成门。
 - name: 门禁
   id: gates
   skills: []
@@ -188,8 +203,9 @@ steps:
   gate_type: machine
   precondition: 缺陷修复卡/任务清单含本轮 AC 验收表（L1+）；无则先补
   on_fail: 停止本批；不得进入 menu/close，先修复、补证据或报阻塞
-  notes: 本批无代码/配置改动 → 跳过。有改动默认跑定向 completion（profile `*_scoped` + 受影响前端证据）；升全量条件见 verification §7。门末自动 Claim；L1+ 无验收表先补；`task_id=BUG-*`
-    须含原单红证与回归/同类路径。用户明示跳过 Claim → 本步可记 `deviation=skip_claim` 并以本地验证摘要代替 COMPLETE（禁再开全量空转）。日志分诊：原始日志落盘；仅多文件语义归因才派子代理（≤30 行）。
+  notes: 本批无代码/配置改动 → 跳过。有改动默认跑定向 completion（profile `*_scoped` + 受影响前端证据 + ui-audit 结论）；升全量条件见 verification §7。门末自动 Claim；L1+
+    无验收表先补；`task_id=BUG-*` 须含原单红证与回归/同类路径。用户明示跳过 Claim → 本步可记 `deviation=skip_claim` 并以本地验证摘要代替 COMPLETE（禁再开全量空转）。日志分诊：原始日志落盘；仅多文件语义归因才派子代理（≤30
+    行）。
 - name: 总结菜单
   id: menu
   skills: []

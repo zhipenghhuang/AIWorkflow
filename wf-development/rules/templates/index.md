@@ -47,6 +47,7 @@
 | `20-design/solution-template.md` | change.design | 方案/接口/兼容/回滚 |
 | `20-design/frontend-design-spec-template.md` | change.design（前端变更） | 页面/状态/tokens/a11y/性能/交接 |
 | `20-design/frontend-prototype-parity-template.md` | change.design / implement（前端） | 原型对齐矩阵：路由/导航/复用组件/区块/状态；冲突与 OPEN 清单 |
+| `20-design/ui-audit-template.md` | change/iterate/solo/defect-fix 的 ui-audit | 界面完善审计：页面×操作×状态×一致性×后端可达×原型缺陷×真实数据；落 `.gate/frontend/ui-audit.md` |
 | `20-design/adr-template.md` | change.design | 架构决策 |
 | `20-design/product-defect-assessment-template.md` | defect-fix.assess_product | 客观评估短文；禁期望回复/时限威胁/版本过程史 |
 

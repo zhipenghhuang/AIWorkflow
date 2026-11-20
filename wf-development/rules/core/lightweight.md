@@ -46,6 +46,7 @@ frame（方向不清/新产品时）
   → review_docs?（落地文档评审）
   → test_plan（代码/配置：测试分析与计划）
   → build（完整开发）
+  → ui-audit?（A/B UI，独立审计）
   → review?（代码评审）
   → test（执行 + 报告）
   → completion-gate
@@ -55,7 +56,7 @@ frame（方向不清/新产品时）
 - **产品切片**：frame 做产品定义；product 做产品行为/AC/影响面/风险；输入含文档/原型 → `product-doc-analysis`；一句话输入用五字段 + 假设。产品分析不是只开发。
 - **方案切片**：design 做技术/任务/验收/风险；`task-breakdown` 必开；写 `review_required`/`do_landing_doc_review`；不写产品分析/测试计划。
 - **评审切片**：`review_docs` 条件审方案卡/验收表/用户版；`review` 条件审 diff/AC/SC/前端产物；L1+ UI 命中前端硬门 A 级/L1 命中安全/性能/并发/数据面/L2+/高风险/新功能 → true；L0/L1 小改且未命中 A 级/安全/性能/并发/数据面可 false + 理由。
-- **开发切片**：与正式协作同一要求（iq 预检、StartTask、前端硬门、独立评审、completion-gate、Claim 不降）。
+- **开发切片**：与正式协作同一要求（iq 预检、StartTask、前端硬门、独立评审、completion-gate、Claim 不降）；A/B UI 另走独立 `ui-audit`。
 - **测试切片**：`test_plan` 做分析/计划（来源/AC、**意图台账 INT+Oracle**、影响面/覆盖摘要、P0/P1/P2、环境/数据、回归锚点、不测；**不**预写全量用例表）；`test` 按意图生成场景 → 意图终态 + 报告；AC 走查、证据、缺口；L1+ 前端/API 独立 verifier；大改动/高风险按 §2 全节 + 回归/安全/回滚证据。
 - **产品/方案/测试/评审分开**：方案卡不写测试计划；测试分析与计划独立落 `50-verification`；测试报告只写执行结果；评审只写缺口/结论。
 - 新产品/方向不清：先 frame；单人/无正式协作也走本链。
@@ -74,7 +75,7 @@ frame（方向不清/新产品时）
 **大改动/高风险不换链，在 solo 内提高严谨度**：
 
 - **产品**：frame + 方案卡 §0/§1 全节；含用户/场景/替代/价值/成功标准/非目标/AC 追溯/影响面/风险/假设；有文档/原型 → `product-doc-analysis`；方向 ≥2 个互斥选择 → 列选项 + 推荐，仍只停一次。
-- **开发**：iq 预检、StartTask、前端硬门、独立评审、completion-gate 全数；>3 文件/多模块按任务拆分；破坏性变更先停；独立 verifier。
+- **开发**：iq 预检、StartTask、前端硬门、独立评审、completion-gate 全数；A/B UI 另加 `ui-audit`；>3 文件/多模块按任务拆分；破坏性变更先停；独立 verifier。
 - **测试**：报告全节（AC 走查、意图终态 P0/P1、主路径 + 边界 + 异常 + 权限/数据 + 回归场景、证据、缺陷、缺口、verdict）；命中安全/权限/迁移/回滚 → 补对应证据；P0 意图未过 = FAIL。
 - 需要正式发布/QA/UAT/交接/团队流程 → 按上面转链；代码/文档评审在本链按条件执行；**不把「大」当转链理由**。
 
@@ -153,6 +154,7 @@ frame（方向不清/新产品时）
 - 只保留确认点：`confirm_understanding`（when `solo_understanding_needs_confirm`）、`confirm_spec`（方案卡批准）、`select_review_mode`（review_docs 条件步）、`completion-gate`（完成门）、`confirm_commit`（拟提交）。
 - 产品定义不单独设门：方向不清在方案卡里列选项一次性确认；需要正式产品评审 → 转正式协作/完整链；solo 内仍列选项 + 推荐。
 - **completion-gate 仍必须过**；轻量不等于免验证。门命令未配置/不可用 → 记 `BLOCKED`/`未验证`，不得写通过。
+- A/B UI 在 `review` 前走独立 `ui-audit`（步骤 gate，不是 hitl）；不通过回 `build`，不能以「计划里没写」跳过。
 - 不单独走 `confirm_requirements`、`confirm_backlog`；这些在完整链使用。
 - 代码评审走 `review` 步（`review_required`）；文档评审走 `review_docs` 步（`do_landing_doc_review`）；不冒充已评审。
 - 单独「测试/验收」入口未触发完成门时，仍按 §4 强制证据块，结论只能是 `PASS/CONDITIONAL/FAIL/未验证` 之一。
@@ -177,6 +179,7 @@ frame（方向不清/新产品时）
 - 产品最小硬门槛五字段齐；大改动/高风险：产品分析全节 + 测试分析与计划全节 + 测试报告全节；方案卡已确认；范围/非目标/AC/风险齐。
 - 代码/配置：测试分析与计划已产出；测试报告只写执行结果。
 - `review_required`/`do_landing_doc_review` 已判定；需审的 `.gate/review.md`/评审-文档 有结论；免审有理由。
+- A/B UI：`ui-audit` 通过（独立；逐操作/跨页一致/后端可达/真实数据三形态），缺口已修并回归。
 - 验收表每条有检查与证据；证据路径存在；AC 走查完成。
 - 测试有 verdict、P0 意图终态、缺口；失败项已修/已接受/已转正式流程；用语为开发测试/自验非准出。
 - `completion.json=COMPLETE`（本轮 task_id/diff_hash 匹配）；未触发门时写「未验证」。

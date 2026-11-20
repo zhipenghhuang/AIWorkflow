@@ -4,7 +4,7 @@
 workflow:
   id: control
   name: 开发计划
-  version: 8
+  version: 9
   terminal: closeout
 entry_points:
   开发计划: init

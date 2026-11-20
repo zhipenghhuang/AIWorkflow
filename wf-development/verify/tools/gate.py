@@ -24,7 +24,7 @@ Notes:
   - StartTask freezes base_commit; changed_files = diff(base)..工作区 + untracked（中途 commit 不丢任务窗口）。
   - 定向：profile 的 lint_scoped/test_scoped 含 {files} 才注入变更列表；否则跑全仓命令，检查 id 为 project-*。
   - L1 未配 test_scoped 且有 smoke → 只跑 smoke（不跑全仓 test）；全量 test 留 L2+/发布/L3。
-  - L1 未配 e2e_scoped → 不跑全量 e2e；前端证据（capture/parity/design-qa/console）不降。
+  - L1 未配 e2e_scoped → 不跑全量 e2e；前端证据（capture/parity/design-qa/ui-audit/console）不降。
   - 同一检查连续失败 2 次 → STOP，不自动重跑；--reset-attempts 仅换路径后用。
   - shared_globs（profile）命中的文件改动须在验收清单写 impact_map（调用方/依赖模块+回归集）。
 
@@ -45,6 +45,7 @@ from pathlib import Path
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from frontend_parity import audit_problems as audit_ui  # noqa: E402
 from frontend_parity import validate as validate_frontend_parity  # noqa: E402
 from plan_coverage import validate as validate_plan_coverage  # noqa: E402
 
@@ -1179,6 +1180,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
                             problems.append(f"{rp.name}: {key} 非空")
 
     require_parity = bool(fe.get("requireParity", level_rank(level) >= 1)) and tier != "C"
+    require_audit = tier != "C"
     if require_parity:
         parity_problems, parity_stats = validate_frontend_parity(
             evidence_dir, since=floor, base_commit=base_commit,
@@ -1188,6 +1190,7 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             # 前端硬门 §2.5：分级声明与原型单源是 A/B 过门的前提，不再默认放行
             require_tier=True,
             require_prototype=bool(fe.get("requirePrototype", True)),
+            require_audit=require_audit,
             project_root=project_root,
         )
         problems.extend(parity_problems)
@@ -1198,6 +1201,8 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         else:
             problems_detail = ""
     else:
+        if require_audit:
+            problems.extend(audit_ui(evidence_dir, since=floor))
         problems_detail = ""
 
     if tier == "A" and level_rank(level) <= 1:

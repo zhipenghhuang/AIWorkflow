@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.19.12-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.19.21-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -158,7 +158,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 包 | 定位 | 上手 |
 | --- | --- | --- |
 | **[产品规范](./wf-product/README.md)** | 0→1 与迭代：需求 · 竞品 · PRD · 原型 · UAT · 发布 | [说明](./wf-product/README.md) · [入口](./wf-product/AGENTS.md) |
-| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 验证 → 提测 → 发布；含自包含完整链（solo） | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
+| **[开发规范](./wf-development/README.md)** | L0～L3：澄清 → 实现 → 界面审计 → 验证 → 提测 → 发布；含自包含完整链（solo） | [说明](./wf-development/README.md) · [入口](./wf-development/AGENTS.md) |
 | **[测试规范](./wf-testing/README.md)** | 分析驱动：分析 → 计划总排 → 执行记录 → 报告/锚点 | [说明](./wf-testing/README.md) · [入口](./wf-testing/AGENTS.md) |
 
 <details>
@@ -166,7 +166,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 **产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard` · `materials` · `skill-audit`。产物落在 `docs/product/`（单包 `docs/`）。
 
-**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
+**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；**有 UI（A/B）在评审前走独立界面审计**（逐路由/操作/状态/一致性/后端可达，机检不过不能提交）；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
 **测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行前按原文目录对账分析漏项，逐场景对照原文对应段（有互补源则对照；分析只作索引、不作互补源）；P0 有证伪场景；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
 

@@ -8,7 +8,7 @@
 - **packet**：`rules/packets/defect-fix/clarify.md`
 - **角色**：`defect-fixer`（缺陷修复编排）。平台拉取 → 分类 → 红证修复或产品评估 → 门禁 → 菜单 → 按 YAML hitl 提交/部署/回写 → 发布后验证；本步只做该角色职责；越界交回或升级。
 - **上游**：`fix`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
-- **后续**：`gates`（进 `gates` 前的 `when=has_code_change`）
+- **后续**：`ui-audit`（进 `ui-audit` 前的 `when=ui_audit_required`）
 - **失败去向**：停在本步，按 §4 门与 §5 规则补齐或升级；不得静默跳过。
 - **条件判定 `when:need_clarification`**：缺陷信息不足须澄清；满足→真，否则跳过本步（不打开本包）。
 

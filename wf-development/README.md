@@ -8,23 +8,24 @@
 **AI Workflow 包（开发轨）**：声明式 `workflows/*.yaml` + 角色 `agents/*.yaml` + 红线 `rules/` + 内置专业技能（`skills/`：随包生效、按步整卡读取）+ 能力契约/参考目录（实例真源 `{workroot}/capabilities/`）+ 文档治理（需求/方案/清单/提测/发布/UAT/复盘统一落位、索引、归档；根 `CHANGELOG.md` 产品发版史 + `{workroot}/work-log.md` 里程碑 + 发布说明按版本）。  
 执行宿主（任意支持 AGENTS 的 AI 编码工具，要求见本文「宿主适配」节）按 YAML 步骤执行；步内实现路径交 AI（框架固定 · 局部自主）。  
 **产品文档解析**：输入含 PRD/迭代方案/文档/页面原型/截图时，先按 `skills/product-doc-analysis/SKILL.md` 产出需求理解包——**§0【业务与变更简报】+【本期差量表】置顶**（人类快查本期增/改/删），下钻含引用、冲突、GAP、假设与置信度；确认门主屏出示 §0。同轮生成**用户版业务变化说明**（`{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md`；L1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。再按 `rules/core/clarification.md` 先分析、只问意图/范围/验收/风险，技术细节给建议，首轮 0～1 问、总≤3，确认后才进需求基线/方案/实施。
-**完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（前端需要补设计时才另出前端设计说明；产品方案完整则直接实现）→ 任务清单 → 实现/自测 → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/verify/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
-**自包含完整链（solo）**：无正式迭代/正式协作时默认走 `workflows/solo.yaml`：产品分析 → 方案与验收（一次方案确认）→ 评审（条件）→ 测试分析与计划 → 完整开发 → 代码评审（条件）→ 测试报告 → 完成门 → 收尾；不依赖产品/测试包，不是只开发，也不降标。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；有正式迭代/正式协作 → 走完整链（`change`/`iterate`），开发消费对方产物，不重复。细则见 `rules/core/lightweight.md`。  
+**完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（前端需要补设计时才另出前端设计说明；产品方案完整则直接实现）→ 任务清单 → 实现/自测 → **界面完善审计（有 UI）** → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/verify/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
+**自包含完整链（solo）**：无正式迭代/正式协作时默认走 `workflows/solo.yaml`：产品分析 → 方案与验收（一次方案确认）→ 评审（条件）→ 测试分析与计划 → 完整开发 → **界面完善审计（有 UI）** → 代码评审（条件）→ 测试报告 → 完成门 → 收尾；不依赖产品/测试包，不是只开发，也不降标。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；有正式迭代/正式协作 → 走完整链（`change`/`iterate`），开发消费对方产物，不重复。细则见 `rules/core/lightweight.md`。  
 **独立落地**：本包可单独使用；不要求安装产品/测试包。缺他包产物时一句缺口并用本包模板补（产品最小硬门槛 + 开发自验），**不因「个人/无 QA」降标**。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；本包仍独立执行自己的 workflow；开发自验 ≠ 版本准出。  
 **产品缺陷流转**：开发判定产品缺陷 → 出评估单 → **有平台则以平台回写+指派为主**（不强制再打 BUG 交接包）；无平台/点名交接包 → 先问后发自包含评估包。产品确认后回流开发。三包独立；多包同仓直读不转发。  
 **全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`rules/core/global-rules.md` §5/§12；细则 `skills/engineering-quality` §1.1～1.2、`skills/frontend-design` §5.1）。
+**界面完善审计**：A/B UI 在评审前由独立 `ui-auditor` 逐路由/操作/状态/一致性/后端可达审计，落 `.gate/frontend/ui-audit.md`；`frontend_parity.py --require-audit` 与 pre-commit 强制，未过不得评审/提交/Claim；C 档免独立审计。
 
 ## 2. 目录
 
 | 路径 | 作用 |
 | --- | --- |
 | `workflows/` | 流程定义：`solo`（自包含完整链）/ `intake`（变更吸收）/ `change` / `defect-fix` / `iterate` / `handoff`（交接包/回执/变更通知）/ `onboard` / `release` / `retro` / `control`（开发计划）/ `materials`（权威文档库）/ `skill-audit`（能力技能体检） |
-| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **doc-reviewer** / **verifier-agent** / **test-planner** / onboard-agent / delivery-lead / worker-agent |
+| `agents/` | 角色契约：implementer / defect-fixer / iterate-lead / reviewer-agent / **ui-auditor** / **doc-reviewer** / **verifier-agent** / **test-planner** / onboard-agent / delivery-lead / worker-agent |
 | `capabilities/` | 包侧契约+参考目录；实例真源在工作根 `{workroot}/capabilities/` |
 | `skills/` | 内置专业技能（结构 `skills/<name>/SKILL.md`；编号→路径映射见 `skills/README.md`） |
 | `AGENTS.md` | AI 入口（口令 → workflow；分级；接入标记；版本单点） |
 | `rules/core/cold-start.md` | **开局卡**（启动/续跑/回执） |
-| `rules/core/frontend-gate.md` | 前端硬门**维护真源**（改后重生包；运行时读步骤包内嵌节） |
+| `rules/core/frontend-gate.md` | 前端硬门**维护真源**（含独立界面审计；改后重生包；运行时读步骤包内嵌节） |
 | `rules/core/iq-checklist.md` | 实施质量勾选（implement 先勾） |
 | `rules/gates.md` | 门/gate/`when` 语义、门档位；含 `completion-gate` |
 | `rules/workflow.md` | 参考：护栏/提交门/文档落位（运行时以 `global-rules.md` + 链图 + 步骤卡为准） |
@@ -35,7 +36,7 @@
 | `rules/special/` | 专项方法：`iteration-delivery.md` · `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
-| `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
+| `verify/` | 完成门 `verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/界面审计校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
 
 实例在项目根：`project-profile.md`、`activeContext.md`（含 `### 进行中` 快照）、根 `CHANGELOG.md`、`{workroot}/`。跨角色交接：**内容优先、包按需**——提测默认自洽提测单并实拷 `handoff/outbound/提测/`；HO 仅多文件/签收/仓外/同发发版/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。有平台已交不强制 BUG/FIX 整包。多包同仓直读对方出站。
 

@@ -47,7 +47,7 @@
   - S0/S1：有 PRD/原型/方案原文 → `change/analyze_input`；仅口头/缺口 → `change/clarify`；已理解待基线 → `change/requirements`
   - S2 → `change/design`（只要方案则到 design/review-docs 停）
   - S3：无确认清单 → `iterate/plan`；清单待确认 → `iterate/confirm`
-  - S4/S5 选链：已有确认任务清单/`iterate` 进行中 → `iterate`（implement→review→gates）；否则 → `change`（implement→review→verify）。拿不准 → 推荐 iterate + 一问
+  - S4/S5 选链：已有确认任务清单/`iterate` 进行中 → `iterate`（implement→ui-audit（有 UI）→review→gates）；否则 → `change`（implement→ui-audit（有 UI）→review→verify）。拿不准 → 推荐 iterate + 一问
   - S6 → 同链 `deliver`（有清单走 iterate，否则 change）
   - S7：本包只收测试结论/缺陷为**可选输入**并回写计划；有测试包且要跑测 → 提示改用测试包 `testing/execute`（本会话不跨包执行）；无测试包 → 开发自验证据 + 缺口一句
   - S8 → `release` 对应当前子步；S9 → `retro/gather`

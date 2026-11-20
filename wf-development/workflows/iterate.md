@@ -15,12 +15,13 @@
 | 1 | `precheck` | `iterate-lead` | — | — | 前置检查结果（需求签收/方案批准/清单/handoff/缺口） | `plan` | 停在本步/升级 |
 | 2 | `plan` | `iterate-lead` | — | — | 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md） | `confirm` | 停在本步/升级 |
 | 3 | `confirm` | `iterate-lead` | `implementation_required` | `confirm_backlog` | 已确认清单/节奏 | `implement` | 停在本步/升级 |
-| 4 | `implement` | `implementer` | `implementation_required` | — | 代码/配置改动 + 任务状态回写 | `review` | 停在本步/升级 |
-| 5 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `gates` | 回 implement 补前端交付物/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。 |
-| 6 | `gates` | `verifier-agent` | `implementation_required` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 门禁摘要/文档同步 | `deliver` | 停在本步/升级 |
-| 7 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案 | `retro` | 停在本步/升级 |
-| 8 | `retro` | `delivery-lead` | `iteration_done_or_incident` | — | 复盘（{workroot}/80-retrospectives/） | `closeout` | 停在本步/升级 |
-| 9 | `closeout` | `iterate-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 4 | `implement` | `implementer` | `implementation_required` | — | 代码/配置改动 + 任务状态回写 | `ui-audit` | 停在本步/升级 |
+| 5 | `ui-audit` | `ui-auditor` | `ui_audit_required` | `gate:ui-audit` | .gate/frontend/ui-audit.md + 缺口/修复清单 | `review` | 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替 |
+| 6 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `gates` | 回 implement 补前端交付物/审计/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。 |
+| 7 | `gates` | `verifier-agent` | `implementation_required` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 门禁摘要/文档同步 | `deliver` | 停在本步/升级 |
+| 8 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案 | `retro` | 停在本步/升级 |
+| 9 | `retro` | `delivery-lead` | `iteration_done_or_incident` | — | 复盘（{workroot}/80-retrospectives/） | `closeout` | 停在本步/升级 |
+| 10 | `closeout` | `iterate-lead` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

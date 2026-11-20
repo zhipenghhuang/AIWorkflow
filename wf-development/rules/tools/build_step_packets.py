@@ -371,7 +371,7 @@ CONTROL_RUN_CARD = """### 本步规则卡：计划切包（只路由，不实施
   - S0/S1：有 PRD/原型/方案原文 → `change/analyze_input`；仅口头/缺口 → `change/clarify`；已理解待基线 → `change/requirements`
   - S2 → `change/design`（只要方案则到 design/review-docs 停）
   - S3：无确认清单 → `iterate/plan`；清单待确认 → `iterate/confirm`
-  - S4/S5 选链：已有确认任务清单/`iterate` 进行中 → `iterate`（implement→review→gates）；否则 → `change`（implement→review→verify）。拿不准 → 推荐 iterate + 一问
+  - S4/S5 选链：已有确认任务清单/`iterate` 进行中 → `iterate`（implement→ui-audit（有 UI）→review→gates）；否则 → `change`（implement→ui-audit（有 UI）→review→verify）。拿不准 → 推荐 iterate + 一问
   - S6 → 同链 `deliver`（有清单走 iterate，否则 change）
   - S7：本包只收测试结论/缺陷为**可选输入**并回写计划；有测试包且要跑测 → 提示改用测试包 `testing/execute`（本会话不跨包执行）；无测试包 → 开发自验证据 + 缺口一句
   - S8 → `release` 对应当前子步；S9 → `retro/gather`
@@ -396,6 +396,19 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛�
 - **自测硬门槛**：每条 SC 有验证（含负面/边界）；断言指回方案；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
 - 独立评审 → 本链 `review`；不在本步自称已评审；`self_review` 不作过门证据（DEV-VER-06）。子代理开跑先写一行 `mode=工具|直做|单写手|分片|拆分 | reason=…`（频率与隔离见 `rules/collaboration/subagents.md`；达阈值按净收益取档，净收益为正却直做记 `deviation=subagent_skipped:<理由>`）；质量条守本步 §6 已列技能。
 - **项目说明（单包/无产品包）**：实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`；多包读产品包同文件；不追加版本节；历史留方案/CR。"""
+
+UI_AUDIT_CARD = """### 本步规则卡：界面完善审计（独立 · 不改码）
+
+- **独立**：审计者≠实施者；只收方案/原型/验收/证据，不收实施者自评；不改代码、不跑完成门。
+- **逐路由**：本轮全部变更/新增路由 + 菜单 + 深链，与 `route-coverage.json` 对齐；缺一记缺口；只审改动页 = 未完成。
+- **逐操作**：每个可见操作实际点通（入口→结果/接口/错误/权限）；每操作 ≥1 真实成功；写操作 ≥1 失败/拒绝。
+- **逐页状态**：空/加载/错误/超时/无权限/禁用/重复提交/边界；对照交互诚实。
+- **跨页一致**：术语/状态词/KPI/组件/密度/主操作/日期筛选/空态文案。
+- **后端可达**：写端点→页面入口/动作；无入口标 `non-ui` 或缺口；页面能开但操作无入口=缺口。
+- **真实数据**：稀疏/空/大数三形态各验一次；只满数据截图 = 未验证。
+- **原型缺陷**：列清单并逐条标 `照搬` / `择优：收益`；发现仍照抄 = 未完成。
+- **产物**：`.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；按前端门 §3 跑 `frontend_parity.py --require-audit`；未点通/待验/缺口 = BLOCKED。
+- **回修**：缺口回 implement/fix 修并回归；同族路径一并修；UI 缺口不得债项化。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账
 
@@ -433,6 +446,10 @@ STEP_CARDS: dict[tuple[str, str, str], str] = {
     ("wf-development", "change", "implement"): IMPLEMENT_CARD,
     ("wf-development", "iterate", "implement"): IMPLEMENT_CARD,
     ("wf-development", "solo", "build"): IMPLEMENT_CARD,
+    ("wf-development", "change", "ui-audit"): UI_AUDIT_CARD,
+    ("wf-development", "iterate", "ui-audit"): UI_AUDIT_CARD,
+    ("wf-development", "solo", "ui-audit"): UI_AUDIT_CARD,
+    ("wf-development", "defect-fix", "ui-audit"): UI_AUDIT_CARD,
     ("wf-development", "control", "run"): CONTROL_RUN_CARD,
     ("wf-development", "change", "clarify"): CLARIFY_CARD,
     ("wf-product", "change", "apply"): WRITEBACK_CARD,
@@ -467,6 +484,10 @@ TEMPLATE_OVERRIDES: dict[tuple[str, str, str], str] = {
     ("wf-development", "change", "design"): "rules/templates/20-design/solution-template.md",
     ("wf-development", "change", "plan"): "rules/templates/30-planning-tasks/task-list-template.md",
     ("wf-development", "change", "deliver"): "rules/templates/40-delivery/qa-handoff-template.md",
+    ("wf-development", "change", "ui-audit"): "rules/templates/20-design/ui-audit-template.md",
+    ("wf-development", "iterate", "ui-audit"): "rules/templates/20-design/ui-audit-template.md",
+    ("wf-development", "solo", "ui-audit"): "rules/templates/20-design/ui-audit-template.md",
+    ("wf-development", "defect-fix", "ui-audit"): "rules/templates/20-design/ui-audit-template.md",
     ("wf-development", "iterate", "plan"): "rules/templates/30-planning-tasks/task-list-template.md",
     ("wf-development", "release", "readiness"): "rules/templates/40-delivery/go-live-checklist-template.md",
     ("wf-development", "release", "record"): "rules/templates/40-delivery/release-record-template.md",
@@ -784,14 +805,18 @@ def frontend_gate_embed(root: Path) -> str | None:
 # 只有真正改界面或验收界面的步才嵌入全文。关键词（原型/页面）会把整门挂进写文档的步。
 UI_GATE_STEPS = {
     ("change", "implement"),
+    ("change", "ui-audit"),
     ("change", "review"),
     ("change", "verify"),
     ("iterate", "implement"),
+    ("iterate", "ui-audit"),
     ("iterate", "review"),
     ("iterate", "gates"),
     ("solo", "build"),
+    ("solo", "ui-audit"),
     ("solo", "test"),
     ("defect-fix", "fix"),
+    ("defect-fix", "ui-audit"),
     ("defect-fix", "gates"),
     ("release", "verify"),
 }
@@ -896,12 +921,13 @@ def hitl_names(step: dict) -> list[str]:
 
 
 def _split_path_blob(blob: str) -> list[str]:
-    parts = re.split(r"[、,;；|/]+", blob)
+    # 路径本身含 "/"，只按列表分隔符拆；否则 rules/templates/... 会被拆碎而丢模板。
+    parts = re.split(r"[、,;；|]+", blob)
     out: list[str] = []
     for p in parts:
         p = p.strip().strip("`\"'")
         p = re.sub(r"[。．.]+$", "", p)
-        if p.startswith("rules/") and ("templates/" in p or "closeout" in p):
+        if p.startswith("rules/") and p.lower().endswith(".md") and ("templates/" in p or "closeout" in p):
             out.append(p)
     return out
 

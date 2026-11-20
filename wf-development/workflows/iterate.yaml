@@ -4,7 +4,7 @@
 workflow:
   id: iterate
   name: 迭代交付
-  version: 12
+  version: 13
   terminal: closeout
 entry_points:
   按方案实施: precheck
@@ -70,6 +70,21 @@ steps:
   notes: 本步任务：按清单实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC）→ 按 SC 自证 → 回写。无 UI 本包前端硬门 `na`。超出清单先停；未验证不得标完成。硬门槛同
     change.implement；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。有原型先解码（SPA
     运行提取）；写能力须有页面入口或 `non-ui`；禁用固定样例。
+- name: 界面完善审计
+  id: ui-audit
+  skills:
+  - frontend-implementation
+  must_read:
+  - rules/packets/iterate/ui-audit.md
+  - rules/templates/20-design/ui-audit-template.md
+  when: ui_audit_required
+  agent: ui-auditor
+  gate: ui-audit
+  gate_type: checklist
+  precondition: implement 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 implement
+  on_fail: 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
+  output: .gate/frontend/ui-audit.md + 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
 - name: 代码评审
   id: review
   skills:
@@ -84,11 +99,12 @@ steps:
   - security-scan
   - design-review
   output: 评审结论/缺口 + `.gate/review.md`
-  precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
-    存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺 = 回 implement。
-  on_fail: 回 implement 补前端交付物/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；`self_review` 不作正式过门证据；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa；有 UI 核原型解码+能力可达；抽核方案章节闭合（先读方案段再对
-    diff；P0 告警/拒单挂债=阻断）。
+  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空，且 `.gate/frontend/ui-audit.md`
+    结论=通过；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺
+    = 回 implement。
+  on_fail: 回 implement 补前端交付物/审计/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
+  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；`self_review` 不作正式过门证据；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa + ui-audit；有
+    UI 核原型解码+能力可达+抽 2 个操作复点；抽核方案章节闭合（先读方案段再对 diff；P0 告警/拒单挂债=阻断）。
 - name: 全量门禁与文档同步
   id: gates
   skills:
@@ -104,7 +120,7 @@ steps:
   gate_type: machine
   output: .gate/wf-development/completion.json + 门禁摘要/文档同步
   notes: Invoke-Gate 门末自动 Claim（-Claim 仅复核）；非 COMPLETE 不得 deliver/closeout。同步清单/plan/activeContext。无 QA 时开发自验：AC/SC 全过、证据落盘、前端硬门（无
-    UI 标 na）。完成门核前端交付物、原型解码与能力可达；缺则 BLOCKED。
+    UI 标 na）。完成门核前端交付物、原型解码、ui-audit 结论与能力可达；缺则 BLOCKED。
 - name: 提测与发布文档
   id: deliver
   skills:

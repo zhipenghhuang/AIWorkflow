@@ -8,11 +8,11 @@
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
 | L0 | 纯文档/文案/注释，无代码/配置/行为/契约/权限/数据变化 | `docs-links` + `docs-placeholders` | 链接/占位检查结果；空任务窗口 = NOT_VERIFIED |
-| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；前端按 `rules/core/frontend-gate.md` §2.1 分级：C 档 1 张桌面截图、免 parity，A/B 档按档取证（每条变更路由桌面+移动、route-coverage.json、console/network） |
-| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、plan-coverage、`nfr.security`/`nfr.performance` |
+| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；前端按 `rules/core/frontend-gate.md` §2.1 分级：C 档 1 张桌面截图、免 parity，A/B 档按档取证（每条变更路由桌面+移动、route-coverage.json、console/network、独立 ui-audit） |
+| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + ui-audit + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、ui-audit、plan-coverage、`nfr.security`/`nfr.performance` |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
-前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
+前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**A/B 另须独立 `ui-audit`（frontend-gate §2#8）；缺/待验 = BLOCKED**。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test_plan` 落 INT+Oracle 意图台账（不预写全量用例）；`solo.test` 按意图生成场景并实测（大改动/高风险全节），报告以意图终态为准，落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 意图未过不得判通过。
 
@@ -31,6 +31,7 @@
    > **命令覆盖（硬）**：`test` 须覆盖本项目全部测试入口（多 runner 串联，如 `npm test && npx vitest run src/__tests__`），不得只列部分文件；各 runner 的命令与计数分别落证据，不得合并成一句“全绿”。
 2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/wf-development/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
    - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
+   - **A/B 独立审计**：implement/build 后、review 前由 `ui-auditor` 落 `.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；逐路由/操作/状态/一致性/后端可达/真实数据；门与钩子以 `--require-audit` 校验，缺/待验 = BLOCKED。
 3. 收尾：
 
 ```powershell
@@ -58,10 +59,11 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
 | `verify/tools/report_lint.py` | 收尾对账：回执/verdict/禁词/证据 + 六点版式、汇报块、第 2/4/6 点固定子字段、附录；`--format-only` 跳过门禁 |
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
 | `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 十五项（含交互诚实与视觉协调）、L2+ 二十项 |
+| `.gate/frontend/ui-audit.md`（运行时） | 独立界面审计记录；模板见 `rules/templates/20-design/ui-audit-template.md`；A/B 门读取 |
 | `frontend/route-coverage.example.json` | 路由/菜单/深链/截图机读台账模板；复制为 `.gate/frontend/route-coverage.json` |
 | `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；含本轮 `task_id`，L2+ 门内校验 |
 | `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、行状态、结论；L2+ 自动调用 |
-| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；`--require-tier` 校验 `tier.json`；`--require-prototype` 校验 `project-profile.md` 的 `prototype=` 且已解码；`--write` 落实施出口回执；门内自动调用 |
+| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；`--require-tier` 校验 `tier.json`；`--require-prototype` 校验 `project-profile.md` 的 `prototype=` 且已解码；`--require-audit` 校验 `ui-audit.md` 并与其路由/操作对账；`--write` 落实施出口回执；门内自动调用 |
 | `frontend/capture_example.py` | capture 参考实现（Playwright）：登录→逐路由→就绪判定（骨架/登录页不算）→桌面/移动截图→`evidence.json`；复制到项目并配 `frontend.capture` |
 | `tools/claim_check.py` | 完成口令锁：回执 verdict/blocked/代码新鲜度三合一，输出 `CLAIM: ALLOWED/DENIED` |
 | `frontend/playwright.config.template.ts` | Playwright 模板；默认 list+json，不生成 HTML/trace/video；证据落 `.gate/frontend/` |
@@ -83,19 +85,22 @@ powershell -ExecutionPolicy Bypass -File "wf-development/verify/Invoke-Gate.ps1"
   - console error / failed request 为 0；菜单可见或可滚动到达；深链无 404；
   - 详情/表单类页面字段网格、日期/期间控件语义按原型核对，不得简化单列或生搬通用筛选。
 - **L2+ 证据必须由 capture 生成**（`frontend.capture`）：`evidence.json` 需含 `generator`、逐路由 `ready=true`、桌面/移动截图哈希；门用哈希对回 `route-coverage.json`。手写截图、骨架页截图、只跑 DOM 文本都不算。
+- **A/B 独立审计**：`.gate/frontend/ui-audit.md` 结论=通过；逐路由 `###` 区块与 `operations` 对账；跨页一致性/后端可达/真实数据三形态齐；审计者≠实施者；缺/待验/未点通 = `BLOCKED`。
 - 自检命令（门内也会跑）：
 
 ```powershell
 # 实施出口 / 评审 / 完成门同一命令（前端硬门 §2.5；失败不得提交或标完成）
 python wf-development/verify/tools/frontend_parity.py --evidence-dir .gate/frontend `
   --require-prototype --require-tier --require-generated --require-matrix-routes `
-  --write .gate/frontend/gate.json
+  --require-audit --write .gate/frontend/gate.json
+# 审计前 parity 自检可去掉 --require-audit；进入 ui-audit/评审/提交/完成门必须带
 ```
 
 ## 5. 成本纪律
 
 - 配了 `*_scoped` → 定向；未配 → 全仓 `project-*`（诚实标 id）。全量回归仍留给发布/L3。
 - **L1 不全量**：未配 `test_scoped` 且有 smoke → 跑 smoke + 验收证据，不跑全仓 test；未配 `e2e_scoped` 的 L1 不跑全量 e2e（前端证据不降）。
+- **ui-audit 按档**：A/B 必做独立审计；C 档免独立审计（文案/状态核对并入 `design-qa`）。审计复用本轮截图/网络证据，不重复全量拍图。
 - **失败不空转**：同一检查连续失败 2 次 → 停，换路径/请人确认；`-ResetAttempts` 仅换路径后用。build/test 失败时门跳过 e2e/capture/integration/perf/security。
 - 配了 `perf`/`security` 命令 → L2+ 必跑；失败即 BLOCKED，不降级为“人工看过”。
 - 全量测试单实例串行，日志落 `.gate/logs/`；中断/并发/超时 = 未验证，不得用旧数字补报告。

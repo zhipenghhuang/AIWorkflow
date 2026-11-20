@@ -2,7 +2,7 @@
 """提交前机检（git pre-commit hook）。
 
 作用：把「实施出口机检」从口头规则变成不可静默跳过的动作。
-- 暂存区含前端文件 → 必须是「本轮证据 + 门禁回执」：`.gate/frontend/gate.json` 存在、ok=true、且晚于最新暂存文件；否则阻断。
+- 暂存区含前端文件 → 必须是「本轮证据 + 门禁回执」：`.gate/frontend/gate.json` 存在、ok=true、且晚于最新暂存文件；A/B 另须 `ui-audit.md` 结论通过且晚于最新暂存文件；否则阻断。
 - 暂存区含代码文件（L2+）→ 必须是 `.gate/plan-coverage.md` 完整（§6 十三维无待填）且 task_id 与 `.gate/task.json` 一致；否则阻断。
 - 文档/配置类改动放行。
 
@@ -16,6 +16,8 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+from frontend_parity import audit_problems
 
 FRONTEND_PREFIXES = ("static/", "templates/", "public/", "frontend/", "assets/")
 FRONTEND_SUFFIXES = (".js", ".mjs", ".css", ".vue", ".html", ".ts", ".tsx")
@@ -68,6 +70,18 @@ def level_of(root: Path) -> str:
     return "L2"
 
 
+def tier_of(root: Path) -> str:
+    path = root / ".gate" / "frontend" / "tier.json"
+    if path.is_file():
+        try:
+            tier = str(json.loads(path.read_text(encoding="utf-8-sig")).get("tier", "")).strip().upper()
+        except Exception:  # noqa: BLE001
+            tier = ""
+        if tier in ("A", "B", "C"):
+            return tier
+    return "A"
+
+
 def check_frontend(root: Path, frontend: list[str]) -> list[str]:
     receipt = root / ".gate" / "frontend" / "gate.json"
     if not receipt.is_file():
@@ -75,7 +89,7 @@ def check_frontend(root: Path, frontend: list[str]) -> list[str]:
             "前端改动缺少实施出口回执 .gate/frontend/gate.json；"
             "先跑：python wf-development/verify/tools/frontend_parity.py "
             "--evidence-dir .gate/frontend --require-prototype --require-tier "
-            "--require-generated --require-matrix-routes --write .gate/frontend/gate.json"
+            "--require-generated --require-matrix-routes --require-audit --write .gate/frontend/gate.json"
         ]
     try:
         data = json.loads(receipt.read_text(encoding="utf-8-sig"))
@@ -86,6 +100,13 @@ def check_frontend(root: Path, frontend: list[str]) -> list[str]:
     newest = newest_mtime(root, frontend)
     if receipt.stat().st_mtime + 1 < newest:
         return ["gate.json 早于本轮前端改动：改完前端后必须重跑门禁再提交"]
+    if tier_of(root) != "C":
+        audit_problems_list = audit_problems(root / ".gate" / "frontend")
+        if audit_problems_list:
+            return ["界面完善审计未通过：" + "；".join(audit_problems_list[:4])]
+        audit_path = root / ".gate" / "frontend" / "ui-audit.md"
+        if audit_path.is_file() and audit_path.stat().st_mtime + 1 < newest:
+            return ["ui-audit.md 早于本轮前端改动：改完 UI 后必须重新审计再提交"]
     return []
 
 

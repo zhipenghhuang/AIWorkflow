@@ -17,7 +17,7 @@
 > 计划状态：草稿 / 已确认 / 执行中 / 变更中 / 待关闭 / 已关闭；首次创建或范围·版本·里程碑实质变更过 `confirm_plan`。  
 > 归档：当前文件不移动；关闭时快照到 `{workroot}/_archive/{yyyyMMdd}-{ver}/development-plan.md`，当前计划重置/新建；稳定技术真值留 `project-profile.md`/ADR。
 
-阶段：`S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测 → S5 评审/CI → S6 提测 → S7 测试/缺陷（含测试环境部署） → S8 发布 → S9 收尾/复盘`。  
+阶段：`S0 输入检查 → S1 需求分析 → S2 技术方案 → S3 任务与排期 → S4 编码自测（含 A/B UI 界面审计） → S5 评审/CI → S6 提测 → S7 测试/缺陷（含测试环境部署） → S8 发布 → S9 收尾/复盘`。  
 门：`G0 输入就绪 → G1 需求分析 → G2 方案批准 → G3 排期确认 → G4 开发完成 → G5 评审/CI → G6 提测就绪 → G7 测试通过 → G8 发布就绪 → G9 交付完成`。  
 规则：
 
@@ -200,6 +200,7 @@ route=workflow:change | step=… | next_action=ASK|RESTATE|IMPLEMENT|DONE
 - 执行：本机可用 `code-review` 时按其评审全量 diff；不可用派 `reviewer-agent` 独立核验。  
 - 补充：`security-scan` 可用时跑最小安全集；变更规模过大先拆。  
 - 产出：通过/需修 + 缺口清单（文件:行/问题/证据/严重度/修法），并写 `.gate/review.md`（reviewer/implementer/verdict/AC 覆盖/SC 对账）；方法只认 `skills/code-review`（含 §4.0）；需修回 implement，同回合重验≤1。A 级/L2+ 缺评审记录或缺 SC 对账（非 na）= 完成门 BLOCKED。  
+- **界面审计前置**：A/B UI 先过 `ui-audit`（独立审计，结论=通过）；缺/待验 = 回 implement；review 核 `ui-audit` 路由/操作覆盖并抽 2 个操作复点。  
 - 三维体验：UX/DX/AX 任一净退化列需修；开发阶段检查是否残留旧数据兼容分支。
 - **S5 范围**：只评审代码/`DEV-AC`/CI/安全/回滚；产品验收矩阵的 `QA-AC/REL-AC` 未执行不阻断 S5，转入 S6/S7/S8。不得把方案验收矩阵原样拆成开发任务或 S5 阻断项；命中 DEV 必留的创建/生成触发链须在 `DEV-AC`（见 `rules/core/verification.md` §2.1）。**S5 附条件必须按 §2.2 分 `DEV/QA/PRODUCT`**：`DEV` 未清零或书面裁剪+债项不得进 S6，禁止把“开发没做”改写成“QA 条件/测试范围”。分流表留在 S5 报告/计划，**不写入测试提测单**。
 

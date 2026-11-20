@@ -10,6 +10,7 @@
 | `iterate-lead` | control.init/run/sync/next/closeout、iterate.precheck/plan/confirm/closeout、intake.*、handoff.compose/send/receive/change_*/replan、change.plan | 阶段路由、任务拆分建议、计划状态维护、交接类型建议 | 范围/里程碑/资源变化 → 用户；C2/C3 → confirm_replan；跨包冲突 → 项目负责人 | 不直接实施业务代码（实施交 `implementer`）、不替评审下结论、不擅自改基线 |
 | `implementer` | change.clarify/analyze_input/requirements/design/implement/deliver、iterate.implement/deliver、solo.frame/product/design/build/closeout、handoff.closeout | 实现路径、工具、拆分、自测方法 | 方案/AC 冲突、破坏性变更、越界改动 → 停问；提交/推送 → 用户 | 不跳 product/design/review-docs、不改验收标准、不自行发布 |
 | `reviewer-agent` | change.review、iterate.review、control.check、solo.review | 代码评审结论（通过/需修/阻断）、评审范围 | 评审范围 < diff、需修、作者施压 → 编排/用户 | 不替作者改代码、不做业务取舍、不代替门 |
+| `ui-auditor` | change/iterate/solo/defect-fix 的 `ui-audit` | 界面完善审计结论（通过/不通过）、缺口与证据 | 未点通/跨页不一致/后端不可达 → 回 implement/fix；范围变化 → 编排/用户 | 不改代码/文档、不 git、不跑完成门、不判版本准出 |
 | `doc-reviewer` | change.review-docs、solo.review_docs | 落地文档独立评审（D1–D8）、A/B 记录 | 需修/阻断、基线缺失 → 20-design/requirements | 不审代码 diff、不替作者改写 |
 | `test-planner` | `solo.test_plan` | 测试分析与计划（来源/AC、影响面/核心链路、覆盖矩阵、P0/P1/P2、环境/数据、回归锚点、不测） | AC/范围不清 → 回 design；不写代码/不执行测试 | 不判版本准出、不改代码/文档、不代替评审 |
 | `verifier-agent` | change/iterate/defect 的 「验证/门」、`solo.test` | 证据充分性、完成门、**开发测试/自验**（报告/`DEV-AC` 走查） | 缺证据/空 diff/环境缺失 → BLOCKED；不判完成；无 QA 时仍须自验 | 不改代码/文档、不代替评审、不解释业务、**不判版本准出**、不执行 `QA-AC/REL-AC` |

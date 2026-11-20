@@ -1,6 +1,6 @@
 ---
 name: frontend-implementation
-description: Use when implementing frontend pages, routes, components, forms, or client data flows. Enforce component boundaries, loading-empty-error states, permissions, request encapsulation, performance, accessibility, compatibility, and UI evidence. 中文触发：前端实现、页面、路由、组件、表单、状态、请求封装、性能、无障碍、兼容。
+description: Use when implementing or independently auditing frontend pages, routes, components, forms, or client data flows. Enforce component boundaries, loading-empty-error states, permissions, request encapsulation, performance, accessibility, compatibility, and UI evidence. 中文触发：前端实现、页面、路由、组件、表单、状态、请求封装、性能、无障碍、兼容、界面完善审计、独立复核。
 ---
 
 # 前端实现（技能 · 随包生效）
@@ -128,6 +128,42 @@ description: Use when implementing frontend pages, routes, components, forms, or
 - [ ] 每条路由桌面+移动截图、菜单/深链台账、`route-coverage.json` 已齐；哈希不重复、无旧图。
 - [ ] 截图/console/network 证据齐；`design-qa` #3/#14/#20 按条文通过；设计缺口已回写。
 
+## 9. 完善审计（独立角色 · 有 UI）
+
+> 由 `ui-auditor` 在 implement/build 之后、review 之前执行；审计者≠实施者；不改代码，只出缺口与证据。C 档（纯文案/列名/颜色）免独立审计，文案/状态核对并入 `design-qa`。
+> 产物：`.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；机检 `frontend_parity.py --require-audit`。
+
+### 9.1 输入与边界
+
+- 方案/PRD 原文（含 UI 文案/状态/权限细节）、锁定的原型（先解码）、理解包 §10/§11 或方案卡 §0.1/§1。
+- parity-matrix / route-coverage / design-qa / tier / 截图；任务卡 AC/SC。
+- 不读实施者自评/聊天解释；实现说明只作定位线索。审计是用户可见切片的功能/一致性核查，不替代全量 AC、组合负面与版本准出。
+
+### 9.2 逐路由逐操作（硬）
+
+1. 列本轮全部变更/新增路由 + 菜单 + 深链，与 `route-coverage.json` 对齐；缺一记缺口。
+2. 每个可见操作（主 CTA/行操作/批量/导出/筛选/分页/排序/返回/刷新/深链/表单提交）实际点通：入口→结果；记录接口/响应/错误码/权限态。
+3. 每个操作至少 1 条真实成功；写操作至少 1 条失败/拒绝（校验或权限），或指向已跑 SC 证据。
+4. 只点页面不改数据；需造数时按项目档案/测试数据规则，不污染正式库。
+
+### 9.3 状态与跨页
+
+- 每页核：空/加载/错误/超时/无权限/禁用/重复提交/边界；对照 §2 的交互诚实。
+- 跨页一致：术语、状态词、KPI 名/单位、组件、密度、主操作位置、日期/筛选语义、空态/错误文案；不一致记缺口并指回方案/原型。
+- 后端可达：每个写端点 → 页面入口/动作；无入口标 `non-ui:<理由>` 并确认；页面能开但操作无入口 = 缺口。
+- 真实数据：稀疏/空/大数三形态各验一次；只满数据截图 = 未验证。
+
+### 9.4 缺陷族与回归
+
+- 同类路径（同模型写入口/同谓词/同权限/同状态表面/同组件）一并扫；不只修点名处。
+- 原型缺陷先列清单（稀疏失真/空态缺失/文案错误/死交互），逐条标 `照搬` 或 `择优：收益`；发现仍照抄 = 未完成。
+- 缺口回 implement 修；修后跑「原缺口 + 同族 + 冒烟」；审计只认修复后的证据。
+
+### 9.5 结论
+
+- 每条路由 `###` 区块；操作/状态/一致性/后端可达逐项 pass；任何待验/未点通/缺口 = 不通过。
+- 结论写「通过」才进 review；UI 缺口不得债项化；审计不替代测试/准出。
+
 ## 常见合理化与反驳
 
 | 合理化 | 现实 |
@@ -136,3 +172,7 @@ description: Use when implementing frontend pages, routes, components, forms, or
 | 「有 disabled 就算状态齐」 | 须原因+下一步；加载不得先报空；筛选须与请求同构。 |
 | 「样式先 hardcode」 | 有设计说明/tokens 时对齐；禁止另造视觉源。 |
 | 「权限只藏按钮」 | UI 可见动作须同权 API；禁纯前端鉴权。 |
+| 「页面能开/接口 200 = 操作通」 | 必须逐操作点通并留接口/错误/权限证据；静态图不算。 |
+| 「只审我改的页就够了」 | 同族路径与跨页一致必须扫；否则同类不一致会复发。 |
+| 「审计就是再跑一遍 design-qa」 | design-qa 是实施自填；审计是独立实操 + 跨页一致 + 后端可达。 |
+| 「缺口先挂债，下轮补」 | UI 缺口不得债项化；未修 = 未完成。 |

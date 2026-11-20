@@ -4,7 +4,7 @@
 workflow:
   id: change
   name: 常规代码变更
-  version: 13
+  version: 14
   terminal: closeout
 entry_points:
   常规变更: clarify
@@ -148,6 +148,21 @@ steps:
   notes: 本步任务：按已确认基线/方案/SC 实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC/债项）→ 按 SC 自证（单元=一条 SC）→ 自测。无 UI
     本包前端硬门 `na`。条件技能见 §6。禁刷绿/主路径先合。子代理见 `rules/collaboration/subagents.md`。DEV-IQ-22 与预检硬门槛见本包规则卡；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入
     `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。
+- name: 界面完善审计
+  id: ui-audit
+  skills:
+  - frontend-implementation
+  must_read:
+  - rules/packets/change/ui-audit.md
+  - rules/templates/20-design/ui-audit-template.md
+  when: ui_audit_required
+  agent: ui-auditor
+  gate: ui-audit
+  gate_type: checklist
+  precondition: implement 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 implement
+  on_fail: 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
+  output: .gate/frontend/ui-audit.md（页面×操作×状态×一致性×后端可达×原型缺陷×真实数据）+ 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
 - name: 代码评审
   id: review
   skills:
@@ -162,11 +177,11 @@ steps:
   - security-scan
   - design-review
   output: 评审结论/缺口 + `.gate/review.md`
-  precondition: 前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md`
-    存在且后端/功能/前端行有效；非前端/低档→无。
-  on_fail: 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 核验者≠实施者；`self_review` 不作正式过门证据；覆盖本轮 diff+AC/SC；先读方案段再对 diff；P0 告警/拒单挂债=阻断；写 .gate/review.md。有 UI 核 parity 产物。免审须记理由；免审不免自测。方法只认
-    code-review。
+  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空，且 `.gate/frontend/ui-audit.md`
+    结论=通过；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；非前端/低档→无。
+  on_fail: 回 implement 补前端交付物/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
+  notes: 核验者≠实施者；`self_review` 不作正式过门证据；覆盖本轮 diff+AC/SC；先读方案段再对 diff；P0 告警/拒单挂债=阻断；写 .gate/review.md。有 UI 核 parity + ui-audit
+    产物并抽 2 个操作复点。免审须记理由；免审不免自测。方法只认 code-review。
 - name: 自验与完成门
   id: verify
   skills:
@@ -182,7 +197,8 @@ steps:
   gate_type: machine
   output: .gate/wf-development/completion.json + 验证回执
   notes: 按 AC 追溯来源走查方案对应段（DEV-IQ-22）；合看原型/接口/现有实现；理解包接在方案后不抢入口；示例/死边界在实施择优中记偏离；Invoke-Gate 门末自动 Claim（-Claim 仅复核）；只认 ALLOWED。非
-    COMPLETE 不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity。
+    COMPLETE 不得进 deliver/closeout。 无 QA 时开发自验报告必齐（`rules/core/lightweight.md`）；有 UI 跑 frontend_parity（含 `--require-audit`
+    与 ui-audit 结论）。
 - name: 提测与发布文档
   id: deliver
   skills:

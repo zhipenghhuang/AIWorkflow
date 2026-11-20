@@ -16,13 +16,13 @@ levels:
     description: 代码/配置，≤3 文件且≤1 模块，无接口/数据/权限变化（模块数由验收 level 声明；>3 文件机检升 L2）
     required: [build, lint-or-targeted-lint, smoke]
     # 未配 smoke 时 test 回退为必跑；配 test_scoped 时定向 test 优先（见 rules/core/verification.md §7）
-    frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, evidence-integrity]
+    frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, ui-audit, evidence-integrity]
     # L1 未配 e2e_scoped → e2e 不跑全量；前端证据仍必
     optional: [test-or-targeted-test, a11y-basic, visual-diff]
   L2:
-    description: >3 文件或 >1 模块，或接口/数据/新功能变更
+    description: ">3 文件或 >1 模块，或接口/数据/新功能变更"
     required: [build, lint-or-targeted-lint, unit, integration, review-record, plan-coverage, nfr-baseline]
-    frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, evidence-integrity]
+    frontend_required: [e2e-or-affected-e2e, prototype-parity-matrix, route-coverage, per-route-screenshots, states-console-network, design-qa, ui-audit, evidence-integrity]
     manual: [review]
     optional: [contract-test]
   L3:
@@ -52,7 +52,7 @@ change_types:
       - "**/templates/**"
       - "**/layouts/**"
     min_level: L1
-    notes: 纯文案/文档可 L0；代码/配置至少 L1（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端按 `frontend-gate` §2.1 分级（`.gate/frontend/tier.json`）：A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity；该级缺一 BLOCKED。
+    notes: 纯文案/文档可 L0；代码/配置至少 L1（仍需受影响页面截图 + console 无 error）；触及权限/状态/数据基数/多表面不可留 L0，升档并过跨层一致。L1+ 前端按 `frontend-gate` §2.1 分级（`.gate/frontend/tier.json`）：A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity/ui-audit；该级缺一 BLOCKED。
   api:
     globs:
       - "**/api/**"
@@ -116,6 +116,7 @@ quality_gates:
   - nfr-baseline      # L2+：acceptance.nfr.security / nfr.performance（done+证据 或 na+理由）；门禁校验
   - perf-regression   # 性能敏感路径：预算/SQL 次数/首屏字节/基准或回归断言；无则债项
   - frontend-parity   # DEV-IQ-17；parity-matrix + route-coverage + 每路由截图；缺一 BLOCKED
+  - ui-audit          # frontend-gate §2#8；A/B UI 独立审计（逐路由/操作/一致性/后端可达）；缺/待验=BLOCKED
   - evidence-integrity # DEV-VER-14/15；测试日志/截图哈希/新鲜度/base_commit
   - reviewer-independence # DEV-VER-16；复审必须实际复跑最小断言
   - reliability        # 超时/重试/熔断/降级/健康检查/SLO/告警；验收清单短句或债项

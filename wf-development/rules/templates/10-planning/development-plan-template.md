@@ -35,16 +35,18 @@
 
 | 阶段 | 技能 | 状态 | 负责人 | 输入 | 动作 | 产出 | 门 | 证据 | 下一步 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| S0 输入检查 | 00 + 01§2 + change-intake | 未开始 | A: iterate-lead / R: implementer | PRD/原型/AC/收件箱 | 核对版本/缺口/环境/新输入 | 输入清单/问题 | G0 | {链接} | S1 |
-| S1 需求分析 | 01 | 未开始 | A: iterate-lead / R: implementer | 输入清单 | 功能点/AC/异常/权限/影响面 | 分析表 | G1 | {链接} | S2 |
-| S2 技术方案 | solution-design + technology-selection/database-design/api-design/frontend-design/threat-modeling/performance-and-capacity 按需 + engineering-quality | 未开始 | A: implementer / R: implementer | 分析表 | 架构/选型/DB/API/前端/安全/性能/观测/回滚/测试策略 | 方案/ADR（前端补设计时另出说明） | G2 | {链接} | S3 |
-| S3 任务与排期 | 06 | 未开始 | A: iterate-lead / R: iterate-lead | 方案 | 任务拆解/依赖/估算/DoR/DoD/检查点 | 任务清单 | G3 | {链接} | S4 |
-| S4 编码自测 | implementation-and-selftest + frontend-implementation/backend-implementation 按端 + engineering-quality | 未开始 | A: implementer / R: implementer | 任务清单 | 小步实现/单测/自测/文档 | 代码/证据 | G4 | {链接} | S5 |
-| S5 评审CI | 04 + quality | 未开始 | A: reviewer-agent / R: implementer | 代码/证据 | 代码评审/静态/安全/CI | 评审/CI 结果 | G5 | {链接} | S6 |
-| S6 提测 | 05 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 交 QA/环境/数据/回归指引 | 提测单/接收 | G6 | {链接} | S7 |
-| S7 测试缺陷 | 05 + 缺陷规则 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 测试/缺陷/回归 | 测试报告/缺陷记录 | G7 | {链接} | S8 |
-| S8 发布 | 07 | 未开始 | A: delivery-lead / R: delivery-lead | 上线检查单 | 审批/部署/冒烟/监控/回滚 | 发布记录 | G8 | {链接} | S9 |
-| S9 收尾复盘 | 08 | 未开始 | A: delivery-lead / R: iterate-lead | 发布记录 | 文档/总结/复盘/归档 | 总结/复盘 | G9 | {链接} | 关闭 |
+| S0 输入检查 | `development-plan` + `product-doc-analysis` + `requirements-and-spec` + `change-intake` | 未开始 | A: iterate-lead / R: implementer | PRD/原型/AC/收件箱 | 核对版本/缺口/环境/新输入 | 输入清单/问题 | G0 | {链接} | S1 |
+| S1 需求分析 | `requirements-and-spec` + `product-doc-analysis` + `cross-layer-consistency`（命中） | 未开始 | A: iterate-lead / R: implementer | 输入清单 | 功能点/AC/异常/权限/影响面 | 分析表 | G1 | {链接} | S2 |
+| S2 技术方案 | `solution-design` + `technology-selection`/`database-design`/`api-design`/`frontend-design`/`threat-modeling`/`performance-and-capacity` 按需 + `engineering-quality` | 未开始 | A: implementer / R: implementer | 分析表 | 架构/选型/DB/API/前端/安全/性能/观测/回滚/测试策略 | 方案/ADR（前端补设计时另出说明） | G2 | {链接} | S3 |
+| S3 任务与排期 | `task-breakdown` + `cross-layer-consistency`（命中） | 未开始 | A: iterate-lead / R: iterate-lead | 方案 | 任务拆解/依赖/估算/DoR/DoD/检查点 | 任务清单 | G3 | {链接} | S4 |
+| S4 编码自测 | `implementation-and-selftest` + `frontend-implementation`（含 §9 审计）/`backend-implementation` 按端 + `engineering-quality` | 未开始 | A: implementer / R: implementer | 任务清单 | 小步实现/单测/自测/跨端联调（真实接口）/前端完善审计（有 UI）/文档 | 代码/证据/ui-audit（有 UI） | G4 | {链接} | S5 |
+| S5 评审CI | `code-review` + `engineering-quality` | 未开始 | A: reviewer-agent / R: implementer | 代码/证据/ui-audit | 代码评审/静态/安全/CI | 评审/CI 结果 | G5 | {链接} | S6 |
+| S6 提测 | `qa-handoff-and-release` | 未开始 | A: iterate-lead / R: implementer | 提测单 | 交 QA/环境/数据/联调结论/回归指引 | 提测单/接收 | G6 | {链接} | S7 |
+| S7 测试缺陷 | `qa-handoff-and-release` + 缺陷规则 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 测试/缺陷/回归 | 测试报告/缺陷记录 | G7 | {链接} | S8 |
+| S8 发布 | `acceptance-and-launch` + `observability-and-instrumentation` | 未开始 | A: delivery-lead / R: delivery-lead | 上线检查单 | 审批/部署/冒烟/监控/回滚 | 发布记录 | G8 | {链接} | S9 |
+| S9 收尾复盘 | `retrospective-and-improvement` | 未开始 | A: delivery-lead / R: iterate-lead | 发布记录 | 文档/总结/复盘/归档 | 总结/复盘 | G9 | {链接} | 关闭 |
+
+> **执行入口**：阶段与链步映射见 `rules/packets/control/run` §5；S4 有 A/B UI 时在 implement 后、review 前走 `ui-audit`（独立审计），其结论与 `.gate/frontend/ui-audit.md` 是 G5 入口。
 
 状态：未开始 / 进行中 / 部分完成 / 阻塞 / 待评审 / 完成 / 不适用。  
 门：G0 输入就绪｜G1 需求分析｜G2 方案批准｜G3 排期确认｜G4 开发完成｜G5 评审/CI｜G6 提测就绪｜G7 测试通过｜G8 发布就绪｜G9 交付完成。  
@@ -93,6 +95,7 @@
 | --- | --- | --- | --- |
 | iterate-lead | S0/S1/S3/S6/S7/S9 | 编排、拆单、提测、缺陷跟进、收尾 | 计划/任务清单/提测单/收尾 |
 | implementer | S1/S2/S4/S5/S6 | 需求理解、方案、编码、自测、修复 | 分析/方案/代码/自测证据 |
+| ui-auditor | S4（有 UI） | 独立界面审计：逐路由/操作/状态/一致性/后端可达 | ui-audit/缺口清单 |
 | reviewer-agent | S5 | 独立评审/阶段门检查 | 评审结论/缺口 |
 | delivery-lead | S8/S9 | 发布就绪、部署、验证、复盘 | 上线检查单/发布记录/复盘 |
 | 产品（可选） | S0/S1/S7 | PRD/AC/验收口径 | 需求文档/UAT |
@@ -143,7 +146,7 @@
 - 缓冲：总量 `{…}`｜已消耗 `{…}`｜预警线 `{…}`（低于预警线 → 砍范围/拆波次/升级）
 - DoR：{…}
 - DoD：{…}
-- **阶段 DoR/DoD**：S1 入口=输入齐/AC 可测；S2 入口=需求签收；S3 入口=方案批准；S4 入口=清单确认/RP 覆盖；S5 入口=自测证据齐；S6 入口=完成门 `COMPLETE`；S8 入口=测试报告/UAT/上线检查单齐。每阶段出口=产出落盘+证据可打开+下一阶段输入具备。
+- **阶段 DoR/DoD**：S1 入口=输入齐/AC 可测；S2 入口=需求签收；S3 入口=方案批准（有前后端交互：接口契约已冻结或变更流程已定）；S4 入口=清单确认/RP 覆盖（有 UI：原型/契约已定）；S4 出口=自测证据+（A/B UI）`ui-audit` 通过（有前后端交互：联调证据齐）；S5 入口=自测证据+`ui-audit`+联调结论；S6 入口=完成门 `COMPLETE`；S8 入口=测试报告/UAT/上线检查单齐。每阶段出口=产出落盘+证据可打开+下一阶段输入具备。
 - **计划自适应**：见 §9.1；C2/C3 变更必须重基线并重过受影响门。
 - 分支/环境/发布策略：{…}
 - 主要风险：{…}

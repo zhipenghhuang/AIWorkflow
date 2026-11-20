@@ -18,11 +18,12 @@
 | 4 | `design` | `implementer` | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `confirm_spec` | 方案/ADR（{workroot}/20-design/） | `review-docs` | 停在本步/升级 |
 | 5 | `review-docs` | `doc-reviewer` | `do_landing_doc_review` | `select_review_mode`、`confirm_spec` | 评审-文档-*.md 或 HUMAN_APPROVED 声明 | `plan` | 停在本步/升级 |
 | 6 | `plan` | `iterate-lead` | `multi_file_or_new_feature_or_requested` | `confirm_backlog` | 任务清单 + 冻结的验收清单（{workroot}/40-tasks/） | `implement` | 停在本步/升级 |
-| 7 | `implement` | `implementer` | — | — | 代码/配置改动 | `review` | 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过 |
-| 8 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `verify` | 回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。 |
-| 9 | `verify` | `verifier-agent` | `work_changed_or_requested` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 验证回执 | `deliver` | 停在本步/升级 |
-| 10 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案（{workroot}/60-release/） | `closeout` | 停在本步/升级 |
-| 11 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
+| 7 | `implement` | `implementer` | — | — | 代码/配置改动 | `ui-audit` | 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过 |
+| 8 | `ui-audit` | `ui-auditor` | `ui_audit_required` | `gate:ui-audit` | .gate/frontend/ui-audit.md（页面×操作×状态×一致性×后端可达×原型缺陷×真实数据）+ 缺口/修复清单 | `review` | 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替 |
+| 9 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `verify` | 回 implement 补前端交付物/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。 |
+| 10 | `verify` | `verifier-agent` | `work_changed_or_requested` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 验证回执 | `deliver` | 停在本步/升级 |
+| 11 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案（{workroot}/60-release/） | `closeout` | 停在本步/升级 |
+| 12 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |
 
 ## 3. 推进
 

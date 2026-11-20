@@ -6,6 +6,7 @@ Used by the completion gate and runnable standalone before the gate.
 Expected artifacts in the evidence directory:
   - parity-matrix.md          human matrix (decoded prototype -> route/nav/component/field/state)
   - route-coverage.json       machine ledger (routes, menus, deep links, screenshots, console/network)
+  - ui-audit.md               independent UI completion audit (A/B; --require-audit)
 
 The JSON ledger is the machine source of truth. Each route must point to a
 desktop and a mobile screenshot; screenshot bytes must be unique per route.
@@ -23,6 +24,18 @@ from typing import Any
 
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp"}
 PLACEHOLDERS = ("{主题}", "{…}", "{...}", "TODO", "待填", "示例路由")
+AUDIT_SECTIONS = (
+    "## 1. 路由清单",
+    "## 2. 逐路由操作审计",
+    "## 3. 跨页一致性",
+    "## 4. 后端可达",
+    "## 5. 缺陷族与修复",
+    "## 6. 未覆盖",
+    "## 7. 结论",
+)
+AUDIT_PLACEHOLDERS = ("{主题}", "{任务ID}", "{…}", "{...}", "TODO", "待填")
+AUDIT_UNFINISHED = ("待验收", "待验证", "待补", "待验", "待确认", "未点通")
+AUDIT_CONSISTENCY = ("术语", "状态词", "组件", "密度", "主操作", "日期", "空态")
 
 
 def parse_ts(value: Any) -> float:
@@ -130,10 +143,131 @@ def _prototype_problems(project_root: Path) -> list[str]:
     return []
 
 
+def _section_text(text: str, heading: str) -> str:
+    """Return the body between a heading and the next level-2 heading."""
+    start = text.find(heading)
+    if start < 0:
+        return ""
+    start += len(heading)
+    tail = text[start:]
+    nxt = re.search(r"\n## ", tail)
+    return tail[: nxt.start()] if nxt else tail
+
+
+def audit_problems(evidence_dir: Path | str, routes: list[dict[str, Any]] | None = None,
+                   since: float = 0.0) -> list[str]:
+    """Validate .gate/frontend/ui-audit.md (independent UI completion audit)."""
+    ev = Path(evidence_dir)
+    path = ev / "ui-audit.md"
+    if not path.is_file():
+        return ["缺少 ui-audit.md（A/B UI 须由独立 ui-auditor 逐路由/操作审计）"]
+    problems: list[str] = []
+    text = path.read_text(encoding="utf-8-sig", errors="replace")
+    if len(text.strip()) < 600:
+        problems.append("ui-audit.md 内容过短，疑似未填")
+    for heading in AUDIT_SECTIONS:
+        if heading not in text:
+            problems.append(f"ui-audit.md 缺少章节: {heading}")
+    for token in AUDIT_PLACEHOLDERS:
+        if token in text:
+            problems.append(f"ui-audit.md 仍含占位符: {token}")
+    low = text.lower()
+    for token in AUDIT_UNFINISHED:
+        if token.lower() in low:
+            problems.append(f"ui-audit.md 存在未完成标记: {token}")
+            break
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = {cell.strip().lower() for cell in stripped.strip("|").split("|")}
+        if cells & {"pending", "partial", "未测", "未验证"}:
+            problems.append("ui-audit.md 存在未完成状态: pending/partial/未测")
+            break
+    if not re.search(r"task_id[：:]\s*\S+", text):
+        problems.append("ui-audit.md 缺 task_id")
+    if not re.search(r"tier[：:]\s*[ABC]", text, re.I):
+        problems.append("ui-audit.md 缺 tier（A/B/C）")
+    if since and path.stat().st_mtime + 1 < since:
+        problems.append("ui-audit.md 早于本轮任务/代码变更（重新审计）")
+
+    sec1 = _section_text(text, "## 1. 路由清单")
+    if len(sec1.strip()) < 40:
+        problems.append("ui-audit.md §1 路由清单未填")
+    sec3 = _section_text(text, "## 3. 跨页一致性")
+    missing = [item for item in AUDIT_CONSISTENCY if item not in sec3]
+    if missing:
+        problems.append(f"ui-audit.md §3 跨页一致性缺项: {missing}")
+    sec4 = _section_text(text, "## 4. 后端可达")
+    if not re.search(r"无写|不适用|non-ui", sec4) and "/" not in sec4:
+        problems.append("ui-audit.md §4 后端可达未填（写端点→页面入口/结果）")
+    sec5 = _section_text(text, "## 5. 缺陷族与修复")
+    if re.search(r"未修复|待修|未回归|待补|pending", sec5, re.I):
+        problems.append("ui-audit.md §5 仍有未关闭缺陷/优化项")
+    sec6 = _section_text(text, "## 6. 未覆盖")
+    if not re.search(r"无", sec6):
+        problems.append("ui-audit.md §6 未覆盖必须写「无」；有缺口=未完成")
+    if re.search(r"未测|未验证|待补|待验", sec6):
+        problems.append("ui-audit.md §6 仍有未覆盖项")
+    sec7 = _section_text(text, "## 7. 结论")
+    if "不通过" in sec7 or "有条件" in sec7:
+        problems.append("ui-audit.md 结论必须为通过（不通过/有条件=未完成）")
+    elif not re.search(r"结论[：:]\s*(通过|pass)", sec7, re.I):
+        problems.append("ui-audit.md 结论缺「通过」")
+
+    if "无原型" not in text:
+        if "原型缺陷" not in text or "照搬" not in text or "择优" not in text:
+            problems.append("ui-audit.md 缺原型缺陷清单（照搬/择优）")
+    if "真实数据" not in text or "稀疏" not in text or "大数" not in text:
+        problems.append("ui-audit.md 缺真实数据三形态（稀疏/空/大数）")
+
+    if routes is None:
+        routes = []
+        coverage = ev / "route-coverage.json"
+        if coverage.is_file():
+            try:
+                data = json.loads(coverage.read_text(encoding="utf-8-sig"))
+                if isinstance(data, dict) and isinstance(data.get("routes"), list):
+                    skip = {str(item).strip() for item in (data.get("matrix_skip") or [])}
+                    routes = [
+                        r for r in data["routes"]
+                        if isinstance(r, dict)
+                        and str(r.get("route") or r.get("matrix_route") or "").strip() not in skip
+                    ]
+            except Exception:
+                routes = []
+    headings = [line.strip() for line in text.splitlines() if line.lstrip().startswith("#")]
+    for route in routes:
+        route_name = str(route.get("route") or "").strip()
+        matrix_route = str(route.get("matrix_route") or route_name).strip()
+        if not matrix_route:
+            continue
+        if not any(matrix_route in heading for heading in headings):
+            problems.append(f"ui-audit.md 缺少路由区块: {matrix_route}（### 标题含路由）")
+            continue
+        section = ""
+        active = False
+        for line in text.splitlines():
+            if line.lstrip().startswith("#"):
+                active = matrix_route in line
+            if active:
+                section += line + "\n"
+        if len(section.strip()) < 80:
+            problems.append(f"ui-audit.md 路由 {matrix_route} 区块未填")
+        operations = route.get("operations")
+        if isinstance(operations, list):
+            for operation in operations:
+                name = str(operation).strip()
+                if name and name not in section:
+                    problems.append(f"ui-audit.md 路由 {matrix_route} 缺操作: {name}")
+    return problems
+
+
 def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = "",
              require_matrix: bool = True, require_generated: bool = False,
              require_matrix_routes: bool = False,
              require_tier: bool = False, require_prototype: bool = False,
+             require_audit: bool = False,
              project_root: Path | str | None = None) -> tuple[list[str], dict[str, Any]]:
     ev = Path(evidence_dir)
     problems: list[str] = []
@@ -151,13 +285,19 @@ def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = ""
     coverage_path = ev / "route-coverage.json"
     if not coverage_path.is_file():
         problems.append("缺少 route-coverage.json（前端路由/菜单/深链覆盖清单）")
+        if require_audit:
+            problems.extend(audit_problems(ev, routes=[], since=since))
         return problems, stats
     try:
         data = json.loads(coverage_path.read_text(encoding="utf-8-sig"))
     except Exception as exc:
-        return [f"route-coverage.json 不可解析: {exc}"], stats
+        problems.append(f"route-coverage.json 不可解析: {exc}")
+        if require_audit:
+            problems.extend(audit_problems(ev, routes=[], since=since))
+        return problems, stats
     if not isinstance(data, dict):
         return ["route-coverage.json 顶层必须是对象"], stats
+    matrix_skip = {str(item).strip() for item in (data.get("matrix_skip") or [])}
 
     if str(data.get("schema", "")).strip() not in ("1", "1.0"):
         problems.append("route-coverage.json: schema 必须为 1")
@@ -375,7 +515,6 @@ def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = ""
 
             headings = [line.strip() for line in text.splitlines()
                         if line.lstrip().startswith("#")]
-            matrix_skip = {str(item).strip() for item in (data.get("matrix_skip") or [])}
             if require_matrix_routes:
                 for route in routes:
                     route_name = str(route.get("route") or "").strip()
@@ -407,6 +546,13 @@ def validate(evidence_dir: Path | str, since: float = 0.0, base_commit: str = ""
                             f"parity-matrix.md 路由 {matrix_route} 缺少操作: {name}"
                         )
 
+    if require_audit:
+        audit_routes = [
+            r for r in routes
+            if str(r.get("route") or r.get("matrix_route") or "").strip() not in matrix_skip
+        ]
+        problems.extend(audit_problems(ev, routes=audit_routes, since=since))
+
     return problems, stats
 
 
@@ -424,6 +570,8 @@ def main() -> int:
                         help="要求 tier.json 存在且合法（实施开工前声明）")
     parser.add_argument("--require-prototype", action="store_true",
                         help="要求 project-profile 声明 prototype= 且已解码到 .gate/prototype")
+    parser.add_argument("--require-audit", action="store_true",
+                        help="要求 ui-audit.md 结论通过，并与 route-coverage 的路由/操作对账")
     parser.add_argument("--project-root", default="",
                         help="项目根（默认由 evidence-dir 推断）")
     parser.add_argument("--write", default="", help="把结果 JSON 写入该路径（实施出口回执）")
@@ -436,6 +584,7 @@ def main() -> int:
                                require_matrix_routes=args.require_matrix_routes,
                                require_tier=args.require_tier,
                                require_prototype=args.require_prototype,
+                               require_audit=args.require_audit,
                                project_root=args.project_root or None)
     if args.write:
         receipt = {

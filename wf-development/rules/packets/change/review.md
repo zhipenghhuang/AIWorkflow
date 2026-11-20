@@ -7,10 +7,10 @@
 - **workflow / step**：`change` / `review`（代码评审）
 - **packet**：`rules/packets/change/review.md`
 - **角色**：`reviewer-agent`（代码评审/独立核验）。RP/AC/SC↔改动文件↔验证输出对账；只报正确性/需求覆盖/安全/性能/范围/体验三维缺口；核验不替代机器门禁；本步只做该角色职责；越界交回或升级。
-- **前置**：前端变更（页面/路由/静态资源）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；非前端/低档→无。
-- **上游**：`implement`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
+- **前置**：前端变更（页面/路由/静态资源；A/B 档）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空，且 `.gate/frontend/ui-audit.md` 结论=通过；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；非前端/低档→无。
+- **上游**：`ui-audit`（取其产出为本步输入；该步被 `when` 跳过则记 `skip=`，不因缺上游阻塞，除非本步硬依赖其产出）
 - **后续**：`verify`（进 `verify` 前的 `when=work_changed_or_requested`）
-- **失败去向**：回 implement 补前端交付物/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
+- **失败去向**：回 implement 补前端交付物/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
 - **条件判定 `when:review_required`**：有实施且（L2+/L3，或高风险/大改/破坏性，或 **L2+ 新功能**，或 **L1+ 用户可见 UI 命中前端硬门 A 级**，或 **L1 命中安全/性能/并发/数据面**，或点名）；满足→真，否则跳过本步（不打开本包）。
 - **轻量路径**：纯文档/无行为/无 UI 时，可将预检、前端硬门标 `na`（一句理由）；**必开技能与 Claim/HITL 不降**。
 
@@ -49,7 +49,7 @@
 - 先读方案段再对 diff。
 - P0 告警/拒单挂债=阻断。
 - 写 .gate/review.md。
-- 有 UI 核 parity 产物。
+- 有 UI 核 parity + ui-audit 产物并抽 2 个操作复点。
 - 免审须记理由。
 - 免审不免自测。
 - 方法只认 code-review。
@@ -75,6 +75,7 @@
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
 | 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED。**能力可达行（硬）**：写端点→页面入口/动作/证据；无入口标 `non-ui` 并确认；只写接口可调=BLOCKED。 |
 | 7 | 独立评审（`review_required`） | 评审前必须按 §2.5 打开当前迭代原型（解码产物），逐路由核对矩阵/截图/操作；未见原型、矩阵缺路由或操作、截图与原型不符 = `DENIED`。只看代码/测试/API 200 不得过 |
+| 8 | `.gate/frontend/ui-audit.md` | 独立 `ui-auditor`（≠实施者）逐路由页面/操作/状态/跨页一致性/后端可达实操；每条路由有 `###` 区块，`operations` 与 parity-matrix/route-coverage 对账；原型缺陷（照搬/择优）与真实数据（稀疏/空/大数）必填；结论=通过；含待验/未点通/缺口 = 未完成 |
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 >
@@ -86,21 +87,24 @@
 
 | 级别 | 适用 | 必产物 |
 | --- | --- | --- |
-| **A 关键** | 崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + 独立评审 |
-| **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network |
-| **C 轻量** | 纯文案/列名/单位/排序/灰显/颜色等呈现调整，无行为变化 | **受影响路由 1 张桌面截图** + 文案/状态核对表（可并入 design-qa）+ console error=0；不要求移动截图与 parity-matrix |
+| **A 关键** | 崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + **ui-audit** + 独立评审 |
+| **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network + **ui-audit（受影响路由）** |
+| **C 轻量** | 纯文案/列名/单位/排序/灰显/颜色等呈现调整，无行为变化 | **受影响路由 1 张桌面截图** + 文案/状态核对表（可并入 design-qa）+ console error=0；**免独立 ui-audit**、不要求移动截图与 parity-matrix |
 
 - **缺陷族审计**：A 级仍须同波次族审计；B/C 级做**同类路径静态扫描**（同模型/同谓词/同状态表面）+ 受影响路由验证，不要求全站矩阵重拍。
 - **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
-- **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验。
+- **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验，另以 `--require-audit` 校验 `ui-audit`（缺/待验/未点通 = BLOCKED）。
 
 #### 前端门 2.5. 原型单源与实施出口（硬）
 
 - **原型单源**：当前迭代原型的路径与版本只认实例档案 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`。缺声明、文件不存在、或与当前迭代/`VERSION` 不符 = `BLOCKED`，先补实例再动代码；**禁止在入口 `AGENTS`/通用规则里硬编码原型路径**（实例数据下沉，见 `rule-governance.md` §2.1）。
-- **实施出口机检（硬 · 由 git 钩子强制）**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes`）并写 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。本项目须安装 `verify/Install-GitHooks.ps1` 的 pre-commit 钩子：`gate.json` 缺失/ok=false/早于暂存前端文件即阻断提交；绕过仅 `git commit --no-verify` 或 `DSH_GATE_BYPASS=1`（后者写 `.gate/precommit-bypass.log` 留痕，评审必查）。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
+- **实施出口机检（硬 · 由 git 钩子强制）**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes --require-audit`）并写 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。本项目须安装 `verify/Install-GitHooks.ps1` 的 pre-commit 钩子：`gate.json` 缺失/ok=false/早于暂存前端文件、或 A/B `ui-audit` 缺失/早于本轮前端改动即阻断提交；绕过仅 `git commit --no-verify` 或 `DSH_GATE_BYPASS=1`（后者写 `.gate/precommit-bypass.log` 留痕，评审必查）。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
 - **唯一例外**：无原型的项目可在 `project-profile.md` 的 `frontend.requirePrototype=false` 写明理由（此时跳原型单源，但仍须设计基线与逐路由截图）；缺省为 `true`，不得口头豁免。
 - **原型可复用优先（硬）**：原型可运行/可解码时，默认**移植**其结构、样式与渲染函数（含图表/表格/弹层/空态）再替换数据接口；不得凭文字描述重写同一交互。移植清单与差异写进矩阵（`移植` / `按方案` / `择优：收益`）；原型不可运行或仅静态稿 → 按设计基线实现。选择依据写一行，不要求新文档。
 - **原样优先、择优留痕**：布局/组件/视觉/文案以原型为准；偏离必须在矩阵标 `按方案` 或 `择优：<收益>`，且不得降低密度、可读性或操作路径（§4）；找不到原型或未对照就自创布局 = 未完成。
+- **原型缺陷识别（硬）**：移植 ≠ 照抄。移植前必须列出原型在该页的**缺陷清单**（数据稀疏导致布局失真、空态缺失、文案错误/写死示例日期、交互死点），逐条标 `照搬`（原型合理）或 `择优：<收益>`（原件有缺陷）；未标注或发现缺陷仍照抄 = 未完成。稀疏/空/大数三种真实数据形态必须各自可读。
+- **独立视觉复核（硬）**：`parity-matrix.md` 的 `pass` 不得由实现者自评——须由非实现者用图像逐路由复核原型与实现截图后确认；本链由 `ui-audit` 步的 `ui-auditor` 执行，reviewer 抽核；实现者自评 `pass` 视为未验证。
+- **界面完善审计（硬 · 独立）**：A/B UI 在 `review` 前由 `ui-auditor`（≠实施者）逐路由逐操作点通，落 `.gate/frontend/ui-audit.md`；只审改动页、只看矩阵截图、接口 200 = 未审计；缺口回 implement 修并回归；UI 缺口不得债项化。C 档免独立审计（文案/状态核对并入 `design-qa`）。
 - **图文自检（硬）**：实施者与评审者必须**用图像读取本轮截图**（至少桌面每路由 1 张、关键页移动 1 张）并与原型截图/解码结构逐项对照；**只看 `ready`/console/哈希/接口 200 视为未验证**。原型侧同样落图（§3-1 解码产物或浏览器按路由截图 → `.gate/prototype/`），无原型侧图像不得判 `pass`。视觉缺陷（元素重叠/截断/错位/层级混乱/控件错型）按 `BLOCKED` 处理，不得记债项。
 
 ### 前端门 3. 必命令（RUN）
@@ -117,9 +121,12 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 # 3) 机检（实施出口 / 评审 / 完成门同一命令；L2+ 必带 --require-generated）
 python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend \
   --require-prototype --require-tier --require-generated --require-matrix-routes \
-  --write .gate/frontend/gate.json
+  --require-audit --write .gate/frontend/gate.json
 
-# 3b) 首次接入：安装提交前钩子（之后 git commit 自动校验 gate.json / plan-coverage）
+# 3a) 审计前 parity 自检可去掉 --require-audit；进入 ui-audit/评审/提交/完成门前必须带。
+#     ui-audit 步：独立 ui-auditor 按模板填 .gate/frontend/ui-audit.md 后跑上面命令。
+
+# 3b) 首次接入：安装提交前钩子（之后 git commit 自动校验 gate.json / ui-audit / plan-coverage）
 powershell -File <包>/verify/Install-GitHooks.ps1 -ProjectRoot .
 
 # 4) 完成口令：门末自动输出 CLAIM；仅复核时执行（本步无 completion-gate 则跳过）
@@ -136,6 +143,9 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations` 必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
 - `operations` 逐项点通（入口→点击→结果/权限/错误）；静态图不算。
 - 写接口须有页面入口或已确认 `non-ui`；接口替代页面=未完成。
+- **审计底线（硬）**：A/B 每个可见操作实际点通；跨页术语/状态词/KPI/组件/密度/主操作/日期筛选一致；写端点有页面入口或 `non-ui`；缺一 = 未完成。审计不替代测试/准出。
+- **真实数据（硬）**：稀疏/空/大数三形态各验一次；只满数据截图 = 未验证；原型满数据 mock 不能作为通过依据。
+- **审计未过不得进 review/提交/Claim**；缺口回 implement 修并回归；UI 缺口不得债项化。
 - 正式入口禁用固定样例（demo 关）；缺数据显示空态。
 - **附条件不覆盖前端门**：评审/完成门的「附条件」只能用于 OCR、PG、真实样单等非 UI 项；矩阵/截图/console/network 未过只能按 `DEV` 回开发，不得写成 `QA` 条件换取通过。
 - **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜。**顺序**：代码/测试/脚本定稿→重拍→回写→提交→过门；改脚本/测试同重拍。
@@ -160,6 +170,7 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - MCP 不可用不做浏览器兜底仍标完成。
 - 对带状态的共享模块只 bump 部分引用的 `?v=`/hash（易双例：确认挂死、权限态分裂）。
 - 未跑 §2.5 实施出口机检就提交或标完成；`tier.json` 缺失先写代码后补。
+- 未做 `ui-audit`、用实施者自评/矩阵/截图代替独立审计；只审改动页、未点通操作、未核对后端可达就判通过。
 - 把原型路径/版本等实例数据写进入口 `AGENTS` 或通用规则（应落 `project-profile.md`）。
 - 原型未对照、矩阵无 `###` 路由区块、或截图与原型不符时以「测试绿/接口 200」判通过。
 
