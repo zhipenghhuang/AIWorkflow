@@ -24,7 +24,9 @@
 **内置 zentao**（仅 provider=zentao 且适配写「内置」）：
 
 API 直连；Token：`POST /api.php/v1/tokens`。列表/详情/解决/指派：v1。附件：v2 `/files` 字段 **`file`**；**非 ASCII 文件名须按 UTF-8 原字节写入 multipart `filename`**（防 .NET 自动转 MIME 编码致乱码）；**回查用 `GET /api.php/v2/files/{fileId}` 核对 `objectType/objectID`**（实测：v1 缺陷详情 `files` 字段可为空数组，**不得**据此判未挂载）。禁删 Bug。  
-解决码/状态/指派映射见 `rules/templates/40-delivery/defect-writeup-template.md` §6.9；未适配先补档案，禁猜。
+**备注写回**：状态与备注同轮（文案 §6.9）；**禁只改状态不写备注**。写错优先编辑原备注；禅道开放接口通常**不能**改历史 action 备注 → 仅允许一条 `【更正】` 标明「以上条为准/作废哪条」，**禁**连环追加冲突结论、**禁**探测备注留在正式单。  
+解决码/状态/指派映射见 `rules/templates/40-delivery/defect-writeup-template.md` §6.9；未适配先补档案，禁猜。  
+**备注写回（硬）**：状态与备注同轮，**禁只改状态不写备注**。写错优先编辑原备注；禅道开放 API **通常不能改历史 action 备注** → 仅允许一条 `【更正】`（首行点明作废哪条/以本条为准），**禁**连环追加、探针备注留在正式单、多条互相打架的结论并存却无最终更正。
 
 ## 其它 provider
 

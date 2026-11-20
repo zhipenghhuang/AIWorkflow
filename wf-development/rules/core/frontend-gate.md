@@ -43,7 +43,7 @@
 ### 2.5 原型单源与实施出口（硬）
 
 - **原型单源**：当前迭代原型的路径与版本只认实例档案 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`。缺声明、文件不存在、或与当前迭代/`VERSION` 不符 = `BLOCKED`，先补实例再动代码；**禁止在入口 `AGENTS`/通用规则里硬编码原型路径**（实例数据下沉，见 `rule-governance.md` §2.1）。
-- **实施出口机检**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes`），并把结果写入 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
+- **实施出口机检（硬 · 由 git 钩子强制）**：任何 UI 改动的**提交前**或标“完成”前，必须执行 §3-3 机检（含 `--require-prototype --require-tier --require-generated --require-matrix-routes`）并写 `.gate/frontend/gate.json`；失败 = **不得 commit、不得标完成**。本项目须安装 `verify/Install-GitHooks.ps1` 的 pre-commit 钩子：`gate.json` 缺失/ok=false/早于暂存前端文件即阻断提交；绕过仅 `git commit --no-verify` 或 `DSH_GATE_BYPASS=1`（后者写 `.gate/precommit-bypass.log` 留痕，评审必查）。实现步骤回执写 `frontend_gate=pass|BLOCKED:<条目>`；评审与完成门读同一回执，不重复拍图。
 - **唯一例外**：无原型的项目可在 `project-profile.md` 的 `frontend.requirePrototype=false` 写明理由（此时跳原型单源，但仍须设计基线与逐路由截图）；缺省为 `true`，不得口头豁免。
 - **原型可复用优先（硬）**：原型可运行/可解码时，默认**移植**其结构、样式与渲染函数（含图表/表格/弹层/空态）再替换数据接口；不得凭文字描述重写同一交互。移植清单与差异写进矩阵（`移植` / `按方案` / `择优：收益`）；原型不可运行或仅静态稿 → 按设计基线实现。选择依据写一行，不要求新文档。
 - **原样优先、择优留痕**：布局/组件/视觉/文案以原型为准；偏离必须在矩阵标 `按方案` 或 `择优：<收益>`，且不得降低密度、可读性或操作路径（§4）；找不到原型或未对照就自创布局 = 未完成。
@@ -64,6 +64,9 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend \
   --require-prototype --require-tier --require-generated --require-matrix-routes \
   --write .gate/frontend/gate.json
+
+# 3b) 首次接入：安装提交前钩子（之后 git commit 自动校验 gate.json / plan-coverage）
+powershell -File <包>/verify/Install-GitHooks.ps1 -ProjectRoot .
 
 # 4) 完成口令：门末自动输出 CLAIM；仅复核时执行（本步无 completion-gate 则跳过）
 powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
