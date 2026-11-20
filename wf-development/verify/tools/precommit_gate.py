@@ -132,6 +132,31 @@ def check_plan_coverage(root: Path) -> list[str]:
     return problems
 
 
+
+
+AUDIT_DIM_PREFIX = "| "
+AUDIT_MIN_DIMS = 20
+
+
+def check_ui_audit(root: Path) -> list[str]:
+    """ui-audit.md 必须覆盖 20 个维度且无待填。"""
+    path = root / ".gate" / "frontend" / "ui-audit.md"
+    if not path.is_file():
+        return ["缺少 .gate/frontend/ui-audit.md（A/B UI 须按模板 20 维审计）"]
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    problems = []
+    for number in range(1, AUDIT_MIN_DIMS + 1):
+        if f"| {number} |" not in text:
+            problems.append(f"ui-audit.md 缺维度 {number}")
+            break
+    if "待填" in text:
+        problems.append("ui-audit.md 仍有『待填』")
+    review = root / ".gate" / "frontend" / "ui-review.md"
+    if not review.is_file() or "INDEPENDENT_REVIEW: PASS" not in review.read_text(encoding="utf-8", errors="ignore"):
+        problems.append("缺独立复核 PASS（.gate/frontend/ui-review.md 须含 INDEPENDENT_REVIEW: PASS）")
+    return problems
+
+
 def main() -> int:
     root = Path.cwd()
     for index, arg in enumerate(sys.argv[1:]):
@@ -148,6 +173,8 @@ def main() -> int:
         problems.extend(check_frontend(root, frontend))
     if code and level_of(root) in ("L2", "L3"):
         problems.extend(check_plan_coverage(root))
+    if frontend:
+        problems.extend(check_ui_audit(root))
 
     if not problems:
         return 0

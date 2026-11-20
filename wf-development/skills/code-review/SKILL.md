@@ -36,7 +36,7 @@ description: Use before merge or when the user asks for code review. Review corr
 - 通过/需修结论 + 缺口清单；不重写代码（建议级，修复由实施完成）。
 - 只报影响正确性/需求覆盖/安全/性能的问题；不为假想场景要求防御（防过度设计）。
 - **评审记录**（同时写 `.gate/review.md`）：`reviewer` / `implementer` / `verdict=通过|需修`（多轮取最终，文首一行）/ 评审范围（diff/提交，必须覆盖本轮门禁 diff）/ `review_required` 与免审理由（如适用）/ **AC 覆盖**（已覆盖/未覆盖/不适用+依据）/ **SC 对账**（同上；无行为变化写 `na`）/ 缺口清单 / 证据路径。门按 `reviewer:`/`implementer:`/`verdict:` 键值行解析。A 级/L2+ 缺记录、缺 SC 对账（非 na）、reviewer=implementer、`self_review` 充当正式独立评审、或评审范围小于门禁 diff → 完成门 BLOCKED（DEV-VER-06）。
-- **S5/结项评审附条件分流（硬）**：附条件/重要项必须附 `DEV/QA/PRODUCT` 分流表（`rules/core/verification.md` §2.2）；`DEV`=开发未实现/缺陷，不得写成“测试条件/QA 范围”绕过；`QA`=已实现待测试执行，须有入口/数据/预期；`PRODUCT`=范围/AC 待决策。`DEV` 未清零或书面裁剪+债项 → 不得判 S6 可提测。分流表放 S5 报告/计划，**不写入测试提测单**。
+- **S5/结项评审附条件分流（硬）**：附条件/重要项必须附 `DEV/QA/PRODUCT` 分流表（`rules/core/verification.md` §2.2）；`DEV`=开发未实现/缺陷，不得写成“测试条件/QA 范围”绕过；`QA`=已实现待测试执行，须有入口/数据/预期；`PRODUCT`=范围/AC 待决策。`DEV` 未清零或书面裁剪+债项 → 不得判 S6 可提测。分流表放 S5 报告/计划，**不写入测试提测单**。`PRODUCT` 项须写方案条款号；无条款可引 → 回 `DEV` 或关闭（先证源），不得以「待产品」过门。
 
 ### 4.0 方案一致性（并入需求覆盖，不另开轴）
 
