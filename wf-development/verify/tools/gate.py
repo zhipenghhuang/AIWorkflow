@@ -1180,6 +1180,8 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
         problems.append("missing design-qa.md")
     else:
         text = qa.read_text(encoding="utf-8-sig", errors="replace")
+        if "并排" not in text:
+            problems.append("design-qa.md 缺同视口并排对照（#8/#11）")
         rows: dict[int, tuple[str, str]] = {}
         for line in text.splitlines():
             if not line.strip().startswith("|"):

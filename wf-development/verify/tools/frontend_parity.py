@@ -204,6 +204,8 @@ def audit_problems(evidence_dir: Path | str, routes: list[dict[str, Any]] | None
         problems.append("ui-audit.md 缺 task_id")
     if not re.search(r"tier[：:]\s*[ABC]", text, re.I):
         problems.append("ui-audit.md 缺 tier（A/B/C）")
+    if "区块间距" not in text or "并排" not in text:
+        problems.append("ui-audit.md 缺少同视口并排对照/区块间距证据（第 2/3/7 维）")
     if since and path.stat().st_mtime + 1 < since:
         problems.append("ui-audit.md 早于本轮任务/代码变更（重新审计）")
 

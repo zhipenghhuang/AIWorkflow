@@ -28,7 +28,7 @@ steps:
   agent: iterate-lead
   output: 前置检查结果（需求签收/方案批准/清单/handoff/缺口）
   notes: 缺理解包/未签收方案 → 回 change.analyze_input 或 requirements/design/review-docs；交接包先 receive。 禁本步 -StartTask。并行/关账见 iteration-delivery
-    + `rules/doc-governance.md`。
+    + `rules/doc-governance.md`。**进 plan 前须产出未决清单（P/S/D）并清零**：P/S 交用户/产品确认，D 由用户确认或书面按建议；未清零不得进 plan。
 - name: 读方案与拆清单
   id: plan
   skills:
