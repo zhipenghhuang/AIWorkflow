@@ -175,7 +175,7 @@
 
 **D. 自检与出口（完成前）**
 - **图文自检 + 真实数据**：实施者与评审者必须用图像读截图逐面板/逐交互核对，并用稀疏 / 空 / 大数三种真实数据形态各验一次；只看 ready/console/哈希/接口 200 = 未验证。
-- **交互两级证据（硬）**：一级＝按 `interactions.yaml` 的流用例（可用 `page.route` mock 成功/失败/延迟），证明状态机/竞态/关闭重置；二级＝至少一条不打 mock 的真实入口 happy path，证明集成可用。两级都要有；只跑 mock 或只点一次都不算。
+- **交互两级证据（硬）**：一级＝按 `interactions.yaml` 的流用例（可用 `page.route` mock 成功/失败/延迟），证明状态机/竞态/关闭重置；二级＝至少一条不打 mock 的真实入口 happy path，证明集成可用（含**写成功后的首个只读**，不得以手刷后成功顶替）。两级都要有；只跑 mock 或只点一次都不算。
 - **独立视觉与流复核**：矩阵、`20 维`、flow 结果的 `pass` 不得实现者自评；非实现者须抽核同视口并排/区块间距，并核 `flow → transition/invariant → case → 结果` 映射；断言与 spec 不符 = `DENIED`。
 - **实施出口机检（git 钩子强制）**：UI 改动提交/标完成前必须跑 §3-3 机检（含 `--require-interactions`）并写 `.gate/frontend/gate.json`；缺/`ok=false`/早于暂存文件即阻断。绕过仅 `--no-verify` 或 `DSH_GATE_BYPASS=1`（写 `.gate/precommit-bypass.log`，评审必查）。
 
