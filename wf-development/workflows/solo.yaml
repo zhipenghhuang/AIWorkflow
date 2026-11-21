@@ -77,13 +77,15 @@ steps:
   hitl: confirm_spec
   precondition: product 已完成；方案卡 §0/§1 已冻结；产品/AC 未确认不得写技术方案
   on_fail: 回 product 修产品分析；范围/AC 不清先停下说明
-  output: 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
+  output: 方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）；有 A/B UI 另出 iteration-context + 前端设计说明
+    + interactions
   notes: 技能：`skills/solution-design/SKILL.md` + `skills/task-breakdown/SKILL.md`（任务拆分）+ `skills/engineering-quality/SKILL.md`；模板
     `rules/templates/30-planning-tasks/solution-card-template.md`。 本步只写方案卡方案/验收部分（§2/§3/§4/§6/§9），不写产品分析/测试计划，不改代码。 必填：改动面/接口/数据/兼容/回滚、任务（文件/AC）、方案卡
     §3.1 的 SC 表（方案条款/来源/落点/入口类型/证据；无行为变化写「不适用」）、验收表（ID/验收标准/检查/证据）、风险/假设/待确认。 验收表必须可被 `<包>/verify/Invoke-Gate.ps1` 读取；每条 AC
     有检查与证据。 **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review），方案卡
     §4 仅供 L0/L1。 接口/库表/选型：命中即整卡读 `api-design`/`database-design`/`technology-selection`（未命中记 na+理由）。 自检：AC 可观测；每个任务有文件与验证；不把「应该/正常」写成验收。
-    需要正式发布/QA/UAT/交接 → 转完整链；代码/文档评审在本链按条件执行；技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；确认后进
+    需要正式发布/QA/UAT/交接 → 转完整链；代码/文档评审在本链按条件执行；技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。 有 A/B UI 按 `frontend-design-spec-template`
+    产前端对照计划、按 `frontend-interaction-spec-template` 产 `interactions`；flow 任务拆到迁移/不变量，基线阶段不择优。 confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」；确认后进
     review_docs（条件）→ test_plan（代码/配置）或 build（纯文档）；「只出轻量方案」→ 本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。 测试分析与计划由
     test_plan 步产出；本步不写测试计划/执行结果。 在方案卡 §9 写 review_required（true/false + 理由；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能 → true）和 do_landing_doc_review（true/false
     + 理由；L2+/高风险/新功能/落地文档 → true）；§9 过程证据填理解包/方案/评审记录/安全/回滚（gate 读取；可指本卡；未产生写不适用）。 更新 `{workroot}/INDEX.md`/`activeContext.md`（有变化时）。
@@ -135,12 +137,17 @@ steps:
   must_read:
   - rules/packets/solo/build.md
   agent: implementer
-  precondition: design 已确认；代码/配置：测试分析与计划已产出；do_landing_doc_review=true → review_docs 已通过；need_select_review_mode 曾为真 → test_plan
-    评审已过；方案卡验收表已冻结；范围/AC 未确认不得写代码
+  hitl:
+  - name: confirm_ui_spec
+    when: ui_spec_required
+  - name: confirm_optimize
+    when: ui_optimize_requested
+  precondition: design 已确认；代码/配置：测试分析与计划已产出；A/B UI 须有 iteration-context + 前端设计说明 + interactions（缺则本步先产出并过 confirm_ui_spec）；
+    do_landing_doc_review=true → review_docs 已通过；need_select_review_mode 曾为真 → test_plan 评审已过；方案卡验收表已冻结；范围/AC 未确认不得写代码
   on_fail: 回 design 或 test_plan；范围超出先停下说明
-  output: 代码/配置改动 + 自测证据
+  output: 代码/配置改动 + 自测证据；A/B UI 另含 flow 用例结果
   notes: 本步任务：按方案卡验收表实施并自测。硬门槛：-StartTask；勾选 `rules/core/iq-checklist.md`；命中面先扩 SC/债项；SC 差集=0；单元=一条 SC；禁刷绿；有 UI 守前端硬门。方法见
-    §6；词典索引 `rules/core/implementation-quality.md`。本步不自称已评审；超方案卡先停。
+    §6；词典索引 `rules/core/implementation-quality.md`。A/B UI 按 flow 任务实施（一条迁移/不变量一个可验证单元），先跑流用例再进下一 flow；基线阶段不择优。本步不自称已评审；超方案卡先停。
 - name: 界面完善审计
   id: ui-audit
   skills:
@@ -152,10 +159,12 @@ steps:
   agent: ui-auditor
   gate: ui-audit
   gate_type: checklist
-  precondition: build 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 build
+  precondition: build 完成；iteration-context/tier/parity-matrix/route-coverage/design-qa/interactions/playwright-results.json
+    已生成；缺则回 build
   on_fail: 回 build 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
-  output: .gate/frontend/ui-audit.md + 缺口/修复清单
-  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 build；不改码、不跑完成门。
+  output: .gate/frontend/ui-audit.md（路由×20 维×交互流×一致性×后端可达×原型缺陷×真实数据×独立复核）+ 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；按模板逐路由/20 维/flow 实操；flow 的每条 transition/invariant 对用例结果；跨页一致性 + 后端可达 + 真实数据三形态；探索发现新迁移回写 spec+test；
+    产物/机检按本包前端硬门；缺口回 build；不改码、不跑完成门。
 - name: 代码评审
   id: review
   skills:
@@ -165,13 +174,15 @@ steps:
   - rules/packets/solo/review.md
   when: review_required
   agent: reviewer-agent
-  precondition: 有 UI（A/B 档）→ .gate/frontend/parity-matrix.md/route-coverage.json/design-qa.md 存在且非空，且 .gate/frontend/ui-audit.md
-    结论=通过；C 档免独立审计；高风险 → .gate/plan-coverage.md（如已生成）；非前端/低档 → 无
-  on_fail: 回 build 补前端交付物/审计/方案覆盖；不得以代码/测试/API 200 代替，不得判通过
+  precondition: 有 UI（A/B 档）→ iteration-context + interactions + .gate/frontend/parity-matrix.md/route-coverage.json/design-qa.md
+    存在且非空，.gate/frontend/ui-audit.md 结论=通过且 §10 `INDEPENDENT_REVIEW PASS`，`playwright-results.json` flow 用例无失败/skip；C 档免独立审计；高风险
+    → .gate/plan-coverage.md（如已生成）；非前端/低档 → 无
+  on_fail: 回 build 补前端交付物/交互规格/审计/方案覆盖；不得以代码/测试/API 200 代替，不得判通过
   output: 评审结论/缺口 + .gate/review.md
   notes: 技能：`skills/code-review/SKILL.md` + `skills/engineering-quality/SKILL.md`。核验者≠实施者；`self_review` 不作正式过门证据；覆盖本轮 diff+AC/SC；先读方案段再对
-    diff；P0 告警/拒单挂债=阻断；写 .gate/review.md；评审记录路径回写方案卡 §9 过程证据；有 UI 核 parity + ui-audit 产物并抽 2 个操作复点；免审须记理由；免审不免自测；方法只认 code-review。本步触发以方案卡
-    §9 review_required 为准；L0/L1 小改且未命中 A 级可 false + 理由；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能/点名 → true。
+    diff；P0 告警/拒单挂债=阻断；写 .gate/review.md；评审记录路径回写方案卡 §9 过程证据；有 UI 核 parity + ui-audit + flow 结果，核 `flow → transition/invariant
+    → case` 映射并抽 1 条改断言确认会红、抽 2 个操作复点；L2+/高风险抽 2 个域证据复跑；免审须记理由；免审不免自测；方法只认 code-review。本步触发以方案卡 §9 review_required 为准；L0/L1
+    小改且未命中 A 级可 false + 理由；L1+ UI 命中前端硬门 A 级/L2+/高风险/新功能/点名 → true。
 - name: 测试与验收
   id: test
   skills:

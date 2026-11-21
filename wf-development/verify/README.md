@@ -9,10 +9,11 @@
 | 路径 | 适用 | 必跑 | 证据 |
 | --- | --- | --- | --- |
 | L0 | 纯文档/文案/注释，无代码/配置/行为/契约/权限/数据变化 | `docs-links` + `docs-placeholders` | 链接/占位检查结果；空任务窗口 = NOT_VERIFIED |
-| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；前端按 `rules/core/frontend-gate.md` §2.1 分级：C 档 1 张桌面截图、免 parity，A/B 档按档取证（每条变更路由桌面+移动、route-coverage.json、console/network、独立 ui-audit） |
-| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + ui-audit + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、ui-audit、plan-coverage、`nfr.security`/`nfr.performance` |
+| L1 | 单点/≤3 文件/≤1 模块，无接口/数据/权限变化 | build + lint（定向或全仓）+ smoke；配 `test_scoped` 时加定向 test；无定向且无 smoke 才跑全仓 test | 命令+退出码；前端按 `rules/core/frontend-gate.md` §2.1 分级：C 档（仅纯文案/列名/单位/排序）1 张桌面截图 + design-qa 1/2/5/6/12/19、免 parity，A/B 档按档取证（capture 必配；每条变更路由桌面+移动、route-coverage.json、console/network、独立 ui-audit、interactions.yaml + flow 用例） |
+| L2/L3 | 跨模块、接口/数据、权限/资金/迁移/破坏性 | L1 + 集成/契约/安全/回滚 + 独立评审 + parity-matrix + ui-audit + interactions/flows + **nfr 非功能结论** | 评审记录、security/rollback、parity-matrix、ui-audit、interactions.yaml、playwright-results.json、plan-coverage、`nfr.security`/`nfr.performance` |
 
 **定向名实**：仅当 `.gate/project-profile.json` 配了 `lint_scoped`/`test_scoped`/`e2e_scoped`（含 `{files}`）时，门注入本任务变更路径，检查 id=`targeted-*`/`affected-e2e`；**未配则跑全仓命令**，id=`project-*`，不得写「只跑受影响」。升全量条件与禁静默升级见 `rules/core/verification.md` §7；Claim/回写分离见 `global-rules` §9。
+**交互流（A/B 硬）**：配 `frontend.flows`（或复用 `e2e`）跑 `specs/flows`，JSON reporter 写 `.gate/frontend/playwright-results.json`；`interactions.yaml` 的每条 transition/invariant 须有 `[CASE:id]` 用例且 pass，`skip`/失败/报告早于源码 = BLOCKED。缺 `interactions.yaml` 或 `frontend.flows`/`e2e` = BLOCKED；C 档不要求。
 前端最低 L1；纯文案/文档可 L0，代码/配置至少 L1，仍要受影响页截图 + console 无 error。**前端证据按 `rules/core/frontend-gate.md` §2.1 分级**：`.gate/frontend/tier.json` 的 A/B/C——A 全量矩阵+每路由桌面/移动；B 受影响路由矩阵+桌面/移动；C 1 张桌面截图、免 parity（gate 读取 tier，缺省 A）。**A/B 另须独立 `ui-audit`（frontend-gate §2#8）；缺/待验 = BLOCKED**。**免审不免自测/证据/门禁**。工具缺失 → `BLOCKED`。
 
 **自包含链（solo）**：方案卡 §4 验收表即完成门输入；`solo.test_plan` 落 INT+Oracle 意图台账（不预写全量用例）；`solo.test` 按意图生成场景并实测（大改动/高风险全节），报告以意图终态为准，落 `{workroot}/50-verification/`。完成门仍按本文件执行；P0 意图未过不得判通过。
@@ -31,9 +32,10 @@
   > **债项**：`.gate/acceptance.yaml` 的 `debts` 显式登记（`[]` 或 `{id,item,owner,decision,blocking}` 列表）；`blocking=true` 未关闭 = BLOCKED，不得 Claim；门回执写入 `debts.missing`。
    > **L0/L1 自动口径**：纯文档 → L0，只核 `docs-links`/`docs-placeholders`；代码/配置 → 至少 L1，核 build、lint、smoke 中已配置的命令；L1 未配 `test_scoped` 且有 smoke → 不跑全仓 test；未配置项记 `skip` → 总体 `PARTIAL`，不能 `-Claim`。首次落地先写 `.gate/project-profile.json`（优先配 `*_scoped`）。
    > **命令覆盖（硬）**：`test` 须覆盖本项目全部测试入口（多 runner 串联，如 `npm test && npx vitest run src/__tests__`），不得只列部分文件；各 runner 的命令与计数分别落证据，不得合并成一句“全绿”。
-2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（L1 十五项含交互诚实与视觉协调 / L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/<包>/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
-   - **L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
-   - **A/B 独立审计**：implement/build 后、review 前由 `ui-auditor` 落 `.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；逐路由/操作/状态/一致性/后端可达/真实数据；门与钩子以 `--require-audit` 校验，缺/待验 = BLOCKED。
+2. 实施按验收清单；前端把 `design-qa.md` 拷到 `.gate/frontend/`（与 ui-audit 同 20 维；C 只填 1/2/5/6/12/19，L1 十五项，L2+ 二十项）；**截图只写 `.gate/frontend/`**（勿写入 `.gate/<包>/`）；**截图须晚于本轮代码 mtime 与 `started_at` 的较晚者（验收文档回写不触发重拍）**；L2+ 另写 `parity-matrix.md` + `route-coverage.json`（每条路由桌面/移动各一张，哈希不重复）；**A 档有可运行基线（prototype/existing_page）** 跑 `frontend.measure` 产 `measure-diff.json`（缺控件/文案/关键 target 超差 = 未完成）。**`tier.json`、console/network/playwright 结果也须晚于本轮**；旧 `tier.json` 不读（按 A 校验），旧报告直接 BLOCKED。
+   - **A/B 与 L2+ 截图必须由 capture 生成**：`.gate/project-profile.json` 配 `frontend.capture`（参考 `frontend/capture_example.py`，输出 `evidence.json` + 每路由桌面/移动截图）。门会先跑 capture，再把 `evidence.json` 与 `route-coverage.json` 逐路由对哈希；手写台账/截图不算证据。
+   - **A/B 独立审计**：implement/build 后、review 前由 `ui-auditor` 落 `.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；按模板逐路由/20 维/flow/一致性/后端可达/真实数据，§10 `INDEPENDENT_REVIEW: PASS`；门与钩子以 `--require-audit --require-interactions` 校验，缺/待验 = BLOCKED。
+   - **A/B 交互流**：先有 `interactions.yaml`（本期 `iteration-context.yaml` 的 `inputs.interaction_spec`，或 `.gate/frontend/interactions.yaml`）与 `playwright-results.json`；每条 transition/invariant 有 `[CASE:id]` 且 pass；`validate_interactions.py --require-results` 不过 = BLOCKED。
 3. 收尾：
 
 ```powershell
@@ -54,19 +56,25 @@ powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Claim -
 | 文件 | 作用 |
 | --- | --- |
 | `checks.yaml` | 人读的策略：变更类型 → 最低检查集（含 L2+ `nfr-baseline`） |
-| `templates/project-profile.example.json` | 项目命令/前端 URL/视口的可选配置（含可选 `perf` 性能基准命令）；复制为 `.gate/project-profile.json` |
+| `templates/project-profile.example.json` | 项目稳定命令/前端 URL/视口/交互流命令（含可选 `perf`）；复制为 `.gate/project-profile.json`；本期原型/交互路径写 `{workroot}/00-governance/iteration-context.yaml`，不写本配置 |
 | `Invoke-Gate.ps1` | 唯一入口；调用 `tools/gate.py` |
 | `tools/gate.py` | 变更分级、验收清单解析、nfr 校验、检查执行、`completion.json` |
 | `verify/Test-Report.ps1` | 报告对账：verdict/禁词/证据 |
 | `verify/tools/report_lint.py` | 收尾对账：回执/verdict/禁词/证据 + 六点版式、汇报块、第 2/4/6 点固定子字段、附录；`--format-only` 跳过门禁 |
 | `frontend/acceptance.md` | 只读说明/指针；**实际填写与门读取用 `design-qa.md`**（避免两份同源清单） |
-| `frontend/design-qa.md` | 设计 QA 模板；复制到 `.gate/frontend/` 再填；L1 十五项（含交互诚实与视觉协调）、L2+ 二十项 |
-| `.gate/frontend/ui-audit.md`（运行时） | 独立界面审计记录；模板见 `rules/templates/20-design/ui-audit-template.md`；A/B 门读取 |
+| `{workroot}/00-governance/iteration-context.yaml`（运行时） | 本期原型/设计基线/交互规格/波次/域适用性；模板 `rules/templates/10-planning/iteration-context-template.md`；A/B UI 门读取 |
+| `frontend/design-qa.md` | 设计 QA 自检模板；复制到 `.gate/frontend/` 再填；与 `ui-audit-template` §3 同一 20 维 ID；C 只填 1/2/5/6/12/19，L1 十五项，L2+ 二十项 |
+| `.gate/frontend/ui-audit.md`（运行时） | 独立界面审计记录（路由×20 维×flow×一致性×后端可达×独立复核）；模板见 `rules/templates/20-design/ui-audit-template.md`；A/B 门读取 |
+| `.gate/frontend/interactions.yaml`（或 profile 指向） | 交互规格真源；模板 `rules/templates/20-design/frontend-interaction-spec-template.md`；A/B 门读取 |
+| `tools/validate_interactions.py` | 校验 flow/状态/迁移/不变量/用例映射 + `playwright-results.json`；缺用例/skip/失败 = 非 0 |
+| `frontend/specs/flows.template.ts` + `frontend/specs/README.md` | 交互流用例模板与约定（`[FLOW:][T:/I:][CASE:]`）；复制到项目 `specs/flows/` |
 | `frontend/route-coverage.example.json` | 路由/菜单/深链/截图机读台账模板；复制为 `.gate/frontend/route-coverage.json` |
-| `templates/plan-coverage.md` | 方案/功能覆盖矩阵模板；复制为 `.gate/plan-coverage.md`；含本轮 `task_id`，L2+ 门内校验 |
-| `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、行状态、结论；L2+ 自动调用 |
-| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；`--require-tier` 校验 `tier.json`；`--require-prototype` 校验 `project-profile.md` 的 `prototype=` 且已解码；`--require-audit` 校验 `ui-audit.md` 并与其路由/操作对账；`--write` 落实施出口回执；门内自动调用 |
+| `templates/plan-coverage.md` | 方案/功能覆盖 + **13 域实施账本**模板；复制为 `.gate/plan-coverage.md`；含本轮 `task_id`，L2+ 门内校验 |
+| `tools/plan_coverage.py` | 校验 `.gate/plan-coverage.md` 章节、后端/功能/前端行、13 域账本（缺域/na 无理由/高风险无接受人）、结论；L2+ 自动调用 |
+| `tools/frontend_parity.py` | 校验 parity-matrix + route-coverage + 截图哈希/新鲜度；`--require-generated` 时强制 `evidence.json`；`--require-tier` 校验 `tier.json`；`--require-context` 校验本期 `iteration-context.yaml`（原型/设计基线/交互/波次/域；`prototype: none` 合法）；`--require-audit` 校验 `ui-audit.md`（路由区块/20 维/flow/独立复核）；`--require-interactions` 校验 `interactions.yaml` + flow 结果；`--require-measure` 要求 `measure-diff.json` 且 ok；`--write` 落实施出口回执；门内自动调用 |
 | `frontend/capture_example.py` | capture 参考实现（Playwright）：登录→逐路由→就绪判定（骨架/登录页不算）→桌面/移动截图→`evidence.json`；复制到项目并配 `frontend.capture` |
+| `frontend/measure.template.mjs` + `frontend/measure.example.json` | 视觉几何/token 抽取模板（Playwright）：可见控件/标题/标签 + 声明 target 的 computed style/box；复制到项目 `scripts/`，配 `.gate/frontend/measure.json` |
+| `tools/frontend_measure.py` | 比对 baseline/impl 指标：缺控件/文案、关键 target 字号/间距/box 超差 = 非 0；输出 `measure-diff.json/md`；不做像素 diff |
 | `tools/claim_check.py` | 完成口令锁：回执 verdict/blocked/代码新鲜度三合一，输出 `CLAIM: ALLOWED/DENIED` |
 | `frontend/playwright.config.template.ts` | Playwright 模板；默认 list+json，不生成 HTML/trace/video；证据落 `.gate/frontend/` |
 | `frontend/specs/*.spec.ts` | 主链路/状态/响应式/a11y 模板 |
@@ -86,16 +94,16 @@ powershell -ExecutionPolicy Bypass -File "<包>/verify/Invoke-Gate.ps1" -Claim -
   - A/B 每条路由桌面+移动截图，路径/哈希/时间可追溯；同一截图哈希不得跨路由复用；
   - console error / failed request 为 0；菜单可见或可滚动到达；深链无 404；
   - 详情/表单类页面字段网格、日期/期间控件语义按原型核对，不得简化单列或生搬通用筛选。
-- **L2+ 证据必须由 capture 生成**（`frontend.capture`）：`evidence.json` 需含 `generator`、逐路由 `ready=true`、桌面/移动截图哈希；门用哈希对回 `route-coverage.json`。手写截图、骨架页截图、只跑 DOM 文本都不算。
-- **A/B 独立审计**：`.gate/frontend/ui-audit.md` 结论=通过；逐路由 `###` 区块与 `operations` 对账；跨页一致性/后端可达/真实数据三形态齐；审计者≠实施者；缺/待验/未点通 = `BLOCKED`。
+- **A/B 与 L2+ 证据必须由 capture 生成**（`frontend.capture`）：`evidence.json` 需含 `generator`、逐路由 `ready=true`、桌面/移动截图哈希；门用哈希对回 `route-coverage.json`。手写截图、骨架页截图、只跑 DOM 文本都不算。
+- **A/B 独立审计**：`.gate/frontend/ui-audit.md` 结论=通过且 §10 `INDEPENDENT_REVIEW: PASS`；§2 逐路由 `###` 区块与 `operations` 对账；§3 **每路由各 20 维**；§4 flow 用例结果；跨页一致性/后端可达/真实数据三形态齐；审计者≠实施者；缺/待验/未点通 = `BLOCKED`。
 - 自检命令（门内也会跑）：
 
 ```powershell
 # 实施出口 / 评审 / 完成门同一命令（前端硬门 §2.5；失败不得提交或标完成）
 python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend `
-  --require-prototype --require-tier --require-generated --require-matrix-routes `
-  --require-audit --write .gate/frontend/gate.json
-# 审计前 parity 自检可去掉 --require-audit；进入 ui-audit/评审/提交/完成门必须带
+  --require-context --require-tier --require-generated --require-matrix-routes `
+  --require-audit --require-interactions --write .gate/frontend/gate.json
+# 审计前 parity 自检可去掉 --require-audit/--require-interactions；进入 ui-audit/评审/提交/完成门必须带
 ```
 
 ## 5. 成本纪律

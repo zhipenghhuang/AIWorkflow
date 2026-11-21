@@ -8,12 +8,16 @@
 **AI Workflow 包（开发轨）**：声明式 `workflows/*.yaml` + 角色 `agents/*.yaml` + 红线 `rules/` + 内置专业技能（`skills/`：随包生效、按步整卡读取）+ 能力契约/参考目录（实例真源 `{workroot}/capabilities/`）+ 文档治理（需求/方案/清单/提测/发布/UAT/复盘统一落位、索引、归档；根 `CHANGELOG.md` 产品发版史 + `{workroot}/work-log.md` 里程碑 + 发布说明按版本）。  
 执行宿主（任意支持 AGENTS 的 AI 编码工具，要求见本文「宿主适配」节）按 YAML 步骤执行；步内实现路径交 AI（框架固定 · 局部自主）。  
 **产品文档解析**：输入含 PRD/迭代方案/文档/页面原型/截图时，先按 `skills/product-doc-analysis/SKILL.md` 产出需求理解包——**§0【业务与变更简报】+【本期差量表】置顶**（人类快查本期增/改/删），下钻含引用、冲突、GAP、假设与置信度；确认门主屏出示 §0。同轮生成**用户版业务变化说明**（`{workroot}/10-requirements/说明-{主题}-用户版-{yyyyMMdd}.md`；L1+ 用户可见变化必出），供业务用户快速理解，也供 AI 读取完整业务上下文。再按 `rules/core/clarification.md` 先分析、只问意图/范围/验收/风险，技术细节给建议，首轮 0～1 问、总≤3，确认后才进需求基线/方案/实施。
-**完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（前端需要补设计时才另出前端设计说明；产品方案完整则直接实现）→ 任务清单 → 实现/自测 → **界面完善审计（有 UI）** → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/verify/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
+**完整链路**：开发计划（L2+）→ 产品文档解析/需求理解（PRD/迭代方案/原型，可选）→ 开发需求基线/技术差距 → 方案/ADR（有 A/B UI 另出前端设计说明 + `interactions.yaml`）→ 任务清单 → **S4.0 施工准备 → S4.1 后端核心 / S4.2 前端基线 → S4.3 跨层集成 → S4.4 非功能与边界 → S4.5 优化（可选）→ S4.6 施工出口** → 评审 → 提测 → 测试报告（可选）→ UAT/验收（已有则引用，无则本包补）→ 工程发布审批 → 部署/verify/回滚 → 发布后观察 → 复盘；按变更分级（L0～L3）裁剪。  
 **自包含完整链（solo）**：无正式迭代/正式协作时默认走 `workflows/solo.yaml`：产品分析 → 方案与验收（一次方案确认）→ 评审（条件）→ 测试分析与计划 → 完整开发 → **界面完善审计（有 UI）** → 代码评审（条件）→ 测试报告 → 完成门 → 收尾；不依赖产品/测试包，不是只开发，也不降标。大改动/高风险不换链，按 `rules/core/lightweight.md` §2 提高产品分析与测试证据；有正式迭代/正式协作 → 走完整链（`change`/`iterate`），开发消费对方产物，不重复。细则见 `rules/core/lightweight.md`。  
 **独立落地**：本包可单独使用；不要求安装产品/测试包。缺他包产物时一句缺口并用本包模板补（产品最小硬门槛 + 开发自验），**不因「个人/无 QA」降标**。多包同项目时自动探测并共用原件根 `inbound/` 与 `activeContext.md`；本包仍独立执行自己的 workflow；开发自验 ≠ 版本准出。  
 **产品缺陷流转**：开发判定产品缺陷 → 出评估单 → **有平台则以平台回写+指派为主**（不强制再打 BUG 交接包）；无平台/点名交接包 → 先问后发自包含评估包。产品确认后回流开发。三包独立；多包同仓直读不转发。  
 **全局纪律**：界面减法、UX/DX/AX 三维同向、开发阶段不背旧数据（`rules/core/global-rules.md` §5/§12；细则 `skills/engineering-quality` §1.1～1.2、`skills/frontend-design` §5.1）。
-**界面完善审计**：A/B UI 在评审前由独立 `ui-auditor` 逐路由/操作/状态/一致性/后端可达审计，落 `.gate/frontend/ui-audit.md`；`frontend_parity.py --require-audit` 与 pre-commit 强制，未过不得评审/提交/Claim；C 档免独立审计。
+**本期输入**：design/plan 产 `{workroot}/00-governance/iteration-context.yaml`（原型/设计说明/交互规格/前端范围/基线/波次/域适用性）；`prototype: none` 合法，按 `design_spec|existing_page|prd` 基线。**不把本期原型/交互路径写进 `project-profile.md`**（档案只留稳定事实/命令）。
+**交互规格与流用例**：A/B UI 在 implement 前由 design/plan 产 `interactions.yaml`（flow/状态/迁移/不变量/组件契约/用例映射），`confirm_ui_spec` 确认；实现按 flow 一做一闭环，流用例（Playwright `[CASE:]` + JSON reporter）是交互通过的唯一证据；点通/接口 200 不算。门 `validate_interactions.py` + `frontend_parity.py --require-interactions` 强制。
+**13 域账本**：S4.0 定 `apply/depth/SC/证据/状态`（`plan-coverage` §6），S4.4 闭合；高风险域不得无接受人 `na`；开发自验不替代测试准出。
+**视觉度量**：A 档有可运行基线（`prototype`/`existing_page`）配置 `frontend.measure`；`measure.template.mjs` 抓可见控件/标题/标签 + 声明 target 的 computed style/box，`frontend_measure.py` 比控件/文案/字号/间距/落位，输出 `measure-diff.json`；缺控件/超差 = G4.2 不过；只比声明 target，不做像素 diff；`design_spec`/`prd` 不适用。
+**界面完善审计**：A/B UI 在评审前由独立 `ui-auditor` 按模板逐路由/20 维/flow/一致性/后端可达审计，落 `.gate/frontend/ui-audit.md` 并写 `INDEPENDENT_REVIEW: PASS`；20 维为单一清单（`design-qa` 自检用同 ID，`ui-audit` 用同 ID 核验，不另列第二套）；`frontend_parity.py --require-audit --require-interactions` 与 pre-commit 强制，未过不得评审/提交/Claim；C 档仅纯文案/列名/单位/排序，免独立审计且 `design-qa` 只填 1/2/5/6/12/19；基线阶段不做择优。
 
 ## 2. 目录
 
@@ -36,7 +40,7 @@
 | `rules/special/` | 专项方法：`iteration-delivery.md` · `skill-audit.md`（能力体检）等 |
 | `rules/templates/` | 按生命周期分 7 组：`00-onboarding` / `10-planning` / `20-design` / `30-planning-tasks` / `40-delivery` / `60-retro` / `90-handoff`；先看 `rules/templates/index.md` |
 | `rules/tools/` | 包自检 `Test-Template.ps1`、YAML 校验、任务清单校验、文档树初始化 `Initialize-Docs.ps1`、交接包校验 `validate_handoff.py` |
-| `verify/` | 完成门 `<包>/verify/Invoke-Gate.ps1`、检查矩阵、前端 20 项清单/路由覆盖校验/界面审计校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
+| `verify/` | 完成门 `<包>/verify/Invoke-Gate.ps1`、检查矩阵、前端 20 维/路由覆盖/交互规格与 flow 用例校验/界面审计校验/Playwright 模板、报告 `verify/Test-Report.ps1`（包内只读）；运行态落项目根 `.gate/` |
 
 实例在项目根：`project-profile.md`、`activeContext.md`（含 `### 进行中` 快照）、根 `CHANGELOG.md`、`{workroot}/`。跨角色交接：**内容优先、包按需**——提测默认自洽提测单并实拷 `handoff/outbound/提测/`；HO 仅多文件/签收/仓外/同发发版/点名时先问后发到 `handoff/outbound/{category}/{HO-ID}/`。入站 `handoff/inbound/`。有平台已交不强制 BUG/FIX 整包。多包同仓直读对方出站。
 
@@ -64,7 +68,7 @@
 3.2 **不用口令**：任意自然语言描述即可；AI 按 `rules/core/routing.md` 抽五元组→意图类→状态修正，不抠固定措辞；首条 `route`/`reason`。轻量/完整由项目状态决定；判断错可一句纠正。  
 4. 之后任务**不再**例行落地自检，直接路由执行。  
 5. 新文档/变化/确认项：直接把文件发给 AI，或说「这是新一期方案/这个未决项定了/新增需求…」→ `workflows/intake.yaml`：收件→分类→覆盖对照→影响分析→局部更新→变更吸收报告；你只确认实质变更与资料归档。整理现有资料说「资料收取 / 资料整理 / 资料归档 / 资料巡检」；检查工作文档/临时文件说「文档巡检 / 清理临时文件」。  
-6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-planning/development-plan-template.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称。  
+6. 新项目/新产品：说「开发计划」→ `workflows/control.yaml` init，按 `rules/templates/10-planning/development-plan-template.md` 建 `{workroot}/development-plan.md`（新项目建议 `{workroot}/development-plan.md`；旧项目可保留 `{workroot}/00-governance/development-plan.md`）；首次计划经 `confirm_plan` 后从 S0 输入检查开始按阶段/门执行。S3 叫「任务与排期」，不要与开发计划混称；S4 拆为 **S4.0 施工准备 → S4.1 后端核心 / S4.2 前端基线 → S4.3 集成 → S4.4 非功能/边界 → S4.5 优化（可选）→ S4.6 施工出口**；S4.5 须 G4.4 通过后单独确认。  
 6.1 日常推进：说 **「按开发计划执行」** → `control/run` 只切包（更新 `activeContext` 后打开目标 `change`/`iterate`/`release`/`retro` 步骤卡，不在 run 内写代码）；目标步到下一门停止。说「进度 / 当前状态」→ `sync`；「下一步」→ `next`。每步回写计划与执行日志。  
 7. 新功能/迭代：说「按方案实施」或「只出任务清单」→ 任务清单按 `rules/templates/30-planning-tasks/task-list-template.md` 落 `{workroot}/40-tasks/`；确认后实施。  
 7.1 L1 单点（无 `plan` 步）：按 `rules/templates/30-planning-tasks/dev-card-lite-template.md` 落开发卡（验收表 + SC 表）；L1 多文件/正式迭代仍用任务清单。

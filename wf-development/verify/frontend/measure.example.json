@@ -1,0 +1,38 @@
+{
+  "_note": "复制为 .gate/frontend/measure.json；本期路由/targets 从 iteration-context 与前端规格来，不写死项目档案。baseline 可为 file:// 或静态服务 URL。动态行操作请加稳定 aria-label；否则控件名会随数据变化。只比声明 targets，不做像素 diff。",
+  "sides": {
+    "baseline": {
+      "baseUrl": "file:///absolute/path/to/prototype.html",
+      "routes": [
+        { "name": "users", "route": "#/users", "ready": "h1" }
+      ]
+    },
+    "impl": {
+      "baseUrl": "http://127.0.0.1:3000",
+      "login": {
+        "url": "/",
+        "steps": [
+          { "fill": ["input[name='username']", "admin"] },
+          { "fill": ["input[name='password']", "123456"] },
+          { "click": "button[type='submit']" }
+        ],
+        "wait_for": "nav"
+      },
+      "routes": [
+        { "name": "users", "route": "/users", "ready": "h1" }
+      ]
+    }
+  },
+  "viewports": [
+    { "name": "desktop", "width": 1440, "height": 900 },
+    { "name": "mobile", "width": 390, "height": 844 }
+  ],
+  "targets": [
+    { "name": "page-title", "selector": "h1" },
+    { "name": "primary-button", "selector": "button.primary" },
+    { "name": "table", "selector": "table" }
+  ],
+  "tolerance": { "box": 2, "space": 1, "font": 0.5 },
+  "settleMs": 400,
+  "timeoutMs": 20000
+}

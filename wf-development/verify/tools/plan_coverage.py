@@ -14,7 +14,16 @@ import re
 from pathlib import Path
 
 REQUIRED = ("## 1.", "## 2.", "## 3.", "## 4.", "## 5.", "## 6.")
-HEADER_FIRST = {"方案条款/AC/SC", "页面/路由", "项"}
+HEADER_FIRST = {"方案条款/AC/SC", "页面/路由", "项", "#", "域"}
+DOMAINS = (
+    "功能与契约", "状态与幂等", "权限与数据域", "边界与异常", "输入面与负向",
+    "并发与一致性", "性能与容量", "安全与合规", "可观测与运维",
+    "兼容与响应式", "可访问性与文案", "集成与多表面", "数据与迁移/回滚",
+)
+HIGH_RISK_DOMAINS = {
+    "功能与契约", "状态与幂等", "权限与数据域", "输入面与负向",
+    "并发与一致性", "安全与合规", "集成与多表面", "数据与迁移/回滚",
+}
 FRONTEND_SUFFIXES = (
     ".js", ".mjs", ".css", ".scss", ".sass", ".less", ".html",
     ".vue", ".tsx", ".jsx", ".svelte", ".astro",
@@ -228,11 +237,35 @@ def validate(project_root: Path, level: str, files: list[str],
     enterprise = _section(text, "## 6.")
     if code_changed or frontend_changed:
         if not _has_real_row(enterprise):
-            problems.append("plan-coverage.md 企业级完整性（## 6.）无有效行或全为待填")
+            problems.append("plan-coverage.md 实施覆盖账本（## 6.）无有效行或全为待填")
         else:
             bad_enterprise = _bad_status_rows(enterprise)
             if bad_enterprise:
-                problems.append("plan-coverage.md 企业级完整性存在未完成行：" + ", ".join(bad_enterprise[:5]))
+                problems.append("plan-coverage.md 实施覆盖账本存在未完成行：" + ", ".join(bad_enterprise[:5]))
+            rows = _data_rows(enterprise)
+            names = {cells[1] for cells in rows if len(cells) >= 2}
+            missing = [d for d in DOMAINS if d not in names]
+            if missing:
+                problems.append("plan-coverage.md 实施覆盖账本缺域：" + ", ".join(missing))
+            for cells in rows:
+                if len(cells) < 6:
+                    problems.append("plan-coverage.md 域账本存在列数不足 6 的行："
+                                    + " / ".join(cells[:2]))
+                    continue
+                if cells[1] not in DOMAINS:
+                    continue
+                domain = cells[1]
+                status = (cells[-1] or "").strip()
+                joined = " ".join(cells)
+                if re.match(r"^na\b", status, re.I) and not re.search(r"[:：]\s*\S+", status):
+                    problems.append(f"plan-coverage.md 域 {domain} 的 na 缺理由")
+                if domain in HIGH_RISK_DOMAINS and re.match(r"^(na|DEBT)", status, re.I):
+                    if "接受" not in joined and "accept" not in joined.lower():
+                        problems.append(f"plan-coverage.md 高风险域 {domain} 以 na/债项跳过但无接受人")
+                if status and not re.match(r"^(done|na\b|DEBT-)", status, re.I) and not BAD_STATUS_RE.search(status):
+                    # Allow free-form pass wording, but keep it explicit.
+                    if not POS_RE.match(status):
+                        problems.append(f"plan-coverage.md 域 {domain} 状态须 done/na+理由/DEBT，实际：{status[:20]}")
     conclusion = _conclusion_value(_section(text, "## 5."))
     stats["conclusion"] = conclusion
     ok, why = _conclusion_verdict(conclusion)

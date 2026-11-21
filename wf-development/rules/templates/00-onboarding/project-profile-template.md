@@ -123,6 +123,9 @@
 | 框架与版本 | `{{…}}` |
 | 语言 / UI / 构建 / 包管理 | `{{…}}` |
 | 设计系统 / tokens | `{{现有系统/版本/tokens 路径；无则「无」}}` |
+| 本期输入 | 见 `{workroot}/00-governance/iteration-context.yaml`（原型/设计说明/交互规格/波次/域）；**本期路径不写本档案** |
+| 流用例 | `frontend.flows={{命令}}`（稳定命令）；结果 `.gate/frontend/playwright-results.json` |
+| 视觉度量 | `frontend.measure={{命令}}`（稳定命令）；配置 `.gate/frontend/measure.json`，输出 `.gate/frontend/measure-diff.json`；A 档有可运行基线时必配，无基线可空 |
 | 浏览器 / 设备矩阵 | `{{…}}` |
 | 性能预算 | `{{LCP/INP/CLS、首屏资源、路由 JS；无则「按默认 CWV」}}` |
 | 无障碍目标 | `{{WCAG 2.2 AA / 项目要求}}` |
@@ -130,7 +133,7 @@
 | 本地端口 | `{{…}}` |
 
 - 约束（高 ROI）：{页面禁直写请求地址（统一走封装层）；错误提示面向用户；鉴权失效统一处理；目录约定…}
-- 设计约束：{tokens 单一来源、禁页面硬编码颜色/间距；状态矩阵逐页覆盖；设计说明按 `rules/templates/20-design/frontend-design-spec-template.md`…}
+- 设计约束：{tokens 单一来源、禁页面硬编码颜色/间距；状态矩阵逐页覆盖；设计说明按 `rules/templates/20-design/frontend-design-spec-template.md`；交互流按 `rules/templates/20-design/frontend-interaction-spec-template.md`；本期基线/原型/交互路径见 `iteration-context.yaml`；基线阶段不择优…}
 
 ### 7.2 后端
 

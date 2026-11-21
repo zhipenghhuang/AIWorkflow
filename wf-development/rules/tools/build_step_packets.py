@@ -371,6 +371,8 @@ PLAN_CARD = """### 本步规则卡：拆单与 SC
 - **设计要点闭环（硬）**：方案 §4.1 设计要点 `D-xx` 每条至少被一条 SC 引用；缺一条 = 覆盖不完整，不得 `confirm_backlog`。
 - **覆盖矩阵闭环（硬）**：§4.1 须覆盖总表全部 `R-xx`，引用的 `T-xx` 必须存在；**方案节覆盖账本 0 缺**（每节：SC / 债项 / 不适用+依据；见 `skills/task-breakdown` §2.7）；对照**方案原文**逐节，不得只对照任务摘要。
 - **P0/主路径**：不得预置「告警/拒单/挂债」替代实现行；产品未决标 OPEN，不写进可实施 SC 的完成态。
+- **A/B UI**：先有 `frontend-design-spec` + `interactions.yaml`；flow 任务拆到 transition/invariant；每个 flow 的用例映射进任务卡；基线任务与择优任务分开，不得同批。
+- **施工阶段**：任务卡写「波次/阶段」（`W1/S4.x`，S4.0–S4.6）；S4.0 定 13 域账本（`plan-coverage` §6），S4.4 闭合；S4.5 优选项单列。
 - 任务卡含 DoR/DoD/依赖/并行；并行 >3 或文件重叠 → 拆批。
 - 只读不改代码；清单经 `confirm_backlog` 后实施。"""
 
@@ -382,7 +384,10 @@ CONTROL_RUN_CARD = """### 本步规则卡：计划切包（只路由，不实施
   - S0/S1：有 PRD/原型/方案原文 → `change/analyze_input`；仅口头/缺口 → `change/clarify`；已理解待基线 → `change/requirements`
   - S2 → `change/design`（只要方案则到 design/review-docs 停）
   - S3：无确认清单 → `iterate/plan`；清单待确认 → `iterate/confirm`
-  - S4/S5 选链：已有确认任务清单/`iterate` 进行中 → `iterate`（implement→ui-audit（有 UI）→review→gates）；否则 → `change`（implement→ui-audit（有 UI）→review→verify）。拿不准 → 推荐 iterate + 一问
+  - S4.0 施工准备：已有确认清单/`iterate` 进行中 → `iterate/implement`；否则 → `change/implement`；先冻结契约/规格/SC/域账本；A/B UI 过 `confirm_ui_spec`
+  - S4.1 后端核心 / S4.2 前端基线：同链 `implement`，G4.0 后可并行；前端按 flow 任务做基线，过 `ui-audit` 才过 G4.2
+  - S4.3 集成 / S4.4 非功能与边界 / S4.6 施工出口：同链 `implement`；S4.5 优化须 G4.4 通过且 `confirm_optimize`
+  - S5 评审：同上选链 `review`（有 UI 先齐 interactions/flows + ui-audit）
   - S6 → 同链 `deliver`（有清单走 iterate，否则 change）
   - S7：本包只收测试结论/缺陷为**可选输入**并回写计划；有测试包且要跑测 → 提示改用测试包 `testing/execute`（本会话不跨包执行）；无测试包 → 开发自验证据 + 缺口一句
   - S8 → `release` 对应当前子步；S9 → `retro/gather`
@@ -402,6 +407,9 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛�
 - 先勾：AC/SC/DoD 差集=0；未进 SC 且无债项 → 不开工。勾选表索引 `rules/core/iq-checklist.md`。
 - **一次完善（主）**：本期范围内方案条款同批落地；验证/评审是兜底，不把「以后补/挂债过门」当默认路径。
 - **DEV-IQ-22（顺序硬）**：方案 → 分析/技术方案理解 → 实施择优；理解包不抢入口；禁先看分析再找方案；漏读/砍细节 → 停工或 OPEN。
+- **按 S4.x/Wave 施工**：任务卡的「波次/阶段」（如 `W1/S4.2`）为准；S4.0 准备→S4.1/S4.2→S4.3→S4.4→S4.5（确认）→S4.6；上一门未过不进下一子阶段；不在 implement 里补方案/规格/域账本。
+- **A/B UI（硬）**：按 §4 的 `confirm_ui_spec` 先确认 flow 清单/页面/差异/OPEN/用例映射；按 flow 一任务实施，SC 落到 transition/invariant；先跑流用例再进下一 flow；基线阶段不写 `择优`（`confirm_optimize` 另门）。
+- **13 域账本（硬）**：L2+ 在 `.gate/plan-coverage.md` §6 逐域写 `apply/depth/SC/证据/状态`，S4.0 定、S4.4 闭合；L1 在开发卡写一行域适用性。高风险域（功能/状态/权限/输入面/并发/安全/集成/迁移）不得无理由 `na`。
 - **预检硬门槛**：写码前命中面须先扩 SC/债项；单元=一条 SC；禁刷绿；最小改动≠裁剪 Then；P0 禁告警/拒单挂债冒充闭合（DEV-IQ-05）；验收清单写 `implement_preflight`/`sc_trace`，命中 `shared_globs` 另写 `impact_map`（缺则 Claim BLOCKED）。
 - **矩阵/词表**：命中权限/状态/数据基数/多表面或需判定时，按需打开 `rules/core/implementation-quality.md` 当前节；本卡只列门槛，不重复矩阵。
 - **自测硬门槛**：每条 SC 有验证（含负面/边界）；断言指回方案；未验证显式写；完成前方案盘点+分析合看+择优偏离留痕。有 UI 守本包「前端硬门」。
@@ -410,15 +418,16 @@ IMPLEMENT_CARD = """### 本步规则卡：实施预检与自测（本步门槛�
 
 UI_AUDIT_CARD = """### 本步规则卡：界面完善审计（独立 · 不改码）
 
-- **独立**：审计者≠实施者；只收方案/原型/验收/证据，不收实施者自评；不改代码、不跑完成门。
+- **独立**：审计者≠实施者；只收方案/原型/交互规格/验收/证据，不收实施者自评；不改代码、不跑完成门。
+- **按模板三段**：§2 逐路由 `###` 区块（operations 对账）→ §3 二十维（缺维/待填=未完成）→ §4 交互流（每个 flow 的 transition/invariant 对 `playwright-results.json` 用例结果）。
 - **逐路由**：本轮全部变更/新增路由 + 菜单 + 深链，与 `route-coverage.json` 对齐；缺一记缺口；只审改动页 = 未完成。
-- **逐操作**：每个可见操作实际点通（入口→结果/接口/错误/权限）；每操作 ≥1 真实成功；写操作 ≥1 失败/拒绝。
+- **逐操作/逐流**：可见操作实点只作探索；交互通过只认 `interactions.yaml` 的 flow 用例（无 skip/失败）。点通/静态图/接口 200 不算。
 - **逐页状态**：空/加载/错误/超时/无权限/禁用/重复提交/边界；对照交互诚实。
 - **跨页一致**：术语/状态词/KPI/组件/密度/主操作/日期筛选/空态文案。
 - **后端可达**：写端点→页面入口/动作；无入口标 `non-ui` 或缺口；页面能开但操作无入口=缺口。
-- **真实数据**：稀疏/空/大数三形态各验一次；只满数据截图 = 未验证。
-- **原型缺陷**：列清单并逐条标 `照搬` / `择优：收益`；发现仍照抄 = 未完成。
-- **产物**：`.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；按前端门 §3 跑 `frontend_parity.py --require-audit`；未点通/待验/缺口 = BLOCKED。
+- **真实数据/原型缺陷**：稀疏/空/大数各验一次；原型缺陷逐条 `照搬`/`择优`；基线阶段出现未确认 `择优` = 未完成。
+- **独立复核**：§10 写 `复核人（≠实施者）` + `INDEPENDENT_REVIEW: PASS`；抽核同视口并排/区块间距与 flow 映射。
+- **产物**：`.gate/frontend/ui-audit.md`（模板 `rules/templates/20-design/ui-audit-template.md`）；按前端门 §3 跑 `frontend_parity.py --require-audit --require-interactions`；缺/待验/缺口 = BLOCKED。
 - **回修**：缺口回 implement/fix 修并回归；同族路径一并修；UI 缺口不得债项化。"""
 
 CLARIFY_CARD = """### 本步规则卡：外部输入与关账

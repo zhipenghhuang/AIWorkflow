@@ -147,7 +147,12 @@ steps:
   - rules/templates/20-design/solution-template.md
   when: implementation_required
   agent: defect-fixer
-  output: 修复/方案/验证结果
+  hitl:
+  - name: confirm_ui_spec
+    when: ui_spec_required
+  - name: confirm_optimize
+    when: ui_optimize_requested
+  output: 修复/方案/验证结果；A/B UI 另含 interactions/flows 更新
   notes: '**前置**：本批 triage【分类表】已输出；未出表禁改业务代码（fix-collaboration §4.0）。仅修表中「实现缺陷」行；待产品行不扩写。修中发现原预期相对现行过时/冲突→停改回 triage（§4.0#8）；按现行修，禁改回旧口径。开跑声明
     mode=（同文件集→单写手）。 修前红证；无根因不修；复现与写回按原单口径对齐、引用原单信息（红绿/换路径/回归/验证站轻验见 fix-collaboration §4.5 与 §6 `debugging-and-error-recovery`）。修后：本地硬验；测环境依赖且已部署验证站→相关模块轻验（原入口+同模块≤2）；完整复测归测试。
     **先写缺陷修复卡**（原单口径/SC 差集/同类路径/红证/验证站证据），再改代码；矩阵与判定只认 `implementation-quality.md`，不另造表。 L1+ 验收表用 `verify/templates/acceptance.yaml`（task_id:
@@ -184,10 +189,12 @@ steps:
   agent: ui-auditor
   gate: ui-audit
   gate_type: checklist
-  precondition: fix 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 fix
+  precondition: fix 完成；iteration-context/tier/parity-matrix/route-coverage/design-qa/interactions/playwright-results.json
+    已生成；缺则回 fix
   on_fail: 回 fix 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
-  output: .gate/frontend/ui-audit.md + 缺口/修复清单
-  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 fix；不改码、不跑完成门。
+  output: .gate/frontend/ui-audit.md（路由×20 维×flow×一致性×后端可达×原型缺陷×真实数据×独立复核）+ 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；按模板逐路由/20 维/flow 实操；flow 的每条 transition/invariant 对用例结果；跨页一致性 + 后端可达 + 真实数据三形态；探索发现新迁移回写 spec+test；
+    产物/机检按本包前端硬门；缺口回 fix；不改码、不跑完成门。
 - name: 门禁
   id: gates
   skills: []

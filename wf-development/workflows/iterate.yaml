@@ -39,10 +39,11 @@ steps:
   - rules/packets/iterate/plan.md
   - rules/templates/30-planning-tasks/task-list-template.md
   agent: iterate-lead
-  output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
+  output: 任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）；有 A/B UI 另出 iteration-context + 前端设计说明 + interactions
   notes: 只读不改代码；拆 SC → validate_tasklist → 写入 review_required。 **L2+ 门输入**：同轮按 `verify/templates/acceptance.yaml` 落 `.gate/acceptance.yaml`（task_id/level/nfr/scope_files/process.review；task_id
     与 implement 的 `-StartTask` 同值）。「只出清单」→ closeout。 无 PRD 先 `skills/product-shaping`；L2+ 读 development-plan。禁本步 -StartTask。AC
-    须含能力可达（写端点→页面入口）与原型操作对账；样例数据不得进正式页。
+    须含能力可达（写端点→页面入口）与原型操作对账；A/B UI 按 `frontend-design-spec-template` + `frontend-interaction-spec-template` 产规格，flow 任务拆到迁移/不变量；
+    样例数据不得进正式页。
 - name: 确认清单与节奏
   id: confirm
   skills: []
@@ -66,10 +67,16 @@ steps:
   - rules/packets/iterate/implement.md
   when: implementation_required
   agent: implementer
+  hitl:
+  - name: confirm_ui_spec
+    when: ui_spec_required
+  - name: confirm_optimize
+    when: ui_optimize_requested
+  precondition: 清单已确认；A/B UI 须有 iteration-context + 前端设计说明 + interactions（缺则本步先产出并过 confirm_ui_spec）；SC 差集=0
   output: 代码/配置改动 + 任务状态回写
   notes: 本步任务：按清单实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC）→ 按 SC 自证 → 回写。无 UI 本包前端硬门 `na`。超出清单先停；未验证不得标完成。硬门槛同
     change.implement；方法见 §6。 实现完成前把受影响当前行为/规则/边界并入 `{workroot}/project-guide.md`（单包/无产品包）或产品包同文件；不追加版本节；历史留方案/CR。有原型先解码（SPA
-    运行提取）；写能力须有页面入口或 `non-ui`；禁用固定样例。
+    运行提取）；A/B UI 按 flow 任务实施（一条迁移/不变量一个可验证单元），先跑流用例再进下一 flow；基线阶段不择优；写能力须有页面入口或 `non-ui`；禁用固定样例。
 - name: 界面完善审计
   id: ui-audit
   skills:
@@ -81,10 +88,12 @@ steps:
   agent: ui-auditor
   gate: ui-audit
   gate_type: checklist
-  precondition: implement 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 implement
+  precondition: implement 完成；iteration-context/tier/parity-matrix/route-coverage/design-qa/interactions/playwright-results.json
+    已生成；缺则回 implement
   on_fail: 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
-  output: .gate/frontend/ui-audit.md + 缺口/修复清单
-  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
+  output: .gate/frontend/ui-audit.md（路由×20 维×交互流×一致性×后端可达×原型缺陷×真实数据×独立复核）+ 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；按模板逐路由/20 维/flow 实操；flow 的每条 transition/invariant 对用例结果；跨页一致性 + 后端可达 + 真实数据三形态；探索发现新迁移回写 spec+test；
+    产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
 - name: 代码评审
   id: review
   skills:
@@ -99,12 +108,14 @@ steps:
   - security-scan
   - design-review
   output: 评审结论/缺口 + `.gate/review.md`
-  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空，且 `.gate/frontend/ui-audit.md`
-    结论=通过；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺
+  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `iteration-context`/`frontend-design-spec`/`interactions`、`.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md`
+    存在且非空，`rules/templates/20-design/ui-audit-template.md` 结论=通过且 §10 `INDEPENDENT_REVIEW PASS`，`playwright-results.json`
+    的 flow 用例无失败/skip；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；有原型 → `.gate/prototype/` 解码证据与能力可达行（写端点→页面/动作）；非前端/低档→无；缺
     = 回 implement。
-  on_fail: 回 implement 补前端交付物/审计/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
-  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；`self_review` 不作正式过门证据；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa + ui-audit；有
-    UI 核原型解码+能力可达+抽 2 个操作复点；抽核方案章节闭合（先读方案段再对 diff；P0 告警/拒单挂债=阻断）。
+  on_fail: 回 implement 补前端交付物/交互规格/审计/方案覆盖矩阵；写 UI 缺口不得以债项/接口替代过门；不得以代码/测试/API 200 代替，不得判通过。
+  notes: 多波次评审；写 .gate/review.md；核验者≠实施者；`self_review` 不作正式过门证据；必开 §6 `code-review`；前端变更先齐 parity/route/design-qa + ui-audit
+    + interactions/flows；有 UI 核原型解码+能力可达+`flow → transition/invariant → case` 映射，抽 1 条改断言确认会红、抽 2 个操作复点；L2+/高风险抽 2 个域证据复跑；抽核方案章节闭合（先读方案段再对
+    diff；P0 告警/拒单挂债=阻断）。
 - name: 全量门禁与文档同步
   id: gates
   skills:

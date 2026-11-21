@@ -14,14 +14,15 @@
 
 | # | 产物 | 要求 |
 | ---: | --- | --- |
-| 1 | `.gate/frontend/parity-matrix.md` | 解码原型后：路由→菜单/标题/区块/列或字段网格/按钮/弹窗（标题+按钮+关闭）/文案/字段标签/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID（完整链）；solo 链改引方案卡 §0.1/§1；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选。SPA 原型按 §3-1b 解码；矩阵只引解码结果。**无原型**：按方案＋设计系统＋同模块基线页写设计基线（规格/状态矩阵），矩阵对照。 |
+| 1 | `.gate/frontend/parity-matrix.md` | 按本期 **`iteration-context.yaml`** 的 `frontend.baseline` 与 `inputs` 对照：`prototype` 先解码；`design_spec`/`existing_page`/`prd` 用设计基线（无原型不允许空白跳过）。路由→菜单/标题/区块/列或字段网格/按钮/弹窗（标题+按钮+关闭）/文案/字段标签/交互/状态/权限；逐项引用理解包 §10 页面清单/§11 冲突 ID（完整链）；solo 链改引方案卡 §0.1/§1；给 `pass`、`按方案` 或 `na`；**每条路由必须有独立 `###` 区块行（标题含路由），每个变更/新增路由的 `operations` 必须列出原型/基线按钮/操作名并逐项 pass**；出现 `partial/pending/待验收/待补/待验/待确认` 即未完成；`OPEN` 必须带 ID+确认人+下游落点；完成判据须勾选。SPA 原型按 §3-1b 解码；矩阵只引解码结果。**有交互**时规格来源加 `interactions.yaml`；矩阵须写 `baseline=`。 |
 | 2 | `.gate/frontend/route-coverage.json` | 菜单+深链+路由；`result=pass`；每路由桌面+移动截图路径 |
-| 3 | 每路由桌面+移动截图 | L2+ **必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
+| 3 | 每路由桌面+移动截图 | **A/B 或 L2+ 必须**由 `frontend.capture` 生成；含 `evidence.json`（ready+sha256）；骨架/登录页/过短文本 = 失败 |
 | 4 | `.gate/frontend/design-qa.md` | 按模板项勾选；结论不得与 evidence 矛盾 |
 | 5 | console/network 报告 | 目标：本轮关键路由 error/failed = 0（或登记豁免） |
 | 6 | L2+ `.gate/plan-coverage.md` | 方案/需求 → 后端要点 → 前端页/字段 → 截图；含本轮 `task_id`，缺/不一致 = BLOCKED；缺行/未完成行或「未通过/需修」= BLOCKED。**能力可达行（硬）**：写端点→页面入口/动作/证据；无入口标 `non-ui` 并确认；只写接口可调=BLOCKED。 |
 | 7 | 独立评审（`review_required`） | 评审前必须按 §2.5 打开当前迭代原型（解码产物），逐路由核对矩阵/截图/操作；未见原型、矩阵缺路由或操作、截图与原型不符 = `DENIED`。只看代码/测试/API 200 不得过 |
-| 8 | `.gate/frontend/ui-audit.md` | 独立 `ui-auditor`（≠实施者）逐路由页面/控件（按钮/弹窗/文案/字段）/操作/状态/跨页一致性/后端可达实操；每条路由有 `###` 区块，`operations` 与 parity-matrix/route-coverage 对账；原型缺陷（照搬/择优）与真实数据（稀疏/空/大数）必填；结论=通过；含待验/未点通/缺口 = 未完成 |
+| 8 | `.gate/frontend/ui-audit.md` | 独立 `ui-auditor`（≠实施者）按模板逐路由/20 维/交互流/跨页一致性/后端可达实操；§2 每条路由有 `###` 区块且 `operations` 对账，§3 20 维全 pass/na，§4 flow 的每条 transition/invariant 有用例结果，§7 原型缺陷/真实数据三形态，§9 结论=通过，§10 独立复核 `INDEPENDENT_REVIEW: PASS`；缺/待验/未点通/缺口 = 未完成 |
+| 9 | `.gate/frontend/measure-diff.json` | 有可运行基线（`baseline=prototype`/`existing_page`）的 A/B：控件/文案清单 + 关键 target token/几何；缺控件/文案或超差 = 未完成；无运行基线（design_spec/prd）不适用 |
 
 > **复用（硬）**：同一任务、同一源码 diff 的 capture 结果可复用；源码变更后只重拍受影响路由；`e2e` 与 `capture` 不得对同一路由重复全量截图。
 >
@@ -33,13 +34,13 @@
 
 | 级别 | 适用 | 必产物 |
 | --- | --- | --- |
-| **A 关键** | 崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + **ui-audit** + 独立评审 |
-| **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network + **ui-audit（受影响路由）** |
-| **C 轻量** | 纯文案/列名/单位/排序/灰显/颜色等呈现调整，无行为变化 | **受影响路由 1 张桌面截图** + 文案/状态核对表（可并入 design-qa）+ console error=0；**免独立 ui-audit**、不要求移动截图与 parity-matrix |
+| **A 关键** | 崩溃、权限/资金/数据、路由/菜单/权限可见性、跨模块、响应式或布局大改、新增页面 | §2 全量：parity-matrix（每路由区块）+ route-coverage + 每路由桌面/移动截图 + design-qa + console/network + **ui-audit** + 独立评审 + **measure-diff（有可运行基线时）** |
+| **B 标准** | 普通交互、状态/校验、空态/错误态、表单字段与布局微调 | **仅受影响路由**：矩阵对应区块行 + route-coverage（受影响路由）+ 桌面/移动截图 + design-qa + console/network + **ui-audit（受影响路由）** + measure-diff（配置 `frontend.measure` 时） |
+| **C 轻量** | **仅**纯文案/列名/单位/排序，无行为、无布局、无样式值变化 | **受影响路由 1 张桌面截图** + design-qa 只填 1/2/5/6/12/19 + console error=0；**免独立 ui-audit**、不要求移动截图与 parity-matrix |
 
 - **缺陷族审计**：A 级仍须同波次族审计；B/C 级做**同类路径静态扫描**（同模型/同谓词/同状态表面）+ 受影响路由验证，不要求全站矩阵重拍。
-- **升级规则**：C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
-- **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验，另以 `--require-audit` 校验 `ui-audit`（缺/待验/未点通 = BLOCKED）。
+- **升级规则（呈现类归 B）**：涉及间距/字号/颜色/圆角/阴影/布局/层级/灰显/颜色语义 → **B**；涉及行为/权限/状态/交互 → B/A；C 不得用来裁掉视觉呈现。C 中发现行为/权限/状态变化 → 升 B；B 中触及 A 的条件 → 升 A，并补齐对应产物。
+- **机检**：`gate.py` 读取 `tier.json`（旧文件不读，按 A）；C 允许 1 张桌面截图且跳过 parity；A/B 仍按 §2 校验，另以 `--require-audit --require-interactions` 校验 `ui-audit`/flow（缺/待验/未点通/skip = BLOCKED）。
 
 ### 2.5 原型对齐与实施出口（硬）
 
@@ -48,28 +49,35 @@
 > **一次做完口径**：UI 交付以「一次实施即完整正确」为目标；发现任何维度不符回开发补齐，不以“下轮再改/记债项”收尾（前端缺口不得债项化）。
 
 **A. 规格与清单（先于编码）**
-- **先计划后编码**：写码前必须按 `ui-audit-template.md` §0 产出对照计划（页面×面板×布局×交互/弹窗/文案/字段×状态×权限×后端契约），后端契约未冻结的页面不得先写前端；缺计划 = 未开工。
-- **原型单源**：当前迭代原型路径/版本只认 `project-profile.md` 的 `prototype=`（配 `prototype_version=`）；缺声明/文件不存在/与迭代不符 = `BLOCKED`。解析顺序 `project-profile.md` → 理解包 §10 → `inbound/INDEX.md`；禁止在入口或通用规则硬编码实例路径。
-- **以源码为规格**：规格以解码后的 HTML 结构 / CSS **浏览器计算值** / JS 行为（handler、文案原文、存储语义、按钮与状态）为准，截图只作外观参考；逐项对照须引用源码位置（函数名/行号）。
-- **控件/内容全量清单（硬）**：逐路由枚举原型中每个可见面——页面/区块/表格列/字段/筛选/按钮/链接/行操作/弹窗（标题+按钮+关闭）/提示与文案/状态/空态/权限。每项写「原型源码（函数/行号）→ 实际渲染（同视口 DOM/computed/截图）→ 我方实现（文件:行）→ 结果（pass/按方案/择优）」；只列主路径或只写「查看/导出」等大类 = 未开工。
-- **解码产物最低要求**：`.gate/prototype/` 至少含 `prototype.json`（`modules`/`routes` 非空），或等价的结构清单（模块/路由/面板，文件名按项目实际）；只有截图/空清单 = `BLOCKED`；矩阵只引解码结果，不得由实现反抄操作名。
-- **无原型例外**：仅当 `frontend.requirePrototype=false` 且写明理由，改用设计基线；仍须逐路由截图与矩阵。
+- **先计划后编码**：写码前必须按 `frontend-design-spec-template.md` §3～§7 产出前端对照计划（页面×面板×布局×交互/弹窗×状态×权限×后端契约），并按 `frontend-interaction-spec-template.md` 产出 `interactions.yaml`（`frontend.interactions=required` 时）；设计说明落 `{workroot}/20-design/`，交互规格路径写本期 `iteration-context.yaml` 的 `inputs.interaction_spec`。缺计划/缺交互规格（`interactions=required` 时）= 未开工；后端契约未冻结的页面不得先写前端。
+- **先确认后编码（HITL `confirm_ui_spec`）**：进入 implement 前出示「本期 baseline（prototype/design_spec/existing_page/prd）+ flow 清单 + 页面/面板清单 + 差异/OPEN + 测试映射」摘要；用户确认后才写 UI 代码。只确认清单与例外，不逐行审表；无 UI/backend-only 时该门 `when` 为假。
+- **迭代上下文单源（硬）**：本期原型/设计说明/交互规格/前端范围只认 `{workroot}/00-governance/iteration-context.yaml`（按 `project-profile.md` §1 的 workroot）；解析顺序 `iteration-context.yaml` → 当前任务/方案/理解包 §1 来源 → 开发计划 §2；**不得**在 `project-profile.md` 写本期原型/交互路径。缺上下文且 A/B UI = `G4.0` 不过。
+- **无原型合法**：`prototype: none` + `frontend.baseline: design_spec|existing_page|prd`；按方案/PRD/设计系统/现有同类页写设计基线（规格/状态矩阵），矩阵写 `baseline=`；无原型不等于免对照，也不因 `prototype: none` 而 BLOCKED；无基线才 BLOCKED。图片/Figma 原型用 `baseline=design_spec`（另写规格），不要求 DOM 解码。
+- **以源码为规格（有原型时）**：规格以解码后的 HTML 结构 / CSS **浏览器计算值** / JS 行为（handler、文案原文、存储语义、按钮与状态）为准，截图只作外观参考；逐项对照须引用源码位置（函数名/行号）。`baseline=design_spec|existing_page|prd` 时引用对应文档/页面/PRD 位置。
+- **控件/内容全量清单（硬）**：逐路由枚举基线中每个可见面——页面/区块/表格列/字段/筛选/按钮/链接/行操作/弹窗（标题+按钮+关闭）/提示与文案/状态/空态/权限。每项写「基线来源（函数/行号/文档§）→ 实际渲染（同视口 DOM/computed/截图）→ 我方实现（文件:行）→ 结果（`pass`/`按方案`/`照搬`/`na`）」。只列主路径或只写「查看/导出」等大类 = 未开工。
+- **几何/token 度量（有可运行基线时，硬）**：`baseline=prototype|existing_page` 的 A 档必须配置 `frontend.measure`；B 档建议。`measure.template.mjs` 抓可见控件/标题/标签 + 声明 target 的 computed style/box，`frontend_measure.py` 比对，输出 `measure-diff.json`；缺控件/文案、字号/行高/间距/落位超差 = `G4.2` 不过。只比声明 target，不做像素 diff/全元素；`design_spec|prd` 无运行基线不适用。
+- **交互规格最低要求（硬）**：`frontend.interactions=required` 时，每个 flow 有 `class`（overlay/list/form/linked/static）、`entry.control/guard`、`states`、`transitions`（from/event/to/effect）、类必填 `invariants`、`tests`（每条 transition/invariant 至少一条 `[CASE:id]`）、`source`；overlay/form 另须 `component` 契约（受控字段/回调归属/接口调用层）。`validate_interactions.py` 不过 = `BLOCKED`；`interactions=none` 时审计 §4 写 `无交互流` + 理由。
+- **解码产物最低要求（有原型时）**：`.gate/prototype/` 至少含 `prototype.json`（`modules`/`routes` 非空），或等价的结构清单（模块/路由/面板，文件名按项目实际）；只有截图/空清单 = `BLOCKED`；矩阵只引解码结果，不得由实现反抄操作名。
+- **上下文校验（硬）**：`iteration-context.yaml` 须有 `frontend.scope/baseline/interactions`、`inputs`、`waves`；域适用性以 `plan-coverage` §6 为准。`baseline=prototype` 时原型文件存在且 `prototype_sha256` 匹配；`interactions=required` 时 `interaction_spec` 存在。缺/不符 = `G4.0` 不过。
 
 **B. 基线对齐（原样优先）**
 - 按 A 清单逐项做到 `pass/na`；布局/文案/数值以原型计算值为准（基础声明被原型自身媒体/重皮肤层覆盖时，注明并以计算值为准）。
-- **偏离登记**：只允许 `按方案`（方案/PRD 优先）或 `择优：<收益>`；无标签的容器/横幅/空白/改名/删字段 = 未完成；原型缺陷逐条 `照搬`/`择优`。
+- **基线阶段只允许** `pass`、`na+理由`、`按方案`（方案/PRD 优先）、`照搬`（原型缺陷）；**禁止 `择优`**、禁止无标签的容器/横幅/空白/改名/删字段。原型缺陷逐条 `照搬` 并在 §7 登记。
+- **交互基线**：每个 flow 的每条 transition/invariant 有用例并通过；`点通`、`弹窗能打开`、`接口 200` 都不算交互验收。流用例失败/跳过 = 基线未过。
 - **整页单一 owner**：同页所有面板与布局由同一实施者整体对照；分片只按页面切，不按面板切。
 
-**C. 吸收与择优（B 全 pass/na 之后）**
+**C. 吸收与择优（B 全 pass/na 且独立审计通过之后）**
 - **吸收**：先列原型/设计系统中保留的好做法（信息层级、密度、分组、组件复用），不得另起页面壳或第二套 tokens；新增组件/容器须在偏离登记写理由。
-- **择优**：按真实场景逐项分析（稀疏/空/大数、移动端、a11y、操作路径、错误恢复）；每项写 before/after（截图或坐标/间距实测）+ 收益；**择优后协调/实用/美观任一维度不得劣于原型**。
-- **同视口并排对照（硬）**：桌面与移动各一组，原型与实现同视口并排；逐段量区块间距/空带/密度（px），差异要么归零、要么标 `择优`；出现无原型依据的空白带/横幅/大白卡且未登记 = 未完成。
-- **维度唯一出处**：逐维对照只认 `ui-audit-template.md` 的 20 维（缺维或结论非 pass/na = `BLOCKED`）；本文件不另列维度。
+- **择优是独立任务（硬）**：基线全绿后，另立「前端择优」任务；先过 `confirm_optimize`（逐项 before/after、收益、影响、不劣于基线），用户确认后才改。**不得与基线同批、不得在基线阶段用 `择优` 合法化简化**。
+- **择优后**协调/实用/美观任一维度不得劣于原型；每项写 before/after（截图或坐标/间距实测）+ 收益 + 影响。
+- **同视口并排对照（硬）**：桌面与移动各一组，基线（原型/设计说明/现有页）与实现同视口并排；逐段量区块间距/空带/密度（px），差异要么归零、要么在择优任务登记；出现无基线依据的空白带/横幅/大白卡且未登记 = 未完成。
+- **维度唯一出处**：逐维对照只认 `ui-audit-template.md` §3 的 20 维（缺维或结论非 pass/na = `BLOCKED`）；本文件不另列维度。
 
 **D. 自检与出口（完成前）**
 - **图文自检 + 真实数据**：实施者与评审者必须用图像读截图逐面板/逐交互核对，并用稀疏 / 空 / 大数三种真实数据形态各验一次；只看 ready/console/哈希/接口 200 = 未验证。
-- **独立视觉复核**：矩阵与 `ui-audit.md` 的 `pass` 不得实现者自评，须非实现者看图复核确认；复核须抽核同视口并排对照与区块间距。
-- **实施出口机检（git 钩子强制）**：UI 改动提交/标完成前必须跑 §3-3 机检并写 `.gate/frontend/gate.json`；缺/`ok=false`/早于暂存文件即阻断。绕过仅 `--no-verify` 或 `DSH_GATE_BYPASS=1`（写 `.gate/precommit-bypass.log`，评审必查）。
+- **交互两级证据（硬）**：一级＝按 `interactions.yaml` 的流用例（可用 `page.route` mock 成功/失败/延迟），证明状态机/竞态/关闭重置；二级＝至少一条不打 mock 的真实入口 happy path，证明集成可用。两级都要有；只跑 mock 或只点一次都不算。
+- **独立视觉与流复核**：矩阵、`20 维`、flow 结果的 `pass` 不得实现者自评；非实现者须抽核同视口并排/区块间距，并核 `flow → transition/invariant → case → 结果` 映射；断言与 spec 不符 = `DENIED`。
+- **实施出口机检（git 钩子强制）**：UI 改动提交/标完成前必须跑 §3-3 机检（含 `--require-interactions`）并写 `.gate/frontend/gate.json`；缺/`ok=false`/早于暂存文件即阻断。绕过仅 `--no-verify` 或 `DSH_GATE_BYPASS=1`（写 `.gate/precommit-bypass.log`，评审必查）。
 
 ## 3. 必命令（RUN）
 
@@ -79,16 +87,30 @@ python <包>/rules/tools/extract_prototype_modules.py <原型.html> .gate/protot
 
 # 1b) SPA 原型：浏览器按 hash 路由提取结构/截图 → .gate/prototype/。
 
-# 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture）
+# 1c) 交互规格 + 用例（有交互必做）
+python <包>/verify/tools/validate_interactions.py --spec <interactions.yaml> \
+  --results .gate/frontend/playwright-results.json --require-results
+
+# 2) 实现后由门禁或显式调用 capture（项目配置 frontend.capture；A/B 必配）
 # 产出 evidence.json + 桌面/移动图；ready!=true 不得过
 
-# 3) 机检（实施出口 / 评审 / 完成门同一命令；L2+ 必带 --require-generated）
-python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend \
-  --require-prototype --require-tier --require-generated --require-matrix-routes \
-  --require-audit --write .gate/frontend/gate.json
+# 2b) 交互流用例（项目配置 frontend.flows；未配则复用 e2e）
+# 标题须含 [CASE:<id>]；JSON reporter 落 .gate/frontend/playwright-results.json
+npx playwright test specs/flows
 
-# 3a) 审计前 parity 自检可去掉 --require-audit；进入 ui-audit/评审/提交/完成门前必须带。
-#     ui-audit 步：独立 ui-auditor 按模板填 .gate/frontend/ui-audit.md 后跑上面命令。
+# 2c) 视觉几何/token（A 档有可运行基线必配；配置 .gate/frontend/measure.json）
+node scripts/frontend_measure.mjs --config .gate/frontend/measure.json --out .gate/frontend
+python <包>/verify/tools/frontend_measure.py --config .gate/frontend/measure.json \
+  --baseline .gate/frontend/metrics-baseline.json --impl .gate/frontend/metrics-impl.json \
+  --out .gate/frontend/measure-diff.json --md .gate/frontend/measure-diff.md
+
+# 3) 机检（实施出口 / 评审 / 完成门同一命令；A/B 必带 --require-interactions）
+python <包>/verify/tools/frontend_parity.py --evidence-dir .gate/frontend \
+  --require-context --require-tier --require-generated --require-matrix-routes \
+  --require-audit --require-interactions --write .gate/frontend/gate.json
+
+# 3a) 审计前 parity 自检可去掉 --require-audit/--require-interactions；进入 ui-audit/评审/提交/完成门前必须带。
+#     A 档 baseline=prototype/existing_page 另加 --require-measure；ui-audit 步：独立 ui-auditor 填 .gate/frontend/ui-audit.md 后跑上面命令。
 
 # 3b) 首次接入：安装提交前钩子（之后 git commit 自动校验 gate.json / ui-audit / plan-coverage）
 powershell -File <包>/verify/Install-GitHooks.ps1 -ProjectRoot .
@@ -101,11 +123,14 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 
 ## 4. 验收底线（人眼 + 门）
 
-- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉有原型以原型为准、无原型以**设计基线**为准；按方案偏离须在矩阵标 `按方案`。
+- 业务口径/命名/权限/路由以**方案/PRD**为准；布局/组件/视觉按本期 `frontend.baseline`：`prototype` 以原型为准，`design_spec|existing_page|prd` 以**设计基线**为准；按方案偏离须在矩阵标 `按方案`。
 - 页面标题、菜单项、按钮/列名与原型**逐字**对照；命名冲突按方案并在矩阵登记，不得静默改名。
 - 矩阵最小粒度到**区块/字段/列/操作**；禁止只写「页面已对齐」而无区块行。
 - **覆盖度可机检**：`route-coverage.json` 的每条路由必须在矩阵有 `###` 区块行；每个变更/新增路由的 `operations` 必须逐项出现在该区块并标 `pass`。缺一 = `BLOCKED`。
-- `operations` 逐项点通（入口→点击→结果/权限/错误）；静态图不算。
+- `operations` 逐项点通只作探索；**交互通过只认 `interactions.yaml` 的 flow 用例结果**（每条 transition/invariant 有 `[CASE:id]` 且 pass，无 skip）。点通/静态图/接口 200 不能替代流用例。
+- **缺交互规格 = 未开工**：A/B UI 进入 implement 前必须有 `interactions.yaml`（或等价、经 `confirm_ui_spec` 确认的规格）；缺 = `BLOCKED`。
+- **基线→择优（硬）**：基线阶段只允许 `pass`/`na`/`按方案`/`照搬`；`择优` 只能在基线全绿、独立审计通过、`confirm_optimize` 确认后作为独立任务做。A 未全绿就出现 `择优` = 未完成。
+- **C 档边界**：C 只用于纯文案/列名/单位/排序；间距/字号/颜色/圆角/阴影/布局/层级/灰显一律 B 档按基线验收，不得用 C 免掉原型对照。
 - 写接口须有页面入口或已确认 `non-ui`；接口替代页面=未完成。
 - **审计底线（硬）**：A/B 每个可见操作实际点通；跨页术语/状态词/KPI/组件/密度/主操作/日期筛选一致；写端点有页面入口或 `non-ui`；缺一 = 未完成。审计不替代测试/准出。
 - **真实数据（硬）**：稀疏/空/大数三形态各验一次；只满数据截图 = 未验证；原型满数据 mock 不能作为通过依据。
@@ -116,11 +141,12 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - **新鲜度**：截图/报告必须晚于本轮源码变更（含未提交工作区）；`base_commit` 相同不足以证明新鲜。**顺序**：代码/测试/脚本定稿→重拍→回写→提交→过门；改脚本/测试同重拍。
 - **组件复用（硬）**：新增/改页面前先盘点项目既有组件（`ui.js`/设计系统）与至少 1 个相邻页面；日期区间、筛选、弹窗、状态戳等优先复用既有组件与交互；原生控件仅在无既有组件时使用；自造须在 parity-matrix/design-qa 写理由。
 - **共享模块单例（硬 · DEV-IQ-19）**：带模块级可变状态的共享 JS（store、确认/弹窗 Promise、会话权限等）须单一入口；禁止多 chunk 各写不同 `./xxx.js?v=`。改文件或 bump 戳 → 改入口真源并核对引用；有项目 token 自检须跑过。确认后无请求/偶发丢权限 → 先查是否双例加载。
-- **基线→择优（硬）**：先按 §2.5 A/B 做到全 pass/na，再按 C 吸收/择优；必须附同视口并排对照与区块间距/空带实测，**择优后协调/实用/美观任一维度不得劣于原型**；禁止「能跑就行」的简化单列/自创壳。
+- **基线→择优（硬）**：先按 §2.5 A/B 做到全 pass/na，再按 C 吸收/择优；**择优须 `confirm_optimize` 且独立任务**，必须附同视口并排对照与区块间距/空带实测，**择优后协调/实用/美观任一维度不得劣于原型**；禁止「能跑就行」的简化单列/自创壳。
+- **交互证据（硬）**：`interactions.yaml` 的每条 transition/invariant 必须有 `[CASE:id]` 用例且 `pass`；`skip`/失败/报告早于源码均阻断；mock 流用例证明状态机，真实入口 happy path 证明集成，两者不能互相顶替。
 - 深链（新建/详情/授权等）必须直达；菜单在约定视口可见或可滚动到达。
 - **导航唯一**：侧栏/菜单无同对象重复项，同一页面组件只注册一次；兼容旧路径命中主入口且未新增可见项。
 - 跨路由返回后，原页面的筛选/分页/展开状态不得被详情页临时条件污染。
-- **交互诚实（硬）**：`design-qa` #3/#14/#20 须按条文验收（加载诚实、空态分因、禁用原因+下一步、主 CTA 与阻断一致、筛选展示≡请求）；空勾「状态齐」不算通过。
+- **交互诚实（硬）**：`design-qa` #8/#9/#14 须按条文验收（加载诚实、空态分因、禁用原因+下一步、主 CTA 与阻断一致、筛选展示≡请求）；空勾「状态齐」不算通过。
 - **实施纪律（编码时，非事后补勾）**：状态词/KPI 单一映射源跨表面引用；有阻断先不可用再可点；方案点名的明细/下钻/证据入口须可发现（≠仅汇总/JSON）。细则 `iq-checklist.md` + `frontend-implementation` §2。
 - 新用受限 Web/平台 API → 目标环境冒烟或 polyfill；console error 阻断本门。
 - 接口 200、DOM 文本、class、测试绿 **不能**替代本门。
@@ -138,3 +164,6 @@ powershell -File <包>/verify/Invoke-Gate.ps1 -Claim -ProjectRoot .
 - 未做 `ui-audit`、用实施者自评/矩阵/截图代替独立审计；只审改动页、未点通操作、未核对后端可达就判通过。
 - 把原型路径/版本等实例数据写进入口 `AGENTS` 或通用规则（应落 `project-profile.md`）。
 - 原型未对照、矩阵无 `###` 路由区块、或截图与原型不符时以「测试绿/接口 200」判通过。
+- 没有 `interactions.yaml` 就写交互；用「点通/弹窗能开/接口 200」代替 flow 用例；用例 `skip`/失败仍标 `pass`。
+- 基线未全绿就写 `择优`，或用 `择优` 把简化列为优化；把间距/字号/颜色/布局等呈现类判 C 档免掉原型对照。
+- 只跑 mock 流用例就当集成通过，或只跑真实入口 happy path 就当生命周期通过。

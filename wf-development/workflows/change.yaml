@@ -96,9 +96,10 @@ steps:
   agent: implementer
   hitl: confirm_spec
   hitl_when: design_needs_spec_approval
-  output: 方案/ADR（{workroot}/20-design/）
+  output: 方案/ADR（{workroot}/20-design/）；有 A/B UI 另出前端设计说明 + 交互规格 YAML（或同轮在 implement 补并过 confirm_ui_spec）
   notes: 本步是否执行只认步上 `when`，为假（L0 且未点名方案）记 `when_eval=假:<依据>`，不得绕过确认门。 L1 本步 confirm_spec；L2+ 落盘后进 review-docs。 接口/库表/选型/前端/AI
-    方法：命中即整卡读取 `frontend-design`/`api-design`/`database-design`/`technology-selection`/`ai-application-engineering`（未命中记 na+理由）；前端补设计说明模板（无原型先写设计基线）。
+    方法：命中即整卡读取 `frontend-design`/`api-design`/`database-design`/`technology-selection`/`ai-application-engineering`（未命中记 na+理由）；有
+    A/B UI 按 `frontend-design-spec-template` 产前端对照计划、按 `frontend-interaction-spec-template` 产 `interactions`（无原型先写设计基线）；基线阶段不写择优。
 - name: 落地文档评审
   id: review-docs
   skills:
@@ -142,7 +143,13 @@ steps:
   must_read:
   - rules/packets/change/implement.md
   agent: implementer
-  precondition: clarify 已完成；按级别适用的 10-requirements/20-design/review-docs/plan 已完成并确认；任务 SC 已抽或已标不适用；缺一停，不跳过门直接写代码
+  hitl:
+  - name: confirm_ui_spec
+    when: ui_spec_required
+  - name: confirm_optimize
+    when: ui_optimize_requested
+  precondition: clarify 已完成；按级别适用的 10-requirements/20-design/review-docs/plan 已完成并确认；A/B UI 须有 iteration-context + 前端设计说明
+    + interactions（或同轮产出并过 confirm_ui_spec）；任务 SC 已抽或已标不适用；缺一停，不跳过门直接写代码
   on_fail: 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过
   output: 代码/配置改动
   notes: 本步任务：按已确认基线/方案/SC 实施并自测。-StartTask → 勾选 `rules/core/iq-checklist.md` → 预检（命中须扩 SC/债项）→ 按 SC 自证（单元=一条 SC）→ 自测。无 UI
@@ -159,10 +166,12 @@ steps:
   agent: ui-auditor
   gate: ui-audit
   gate_type: checklist
-  precondition: implement 完成；tier/parity-matrix/route-coverage/design-qa 已生成；缺则回 implement
+  precondition: implement 完成；iteration-context/tier/parity-matrix/route-coverage/design-qa/interactions/playwright-results.json
+    已生成；缺则回 implement
   on_fail: 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替
-  output: .gate/frontend/ui-audit.md（页面×操作×状态×一致性×后端可达×原型缺陷×真实数据）+ 缺口/修复清单
-  notes: 独立审计（审计者≠实施者）；逐路由页面/菜单/深链 + 每个可见操作实操；跨页一致性 + 后端可达 + 真实数据三形态；产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
+  output: .gate/frontend/ui-audit.md（路由×20 维×交互流×一致性×后端可达×原型缺陷×真实数据×独立复核）+ 缺口/修复清单
+  notes: 独立审计（审计者≠实施者）；按模板逐路由/20 维/flow 实操；flow 的每条 transition/invariant 对用例结果；跨页一致性 + 后端可达 + 真实数据三形态；探索发现新迁移回写 spec+test；
+    产物/机检按本包前端硬门；缺口回 implement；不改码、不跑完成门。
 - name: 代码评审
   id: review
   skills:
@@ -177,11 +186,12 @@ steps:
   - security-scan
   - design-review
   output: 评审结论/缺口 + `.gate/review.md`
-  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md` 存在且非空，且 `.gate/frontend/ui-audit.md`
-    结论=通过；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；非前端/低档→无。
-  on_fail: 回 implement 补前端交付物/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
+  precondition: 前端变更（页面/路由/静态资源；A/B 档）→ `iteration-context`/`frontend-design-spec`/`interactions`、`.gate/frontend/parity-matrix.md`、`route-coverage.json`、`design-qa.md`
+    存在且非空，`rules/templates/20-design/ui-audit-template.md` 结论=通过且 §10 `INDEPENDENT_REVIEW PASS`，`playwright-results.json`
+    的 flow 用例无失败/skip；C 档免独立审计（design-qa 文案/状态核对）；L2+ → `.gate/plan-coverage.md` 存在且后端/功能/前端行有效；非前端/低档→无。
+  on_fail: 回 implement 补前端交付物/交互规格/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。
   notes: 核验者≠实施者；`self_review` 不作正式过门证据；覆盖本轮 diff+AC/SC；先读方案段再对 diff；P0 告警/拒单挂债=阻断；写 .gate/review.md。有 UI 核 parity + ui-audit
-    产物并抽 2 个操作复点。免审须记理由；免审不免自测。方法只认 code-review。
+    + flow 用例结果，核 `flow → transition/invariant → case` 映射并抽 1 条改断言确认会红；抽 2 个操作复点；L2+/高风险抽 2 个域证据复跑。免审须记理由；免审不免自测。方法只认 code-review。
 - name: 自验与完成门
   id: verify
   skills:

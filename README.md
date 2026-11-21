@@ -7,7 +7,7 @@
 口令即路由，确认门等人拍板，产物落到约定位置——流程版本化在仓库里，而不是靠聊天记忆。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Version](https://img.shields.io/badge/version-2026.11.20.7-0A7EA4.svg)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.11.21.1-0A7EA4.svg)](./CHANGELOG.md)
 [![Packages](https://img.shields.io/badge/packages-3-informational.svg)](#三套独立包)
 [![Workflow](https://img.shields.io/badge/workflow-YAML-yellow.svg)](#它如何工作)
 [![HITL](https://img.shields.io/badge/HITL-confirm%20gates-orange.svg)](#确认门与质量闸)
@@ -166,7 +166,7 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 
 **产品**：只写需求、规则、原型、验收；技术架构 / 栈 / 库 / API / 部署留给开发轨。主链含 `new-product` · `plan` · `prd` · `prototype` · `showcase` · `change` · `defect` · `deliver` · `handoff` · `onboard` · `materials` · `skill-audit`。产物落在 `docs/product/`（单包 `docs/`）。
 
-**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；**有 UI（A/B）在评审前走独立界面审计**（逐路由/操作/状态/一致性/后端可达，机检不过不能提交）；正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
+**开发**：L0 微改走澄清 → 实现 → 验证 → 提交；L1 加轻量需求卡；L2/L3 提高产品分析与测试证据；**本期输入（原型/设计说明/交互规格/波次/域）落 `iteration-context.yaml`，不写死项目档案；无原型用 `design_spec|existing_page|prd` 基线**。**施工拆 S4.0 准备 → S4.1 后端核心 ∥ S4.2 前端基线 → S4.3 集成 → S4.4 非功能/边界 → S4.5 优化（G4.4 通过后单独确认）→ S4.6 施工出口**；13 域账本逐域闭合；评审前走独立界面审计（路由/20 维/flow/一致性/后端可达，机检不过不能提交）。正式迭代/正式协作走完整链。`solo`＝无正式迭代时的自包含完整链：产品分析 → 方案 → 完整开发 → 测试 → 完成门；大改动/高风险仍走 `solo` 并提高严谨度。产物落在 `docs/development/`（单包 `docs/`）；根 `CHANGELOG.md`＝产品发版史（用户可见能力 / 破坏性 / 迁移 / 安全）。
 
 **测试**：本期在 `{workroot}/{ver}/`（分析/计划/执行/报告）；分析必做（来源/AC/意图/覆盖与影响面/核心链路）；计划为迭代总排。主链 `plan` → `execute` → `report`；执行前按原文目录对账分析漏项，逐场景对照原文对应段（有互补源则对照；分析只作索引、不作互补源）；P0 有证伪场景；P0/P1/P2 均为覆盖义务；锚点常青在工作根。**能脚本不 AI**。P0 未过或任一意图未终态不得判整体通过。细节见 [测试规范 README](./wf-testing/README.md)。
 
@@ -263,8 +263,8 @@ robocopy "wf-development" "E:\path\to\your-project\wf-development" /E /XD .draft
 | 包 | 关键确认门 |
 | --- | --- |
 | 产品 | 立项 · 计划 · 范围 · PRD · 设计 · 原型交接 · 变更 · 交接 · 发布 · 提交 |
-| 开发 | 计划 · 需求基线 · 方案 · 任务清单 · 交接 · 部署 · 回滚 · 验收 · 提交 |
-| 开发（solo） | 产品分析（按需） · 方案 · 完整开发 · 测试 · 提交 |
+| 开发 | 计划 · 需求基线 · 方案 · **前端规格** · 任务清单 · 交接 · 部署 · 回滚 · **前端择优** · 验收 · 提交 |
+| 开发（solo） | 产品分析（按需） · 方案 · **前端规格** · 完整开发 · 测试 · **前端择优** · 提交 |
 | 测试 | 计划 · 探索范围 · 执行范围 · 交接 · 提交 · 缺陷回写 |
 
 | 闸 | 规则 |

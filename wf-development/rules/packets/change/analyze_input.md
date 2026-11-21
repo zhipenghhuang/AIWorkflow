@@ -70,7 +70,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/10-planning/requirement-understanding-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/user-facing-change-notes-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-context-template.md`；`rules/templates/10-planning/user-facing-change-notes-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

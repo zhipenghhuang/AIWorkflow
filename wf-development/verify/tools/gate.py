@@ -46,6 +46,7 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from frontend_parity import audit_problems as audit_ui  # noqa: E402
+from frontend_parity import context_problems, load_iteration_context  # noqa: E402
 from frontend_parity import validate as validate_frontend_parity  # noqa: E402
 from plan_coverage import validate as validate_plan_coverage  # noqa: E402
 
@@ -954,10 +955,10 @@ def load_profile(project_root: Path) -> tuple[dict[str, Any], str]:
 
 
 def resolve_cmd(profile: dict[str, Any], scripts: dict[str, str], key: str) -> str | None:
-    if key == "capture":
+    if key in ("capture", "flows", "measure"):
         frontend = profile.get("frontend")
-        if isinstance(frontend, dict) and frontend.get("capture"):
-            return str(frontend["capture"])
+        if isinstance(frontend, dict) and frontend.get(key):
+            return str(frontend[key])
     if profile.get(key):
         return str(profile[key])
     mapping = {
@@ -1056,44 +1057,28 @@ def _older_than(path: Path, floor: float, tolerance: float = 2.0) -> bool:
         return False
 
 
-def prototype_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
-    """校验 .gate/project-profile.json 声明的原型解码清单；原型单源仍以 project-profile.md 为准。"""
-    fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
-    raw = str(fe.get("prototype") or "").strip()
-    if not raw:
-        return {"id": "prototype-manifest", "status": "warn",
-                "detail": "未配置 frontend.prototype；原型单源以 project-profile.md 为准（frontend_parity 校验）"}
-    proto = resolve_path(project_root, raw)
-    if not proto.is_file():
-        return {"id": "prototype-manifest", "status": "blocked", "detail": f"原型不存在: {raw}"}
-    manifest_path = resolve_path(
-        project_root, str(fe.get("prototypeManifest") or ".gate/prototype/prototype.json")
-    )
-    if not manifest_path.is_file():
-        return {"id": "prototype-manifest", "status": "blocked",
-                "detail": "缺少 prototype.json：先跑 rules/tools/extract_prototype_modules.py <原型> .gate/prototype"}
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-    except Exception as exc:
-        return {"id": "prototype-manifest", "status": "blocked", "detail": f"prototype.json 不可解析: {exc}"}
-    digest = hashlib.sha256(proto.read_bytes()).hexdigest()
-    recorded = str(manifest.get("source_sha256") or "").lower()
-    modules = manifest.get("modules") or []
-    routes = manifest.get("routes") or []
-    if recorded != digest:
-        return {"id": "prototype-manifest", "status": "blocked",
-                "detail": "prototype.json 的 source_sha256 与当前原型不一致（原型换了/未重新解码）"}
-    if not modules and not routes:
-        # SPA/手工解码允许没有内嵌模块，但必须有结构清单（structure.md/routes.json），
-        # 否则“解了一个空壳”不得算已解码。
-        decoded_dir = manifest_path.parent
-        structural = any((decoded_dir / name).is_file()
-                         for name in ("structure.md", "routes.json", "README.md"))
-        if not structural:
-            return {"id": "prototype-manifest", "status": "blocked",
-                    "detail": "原型解码产物为空：prototype.json 无 modules/routes，且缺 structure.md/routes.json"}
-    return {"id": "prototype-manifest", "status": "pass",
-            "detail": f"modules={len(modules)} routes={len(routes)} sha={digest[:12]}"}
+def context_manifest(project_root: Path, profile: dict[str, Any]) -> dict[str, Any]:
+    """Check the current iteration context (prototype/design baseline/interaction mode).
+
+    Per-iteration inputs live in iteration-context.yaml, not in project-profile.
+    """
+    problems = context_problems(project_root)
+    if problems:
+        return {"id": "context-manifest", "status": "blocked", "detail": problems[:4]}
+    ctx, path = load_iteration_context(project_root)
+    if ctx is None:
+        return {"id": "context-manifest", "status": "warn",
+                "detail": "未找到 iteration-context.yaml；无 UI 可忽略（A/B UI 由 frontend_parity 阻断）"}
+    frontend = ctx.get("frontend") if isinstance(ctx.get("frontend"), dict) else {}
+    scope = frontend.get("scope") if isinstance(frontend.get("scope"), list) else []
+    if not scope:
+        return {"id": "context-manifest", "status": "pass", "detail": "no ui (frontend.scope=[])"}
+    return {
+        "id": "context-manifest",
+        "status": "pass",
+        "detail": f"baseline={frontend.get('baseline')} interactions={frontend.get('interactions')} "
+                  f"context={path}",
+    }
 
 
 def frontend_tier(evidence_dir: Path, fe: dict[str, Any], not_before: float = 0.0) -> str:
@@ -1116,7 +1101,8 @@ def frontend_tier(evidence_dir: Path, fe: dict[str, Any], not_before: float = 0.
 
 def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
                       freshness_floor: float, task_started_at: str = "",
-                      base_commit: str = "", require_generated: bool = False) -> dict[str, Any]:
+                      base_commit: str = "", require_generated: bool = False,
+                      require_measure: bool = False) -> dict[str, Any]:
     fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
     evidence_dir = resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend")))
     if not evidence_dir.is_dir():
@@ -1174,8 +1160,13 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             except Exception:
                 problems.append("playwright-results.json 不可解析")
 
-    # L1 includes interaction-honesty rows 14/20; L2+ all 20
-    required = list(range(1, 21)) if level_rank(level) >= 2 else [1, 2, 3, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20]
+    # C 核结构/布局/字段/数字/排序/文案；L1 含交互诚实；L2+ 全 20
+    if tier == "C":
+        required = [1, 2, 5, 6, 12, 19]
+    elif level_rank(level) >= 2:
+        required = list(range(1, 21))
+    else:
+        required = [1, 2, 3, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20]
     if not qa.is_file():
         problems.append("missing design-qa.md")
     else:
@@ -1258,8 +1249,10 @@ def frontend_evidence(project_root: Path, profile: dict[str, Any], level: str,
             require_matrix_routes=bool(fe.get("requireMatrixRoutes", True)),
             # 前端硬门 §2.5：分级声明与原型单源是 A/B 过门的前提，不再默认放行
             require_tier=True,
-            require_prototype=bool(fe.get("requirePrototype", True)),
+            require_context=require_audit,
             require_audit=require_audit,
+            require_interactions=require_audit,
+            require_measure=require_measure,
             project_root=project_root,
         )
         problems.extend(parity_problems)
@@ -1541,17 +1534,32 @@ def main() -> int:
                 checks.append({"id": "frontend", "status": "deferred",
                                "detail": "build/test 失败；跳过 e2e/capture/前端证据，修复后重跑门"})
             else:
+                fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
+                tier = frontend_tier(
+                    resolve_path(project_root, str(fe.get("evidenceDir", ".gate/frontend"))),
+                    fe, _parse_iso_mtime(task_started),
+                )
                 e2e, e2e_scoped = resolve_check_cmd(profile, scripts, "e2e", files)
                 e2e_id = check_id_for("e2e", e2e_scoped)
-                if l1 and not e2e_scoped:
-                    checks.append({"id": e2e_id, "status": "deferred",
-                                   "detail": "L1 未配 e2e_scoped：不跑全量 e2e；前端证据仍必"})
+                flows_cmd = resolve_cmd(profile, scripts, "flows")
+                flow_cmd = flows_cmd or e2e
+                flow_id = "frontend-flows" if flows_cmd else e2e_id
+                if tier != "C" and not flow_cmd:
+                    checks.append({
+                        "id": "frontend-flows",
+                        "status": "blocked",
+                        "detail": "A/B UI 必须配置 frontend.flows（或 e2e）并输出 "
+                                  ".gate/frontend/playwright-results.json；交互流不得只靠点通",
+                    })
+                elif l1 and not e2e_scoped and tier == "C":
+                    checks.append({"id": flow_id, "status": "deferred",
+                                   "detail": "C 档 L1 未配 e2e_scoped：不跑全量 e2e；前端证据仍必"})
                 elif args.dry_run:
-                    checks.append({"id": e2e_id, "status": "dry-run", "command": e2e})
+                    checks.append({"id": flow_id, "status": "dry-run", "command": flow_cmd})
                 else:
-                    checks.append(run_cmd_check(e2e_id, e2e, project_root, int(timeouts.get("e2e", 900))))
-                fe = profile.get("frontend", {}) if isinstance(profile.get("frontend"), dict) else {}
-                require_generated = bool(fe.get("requireGeneratedEvidence", level_rank(level) >= 2))
+                    checks.append(run_cmd_check(flow_id, flow_cmd, project_root,
+                                                int(timeouts.get("flows", 900))))
+                require_generated = bool(fe.get("requireGeneratedEvidence", tier != "C"))
                 capture = resolve_cmd(profile, scripts, "capture")
                 if capture:
                     if args.dry_run:
@@ -1559,7 +1567,7 @@ def main() -> int:
                     else:
                         checks.append(run_cmd_check("frontend-capture", capture, project_root,
                                                     int(timeouts.get("capture", 900))))
-                elif require_generated and level_rank(level) >= 2:
+                elif require_generated:
                     checks.append({
                         "id": "frontend-capture",
                         "status": "blocked",
@@ -1568,9 +1576,41 @@ def main() -> int:
                 else:
                     checks.append({"id": "frontend-capture", "status": "warn",
                                    "detail": "未配置 frontend.capture，仅校验手写证据（L1 允许）"})
-                checks.append(prototype_manifest(project_root, profile))
+                require_measure = False
+                if tier != "C":
+                    ctx, _ctx_path = load_iteration_context(project_root)
+                    baseline = str(((ctx or {}).get("frontend") or {}).get("baseline") or "").lower()
+                    measure_applicable = baseline in ("prototype", "existing_page")
+                    measure = resolve_cmd(profile, scripts, "measure")
+                    if measure_applicable:
+                        if measure:
+                            if args.dry_run:
+                                checks.append({"id": "frontend-measure", "status": "dry-run", "command": measure})
+                            else:
+                                checks.append(run_cmd_check("frontend-measure", measure, project_root,
+                                                            int(timeouts.get("measure", 600))))
+                        elif tier == "A":
+                            checks.append({
+                                "id": "frontend-measure",
+                                "status": "blocked",
+                                "detail": f"A 档有可运行基线（baseline={baseline}）：必须配置 frontend.measure，"
+                                          "输出 measure-diff.json；缺失控件/文案/关键 target 超差不得过 G4.2",
+                            })
+                        else:
+                            checks.append({"id": "frontend-measure", "status": "warn",
+                                           "detail": "B 档未配置 frontend.measure；视觉几何/token 未自动测量，记 degraded"})
+                        require_measure = bool(measure) and not args.dry_run
+                    else:
+                        checks.append({"id": "frontend-measure", "status": "warn",
+                                       "detail": f"baseline={baseline or 'none'}：无可运行基线，measure 不适用；由设计规格/20 维覆盖"})
+                if tier != "C":
+                    checks.append(context_manifest(project_root, profile))
+                else:
+                    checks.append({"id": "context-manifest", "status": "pass",
+                                   "detail": "tier C: 免上下文/parity"})
                 checks.append(frontend_evidence(project_root, profile, level, freshness_floor,
-                                                task_started, base_commit, require_generated))
+                                                task_started, base_commit, require_generated,
+                                                require_measure=require_measure))
         if level_rank(level) >= 2:
             heavy_blocked = build_failed or test_failed
             integration = resolve_cmd(profile, scripts, "integration")

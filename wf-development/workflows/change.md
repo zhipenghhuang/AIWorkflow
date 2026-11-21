@@ -15,12 +15,12 @@
 | 1 | `clarify` | `implementer` | — | `confirm_iteration_close`、`confirm_docs_migration` | 需求理解包（有外部输入时）+ L1 开发卡（验收/SC）/ L0 轻量回执 | `analyze_input` | 停在本步/升级 |
 | 2 | `analyze_input` | `implementer` | `has_product_docs_or_prototypes` | `confirm_understanding` | 需求理解包（{workroot}/10-requirements/理解-{主题}-{yyyyMMdd}.md；§0 Brief+Delta 必填）+ 用户版业务变化说明（L1+ 用户可见变化必出） | `requirements` | 停在本步/升级 |
 | 3 | `requirements` | `implementer` | `new_feature_or_scope_change_or_requested` | `confirm_requirements` | 需求基线（{workroot}/10-requirements/） | `design` | 停在本步/升级 |
-| 4 | `design` | `implementer` | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `confirm_spec` | 方案/ADR（{workroot}/20-design/） | `review-docs` | 停在本步/升级 |
+| 4 | `design` | `implementer` | `new_feature_or_architecture_or_breaking_change_or_high_risk_or_requested` | `confirm_spec` | 方案/ADR（{workroot}/20-design/）；有 A/B UI 另出前端设计说明 + 交互规格 YAML（或同轮在 implement 补并过 confirm_ui_spec） | `review-docs` | 停在本步/升级 |
 | 5 | `review-docs` | `doc-reviewer` | `do_landing_doc_review` | `select_review_mode`、`confirm_spec` | 评审-文档-*.md 或 HUMAN_APPROVED 声明 | `plan` | 停在本步/升级 |
 | 6 | `plan` | `iterate-lead` | `multi_file_or_new_feature_or_requested` | `confirm_backlog` | 任务清单 + 冻结的验收清单（{workroot}/40-tasks/） | `implement` | 停在本步/升级 |
-| 7 | `implement` | `implementer` | — | — | 代码/配置改动 | `ui-audit` | 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过 |
-| 8 | `ui-audit` | `ui-auditor` | `ui_audit_required` | `gate:ui-audit` | .gate/frontend/ui-audit.md（页面×操作×状态×一致性×后端可达×原型缺陷×真实数据）+ 缺口/修复清单 | `review` | 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替 |
-| 9 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `verify` | 回 implement 补前端交付物/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。 |
+| 7 | `implement` | `implementer` | — | `confirm_ui_spec`、`confirm_optimize` | 代码/配置改动 | `ui-audit` | 回 20-design/review-docs 或 requirements；不得以「先写再补」绕过 |
+| 8 | `ui-audit` | `ui-auditor` | `ui_audit_required` | `gate:ui-audit` | .gate/frontend/ui-audit.md（路由×20 维×交互流×一致性×后端可达×原型缺陷×真实数据×独立复核）+ 缺口/修复清单 | `review` | 回 implement 修缺口并回归；同族路径一并修；不得只修点名处、不得债项化 UI 缺口、不得以代码/测试/API 200 代替 |
+| 9 | `review` | `reviewer-agent` | `review_required` | — | 评审结论/缺口 + `.gate/review.md` | `verify` | 回 implement 补前端交付物/交互规格/审计/方案覆盖矩阵；不得以代码/测试/API 200 代替，不得判通过。 |
 | 10 | `verify` | `verifier-agent` | `work_changed_or_requested` | `confirm_commit`、`gate:completion-gate` | .gate/wf-development/completion.json + 验证回执 | `deliver` | 停在本步/升级 |
 | 11 | `deliver` | `implementer` | `has_qa_or_deploy_or_requested` | `confirm_intent`、`gate:s6-admission` | 提测单/发布说明/回滚预案（{workroot}/60-release/） | `closeout` | 停在本步/升级 |
 | 12 | `closeout` | `implementer` | — | `confirm_commit` | 任务收尾 + 拟提交确认 | `—` | 停在本步/升级 |

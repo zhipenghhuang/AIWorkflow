@@ -6,7 +6,7 @@
 > **首轮硬门**：新任务先给【需求与意图理解】（完整档六段/一行档三行）和版本落点（升 patch/并入批次/na），确认后再改文件；用户明确「直接做/不用确认」或纯只读除外。  
 > **已路由中段**：`global-rules` 按 §7 重读分级（新会话/换链/规则变更全文；同链中段按节最小集）；每步读当前步骤卡；心跳（`packet=` + `global=ok`）；禁止同时多 packet；本步流程以当前包为准（独立完整，与他步重复 OK），不跳转拼齐；勿通读 `workflow.md`/协作手册拼流程（参考层按节、按需）。  
 > **位置**：`wf-development/`。与项目根 `AGENTS.md` 冲突时以根为准；与用户指令冲突见 `rules/core/global-rules.md` §11。  
-> **template_version**：`2026.11.20.7`
+> **template_version**：`2026.11.21.1`
 >
 > **架构**：`workflows/<id>.md`（状态图）+ 步骤卡（编排/门）+ skills（方法闭环）+ verify。  
 >
@@ -45,7 +45,7 @@
 **L1 单点**：`plan` 步不适用 → `clarify` 产开发卡（含验收/SC，模板 `rules/templates/30-planning-tasks/dev-card-lite-template.md`）；`implement` 前 SC 差集=0。  
 **轨道**：只看正式协作/正式流程；无正式协作的大改动/高风险仍走 `solo` 自包含完整链，按 `lightweight.md` §2 提高产品分析与测试证据，不换链。  
 **不确定**：是否正式协作拿不准 → 先问 1 个关键问题；不得静默把自包含链降为只开发；用户明确要求正式流程才转完整链，并记 `deviation=`。YAML `when` 不满足可跳过相应步，须在收尾 `when_eval=假:<依据>`；手工跳过须用户同意并记 `skip=user:<理由>`。  
-**所有路径**：首轮理解与确认不可省；「可省」只指后续需求/方案/评审/提测等步骤，不含 clarify；A/B UI 的 `ui-audit` 不可省。  
+**所有路径**：首轮理解与确认不可省；「可省」只指后续需求/方案/评审/提测等步骤，不含 clarify；A/B UI 的 `ui-audit` 不可省。**施工阶段**：按开发计划 `S4.0 施工准备`（契约/规格/域账本）→ `S4.1 后端核心 ∥ S4.2 前端基线` → `S4.3 跨层集成` → `S4.4 非功能/边界` → `S4.5 优化`（G4.4 通过且 `confirm_optimize` 后单独做）→ `S4.6 施工出口`；基线阶段禁择优。  
 **走链**：路径表是完整任务链/能力边界；单步口令按「入口即止」只做该步；完整任务用「按链/按计划/继续」推进到下一个门/停点。不得无提示断链，也不得越过门自动跑完；**进入对外阶段（提测/发布/对外确认单/发包/平台回写）须用户当轮明确指令**（`global-rules.md` §6「阶段推进」）。「按开发计划执行」只做 `control/run` 切包，不把 `control` 沿表推进到 `sync`。
 
 ### 0.2 确认门 · 澄清
@@ -112,7 +112,7 @@
 
 ## 4. 维护
 
-改开局卡 → `rules/core/cold-start.md`；改前端硬门真源 → `frontend-gate.md` 后须 `build_step_packets.py` 重生包；改界面审计 → `frontend-gate.md` + `rules/templates/20-design/ui-audit-template.md` 后重生包；改不变量/口令 → 本文；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）+ `rules/packets/`；改心跳 → `rules/core/global-rules.md` §8；自检 → `maintenance.md` §2 + `Validate-StepPackets.ps1`。
+改开局卡 → `rules/core/cold-start.md`；改前端硬门真源 → `frontend-gate.md` 后须 `build_step_packets.py` 重生包；改前端规格/交互规格/界面审计 → `frontend-gate.md` + `rules/templates/20-design/frontend-design-spec-template.md`/`frontend-interaction-spec-template.md`/`ui-audit-template.md` + `verify/tools/validate_interactions.py`/`frontend_parity.py` 后重生包并跑自检；改视觉度量 → `frontend/measure.template.mjs` + `tools/frontend_measure.py` + `frontend-gate.md` 后重生包并跑自检；改不变量/口令 → 本文；改步骤/技能挂载 → `workflows/*.yaml`（step 的 `skills` / `skills_conditional`；改后跑 `build_step_packets.py`）+ `rules/packets/`；改心跳 → `rules/core/global-rules.md` §8；自检 → `maintenance.md` §2 + `Validate-StepPackets.ps1`。
 
 ## 5. 文档治理（摘要）
 

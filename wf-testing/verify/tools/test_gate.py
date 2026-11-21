@@ -1834,10 +1834,17 @@ def parse_record(path: Path, test_root: Path, analysis: dict[str, Any] | None = 
                     missing_evidence.append(f"{sc}:证据不存在 {evidence}")
                 if status == "阻塞":
                     actual_txt = actual or ""
-                    has_try = re.search(r"尝试|穷尽|造数|换样|换角|换入口|建号|赋权|已试", actual_txt, re.I)
+                    # 须具体自助手段名；单写「已尝试/尝试」不够
+                    has_means = re.search(
+                        r"造数|换样|换角|换入口|建号|赋权|换账号|试算|重算|配方|重置|对齐契约",
+                        actual_txt,
+                        re.I,
+                    )
                     has_recover = re.search(r"恢复|卡点", actual_txt, re.I)
-                    if not (has_try and has_recover):
-                        blocked_bad.append(f"{sc}:阻塞须含已尝试(含自助手段)与卡点/恢复条件")
+                    if not (has_means and has_recover):
+                        blocked_bad.append(f"{sc}:阻塞须含已尝试(具体自助手段)与卡点/恢复条件")
+                    if re.search(r"上游缺陷|挂上游|挂\s*#|挂\s*DEF", actual_txt, re.I) and not has_means:
+                        blocked_bad.append(f"{sc}:挂上游前须写本条已尝试的自助手段")
             if key == "P0" and status in ("失败", "阻塞", "待实现", "未执行", "未本轮验证"):
                 p0_fail.append(f"{sc}:{status}")
             if key == "P0" and status == "通过":
@@ -2225,7 +2232,7 @@ def parse_report(path: Path, analysis: dict[str, Any], recs: dict[str, Any],
     if recs["missing_evidence"]:
         issues.append("证据缺失：" + "、".join(recs["missing_evidence"][:6]))
     if recs["blocked_bad"]:
-        issues.append("阻塞缺已尝试/恢复条件：" + "、".join(recs["blocked_bad"][:4]))
+        issues.append("阻塞缺具体自助手段/卡点恢复（或挂上游无本条已尝试）：" + "、".join(recs["blocked_bad"][:4]))
     required = {iid for iid, meta in analysis.get("intents", {}).items()
                 if is_test_disp(meta.get("disp", ""))}
     scene_ok = set(recs.get("scene_intent_ids", set()))

@@ -2,7 +2,7 @@
 # 确认后冻结；实施中新增/变更 AC 走变更记录。
 # 规范包只读：勿写入 wf-development/verify/。
 # 实施质量（DEV-IQ）：L1+ 有代码须 implement_preflight + sc_trace（门禁硬拦）；取重时 cross_layer/baseline_smoke/debts；见 implementation-quality.md §8
-# 非功能（L2+）：nfr.security / nfr.performance 必填（done+证据 或 na+具体理由；禁「无风险」空话）；见 verification.md DEV-VER-19
+# 非功能（L2+）：nfr.security / nfr.performance 必填；作为证据指针引用 plan-coverage §6 域8/域7 的证据（done+路径/命令 或 na+具体理由；禁「无风险」空话），不在此重复域结论
 task_id: DEV-{yyyyMMdd}-{NNN}   # 须与 .gate/task.json 的 task_id 一致；L2+ 缺失/不一致 → BLOCKED
 title: "{主题}"
 level: L2            # L0/L1/L2/L3；L2+ 必须有 process.review
@@ -37,11 +37,11 @@ baseline_smoke: na  # done | na | missing — 增量沿用基线时须 done
 # 债项（L2+ 门禁读取）：裁剪/豁免/条件接受必须显式登记；blocking=true 未关闭 → 完成门 BLOCKED。
 # 结构：{id, item, owner, decision, blocking}；decision 写裁决结论+日期/OPEN 号。
 debts: []           # 例：[{id: DEBT-01, item: "红字分配语义待产品", owner: "产品-张三", decision: "OPEN-12 已确认 2026-12-01 本期 fail-closed", blocking: false}]
-# 非功能影响与证据（L2+ 必填；值为 done: <路径/命令/指标> 或 na: <理由>）
+# 非功能证据指针（L2+ 必填；指向 plan-coverage §6 域8/域7 的证据；值为 done: <路径/命令/指标> 或 na: <理由>）
 # 安全基线见 threat-modeling §3.1，性能预算见 performance-and-capacity §2.1
 nfr:
-  security: "done: .gate/security/baseline.md（越权负例 2 条；依赖审计无高危）"
-  performance: "done: .gate/perf/bench.md（列表 p95 120ms；23 SQL；首屏 554KB）"
+  security: "done: plan-coverage §6 域8 → .gate/security/baseline.md（越权负例 2 条；依赖审计无高危）"
+  performance: "done: plan-coverage §6 域7 → .gate/perf/bench.md（列表 p95 120ms；23 SQL；首屏 554KB）"
   # 不适用示例：security: "na: 纯文案/样式调整，无鉴权、数据、上传或外部调用变化"
   # 不适用示例：performance: "na: 无运行时路径（纯文档）"
 scope_files: []                      # L2+ 有代码必填：允许改动的代码路径/文件（越界 → BLOCKED）

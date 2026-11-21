@@ -14,7 +14,7 @@
 ## 2. 本步目标
 
 - **目标**：读方案与拆清单
-- **产出**：任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）
+- **产出**：任务清单 + 冻结的验收清单（{workroot}/40-tasks/任务清单-{ver}.md）；有 A/B UI 另出 iteration-context + 前端设计说明 + interactions
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -49,6 +49,8 @@
 - **设计要点闭环（硬）**：方案 §4.1 设计要点 `D-xx` 每条至少被一条 SC 引用；缺一条 = 覆盖不完整，不得 `confirm_backlog`。
 - **覆盖矩阵闭环（硬）**：§4.1 须覆盖总表全部 `R-xx`，引用的 `T-xx` 必须存在；**方案节覆盖账本 0 缺**（每节：SC / 债项 / 不适用+依据；见 `skills/task-breakdown` §2.7）；对照**方案原文**逐节，不得只对照任务摘要。
 - **P0/主路径**：不得预置「告警/拒单/挂债」替代实现行；产品未决标 OPEN，不写进可实施 SC 的完成态。
+- **A/B UI**：先有 `frontend-design-spec` + `interactions.yaml`；flow 任务拆到 transition/invariant；每个 flow 的用例映射进任务卡；基线任务与择优任务分开，不得同批。
+- **施工阶段**：任务卡写「波次/阶段」（`W1/S4.x`，S4.0–S4.6）；S4.0 定 13 域账本（`plan-coverage` §6），S4.4 闭合；S4.5 优选项单列。
 - 任务卡含 DoR/DoD/依赖/并行；并行 >3 或文件重叠 → 拆批。
 - 只读不改代码；清单经 `confirm_backlog` 后实施。
 
@@ -72,6 +74,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/30-planning-tasks/task-list-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-context-template.md`；`rules/templates/20-design/frontend-design-spec-template.md`；`rules/templates/20-design/frontend-interaction-spec-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

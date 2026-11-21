@@ -51,22 +51,26 @@ task_id: DEV-{yyyyMMdd}-{NNN}   # 须与 .gate/task.json 的 task_id 一致；L2
 > 只填一个结论；「未通过/不通过/部分」按未通过处理；保留模板枚举不填直接 BLOCKED。
 > 状态列不得留「未完成/待填/待补」；前端无变更须写一行「不适用：…」，模板说明行不算。
 
-## 6. 企业级实施完整性（L2+/UI/权限/资金/迁移必填 · 按 implementation-quality.md §7 逐维）
+## 6. 实施覆盖账本（13 域 · L2+/UI/权限/资金/迁移必填）
 
-| # | 维度 | 结论（pass / na+理由 / 债项ID） | 证据（文件/命令/截图/端点/负例） |
-| ---: | --- | --- | --- |
-| 1 | 功能与口径 | 待填 |  |
-| 2 | 权限与越权 | 待填 |  |
-| 3 | 状态机与流转 | 待填 |  |
-| 4 | 边界与异常 | 待填 |  |
-| 5 | 数据基数与分页 | 待填 |  |
-| 6 | 错误与空态 | 待填 |  |
-| 7 | 安全 | 待填 |  |
-| 8 | 性能与资源 | 待填 |  |
-| 9 | 导出与外发 | 待填 |  |
-| 10 | 审计与可观测 | 待填 |  |
-| 11 | 兼容与响应式 | 待填 |  |
-| 12 | 可访问性与文案 | 待填 |  |
-| 13 | 迁移与回滚 | 待填 |  |
+> 逐域写 `apply`（yes/no+理由）、`depth`（core/standard/full）、SC/AC、证据、状态；S4.0 定，S4.4 闭合。
+> 高风险域（1/2/3/5/6/8/12/13）L2+ 不得只用 `na`/债项跳过；确需裁剪须写 `接受人=` 与触发条件。
 
-> 结论为 `na` 必须写理由；有债项须写 ID 与接受人；缺行或 `待填` = `BLOCKED`。
+| # | 域 | 适用/深度 | SC/AC | 证据（文件/命令/截图/端点/负例） | 状态 |
+| ---: | --- | --- | --- | --- | --- |
+| 1 | 功能与契约 | apply=yes / depth=full | SC-01 |  | done |
+| 2 | 状态与幂等 | apply=yes / depth=full |  |  | done |
+| 3 | 权限与数据域 | apply=yes / depth=full |  |  | done |
+| 4 | 边界与异常 | apply=yes / depth=standard |  |  | done |
+| 5 | 输入面与负向 | apply=yes / depth=standard |  |  | done |
+| 6 | 并发与一致性 | apply=no / reason=… | — | — | na: 无并发写（接受人=…） |
+| 7 | 性能与容量 | apply=yes / depth=standard |  |  | done |
+| 8 | 安全与合规 | apply=yes / depth=standard |  |  | done |
+| 9 | 可观测与运维 | apply=no / reason=… | — | — | na: 无新异步任务 |
+| 10 | 兼容与响应式 | apply=yes / depth=standard |  |  | done |
+| 11 | 可访问性与文案 | apply=yes / depth=standard |  |  | done |
+| 12 | 集成与多表面 | apply=yes / depth=standard |  |  | done |
+| 13 | 数据与迁移/回滚 | apply=no / reason=… | — | — | na: 无迁移（接受人=…） |
+
+> 状态只允许 `done`、`na: <理由>`、`DEBT-xx（接受人/触发）`；缺域/`待填`/空证据 = `BLOCKED`；高风险域 `na`/债项须 `接受人=`。
+> 开发自验只证明“实现+自验”，不替代测试包独立验证/准出。

@@ -32,11 +32,11 @@ SECTIONS = [
 ]
 COLUMNS = ["阶段", "技能", "状态", "负责人", "输入", "动作", "产出", "门", "证据", "下一步"]
 STATUSES = {"未开始", "进行中", "部分完成", "阻塞", "待评审", "完成", "不适用"}
-STAGE_RE = re.compile(r"S\d{1,2}\s")
-GATE_RE = re.compile(r"G\d{1,2}\b")
+STAGE_RE = re.compile(r"S\d{1,2}(?:\.\d+)?[A-Z]?\s")
+GATE_RE = re.compile(r"G\d{1,2}(?:\.\d+)?[A-Z]?\b")
 WAVE_RE = re.compile(r"\bW\d+\b|波次")
-GATE_WAVE_RE = re.compile(r"G\d{1,2}\s*[-–]?\s*W\d+", re.I)
-STAGE_NUM_RE = re.compile(r"S\d{1,2}")
+GATE_WAVE_RE = re.compile(r"G\d{1,2}(?:\.\d+)?[A-Z]?\s*[-–]?\s*W\d+", re.I)
+STAGE_NUM_RE = re.compile(r"S\d{1,2}(?:\.\d+)?[A-Z]?")
 
 
 def split_row(line: str) -> list[str]:

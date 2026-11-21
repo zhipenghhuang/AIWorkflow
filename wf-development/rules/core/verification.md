@@ -125,7 +125,7 @@
 > 前端分级、必产物与命令只认 `rules/core/frontend-gate.md` §2.1（A/B/C）与 §3；本节不另立第二套分档。
 
 - L1+ 前端 **A/B 档**必须过 `verify/tools/frontend_parity.py`（parity-matrix + route-coverage + 截图哈希/新鲜度）；**C 档免 parity**（1 张桌面截图 + console/network）。未过 = `BLOCKED`。
-- 设计合理性由 `verify/frontend/design-qa.md` 判断：L1 十五项（含 #3/#14/#20 交互诚实、#8/#9 视觉协调），L2+ 二十项 + 独立目检；不追求每页像素级 diff。
+- 设计合理性由 `verify/frontend/design-qa.md` 判断：L1 十五项（含 #8/#9/#14 交互诚实、#2/#7 视觉协调），L2+ 二十项 + 独立目检；不追求每页像素级 diff。
 - 产品设计不完整 → 先出 1 页前端设计说明（布局/层级/tokens/状态），确认后再写代码。
 
 ## 6. 报告契约

@@ -16,8 +16,8 @@
 ## 0. 一页状态
 
 - **计划状态**：{草稿 / 待评审 / 已确认 / 执行中 / 变更中 / 待关闭 / 已关闭}
-- 当前阶段：{S0～S9 中文名；多波次时带波次，例：`S2 技术方案（W3）`}
-- **当前门**：{G0～G9；多波次写 `G2-W3`} ｜ **门状态**：{未到 / 待检 / 通过 / 不通过 / 有条件通过}
+- 当前阶段：{S0～S3、S4.0～S4.6、S5～S9 中文名；多波次时带波次，例：`S4.2 前端基线（W3）`}
+- **当前门**：{G0～G9、G4.0～G4.6；多波次写 `G4.2-W3`} ｜ **门状态**：{未到 / 待检 / 通过 / 不通过 / 有条件通过}
 - **评审模式**：{每波独立评审 + 过门 / 整迭代只过 S5 全量评审} ｜ **免审阶段**：{无 / Wn + 理由 + 风险接受人}
 - 当前版本/迭代：{…}
 - 健康度：{绿 / 黄 / 红}
@@ -39,25 +39,31 @@
 | S1 需求分析 | `requirements-and-spec` + `product-doc-analysis` + `cross-layer-consistency`（命中） | 未开始 | A: iterate-lead / R: implementer | 输入清单 | 功能点/AC/异常/权限/影响面 | 分析表 | G1 | {链接} | S2 |
 | S2 技术方案 | `solution-design` + `technology-selection`/`database-design`/`api-design`/`frontend-design`/`threat-modeling`/`performance-and-capacity` 按需 + `engineering-quality` | 未开始 | A: implementer / R: implementer | 分析表 | 架构/选型/DB/API/前端/安全/性能/观测/回滚/测试策略 | 方案/ADR（前端补设计时另出说明） | G2 | {链接} | S3 |
 | S3 任务与排期 | `task-breakdown` + `cross-layer-consistency`（命中） | 未开始 | A: iterate-lead / R: iterate-lead | 方案 | 任务拆解/依赖/估算/DoR/DoD/检查点 | 任务清单 | G3 | {链接} | S4 |
-| S4 编码自测 | `implementation-and-selftest` + `frontend-implementation`（含 §9 审计）/`backend-implementation` 按端 + `engineering-quality` | 未开始 | A: implementer / R: implementer | 任务清单 | 小步实现/单测/自测/跨端联调（真实接口）/前端完善审计（有 UI）/文档 | 代码/证据/ui-audit（有 UI） | G4 | {链接} | S5 |
+| **S4.0 施工准备** | `task-breakdown` + `engineering-quality`（+ `api-design`/`database-design`/`frontend-design` 按需） | 未开始 | A: implementer / R: implementer | 方案/任务/本期 iteration-context | 契约冻结、前端规格/交互规格、SC、域账本、fixtures | 契约/规格/SC/域账本/上下文 | G4.0 | {链接} | S4.1/S4.2 |
+| **S4.1 后端核心** | `backend-implementation` + `implementation-and-selftest` + `engineering-quality` | 未开始 | A: implementer / R: implementer | 契约/SC/域账本 | 功能/状态/权限/幂等/事务/错误码/数据约束 | 后端代码/单测/集成/负例 | G4.1 | {链接} | S4.3 |
+| **S4.2 前端基线** | `frontend-design` + `frontend-implementation` + `implementation-and-selftest` + `engineering-quality` | 未开始 | A: implementer / R: implementer | 前端规格/interactions/契约/SC | 页面结构→布局/文案/控件→状态→交互流→流用例→截图/对照→ui-audit | 前端基线/flow 用例/parity/ui-audit | G4.2 | {链接} | S4.3 |
+| **S4.3 跨层集成** | `cross-layer-consistency` + `implementation-and-selftest` + `engineering-quality` | 未开始 | A: implementer / R: implementer | G4.1/G4.2 证据/契约版本 | 真实 API/契约版本/多表面/多角色/通知/导出对账 | 联调/一致性证据 | G4.3 | {链接} | S4.4 |
+| **S4.4 非功能与边界** | `engineering-quality` + `cross-layer-consistency` + `threat-modeling` + `performance-and-capacity` + `observability-and-instrumentation` 按需 | 未开始 | A: implementer / R: implementer | 域账本/代码 | 并发/性能/安全/注入/边界/真实使用/极限/兼容/a11y/迁移/可观测 | 逐域证据/域账本闭合 | G4.4 | {链接} | S4.5 |
+| **S4.5 优化** | `frontend-design` + `frontend-implementation` + `backend-implementation` + `engineering-quality` 按需 | 未开始 | A: implementer / R: implementer | G4.4 证据/择优清单 | 前端设计优化 + 后端重构/性能；before/after/收益/影响；`confirm_optimize` | 优化改动/回归 | G4.5 | {链接} | S4.6 |
+| **S4.6 施工出口** | `engineering-quality` | 未开始 | A: implementer / R: implementer | 全部施工证据 | 域账本闭合/证据可开/评审就绪；只修缺口不扩范围 | 施工出口记录/plan-coverage | G4.6 | {链接} | S5 |
 | S5 评审CI | `code-review` + `engineering-quality` | 未开始 | A: reviewer-agent / R: implementer | 代码/证据/ui-audit | 代码评审/静态/安全/CI | 评审/CI 结果 | G5 | {链接} | S6 |
 | S6 提测 | `qa-handoff-and-release` | 未开始 | A: iterate-lead / R: implementer | 提测单 | 交 QA/环境/数据/联调结论/回归指引 | 提测单/接收 | G6 | {链接} | S7 |
 | S7 测试缺陷 | `qa-handoff-and-release` + 缺陷规则 | 未开始 | A: iterate-lead / R: implementer | 提测单 | 测试/缺陷/回归 | 测试报告/缺陷记录 | G7 | {链接} | S8 |
 | S8 发布 | `acceptance-and-launch` + `observability-and-instrumentation` | 未开始 | A: delivery-lead / R: delivery-lead | 上线检查单 | 审批/部署/冒烟/监控/回滚 | 发布记录 | G8 | {链接} | S9 |
 | S9 收尾复盘 | `retrospective-and-improvement` | 未开始 | A: delivery-lead / R: iterate-lead | 发布记录 | 文档/总结/复盘/归档 | 总结/复盘 | G9 | {链接} | 关闭 |
 
-> **执行入口**：阶段与链步映射见 `rules/packets/control/run` §5；S4 有 A/B UI 时在 implement 后、review 前走 `ui-audit`（独立审计），其结论与 `.gate/frontend/ui-audit.md` 是 G5 入口。
+> **执行入口**：阶段与链步映射见 `rules/packets/control/run` §5。S4.0～S4.6 都在 implement 内按任务波次推进：S4.0 先冻结契约/规格/域账本；G4.0 后 **S4.1 后端与 S4.2 前端可并行**；S4.3 集成 → S4.4 非功能/边界 → S4.5 优化（可选）→ S4.6 施工出口 → S5。**S4.5 须 G4.4 通过且 `confirm_optimize`**，不得与基线同批；G4.x 证据是 G5 入口。
 
 状态：未开始 / 进行中 / 部分完成 / 阻塞 / 待评审 / 完成 / 不适用。  
-门：G0 输入就绪｜G1 需求分析｜G2 方案批准｜G3 排期确认｜G4 开发完成｜G5 评审/CI｜G6 提测就绪｜G7 测试通过｜G8 发布就绪｜G9 交付完成。  
+门：G0 输入就绪｜G1 需求分析｜G2 方案批准｜G3 排期确认｜G4.0 施工准备｜G4.1 后端核心｜G4.2 前端基线｜G4.3 跨层集成｜G4.4 非功能/边界｜G4.5 优化｜G4.6 施工出口｜G5 评审/CI｜G6 提测就绪｜G7 测试通过｜G8 发布就绪｜G9 交付完成。  
 硬规则：上一阶段未过门，不进入下一阶段；回退时写明原因与影响。  
 **每阶段只有一个 A（最终负责）**；R=执行、C=咨询、I=知会。开发包独立运行；产品/测试包为可选输入/输出，缺他包不阻塞；AC/完成门/开发自验不降（见 `rules/core/lightweight.md` §0）。
 
 **多波次（可选）**：同一迭代拆 `W1/W2/…`（或 `M1/…`）时，阶段表**仍各一行**；S2～S5 按波次循环。写法见 `skills/development-plan/SKILL.md` §3.1。
 
 - §0 对准**当前波次**（阶段/门/焦点/下一动作）。  
-- S2～S5：状态用 `进行中` / `部分完成`（有后续波次未过该阶段时**禁**整行「完成」）；输入/产出/证据/下一步叠写 `W1 …；W2 …；W3 …`。  
-- 表下门结论按波次：`G2-W1/W2=通过｜G2-W3=待确认｜G5-W1=通过｜G5-W2=待补`（跳过须写理由）。  
+- S2～S5（含 S4.0～S4.6）：状态用 `进行中` / `部分完成`（有后续波次未过该阶段时**禁**整行「完成」）；输入/产出/证据/下一步叠写 `W1 …；W2 …；W3 …`。  
+- 表下门结论按波次：`G2-W1/W2=通过｜G4.2-W3=待确认｜G4.4-W3=未到｜G4.6-W3=未到｜G5-W1=通过`（跳过须写理由）。  
 - S0/S1、S6～S9 默认整迭代一次；波次切换时同轮更新 §0 + §1 + 门结论，禁只改 §0。
 
 门结论：{G0～G1=…｜G2-W…=…｜…；单波次可写 G2=通过}
@@ -69,9 +75,11 @@
 | 项 | 值 |
 | --- | --- |
 | PRD/需求文档 | {路径/版本；无则「缺口 + 待用户提供」} |
-| 页面原型/设计稿 | {路径/版本} |
-| 前端设计说明 | {路径/版本；需要补设计/调整 UI 时填；产品设计完整则引用产品设计} |
-| 交互/状态说明 | {空态/加载/错误/禁用/权限} |
+| 页面原型/设计稿 | {路径/版本 或 `none`} |
+| 本期上下文 | `{workroot}/00-governance/iteration-context.yaml`（原型/基线/交互/波次/域单一出处） |
+| 前端设计说明 | {路径/版本；A/B UI 必填；按 `frontend-design-spec-template` 产；无原型时作为基线} |
+| 交互规格 | {`interactions.yaml` 路径/版本；A/B UI 必填；按 `frontend-interaction-spec-template` 产} |
+| 交互/状态说明 | {空态/加载/错误/禁用/权限；flow 清单} |
 | 接口/数据字典 | {路径；无则「待补」} |
 | 验收标准 | {路径/摘要} |
 | 非功能要求 | {性能/安全/兼容/可观测} |
@@ -94,8 +102,8 @@
 | 角色 | 主要阶段 | 做什么 | 产出/交接 |
 | --- | --- | --- | --- |
 | iterate-lead | S0/S1/S3/S6/S7/S9 | 编排、拆单、提测、缺陷跟进、收尾 | 计划/任务清单/提测单/收尾 |
-| implementer | S1/S2/S4/S5/S6 | 需求理解、方案、编码、自测、修复 | 分析/方案/代码/自测证据 |
-| ui-auditor | S4（有 UI） | 独立界面审计：逐路由/操作/状态/一致性/后端可达 | ui-audit/缺口清单 |
+| implementer | S1/S2/S4.0/S4.1/S4.2/S4.3/S4.4/S4.5/S4.6/S5/S6 | 需求理解、方案、施工准备/后端/前端/集成/非功能/优化/出口、自测、修复 | 分析/方案/代码/流用例/域证据/自测 |
+| ui-auditor | S4.2（有 A/B UI） | 独立界面审计：逐路由/20 维/flow/一致性/后端可达 | ui-audit/缺口清单 |
 | reviewer-agent | S5 | 独立评审/阶段门检查 | 评审结论/缺口 |
 | delivery-lead | S8/S9 | 发布就绪、部署、验证、复盘 | 上线检查单/发布记录/复盘 |
 | 产品（可选） | S0/S1/S7 | PRD/AC/验收口径 | 需求文档/UAT |
@@ -139,17 +147,26 @@
 
 ## 5. 任务与排期
 
-- 任务清单：{路径}
+- 任务清单：{路径}；**任务阶段用 S4.0～S4.6**（任务表阶段列写 `W1/S4.x`）；A/B UI 按「页面基线 + 一 flow 一任务」拆，优选项单列 S4.5，不与基线同批。
 - 里程碑/检查点：{…}（每个里程碑写：入口条件 / 退出证据 / 负责人）
 - 依赖/顺序：{…}；关键路径 `P`：{…}；外部依赖登记：{提供方/需要日期/状态/责任人}
 - 估算/产能：{…}（任务汇总人日 + 角色产能 + 冲突说明）
 - 缓冲：总量 `{…}`｜已消耗 `{…}`｜预警线 `{…}`（低于预警线 → 砍范围/拆波次/升级）
 - DoR：{…}
 - DoD：{…}
-- **阶段 DoR/DoD**：S1 入口=输入齐/AC 可测；S2 入口=需求签收；S3 入口=方案批准（有前后端交互：接口契约已冻结或变更流程已定）；S4 入口=清单确认/RP 覆盖（有 UI：原型/契约已定）；S4 出口=自测证据+（A/B UI）`ui-audit` 通过（有前后端交互：联调证据齐）；S5 入口=自测证据+`ui-audit`+联调结论；S6 入口=完成门 `COMPLETE`；S8 入口=测试报告/UAT/上线检查单齐。每阶段出口=产出落盘+证据可打开+下一阶段输入具备。
+- **阶段 DoR/DoD**：S1 入口=输入齐/AC 可测；S2 入口=需求签收；S3 入口=方案批准（有前后端交互：接口契约已冻结或变更流程已定）；**S4.0 入口=清单确认/RP 覆盖 + 方案；出口=契约冻结 + 前端设计说明/`interactions.yaml`（有 UI）+ SC + 域账本 + fixtures + G4.0**；**S4.1 入口=G4.0；出口=后端核心域证据 + G4.1**；**S4.2 入口=G4.0；出口=前端基线/flow 用例/`ui-audit` + G4.2**；**S4.3 入口=G4.1/G4.2 适用项；出口=契约版本/真实 API/多表面证据 + G4.3**；**S4.4 入口=G4.3；出口=适用域全闭合 + G4.4**；**S4.5 入口=G4.4 + `confirm_optimize`；出口=择优项确认 + 不劣于基线 + 回归 + G4.5**；**S4.6 入口=G4.4/G4.5 适用项；出口=域账本闭合 + 证据可开 + G4.6**；S5 入口=G4.6 + 自测证据 + `ui-audit` + 联调结论；S6 入口=完成门 `COMPLETE`；S8 入口=测试报告/UAT/上线检查单齐。每阶段出口=产出落盘+证据可打开+下一阶段输入具备。
 - **计划自适应**：见 §9.1；C2/C3 变更必须重基线并重过受影响门。
 - 分支/环境/发布策略：{…}
 - 主要风险：{…}
+
+### 5.1 波次 × 施工子阶段（多波次必填；单波次可删）
+
+| 波次 | 范围 | S4.0 | S4.1 | S4.2 | S4.3 | S4.4 | S4.5 | S4.6 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| W1 | {范围} | G4.0-W1 | G4.1-W1 | G4.2-W1 | G4.3-W1 | G4.4-W1 | na | G4.6-W1 |
+| W2 | {范围} | G4.0-W2 | G4.1-W2 | G4.2-W2 | G4.3-W2 | G4.4-W2 | G4.5-W2 | G4.6-W2 |
+
+> 每波次只走适用子阶段；`na` 写理由（纯后端 S4.2=na、纯前端 S4.1=na、无优化 S4.5=na）。门写 `G4.x-Wk`；S4.6 是施工出口，不等于 S5 评审。
 
 ## 6. 执行与验证
 

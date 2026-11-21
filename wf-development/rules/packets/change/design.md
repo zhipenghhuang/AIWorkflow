@@ -15,7 +15,7 @@
 ## 2. 本步目标
 
 - **目标**：方案与设计
-- **产出**：方案/ADR（{workroot}/20-design/）
+- **产出**：方案/ADR（{workroot}/20-design/）；有 A/B UI 另出前端设计说明 + 交互规格 YAML（或同轮在 implement 补并过 confirm_ui_spec）
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -48,7 +48,8 @@
 - L1 本步 confirm_spec。
 - L2+ 落盘后进 review-docs。
 - 接口/库表/选型/前端/AI 方法：命中即整卡读取 `frontend-design`/`api-design`/`database-design`/`technology-selection`/`ai-application-engineering`（未命中记 na+理由）。
-- 前端补设计说明模板（无原型先写设计基线）。
+- 有 A/B UI 按 `frontend-design-spec-template` 产前端对照计划、按 `frontend-interaction-spec-template` 产 `interactions`（无原型先写设计基线）。
+- 基线阶段不写择优。
 
 本步无前端硬门。不改界面、不做界面验收 → 不跑 capture / parity。
 
@@ -73,7 +74,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/20-design/solution-template.md`；只读本步用到的节，禁止整文件通读。
-- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/20-design/frontend-design-spec-template.md`；`rules/templates/20-design/frontend-prototype-parity-template.md`；`rules/templates/20-design/adr-template.md`。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-context-template.md`；`rules/templates/20-design/frontend-design-spec-template.md`；`rules/templates/20-design/frontend-interaction-spec-template.md`；`rules/templates/20-design/frontend-prototype-parity-template.md`；`rules/templates/20-design/adr-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 
 ## 8. 完成与退出

@@ -17,7 +17,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from frontend_parity import audit_problems
+from frontend_parity import audit_problems, context_problems, interactions_problems, measure_problems
 
 FRONTEND_PREFIXES = ("static/", "templates/", "public/", "frontend/", "assets/")
 FRONTEND_SUFFIXES = (".js", ".mjs", ".css", ".vue", ".html", ".ts", ".tsx")
@@ -100,13 +100,6 @@ def check_frontend(root: Path, frontend: list[str]) -> list[str]:
     newest = newest_mtime(root, frontend)
     if receipt.stat().st_mtime + 1 < newest:
         return ["gate.json 早于本轮前端改动：改完前端后必须重跑门禁再提交"]
-    if tier_of(root) != "C":
-        audit_problems_list = audit_problems(root / ".gate" / "frontend")
-        if audit_problems_list:
-            return ["界面完善审计未通过：" + "；".join(audit_problems_list[:4])]
-        audit_path = root / ".gate" / "frontend" / "ui-audit.md"
-        if audit_path.is_file() and audit_path.stat().st_mtime + 1 < newest:
-            return ["ui-audit.md 早于本轮前端改动：改完 UI 后必须重新审计再提交"]
     return []
 
 
@@ -134,27 +127,19 @@ def check_plan_coverage(root: Path) -> list[str]:
 
 
 
-AUDIT_DIM_PREFIX = "| "
-AUDIT_MIN_DIMS = 20
-
-
-def check_ui_audit(root: Path) -> list[str]:
-    """ui-audit.md 必须覆盖 20 个维度且无待填。"""
-    path = root / ".gate" / "frontend" / "ui-audit.md"
-    if not path.is_file():
-        return ["缺少 .gate/frontend/ui-audit.md（A/B UI 须按模板 20 维审计）"]
-    text = path.read_text(encoding="utf-8", errors="ignore")
-    problems = []
-    for number in range(1, AUDIT_MIN_DIMS + 1):
-        if f"| {number} |" not in text:
-            problems.append(f"ui-audit.md 缺维度 {number}")
-            break
-    if "待填" in text:
-        problems.append("ui-audit.md 仍有『待填』")
-    review = root / ".gate" / "frontend" / "ui-review.md"
-    if not review.is_file() or "INDEPENDENT_REVIEW: PASS" not in review.read_text(encoding="utf-8", errors="ignore"):
-        problems.append("缺独立复核 PASS（.gate/frontend/ui-review.md 须含 INDEPENDENT_REVIEW: PASS）")
-    return problems
+def check_ui_audit(root: Path, tier: str) -> list[str]:
+    """A/B: ui-audit + interactions + flow results share one parser with the gate."""
+    if tier == "C":
+        return []
+    ev = root / ".gate" / "frontend"
+    spec, interaction_problems = interactions_problems(root, ev)
+    problems = context_problems(root)
+    problems.extend(audit_problems(ev, interactions=spec, require_interactions=bool(spec)))
+    problems.extend(interaction_problems)
+    problems.extend(measure_problems(ev))
+    if problems:
+        return ["界面完善审计未通过：" + "；".join(problems[:6])]
+    return []
 
 
 def main() -> int:
@@ -174,7 +159,7 @@ def main() -> int:
     if code and level_of(root) in ("L2", "L3"):
         problems.extend(check_plan_coverage(root))
     if frontend:
-        problems.extend(check_ui_audit(root))
+        problems.extend(check_ui_audit(root, tier_of(root)))
 
     if not problems:
         return 0

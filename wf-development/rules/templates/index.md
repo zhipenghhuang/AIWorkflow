@@ -31,6 +31,7 @@
 | `10-planning/development-plan-template.md` | control.init / onboard.control | L2+ 开发计划 |
 | `10-planning/project-guide-template.md` | onboard.docs / change.implement / iterate.implement / solo.build / defect-fix.fix / release.record | `{workroot}/project-guide.md` 当前状态唯一正文（单包/无产品包；长期；就地更新；多包读产品包同名文件） |
 | `10-planning/requirement-ledger-template.md` | onboard.docs / change.requirements | {workroot}/10-requirements/ |
+| `10-planning/iteration-context-template.md` | change.analyze_input / change.design / iterate.plan / solo.design | **本期**输入/基线/交互/波次/域适用性单一出处；落 `{workroot}/00-governance/iteration-context.yaml`；`prototype: none` 合法；不写进项目档案 |
 | `10-planning/requirement-understanding-template.md` | change.analyze_input / intake.parse | §0 Brief+Delta 门面 + 下钻理解包；solo 不产独立理解包（理解摘要并入方案卡） |
 | `10-planning/user-facing-change-notes-template.md` | change.analyze_input；solo.product（L1+ 用户可见，条件） | 用户可读变化说明；AI 业务全景索引；L1+ 用户可见变化必出 |
 | `10-planning/requirement-baseline-template.md` | change.requirements | 需求/AC/NFR/非目标 |
@@ -45,9 +46,10 @@
 | 模板 | 用于 step | 说明 |
 | --- | --- | --- |
 | `20-design/solution-template.md` | change.design | 方案/接口/兼容/回滚 |
-| `20-design/frontend-design-spec-template.md` | change.design（前端变更） | 页面/状态/tokens/a11y/性能/交接 |
+| `20-design/frontend-design-spec-template.md` | change.design / solo.design / iterate.plan / change.implement / iterate.implement / solo.build | **pre-code 前端对照计划**：IA/路由/状态/组件/tokens/`§5.1 交互流`/a11y/性能；有 A/B UI 必产（design/plan 跳过时在 implement 补） |
+| `20-design/frontend-interaction-spec-template.md` | change.design / solo.design / iterate.plan / change.implement / iterate.implement / solo.build | 交互状态机真源：flow/状态/迁移/不变量/组件契约/持久化/用例映射；落 YAML |
 | `20-design/frontend-prototype-parity-template.md` | change.design / implement（前端） | 原型对齐矩阵：路由/导航/复用组件/区块/状态；冲突与 OPEN 清单 |
-| `20-design/ui-audit-template.md` | change/iterate/solo/defect-fix 的 ui-audit | 界面完善审计：页面×操作×状态×一致性×后端可达×原型缺陷×真实数据；落 `.gate/frontend/ui-audit.md` |
+| `20-design/ui-audit-template.md` | change/iterate/solo/defect-fix 的 ui-audit | 独立界面审计：§2 路由区块×§3 每路由 20 维×§4 交互流×一致性×后端可达×原型缺陷×真实数据×§10 独立复核；落 `.gate/frontend/ui-audit.md` |
 | `20-design/adr-template.md` | change.design | 架构决策 |
 | `20-design/product-defect-assessment-template.md` | defect-fix.assess_product | 客观评估短文；禁期望回复/时限威胁/版本过程史 |
 

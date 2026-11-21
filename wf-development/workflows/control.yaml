@@ -88,9 +88,10 @@ steps:
   notes: 本步=计划切包，不是实施现场。读 `{workroot}/development-plan.md`：确认计划状态、当前阶段、当前门、下一动作。计划状态非「已确认/执行中」→ 回 `control/init`；待评审/须审未过
     → 回 `review-plan`；有未吸收新输入 → 先 `intake/scan`；上游 HO 未签收/退回 → 先 `handoff/receive`。按 §5 选路表选定唯一目标 `workflow/step` → 同轮更新 `activeContext`（workflow/state/packet/gate/next）→
     **关闭本包** → 只打开目标步骤卡（必开技能/原文回指/前端硬门/完成门以目标卡为准）。禁在本步写代码/方案/任务/理解包/提测正文，禁跑 capture/parity，禁代目标步宣称完成。S4/S5：有确认任务清单或 iterate
-    进行中 → `iterate`；否则 → `change`；拿不准推荐 iterate 并一问。S7：本包只收测试结论为可选输入；要跑版本测 → 提示测试包 `testing/execute`（本会话不跨包执行）。目标步到下一 hitl/产出停点即停；之后「进度」→
-    `sync`，或再「按开发计划执行」进下一阶段。多波次模式二选一不得混用。缺证据不得标阶段完成。**不降标**：AC/完成门/自验不因单人/无 QA 省略。输出首条：route=workflow:<目标> | step=<目标> | via=control/run
-    | stage=… | packet=rules/packets/<目标>.md | next_action=…
+    进行中 → `iterate`；否则 → `change`；拿不准推荐 iterate 并一问。S4.0～S4.6：有确认清单或 iterate 进行中 → `iterate`，否则 `change`；S4.0 先冻结契约/规格/域账本并过
+    `confirm_ui_spec`，按 flow 任务做基线；S4.5 须 G4.4 通过且 `confirm_optimize`，不得回基线混做。S7：本包只收测试结论为可选输入；要跑版本测 → 提示测试包 `testing/execute`（本会话不跨包执行）。目标步到下一
+    hitl/产出停点即停；之后「进度」→ `sync`，或再「按开发计划执行」进下一阶段。多波次模式二选一不得混用。缺证据不得标阶段完成。**不降标**：AC/完成门/自验不因单人/无 QA 省略。输出首条：route=workflow:<目标>
+    | step=<目标> | via=control/run | stage=… | packet=rules/packets/<目标>.md | next_action=…
 - name: 同步阶段与证据
   id: sync
   skills:
@@ -102,8 +103,8 @@ steps:
   notes: 本步只同步进度/状态，不自动进入下一阶段；要推进说「按开发计划执行」。 先扫 `inbound/` 未登记/变化文件与 `{workroot}/INDEX.md`：有未登记/未吸收文件 → 先走 `workflows/intake.yaml`/`materials`，不直接改计划。
     同步 `handoff-ledger.md`：已发送未回执/退回/有条件接收逐条对账；阻断下游的项写入 当前阻塞/下一动作；未回执不得把阶段标完成。 读开发计划 → 对照本轮实际进展更新： 计划状态/当前阶段/当前门/下一动作/需人工/健康度/下一步
     3 件事； 阶段状态/产出/证据/下一步；各阶段对应节链接/结论； 风险/决策； 变更记录； 执行日志（追加）。 计划状态：草稿/待评审/已确认/执行中/变更中/待关闭/已关闭；门结论写「通过/不通过/有条件通过 + 批准人/日期/条件」。
-    多波次：总控表带当前 Wn；门结论 `G{n}-W{k}`；S2～S5 叠写各波次，禁假完成/陈旧输入（`skills/development-plan/SKILL.md` ）；波次切换须同轮改总控表+阶段表+门结论。 只写现行有效；不复制
-    PRD/方案/任务正文；证据链接必须可打开；未验证写「未验证」。 发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。 输出：当前阶段、门状态、缺口、下一步；需要用户决策的放最前。
+    多波次：总控表带当前 Wn；门结论 `G{n}-W{k}`；S2～S5（含 S4.0～S4.6）叠写各波次，禁假完成/陈旧输入（`skills/development-plan/SKILL.md` ）；波次切换须同轮改总控表+阶段表+门结论。
+    只写现行有效；不复制 PRD/方案/任务正文；证据链接必须可打开；未验证写「未验证」。 发现开发计划与代码/文档不一致 → 以代码/本轮验证为准，先修开发计划。 输出：当前阶段、门状态、缺口、下一步；需要用户决策的放最前。
 - name: 阶段门检查
   id: check
   skills:
@@ -117,7 +118,7 @@ steps:
   output: 阶段门检查结论/缺口
   notes: 技能：`skills/development-plan/SKILL.md`；只读检查，不改代码。 可运行 `python rules/tools/validate_dev_plan.py <开发计划路径>`（可用时）；核验：阶段表与当前阶段一致；每阶段“技能”列已填；本阶段输入/产出/证据齐；下一阶段输入具备；风险/变更已更新；L2+
     开发计划存在。 交接核验：本阶段应发/应收的 HO 是否有回执；`handoff-ledger.md` 与计划 是否一致；阻断下游的包是否已升级；未回执不得判阶段完成。 多波次（若计划含 W1/W2/波次）：计划总控表（当前阶段/门）带当前波次；门结论有
-    G{n}-W{k}；S2～S5 禁因某波次已过就整行「完成」且输入/证据波次不得陈旧（见 `skills/development-plan/SKILL.md` ）。 缺口按「阶段/门/缺什么/影响/建议」列出；不替代机器门禁与测试结论。
+    G{n}-W{k}；S2～S5（含 S4.0～S4.6）禁因某波次已过就整行「完成」且输入/证据波次不得陈旧（见 `skills/development-plan/SKILL.md` ）。 缺口按「阶段/门/缺什么/影响/建议」列出；不替代机器门禁与测试结论。
     不过门 → 回到对应阶段补；不得把「计划写了」当「已执行」。
 - name: 下一步建议
   id: next

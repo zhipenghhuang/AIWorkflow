@@ -4,24 +4,26 @@ goal: 按方案/原型逐路由逐操作实操，核对页面功能、状态、�
 
 reads:
   - 当前 step 包内「前端硬门」与本步 packet
-  - 方案/PRD/原型（先解码）/理解包 §10-§11 或方案卡 §0.1/§1；任务卡 AC/SC
-  - .gate/frontend/ 的 tier/parity-matrix/route-coverage/design-qa/截图/console/network
+  - 方案/PRD/原型（先解码）/interactions/理解包 §10-§11 或方案卡 §0.1/§1；任务卡 AC/SC
+  - .gate/frontend/ 的 tier/parity-matrix/route-coverage/design-qa/截图/console/network/playwright-results.json
   - 项目档案 §2/§7.1（入口/角色/设计系统/浏览器矩阵）
 
 must:
   - 独立上下文：只收产物+验收+证据；不收实施者自评/聊天解释；审计者≠实施者。
+  - 按模板：§2 每条路由 `###` 区块 + operations 对账；§3 20 维全 pass/na；§4 每条 flow 的 transition/invariant 对 `playwright-results.json` 用例结果（skip/失败=缺口）。
   - 逐路由：本轮全部变更/新增路由、菜单、深链；缺一记缺口；不得只审改动页。
-  - 逐操作：每个可见操作实际点通（入口→点击→结果/接口/错误/权限）；每操作至少 1 条真实成功；写操作至少 1 条失败/拒绝。
+  - 逐操作/逐流：可见操作实点作探索；交互通过只认 flow 用例，不认点通/接口 200。
   - 逐页状态：空/加载/错误/超时/无权限/禁用/重复提交/边界；缺一记缺口。
   - 跨页一致：术语/状态词/KPI/组件/密度/主操作/日期筛选/空态文案。
   - 后端可达：每个写端点→页面入口/动作；无入口标 non-ui 或缺口；页面能开但操作无入口=缺口。
   - 真实数据：稀疏/空/大数三形态各验一次；只满数据截图=未验证。
-  - 原型缺陷：列清单并逐条标 照搬/择优；发现缺陷仍照抄=未完成。
+  - 原型缺陷：列清单并逐条标 照搬/择优；基线阶段出现未确认择优=未完成。
   - 缺陷族：同类路径一并扫；不只修点名处；缺口回 implement/fix 修并回归。
+  - 独立复核：§10 写复核人（≠实施者）+ `INDEPENDENT_REVIEW: PASS`；抽核并排/区块间距与 flow 映射。
   - 产物 .gate/frontend/ui-audit.md；结论只写通过/不通过；UI 缺口不得债项化。
   - 不改代码/文档、不 git、不平台、不跑 completion-gate、不判版本准出。
   - 返回 ≤30 行（结论/缺口/证据/规则回执）；禁贴日志全文。
 
 outputs:
-  - .gate/frontend/ui-audit.md（页面×操作×状态×一致性×后端可达×原型缺陷×真实数据）
-  - 缺口清单（路由/操作/证据/严重度/修法）
+  - .gate/frontend/ui-audit.md（路由×20 维×flow×一致性×后端可达×原型缺陷×真实数据×独立复核）
+  - 缺口清单（路由/flow/迁移/证据/严重度/修法）

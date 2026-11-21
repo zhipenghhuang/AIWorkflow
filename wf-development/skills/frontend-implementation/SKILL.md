@@ -13,12 +13,13 @@ description: Use when implementing or independently auditing frontend pages, rou
 
 1. 读本步包内「前端硬门」；L0 无 UI → 整技能 na。  
 2. 有单 HTML 原型 → 先 `extract_prototype_modules.py` 解码；已构建 SPA → 浏览器按 hash 路由提取「改动清单/导航/主区结构/截图」到 `.gate/prototype/`；禁反写矩阵。**无原型** → 读 `frontend-design` §3/§4，先写设计基线再实现。  
-3. 写/更新 `.gate/frontend/parity-matrix.md`（含字段网格；冲突裁决）。  
-4. 实现时不自造一级导航/页面壳；优先复用现有列表/详情壳。  
+3. 写/更新 `.gate/frontend/parity-matrix.md`（含字段网格；冲突裁决）；有交互 → 先有/更新 `interactions.yaml`（flow/状态/迁移/不变量/用例映射），缺规格不写交互代码。  
+4. 实现时不自造一级导航/页面壳；优先复用现有列表/详情壳；弹窗/表单按复用组件的受控契约（回调归属/接口层）。  
 5. 每页做完立即对照矩阵；深链直达；菜单视口可达。  
-6. L2+：`frontend.capture` → `evidence.json`；再 `frontend_parity`；手写通过无效。capture 降级 → 该波 `degraded`，不得标完成，S5 前必须重拍复评。  
-7. 能力可达：列「后端写端点 → 页面入口/动作」，无入口标 `non-ui:<理由>` 并确认；不得以接口可调替代页面。  
-8. 回执 `skills=frontend-implementation`（+ 分析步则含 product-doc-analysis）。
+6. A/B UI：按 flow 做，每条 transition/invariant 有 `[CASE:id]` 用例并通过；先跑流用例再进下一 flow；点通/接口 200 不算。  
+7. L2+：`frontend.capture` → `evidence.json`；再 `frontend_parity --require-audit --require-interactions`；手写通过无效。capture/流用例降级 → 该波 `degraded`，不得标完成，S5 前必须重拍/重跑复评。  
+8. 能力可达：列「后端写端点 → 页面入口/动作」，无入口标 `non-ui:<理由>` 并确认；不得以接口可调替代页面。  
+9. 回执 `skills=frontend-implementation`（+ 分析步则含 product-doc-analysis）。
 
 ## 0.1 禁做
 
@@ -41,8 +42,12 @@ description: Use when implementing or independently auditing frontend pages, rou
 - 请求统一走封装层；鉴权失效统一处理。
 - tokens/组件从设计系统单一来源取；禁止页面散落硬编码颜色/间距/圆角。
 
-## 2. 页面状态（缺一不可 · 交互诚实）
+## 2. 页面状态与交互流（缺一不可 · 交互诚实）
 
+- **交互流（A/B 硬）**：按 `interactions.yaml` 的 flow 实施；每个 flow 先定 `states/transitions/guards/effects`，再写用例；生命周期按类模板：overlay（打开初始化/取消不写/ESC·遮罩·关闭一致/提交锁/失败保持/重开重置/焦点返回）、list（筛选→页码重置/刷新保留/选择范围/批量部分失败）、form（校验时机/首错聚焦/提交锁/离开确认/草稿）、linked（A→B 清空/禁用/重查/默认/重置）。  
+- **组件契约**：复用 Modal/Button/Select/Form 的受控字段与回调；接口调用只在页面/hook，弹窗只回调；不得在弹窗内直接改列表 state。  
+- **异步/竞态**：提交中禁用+单次请求；关闭时中止或忽略旧响应；旧响应不得覆盖新状态；乐观更新须可回滚。  
+- **持久化**：筛选/Tab/分页是否进 URL、刷新/返回是否保持，按 `interactions.yaml` 的 `persistence` 实现并测。  
 - 加载、空态、错误、超时、重试、禁用、无权限。
 - **加载诚实**：未就绪只允许 skeleton/加载态；禁止先渲染确定性「0 项 / 无数据」再回填。
 - **空态分因**：未输入 / 无数据 / 无权限 / 格式错误分文案；已查询无匹配不得仍提示「请先输入」。
@@ -126,7 +131,7 @@ description: Use when implementing or independently auditing frontend pages, rou
 - [ ] capture 未降级，或降级已登记并在本门/S5 前复评。
 - [ ] 移动端/目标浏览器/可访问性（键盘/焦点/对比度）已核；新 Web API 已冒烟或 polyfill。
 - [ ] 每条路由桌面+移动截图、菜单/深链台账、`route-coverage.json` 已齐；哈希不重复、无旧图。
-- [ ] 截图/console/network 证据齐；`design-qa` #3/#14/#20 按条文通过；设计缺口已回写。
+- [ ] 截图/console/network 证据齐；`design-qa` #8/#9/#14 按条文通过；设计缺口已回写。
 
 ## 9. 完善审计（独立角色 · 有 UI）
 
@@ -135,16 +140,16 @@ description: Use when implementing or independently auditing frontend pages, rou
 
 ### 9.1 输入与边界
 
-- 方案/PRD 原文（含 UI 文案/状态/权限细节）、锁定的原型（先解码）、理解包 §10/§11 或方案卡 §0.1/§1。
-- parity-matrix / route-coverage / design-qa / tier / 截图；任务卡 AC/SC。
+- 方案/PRD 原文（含 UI 文案/状态/权限细节）、锁定的原型（先解码）、`interactions.yaml`、理解包 §10/§11 或方案卡 §0.1/§1。
+- parity-matrix / route-coverage / design-qa / tier / 截图 / `playwright-results.json`；任务卡 AC/SC。
 - 不读实施者自评/聊天解释；实现说明只作定位线索。审计是用户可见切片的功能/一致性核查，不替代全量 AC、组合负面与版本准出。
 
 ### 9.2 逐路由逐操作（硬）
 
 1. 列本轮全部变更/新增路由 + 菜单 + 深链，与 `route-coverage.json` 对齐；缺一记缺口。
-2. 每个可见操作（主 CTA/行操作/批量/导出/筛选/分页/排序/返回/刷新/深链/表单提交）实际点通：入口→结果；记录接口/响应/错误码/权限态。
+2. 每个 flow 对 `interactions.yaml` 的每条 transition/invariant 核 `[CASE:id]` 结果；`skip`/失败 = 缺口；再对可见操作实点作探索（入口→结果/接口/错误码/权限态）。
 3. 每个操作至少 1 条真实成功；写操作至少 1 条失败/拒绝（校验或权限），或指向已跑 SC 证据。
-4. 只点页面不改数据；需造数时按项目档案/测试数据规则，不污染正式库。
+4. 只点页面不改数据；需造数时按项目档案/测试数据规则，不污染正式库；探索发现新迁移 → 回写 spec + test。
 
 ### 9.3 状态与跨页
 
@@ -161,7 +166,7 @@ description: Use when implementing or independently auditing frontend pages, rou
 
 ### 9.5 结论
 
-- 每条路由 `###` 区块；操作/状态/一致性/后端可达逐项 pass；任何待验/未点通/缺口 = 不通过。
+- 按模板：§2 每路由 `###` 区块 + operations 对账；§3 20 维全 pass/na；§4 flow 的 transition/invariant 有 pass 用例；§5 一致性/§6 后端可达/§7 真实数据/§9 结论通过/§10 `INDEPENDENT_REVIEW: PASS`；任何待验/未点通/skip/缺口 = 不通过。
 - 结论写「通过」才进 review；UI 缺口不得债项化；审计不替代测试/准出。
 
 ## 常见合理化与反驳

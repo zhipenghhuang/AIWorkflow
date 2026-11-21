@@ -15,7 +15,7 @@
 ## 2. 本步目标
 
 - **目标**：方案与验收
-- **产出**：方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）
+- **产出**：方案卡（方案/验收部分：§2/§3/§4/§6/§9）（{workroot}/20-design/方案卡-{主题}-{yyyyMMdd}.md）；有 A/B UI 另出 iteration-context + 前端设计说明 + interactions
 
 ## 3. 本步硬约束（全局规则 + 本步边界）
 
@@ -57,6 +57,8 @@
 - 需要正式发布/QA/UAT/交接 → 转完整链。
 - 代码/文档评审在本链按条件执行。
 - 技术上的接口/迁移/安全 → 在本链补方案与测试证据，不因体量换链。
+- 有 A/B UI 按 `frontend-design-spec-template` 产前端对照计划、按 `frontend-interaction-spec-template` 产 `interactions`。
+- flow 任务拆到迁移/不变量，基线阶段不择优。
 - confirm_spec：出示「做什么/为什么/不做什么/怎么做/怎么验/风险」。
 - 确认后进 review_docs（条件）→ test_plan（代码/配置）或 build（纯文档）。
 - 「只出轻量方案」→ 本步后直接 closeout，跳过 review_docs/test_plan/build/review/test。
@@ -89,6 +91,7 @@
 ## 7. 模板与证据
 
 - **填写模板（主）**：`rules/templates/30-planning-tasks/solution-card-template.md`；只读本步用到的节，禁止整文件通读。
+- **配套模板（按产出需要读；门按结构判分的产物须对齐）**：`rules/templates/10-planning/iteration-context-template.md`；`rules/templates/20-design/frontend-design-spec-template.md`；`rules/templates/20-design/frontend-interaction-spec-template.md`。
 - **产出前自检**：对照模板必填节逐项填写；缺节、空节、未替换 `{…}` = 不合格（不得标完成）。
 - 验证命令：`<包>/verify/Invoke-Gate.ps1`（本步非完成 Claim；machine 门按 Mode 出回执，checklist 门按 §4 清单留证、不跑）。
 

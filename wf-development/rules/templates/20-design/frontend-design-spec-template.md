@@ -1,9 +1,10 @@
 # 前端设计说明模板
 
-> 用途：`change.design` / S2 前端部分的落地骨架；把需求、IA、状态、组件、tokens、无障碍、性能、验收写成**可实施、可验收**的说明。  
-> 落点：`{workroot}/20-design/前端设计说明-{主题}-{yyyyMMdd}.md`；同日多份补 `-HHmm`。  
+> 用途：**前端对照计划（pre-code）**：`change.design` / `solo.design` / `iterate.plan` 的前端部分落地骨架；把需求、IA、状态、组件、tokens、交互流、无障碍、性能、验收写成**可实施、可验收**的说明。  
+> **有用户可见 UI（A/B）必产**；进入 implement 前经 `confirm_ui_spec` 确认。审计记录另见 `ui-audit-template.md`，不要混用。  
+> 落点：`{workroot}/20-design/前端设计说明-{主题}-{yyyyMMdd}.md`；交互规格另落 `交互规格-{主题}-{yyyyMMdd}.yaml`（模板 `frontend-interaction-spec-template.md`），并在本期 `iteration-context.yaml` 的 `inputs.interaction_spec` 指向。  
 > 方法：`skills/frontend-design/SKILL.md`；质量条：`skills/engineering-quality/SKILL.md`；架构级取舍另落 ADR。  
-> 规模裁剪：L1 小改可只填 §0/§1/§4/§5/§9；不适用章节写「不适用」，不留空。
+> 规模裁剪：L1 小改可只填 §0/§1/§4/§5/§5.1/§9；不适用章节写「不适用」，不留空。
 
 ## 0 元信息
 
@@ -70,6 +71,21 @@
 表单：{校验时机/字段错误/首个错误聚焦/提交中/重复提交/草稿}  
 列表：{分页/排序/筛选/空结果/深翻/批量/全选边界}  
 文案减法：{删除了哪些标语/说明/副标题/次要标签；保留的必要文案；删后仍可理解的依据}
+
+### 5.1 交互流规格（有交互必填）
+
+> 机器可读真源：`{workroot}/20-design/交互规格-{主题}-{yyyyMMdd}.yaml`（模板 `rules/templates/20-design/frontend-interaction-spec-template.md`）。
+> 本表只放摘要；实现/审计/评审以 YAML + 用例结果为准。缺交互流或测试映射 = 未开工。
+
+| Flow | class | 入口/守卫 | 状态 | 迁移/不变量 | 用例（`[CASE:id]`） | 组件契约 |
+| --- | --- | --- | --- | --- | --- | --- |
+| {user-delete} | overlay/list/form/linked | {控件 + guard} | {closed/open/...} | {T1…/I1…} | {case-1, case-2} | {Modal 受控/回调/接口层} |
+
+- 基线阶段只写 `pass`/`na`/`按方案`/`照搬`，不写 `择优`。
+- 每个 flow 的 transition/invariant 至少一条用例；用例标题带 `[CASE:<id>]`，结果落 `.gate/frontend/playwright-results.json`。
+- overlay 必填：cancel-no-write / reopen-reset / submit-lock / failure-keep-open / focus-return；list/form/linked 按类模板。
+- 权限/状态守卫必须有反例（禁用/隐藏/403）。
+- 持久化：`url` / `reload` / `back` 各写 `keep|reset|na+理由`。
 
 ## 6 组件与 tokens
 

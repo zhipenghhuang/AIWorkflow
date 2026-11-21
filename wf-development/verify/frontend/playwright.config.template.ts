@@ -4,11 +4,13 @@ import { defineConfig, devices } from "@playwright/test";
 // 证据统一落项目根 .gate/frontend/（规范包只读，不写运行态）。
 // 默认不生成 HTML report / trace / video，避免一次试跑产生大量验证数据；
 // 需要排障时再临时打开 trace/video。
+// 交互流共享登录/列表/写域状态：默认单 worker 串行，避免竞态与脏数据；确认隔离后可调。
 export default defineConfig({
   testDir: "./specs",
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  workers: 1,
   retries: 0,
   reporter: [["list"], ["json", { outputFile: ".gate/frontend/playwright-results.json" }]],
   outputDir: ".gate/frontend/test-results",
